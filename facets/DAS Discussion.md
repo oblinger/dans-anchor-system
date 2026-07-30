@@ -5,7 +5,7 @@ description: "per-document discussion log — dated trade-off threads attached t
 # DAS Discussion
 Per-document discussion log — dated trade-off threads attached to the doc they're about.
 
-| -[[DAS Discussion]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets\|FCT]] → [DAS Discussion](hook://p/DAS%20Discussion) |
+| -[[DAS Discussion]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets\|FCT]] → [DAS Discussion](hook://p/DAS%20Discussion)  |
 | --- | --- |
 | Related | [[DAS Decisions]],  [[DAS Log]],  [[DAS PRD]],  [[DAS dated-entry-stream]],   |
 | Examples | [[HA Frontmatter\|inline method-1]],  [[HA Design Discussions\|sibling-file method-2]],   |
@@ -85,11 +85,11 @@ Discussion is **append-only**. Entries are never edited after the Decision is fi
 - [[DAS Decisions]] — anchor-level decisions log (different altitude).
 - [[DAS Log]] — sibling dated-entry-stream facet.
 - [[DAS Facets]] — facet catalog with the Document-scoped row.
-- [[CAE Discussion]] — legacy anchor-scoped example, pending migration (see [[SKA Backlog]] § F149).
+- [[CAE Discussion]] — legacy anchor-scoped example, pending migration (see [[Tink Backlog]] § F149).
 
 # BRIEF
 
 *(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body and ruleset above.)*
 
-- **Don't revert to anchor-scoped wiring** — Discussion was re-scoped anchor→doc on 2026-06-11; legacy `{slug} Discussion.md` is deprecated (migration tracked in [[SKA Backlog]] § F149).
+- **Don't revert to anchor-scoped wiring** — Discussion was re-scoped anchor→doc on 2026-06-11; legacy `{slug} Discussion.md` is deprecated (migration tracked in [[Tink Backlog]] § F149).
 - **Placement / naming logic lives in [[DAS dated-entry-stream]]** (`R-dated-entry-stream`) — edit those rules there, not here; this spec owns only Discussion-specific rules.

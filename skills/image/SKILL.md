@@ -52,7 +52,7 @@ Credentials come from the login keychain, never a file on disk: `security find-g
 
 ## Where output lands
 
-Defaults to `~/ob/data/MyDesk/{label}/` — the exploration tier. Most generations are throwaway and should not touch the vault; a keeper gets promoted deliberately, carrying its sidecar with it. *(Pending confirmation — [[SKA Backlog#^F276|F276]] Q1.)*
+Defaults to `~/ob/data/MyDesk/{label}/` — the exploration tier. Most generations are throwaway and should not touch the vault; a keeper gets promoted deliberately, carrying its sidecar with it. *(Pending confirmation — [[Tink Backlog#^F276|F276]] Q1.)*
 
 ## Dispatch
 

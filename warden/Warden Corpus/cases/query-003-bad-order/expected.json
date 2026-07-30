@@ -75,6 +75,16 @@
   "status": "pass"
  },
  {
+  "rule": "R-progressive-04",
+  "target": "FX3 queries.md",
+  "status": "pass"
+ },
+ {
+  "rule": "R-progressive-05",
+  "target": "FX3 queries.md",
+  "status": "pass"
+ },
+ {
   "rule": "R-query-01",
   "target": "FX3 queries.md",
   "status": "pass"

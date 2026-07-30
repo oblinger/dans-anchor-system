@@ -36,6 +36,8 @@ cd ~/.claude/projects/
 mv -- -old-path-encoded -new-path-encoded
 ```
 
+> **🚨 Do NOT use this bulk rename for named-agent migrations that split one agent out of a shared parent anchor** (e.g. Atticus splitting off from `SYS/` into `Staff/Atticus/`). Renaming the whole `-old-encoded/` directory would move *every* session that was rooted at the old cwd — including other agents' history that never belonged to the target. Instead, follow `/migrate` § "AGENT MIGRATIONS — read this before moving a named-agent home", which describes per-`.jsonl` copy for the target agent and leaves other sessions in place. This whole-directory rename is right only when the entire anchor is being moved and no other agent shares the old cwd.
+
 ## Step 3: Reindex HookAnchor
 
 ```bash

@@ -453,8 +453,24 @@ ingest_one() {
     # path always means same recording). SHA-check remains as a fallback for
     # the edge case of the same audio arriving under a different path.
     local sha size
+    # Poke iCloud FileProvider to materialize before hashing. On a placeholder,
+    # `shasum` sees 0 readable bytes and returns the empty-string SHA even
+    # though `stat` reports the file's final logical size. Reading a byte
+    # triggers materialization; safe no-op on already-local files.
+    head -c 1 "$audio" >/dev/null 2>&1 || true
     sha="$(sha256_of "$audio")" || true
     [[ -n "$sha" ]] || { warn "hash failed/timed out (skipping): $audio"; return 1; }
+    # Refuse the empty-string SHA. Either the audio is 0 bytes (nothing to
+    # ingest) or an iCloud placeholder was hashed before materialization
+    # landed. Writing (empty-sha, real-size, path) to .muse.hashes poisons the
+    # ledger — every subsequent sweep sees size-match and permanently skips
+    # the file (19 memos silently lost this way before 2026-07-21). Return 1
+    # so the sweep retries; a real placeholder materializes by next pass, a
+    # genuinely-empty file burns out via the .muse.failures counter.
+    if [[ "$sha" == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" ]]; then
+        warn "empty-string SHA (unmaterialized placeholder or 0-byte file?) — refusing to record; retrying next sweep: $audio"
+        return 1
+    fi
     size="$(stat -f '%z' "$audio" 2>/dev/null || echo 0)"
     # PATH dedup (F3 + F8a) — exact full-path match. If the recorded size equals
     # the current on-disk size (or the entry is legacy / size-unknown) this is

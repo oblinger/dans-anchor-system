@@ -27,7 +27,7 @@ from datetime import datetime
 from pathlib import Path
 
 HOME = Path.home()
-NUDGE = Path(sys.argv[1]) if len(sys.argv) > 1 else HOME / "ob/kmr/SYS/Staff/Lumen/LUM Nudge.md"
+NUDGE = Path(sys.argv[1]) if len(sys.argv) > 1 else HOME / "ob/kmr/SYS/Staff/Lumen/LUMEN Nudge.md"
 FIRED = HOME / ".config/anchor-system/lumen/nudge-fired.txt"
 ALERT = HOME / "bin/alert"
 COLOR = "orange"  # attention, not alarm-red — reserved for genuinely time-critical

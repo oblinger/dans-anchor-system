@@ -1,5 +1,5 @@
 ---
-description: "facet spec for {slug} PRD.md — the anchor's product requirements document"
+description: "facet spec this doc follows"
 ---
 
 # DAS PRD

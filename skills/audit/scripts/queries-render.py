@@ -774,7 +774,11 @@ def _extract_h3_headings(backlog_file: Path) -> set[str]:
 # the agent will take WITHOUT user involvement). A [Ready]/[Active] row with no
 # stateable autonomous next-action isn't really Ready — the missing Next is
 # surfaced as a warning so it can't masquerade.
-READY_ACTIVE_BRACKETS = {"Ready", "Agreed", "Active"}
+# F284 — `Implementing` is the feature-lifecycle alias for `Active` and
+# `derive_banner` has always counted it as Runnable; it was missing here, so the
+# banner promised rows the body then refused to show (3 rows vault-wide,
+# 2026-07-29). Both aliases must be in the same set or banner and body disagree.
+READY_ACTIVE_BRACKETS = {"Ready", "Agreed", "Active", "Implementing"}
 
 # Labeled sub-bullets under a row carry the concrete, user-facing text the
 # render surfaces (so the mechanical render isn't stuck quoting the row's
@@ -890,12 +894,20 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
     destinations). Pure (no file writes); `render_queries_doc` writes the file and
     `main()` reuses the return for Q.md. Fully script-owned; edit the backlog rows.
 
-    Three sections rendered from the rows `_row_should_render` admits —
+    The render is TOTAL over the rows `_row_should_render` admits (F284) — every
+    eligible row lands in exactly one section, in emission order:
       ## Verifications  ← `[Verify*]` / `[Watching*]` rows (each `**V<n>**` + the
                           row's verify-plan body + `· **yes / no**`)
-      ## Ready          ← `[Ready]`/`[Agreed]`/`[Active]` rows, each with its
-                          declared `**Next:**` no-user action (⚠ if none)
       ## Questions      ← `[Questions]` rows, linking to the source's open Qs
+      ## Ready          ← `[Ready]`/`[Agreed]`/`[Active]`/`[Implementing]` rows,
+                          each with its declared `**Next:**` no-user action (⚠ if none)
+      ## Other          ← the catch-all: every remaining eligible row, bracket
+                          shown verbatim. Before F284 these rows were silently
+                          dropped — 47 of 99 frontier rows vault-wide, including
+                          every row with no bracket at all.
+    Totality is asserted, not assumed: `_coverage_warning` re-checks the partition
+    and emits a visible section if it ever breaks, so a future unclaimed row shows
+    up as a complaint rather than an absence.
     Returns the body lines, or None when the anchor is empty (banner is None)."""
     if banner is None:
         return None
@@ -918,6 +930,16 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
     ready = [r for r in eligible if r.bracket in READY_ACTIVE_BRACKETS
              and not (r.identifier == "B-QFix" and qfix_empty)]
     qs = [r for r in eligible if "Questions" in r.bracket]
+    # F284 — the catch-all. Anything eligible that the three named sections did
+    # not claim renders here rather than falling off the end of the function.
+    # `suppressed` is the ONE deliberate omission (the empty B-QFix row above);
+    # it is tracked so the coverage assertion can account for it instead of
+    # reading it as a leak.
+    claimed = {id(r) for r in verifs} | {id(r) for r in qs} | {id(r) for r in ready}
+    suppressed = [r for r in eligible
+                  if r.identifier == "B-QFix" and qfix_empty and id(r) not in claimed]
+    accounted = claimed | {id(r) for r in suppressed}
+    other = [r for r in eligible if id(r) not in accounted]
 
     body: list[str] = []
     body.extend(_worktree_findings_lines(name))
@@ -1002,9 +1024,47 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
             na_txt = (_truncate_body(na, 200) if na
                       else "⚠ none declared — not really Ready; add a no-user next-action or rebracket")
             body.append(f"- {link} — **Next:** {na_txt}")
+    # F284 — the catch-all, emitted last so it never displaces the classified
+    # work. Each row shows its bracket VERBATIM: a state the render doesn't know
+    # (`[Designing]`), a state gated on the user (`[User]`), the bracket field
+    # used as prose (`[big task]`), and the largest class of all — no bracket at
+    # all — are all legible as what they are instead of vanishing.
+    if other:
+        _h2("## Other")
+        for r in other:
+            link = _bullet_link(r, name, vault_index, block_ids, h3_headings)
+            btxt = f"**[{r.bracket}]**" if r.bracket else "**[no state]**"
+            txt = _truncate_body(r.body, 200)
+            body.append(f"- {link} — {btxt}" + (f" {txt}" if txt else ""))
+    body.extend(_coverage_warning(eligible, [verifs, qs, ready, other], suppressed))
     if not body:
         body.append("_Nothing pending._")
     return body
+
+
+def _coverage_warning(eligible: list[Row], sections: list[list[Row]],
+                      suppressed: list[Row]) -> list[str]:
+    """F284's structural gate: assert the sections PARTITION `eligible`, and make
+    a breach visible rather than silent.
+
+    The catch-all makes coverage total by construction, so this can only fire on
+    a code defect — a row claimed by two sections (sum exceeds the total) or a
+    new deliberate suppression that forgot to register itself (sum falls short).
+    Either way the answer is a complaint in the surface the user actually reads,
+    NOT a raised exception: aborting the render would delete the whole queue file
+    and hide 100% of the work to protest hiding some of it."""
+    rendered = sum(len(s) for s in sections)
+    total = rendered + len(suppressed)
+    if total == len(eligible):
+        return []
+    sys.stderr.write(
+        f"COVERAGE: {len(eligible)} eligible rows, {total} accounted "
+        f"({rendered} rendered + {len(suppressed)} suppressed)\n")
+    verb = "unrendered" if total < len(eligible) else "double-rendered"
+    return ["", "## ⚠ Coverage failure",
+            f"- {abs(len(eligible) - total)} row(s) {verb} — the queue file is "
+            f"NOT showing this anchor's full frontier. This is a bug in "
+            f"queries-render.py, not in the backlog."]
 
 
 def render_queries_doc(name: str, banner: Optional[str], rows: list[Row],

@@ -15,7 +15,7 @@ The user runs many agents. [[SEEK]] owns the job search, [[SV]] owns work, [[MUX
 Two failure modes follow, and they are the ones Daybreak exists to prevent:
 
 - **Silent drop.** Something arrives outside the vault — an appointment, a mail, a thought spoken into a watch on a walk — and no agent is watching that channel. It is not deprioritized; it is simply never seen.
-- **Domain capture.** Whichever agent the user opens first sets the day's agenda. Work has the most surface area and the loudest backlog, so work wins by default. Health, which the user has written into every life-framing they have ever authored ([[LUM Domains]]), loses by default.
+- **Domain capture.** Whichever agent the user opens first sets the day's agenda. Work has the most surface area and the loudest backlog, so work wins by default. Health, which the user has written into every life-framing they have ever authored ([[LUMEN Domains]]), loses by default.
 
 ## Who it serves
 

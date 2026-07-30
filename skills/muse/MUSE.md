@@ -8,7 +8,7 @@ The service that turns spoken thought into acted-on knowledge. A ~~[[skills|Clau
 | -[[MUSE]]- | → [[kmr]] → [[SYS]] → [[symlinks]] → [SKL](hook://SKL) → [MUSE](hook://p/MUSE)<br>: Voice-memo ingestion + review-and-do pipeline |
 | --- | --- |
 |  | [[Log Muse\|Log]],  [[WIRE Muse\|Wire]],   |
-| ~~[[MUSE Design\|Design]]~~ | → [[MUSE Architecture\|Architecture]] — flows, action space, safety, config, build order |
+| ~~[[MUSE Design\|Design]]~~  | → [[MUSE Architecture\|Architecture]] — flows, action space, safety, config, build order |
 | Shape | Claude skill at `~/.claude/skills/muse/` — two sub-verbs `ingest` (headless) and `do` (in-Claude slash command) |
 | Sources (current) | [[MACAPP Just Press Record]] — Apple Watch dictation via iCloud |
 | Sources (planned) | Voice Memos, Superwhisper direct capture, ad-hoc `.m4a` drop |
@@ -17,7 +17,7 @@ The service that turns spoken thought into acted-on knowledge. A ~~[[skills|Clau
 | Quick pane | `~/ob/kmr/LST/Quick.md` — MUSE prepends a bullet per ingest (raw text when transcript ≤ `MUSE_INLINE_MAX_CHARS`, default 80; else a Markdown link back to the item file). Suppressed items skip Quick. |
 | Review | Type `/muse do <path>` into the SYS Claude session; Claude reads the item, proposes an action, waits for approval. (GUI hotkey binding is designed but deferred — see ~~[[MUSE Design\|Design]]~~ § Do flow.) |
 | Status | ✅ **Live** — `muse ingest` running, items land in `~/ob/kmr/Log/MUSE/`, Quick.md bulleted, `/muse do` slash-command available. HUD Cmd+Opt+D binding deferred (invocation is by typing the slash command). Shipped as [[F018 — MUSE — Watch-first voice-memo pipeline (ingest + do)]] on 2026-07-13. |
-| ... | [[F001 — Silence-aware suppression (leading-burst + capped-silence-trim + trimmed-WPS)]],  [[MUSE Backlog\|Backlog]],  [[MUSE Messages\|Messages]],  [[muse/SKILL]],   |
+| ... | [[F001 — Silence-aware suppression (leading-burst + capped-silence-trim + trimmed-WPS)]],  [[MUSE Backlog\|Backlog]],  [[MUSE Messages\|Messages]],  [[MUSE queries\|queries]],  [[muse/SKILL]],   |
 
 
 ## Overview

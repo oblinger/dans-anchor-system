@@ -173,6 +173,12 @@ Q_MD = VAULT_ROOT / "Q.md"
 # Filesystem-walk exclusions when building the vault index.
 EXCLUDED_PATH_FRAGMENTS = (".trash", "Closet", "Yore", "worktrees", ".claude")
 
+# Path segments that mark a real sub-project living inside the `Skill Agent/`
+# tree — one with a queue of its own that must reach Q.md instead of rolling up
+# under SKA (see `find_anchor_backlogs`, the F107 nesting filter). Membership is
+# a judgment about the WORK, not the file layout: these ship independently.
+SUBPROJECT_QUEUES = {"warden", "muse"}
+
 # Horizon H2s in a per-anchor backlog. `## Done` is the archive surface for
 # C4's stale-Done migration; everything else is a "live" horizon.
 LIVE_HORIZON_H2S = {"Active", "Ready", "Now", "Next", "Later", "Verify", "Legwork"}
@@ -4565,10 +4571,15 @@ def find_anchor_backlogs(vault_root: Path) -> dict[str, Path]:
         # the only backlog we should be looking at."
         if "Skill Agent" in path.parts:
             sa_idx = path.parts.index("Skill Agent")
-            # Exception: Warden is a real sub-project with a live queue
-            # (F218 2026-06-29 kept `Warden Track` as an active M-roadmap;
-            # its questions must surface in Q.md, not roll up invisibly).
-            if len(path.parts) - sa_idx > 4 and "warden" not in path.parts:
+            # Exception: a real sub-project with a live queue of its own is NOT
+            # an SKA sub-skill just because its files live in the SKA tree — its
+            # rows must surface in Q.md rather than roll up invisibly.
+            #   warden — F218 2026-06-29, active M-roadmap.
+            #   muse   — added 2026-07-30 under F284's frontier sweep, which
+            #            found two `[Ready]` rows (T001/T002) that had never
+            #            been visible anywhere. MUSE is a shipped macOS app
+            #            (its own signing/TCC work), the same class as warden.
+            if len(path.parts) - sa_idx > 4 and not SUBPROJECT_QUEUES & set(path.parts):
                 continue
         name = path.stem.replace(" Backlog", "")
         out[name] = path

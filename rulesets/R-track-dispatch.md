@@ -14,7 +14,7 @@ The first table row's top-left cell is `-[[{slug} Track]]-` (with surrounding da
 **Why:** the top-left cell anchors CAB Anchor Page mechanics (the `-...-` dash pattern wires the dispatch table to the auto-management system); reformatting it breaks structural tooling.
 
 ### RULE R-track-dispatch-03 — Contents restricted to tracking metadata (sampled)
-Body rows list only tracking-metadata documents: Backlog (required), Status, Discussion, Icebox, Inbox, ask, Messages, Questions. Design artifacts (PRD, UX, Architecture, Features, Roadmap, Testing, Decisions) MUST NOT appear as rows.
+Body rows list only tracking-metadata documents: Backlog (required), Status, Agenda, Discussion, Icebox, Inbox, ask, Messages, Questions. Design artifacts (PRD, UX, Architecture, Features, Roadmap, Testing, Decisions) MUST NOT appear as rows.
 **Check pattern:** no row links a file from the `{slug} Design/` subtree or any design-artifact type listed in [[DAS Track]] § What does NOT live in Track.
 **Why:** Track holds workflow state and ephemeral surfaces; design artifacts live in `{slug} Design/`. Mixing them collapses the Track/Design split that F094 and the 2026-06-10 restructure established.
 

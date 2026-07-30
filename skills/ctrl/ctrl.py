@@ -28,6 +28,8 @@ Examples:
 import sys
 import os
 import argparse
+import base64
+import shlex
 import subprocess
 import urllib.parse
 import time
@@ -626,13 +628,28 @@ def cmd_search(args):
 
 
 def cmd_navigate(args):
-    """Handle the navigate command."""
+    """Handle the navigate command. With --remote HOST, opens the URL in that
+    machine's default browser instead of this one — `open` is handed to the
+    remote's Aqua session, so unlike the screen verbs it needs no .command
+    wrapper (nothing here reads the screen or drives input, so no TCC gate)."""
     if not args.url:
         print("Error: No URL provided", file=sys.stderr)
         sys.exit(1)
 
     url = args.url[0] if isinstance(args.url, list) else args.url
     new_tab = getattr(args, 'new_tab', False)
+
+    host = getattr(args, 'remote', None)
+    if host:
+        r = subprocess.run(['ssh', '-o', 'BatchMode=yes', host,
+                            f'open {shlex.quote(url)}'],
+                           capture_output=True, text=True)
+        if r.returncode:
+            print(f"Error: could not open URL on {host}: {r.stderr.strip()}",
+                  file=sys.stderr)
+            sys.exit(1)
+        print(f"opened on {host}: {url}")
+        return
 
     navigate_to_url(url, new_tab)
 
@@ -2591,12 +2608,16 @@ def parse_arguments():
     nav_parser.add_argument('url', nargs=1, help='URL to navigate to')
     nav_parser.add_argument('--new-tab', action='store_true',
                            help='Open URL in new Safari tab')
+    nav_parser.add_argument('--remote', metavar='HOST',
+                           help='Open the URL on HOST instead of this Mac')
 
     # Surf command (alias for navigate, but defaults to new tab)
     surf_parser = subparsers.add_parser('surf', help='Navigate to URL in new tab')
     surf_parser.add_argument('url', nargs=1, help='URL to navigate to')
     surf_parser.add_argument('--same-tab', dest='new_tab', action='store_false',
                            help='Open URL in current Safari tab instead of new tab')
+    surf_parser.add_argument('--remote', metavar='HOST',
+                           help='Open the URL on HOST instead of this Mac')
     surf_parser.set_defaults(new_tab=True)
 
     # New tab command
@@ -2715,6 +2736,9 @@ def parse_arguments():
     # Screen command — see & drive the Mac's screen (delegates to the screen skill)
     screen_parser = subparsers.add_parser('screen',
         help='See/drive the screen: grab, size, click, move, type, key')
+    screen_parser.add_argument('--remote', metavar='HOST',
+        help='Drive HOST\'s screen over the control bridge instead of this Mac. '
+             'Runs in the remote Aqua session (plain ssh cannot — see cmd_screen).')
     screen_parser.add_argument('screen_args', nargs=argparse.REMAINDER,
         help='Passed through to screen.py (e.g. "grab /tmp/s.png", "click 100 200")')
 
@@ -2732,10 +2756,8 @@ def cmd_edit(args):
         sys.exit(1)
 
 
-def cmd_screen(args):
-    """See/drive the Mac's screen. Delegates to the canonical screen.py in the
-    screen skill (single source of truth) — grab/size/click/move/type/key.
-    ctrl is just the entry point so screen-grab is reachable alongside box/surf."""
+def _find_screen_py():
+    """Locate the canonical screen.py (single source of truth for screen verbs)."""
     candidates = [
         os.path.expanduser('~/.claude/skills/screen/screen.py'),
         os.path.join(os.path.dirname(os.path.realpath(__file__)),
@@ -2746,7 +2768,88 @@ def cmd_screen(args):
         print("Error: screen.py not found (looked in ~/.claude/skills/screen/)",
               file=sys.stderr)
         sys.exit(1)
-    result = subprocess.run([sys.executable, screen_py, *args.screen_args])
+    return screen_py
+
+
+# Files the remote run uses. Fixed names so a crashed run leaves inspectable
+# state rather than scattering temporaries around the remote's /tmp.
+_R_DIR = '/tmp/.ctrl-screen'
+_R_PY, _R_CMD = f'{_R_DIR}/screen.py', f'{_R_DIR}/run.command'
+_R_OUT, _R_RC = f'{_R_DIR}/out.txt', f'{_R_DIR}/rc.txt'
+
+
+def _screen_remote(host, screen_args, timeout=60):
+    """Drive HOST's screen over the control bridge.
+
+    Why this is not just `ssh host screen.py grab`: an ssh session runs in
+    launchd's Background context, where screencapture returns a black frame and
+    System Events hangs on TCC. Only the logged-in Aqua session can do GUI work.
+    An `open`-ed .command file is handed to that session by launchd, so the verb
+    runs where it actually works. (Same pattern as the remote-GUI reference note.)
+
+    The remote's copy of screen.py is refreshed on every call — it is a few KB,
+    and a stale remote copy silently doing the wrong thing is far worse than the
+    cost of re-sending it."""
+    screen_py = _find_screen_py()
+    quoted = ' '.join(shlex.quote(a) for a in screen_args)
+    script = (f"#!/bin/bash\n"
+              f"/usr/bin/python3 {_R_PY} {quoted} > {_R_OUT} 2>&1\n"
+              f"echo $? > {_R_RC}\n")
+
+    def ssh(cmd, **kw):
+        return subprocess.run(['ssh', '-o', 'BatchMode=yes', host, cmd],
+                              capture_output=True, text=True, **kw)
+
+    ssh(f'mkdir -p {_R_DIR} && rm -f {_R_OUT} {_R_RC}')
+    if subprocess.run(['scp', '-q', screen_py, f'{host}:{_R_PY}']).returncode:
+        print(f"Error: could not copy screen.py to {host}", file=sys.stderr)
+        sys.exit(1)
+    enc = base64.b64encode(script.encode()).decode()
+    r = ssh(f'echo {enc} | base64 -d > {_R_CMD} && chmod +x {_R_CMD} && open {_R_CMD}')
+    if r.returncode:
+        print(f"Error: could not launch on {host}: {r.stderr.strip()}", file=sys.stderr)
+        sys.exit(1)
+
+    # Poll for the run to finish. `open` returns immediately — the Aqua session
+    # runs the script asynchronously, so the rc file is the completion signal.
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        got = ssh(f'cat {_R_RC} 2>/dev/null')
+        if got.stdout.strip():
+            rc = int(got.stdout.strip() or 1)
+            out = ssh(f'cat {_R_OUT} 2>/dev/null').stdout
+            if out:
+                print(out, end='')
+            # `grab` writes an image on the remote; bring it back to the path the
+            # caller named, so `ctrl screen grab --remote h /tmp/x.png` behaves
+            # locally the same as without --remote.
+            if screen_args and screen_args[0] == 'grab' and rc == 0:
+                dest = next((a for a in screen_args[1:] if not a.startswith('-')), None)
+                if dest and subprocess.run(['scp', '-q', f'{host}:{dest}', dest]).returncode:
+                    print(f"Warning: ran on {host} but could not copy back {dest}",
+                          file=sys.stderr)
+            sys.exit(rc)
+        time.sleep(0.5)
+
+    print(f"Error: timed out after {timeout}s waiting for {host} to finish.\n"
+          f"  Is {host} logged in with an active Aqua session? A locked or "
+          f"logged-out Mac cannot run GUI verbs.\n"
+          f"  Remote state left at {_R_DIR} for inspection.", file=sys.stderr)
+    sys.exit(1)
+
+
+def cmd_screen(args):
+    """See/drive a Mac's screen. Delegates to the canonical screen.py in the
+    screen skill (single source of truth) — grab/size/click/move/type/key.
+    ctrl is just the entry point so screen-grab is reachable alongside box/surf.
+    With --remote HOST, drives that machine instead (see _screen_remote)."""
+    if not args.screen_args:
+        print("Error: ctrl screen needs a verb (grab, size, click, move, type, key)",
+              file=sys.stderr)
+        sys.exit(1)
+    if getattr(args, 'remote', None):
+        _screen_remote(args.remote, args.screen_args)
+    result = subprocess.run([sys.executable, _find_screen_py(), *args.screen_args])
     sys.exit(result.returncode)
 
 
@@ -2810,4 +2913,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()# This won't work — ctrl is its own script. Let me check the actual implementation.
+    main()

@@ -29,7 +29,7 @@ Every row is one thing Lumen does in the morning, in order. Detail follows below
 | **Stage** | Lift today's quick hits to the top of [[Quick]], above a blank line. Propose the set; add to it. |
 | **Week** | Put the ≥30-min items into today's `### <Day>` in this week's [[Weekly]] file, as checkboxes. |
 | **Runnable** | Name the Ready work that needs no user, offered as a single `'` (crank). |
-| **Ahead** | Read [[LUM Nudge]] (in Lumen's own folder); pull anything now due into the briefing's **Watching** section. |
+| **Ahead** | Read [[LUMEN Nudge]] (in Lumen's own folder); pull anything now due into the briefing's **Watching** section. |
 | **Write** | Put the briefing at the top of `~/ob/kmr/LUM Day.md` — the user reads it there, not in chat. |
 | **Close** | Write down anything deferred, then advance the watermark. In that order. |
 
@@ -80,7 +80,7 @@ It prints today's events one per line (`HH:MM    Title`, or `all-day  Title`), s
 
 **If it exits 2 / prints `CALENDAR_ACCESS_DENIED`**, the calling context lacks Calendar permission — **say so in the briefing and continue** (never silently omit the channel; a briefing that admits the calendar was unreachable beats one that quietly dropped it). The one-time fix is a GUI grant: tell the user to double-click `$HOME/.claude/skills/io/scripts/grant-calendar.command` and click Allow. After that it runs granted every morning. Full capability docs: [[io-calendar]]. Interim (until SKA T047 lands the responsible-process binding): the grant is currently bound to **Terminal.app**, so a headless session routes the shim through Terminal (`osascript -e 'tell app "Terminal" to do script "…calendar-today.swift > /tmp/cal.out; exit"'`) and reads the output file. Do **not** fall back to the AppleScript `whose` query — 2026-07-22 it silently returned empty on a 3-event day.
 
-**Filter through [[LUM Background]] § Standing rhythm.** Standing meetings recorded there (e.g. the daily 14:00 CV ML standup) are suppressed from the briefing's calendar block — the user already knows their own rhythm; surface a standing meeting only when it moved, changed, or was cancelled. Everything else on the day gets listed.
+**Filter through [[LUMEN Background]] § Standing rhythm.** Standing meetings recorded there (e.g. the daily 14:00 CV ML standup) are suppressed from the briefing's calendar block — the user already knows their own rhythm; surface a standing meeting only when it moved, changed, or was cancelled. Everything else on the day gets listed.
 
 ## Mail
 
@@ -113,11 +113,11 @@ Today's plan gets written into the two lists the user actually works against, **
 
 **[[Weekly]] day-list.** This week's file is `~/ob/kmr/LST/Weekly/YYYY-Www.md` (ISO week, zero-padded). Bigger items go under today's `### <Day>-<DD>` H3 as `- [ ]` so the user checks them off through the day. Week-level intentions — rocks, things aimed at the week as a whole — go in the **top block** between the H1 and the first `###`, not under a day.
 
-**Never hand-author a new week file.** It comes from `[[WEEKLY template]]`, which computes Monday's date and wires the prev/next arrows. If this week's file is missing, say so and let the user stamp it.
+**Lumen owns the week file — create it whenever it's missing** (user delegated 2026-07-27, see [[feedback_lumen_owns_week_calendar]]). Reproduce the `[[WEEKLY template]]` output by hand: `# W{NN}   {Mon YYYY-MM-DD}   [[{prev}|<<]] [[{next}|>>]]`, a one-line description, week-rock `- [ ]` bullets, then `### Mon-D` … `### Fri-D` (Mon–Fri, day-of-month no leading zero). Populate the rocks + carry-forwards, then review it with the user daily. (The old rule was "never hand-author, let the user stamp it" — superseded.)
 
 **On Monday, plan the week first.** Before staging the day, walk last week's file for unfinished `- [ ]` items and propose the week's rocks into the top block. Per [[Weekly]] § BRIEF, a Friday item left unresolved is carry-forward — it gets checked, dropped, or migrated, never silently abandoned.
 
-## Where the briefing goes — [[LUM Day]]
+## Where the briefing goes — [[LUMEN Day]]
 
 **Chat is not the delivery surface.** The user reacts to the first item, the rest scrolls away, and the briefing is gone. So every run writes the briefing to `~/ob/kmr/LUM Day.md` **and** prints it in chat. The file is the record; chat is the conversation.
 
@@ -125,7 +125,7 @@ That file is **col-1 of the Daily View dashboard** (`CAPS-J D`), toggled in plac
 
 | Dashboard slot | File | What Daybreak does with it |
 | --- | --- | --- |
-| col-1 top | [[LUM Day]] | write today's briefing here |
+| col-1 top | [[LUMEN Day]] | write today's briefing here |
 | col-1 bottom | [[Quick]] | lift the day's quick hits to the top, above a blank line |
 | col-2 bottom | [[Todo]] | read-only — the user's own list |
 | col-3/4 top | current [[Weekly]] | put ≥30-min items under today's `### <Day>` H3 |
@@ -134,9 +134,9 @@ So the briefing and the lists the user acts from are **all on screen at once**. 
 
 Shape: today's block goes directly under the H1 as `## <Day> YYYY-MM-DD · W<nn>`, pushing the previous day down. Never rewrite a past day. Sections in fixed order — **Decisions / Today / Runnable / Gaps** — per the file's own `# BRIEF`. Keep lines short; it renders in one narrow column, so wide tables wrap and destroy the glance value.
 
-## What Lumen is holding — [[LUM Nudge]]
+## What Lumen is holding — [[LUMEN Nudge]]
 
-[[LUM Nudge]] (in Lumen's own folder) is the forward-looking commitment surface: a **table**, soonest-first, of things Lumen owes the user a nudge about. Read it every run; surface anything now due in the briefing's **Watching** section.
+[[LUMEN Nudge]] (in Lumen's own folder) is the forward-looking commitment surface: a **table**, soonest-first, of things Lumen owes the user a nudge about. Read it every run; surface anything now due in the briefing's **Watching** section.
 
 **Do not put these on the backlog.** The backlog holds work the agent does to *build things* — horizons, next-actions, features. LUM Nudge holds things about the *user's life* that the agent is carrying for them. Different kind of item, different reader, different shape. The user does not read the backlog, and making them would defeat the point.
 
@@ -153,14 +153,14 @@ Provisional until `LUM Prioritization.md` exists (Lumen F001-Q4):
 - **Never more than two items from one domain** — breadth is the point of a cross-cutting agent.
 - **[[Rocks]] outranks backlog rows** — Rocks is the user's own declaration of what is hot.
 - **Respect the focus cut.** A blank line inside the live [[Rocks]] block separates what the user is *actually working on now* (above) from rocks that are real but deliberately parked (below). When the cut is present it **overrides the breadth rules below** — draw Today from the rows above it and stop proposing items from beneath. Narrowing is the user telling you what to ignore; re-widening it every morning is the failure mode.
-- **One item must be Health** — the only domain present in every framing the user has written ([[LUM Domains]]), and the one most reliably crowded out.
+- **One item must be Health** — the only domain present in every framing the user has written ([[LUMEN Domains]]), and the one most reliably crowded out.
 - **Prefer what unblocks others** — a cleared blocker beats a finished leaf.
 
 ## Close
 
-1. Record anything deferred-but-wanted in a durable place — a [[LUM Nudge]] row if Lumen is holding it, else a [[Quick]] line, a [[Weekly]] checkbox, or a backlog row.
+1. Record anything deferred-but-wanted in a durable place — a [[LUMEN Nudge]] row if Lumen is holding it, else a [[Quick]] line, a [[Weekly]] checkbox, or a backlog row.
 2. Advance `Daybreak Watermark.md` to the newest `captured:` surfaced.
-3. Confirm the briefing landed in [[LUM Day]] before finishing — a run that only spoke into chat did not deliver.
+3. Confirm the briefing landed in [[LUMEN Day]] before finishing — a run that only spoke into chat did not deliver.
 4. Do not commit unless asked — Daybreak is a read-and-decide ritual, not a work session.
 
 Declined items do **not** return with escalating urgency. Three declines is a signal to raise it once, plainly, at the weekly review.
