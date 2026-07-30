@@ -669,12 +669,22 @@ _BLOCKED_HANDLE_RE = re.compile(
     r"^Blocked\s+([A-Za-z][A-Za-z0-9_\-]*(?:\.[A-Za-z0-9_\-]+)*)\s*$", re.I)
 
 # A frontmatter description this function wrote, in any generation of its
-# wording. The stable part is the claim — "<something> queries — mechanically
-# rendered from the backlog" — so that is what we match; the anchor name, the
-# optional quote, and the credited engine (`by triage`, `by queries-render.py`)
-# all drifted over time and none of them is the signal.
+# wording. The anchor name, the optional quote, and the credited engine
+# (`by triage`, `by queries-render.py`) all drifted over time and none of them
+# is the signal; what stays put is the self-describing CLAIM, so each generation
+# is matched by its own claim.
+#
+# Two generations have shipped. The pre-F231 engine signed its work "Built by
+# /ask"; everything since says it is mechanically rendered from the backlog.
+# Recognizing only the current claim left the older one looking hand-authored,
+# so it was preserved verbatim on every render and could never be refreshed —
+# Tink, the one file still carrying it, kept re-appearing with the pre-F231
+# section list no matter how many times the render ran over it.
 _MACHINE_DESC_RE = re.compile(
-    r'^description:\s*"?[^"]*?queries\s+—\s+mechanically rendered from the backlog',
+    r'^description:\s*"?[^"]*?queries\s+—\s+(?:'
+    r'mechanically rendered from the backlog'   # F231 and later
+    r'|.*?\bBuilt by /ask\b'                    # pre-F231
+    r')',
     re.I)
 
 
