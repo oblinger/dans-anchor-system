@@ -47,11 +47,20 @@ check:: frontmatter_has description
 ### RULE R-query-03 — Six sections, fixed order, no others (checked)
 check:: queries_sections_subsequence
 
-Sections, when present, appear in this order and no foreign H2s interleave: `## Agent Resolutions` → `## Verifications` → `## Immediate Questions` → `## Questions` → `## Ready` → `## Other`. Empty sections are omitted.
+Sections, when present, appear in this order and no foreign H2s interleave: `## Blockers` → `## Ready` → `## Questions` → `## Blocked` → `## Verifications` → `## Other`. Empty sections are omitted.
 
-`## Other` is the F284 catch-all — every frontier row the named sections did not claim, with its bracket shown verbatim. It is what makes the render total: before it existed, an unrecognised bracket meant the row was dropped in silence (47 of 99 frontier rows vault-wide on 2026-07-29, the largest class being rows carrying no bracket at all). It sits last because it holds the work whose state is unclear, which must never displace the work whose state is clear.
+The order is F283's (2026-07-30), and each position is argued:
 
-**Check pattern:** the H2 sequence is a subsequence of `[Agent Resolutions, Verifications, Immediate Questions, Questions, Ready, Other]`; no H2 outside that set.
+- `## Blockers` is **computed, never authored** — any row that some *other* row names in its `[Blocked <handle>]`, promoted out of whatever section would otherwise hold it, including `## Verifications`. Empty is the good state, which is why it leads: it reads in one glance. This is the render target for the reverse-blocker edge inversion.
+- `## Ready` comes first among the working sections because it is short and orients the rest — it is what the agent can act on with no user involvement.
+- `## Questions` is the one pile the user personally unsticks, so it stays its own section rather than merging into the ledger below it. The axis that earns a section break is *can the user act on it*, not *is it stopped*.
+- `## Blocked` is the visibility ledger: `[Blocked <handle>]` and `[Waiting]` rows together. Scanned, not worked — but rendered, because a bracket recording "not moving" was previously the one bracket that hid the row entirely.
+- `## Verifications` is last, deliberately below the fold: an unverified check is only a problem when something depends on it, and when something does, `## Blockers` has already promoted it to the top.
+- `## Other` is the F284 catch-all — every frontier row the named sections did not claim, with its bracket shown verbatim. It is what makes the render total: before it existed, an unrecognised bracket meant the row was dropped in silence (47 of 99 frontier rows vault-wide on 2026-07-29, the largest class being rows carrying no bracket at all). It sits last because it holds the work whose state is unclear, which must never displace the work whose state is clear.
+
+`[Verify-by <date>]` rows render in no section at all: the bracket promises nothing happens until the date, and the stale-bracket sweep auto-Dones the row when the date arrives, so showing it only crowds the checks that still want a look.
+
+**Check pattern:** the H2 sequence is a subsequence of `[Blockers, Ready, Questions, Blocked, Verifications, Other]`; no H2 outside that set.
 
 **Why:** admitting `Other` is load-bearing, not permissive — a rule that forbade the catch-all would forbid the coverage guarantee itself.
 

@@ -1986,13 +1986,18 @@ def chk_queries_sections_subsequence(target, anchor_root, args):
     total over the frontier, so it must be admissible here or this rule would
     forbid the very section that guarantees no row is lost. It sorts last
     because it holds the rows whose state is unclear — never above the work
-    whose state IS clear."""
+    whose state IS clear.
+
+    The list itself is F283's order (2026-07-30). `Agent Resolutions` and
+    `Immediate Questions` are gone — neither had been rendered since F231, so the
+    rule was describing a file that no longer existed. `Blockers` (computed —
+    rows some other row is blocked on) and `Blocked` (the ledger of
+    `[Blocked <handle>]` + `[Waiting]`) replace them."""
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
-    allowed = args if args else ["Agent Resolutions", "Verifications",
-                                 "Immediate Questions", "Questions", "Ready",
-                                 "Other"]
+    allowed = args if args else ["Blockers", "Ready", "Questions", "Blocked",
+                                 "Verifications", "Other"]
     h2s = _h2_headings(_read(f))
     foreign = [h for h in h2s if h not in allowed]
     if foreign:

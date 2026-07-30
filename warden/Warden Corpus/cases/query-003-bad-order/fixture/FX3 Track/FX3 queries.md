@@ -7,6 +7,6 @@ description: "open questions for FX3"
 
 _None._
 
-## Agent Resolutions
+## Ready
 
 _None._
