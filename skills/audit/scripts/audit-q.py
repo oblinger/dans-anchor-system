@@ -429,6 +429,12 @@ def _parse_wiki_inner(inner: str) -> dict:
     """Parse the inside of a [[wiki-link]] (between [[ and ]])."""
     if "|" in inner:
         target_part, alias = inner.split("|", 1)
+        # R-markdown-01 REQUIRES the alias pipe be written `\|` inside a table
+        # cell, so a link that obeys that rule arrives here as
+        # `Doc#^F259\` + `F259`. Without dropping the escape the block-id reads
+        # as `F259\` and C22 reports a false "block-id missing in target" on
+        # every correctly-escaped table link.
+        target_part = target_part[:-1] if target_part.endswith("\\") else target_part
     else:
         target_part, alias = inner, None
     target_heading = None
