@@ -5,7 +5,7 @@ description: "the top-of-page navigation table — its own spec, dogfooded"
 # DAS Dispatch Table
 The top-of-file table convention that gives most anchor pages and many facet pages their navigation surface.
 
-| -[[DAS Dispatch Table]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets\|FCT]] → [DAS Dispatch Table](hook://p/DAS%20Dispatch%20Table) |
+| -[[DAS Dispatch Table]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets\|FCT]] → [DAS Dispatch Table](hook://p/DAS%20Dispatch%20Table)  |
 | --- | --- |
 | Related | [[Collection]],  [[DAS progressive-disclosure]],  [[audit-dispatch\|/audit dispatch]],  [[DAS Dispatch Table Design\|Design]],   |
 | Examples | [[HBR\|minimal]],  [[HBR\|fuller]],  [[FEX Dispatch Examples\|full gallery]],   |
@@ -56,6 +56,8 @@ A dispatch table has up to **two zones** (worked examples: [[FEX Dispatch Exampl
 Hand-authored, one-of-a-kind to this anchor, and deliberately **small** — a switchboard, not a directory. It is the breadcrumb identity row, then the optional rows in the fixed order of § Masthead rows — **Related → type row → Design → Track → User Docs → Dev Docs** — each present **only if it applies**. Every row after the breadcrumb is *sub-area link → that sub-area's key parts*. There is **no** generic `Anchor` row.
 
 **A dispatch table is a pure link table** (`R-dispatch-table-06`): the distilled set of jump-destinations, not an explanation of them. No prose about what a link *means* in a cell — at most one or two parenthetical words, preferably none. A destination's meaning lives on the destination's own top line + `description`.
+
+**Left vs right cell — asymmetric.** The **left cell** is the row's *label* — a short descriptor of what the row itself is (a group name, sub-area name, standard row like `Related` / `Design` / `Track`). Describing the row is fine there — that IS the left cell's job. The **right cell** is nearly pure links: a comma- or `·`-separated list of destinations, with at most 1–2 parenthetical words per link if truly necessary — prefer none. **No narrative on the right.** If a link needs explaining, that explanation belongs on the destination page, not the cell.
 
 Anything **enumerable beyond a sub-area's key parts** — a Collection's full member list, sub-items, worked examples — is **not** a masthead row; it drops to the Member zone below.
 

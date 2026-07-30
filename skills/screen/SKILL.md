@@ -18,13 +18,23 @@ Both seeing and acting require a process inside the user's **GUI/Aqua login sess
 - `ssh host screencapture …` → *"could not create image from display"* (no window-server access).
 - SSH-posted click/key events → silently dropped.
 
-The fix is the same as the control bridge's TCC trick: run inside a **Terminal-launched tmux session**. That session inherits the GUI context (and the launching Terminal's TCC). So from a driving machine:
+The fix is to run inside a process the **Aqua login session** owns. Two mechanisms reach it, and the packaged one should be the default:
+
+**Use `ctrl screen --remote HOST` (packaged, preferred).** It ships `screen.py` to the remote, wraps the verb in a `.command` file, and `open`s it — launchd hands an `open`-ed `.command` to the logged-in Aqua session, so the verb runs where the window server is reachable. It then polls for completion and, for `grab`, copies the image back to the path you named, so the remote call behaves exactly like the local one:
+
+    ctrl surf   --remote haorui https://example.com
+    ctrl screen --remote haorui grab /tmp/s.png     # then Read /tmp/s.png
+    ctrl screen --remote haorui click 500 400
+
+This needs no pre-existing session on the remote — only that someone is logged in. (Verified end-to-end against haorui 2026-07-27; [[Tink Backlog#^T049|T049]].)
+
+**The bridge's tmux route (manual, still valid).** A Terminal-launched tmux session also inherits the GUI context and the launching Terminal's TCC, which is what the [[bridge]] control plane already maintains. Reach for it when you are *already* working in that session, or when you need the verb to share state with a running bridge job:
 
     ssh host '/usr/local/bin/tmux new-window -t work -d -n cap \
         "~/.claude/skills/screen/screen.py grab /tmp/s.png"'
-    scp host:/tmp/s.png /tmp/s.png        # then Read /tmp/s.png
+    scp host:/tmp/s.png /tmp/s.png
 
-Locally, just run `screen.py …` from a Terminal/tmux (not a non-GUI context).
+Locally, just run `screen.py …` from a Terminal/tmux (not a non-GUI context), or `ctrl screen …`.
 
 ## Permissions
 

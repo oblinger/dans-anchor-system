@@ -5,10 +5,10 @@ description: Query facet — the format of an anchor's `{slug} queries.md`, the 
 # DAS Query
 The asking surface: one `{slug} queries.md` per anchor, in `{slug} Track/`, that `/ask` builds and trims.
 
-| -[[DAS Query]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets\|FCT]] → [DAS Query](hook://p/DAS%20Query) |
+| -[[DAS Query]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets\|FCT]] → [DAS Query](hook://p/DAS%20Query)  |
 | --- | --- |
 | Related | [[templates/query.md\|query template]],  [[DAS Ask]] (the skill that builds it),  [[DAS Status]],  [[DAS Messages]], |
-| Examples | [[SKA queries\|real instance (SKA anchor)]],   |
+| Examples | [[Tink queries\|real instance (SKA anchor)]],   |
 | Rules | [[R-query]],   |
 | ... | [[anchor-page]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Page]],  [[DAS Anchor Tree]],  [[DAS API Design]],  [[DAS Architecture]],  [[DAS Aspects]],  [[DAS Backlog]],  [[DAS Brief]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Claude]],  [[DAS CLI]],  [[DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[DAS Decisions]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Design Folder]],  [[DAS Dev Dispatch]],  [[DAS Discussion]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facet]],  [[DAS Facets]],  [[DAS Features]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Interface]],  [[DAS Log]],  [[DAS Module Doc]],  [[facets/DAS Move]],  [[DAS Naming]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS PRD]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Roadmap]],  [[DAS Ruleset]],  [[facets/DAS Skill]],  [[DAS Specs]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS Track]],  [[DAS User Dispatch]],  [[DAS UX Design]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
 
@@ -20,7 +20,7 @@ The asking surface: one `{slug} queries.md` per anchor, in `{slug} Track/`, that
 
 ## Parts
 
-- **Frontmatter + banner H1** — `description:` then the **status banner** as the H1 (see § The banner). Inside `queries.md` the banner self-links `[[{slug}|{slug}]]`; the copy in `Q.md` links `[[{slug} queries|{slug}]]` (the click-into page).
+- **Frontmatter + banner H1** — `description:` then the **status banner** as the H1 (see § The banner). Inside `queries.md` the banner self-links `~~[[{slug}|{slug}]]~~`; the copy in `Q.md` links `~~[[{slug} queries|{slug}]]~~` (the click-into page).
 - **Five sections, fixed order** (each omitted when empty): `## Agent Resolutions`, `## Verifications`, `## Immediate Questions`, `## Questions`, `## Ready`.
 - The file is **agent-owned and trimmed on answer** — answered items are removed, so it shrinks toward empty.
 - **Copied into `Q.md`** — the banner (retargeted) + the whole body become the anchor's per-anchor section in the global dashboard, bubbled to the top and destructively rewritten on each render (see § Copied into Q.md).
@@ -29,7 +29,7 @@ The asking surface: one `{slug} queries.md` per anchor, in `{slug} Track/`, that
 
 The H1 is the anchor's **status banner**, the exact form (spacing locked — the renderer and `R-query-16` depend on it):
 
-`# [<TAG>]  [[{slug}|{slug}]]  -  Runnable N    User N   |   Now N    Next N    Later N    Verify N    Icebox N`
+`# [<TAG>]  ~~[[{slug}|{slug}]]~~  -  Runnable N    User N   |   Now N    Next N    Later N    Verify N    Icebox N`
 
 - **TAG cascade** (first match wins, U and A combine): `[U]` any `[Questions]`/`[Verify]` items · `[A]` any `[Active]`/`[Ready]` items · `[U+A]` both · `[G]` items only in `## Now`/`## Next` · `[-]` items only in `## Later` · `[]` nothing anywhere.
 - **Two headline numbers** — `Ready` = `[Active]`+`[Ready]`(+`[Agreed]`) in active horizons; `Questions` = pending `Q<n>` across `[Questions]`-row feature docs plus `[Verify]`-bracket rows.
@@ -38,7 +38,7 @@ The H1 is the anchor's **status banner**, the exact form (spacing locked — the
 
 ## Copied into Q.md
 
-The banner + body are copied into the anchor's section of `~/ob/kmr/Q.md` (the global queue-file dashboard) — the single cross-anchor surface. The copy is **agent-owned and destructively rewritten** on each render: the renderer removes the existing section and re-inserts the fresh one at the top of `Q.md` (bubble-to-top). The only difference from the on-disk `queries.md` is the banner link target (`[[{slug} queries|{slug}]]` in `Q.md`, so the user clicks over to the drain page). There is no separate per-anchor triage file and no separately-formatted triage render — the query file *is* the queue-file content.
+The banner + body are copied into the anchor's section of `~/ob/kmr/Q.md` (the global queue-file dashboard) — the single cross-anchor surface. The copy is **agent-owned and destructively rewritten** on each render: the renderer removes the existing section and re-inserts the fresh one at the top of `Q.md` (bubble-to-top). The only difference from the on-disk `queries.md` is the banner link target (`~~[[{slug} queries|{slug}]]~~` in `Q.md`, so the user clicks over to the drain page). There is no separate per-anchor triage file and no separately-formatted triage render — the query file *is* the queue-file content.
 
 # BRIEF
 

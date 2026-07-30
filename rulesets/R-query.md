@@ -10,7 +10,7 @@ What `/audit doc` checks on a queries file. The skill that produces it is [[DAS 
 | **[[#Structure]]** |  |
 |    [[#RULE R-query-01 — Lives at `{slug} Track/{slug} queries.md` (checked)]] |  |
 |    [[#RULE R-query-02 — Opens with frontmatter `description:` then the status-banner H1 (checked)]] |  |
-|    [[#RULE R-query-03 — Five sections, fixed order, no others (checked)]] |  |
+|    [[#RULE R-query-03 — Six sections, fixed order, no others (checked)]] |  |
 |    [[#RULE R-query-16 — Banner H1 has the exact status-banner form + spacing (checked)]] |  |
 | **[[#Verifications — agent runs, user judges]]** |  |
 |    [[#RULE R-query-04 — Verifications begin with a bold `**V<n>` handle and carry an answer shape (checked)]] |  |
@@ -44,12 +44,16 @@ check:: frontmatter_has description
 
 **Check pattern:** YAML frontmatter present with a non-empty `description:`; the first body line is the status banner `# [<TAG>]  [[{slug}|{slug}]]  -  Ready N …` (per § The banner), not a plain `# {slug} Queries` title.
 
-### RULE R-query-03 — Five sections, fixed order, no others (checked)
+### RULE R-query-03 — Six sections, fixed order, no others (checked)
 check:: queries_sections_subsequence
 
-Sections, when present, appear in this order and no foreign H2s interleave: `## Agent Resolutions` → `## Verifications` → `## Immediate Questions` → `## Questions` → `## Ready`. Empty sections are omitted.
+Sections, when present, appear in this order and no foreign H2s interleave: `## Agent Resolutions` → `## Verifications` → `## Immediate Questions` → `## Questions` → `## Ready` → `## Other`. Empty sections are omitted.
 
-**Check pattern:** the H2 sequence is a subsequence of `[Agent Resolutions, Verifications, Immediate Questions, Questions, Ready]`; no H2 outside that set.
+`## Other` is the F284 catch-all — every frontier row the named sections did not claim, with its bracket shown verbatim. It is what makes the render total: before it existed, an unrecognised bracket meant the row was dropped in silence (47 of 99 frontier rows vault-wide on 2026-07-29, the largest class being rows carrying no bracket at all). It sits last because it holds the work whose state is unclear, which must never displace the work whose state is clear.
+
+**Check pattern:** the H2 sequence is a subsequence of `[Agent Resolutions, Verifications, Immediate Questions, Questions, Ready, Other]`; no H2 outside that set.
+
+**Why:** admitting `Other` is load-bearing, not permissive — a rule that forbade the catch-all would forbid the coverage guarantee itself.
 
 ### RULE R-query-16 — Banner H1 has the exact status-banner form + spacing (checked)
 check:: queries_banner_form

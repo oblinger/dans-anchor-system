@@ -73,5 +73,15 @@
   "rule": "R-progressive-03",
   "target": "FX8 Notes.md",
   "status": "pass"
+ },
+ {
+  "rule": "R-progressive-04",
+  "target": "FX8 Notes.md",
+  "status": "pass"
+ },
+ {
+  "rule": "R-progressive-05",
+  "target": "FX8 Notes.md",
+  "status": "pass"
  }
 ]

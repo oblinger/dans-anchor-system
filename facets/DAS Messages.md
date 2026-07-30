@@ -5,7 +5,7 @@ description: Messages facet — the agent's per-anchor inbox of background-proce
 # DAS Messages
 Spec for the **Messages facet** — the per-anchor file `{slug} Messages.md` that holds background-process notes for the agent to read on every pause, separate from the user's raw-input `{slug} Inbox.md`.
 
-| -[[DAS Messages]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets\|FCT]] → [DAS Messages](hook://p/DAS%20Messages) |
+| -[[DAS Messages]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets\|FCT]] → [DAS Messages](hook://p/DAS%20Messages)  |
 | --- | --- |
 | Related | [[templates/messages.md\|messages template]],  [[DAS Inbox]],  [[DAS Backlog]],  [[DAS Track]],  [[DAS Anchor Tree]],   |
 | Examples | [[HBR Messages\|minimal]],  [[HBR Messages\|with real system messages]],   |
@@ -22,3 +22,7 @@ Spec for the **Messages facet** — the per-anchor file `{slug} Messages.md` tha
 - **Load-bearing distinction to preserve** — the frontmatter `description` and R-messages-03 both fix the Messages-vs-Inbox split (agent-read background notes vs. user-dropped raw input); any edit that loosens or removes that distinction breaks the facet's reason for existing.
 - **Cross-references to keep in sync** — [[DAS Anchor Tree]] dispatch tables, [[DAS Anchor Tree]] tree, and any anchor template that scaffolds a `{slug} Messages.md`.
 - **Conventions** — refer to sibling facets by their CAB filename (`~~[[DAS Inbox]]~~`, `[[DAS Backlog]]`); refer to per-anchor instances with the `{slug}` placeholder, never a concrete anchor's name.
+[2026-07-24 22:53:43] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/facets/DAS Backlog.md was edited
+[2026-07-24 22:53:43] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/facets/DAS Backlog.md was edited
+[2026-07-24 22:54:21] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/facets/DAS Backlog.md was edited
+[2026-07-24 22:54:21] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/facets/DAS Backlog.md was edited

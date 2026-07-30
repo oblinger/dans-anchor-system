@@ -6,8 +6,8 @@ description: "`/daybreak` — the morning routine; the day's opening sequence"
 
 | -[[DAS Daybreak]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [docs](hook://docs) → [DAS Daybreak](hook://p/DAS%20Daybreak)<br>: `/daybreak` — the morning routine; the day's opening sequence |
 | --- | --- |
-| Related | [[skills/daybreak/SKILL.md\|SKILL]],  [[MUSE]],  [[LUM]],   |
-| [[DAS Daybreak Design\|Design]] | [[DAS Daybreak PRD\|PRD]],   |
+| Related | [[skills/daybreak/SKILL.md\|SKILL]],  [[MUSE]],  [[LUMEN]],   |
+| [[DAS Daybreak Design\|Design]]  | [[DAS Daybreak PRD\|PRD]],   |
 | ... |  |
 
 ## Daybreak
@@ -26,7 +26,7 @@ description: "`/daybreak` — the morning routine; the day's opening sequence"
 | **Runnable** | Names the work that needs no decision from you — one `'` to run it. |
 | **Close** | Writes down what you deferred, then marks everything seen. |
 
-Run `/daybreak` from the [[LUM]] session each morning. It reads what arrived overnight and puts a short list in front of you — **decisions first, then a handful of things worth doing today.** It does not open with a status report.
+Run `/daybreak` from the [[LUMEN]] session each morning. It reads what arrived overnight and puts a short list in front of you — **decisions first, then a handful of things worth doing today.** It does not open with a status report.
 
 Seven sources, in priority order: anything you dictated into your watch since the last run, the vault-wide `Q.md`, today's calendar, watched mail, [[Rocks]], [[Quick]], and Lumen's own backlog. A source that is unreachable is named as unreachable rather than quietly dropped.
 

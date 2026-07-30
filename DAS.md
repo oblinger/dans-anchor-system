@@ -10,7 +10,7 @@ description: "Dan's Anchor System (DAS) — the dans-anchor-system repository: s
 
 | -[[DAS]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [DAS](hook://p/DAS)<br>: dans-anchor-system — Dan's Anchor System (DAS) — the dans-anchor-system repository: skills / facets / disciplines / rulesets / library / examples + a docs reading surface |
 | --- | --- |
-| External | [Repo](https://github.com/oblinger/dans-anchor-system/) |
+| External | [Repo](https://github.com/oblinger/dans-anchor-system/)  |
 | Guide | [[ASG\|User Guide]] — how to *use* the skills & facets (no design internals) |
 | Subsystems | [[DAS Anchor Design\|Anchor]],  [[DAS Hygiene Design\|Hygiene]],  [[DAS Tracking Design\|Tracking]],  [[DAS Design Design\|Design]],  [[DAS Code Design\|Code]],  [[DAS Doc Design\|Doc]],  [[DAS Search Design\|Search]],  [[DAS Drive Design\|Drive]],  [[DAS Utility Design\|Utility]],   |
 | Sections | [[DAS Skills\|Skills]],  [[DAS Facets\|Facets]],  [[DAS Disciplines\|Disciplines]],  [[DAS Traits\|Traits]],  [[DAS Rulesets\|Rulesets]],  [[LBR\|Library]],  [[DAS Examples\|Facet Examples]],   |

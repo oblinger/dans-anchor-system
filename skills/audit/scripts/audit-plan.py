@@ -1970,14 +1970,21 @@ def chk_queries_catchall_links(target, anchor_root, args):
 
 
 def chk_queries_sections_subsequence(target, anchor_root, args):
-    """R-query-03: the queries H2s are a subsequence of the allowed five, in
+    """R-query-03: the queries H2s are a subsequence of the allowed sections, in
     order, with no foreign H2 and no repeats. Empty sections are omitted, so a
-    subset is fine — only membership, order, and uniqueness are enforced."""
+    subset is fine — only membership, order, and uniqueness are enforced.
+
+    `Other` (F284) closes the list: it is the catch-all that makes the render
+    total over the frontier, so it must be admissible here or this rule would
+    forbid the very section that guarantees no row is lost. It sorts last
+    because it holds the rows whose state is unclear — never above the work
+    whose state IS clear."""
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
     allowed = args if args else ["Agent Resolutions", "Verifications",
-                                 "Immediate Questions", "Questions", "Ready"]
+                                 "Immediate Questions", "Questions", "Ready",
+                                 "Other"]
     h2s = _h2_headings(_read(f))
     foreign = [h for h in h2s if h not in allowed]
     if foreign:

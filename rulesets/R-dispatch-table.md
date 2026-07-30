@@ -1,7 +1,10 @@
+---
+description: The shape every dispatch table must take — masthead-placement law, member-zone mechanics, and pipe-escaped cell links.
+where: "file: {anchor}/**/*.md"
+---
+
 # RULESET R-dispatch-table
-include::
-where:: `file: {anchor}/**/*.md`
-description:: The shape every dispatch table must take — masthead-placement law, member-zone mechanics, and pipe-escaped cell links.
+The shape every dispatch table must take — masthead-placement law, member-zone mechanics, and pipe-escaped cell links.
 
 ### RULE R-dispatch-table-01 — Masthead rows appear in a fixed order (checked)
 After the breadcrumb identity row, the masthead's optional rows appear in this **fixed order**, each present **only if it applies**: **Related** → **type row** (skill / discipline / facet leaf anchors only) → **Design** → **Track** → **User Docs** → **Dev Docs**. There is **no generic `Anchor` row** (superseded — everything is an anchor; the label conveyed nothing). Every row after the breadcrumb has the **same shape**: its **left cell is a link *down* to that sub-area** (the row's name), and its **right cell enumerates that sub-area's key parts** for one-click access. Per-row rules: R-08 (Related) … R-12 (Dev Docs). Full model: § What it is.
@@ -60,6 +63,7 @@ The **Related** row may be **empty or omitted**. List only *genuinely* related s
 
 ### RULE R-dispatch-table-06 — Pure link table; minimal annotation (stated)
 A dispatch table is the **distilled set of jump-destinations**, not an explanation of them. No meta-discussion of what a link *means* belongs in a cell. At most **one or two words in parentheses** as an adjective — and **prefer none**. A link's meaning belongs on the linked page itself — its top line (H1 + first sentence) and its `description` frontmatter — not in the table that points at it.
+**Left vs right cell — asymmetric.** The **left cell** is the row's *label* (row name, group name, sub-area name) — describing the row itself is fine there. The **right cell** is nearly pure links; the 1–2-word cap applies to the right cell. Narrative belongs on the destination page, never the right cell.
 **Why:** the table's value is the distilled essence of *where you can jump*; prose about each destination dilutes that and duplicates what the destination already says about itself.
 
 ### RULE R-dispatch-table-07 — Every dispatch table ends with a catch-all marker (checked)

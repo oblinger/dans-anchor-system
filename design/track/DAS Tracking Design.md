@@ -18,6 +18,7 @@ Tracking is the subsystem that keeps one shared picture of work state between th
 | [[DAS Backlog\|Backlog]]                | The work queue: rows carrying bracket × horizon, F/T-numbered, block-anchored.                                                                                          |
 | [[DAS Query\|Query]]                    | The consolidated question pile (`{slug} queries.md`) — banner + body copied verbatim into Q.md.                                                                         |
 | [[DAS Status\|Status]]                  | Per-facet planning status via the monotonic tier ladder.                                                                                                                |
+| [[DAS Agenda\|Agenda]]                  | The activity's strategic frame — purpose, definition of won, approach, constraints, revisit cadence. Elective, user-authored.                                            |
 | [[DAS Roadmap\|Roadmap]]                | Forward-looking milestone state, named `M-<Name>` entries.                                                                                                              |
 | [[DAS Completed Roadmap\|Completed Roadmap]] | Migration target for shipped milestones, newest at top.                                                                                                            |
 | [[DAS Log\|Log]]                        | Append-only dated history stream — what happened on what day.                                                                                                           |
@@ -33,7 +34,7 @@ Tracking is the subsystem that keeps one shared picture of work state between th
 | [[DAS State\|`state` CLI]]              | The single write path for rows, questions, statuses, roadmaps; every mutation triggers the Q.md render.                                                                 |
 | **`queries-render.py`**                 | Mechanical renderer — rebuilds `{slug} queries.md` and copies it into Q.md after every mutation.                                                                        |
 | Disciplines                             | [[DAS workflow]] · [[DAS ask-format]] · [[DAS verification]] · [[DAS granularity]]                                                                                      |
-| Rulesets                                | [[R-backlog]] · [[R-query]] · [[R-status]] · [[R-log]] · [[R-messages]] · [[R-roadmap]] · [[R-completed-roadmap]] · [[R-track-group]] · [[R-track-dispatch]] · [[R-fct-icebox]] · [[R-fct-inbox]] · [[R-state-region]]                        |
+| Rulesets                                | [[R-backlog]] · [[R-query]] · [[R-status]] · [[R-agenda]] · [[R-log]] · [[R-messages]] · [[R-roadmap]] · [[R-completed-roadmap]] · [[R-track-group]] · [[R-track-dispatch]] · [[R-fct-icebox]] · [[R-fct-inbox]] · [[R-state-region]]                        |
 
 ## Overview
 

@@ -103,5 +103,15 @@
   "rule": "R-progressive-03",
   "target": "FX7 Backlog.md",
   "status": "fail"
+ },
+ {
+  "rule": "R-progressive-04",
+  "target": "FX7 Backlog.md",
+  "status": "pass"
+ },
+ {
+  "rule": "R-progressive-05",
+  "target": "FX7 Backlog.md",
+  "status": "pass"
  }
 ]
