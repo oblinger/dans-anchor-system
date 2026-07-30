@@ -1012,7 +1012,14 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
         for r in blockers:
             link = _bullet_link(r, name, vault_index, block_ids, h3_headings)
             btxt = _bullet_bracket_display(r.bracket) if r.bracket else "**[no state]**"
-            waiters = ", ".join(gated_by.get(r.identifier, []))
+            # Link each waiter to its backlog row so the reader can jump to the
+            # work being held up — and so the bare handle does not trip C37
+            # (bare F-numbers in a rendered queries file must be wiki-links).
+            # Resolve-before-emit as everywhere else: no block-id, no link.
+            waiters = ", ".join(
+                f"[[{name} Backlog#^{_anchor_of(w)}|{w}]]"
+                if _anchor_of(w) in block_ids else w
+                for w in gated_by.get(r.identifier, []))
             # Say so when the blocker was dragged up from off-frontier. "F230
             # gates F238, and F230 is parked in Later" is the actionable shape;
             # without the horizon the row reads as ordinary pending work.

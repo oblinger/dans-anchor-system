@@ -87,7 +87,10 @@ def main():
     blockers = body[body.index("## Blockers") + 1:body.index("")]
     check("Blockers holds exactly the named row", len(blockers), 1)
     check("Blockers names F001", "F001" in blockers[0], True)
-    check("the blocker bullet says what it gates", "gates F002" in blockers[0], True)
+    # The waiter is LINKED, not bare — a bare F-number in a rendered queries
+    # file trips C37, and the reader wants to jump to the held-up work anyway.
+    check("the blocker bullet says what it gates",
+          "gates [[X Backlog#^F002|F002]]" in blockers[0], True)
     ready_i = body.index("## Ready")
     ready = [ln for ln in body[ready_i + 1:] if ln.startswith("- ")][:2]
     check("F001 left Ready (promoted)", any("F001" in ln for ln in ready), False)
@@ -182,7 +185,7 @@ def main():
     check("a blocker is promoted even when the waiter is unrendered",
           h2s6, ["## Blockers"])
     check("the unrendered waiter is still named",
-          any("gates F009" in ln for ln in body6), True)
+          any("gates [[X Backlog#^F009|F009]]" in ln for ln in body6), True)
 
     # --- the case that decided the design: the BLOCKER itself is off-frontier
     # Measured 2026-07-30: all four named `[Blocked <handle>]` edges vault-wide
