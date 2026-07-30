@@ -256,9 +256,13 @@ def main():
         check("other frontmatter keys survive the refresh",
               any(ln.startswith("aliases:") for ln in fm), True)
 
-        # The match is on the CLAIM, not the phrasing. These two are real: DKT
+        # The match is on the CLAIM, not the phrasing. All three are real: DKT
         # credited the retired `triage`, FEX called itself `CAE` — and both were
         # quoted, which is what a `description: {name}` prefix test trips on.
+        # Tink is the last file still carrying the pre-F231 engine's claim, and
+        # it is the reason that claim is matched at all: recognizing only the
+        # current wording made the older one read as hand-authored, so it was
+        # preserved on every render and its stale section list was unfixable.
         for label, line in (
             ("quoted + credits the retired triage engine",
              'description: "DKT queries — mechanically rendered from the backlog '
@@ -268,6 +272,10 @@ def main():
              'description: "CAE queries — mechanically rendered from the backlog '
              'by `queries-render.py` (Verifications / Ready+Next / Questions). '
              'Do not hand-edit; edit the backlog rows."'),
+            ("pre-F231 claim — signed `Built by /ask`",
+             'description: "Tink queries — agent resolutions, specific '
+             'verifications, and the questions awaiting your call. Built by '
+             '/ask; trims as you answer."'),
         ):
             qf.write_text(f"---\n{line}\n---\n\n# x\n", encoding="utf-8")
             qr.render_queries_doc("X", BANNER, qr.parse_backlog(bl), {},
