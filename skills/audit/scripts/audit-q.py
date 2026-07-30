@@ -4551,45 +4551,141 @@ def apply_placement_fixes(
 # ============================================================
 
 
+def _is_ska_subskill(path: Path) -> bool:
+    """F107 — a backlog under `Skill Agent/` nested deeper than SKA's own.
+
+    SKA's backlog sits at `Skill Agent/SKA Docs/SKA Track/SKA Backlog.md`
+    (4 parts after `Skill Agent`, inclusive). Anything deeper — CAB, CAE,
+    CSE, SKA skill-trait at the sibling level, plus the sub-skill nesting
+    under Drive Loop / Discipline / Utility / Dev / Doc / skills — is part
+    of SKA and rolls up under SKA's presence in Q.md. Per user direction
+    2026-06-02 (round 2): "C-A-B and C-A-E are part of SKA, and that's
+    the only backlog we should be looking at."
+
+    Exception: a real sub-project with a live queue of its own is NOT an SKA
+    sub-skill just because its files live in the SKA tree — its rows must
+    surface in Q.md rather than roll up invisibly (`SUBPROJECT_QUEUES`).
+      warden — F218 2026-06-29, active M-roadmap.
+      muse   — added 2026-07-30 under F284's frontier sweep, which found two
+               `[Ready]` rows (T001/T002) that had never been visible
+               anywhere. MUSE is a shipped macOS app (its own signing/TCC
+               work), the same class as warden.
+    """
+    if "Skill Agent" not in path.parts:
+        return False
+    sa_idx = path.parts.index("Skill Agent")
+    return len(path.parts) - sa_idx > 4 and not SUBPROJECT_QUEUES & set(path.parts)
+
+
+def classify_backlog(path: Path) -> tuple[str, Optional[str]]:
+    """F287 — classify one `* Backlog.md`. Returns `(verdict, reason)`.
+
+    Verdict is one of:
+      "render"       — a real anchor's queue; reaches Q.md.
+      "exclude"      — deliberately not a queue; `reason` names which kind.
+      "unclassified" — matches no rule. This is the case that used to be a
+                       bare `continue`, and is now reported by C52.
+
+    Why this exists (F287): discovery used to keep a file only if its parent
+    folder name ended in `Plan`/`Track`, and drop every other file silently.
+    That predicate encodes *where a backlog is conventionally filed*, not
+    *whether it is a real backlog* — and those two are only accidentally the
+    same thing. It is the mechanism that erased Disk's twelve rows; Disk was
+    then repaired by moving the file, leaving the predicate intact. Measured
+    2026-07-30 the eight skipped files were all correctly skipped and none of
+    them for the stated reason (the backlog *facet spec* was dropped because
+    its parent is named `facets`, not because it is a spec). Naming each
+    reason is what keeps that correlation from silently decaying.
+
+    Ordering note: the exclusion reasons are tested BEFORE the Plan/Track
+    render test, so a file gets its most specific true reason rather than
+    whichever filter happened to fire first. `examples/HBR/HBR Track/` sits
+    under a `Track` parent and would otherwise be reported as an SKA
+    sub-skill, when what it actually is is a shipped example anchor. The
+    rendered set is unchanged by this reordering — verified by diffing the
+    30 rendered names before and after.
+    """
+    parts = path.parts
+    if any(frag in parts for frag in EXCLUDED_PATH_FRAGMENTS):
+        return "exclude", "path-fragment"
+    # Golden-corpus test data. Requires BOTH markers so warden's own live
+    # backlog (`warden/Warden Track/`) is not caught by the corpus name.
+    if "Warden Corpus" in parts and "fixture" in parts:
+        return "exclude", "fixture"
+    # DAS ships example anchors as real, tiny, complete instances — they are
+    # documentation, and their rows are illustrative.
+    if "examples" in parts:
+        return "exclude", "example"
+    # The backlog *facet spec* — `facets/DAS Backlog.md` documents what a
+    # backlog is, and the rows inside it are its reference example.
+    if path.parent.name == "facets":
+        return "exclude", "facet-spec"
+    if _is_ska_subskill(path):
+        return "exclude", "sub-skill"
+    # Accept either the legacy `<X> Plan/` form or the F094 four-bucket
+    # `<X> Track/` form. Migrated anchors hold the backlog under Track.
+    if path.parent.name.endswith("Plan") or path.parent.name.endswith("Track"):
+        return "render", None
+    return "unclassified", None
+
+
 def find_anchor_backlogs(vault_root: Path) -> dict[str, Path]:
     """Find every {slug} Backlog.md in the vault. Return name → path.
 
-    Per F107: backlogs nested deeper than SKA's own backlog level inside
-    `Skill Agent/` are SKA sub-skill anchors (Ask, Mode, Crank, etc.) —
-    SKA's internal organization, not standalone projects. They get filtered
-    out of Q.md presence here. Their underlying files keep existing on disk.
+    Membership is decided by `classify_backlog` (F287) — this returns exactly
+    the files it verdicts "render". Everything else is either excluded for a
+    named reason or reported by C52; nothing is dropped silently.
     """
     out: dict[str, Path] = {}
     for path in vault_root.rglob("* Backlog.md"):
-        if any(frag in path.parts for frag in EXCLUDED_PATH_FRAGMENTS):
-            continue
-        # Accept either the legacy `<X> Plan/` form or the F094 four-bucket
-        # `<X> Track/` form. Migrated anchors hold the backlog under Track.
-        if not (path.parent.name.endswith("Plan") or path.parent.name.endswith("Track")):
-            continue
-        # F107 — exclude every backlog under `Skill Agent/` except SKA's own.
-        # SKA's backlog sits at `Skill Agent/SKA Docs/SKA Track/SKA Backlog.md`
-        # (4 parts after `Skill Agent`, inclusive). Anything deeper — CAB, CAE,
-        # CSE, SKA skill-trait at the sibling level, plus the sub-skill nesting
-        # under Drive Loop / Discipline / Utility / Dev / Doc / skills — is part
-        # of SKA and rolls up under SKA's presence in Q.md. Per user direction
-        # 2026-06-02 (round 2): "C-A-B and C-A-E are part of SKA, and that's
-        # the only backlog we should be looking at."
-        if "Skill Agent" in path.parts:
-            sa_idx = path.parts.index("Skill Agent")
-            # Exception: a real sub-project with a live queue of its own is NOT
-            # an SKA sub-skill just because its files live in the SKA tree — its
-            # rows must surface in Q.md rather than roll up invisibly.
-            #   warden — F218 2026-06-29, active M-roadmap.
-            #   muse   — added 2026-07-30 under F284's frontier sweep, which
-            #            found two `[Ready]` rows (T001/T002) that had never
-            #            been visible anywhere. MUSE is a shipped macOS app
-            #            (its own signing/TCC work), the same class as warden.
-            if len(path.parts) - sa_idx > 4 and not SUBPROJECT_QUEUES & set(path.parts):
-                continue
-        name = path.stem.replace(" Backlog", "")
-        out[name] = path
+        if classify_backlog(path)[0] == "render":
+            out[path.stem.replace(" Backlog", "")] = path
     return out
+
+
+def check_c52_unclassified_backlog(vault_root: Path) -> list[Finding]:
+    """C52 (F287) — every `* Backlog.md` must render or carry a named reason.
+
+    This is F284's totality argument one level up. F284 made the render total
+    over the ROWS inside an anchor: no bracket is silently discarded, every
+    frontier row reaches the queue file or trips a coverage assertion. The set
+    of ANCHORS was still chosen by a folder-name heuristic whose non-matches
+    vanished without a trace, so an anchor could go missing whole — which is
+    precisely how Disk's twelve drive-consolidation rows were lost.
+
+    The finding fires when a backlog file matches neither the render test nor
+    any declared exclusion. Today that residue is empty, which is what makes
+    the rule adoptable now: like F281's anchor-name rule at two violations, a
+    property that is currently true is cheap to lock in, and enforceable rules
+    that start clean stay clean.
+
+    Not mechanically fixable, deliberately. The remedy is a judgement call —
+    either the file belongs to a real anchor and wants moving under `Plan/`
+    or `Track/`, or it is a new kind of non-queue and wants a named exclusion
+    in `classify_backlog`. Auto-picking either one would re-hide the thing the
+    check exists to surface.
+    """
+    findings: list[Finding] = []
+    for path in sorted(vault_root.rglob("* Backlog.md")):
+        if classify_backlog(path)[0] != "unclassified":
+            continue
+        rel = path.relative_to(vault_root)
+        findings.append(Finding(
+            severity="error",
+            surface_file=path,
+            surface_line=1,
+            code="C52",
+            message=(
+                f"backlog not classified: {rel} — its parent folder "
+                f"`{path.parent.name}/` is neither `*Plan` nor `*Track`, so it "
+                f"renders nowhere. If this is a real anchor's queue, move it "
+                f"under `{path.stem.replace(' Backlog','')} Track/`; if it is "
+                f"not a queue at all, give it a named reason in "
+                f"`classify_backlog` (F287)"
+            ),
+            mechanically_fixable=False,
+        ))
+    return findings
 
 
 def derive_anchor_banner(name: str, backlog_file: Path,
@@ -4952,6 +5048,9 @@ def main() -> int:
         qmd_text = Q_MD.read_text(encoding="utf-8")
         findings.extend(check_c1_link_existence(qmd_links))
         findings.extend(check_c2_q_marker_existence(qmd_links, qmd_text))
+        # C52 (F287) — vault-wide, so it runs with Q.md rather than per anchor:
+        # an anchor that renders nowhere has no per-anchor pass to be found by.
+        findings.extend(check_c52_unclassified_backlog(VAULT_ROOT))
     # C4 + D1 require walking each anchor's backlog (in the scoped set).
     for name, backlog_file in sorted(anchor_backlogs.items()):
         entries = backlog_entries(backlog_file, vault_index)
