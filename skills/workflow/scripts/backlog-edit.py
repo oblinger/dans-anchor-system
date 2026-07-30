@@ -162,9 +162,18 @@ class BacklogEditError(SystemExit):
 # Anchor resolution
 
 def find_backlog(slug):
-    """Locate `<slug> Backlog.md` somewhere under VAULT_ROOT."""
+    """Locate `<slug> Backlog.md` somewhere under VAULT_ROOT.
+
+    NOTE: the argument is the backlog FILENAME PREFIX, not the `.anchor` slug.
+    Those differ for every anchor whose display name isn't already all-caps
+    (`Scout Backlog.md` vs `slug: SCOUT`), and for anchors whose tracking lives
+    under another name entirely (`SKA` tracks in `Tink Backlog.md`). Passing the
+    slug fails with a bare not-found, which has already been misread once as
+    "these anchors are unwritable" — so collect near-misses and name them.
+    """
     target = f"{slug} Backlog.md"
     matches = []
+    near = []
     for root, dirs, files in os.walk(VAULT_ROOT, followlinks=True):
         # Skip noisy paths
         if any(frag in root + "/" for frag in SKIP_PATH_FRAGMENTS):
@@ -172,8 +181,15 @@ def find_backlog(slug):
             continue
         if target in files:
             matches.append(Path(root) / target)
+        else:
+            for f in files:
+                if f.lower() == target.lower():
+                    near.append(f[: -len(" Backlog.md")])
     if not matches:
-        raise BacklogEditError(f"no '{target}' found under {VAULT_ROOT}")
+        hint = ""
+        if near:
+            hint = " — did you mean '%s'? (this argument is the backlog filename prefix, not the .anchor slug)" % "' / '".join(sorted(set(near)))
+        raise BacklogEditError(f"no '{target}' found under {VAULT_ROOT}{hint}")
     # Symlink chains (e.g. ~/.claude/skills, symlinks/_.claude/skills) can register
     # one real file under several paths — collapse same-inode hits so a single real
     # backlog isn't mistaken for multiple candidates (F261).
