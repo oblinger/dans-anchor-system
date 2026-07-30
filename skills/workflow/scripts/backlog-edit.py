@@ -112,7 +112,13 @@ VALID_STATUS_PATTERNS = (
     re.compile(r"^Watching\s+\d+[dhmy]$", re.IGNORECASE),                    # "Watching 14d"
     re.compile(r"^Verify(-by\s+\d{4}-\d{2}-\d{2})?$", re.IGNORECASE),        # "Verify-by 2026-06-02"
     re.compile(r"^Done(\s+\d{4}-\d{2}-\d{2})?$", re.IGNORECASE),             # "Done 2026-06-04"
-    re.compile(r"^Blocked(\s+F\d+)?$", re.IGNORECASE),                       # "Blocked F210"
+    # F283 — the handle is ANY row identifier, not only a feature: "a Verify can
+    # gate other work, so it can be a blocker." Same identifier shape the row
+    # parser accepts (F091 / T007 / B-QFix / DMUX-F034 / R-Scaffolding.5.2).
+    # Bare "Blocked" still parses here so existing rows can be READ and
+    # re-bracketed; `blocked_grammar_gate` is what refuses it on a write.
+    re.compile(r"^Blocked(\s+[A-Za-z][A-Za-z0-9_\-]*(?:\.[A-Za-z0-9_\-]+)*)?$",
+               re.IGNORECASE),                                               # "Blocked F210", "Blocked B-QFix"
 )
 
 # A Questions-bracket promise: the linked target must contain ≥1 of these.
@@ -842,6 +848,52 @@ def is_nonanswer(text):
     return False
 
 
+def blocked_grammar_gate(status, row_id):
+    """F283 — `[Blocked]` must name what it is blocked ON.
+
+    Dan's structural claim, 2026-07-29: *"we shouldn't be able to say blocking.
+    Maybe the only thing you're allowed to block on is another feature. If
+    you're not blocking on another feature, you're not blocked. You have a
+    question, maybe."* This converts `[Blocked]` from a mood into a typed edge,
+    and the edge is what lets the render promote a blocker into its own section
+    and show you the thing actually worth working on.
+
+    Bare `[Blocked]` is the bracket four Dan-gated rows hid behind: each
+    recorded its real blocker in prose, where nothing could read it, and so
+    each dropped out of every surface. Three states replace it, and each names
+    what it waits on — `[Blocked <handle>]` on another row, `[Questions]` on an
+    answer from Dan, `[Waiting <condition>]` on time or an external state.
+
+    `<handle>` is any row identifier, not only a feature: a Verify can gate
+    other work, so it can be a blocker.
+
+    Enforced at the write rather than audited afterwards, per the standing
+    preference for a structural gate over one more rule to remember. Rows
+    written before this gate keep their bare bracket until something touches
+    them — measured 2026-07-30 there were 33 vault-wide, against 6 that named a
+    handle.
+    """
+    if (status or "").strip() != "Blocked":
+        return
+    raise BacklogEditError(
+        f"[Blocked] refused: {row_id} must name what it is blocked ON.\n"
+        f"  Per F283, `[Blocked]` is a typed edge, not a mood — the render "
+        f"promotes whatever\n"
+        f"  other rows are blocked on into its own section, and a bare bracket "
+        f"carries no edge\n"
+        f"  to follow. Pick the one that is actually true:\n"
+        f"    --status \"Blocked <handle>\"     waiting on another row "
+        f"(e.g. \"Blocked F142\") — any row id,\n"
+        f"                                    a Verify can gate work too\n"
+        f"    --status Questions              waiting on an answer from the "
+        f"user\n"
+        f"    --status Waiting                waiting on time or an external "
+        f"state — name the\n"
+        f"                                    condition in the body "
+        f"(\"Waiting on: <event>\")"
+    )
+
+
 def next_answer_gate(status, row_id, eff_next):
     """F242 — refuse a [Ready]/[Active]/[Agreed] row whose `- **Next:**` value
     is a non-answer placeholder. Empty-Next is already refused by the F171
@@ -1553,6 +1605,12 @@ def perform_edit(
                 f"and is flagged by audit-q C51. If the action is something the "
                 f"agent can do, use [Ready] with a `- **Next:**` instead."
             )
+
+    # F283 — bare `[Blocked]` is illegal; it must name the row it waits on.
+    # Checked on any write that sets the bracket, so a pre-existing bare
+    # [Blocked] is corrected the first time anything touches it.
+    if status not in ("same", "delete"):
+        blocked_grammar_gate(status, row_id)
 
     # F240 — verification ownership gate. Fires when the row ENTERS the
     # Verify/Verify-by/Watching family or its question is (re)written; a
