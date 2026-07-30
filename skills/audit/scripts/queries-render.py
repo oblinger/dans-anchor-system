@@ -656,16 +656,30 @@ def derive_banner(name: str, rows: list[Row], backlog_file: Path,
 # Body rendering
 # ============================================================
 
-# Horizons we render in the body
-BODY_HORIZON_ORDER = ["Active", "Ready", "Now", "Next", "Later", "Verify"]
-
 # Brackets that DO get rendered under ## Later (everything else is hidden)
 LATER_RENDERED_BRACKETS_PREFIX = ("Questions", "Verify")  # "Verify" matches "Verify" and "Verify-by ..."
+
+_VERIFY_BY_RE = re.compile(r"^Verify-by\s+(\d{4}-\d{2}-\d{2})", re.I)
+
+# F283 — `[Blocked <handle>]` is a typed edge: the handle names the row this one
+# waits on. `blocked_grammar_gate` in backlog-edit.py refuses a bare `[Blocked]`
+# at the write, but 33 bare rows predate the gate, so the group is optional here
+# — a bare row still parses, it just names no edge and promotes nothing.
+_BLOCKED_HANDLE_RE = re.compile(
+    r"^Blocked\s+([A-Za-z][A-Za-z0-9_\-]*(?:\.[A-Za-z0-9_\-]+)*)\s*$", re.I)
 
 
 def _row_should_render(row: Row) -> bool:
     """True if a row is eligible for rendering in the Q.md body."""
     if row.bracket.startswith("Done"):
+        return False
+    # F283 — `[Verify-by <date>]` renders NOWHERE. The bracket is a promise that
+    # nothing happens until the date, and `sweep_stale_brackets` auto-Dones the
+    # row when the date arrives, so it is set-and-forget by construction and
+    # showing it only crowds the checks that still want a look. Excluded here
+    # rather than in `build_queries_body` so the coverage assertion never sees
+    # it as an unclaimed row.
+    if _VERIFY_BY_RE.match(row.bracket):
         return False
     if row.horizon == "Later":
         # Only Questions / Verify / Verify-by under Later
@@ -895,16 +909,29 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
     `main()` reuses the return for Q.md. Fully script-owned; edit the backlog rows.
 
     The render is TOTAL over the rows `_row_should_render` admits (F284) — every
-    eligible row lands in exactly one section, in emission order:
-      ## Verifications  ← `[Verify*]` / `[Watching*]` rows (each `**V<n>**` + the
-                          row's verify-plan body + `· **yes / no**`)
-      ## Questions      ← `[Questions]` rows, linking to the source's open Qs
+    eligible row lands in exactly one section, in emission order (F283):
+      ## Blockers       ← computed, not authored: any row some OTHER row names in
+                          its `[Blocked <handle>]`, promoted out of whatever
+                          section it would otherwise occupy. Empty is the good
+                          state, and it reads in one glance.
       ## Ready          ← `[Ready]`/`[Agreed]`/`[Active]`/`[Implementing]` rows,
-                          each with its declared `**Next:**` no-user action (⚠ if none)
+                          each with its declared `**Next:**` no-user action (⚠ if
+                          none). First among the working sections because it is
+                          short and orients the rest.
+      ## Questions      ← `[Questions]` rows, linking to the source's open Qs.
+                          The one pile the user personally unsticks.
+      ## Blocked        ← the visibility ledger: `[Blocked <handle>]` and
+                          `[Waiting …]` together, so nothing disappears. Scanned,
+                          not worked.
+      ## Verifications  ← `[Verify]` / `[Watching*]` rows (each `**V<n>**` + the
+                          row's verify-plan body + `· **yes / no**`). Last: an
+                          unverified check is only a problem when something
+                          depends on it, and then Blockers has already raised it.
       ## Other          ← the catch-all: every remaining eligible row, bracket
                           shown verbatim. Before F284 these rows were silently
                           dropped — 47 of 99 frontier rows vault-wide, including
                           every row with no bracket at all.
+    `[Verify-by <date>]` rows render nowhere — see `_row_should_render`.
     Totality is asserted, not assumed: `_coverage_warning` re-checks the partition
     and emits a visible section if it ever breaks, so a future unclaimed row shows
     up as a complaint rather than an absence.
@@ -913,29 +940,54 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
         return None
     block_ids = _extract_block_ids(backlog_file)
     h3_headings = _extract_h3_headings(backlog_file)
-    eligible = [r for r in rows if _row_should_render(r)]
-    verifs = [r for r in eligible if r.bracket.startswith("Verify") or r.bracket.startswith("Watching")]
-    # Date-based `[Verify-by YYYY-MM-DD]` rows sort to the END of the list, ordered
-    # by date (soonest first); plain `[Verify]`/`[Watching]` keep backlog order first
-    # (user direction 2026-07-15 — auto-expiring date checks are set-and-forget, so
-    # they belong below the ones that still want a look). Stable sort preserves the
-    # backlog order of the non-date rows among themselves.
-    def _verify_by_date(r):
-        m = re.match(r"Verify-by\s+(\d{4}-\d{2}-\d{2})", r.bracket, re.I)
-        return m.group(1) if m else None
-    verifs.sort(key=lambda r: (1, _verify_by_date(r)) if _verify_by_date(r) else (0, ""))
+    # F283 — invert the `[Blocked <handle>]` edge (the render target F268 has been
+    # waiting for). Scan ALL rows, not just eligible ones: a Later-horizon row
+    # blocked on F012 still means F012 gates work, and that is the fact the
+    # Blockers section exists to surface. `gated_by` maps a blocker's identifier
+    # to the rows waiting on it, so the bullet can say what it holds up.
+    gated_by: dict[str, list[str]] = {}
+    for r in rows:
+        m = _BLOCKED_HANDLE_RE.match(r.bracket)
+        if m:
+            gated_by.setdefault(m.group(1), []).append(r.identifier)
+    # A blocker is drawn from ALL rows, not from the eligible set — being named
+    # by another row is itself the reason to render, and it OVERRIDES every
+    # ordinary reason not to. Measured 2026-07-30: all four named edges vault-wide
+    # point at rows the eligibility test excludes (Tink F238 waits on F230, parked
+    # in `## Later`), so a blockers-from-eligible rule renders the empty set
+    # forever — and "nobody is looking at the thing your work waits on" is exactly
+    # the condition worth a section at the top of the file. `[Done]` is the one
+    # exclusion: a resolved blocker means the WAITING row is stale, which is a
+    # different finding and already /groom's.
+    blockers = [r for r in rows
+                if r.identifier in gated_by and not r.bracket.startswith("Done")]
+    promoted = {id(r) for r in blockers}
+    # Promotion happens FIRST, so a blocker leaves whatever section would
+    # otherwise hold it — including Verifications — and a promoted off-frontier
+    # row JOINS the eligible set rather than being counted as a coverage leak.
+    eligible = blockers + [r for r in rows
+                           if id(r) not in promoted and _row_should_render(r)]
     # An empty B-QFix (zero residuals) is NOT Ready — nothing to do — so drop it
     # from the Ready render (per user 2026-06-29: "not really ready, what's it doing there").
     qfix_empty = _count_qfix_subs(backlog_file) == 0
-    ready = [r for r in eligible if r.bracket in READY_ACTIVE_BRACKETS
+    ready = [r for r in eligible if id(r) not in promoted
+             and r.bracket in READY_ACTIVE_BRACKETS
              and not (r.identifier == "B-QFix" and qfix_empty)]
-    qs = [r for r in eligible if "Questions" in r.bracket]
-    # F284 — the catch-all. Anything eligible that the three named sections did
-    # not claim renders here rather than falling off the end of the function.
+    qs = [r for r in eligible if id(r) not in promoted and "Questions" in r.bracket]
+    # The ledger. `[Waiting]` rides with `[Blocked <handle>]` because both mean
+    # "not moving, and not by the user's hand" — the difference is only who
+    # eventually moves it, which the bracket itself already says.
+    blocked = [r for r in eligible if id(r) not in promoted
+               and (r.bracket.startswith("Blocked") or r.bracket.startswith("Waiting"))]
+    verifs = [r for r in eligible if id(r) not in promoted
+              and (r.bracket.startswith("Verify") or r.bracket.startswith("Watching"))]
+    # F284 — the catch-all. Anything eligible that the named sections did not
+    # claim renders here rather than falling off the end of the function.
     # `suppressed` is the ONE deliberate omission (the empty B-QFix row above);
     # it is tracked so the coverage assertion can account for it instead of
     # reading it as a leak.
-    claimed = {id(r) for r in verifs} | {id(r) for r in qs} | {id(r) for r in ready}
+    claimed = (promoted | {id(r) for r in ready} | {id(r) for r in qs}
+               | {id(r) for r in blocked} | {id(r) for r in verifs})
     suppressed = [r for r in eligible
                   if r.identifier == "B-QFix" and qfix_empty and id(r) not in claimed]
     accounted = claimed | {id(r) for r in suppressed}
@@ -951,33 +1003,36 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
             body.append("")
         body.append(title)
 
-    if verifs:
-        _h2("## Verifications")
-        for i, r in enumerate(verifs, 1):
+    # F283 — Blockers first. Computed, never authored: these rows are here only
+    # because something else names them. Each bullet says WHAT it holds up, which
+    # is the whole point — the `[Blocked <handle>]` edge was previously readable
+    # only from the waiting end, so a blocker had no idea it was one.
+    if blockers:
+        _h2("## Blockers")
+        for r in blockers:
             link = _bullet_link(r, name, vault_index, block_ids, h3_headings)
-            # Prefer the row's concrete `Verify:` question; fall back to a ⚠ so a
-            # row with only jargon body is flagged (not silently shown vague).
-            q = verify_questions.get(r.identifier)
-            qtxt = (_truncate_body(q, 240) if q
-                    else "⚠ no concrete question — add a `- **Verify:** <yes/no question>` sub-bullet to the row")
-            # Date-based rows lead with their auto-expiry date (user direction
-            # 2026-07-15 — "date at the front when they're verification based on
-            # date"). The date auto-Dones the row on arrival; until then it reads
-            # as a passive-use window.
-            vb = _verify_by_date(r)
-            if vb:
-                qtxt = f"**by {vb}** — {qtxt}"
-            # F235: the feature doc is the verification's home — link it first,
-            # demote the backlog-row link to a parenthesized `(row)` pointer.
-            doclink = _feature_doc_link(r, vault_index, backlog_file)
-            if doclink:
-                rowlink = re.sub(r"\|[^\]|]*\]\]$", "|row]]", link) if link.rstrip().endswith("]]") else link
-                body.append(f"- **V{i}** {doclink} ({rowlink}) — {qtxt} · **yes / no**")
-            else:
-                body.append(f"- **V{i}** {link} — {qtxt} · **yes / no**")
-    # Section order per R-query-03: … → Questions → Ready (the render emitted
-    # Ready before Questions since inception — a spec divergence invisible
-    # until Warden could see script-written files; fixed 2026-07-13).
+            btxt = _bullet_bracket_display(r.bracket) if r.bracket else "**[no state]**"
+            waiters = ", ".join(gated_by.get(r.identifier, []))
+            # Say so when the blocker was dragged up from off-frontier. "F230
+            # gates F238, and F230 is parked in Later" is the actionable shape;
+            # without the horizon the row reads as ordinary pending work.
+            parked = "" if _row_should_render(r) else f" · parked in **{r.horizon}**"
+            txt = _truncate_body(r.body, 160)
+            body.append(f"- {link} — {btxt} **gates {waiters}**{parked}"
+                        + (f" — {txt}" if txt else ""))
+    # Ready first among the working sections: it is short, it is what the agent
+    # can act on with no user involvement, and it orients everything below it.
+    if ready:
+        _h2("## Ready")
+        for r in ready:
+            link = _bullet_link(r, name, vault_index, block_ids, h3_headings)
+            na = next_actions.get(r.identifier)
+            na_txt = (_truncate_body(na, 200) if na
+                      else "⚠ none declared — not really Ready; add a no-user next-action or rebracket")
+            body.append(f"- {link} — **Next:** {na_txt}")
+    # Questions — the one pile the user personally unsticks. Kept separate from
+    # Blocked (F283 Q2 (A)): the axis that earns a section break is "can the user
+    # act on it", not "is it stopped".
     if qs:
         _h2("## Questions")
         for r in qs:
@@ -1016,14 +1071,38 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
                     # as a formal Q and would trip C6 (block-id)/C9 (recommendation)
                     # on every render of this generated file.
                     body.append(f"    - {qid} — {_truncate_body(qtext, 200)}{rec_txt}")
-    if ready:
-        _h2("## Ready")
-        for r in ready:
+    # F283 — the visibility ledger. Scanned, not worked: "if it's legitimately
+    # blocked on something else, then I don't really want to see it, I just wanna
+    # work on the thing that it's blocked by." It renders anyway so that nothing
+    # silently disappears, which is the defect that produced this feature.
+    if blocked:
+        _h2("## Blocked")
+        for r in blocked:
             link = _bullet_link(r, name, vault_index, block_ids, h3_headings)
-            na = next_actions.get(r.identifier)
-            na_txt = (_truncate_body(na, 200) if na
-                      else "⚠ none declared — not really Ready; add a no-user next-action or rebracket")
-            body.append(f"- {link} — **Next:** {na_txt}")
+            btxt = _bullet_bracket_display(r.bracket)
+            txt = _truncate_body(r.body, 160)
+            body.append(f"- {link} — {btxt}" + (f" {txt}" if txt else ""))
+    # Verifications last, deliberately below the fold: "it's not actually a
+    # problem if a verification is not verified if nothing is depending on it" —
+    # and when something does depend on it, Blockers has already promoted it out
+    # of here to the top of the file.
+    if verifs:
+        _h2("## Verifications")
+        for i, r in enumerate(verifs, 1):
+            link = _bullet_link(r, name, vault_index, block_ids, h3_headings)
+            # Prefer the row's concrete `Verify:` question; fall back to a ⚠ so a
+            # row with only jargon body is flagged (not silently shown vague).
+            q = verify_questions.get(r.identifier)
+            qtxt = (_truncate_body(q, 240) if q
+                    else "⚠ no concrete question — add a `- **Verify:** <yes/no question>` sub-bullet to the row")
+            # F235: the feature doc is the verification's home — link it first,
+            # demote the backlog-row link to a parenthesized `(row)` pointer.
+            doclink = _feature_doc_link(r, vault_index, backlog_file)
+            if doclink:
+                rowlink = re.sub(r"\|[^\]|]*\]\]$", "|row]]", link) if link.rstrip().endswith("]]") else link
+                body.append(f"- **V{i}** {doclink} ({rowlink}) — {qtxt} · **yes / no**")
+            else:
+                body.append(f"- **V{i}** {link} — {qtxt} · **yes / no**")
     # F284 — the catch-all, emitted last so it never displaces the classified
     # work. Each row shows its bracket VERBATIM: a state the render doesn't know
     # (`[Designing]`), a state gated on the user (`[User]`), the bracket field
@@ -1033,10 +1112,11 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
         _h2("## Other")
         for r in other:
             link = _bullet_link(r, name, vault_index, block_ids, h3_headings)
-            btxt = f"**[{r.bracket}]**" if r.bracket else "**[no state]**"
+            btxt = _bullet_bracket_display(r.bracket) if r.bracket else "**[no state]**"
             txt = _truncate_body(r.body, 200)
             body.append(f"- {link} — {btxt}" + (f" {txt}" if txt else ""))
-    body.extend(_coverage_warning(eligible, [verifs, qs, ready, other], suppressed))
+    body.extend(_coverage_warning(
+        eligible, [blockers, ready, qs, blocked, verifs, other], suppressed))
     if not body:
         body.append("_Nothing pending._")
     return body
@@ -1108,7 +1188,8 @@ def render_queries_doc(name: str, banner: Optional[str], rows: list[Row],
     # Preserve existing frontmatter; else write a default.
     fm = ["---",
           f"description: {name} queries — mechanically rendered from the backlog "
-          "(Verifications / Ready+Next / Questions), and copied verbatim into Q.md. "
+          "(Blockers / Ready+Next / Questions / Blocked / Verifications / Other), "
+          "and copied verbatim into Q.md. "
           "Do not hand-edit; edit the backlog rows.",
           "---"]
     if queries_file.is_file():
@@ -1175,46 +1256,6 @@ def _bullet_link(row: Row, name: str, vault_index: dict,
         return f"[[{name} Backlog#^{anchor}|{row.identifier}]]"
     # Step 5: plain text — better than a dead link.
     return row.identifier
-
-
-def _render_bullet(row: Row, name: str, vault_index: dict,
-                   block_ids: set[str], h3_headings: set[str]) -> str:
-    bracket = _bullet_bracket_display(row.bracket if row.bracket else "")
-    link = _bullet_link(row, name, vault_index, block_ids, h3_headings)
-    body = _truncate_body(row.body)
-    if body:
-        return f"- {bracket} {link} — {body}"
-    return f"- {bracket} {link}"
-
-
-def render_body(rows: list[Row], name: str, backlog_file: Path,
-                vault_index: dict, next_actions: dict[str, str]) -> list[str]:
-    """Render the body H2s + bullets. Returns a list of lines (no trailing
-    newline). Resolves every emitted link against vault_index + the backlog's
-    actual block-ids + H3 headings — no dead links emitted. For each
-    [Ready]/[Active] row, renders a `  - **Next:**` sub-line with the row's
-    declared autonomous next-action (or a ⚠ warning when none is declared)."""
-    out: list[str] = []
-    eligible = [r for r in rows if _row_should_render(r)]
-    by_horizon: dict[str, list[Row]] = {}
-    for r in eligible:
-        by_horizon.setdefault(r.horizon, []).append(r)
-    block_ids = _extract_block_ids(backlog_file)
-    h3_headings = _extract_h3_headings(backlog_file)
-    for h in BODY_HORIZON_ORDER:
-        if h not in by_horizon:
-            continue
-        out.append(f"## {h}")
-        for r in by_horizon[h]:
-            out.append(_render_bullet(r, name, vault_index, block_ids, h3_headings))
-            if r.bracket in READY_ACTIVE_BRACKETS:
-                na = next_actions.get(r.identifier)
-                if na:
-                    out.append(f"  - **Next:** {_truncate_body(na, 200)}")
-                else:
-                    out.append("  - **Next:** ⚠ none declared — not really Ready; "
-                               "add a no-user next-action or rebracket")
-    return out
 
 
 # ============================================================
@@ -1322,9 +1363,6 @@ def rewrite_qmd_section(name: str, section_lines: list[str]) -> str:
 # Everything judgment-heavy ([Watching Nd] body-date expiry, lazy states,
 # blocker-resolved, [Ready] hedging, bracket/H2 mismatch) stays in /groom.
 # ============================================================
-
-_VERIFY_BY_RE = re.compile(r"^Verify-by\s+(\d{4}-\d{2}-\d{2})", re.I)
-
 
 def _is_top_level_row(line: str) -> bool:
     if ROW_OPENER_H3_RE.match(line):
