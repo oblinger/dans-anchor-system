@@ -282,6 +282,31 @@ def _last_assistant_text(transcript_path):
     return text.strip()
 
 
+def _normalize_cover(raw):
+    """T063 — one shape for `covered_by`: a bare handle, or None.
+
+    The classifier answers this field four different ways, and until 2026-07-30
+    every one of them was written to the log verbatim: JSON `null` (which
+    `str()` turned into the string `"None"`, 341 records), the literal string
+    `"none"` (324), a bare handle (`F235`), and the whole row title
+    (`F235 — Activity CLI — grain downsampling …`). Nothing parsed the field
+    yet, which is exactly why this was cheap to fix — the enforcement path had
+    always compared case-insensitively and was never wrong.
+
+    Note for anyone reading the log: records before 2026-07-30 keep the old
+    mixed encodings. The change is at the write site only; back-log records are
+    left alone rather than rewritten.
+    """
+    if raw is None:
+        return None
+    s = str(raw).strip()
+    if not s or s.lower() in ("none", "null", "n/a", "-"):
+        return None
+    # Keep only the handle when the classifier echoes the full row title.
+    # Split on a SPACED dash so hyphenated handles (`B-QFix`) survive intact.
+    return re.split(r"\s+[—–-]\s+", s, maxsplit=1)[0].strip()[:80] or None
+
+
 def _llm_ask_check(payload, anchor, anchor_path):
     """Stage-2 (F267 + F275 M1 cover-check): on a work-armed, clean-worklist
     stop, ask an LLM whether the agent's final message is WAITING ON THE USER
@@ -302,7 +327,7 @@ def _llm_ask_check(payload, anchor, anchor_path):
         return None
     asking = False
     summary = ""
-    covered_by = "none"
+    covered_by = None
     got_verdict = False
     try:
         msg = _last_assistant_text(payload.get("transcript_path", ""))
@@ -344,7 +369,7 @@ def _llm_ask_check(payload, anchor, anchor_path):
         verdict = json.loads(out)
         asking = bool(verdict.get("asking"))
         summary = str(verdict.get("summary", ""))[:200]
-        covered_by = str(verdict.get("covered_by", "none")).strip()[:80] or "none"
+        covered_by = _normalize_cover(verdict.get("covered_by"))
         got_verdict = True
         rec = {"ts": datetime.now(timezone.utc).isoformat(), "anchor": anchor,
                "asking": asking, "summary": summary, "covered_by": covered_by,
@@ -360,7 +385,7 @@ def _llm_ask_check(payload, anchor, anchor_path):
     try:
         if not (got_verdict and asking):
             return None
-        if covered_by.lower() != "none":
+        if covered_by is not None:
             return None  # an open Q already captures this ask — surfaced, don't block
         cfg = _llm_config()
         if cfg["mode"] != "enforce" or cfg["fired"] >= cfg["budget"]:

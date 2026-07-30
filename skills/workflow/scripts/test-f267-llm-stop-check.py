@@ -202,6 +202,20 @@ def main():
           and hdr.get("Q007") == "Swap the vocab words?",
           "_queue_open_questions extracts Q/Questions/User rows, excludes Ready")
 
+    # 12 — T063: `covered_by` has ONE shape on the way out — a bare handle, or
+    # None. The classifier answers it four ways and every one used to reach the
+    # log verbatim (`"None"` 341x, `"none"` 324x, bare handle, full row title).
+    # Nothing parsed the field yet, so the enforcement path was never wrong —
+    # this pins the normalization so it stays that way once something does.
+    for raw, want in ((None, None), ("none", None), ("None", None),
+                      ("null", None), ("", None), ("  ", None),
+                      ("F235", "F235"), ("T018", "T018"),
+                      ("B-QFix", "B-QFix"),          # hyphenated handle survives
+                      ("R-query.3", "R-query.3"),    # dotted handle survives
+                      ("F235 — Activity CLI — grain downsampling", "F235")):
+        check(m._normalize_cover(raw) == want,
+              f"T063 _normalize_cover({raw!r}) → {want!r}")
+
     m.subprocess = real_subprocess
 
     if os.environ.get("F267_LIVE"):
