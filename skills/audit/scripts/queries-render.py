@@ -1363,7 +1363,8 @@ def sweep_stale_brackets(backlog_file: Path) -> list[str]:
 
 def main() -> int:
     p = argparse.ArgumentParser(description=(__doc__ or "").split("\n")[0])
-    p.add_argument("name", help="anchor slug, e.g. 'SKA'")
+    p.add_argument("name", help="backlog filename prefix (NOT the .anchor slug) — "
+                                "e.g. 'Tink', 'Scout', 'LUMEN'")
     p.add_argument("--print-only", action="store_true",
                    help="print the would-be section to stdout, don't touch Q.md")
     p.add_argument("--no-sweep", action="store_true",
@@ -1377,6 +1378,15 @@ def main() -> int:
     if backlog_file is None:
         sys.stderr.write(f"queries-render: error — no backlog found for anchor '{name}'\n")
         sys.stderr.write(f"  searched {VAULT_ROOT} for '* Backlog.md' under */Plan|*/Track\n")
+        # The key is the backlog filename prefix, not the `.anchor` slug — they
+        # diverge for any anchor whose display name isn't already all-caps.
+        # Name the near-miss rather than leaving the caller to conclude the
+        # anchor is unwritable (which has already happened once).
+        near = sorted(k for k in backlogs if k.lower() == name.lower())
+        if near:
+            sys.stderr.write(
+                "  did you mean '%s'? this argument is the backlog filename "
+                "prefix, not the .anchor slug\n" % "' / '".join(near))
         return 1
 
     # Mechanical staleness sweep — conditional by nature (only rewrites rows that
