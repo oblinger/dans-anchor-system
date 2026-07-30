@@ -668,6 +668,15 @@ _VERIFY_BY_RE = re.compile(r"^Verify-by\s+(\d{4}-\d{2}-\d{2})", re.I)
 _BLOCKED_HANDLE_RE = re.compile(
     r"^Blocked\s+([A-Za-z][A-Za-z0-9_\-]*(?:\.[A-Za-z0-9_\-]+)*)\s*$", re.I)
 
+# A frontmatter description this function wrote, in any generation of its
+# wording. The stable part is the claim — "<something> queries — mechanically
+# rendered from the backlog" — so that is what we match; the anchor name, the
+# optional quote, and the credited engine (`by triage`, `by queries-render.py`)
+# all drifted over time and none of them is the signal.
+_MACHINE_DESC_RE = re.compile(
+    r'^description:\s*"?[^"]*?queries\s+—\s+mechanically rendered from the backlog',
+    re.I)
+
 
 def _row_should_render(row: Row) -> bool:
     """True if a row is eligible for rendering in the Q.md body."""
@@ -1193,12 +1202,11 @@ def render_queries_doc(name: str, banner: Optional[str], rows: list[Row],
         h1 = banner.replace(f"[[{name} queries|{name}]]", f"[[{name}|{name}]]")
         body = built
     # Preserve existing frontmatter; else write a default.
-    fm = ["---",
-          f"description: {name} queries — mechanically rendered from the backlog "
-          "(Blockers / Ready+Next / Questions / Blocked / Verifications / Other), "
-          "and copied verbatim into Q.md. "
-          "Do not hand-edit; edit the backlog rows.",
-          "---"]
+    desc = (f"description: {name} queries — mechanically rendered from the backlog "
+            "(Blockers / Ready+Next / Questions / Blocked / Verifications / Other), "
+            "and copied verbatim into Q.md. "
+            "Do not hand-edit; edit the backlog rows.")
+    fm = ["---", desc, "---"]
     if queries_file.is_file():
         try:
             existing = queries_file.read_text(encoding="utf-8").splitlines()
@@ -1209,6 +1217,21 @@ def render_queries_doc(name: str, banner: Optional[str], rows: list[Row],
                         break
         except (OSError, UnicodeDecodeError):
             pass
+    # The description line is machine-owned — it names the sections this render
+    # emits, and the file itself says "do not hand-edit". Preserving it verbatim
+    # left every queries file written before F283 advertising the old section
+    # set (`Verifications / Ready+Next / Questions`) forever, since only a
+    # brand-new file ever saw the default. Refresh OUR line in place; any other
+    # key, and any description a human rewrote into their own words, is left
+    # exactly as found.
+    #
+    # The tell is the CLAIM, not the exact wording: a description that says it is
+    # mechanically rendered from the backlog is this function's output no matter
+    # which generation wrote it. Matching the current phrasing instead missed the
+    # ones that most needed refreshing — DKT still credited the retired `triage`,
+    # FEX still called itself `CAE`, and both were quoted, so a prefix test
+    # anchored on `description: {name}` skipped them on the quote alone.
+    fm = [desc if _MACHINE_DESC_RE.match(ln) else ln for ln in fm]
     out = fm + ["", h1, ""] + body + [""]
     queries_file.write_text("\n".join(out), encoding="utf-8")
     _selffire(queries_file)
