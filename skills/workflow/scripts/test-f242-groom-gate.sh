@@ -62,8 +62,15 @@ for sentinel in "TBD" "N/A" "none" "-" "⚠"; do
     else
         bad "A[$sentinel]: expected non-answer refusal — rc=$RC, out: $OUT"
     fi
-    if grep -q "\[Ready\]" "$BACKLOG"; then
-        bad "A[$sentinel]2: refused write must not land"
+    # Scope this to T001's OWN row. A whole-file grep for `[Ready]` matched the
+    # QFix residuals the post-edit audit appends ("bracket should be [Ready] or
+    # [Done]"), so it reported a landed write on every sentinel — and with no
+    # `ok` branch it could only ever fail. What the case actually claims is
+    # narrow: T001 did not become Ready.
+    if grep -q '^- \*\*T001\b.*\[Ready\]' "$BACKLOG"; then
+        bad "A[$sentinel]2: refused write must not land — T001 is [Ready]"
+    else
+        ok "A[$sentinel]2: refused write did not land on T001"
     fi
 done
 

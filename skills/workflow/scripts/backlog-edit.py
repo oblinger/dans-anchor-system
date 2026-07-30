@@ -1581,8 +1581,11 @@ def perform_edit(
         if _status_needs_verify(status) and not (eff_verify and eff_verify.strip()):
             raise BacklogEditError(
                 f"[{status}] refused: {row_id} needs a concrete yes/no question. "
-                f"Pass --verify \"<question>\" (e.g. \"Since <date>, has <bad thing> "
-                f"recurred? no = held\"). Setting a Watching/Verify bracket without "
+                f"On `set`, pass --verify \"<question>\" (e.g. \"Since <date>, has "
+                f"<bad thing> recurred? no = held\"); on `define`, put it in the body "
+                f"as a `- **Verify:** <question>` sub-bullet — `define` reads the "
+                f"promise from the body, not from the flag. Setting a Watching/Verify "
+                f"bracket without "
                 f"its `- **Verify:**` sub-bullet renders `⚠ no concrete question` "
                 f"and is flagged by audit-q C41. If there is genuinely no user "
                 f"check, promote to [Done] or rebracket to [Blocked]/[Waiting]."
@@ -1590,7 +1593,10 @@ def perform_edit(
         if _status_needs_next(status) and not (eff_next and eff_next.strip()):
             raise BacklogEditError(
                 f"[{status}] refused: {row_id} needs a no-user next action. "
-                f"Pass --next \"<action>\". Setting a Ready/Active bracket without "
+                f"On `set`, pass --next \"<action>\"; on `define`, put it in the body "
+                f"as a `- **Next:** <action>` sub-bullet — `define` reads the promise "
+                f"from the body, not from the flag. Setting a Ready/Active bracket "
+                f"without "
                 f"its `- **Next:**` sub-bullet renders `⚠ none declared — not really "
                 f"Ready` and is flagged by audit-q C41. If the next step needs the "
                 f"user, rebracket ([Verify] for a user check, [Blocked]/[Questions] "
@@ -1599,8 +1605,11 @@ def perform_edit(
         if _status_needs_user(status) and not (eff_user and eff_user.strip()):
             raise BacklogEditError(
                 f"[{status}] refused: {row_id} needs a `- **User:**` action. "
-                f"Pass --user \"<action>\" naming exactly what YOU (the user) must "
-                f"do (e.g. \"Log into Hoare at <url> so the sync token refreshes\"). "
+                f"On `set`, pass --user \"<action>\" naming exactly what YOU (the "
+                f"user) must do (e.g. \"Log into Hoare at <url> so the sync token "
+                f"refreshes\"); on `define`, put it in the body as a "
+                f"`- **User:** <action>` sub-bullet — `define` reads the promise "
+                f"from the body, not from the flag. "
                 f"A [User] bracket without its `- **User:**` sub-bullet renders `⚠` "
                 f"and is flagged by audit-q C51. If the action is something the "
                 f"agent can do, use [Ready] with a `- **Next:**` instead."

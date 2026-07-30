@@ -2760,12 +2760,23 @@ def check_c25_designing_justification(backlog_files: list[Path],
                 surface_file=backlog_file,
                 surface_line=i + 1,
                 code="C25",
+                # Both accepted forms are matched LEXICALLY, and saying so is the
+                # whole job of this message: a well-written justification that
+                # happens not to use the word "next" fails, and the old wording
+                # gave the author no way to see why. Name the token.
                 message=(
                     f"{row_kind} '{identifier}' [Designing] has no "
                     f"justification — per F102 every [Designing] row must "
-                    f"carry **Designing** + next-action (in linked doc's "
-                    f"## Status H2, or inline `- **Status:** Designing — "
-                    f"<next-action>` sub-bullet)."
+                    f"declare what happens next, in ONE of two places. "
+                    f"(a) An inline sub-bullet directly under the row: "
+                    f"`- **Status:** Designing — <next-action>`, whose text "
+                    f"must contain the word `next` (that word is the marker "
+                    f"this check looks for, not a stylistic preference). "
+                    f"(b) The linked feature doc's `## Status` H2, whose first "
+                    f"non-blank line must begin `**Designing**` and whose body "
+                    f"must contain `next action`, `next step`, or `next move`. "
+                    f"Form (b) applies only when the row carries a resolvable "
+                    f"`→ [[…]]` link; without one, only (a) is available."
                 ),
                 mechanically_fixable=False,
             ))
