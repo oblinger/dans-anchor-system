@@ -47,7 +47,7 @@ description: sandbox backlog
 
 ## Later
 
-- **T001 — Real task** [Blocked] — real body → waiting on thing ^T001
+- **T001 — Real task** [Blocked F001] — real body → waiting on thing ^T001
   - **Q1 — Old question** — old details
 - **T002** [Done] ^T002
 - **T003 – Endash task** [Blocked] — precious body text ^T003
@@ -63,7 +63,7 @@ description: sandbox icebox
 
 ## Iced
 
-- **F002 — Parked feature** [Blocked] — parked body with rich detail ^F002
+- **F002 — Parked feature** [Blocked F001] — parked body with rich detail ^F002
   - **Plan:** revive when ready
 IB_EOF
 }
@@ -72,7 +72,7 @@ echo "== #1 cross-file move preserves title/body/status/subs =="
 build
 run Backlog F002 set --horizon Now >/dev/null 2>&1
 if grep -q "F002 — Parked feature" "$BL" && grep -q "parked body with rich detail" "$BL" \
-   && grep -q "\[Blocked\]" "$BL" && grep -q "revive when ready" "$BL"; then
+   && grep -q "\[Blocked F001\]" "$BL" && grep -q "revive when ready" "$BL"; then
   ok "F002 landed in Backlog with title/body/status/subs intact"
 else no "F002 content not preserved on move"; fi
 grep -q "\[same\]" "$BL" && no "literal [same] written" || ok "no literal [same] bracket"
@@ -98,7 +98,7 @@ grep -q "precious body text" "$BL" && ok "T003 body preserved" || no "T003 body 
 
 echo "== #7 re-define existing row REPLACES subs (no duplication) =="
 build
-printf '%s\n%s' '- **T001 — Real task** [Blocked] — new body' '  - **Plan:** brand new plan' \
+printf '%s\n%s' '- **T001 — Real task** [Blocked F001] — new body' '  - **Plan:** brand new plan' \
   | HOME="$FH" "$STATE" --anchor ZZT Backlog T001 define >/dev/null 2>&1
 n_new=$(grep -c "brand new plan" "$BL")
 [ "$n_new" -eq 1 ] && ok "new sub-bullet present exactly once" || no "new sub-bullet count=$n_new"
