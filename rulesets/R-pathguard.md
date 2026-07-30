@@ -19,13 +19,15 @@ def body(ctx):
         return ["DENY: " + name + " is owned by `state Backlog <F<n>|T<n>|F+|T+> "
                 "<define|set|resolve|remove>` — never Edit backlog rows directly "
                 "(~/.claude/skills/workflow/scripts/state)."]
-    if name.endswith(" queries.md"):
+    if name.endswith(" queries.md") or name == "Q.md":
         return ["DENY: " + name + " is mechanically rendered by queries-render.py — "
                 "edit the backlog rows / feature-doc Open Questions it renders from, not the page."]
     return []
 ```
 
 The backlog and queries pages are projections of `state`-managed rows; a direct Edit silently diverges them from the state the scripts maintain (and the next render clobbers it).
+
+`Q.md` is matched by exact name, not by the `" queries.md"` suffix — the cross-anchor dashboard is called `Q.md` and matched neither suffix, so the one page the user actually reads was the only projection an agent could edit freely. Closed 2026-07-29.
 
 **Why:** per [[SKA workflow]] mutation discipline and the standing feedback rule — never hand-edit backlog/Q surfaces; `state` refreshes Q.md as part of the write.
 
@@ -85,7 +87,7 @@ def body(ctx):
         return []
     from pathlib import Path
     name = Path(target).name
-    if name.endswith(" Backlog.md") or name.endswith(" queries.md"):
+    if name.endswith(" Backlog.md") or name.endswith(" queries.md") or name == "Q.md":
         return ["DENY: " + name + " is script-owned (`state Backlog ...` / queries-render.py) — "
                 "a wholesale Write bypasses the same discipline Edit is denied for."]
     return []
