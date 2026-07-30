@@ -42,7 +42,7 @@ One per anchor, slug-prefixed, in the tracking folder.
 ### RULE R-query-02 — Opens with frontmatter `description:` then the status-banner H1 (checked)
 check:: frontmatter_has description
 
-**Check pattern:** YAML frontmatter present with a non-empty `description:`; the first body line is the status banner `# [<TAG>]  [[{slug}|{slug}]]  -  Ready N …` (per § The banner), not a plain `# {slug} Queries` title.
+**Check pattern:** YAML frontmatter present with a non-empty `description:`; the first body line is the status banner `# [<TAG>]  [[{slug}|{slug}]]  -  Runnable N …` (per § The banner), not a plain `# {slug} Queries` title.
 
 ### RULE R-query-03 — Six sections, fixed order, no others (checked)
 check:: queries_sections_subsequence
@@ -58,7 +58,7 @@ Sections, when present, appear in this order and no foreign H2s interleave: `## 
 ### RULE R-query-16 — Banner H1 has the exact status-banner form + spacing (checked)
 check:: queries_banner_form
 
-The H1 is the status banner (§ The banner): `# [<TAG>]  [[{slug}|{slug}]]  -  Ready N    Questions N   |   Now N    Next N    Later N    Verify N    Icebox N`, with the locked spacing (two spaces after `[<TAG>]`; two around `-`; four between counts; `   |   ` between the headline pair and the horizon group), optionally suffixed `    {N}` (the QFix residual count, shown only when N > 0). The slug is wiki-linked (`[[{slug}|{slug}]]` inside queries.md, `[[{slug} queries|{slug}]]` in the Q.md copy) with a plain-text fallback when no target resolves. The renderer (`queries-render.py`) and the `Q.md` copy both depend on this exact form.
+The H1 is the status banner (§ The banner): `# [<TAG>]  [[{slug}|{slug}]]  -  Runnable N    User N   |   Now N    Next N    Later N    Verify N    Icebox N`, with the locked spacing (two spaces after `[<TAG>]`; two around `-`; four between counts; `   |   ` between the headline pair and the horizon group), optionally suffixed `    {N}` (the QFix residual count, shown only when N > 0). The slug is wiki-linked (`[[{slug}|{slug}]]` inside queries.md, `[[{slug} queries|{slug}]]` in the Q.md copy) with a plain-text fallback when no target resolves. The renderer (`queries-render.py`) and the `Q.md` copy both depend on this exact form.
 
 **Check pattern:** the H1 matches the banner grammar with the prescribed spacing (linked or plain slug both accepted); single-spaced or pipe-missing forms fail.
 

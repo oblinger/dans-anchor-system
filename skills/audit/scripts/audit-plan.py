@@ -1911,7 +1911,7 @@ def chk_queries_location(target, anchor_root, args):
 _QUERIES_BANNER_RE = re.compile(
     r"^# \[(?:U\+A|U|A|G|\?|-)\]  "                    # tag + two spaces
     r"(?:\[\[[^\]]+\]\]|[^\[\]|]+?)  -  "              # wiki-linked or plain label
-    r"Ready \d+    Questions \d+   \|   "              # headline pair
+    r"Runnable \d+    User \d+   \|   "                # headline pair (F260)
     r"Now \d+    Next \d+    Later \d+    Verify \d+    Icebox \d+"
     r"(?:    \{\d+\})?\s*$"                            # optional QFix residual count
 )
@@ -1919,11 +1919,19 @@ _QUERIES_BANNER_RE = re.compile(
 
 def chk_queries_banner_form(target, anchor_root, args):
     """R-query-16: the H1 is the status banner in the locked form the renderer
-    emits (`queries-render.py derive_banner`) — `# [<TAG>]  <slug>  -  Ready N
-    Questions N   |   Now N ... Icebox N` with the exact spacing (two spaces
-    around `-`, four between counts, three around `|`), slug wiki-linked or
-    plain, optional trailing `    {N}` residual count. The Q.md section scan
-    keys off this exact form."""
+    emits (`queries-render.py derive_banner`) — `# [<TAG>]  <slug>  -  Runnable N
+    User N   |   Now N ... Icebox N` with the exact spacing (two spaces around
+    `-`, four between counts, three around `|`), slug wiki-linked or plain,
+    optional trailing `    {N}` residual count. The Q.md section scan keys off
+    this exact form.
+
+    The headline pair is `Runnable`/`User` per F260, which renamed the buckets
+    on whose-plate-is-it grounds. This check kept enforcing the old
+    `Ready`/`Questions` pair for the whole interval, so it failed on 26 of 32
+    live queries files — every page the renderer currently produces — and fired
+    as an on-write warning against correct output. Accepting BOTH forms was
+    rejected: no-legacy-accumulation, and the handful of pre-F260 pages
+    self-correct on their next render."""
     if not target.is_file():
         return "pass", "not a file"
     if not target.name.endswith(" queries.md"):
@@ -1933,8 +1941,8 @@ def chk_queries_banner_form(target, anchor_root, args):
             if _QUERIES_BANNER_RE.match(raw):
                 return "pass", ""
             return "fail", (f"H1 (line {ln}) is not the locked status-banner "
-                            "form — expected `# [<TAG>]  <slug>  -  Ready N    "
-                            "Questions N   |   Now N    Next N    Later N    "
+                            "form — expected `# [<TAG>]  <slug>  -  Runnable N    "
+                            "User N   |   Now N    Next N    Later N    "
                             "Verify N    Icebox N` (re-render via queries-render.py)")
     return "fail", "no H1 — a queries file opens with the status-banner H1"
 
@@ -2282,6 +2290,14 @@ def chk_toc_table_iff_long(target, anchor_root, args):
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
+    # A mechanically-regenerated projection can't hold a TOC: `queries-render.py`
+    # rewrites the whole page on every state change, so any TOC would be erased
+    # on the next write and nobody could add one by hand anyway (R-pathguard
+    # denies the edit). The rule asks an author to help a reader navigate; these
+    # pages have no author. Backlogs are NOT exempt — `state` edits rows in
+    # place, so a hand-authored TOC survives there, and long ones carry one.
+    if f.name == "Q.md" or f.name.endswith(" queries.md"):
+        return "pass", "script-owned projection"
     lines = _strip_fenced(_read(f)).splitlines()
     # First cell may be bold — md-toc.py (the sanctioned TOC generator) emits
     # `| **[[#Section]]** |`, which the bare `\[\[#` pattern missed, making
