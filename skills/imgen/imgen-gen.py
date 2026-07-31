@@ -133,14 +133,17 @@ def _insert_before_first_group(text, block):
     return text.rstrip("\n") + "\n\n" + block
 
 
-def record_prompt(batch_dir, batch_n, idx, title, prompt, files):
+def record_prompt(batch_dir, batch_n, idx, title, prompt, files, meta):
     """Write the prompt group into the batch page, above any earlier group.
 
-    The prompt goes down as a plain paragraph — no heading, no blockquote, no
-    fence — so it survives a copy without anything to strip off it. That is the
-    whole reason this file writes markdown at all."""
+    The prompt goes LAST in the block, as a plain paragraph — no heading, no
+    blockquote, no fence — so it survives a copy without anything to strip off
+    it. That is the whole reason this file writes markdown at all, and it is why
+    the seeds line sits above the images rather than under the prompt: nothing
+    may come between the prompt and the end of its section."""
     page = batch_dir / f"{batch_dir.name}.md"
     block = (f"## {SLUG}{batch_n:03d}-{idx} — {title}\n\n"
+             f"*{meta}*\n\n"
              f"{grid(files)}\n\n{prompt}\n")
     page.write_text(_insert_before_first_group(page.read_text(encoding="utf-8"), block),
                     encoding="utf-8")
@@ -193,7 +196,7 @@ def generate(spec):
     out = out_dir / f"{stem}.png"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_bytes(urllib.request.urlopen(resp["images"][0]["url"], timeout=120).read())
-    return out
+    return out, resp.get("seed", "unknown")
 
 
 def main():
@@ -271,19 +274,25 @@ def main():
               f"{SLUG}{batch_n:03d}-{idx}{string.ascii_uppercase[i]}")
              for i in range(a.count)]
 
-    written, failed = [], []
+    rolls, failed = [], []
     with cf.ThreadPoolExecutor(min(4, a.count)) as ex:
         for fut in [ex.submit(generate, s) for s in specs]:
             try:
-                written.append(fut.result())
+                rolls.append(fut.result())
             except Exception as e:
                 failed.append(str(e))
-    written.sort()
+    rolls.sort()
+    written = [p for p, _ in rolls]
 
     # Record only what actually landed. A half-failed run still gets its prompt
     # written, because the rolls that DID land are unreproducible without it.
     if written:
-        record_prompt(batch_dir, batch_n, idx, a.caption or batch_title, prompt, written)
+        cfg = BACKENDS[a.backend]
+        seeds = ", ".join(f"{p.stem.split('-')[-1]} {s}" for p, s in rolls)
+        meta = (f"{cfg['model']} · {a.size} · {dt.date.today().isoformat()} · "
+                f"${cfg['cost_per_image'] * len(written):.3f} · seeds {seeds}")
+        record_prompt(batch_dir, batch_n, idx, a.caption or batch_title,
+                      prompt, written, meta)
         if fresh:
             add_member_row(batch_dir)
             add_to_gallery(batch_dir, written[0])
