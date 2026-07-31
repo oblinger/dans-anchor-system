@@ -17,11 +17,11 @@ Search for patterns that indicate personal information:
 
 | Pattern | Example |
 |---------|---------|
-| Email addresses | `{user}@gmail.com`, `{user}@work` |
-| Home directory paths | `/Users/oblinger/`, `~/ob/kmr/` |
+| Email addresses | `you@gmail.com`, `name@company.com` |
+| Home directory paths | `/Users/{user}/`, a personal vault root |
 | Personal folder structures | vault paths, anchor paths |
 | Account names/usernames | hardcoded usernames |
-| Phone numbers | `(415) 494-9499` |
+| Phone numbers | `(555) 123-4567` |
 | IP addresses | local network IPs |
 | API keys/tokens | `sk-`, `ghp_`, `Bearer` tokens |
 
@@ -53,8 +53,8 @@ Credentials: 0
 Sensitive paths: 3
 
 PII:
-  - src/config.rs:42 — email address "{user}@gmail.com"
-  - docs/setup.md:15 — home path "/Users/oblinger/"
+  - src/config.rs:42 — email address "you@gmail.com"
+  - docs/setup.md:15 — home path "/Users/{user}/"
 
 Sensitive paths:
   - CLAUDE.md:8 — vault path "~/ob/kmr/prj/"

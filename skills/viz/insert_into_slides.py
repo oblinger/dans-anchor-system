@@ -8,10 +8,11 @@ The slides_url should be a full Google Slides URL like:
 
 If no #slide= fragment is present, uses the first slide.
 
-OAuth credentials are loaded from:
-  ~/.google_workspace_mcp/credentials/{user}@gmail.com.json
+OAuth credentials are loaded from the single .json in:
+  ~/.google_workspace_mcp/credentials/
 """
 
+import glob
 import json
 import os
 import re
@@ -21,18 +22,29 @@ import urllib.parse
 import urllib.request
 
 
-CREDS_PATH = os.path.expanduser(
-    "~/.google_workspace_mcp/credentials/{user}@gmail.com.json")
+# Resolved, not hardcoded: the filename IS the account address, so a literal
+# here bakes one person's identity into a repo that ships publicly (SKA F030).
+CREDS_DIR = os.path.expanduser("~/.google_workspace_mcp/credentials")
+
+
+def creds_path():
+    """The one credentials file. Zero or several is a real ambiguity about
+    which account to act as, so it says so rather than picking."""
+    found = sorted(glob.glob(os.path.join(CREDS_DIR, "*.json")))
+    if len(found) == 1:
+        return found[0]
+    if not found:
+        print(f"Error: no credentials found in {CREDS_DIR}")
+        print("Start the Google Workspace MCP server and authenticate first.")
+    else:
+        print(f"Error: {len(found)} credentials in {CREDS_DIR} — expected one: "
+              + ", ".join(os.path.basename(p) for p in found))
+    sys.exit(1)
 
 
 def load_token():
     """Load the OAuth access token from the MCP credentials file."""
-    if not os.path.exists(CREDS_PATH):
-        print(f"Error: Credentials not found at {CREDS_PATH}")
-        print("Start the Google Workspace MCP server and authenticate first.")
-        sys.exit(1)
-
-    with open(CREDS_PATH) as f:
+    with open(creds_path()) as f:
         creds = json.load(f)
 
     token = creds.get("token")
@@ -70,7 +82,7 @@ def refresh_token(creds):
         if new_token:
             # Update the credentials file with the new token
             creds["token"] = new_token
-            with open(CREDS_PATH, "w") as f:
+            with open(creds_path(), "w") as f:
                 json.dump(creds, f, indent=2)
             print("Token refreshed successfully.")
             return new_token
