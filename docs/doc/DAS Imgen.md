@@ -1,0 +1,36 @@
+---
+description: "`/imgen` — generate an image from a prompt, into the anchor that keeps the prompt with it"
+---
+# DAS Imgen
+`/imgen` — generates an image from a prompt, files it in the IMGEN anchor with the prompt beside it, and reports what it cost.
+
+| -[[DAS Imgen]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [docs](hook://docs) → [DAS Imgen](hook://p/DAS%20Imgen)<br>: `/imgen` — generate an image from a prompt, into the anchor that keeps the prompt with it |
+| --- | --- |
+| Related | [[skills/imgen/SKILL.md\|SKILL]],  [[IMGEN]] (where output lands),  [[DAS Viz\|Viz]] (authored counterpart), |
+| ... |  |
+
+The generative counterpart to [[DAS Viz|/viz]]. `/viz` renders what you specify exactly and can re-derive it from source; `/imgen` asks a model to invent something, so the same prompt twice gives you different pictures. Everything distinctive about this skill follows from that: a generated image can never be re-derived, only re-rolled, so the prompt has to be caught at the moment the image is written.
+
+## Where your pictures go
+
+All of them to [[IMGEN]], never a scratch folder. A sitting becomes a numbered session — `IMGEN003 — Kitchen concepts` — and the rolls inside it are named for their position, so `IMGEN003-2C` is the third roll off the second prompt of that session. The session's own page lists every prompt newest-first with the images above it, and [[IMGEN Gallery]] is the picture-book: one image per session, scroll to see everything ever made.
+
+Say `/imgen -t "Kitchen concepts" {prompt}` to open a new session. Say `/imgen {prompt}` with no title and it adds to the one you are already working in.
+
+## What you get
+
+The prompt written down with the image, as plain text you can select and reuse without stripping quote marks off it. That is the point of the whole arrangement — [[IMGEN001 — Lumen portrait]] is the batch from before this existed, and its prompts are simply gone.
+
+Every run prints what it spent. A run over $1.00 refuses unless you confirm, so a fan-out cannot quietly burn money.
+
+## Presets
+
+Once a look is right, save it and reuse it: later runs reload the locked prompt and vary only the scene. This is what keeps a recurring character — an agent persona, a mascot — recognizably itself instead of drifting on every generation.
+
+## Speaking it
+
+The spoken trigger is **"really imgen"** — said "really im-jen". Say *"really imgen, a wide shot of the rooftop at night"*.
+
+## Cost
+
+FLUX via fal is $0.025 per image — a 1024×1024 roll is 2.5¢. Credentials live in the login keychain, never in a file.
