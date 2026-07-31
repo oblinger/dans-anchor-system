@@ -7,9 +7,9 @@ The engine behind the /imgen skill (SKA F276). Backends are pluggable; `fal`
 Everything this writes lands in ONE place — `~/ob/kmr/Log/IMGEN/` — because a
 generated image without the prompt that made it is a lucky roll nobody can
 reproduce, and the only way that pairing survives is if writing the image and
-recording the prompt are the same action. A session is a numbered batch folder;
-rolls inside it are `IMGEN<batch>-<prompt><variant>.png`; the batch's own page
-carries every prompt, newest first, as plain copy-pasteable text.
+recording the prompt are the same action. One sitting is a SHOOT — a numbered
+folder; rolls inside it are `IMGEN<shoot>-<prompt><variant>.png`; the shoot's
+own page carries every prompt, newest first, as plain copy-pasteable text.
 
 Credentials come from the login keychain, never from a file on disk:
     security find-generic-password -s FAL_KEY -w
@@ -32,8 +32,8 @@ PRESET_DIR = Path.home() / ".config/anchor-system/imgen/presets"
 SLUG = "IMGEN"
 
 # `IMGEN007 — Portrait studies` — the number sorts, the title reads.
-BATCH_RE = re.compile(rf"^{SLUG}(\d{{3}})(?: — (.*))?$")
-# `IMGEN007-4B.png` — batch, prompt index, roll letter.
+SHOOT_RE = re.compile(rf"^{SLUG}(\d{{3}})(?: — (.*))?$")
+# `IMGEN007-4B.png` — shoot, prompt index, roll letter.
 ROLL_RE = re.compile(rf"^{SLUG}\d{{3}}-(\d+)([A-Z])\.")
 
 BACKENDS = {
@@ -75,28 +75,28 @@ def save_preset(name, prompt):
 
 # ---------------------------------------------------------------- the anchor
 
-def batches():
-    """Every batch folder, ascending by number. [(n, title, path), ...]"""
+def shoots():
+    """Every shoot folder, ascending by number. [(n, title, path), ...]"""
     if not ANCHOR.is_dir():
         return []
     out = []
     for d in ANCHOR.iterdir():
-        m = BATCH_RE.match(d.name) if d.is_dir() else None
+        m = SHOOT_RE.match(d.name) if d.is_dir() else None
         if m:
             out.append((int(m.group(1)), m.group(2) or "", d))
     return sorted(out)
 
 
-def next_prompt_index(batch_dir):
-    """One past the highest prompt index already used in this batch."""
-    used = [int(m.group(1)) for f in batch_dir.iterdir()
+def next_prompt_index(shoot_dir):
+    """One past the highest prompt index already used in this shoot."""
+    used = [int(m.group(1)) for f in shoot_dir.iterdir()
             if (m := ROLL_RE.match(f.name))]
     return max(used, default=0) + 1
 
 
-def new_batch(title):
-    """Create the next batch folder and its namesake page. Returns (n, path)."""
-    n = max((b[0] for b in batches()), default=0) + 1
+def new_shoot(title):
+    """Create the next shoot folder and its namesake page. Returns (n, path)."""
+    n = max((b[0] for b in shoots()), default=0) + 1
     path = ANCHOR / f"{SLUG}{n:03d} — {title}"
     path.mkdir(parents=True)
     name = path.name
@@ -133,45 +133,45 @@ def _insert_before_first_group(text, block):
     return text.rstrip("\n") + "\n\n" + block
 
 
-def record_prompt(batch_dir, batch_n, idx, title, prompt, files, meta):
-    """Write the prompt group into the batch page, above any earlier group.
+def record_prompt(shoot_dir, shoot_n, idx, title, prompt, files, meta):
+    """Write the prompt group into the shoot page, above any earlier group.
 
     The prompt goes LAST in the block, as a plain paragraph — no heading, no
     blockquote, no fence — so it survives a copy without anything to strip off
     it. That is the whole reason this file writes markdown at all, and it is why
     the seeds line sits above the images rather than under the prompt: nothing
     may come between the prompt and the end of its section."""
-    page = batch_dir / f"{batch_dir.name}.md"
-    block = (f"## {SLUG}{batch_n:03d}-{idx} — {title}\n\n"
+    page = shoot_dir / f"{shoot_dir.name}.md"
+    block = (f"## {SLUG}{shoot_n:03d}-{idx} — {title}\n\n"
              f"*{meta}*\n\n"
              f"{grid(files)}\n\n{prompt}\n")
     page.write_text(_insert_before_first_group(page.read_text(encoding="utf-8"), block),
                     encoding="utf-8")
 
 
-def add_to_gallery(batch_dir, cover):
-    """One image per batch, newest at the top — the visual index."""
+def add_to_gallery(shoot_dir, cover):
+    """One image per shoot, newest at the top — the visual index."""
     g = ANCHOR / f"{SLUG} Gallery.md"
     if not g.exists():
         return
-    entry = f"## [[{batch_dir.name}]]\n\n![[{cover.name}|500]]\n"
+    entry = f"## [[{shoot_dir.name}]]\n\n![[{cover.name}|500]]\n"
     text = g.read_text(encoding="utf-8")
     m = re.search(r"^## ", text, re.M)
     g.write_text(text[:m.start()] + entry + "\n" + text[m.start():] if m
                  else text.rstrip("\n") + "\n\n" + entry, encoding="utf-8")
 
 
-def add_member_row(batch_dir):
-    """Register the batch in the anchor masthead's member zone."""
+def add_member_row(shoot_dir):
+    """Register the shoot in the anchor masthead's member zone."""
     a = ANCHOR / f"{SLUG}.md"
     if not a.exists():
         return
     text = a.read_text(encoding="utf-8")
-    if batch_dir.name in text:
+    if shoot_dir.name in text:
         return
     marker = "| ^^^ | |\n"
     if marker in text:
-        a.write_text(text.replace(marker, f"{marker}| [[{batch_dir.name}]]  |  |\n", 1),
+        a.write_text(text.replace(marker, f"{marker}| [[{shoot_dir.name}]]  |  |\n", 1),
                      encoding="utf-8")
 
 
@@ -208,35 +208,35 @@ def main():
     ap.add_argument("-s", "--size", default="square_hd")
     # Exactly one of these is required. There is deliberately NO default: an
     # unflagged call used to append to whatever was newest, which is silent and
-    # wrong the moment the newest batch is not the one you meant. A stateful
-    # "current batch" pointer was considered and rejected for the same reason —
+    # wrong the moment the newest shoot is not the one you meant. A stateful
+    # "current shoot" pointer was considered and rejected for the same reason —
     # it outlives the sitting and is shared across agents, so it reproduces the
     # silent mis-append with extra machinery to debug.
     # `-a` takes the number rather than defaulting to the newest. Two reasons:
     # an optional-argument `-a` swallows the prompt as its own value, so the
     # bare form is unusable next to a positional; and "the newest" is the same
     # implicit choice this whole flag pair exists to remove. `--list` is how you
-    # find the number, and a wrong one names every batch you do have.
+    # find the number, and a wrong one names every shoot you do have.
     where = ap.add_mutually_exclusive_group(required=True)
     where.add_argument("-n", "--new", metavar="TITLE", default=None,
-                       help="open a NEW batch with this title")
+                       help="open a NEW shoot with this title")
     where.add_argument("-a", "--append", type=int, default=None, metavar="N",
-                       help="append to batch N (see --list)")
+                       help="append to shoot N (see --list)")
     where.add_argument("-l", "--list", action="store_true",
-                       help="print the batches and exit")
+                       help="print the shoots and exit")
     ap.add_argument("-c", "--caption", default=None,
-                    help="heading for this prompt group (defaults to the batch title)")
+                    help="heading for this prompt group (defaults to the shoot title)")
     ap.add_argument("-p", "--preset", default=None, help="named preset to load")
     ap.add_argument("--save-preset", default=None, help="save this prompt as a preset")
     ap.add_argument("--confirm-over", type=float, default=1.00,
                     help="refuse a run costing more than this without --yes")
     ap.add_argument("--yes", action="store_true", help="skip the cost confirmation")
     ap.add_argument("--dry-run", action="store_true",
-                    help="resolve the batch and print what would be written; no API call")
+                    help="resolve the shoot and print what would be written; no API call")
     a = ap.parse_args()
 
     if a.list:
-        for n, title, d in batches():
+        for n, title, d in shoots():
             print(f"  {n:03d}  {title}  ({next_prompt_index(d) - 1} prompt group(s))")
         return 0
 
@@ -259,37 +259,37 @@ def main():
     if a.rolls > len(string.ascii_uppercase):
         raise ImgenError(f"at most {len(string.ascii_uppercase)} rolls off one prompt")
 
-    # Resolve the batch from the flag the caller was forced to pick.
+    # Resolve the shoot from the flag the caller was forced to pick.
     fresh = False
     if a.new:
         if a.dry_run:
-            n = max((b[0] for b in batches()), default=0) + 1
+            n = max((b[0] for b in shoots()), default=0) + 1
             print(f"dry-run: would open {SLUG}{n:03d} — {a.new} ← "
                   f"{SLUG}{n:03d}-1[{string.ascii_uppercase[:a.rolls]}] (${cost:.3f})")
             return 0
-        batch_n, batch_dir = new_batch(a.new)
-        batch_title, fresh = a.new, True
+        shoot_n, shoot_dir = new_shoot(a.new)
+        shoot_title, fresh = a.new, True
     else:
-        found = batches()
+        found = shoots()
         if not found:
             raise ImgenError('nothing to append to — open one with -n "<what it is about>"')
         if a.append:
             hit = [b for b in found if b[0] == a.append]
             if not hit:
                 have = ", ".join(f"{b[0]:03d} ({b[1]})" for b in found)
-                raise ImgenError(f"no batch {a.append:03d} in {ANCHOR} — have {have}")
-            batch_n, batch_title, batch_dir = hit[0]
+                raise ImgenError(f"no shoot {a.append:03d} in {ANCHOR} — have {have}")
+            shoot_n, shoot_title, shoot_dir = hit[0]
         else:
-            batch_n, batch_title, batch_dir = found[-1]
+            shoot_n, shoot_title, shoot_dir = found[-1]
 
-    idx = next_prompt_index(batch_dir)
+    idx = next_prompt_index(shoot_dir)
     if a.dry_run:
-        print(f"dry-run: {batch_dir.name} ← {SLUG}{batch_n:03d}-{idx}"
+        print(f"dry-run: {shoot_dir.name} ← {SLUG}{shoot_n:03d}-{idx}"
               f"[{string.ascii_uppercase[:a.rolls]}] (${cost:.3f})")
         return 0
 
-    specs = [(a.backend, prompt, a.size, batch_dir,
-              f"{SLUG}{batch_n:03d}-{idx}{string.ascii_uppercase[i]}")
+    specs = [(a.backend, prompt, a.size, shoot_dir,
+              f"{SLUG}{shoot_n:03d}-{idx}{string.ascii_uppercase[i]}")
              for i in range(a.rolls)]
 
     rolls, failed = [], []
@@ -309,18 +309,18 @@ def main():
         seeds = ", ".join(f"{p.stem.split('-')[-1]} {s}" for p, s in rolls)
         meta = (f"{cfg['model']} · {a.size} · {dt.date.today().isoformat()} · "
                 f"${cfg['cost_per_image'] * len(written):.3f} · seeds {seeds}")
-        record_prompt(batch_dir, batch_n, idx, a.caption or batch_title,
+        record_prompt(shoot_dir, shoot_n, idx, a.caption or shoot_title,
                       prompt, written, meta)
         if fresh:
-            add_member_row(batch_dir)
-            add_to_gallery(batch_dir, written[0])
+            add_member_row(shoot_dir)
+            add_to_gallery(shoot_dir, written[0])
 
     for p in written:
         print(f"  {p.name}")
     for f in failed:
         print(f"  FAILED: {f}", file=sys.stderr)
-    print(f"{len(written)} roll(s) as {SLUG}{batch_n:03d}-{idx}, "
-          f"${BACKENDS[a.backend]['cost_per_image']*len(written):.3f} — {batch_dir}")
+    print(f"{len(written)} roll(s) as {SLUG}{shoot_n:03d}-{idx}, "
+          f"${BACKENDS[a.backend]['cost_per_image']*len(written):.3f} — {shoot_dir}")
     return 1 if failed else 0
 
 
