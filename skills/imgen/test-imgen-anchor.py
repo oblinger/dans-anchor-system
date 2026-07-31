@@ -6,14 +6,14 @@ in the skill is the network call itself. What is asserted is the set of
 properties the IMGEN anchor's `# BRIEF` promises, because those are what every
 derived view reads back:
 
-  - a new batch takes the next free number and gets its namesake page
+  - a new shoot takes the next free number and gets its namesake page
   - a new prompt group lands ABOVE the older ones (newest-first is load-bearing;
     the gallery and the masthead both trust the order)
   - the prompt is the LAST thing in its group — nothing may come between it and
     the end of the section, or a copy picks up trailing junk
   - the seeds line therefore sits above the images, not under the prompt
   - grids wrap 3-across and pad the short final row
-  - a fresh batch registers in the masthead member zone and at the top of the
+  - a fresh shoot registers in the masthead member zone and at the top of the
     gallery
 """
 import importlib.util
@@ -50,8 +50,8 @@ def main():
         (tmp / "IMGEN Gallery.md").write_text(
             "# IMGEN Gallery\nx\n\n## [[old]]\n\n![[o.png|500]]\n", encoding="utf-8")
 
-        n, d = ig.new_batch("Kitchen concepts")
-        check("new batch takes the next number", (n, d.name),
+        n, d = ig.new_shoot("Kitchen concepts")
+        check("new shoot takes the next number", (n, d.name),
               (1, "IMGEN001 — Kitchen concepts"))
         check("namesake page written", (d / f"{d.name}.md").exists(), True)
 
@@ -88,17 +88,17 @@ def main():
         check("short final row is padded",
               "| ![[IMGEN001-1D.png\\|500]] |  |  |" in page, True)
 
-        check("batch registered in the masthead",
+        check("shoot registered in the masthead",
               "[[IMGEN001 — Kitchen concepts]]" in
               (tmp / "IMGEN.md").read_text(encoding="utf-8"), True)
         gallery = (tmp / "IMGEN Gallery.md").read_text(encoding="utf-8")
         check("gallery entry goes on top",
               gallery.index("Kitchen concepts") < gallery.index("[[old]]"), True)
 
-        # A second batch must not disturb the first, and must sort after it.
-        n2, d2 = ig.new_batch("Rooftop")
-        check("second batch takes 002", (n2, d2.name), (2, "IMGEN002 — Rooftop"))
-        check("both batches are seen", [b[0] for b in ig.batches()], [1, 2])
+        # A second shoot must not disturb the first, and must sort after it.
+        n2, d2 = ig.new_shoot("Rooftop")
+        check("second shoot takes 002", (n2, d2.name), (2, "IMGEN002 — Rooftop"))
+        check("both shoots are seen", [b[0] for b in ig.shoots()], [1, 2])
     finally:
         shutil.rmtree(tmp)
 

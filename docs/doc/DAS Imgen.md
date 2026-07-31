@@ -13,13 +13,13 @@ The generative counterpart to [[DAS Viz|/viz]]. `/viz` renders what you specify 
 
 ## Where your pictures go
 
-All of them to [[IMGEN]], never a scratch folder. A sitting becomes a numbered session — `IMGEN003 — Kitchen concepts` — and the rolls inside it are named for their position, so `IMGEN003-2C` is the third roll off the second prompt of that session. The session's own page lists every prompt newest-first with the images above it, and [[IMGEN Gallery]] is the picture-book: one image per session, scroll to see everything ever made.
+All of them to [[IMGEN]], never a scratch folder. A sitting is a **shoot** — a numbered folder, `IMGEN003 — Kitchen concepts` — and the rolls inside it are named for their position, so `IMGEN003-2C` is the third roll off the second prompt of that shoot. The shoot's own page lists every prompt newest-first with the images above it, and [[IMGEN Gallery]] is the picture-book: one image per shoot, scroll to see everything ever made.
 
-Every call has to say which one it means. `/imgen -n "Kitchen concepts" {prompt}` opens a new batch; `/imgen -a 3 {prompt}` adds to batch 3; `/imgen -l` lists them with their numbers. A call that names neither is refused before it spends anything — there is no "most recent" default, because rolls landing quietly in the wrong batch is the one mistake that is expensive to undo.
+Every call has to say which one it means. `/imgen -n "Kitchen concepts" {prompt}` opens a new shoot; `/imgen -a 3 {prompt}` adds to shoot 3; `/imgen -l` lists them with their numbers. A call that names neither is refused before it spends anything — there is no "most recent" default, because rolls landing quietly in the wrong shoot is the one mistake that is expensive to undo.
 
 ## What you get
 
-The prompt written down with the image, as plain text you can select and reuse without stripping quote marks off it. That is the point of the whole arrangement — [[IMGEN001 — Lumen portrait]] is the batch from before this existed, and its prompts are simply gone.
+The prompt written down with the image, as plain text you can select and reuse without stripping quote marks off it. That is the point of the whole arrangement — [[IMGEN001 — Lumen portrait]] is the shoot from before this existed, and its prompts are simply gone.
 
 Every run prints what it spent. A run over $1.00 refuses unless you confirm, so a fan-out cannot quietly burn money.
 
