@@ -18,13 +18,18 @@ Generate an image from a prompt, into the anchor that keeps the prompt with it, 
 
 ## Invocation
 
+**Every call must say where the images go.** There is no default — `-n` opens a new batch, `-a N` adds to an existing one, and a call with neither is refused before it spends anything. That is deliberate: the one failure this skill cannot tolerate is rolls landing quietly in the wrong place, and a required flag makes that unrepresentable rather than merely unlikely.
+
 | Form | Meaning |
 |---|---|
-| `/imgen {prompt}` | roll on the default backend, into the session in progress |
-| `/imgen -t "{topic}" {prompt}` | open a NEW session and roll into it |
-| `/imgen -n 4 {prompt}` | four rolls off the one prompt |
+| `/imgen -n "{topic}" {prompt}` | open a NEW batch and roll into it |
+| `/imgen -a {N} {prompt}` | add to batch N |
+| `/imgen -l` | list the batches with their numbers — how you find N |
+| `/imgen -a {N} -r 4 {prompt}` | four rolls off the one prompt |
 | `/imgen {preset} {scene}` | load a named preset, append the scene |
 | *"really imgen, {prompt}"* | the spoken form — the dictation pipeline prefixes `/imgen` |
+
+`-a` takes the number rather than defaulting to the most recent, for two reasons: an optional-argument `-a` swallows the prompt as its own value, and "the most recent" is exactly the implicit choice this flag pair exists to remove. A wrong number lists every batch that does exist.
 
 The spoken trigger is the two-word phrase **`really imgen`**. `imgen` says "im-jen".
 
@@ -61,7 +66,7 @@ Only `fal` is wired today. `recraft` and `local` are declared seams, not impleme
 
 | Script | Usage |
 |---|---|
-| `imgen-gen.py` | `python3 ~/.claude/skills/imgen/imgen-gen.py "{prompt}" [-t "{new session}"] [--batch N] [-n 4] [-c "{caption}"] [-b fal] [-p {preset}] [--save-preset {name}] [--dry-run]` |
+| `imgen-gen.py` | `python3 ~/.claude/skills/imgen/imgen-gen.py (-n "{title}" \| -a {N} \| -l) "{prompt}" [-r 4] [-c "{caption}"] [-b fal] [-p {preset}] [--save-preset {name}] [--dry-run]` |
 
 `--dry-run` resolves the batch and prints the filenames it would write without calling the API — use it to check where a roll is about to land.
 
@@ -71,7 +76,7 @@ Credentials come from the login keychain, never a file on disk: `security find-g
 
 On invocation:
 1. Parse the argument for a leading backend or preset name; everything after it is the prompt.
-2. Decide the session. If the user is starting a new subject, pass `-t "{topic}"`; if they are iterating on what was just made, pass nothing and it appends to the latest batch. When unsure, `--dry-run` first and say where it will land.
+2. Decide the batch, and say which one out loud. Starting a new subject means `-n "{topic}"`; iterating on what was just made means `-a {N}` with the number from `-l` or from the run that opened it. Never guess N — `-l` is cheap and `--dry-run` prints the exact filenames before anything is spent.
 3. Run `imgen-gen.py`.
 4. Open the results so the user sees them — never describe an image the user has not been shown.
 5. Report the cost line as printed.
