@@ -100,6 +100,7 @@ The catalog of skills — the `/`-invocable runbooks — organized by the nine s
 | [[fix-obsidian-python-comments]] |  |
 | [[google-sheets]] |  |
 | [[google-slides]] |  |
+| [[imgen/SKILL]] | Generated imagery — roll an image from a prompt into the [[IMGEN]] anchor, which keeps the prompt beside it. Sessions are numbered batches; `-t "{topic}"` opens a new one, no flag appends to the latest, `--dry-run` shows where a roll will land. Use when the user says "/imgen" or "really imgen". Authored diagrams are /viz. |
 | [[io/SKILL]] | External system I/O — read from and write to external applications and services. Google Workspace: Sheets, Slides, Drive, Docs. Email via Apple Mail. Use when the user says: "put this in sheets", "read the spreadsheet", "update the slides", "upload to drive", "read my email", "search mail for", "find that email from". Subcommands: /io gsheet, /io gslide, /io gdoc, /io gdrive, /io email, /io notion. |
 | [[io-email]] |  |
 | [[io-email-access]] |  |
