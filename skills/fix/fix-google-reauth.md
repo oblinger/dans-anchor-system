@@ -24,7 +24,7 @@ Print this to the user before doing anything:
 ctrl box "python3 ~/.claude/skills/anchor/scripts/gsa-reauth.py"
 ```
 
-The script opens a browser, user authorizes, tokens are saved automatically to `~/.google_workspace_mcp/credentials/oblinger@gmail.com.json`.
+The script opens a browser, user authorizes, tokens are saved automatically to `~/.google_workspace_mcp/credentials/{user}@gmail.com.json`.
 
 ### 3. Verify
 
@@ -38,7 +38,7 @@ If it returns results, auth is working. If it fails, the user may not have compl
 
 | Account | File | Status |
 |---------|------|--------|
-| `oblinger@gmail.com` | `oblinger@gmail.com.json` | Active — personal |
+| `{user}@gmail.com` | `{user}@gmail.com.json` | Active — personal |
 
 ## Default Scratch Folder
 

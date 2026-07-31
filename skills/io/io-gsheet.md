@@ -10,7 +10,7 @@ gsa sheets info  <id>                  # Sheet metadata
 gsa search sheets [query]              # Find spreadsheets
 ```
 
-Auth: `~/.google_workspace_mcp/credentials/oblinger@gmail.com.json`
+Auth: `~/.google_workspace_mcp/credentials/{user}@gmail.com.json`
 IDs: full Google URL or bare document ID.
 
 **Data format:** Read returns JSON array of arrays. Write/append takes JSON: `'[["A","B"],["C","D"]]'`

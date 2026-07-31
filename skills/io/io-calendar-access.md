@@ -5,7 +5,7 @@ The calendar can be reached more than one way. This page is the dispatch over **
 | Method | Reaches | Auth | Status |
 |---|---|---|---|
 | **Local — EventKit** | every calendar in the local macOS Calendar (iCloud + the Google accounts that sync into it) | none — the calling process holds a one-time macOS Calendar (TCC) grant | **✅ working** |
-| **Cloud — Google Calendar API** | a specific Google account's calendar server-side | the existing Google OAuth at `~/.google_workspace_mcp/credentials/oblinger@gmail.com.json` (same one `/io gsheet` etc. use) | **🔶 available, not yet wired** |
+| **Cloud — Google Calendar API** | a specific Google account's calendar server-side | the existing Google OAuth at `~/.google_workspace_mcp/credentials/{user}@gmail.com.json` (same one `/io gsheet` etc. use) | **🔶 available, not yet wired** |
 | **AppleScript (`osascript`)** | the local Calendar via Calendar.app scripting | none | ⚪ rejected — ~18s per query (the `whose` clause scans the whole event store); EventKit does the same in ~1s |
 
 ## Local — EventKit (default, working)

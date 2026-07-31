@@ -1,8 +1,19 @@
 #!/usr/bin/env python3
 """Re-authorize Google OAuth for gsa CLI. Opens browser for consent."""
-import json, os, http.server, urllib.request, urllib.parse, webbrowser, threading
+import json, os, glob, http.server, urllib.request, urllib.parse, webbrowser, threading
 
-CREDS_PATH = os.path.expanduser("~/.google_workspace_mcp/credentials/oblinger@gmail.com.json")
+# Resolved, not hardcoded: the filename IS the account address, so a literal
+# here bakes one person's identity into a repo that ships publicly (SKA F030).
+# Exactly one credentials file is expected — zero or several is a real
+# ambiguity about which account to re-authorize, so it fails loudly rather than
+# guessing.
+CREDS_DIR = os.path.expanduser("~/.google_workspace_mcp/credentials")
+_creds = sorted(glob.glob(os.path.join(CREDS_DIR, "*.json")))
+if len(_creds) != 1:
+    raise SystemExit(
+        f"expected exactly one credentials file in {CREDS_DIR}, found {len(_creds)}"
+        + (": " + ", ".join(os.path.basename(p) for p in _creds) if _creds else ""))
+CREDS_PATH = _creds[0]
 
 with open(CREDS_PATH) as f:
     creds = json.load(f)

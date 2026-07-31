@@ -2,7 +2,7 @@
 description: "How to read from and write to external services — Google Workspace, email, file sync"
 ---
 
-| -[[DAS IO]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS IO](hook://p/DAS%20IO)<br>: How to read from and write to external services — Google Workspace, email, file sync |
+| -[[DAS IO]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [docs](hook://docs) → [DAS IO](hook://p/DAS%20IO)<br>: How to read from and write to external services — Google Workspace, email, file sync |
 | --- | --- |
 | Skill anchor | [[SKA io]],   |
 | Runtime | [[io/SKILL\|io SKILL.md]],   |
@@ -37,7 +37,7 @@ Say "put this in sheets", "update the Excel", "search my email for X" — the ag
 
 ## Key concepts
 
-- **One auth, many Google surfaces** — Sheets / Slides / Docs / Drive all use the OAuth credential at `~/.google_workspace_mcp/credentials/oblinger@gmail.com.json` (Google Cloud project `oblio-claude-access`). The token expires every 7 days (Testing mode); `/io gauth` re-authorizes.
+- **One auth, many Google surfaces** — Sheets / Slides / Docs / Drive all use the OAuth credential at `~/.google_workspace_mcp/credentials/{user}@gmail.com.json` (Google Cloud project `oblio-claude-access`). The token expires every 7 days (Testing mode); `/io gauth` re-authorizes.
 - **`gsa` accepts URLs or IDs** — pass a full Google URL or a bare document ID.
 - **Email needs no OAuth for the local path** — `/io email` drives Apple Mail via AppleScript, reading every configured account directly. The Gmail-API path (server-side search of one account) reuses the Google OAuth above. See [[io/io-email-access|the two access methods]].
 - **Excel behaves like live editing** — `io-excel` wraps each op in an AppleScript handshake: it **saves the target workbook before reading** (so disk == the user's latest) and **reloads it in Excel after writing** (so the change shows and isn't clobbered on a later save). Edits are formatting-preserving (load-modify-save; cell values only). The one contract: the user must ⌘S their formatting before the agent writes — the post-write reload discards *unsaved* Excel changes. Charts/images/pivots/macros are not openpyxl-modeled and get dropped on save — don't `set` workbooks containing them.

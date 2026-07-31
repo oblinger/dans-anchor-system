@@ -41,7 +41,7 @@ IDs accept full Google URLs or bare document IDs.
 
 ## Auth
 
-- OAuth credentials: `~/.google_workspace_mcp/credentials/oblinger@gmail.com.json`
+- OAuth credentials: `~/.google_workspace_mcp/credentials/{user}@gmail.com.json`
 - Token refreshed automatically on every call (~200ms)
 - Google Cloud project: `oblio-claude-access`
 - Script: `~/bin/gsa` (symlink to `Claude App/Google Suite Access/gsa`)

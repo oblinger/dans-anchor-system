@@ -51,7 +51,7 @@ gsa sheets info 1abc...xyz
 ```bash
 python3 -c "
 import json, urllib.request, urllib.parse, os
-creds_path = os.path.expanduser('~/.google_workspace_mcp/credentials/oblinger@gmail.com.json')
+creds_path = os.path.expanduser('~/.google_workspace_mcp/credentials/{user}@gmail.com.json')
 with open(creds_path) as f: creds = json.load(f)
 data = urllib.parse.urlencode({'client_id': creds['client_id'], 'client_secret': creds['client_secret'], 'refresh_token': creds['refresh_token'], 'grant_type': 'refresh_token'}).encode()
 req = urllib.request.Request('https://oauth2.googleapis.com/token', data=data, method='POST')

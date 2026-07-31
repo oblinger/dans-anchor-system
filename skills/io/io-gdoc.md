@@ -12,7 +12,7 @@ gsa docs replace <id> <old> <new>        # Find and replace (case-sensitive)
 gsa search docs  [query]                 # Find documents
 ```
 
-Auth: `~/.google_workspace_mcp/credentials/oblinger@gmail.com.json`
+Auth: `~/.google_workspace_mcp/credentials/{user}@gmail.com.json`
 
 **Notes:** Read returns plain text only — no formatting. Tables render as tab-separated. Replace is case-sensitive, replaces all occurrences.
 

@@ -127,7 +127,7 @@ end tell
 
 This LOOKS like it should work but **fails**:
 ```applescript
-set mbox to mailbox "Sent Mail" of account "oblinger@gmail.com"
+set mbox to mailbox "Sent Mail" of account "{user}@gmail.com"
 -- ERROR: Mail got an error: Can't get mailbox "Sent Mail" of account ...
 ```
 
@@ -135,13 +135,13 @@ Two methods that DO work:
 
 **Method 1 — bracketed IMAP path** (fast, exact name):
 ```applescript
-set mbox to mailbox "[Gmail]/All Mail" of account "oblinger@gmail.com"
-set mbox to mailbox "[Gmail]/Sent Mail" of account "oblinger@gmail.com"
+set mbox to mailbox "[Gmail]/All Mail" of account "{user}@gmail.com"
+set mbox to mailbox "[Gmail]/Sent Mail" of account "{user}@gmail.com"
 ```
 
 **Method 2 — iterate and match by name** (robust across accounts; needed if you don't know the exact path):
 ```applescript
-set acct to account "oblinger@gmail.com"
+set acct to account "{user}@gmail.com"
 repeat with mb in mailboxes of acct
     if (name of mb) = "Sent Mail" then set sentBox to mb
     if (name of mb) = "All Mail" then set allBox to mb

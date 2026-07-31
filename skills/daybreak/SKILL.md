@@ -70,7 +70,7 @@ Confirmation is **conversational, in the morning**: *"You asked me to email Sean
 
 ## Calendar
 
-Today's events come from the **local macOS Calendar** via the shared `/io calendar` capability ([[io-calendar]], EventKit) — not from Google OAuth, and no longer a Daybreak-private script (SKA T047 moved it into `/io`). The local Calendar already carries the Google events (the `oblinger@gmail` and `dan@sportsvisio.com` accounts sync into it), so it is a superset with no expiring permission to renew. Run it:
+Today's events come from the **local macOS Calendar** via the shared `/io calendar` capability ([[io-calendar]], EventKit) — not from Google OAuth, and no longer a Daybreak-private script (SKA T047 moved it into `/io`). The local Calendar already carries the Google events (the `{user}@gmail` and `dan@sportsvisio.com` accounts sync into it), so it is a superset with no expiring permission to renew. Run it:
 
 ```bash
 swift "$HOME/.claude/skills/io/scripts/calendar-today.swift"

@@ -19,7 +19,7 @@ gsa search slides [query]     # Find presentations
 gsa search docs   [query]     # Find documents
 ```
 
-Auth: `~/.google_workspace_mcp/credentials/oblinger@gmail.com.json`
+Auth: `~/.google_workspace_mcp/credentials/{user}@gmail.com.json`
 
 **Note:** gsa search is type-specific. For a general Drive search, use the Drive API directly (Method 2).
 

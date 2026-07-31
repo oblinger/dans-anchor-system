@@ -33,7 +33,7 @@ Read from and write to external services. Each sub-skill is an access card with 
 
 ## Auth
 
-Google API: OAuth at `~/.google_workspace_mcp/credentials/oblinger@gmail.com.json`. Token expires every 7 days (Testing mode). Personal account only.
+Google API: OAuth at `~/.google_workspace_mcp/credentials/{user}@gmail.com.json`. Token expires every 7 days (Testing mode). Personal account only.
 
 IDs accept full Google URLs or bare document IDs.
 

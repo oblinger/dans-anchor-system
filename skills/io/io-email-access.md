@@ -5,7 +5,7 @@ Email can be reached more than one way. This page is the dispatch over **how** `
 | Method | Reaches | Auth | Status |
 |---|---|---|---|
 | **Local — Apple Mail** | every account configured in Mail.app (iCloud, Gmail, work, …), already-downloaded messages | none — Mail.app holds the credentials; we drive it via AppleScript | **✅ working** |
-| **Cloud — Gmail API** | a specific Google account's mail server-side (search the full mailbox, not just what's downloaded) | the existing Google OAuth at `~/.google_workspace_mcp/credentials/oblinger@gmail.com.json` (same one `/io gsheet` etc. use) | **🔶 available, not yet wired** |
+| **Cloud — Gmail API** | a specific Google account's mail server-side (search the full mailbox, not just what's downloaded) | the existing Google OAuth at `~/.google_workspace_mcp/credentials/{user}@gmail.com.json` (same one `/io gsheet` etc. use) | **🔶 available, not yet wired** |
 | **IMAP (direct)** | any IMAP server directly | per-account app-password | ⚪ not planned (Apple Mail already aggregates these) |
 
 ## Local — Apple Mail (default, working)
