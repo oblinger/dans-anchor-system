@@ -204,11 +204,26 @@ def main():
         description="Generate images into the IMGEN anchor, with the prompt recorded beside them.")
     ap.add_argument("prompt", nargs="*", help="the prompt (omit when using --preset alone)")
     ap.add_argument("-b", "--backend", default="fal", choices=sorted(BACKENDS))
-    ap.add_argument("-n", "--count", type=int, default=1, help="rolls off this prompt")
+    ap.add_argument("-r", "--rolls", type=int, default=1, help="images off this prompt")
     ap.add_argument("-s", "--size", default="square_hd")
-    ap.add_argument("-t", "--title", default=None,
-                    help="start a NEW batch with this title (otherwise append to the latest)")
-    ap.add_argument("--batch", type=int, default=None, help="append to this batch number")
+    # Exactly one of these is required. There is deliberately NO default: an
+    # unflagged call used to append to whatever was newest, which is silent and
+    # wrong the moment the newest batch is not the one you meant. A stateful
+    # "current batch" pointer was considered and rejected for the same reason —
+    # it outlives the sitting and is shared across agents, so it reproduces the
+    # silent mis-append with extra machinery to debug.
+    # `-a` takes the number rather than defaulting to the newest. Two reasons:
+    # an optional-argument `-a` swallows the prompt as its own value, so the
+    # bare form is unusable next to a positional; and "the newest" is the same
+    # implicit choice this whole flag pair exists to remove. `--list` is how you
+    # find the number, and a wrong one names every batch you do have.
+    where = ap.add_mutually_exclusive_group(required=True)
+    where.add_argument("-n", "--new", metavar="TITLE", default=None,
+                       help="open a NEW batch with this title")
+    where.add_argument("-a", "--append", type=int, default=None, metavar="N",
+                       help="append to batch N (see --list)")
+    where.add_argument("-l", "--list", action="store_true",
+                       help="print the batches and exit")
     ap.add_argument("-c", "--caption", default=None,
                     help="heading for this prompt group (defaults to the batch title)")
     ap.add_argument("-p", "--preset", default=None, help="named preset to load")
@@ -219,6 +234,11 @@ def main():
     ap.add_argument("--dry-run", action="store_true",
                     help="resolve the batch and print what would be written; no API call")
     a = ap.parse_args()
+
+    if a.list:
+        for n, title, d in batches():
+            print(f"  {n:03d}  {title}  ({next_prompt_index(d) - 1} prompt group(s))")
+        return 0
 
     prompt = " ".join(a.prompt).strip()
     if a.preset:
@@ -232,50 +252,48 @@ def main():
         save_preset(a.save_preset, prompt)
         print(f"preset '{a.save_preset}' saved to {PRESET_DIR}")
 
-    cost = BACKENDS[a.backend]["cost_per_image"] * a.count
+    cost = BACKENDS[a.backend]["cost_per_image"] * a.rolls
     if cost > a.confirm_over and not a.yes:
         raise ImgenError(
             f"would cost ${cost:.2f} (> ${a.confirm_over:.2f}). Re-run with --yes.")
-    if a.count > len(string.ascii_uppercase):
+    if a.rolls > len(string.ascii_uppercase):
         raise ImgenError(f"at most {len(string.ascii_uppercase)} rolls off one prompt")
 
-    # Resolve the batch. A new one needs a title; otherwise it is the named
-    # batch, else the most recent — appending to the session in progress is
-    # what you want nine times in ten.
+    # Resolve the batch from the flag the caller was forced to pick.
     fresh = False
-    if a.title:
+    if a.new:
         if a.dry_run:
             n = max((b[0] for b in batches()), default=0) + 1
-            print(f"dry-run: would open {SLUG}{n:03d} — {a.title}, "
-                  f"write {a.count} roll(s) as {SLUG}{n:03d}-1A…")
+            print(f"dry-run: would open {SLUG}{n:03d} — {a.new} ← "
+                  f"{SLUG}{n:03d}-1[{string.ascii_uppercase[:a.rolls]}] (${cost:.3f})")
             return 0
-        batch_n, batch_dir = new_batch(a.title)
-        batch_title, fresh = a.title, True
+        batch_n, batch_dir = new_batch(a.new)
+        batch_title, fresh = a.new, True
     else:
         found = batches()
         if not found:
-            raise ImgenError("no batches yet — start one with --title \"<what it is about>\"")
-        if a.batch is not None:
-            hit = [b for b in found if b[0] == a.batch]
+            raise ImgenError('nothing to append to — open one with -n "<what it is about>"')
+        if a.append:
+            hit = [b for b in found if b[0] == a.append]
             if not hit:
-                raise ImgenError(f"no batch {a.batch:03d} in {ANCHOR}")
+                have = ", ".join(f"{b[0]:03d} ({b[1]})" for b in found)
+                raise ImgenError(f"no batch {a.append:03d} in {ANCHOR} — have {have}")
             batch_n, batch_title, batch_dir = hit[0]
         else:
             batch_n, batch_title, batch_dir = found[-1]
 
     idx = next_prompt_index(batch_dir)
     if a.dry_run:
-        letters = string.ascii_uppercase[:a.count]
         print(f"dry-run: {batch_dir.name} ← {SLUG}{batch_n:03d}-{idx}"
-              f"[{letters}] (${cost:.3f})")
+              f"[{string.ascii_uppercase[:a.rolls]}] (${cost:.3f})")
         return 0
 
     specs = [(a.backend, prompt, a.size, batch_dir,
               f"{SLUG}{batch_n:03d}-{idx}{string.ascii_uppercase[i]}")
-             for i in range(a.count)]
+             for i in range(a.rolls)]
 
     rolls, failed = [], []
-    with cf.ThreadPoolExecutor(min(4, a.count)) as ex:
+    with cf.ThreadPoolExecutor(min(4, a.rolls)) as ex:
         for fut in [ex.submit(generate, s) for s in specs]:
             try:
                 rolls.append(fut.result())

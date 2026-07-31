@@ -15,7 +15,7 @@ The generative counterpart to [[DAS Viz|/viz]]. `/viz` renders what you specify 
 
 All of them to [[IMGEN]], never a scratch folder. A sitting becomes a numbered session — `IMGEN003 — Kitchen concepts` — and the rolls inside it are named for their position, so `IMGEN003-2C` is the third roll off the second prompt of that session. The session's own page lists every prompt newest-first with the images above it, and [[IMGEN Gallery]] is the picture-book: one image per session, scroll to see everything ever made.
 
-Say `/imgen -t "Kitchen concepts" {prompt}` to open a new session. Say `/imgen {prompt}` with no title and it adds to the one you are already working in.
+Every call has to say which one it means. `/imgen -n "Kitchen concepts" {prompt}` opens a new batch; `/imgen -a 3 {prompt}` adds to batch 3; `/imgen -l` lists them with their numbers. A call that names neither is refused before it spends anything — there is no "most recent" default, because rolls landing quietly in the wrong batch is the one mistake that is expensive to undo.
 
 ## What you get
 
