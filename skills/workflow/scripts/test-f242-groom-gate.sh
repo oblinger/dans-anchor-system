@@ -55,7 +55,7 @@ EOF
 # ---------- Case A — sentinel Next refused at write time ----------
 for sentinel in "TBD" "N/A" "none" "-" "⚠"; do
     fresh_backlog
-    OUT=$("$STATE" --anchor "$FIX_ROOT" Backlog T001 set --status Ready \
+    OUT=$("$STATE" set "$FIX_ROOT" Backlog T001 --status Ready \
           --next "$sentinel" 2>&1); RC=$?
     if [ "$RC" -ne 0 ] && echo "$OUT" | grep -qi "non-answer"; then
         ok "A[$sentinel]: sentinel Next refused at write (rc=$RC)"
@@ -76,7 +76,7 @@ done
 
 # ---------- Case B — a concrete Next is accepted ----------
 fresh_backlog
-OUT=$("$STATE" --anchor "$FIX_ROOT" Backlog T001 set --status Ready --horizon Ready \
+OUT=$("$STATE" set "$FIX_ROOT" Backlog T001 --status Ready --horizon Ready \
       --next "run the sweep across all anchors and diff the output" 2>&1); RC=$?
 if [ "$RC" -eq 0 ] && grep -q "\[Ready\]" "$BACKLOG"; then
     ok "B: concrete Next accepted (rc=$RC)"
@@ -97,7 +97,7 @@ cat > "$BACKLOG" <<'EOF'
 
 ## Done
 EOF
-OUT=$("$STATE" --anchor "$FIX_ROOT" triage 2>&1); RC=$?
+OUT=$("$STATE" triage "$FIX_ROOT" 2>&1); RC=$?
 if [ "$RC" -ne 0 ] && echo "$OUT" | grep -qi "non-answer"; then
     ok "C: triage refused the hand-edited sentinel Next (rc=$RC)"
 else

@@ -62,7 +62,7 @@ Cell vocabulary, ordered low → high: `none < MVP-agent < MVP-user < Full-agent
 
 1. **Check `{slug} Status.md`.** If present, it's authoritative. Run:
    ```bash
-   ~/.claude/skills/workflow/scripts/state --anchor {slug} status show
+   ~/.claude/skills/workflow/scripts/state status {slug} show
    ```
    Walk the facets in **pipeline order** (`prd`, `architecture`, `testing`, `roadmap` — the file's declared order still lists `ux` second for CLI compatibility, but `ux` is an Architecture satellite: consult its cell during the architecture phase, and only when the PRD declares a UI). Pick the **first** facet whose cell is lowest on the ladder above; dispatch to the corresponding sub-skill (`design-prd`, `design-architect`, etc.). Sub-skills self-promote to `*-agent` at completion via `state status set <facet> <new-cell> --note "<one-line>"`; user-stamped `*-user` comes from explicit review ("PRD looks good for MVP" → agent runs `state status set prd MVP-user --note "<...>"`).
 2. **Fallback when `{slug} Status.md` absent.** Apply the legacy per-artifact inference below.
@@ -82,7 +82,7 @@ If a declared `Status.md` cell disagrees with inferred state on the artifact bod
 ## Runbook — bare `/design`
 
 1. **Detect anchor + Design facet.** Walk up to nearest `.anchor` file. Check whether `{anchor}/{slug} Design/` exists. **If absent**, offer to scaffold per [[DAS Design Folder]] § Scaffolding (creates folder + .anchor + Design.md dispatch + PRD/Architecture/Testing/Decisions with required-section spines + initializes Status.md). On user confirmation, scaffold and proceed; on decline, stop with one-line explanation. **If present**, proceed to § 2. The Code trait field in `.anchor` is NOT consulted (deprecated as the gate 2026-06-10; F140 sweeps it from anchors that now have Design folders).
-2. **Read design status.** Run `state --anchor {slug} status show` to get the per-facet cell map. If `{slug} Status.md` is absent the script auto-creates it with all facets at `none`.
+2. **Read design status.** Run `state status {slug} show` to get the per-facet cell map. If `{slug} Status.md` is absent the script auto-creates it with all facets at `none`.
 3. **Build gap table.** Render the status one line per facet:
    ```
    prd:            MVP-user (2026-06-08) — user-confirmed for v1
@@ -95,7 +95,7 @@ If a declared `Status.md` cell disagrees with inferred state on the artifact bod
 5. **Auto-dispatch.** Invoke the matching sub-skill: `/design architect` for the example above. The user may redirect mid-dispatch by saying "actually let's do UX first" or by typing `/design ux` directly.
 6. **Self-promote at completion.** When the sub-skill judges its work sufficient, it ends with:
    ```bash
-   state --anchor {slug} status set <facet> MVP-agent --note "<one-line rationale>"
+   state status {slug} set <facet> MVP-agent --note "<one-line rationale>"
    ```
    User stamps `*-user` via natural-language ("PRD looks good for MVP" → agent runs `state status set prd MVP-user --note "<...>"`).
 

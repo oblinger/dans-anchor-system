@@ -80,38 +80,38 @@ _spec.loader.exec_module(be)
 
 
 def resolve_anchor(anchor_arg):
-    """Resolve --anchor to (slug, anchor_path). Three modes:
+    """Resolve the mandatory `<anchor>` positional to (slug, anchor_path).
 
-    1. anchor_arg is a path containing .anchor (or is the path itself).
-    2. anchor_arg is a slug; look it up via the vault scan.
-    3. anchor_arg is None; walk cwd UP looking for .anchor.
+    Two modes: a directory holding `.anchor`, or a slug looked up by the vault
+    scan. Slug is the normal form; the path form exists for anchors not yet
+    reachable by name.
 
-    Errors if all three fail.
+    F293 deleted the third mode — walking cwd upward to the nearest `.anchor`
+    whenever the anchor was omitted. `state` is a called tool, not a typed one,
+    and an address whose meaning depends on where the caller happened to be
+    standing is (Dan, 2026-08-01) *"a bug waiting to happen"*: the identical
+    command writes to a different anchor from a different directory, and
+    nothing in the output says which one it picked. Removing inference is also
+    what lets the anchor be positional — a positional cannot be optional in
+    the middle of other positionals, which is the whole reason it was a flag.
+
+    Nothing here consults the working directory. A *relative path* argument
+    still resolves against it, as any path argument does, but that is the
+    caller naming a location rather than `state` guessing one.
     """
-    if anchor_arg:
-        # Mode 1: path
-        p = Path(anchor_arg).expanduser().resolve()
-        if p.is_dir() and (p / ".anchor").exists():
-            return _slug_from_anchor_path(p), p
-        # Mode 2: slug
-        backlog = be.find_backlog(anchor_arg)
-        if backlog is not None:
-            anchor_path = backlog.parent.parent  # backlog is at {anchor}/{anchor} Track/
-            return anchor_arg, anchor_path
-        raise be.BacklogEditError(
-            f"--anchor {anchor_arg!r}: not a directory with .anchor, "
-            f"and no '{anchor_arg} Backlog.md' found in vault"
-        )
-    # Mode 3: walk cwd UP
-    cwd = Path.cwd()
-    p = cwd
-    while p != p.parent:
-        if (p / ".anchor").exists():
-            return _slug_from_anchor_path(p), p
-        p = p.parent
+    # Mode 1: path
+    p = Path(anchor_arg).expanduser()
+    if p.is_dir() and (p / ".anchor").exists():
+        p = p.resolve()
+        return _slug_from_anchor_path(p), p
+    # Mode 2: slug
+    backlog = be.find_backlog(anchor_arg)
+    if backlog is not None:
+        anchor_path = backlog.parent.parent  # backlog is at {anchor}/{anchor} Track/
+        return anchor_arg, anchor_path
     raise be.BacklogEditError(
-        "no --anchor given and no .anchor ancestor of cwd "
-        f"({cwd}). Specify --anchor PATH|SLUG."
+        f"anchor {anchor_arg!r}: not a directory with .anchor, and no "
+        f"'{anchor_arg} Backlog.md' found in vault"
     )
 
 
@@ -224,7 +224,7 @@ def _resolve_q_identifier(lines, q_num, slug):
 
 
 # ============================================================
-# Row-edit delegation — shared by the v2 Backlog verbs
+# Row-edit delegation — shared by the Backlog item verbs
 # ============================================================
 
 
@@ -746,7 +746,7 @@ def _q_answer_core(slug, feature_path, q_num, q_slug, choice, body):
 
 
 def _q_remove_core(slug, feature_path, q_num, q_slug, reason):
-    """Block-surgery for Q-remove, called by the v2 `<doc> Q<n> remove` verb
+    """Block-surgery for Q-remove, called by the `remove <anchor> <doc> Q<n>` verb
     against any resolved doc path (F236) — see `_q_answer_core`."""
     text = feature_path.read_text(encoding="utf-8")
     reason = reason or "no reason provided"
@@ -1287,7 +1287,7 @@ def cmd_roadmap_migrate(slug, anchor_path, args):
 
 
 # ============================================================
-# F236 — state v2: one address scheme
+# Address resolution — <anchor> <doc> <label> (F236, verb-first since F293)
 #   state [-a ANCHOR] <doc> <label> <verb> [flags] [< body]
 #
 # <doc>   Backlog (case-insensitive) | wiki-name | path to a .md file
@@ -1299,21 +1299,21 @@ def cmd_roadmap_migrate(slug, anchor_path, args):
 # ============================================================
 
 
-_V2_LABEL_RE = re.compile(r"^([A-Z]+)(\d+|\+)$")
+_LABEL_RE = re.compile(r"^([A-Z]+)(\d+|\+)$")
 # F250 #11 — `/symlinks/` (dotfile-mirror trees) and `/Closet/` (parked copies)
 # are the two places a live doc is duplicated on disk; walking them makes a
 # single real doc surface as multiple candidates → false "ambiguous" refusal.
-_V2_SKIP_PATH_FRAGMENTS = (
+_SKIP_PATH_FRAGMENTS = (
     "/.trash/", "/Yore/", "/_ARCHIVES_/", "/Versions/", "/symlinks/", "/Closet/",
 )
 
 
-def parse_v2_label(label):
-    """Split a v2 label into (letters, number). `number` is an int (Q7, V3,
+def parse_label(label):
+    """Split a label into (letters, number). `number` is an int (Q7, V3,
     F157, T8) or the literal string `"+"` for an auto-mint label (F+, T+,
     Q+, V+ — only legal with `define`). Raises on anything not matching
     `^[A-Z]+(\\d+|\\+)$`."""
-    m = _V2_LABEL_RE.match(label)
+    m = _LABEL_RE.match(label)
     if not m:
         raise be.BacklogEditError(
             f"invalid label {label!r} — expected LETTERS+DIGITS or "
@@ -1323,9 +1323,9 @@ def parse_v2_label(label):
     return m.group(1), (num if num == "+" else int(num))
 
 
-def _v2_find_by_basename(root, target_lower):
+def _find_doc_by_basename(root, target_lower):
     """Case-insensitive `.md` basename search under root, skipping noisy
-    path fragments (mirrors be.SKIP_PATH_FRAGMENTS's spirit with the v2
+    path fragments (mirrors be.SKIP_PATH_FRAGMENTS's spirit with the
     spec's own skip-list). Returns a list of matching Paths."""
     matches = []
     root = Path(root)
@@ -1337,7 +1337,7 @@ def _v2_find_by_basename(root, target_lower):
     seen = set()
     for r, dirs, files in os.walk(root, followlinks=True):
         rp = r + "/"
-        if any(frag in rp for frag in _V2_SKIP_PATH_FRAGMENTS):
+        if any(frag in rp for frag in _SKIP_PATH_FRAGMENTS):
             dirs[:] = []
             continue
         for f in files:
@@ -1351,8 +1351,8 @@ def _v2_find_by_basename(root, target_lower):
     return matches
 
 
-def resolve_v2_doc(doc_arg, slug, anchor_path):
-    """Resolve the `<doc>` token of the v2 grammar.
+def resolve_doc(doc_arg, slug, anchor_path):
+    """Resolve the `<doc>` token of the address.
 
     Returns ('backlog', path) for the literal `Backlog`, or ('doc', path)
     for anything else. Path mode (absolute/relative path ending in `.md` or
@@ -1370,7 +1370,7 @@ def resolve_v2_doc(doc_arg, slug, anchor_path):
     It cost an agent three wrong turns and produced a false "state is broken"
     report to Dan.
     """
-    kind, path = _resolve_v2_doc_path(doc_arg, slug, anchor_path)
+    kind, path = _resolve_doc_path(doc_arg, slug, anchor_path)
     if kind == "doc":
         try:
             if path.resolve() == be.find_backlog(slug).resolve():
@@ -1380,9 +1380,9 @@ def resolve_v2_doc(doc_arg, slug, anchor_path):
     return (kind, path)
 
 
-def _resolve_v2_doc_path(doc_arg, slug, anchor_path):
+def _resolve_doc_path(doc_arg, slug, anchor_path):
     """Locate the file named by `<doc>`. The kind returned here is provisional;
-    `resolve_v2_doc` re-classifies a path that turns out to be the backlog."""
+    `resolve_doc` re-classifies a path that turns out to be the backlog."""
     if doc_arg.strip().lower() == "backlog":
         return ("backlog", be.find_backlog(slug))
 
@@ -1394,7 +1394,7 @@ def _resolve_v2_doc_path(doc_arg, slug, anchor_path):
         return ("doc", p)
 
     target_lower = f"{doc_arg}.md".lower()
-    anchor_matches = _v2_find_by_basename(anchor_path, target_lower)
+    anchor_matches = _find_doc_by_basename(anchor_path, target_lower)
     if anchor_matches:
         if len(anchor_matches) > 1:
             cand = "\n  ".join(str(m) for m in anchor_matches)
@@ -1404,7 +1404,7 @@ def _resolve_v2_doc_path(doc_arg, slug, anchor_path):
             )
         return ("doc", anchor_matches[0])
 
-    vault_matches = _v2_find_by_basename(be.VAULT_ROOT, target_lower)
+    vault_matches = _find_doc_by_basename(be.VAULT_ROOT, target_lower)
     if not vault_matches:
         raise be.BacklogEditError(
             f"no doc found matching {doc_arg!r} (.md) under the anchor or "
@@ -1486,14 +1486,14 @@ def _run_question_gates(q_num, body, why_ask, require_on_answer=False):
 
 
 # ------------------------------------------------------------------
-# v2 — Backlog target (F/T labels)
+# Backlog target (F/T/C labels)
 
 
 _MINT_PLACEHOLDER_RE = re.compile(r"\*\*[FTCQ]\+(\s+—)")  # F250#8: C+ was omitted → `C+ define` never rewrote the placeholder; F275: Q+ for standalone question rows
 _ON_ANSWER_RE = re.compile(r"^\s*-\s+\*\*On answer:\*\*", re.MULTILINE)  # F275 M3 — the resumption clause, hard-required on standalone Q rows
 
 
-def _v2_row_define(slug, backlog_path, label, args, minted=False, raw_override=None):
+def _row_define(slug, backlog_path, label, args, minted=False, raw_override=None):
     """`Backlog <F|T> define` — create-or-replace the whole row. The body IS
     the complete row markdown (`- **<label> — Title** [Status] — body`),
     optionally followed by indented sub-bullets. Routes through
@@ -1578,7 +1578,7 @@ def _v2_row_define(slug, backlog_path, label, args, minted=False, raw_override=N
     )
 
 
-def _v2_row_resolve(slug, backlog_path, label, args):
+def _row_resolve(slug, backlog_path, label, args):
     """`Backlog <F|T> resolve` — move the row to `## Done` [Done], appending
     `— resolved <date>: <body>` to the row body."""
     resolution = read_body(args)
@@ -1613,7 +1613,7 @@ def _v2_row_resolve(slug, backlog_path, label, args):
     )
 
 
-def _v2_row_set(slug, backlog_path, label, args):
+def _row_set(slug, backlog_path, label, args):
     """`Backlog <F|T> set` — partial row update: only the fields named by a
     flag change; everything else (title/body/status/horizon) is left as-is.
     Unlike `define` (which replaces the row wholesale from one full markdown
@@ -1626,10 +1626,10 @@ def _v2_row_set(slug, backlog_path, label, args):
             "set requires at least one of --status / --horizon / --title / "
             "--body / --next / --verify / --user"
         )
-    if getattr(args, "from_file", None) is not None:
-        raise be.BacklogEditError(
-            "set takes body only via --body (stdin/--from-file not accepted)"
-        )
+    # `set` used to refuse --from-file here at runtime, because v2 declared all
+    # thirteen flags globally and every verb inherited every one of them. F293
+    # gives each verb its own subparser, so the flag `set` does not accept is
+    # simply a flag `set` does not declare — argparse rejects it by name.
     return _delegate_row_edit(
         slug, args.horizon or "same", label, args.status or "same",
         args.title or "", args.inline or "",
@@ -1642,13 +1642,13 @@ def _v2_row_set(slug, backlog_path, label, args):
     )
 
 
-def _v2_row(slug, backlog_path, label, verb, args, minted=False):
+def _row_verb(slug, backlog_path, label, verb, args, minted=False):
     if verb == "define":
-        return _v2_row_define(slug, backlog_path, label, args, minted=minted)
+        return _row_define(slug, backlog_path, label, args, minted=minted)
     if verb == "set":
-        return _v2_row_set(slug, backlog_path, label, args)
+        return _row_set(slug, backlog_path, label, args)
     if verb == "resolve":
-        return _v2_row_resolve(slug, backlog_path, label, args)
+        return _row_resolve(slug, backlog_path, label, args)
     if verb == "remove":
         return _delegate_row_edit(
             slug, "same", label, "delete", "", "",
@@ -1660,7 +1660,7 @@ def _v2_row(slug, backlog_path, label, verb, args, minted=False):
 def _q_row_to_done(body, resolved_note):
     """F275 — rewrite a standalone Q-row's first line so an auto-resolved
     (waste/priority) row lands `[Done]` with the resolution appended to its
-    body, mirroring `_v2_row_resolve`'s note shape. The option/Recommendation/
+    body, mirroring `_row_resolve`'s note shape. The option/Recommendation/
     On-answer sub-bullets ride through unchanged (audit trail)."""
     lines = body.splitlines()
     today = date.today().isoformat()
@@ -1669,7 +1669,7 @@ def _q_row_to_done(body, resolved_note):
     return "\n".join(lines)
 
 
-def _v2_backlog_q_define(slug, backlog_path, label, args, minted=False):
+def _backlog_q_define(slug, backlog_path, label, args, minted=False):
     """`Backlog Q<n> define` (F275 M2) — mint a feature-less standalone
     question row: a sibling to F/T rows, but the row body IS the question, so
     it runs the same ask-format + F270 Damage + F257 gates as a doc-scoped Q,
@@ -1686,7 +1686,7 @@ def _v2_backlog_q_define(slug, backlog_path, label, args, minted=False):
             "`- **Recommendation:**`, a `- **Damage:**`, and a `- **On answer:**`."
         )
     # Swap the `Q+` placeholder to the minted id up front so the gates and the
-    # row parser both see the real label (matches _v2_row_define's minted swap).
+    # row parser both see the real label (matches _row_define's minted swap).
     if minted:
         raw = _MINT_PLACEHOLDER_RE.sub(f"**{label}\\1", raw, count=1)
     q_num = int(re.match(r"^Q(\d+)$", label).group(1))
@@ -1700,7 +1700,7 @@ def _v2_backlog_q_define(slug, backlog_path, label, args, minted=False):
         args.horizon = "Done"
     # minted=False: the placeholder swap already happened above; pass the gated
     # body straight through (stdin was already consumed by read_body).
-    result = _v2_row_define(slug, backlog_path, label, args, minted=False,
+    result = _row_define(slug, backlog_path, label, args, minted=False,
                             raw_override=gated)
     if auto_resolve:
         print(
@@ -1712,7 +1712,7 @@ def _v2_backlog_q_define(slug, backlog_path, label, args, minted=False):
 
 
 # ------------------------------------------------------------------
-# v2 — Q labels on any doc
+# Q labels on any doc
 
 
 def _q_define_core(slug, feature_path, q_num, body, why_ask=None):
@@ -1737,7 +1737,7 @@ def _q_define_core(slug, feature_path, q_num, body, why_ask=None):
     body, auto_resolve, damage_cat, damage_why = _run_question_gates(
         q_num, body, why_ask, require_on_answer=False)
     text = feature_path.read_text(encoding="utf-8")
-    container_id = _v2_container_id_for_doc(feature_path)
+    container_id = _container_id_for_doc(feature_path)
     lines = text.splitlines()
     loc = be._find_q_bullet(lines, q_num)
     new_bullet = be._format_q_bullet(q_num, container_id, body)
@@ -1902,7 +1902,7 @@ def _q_revalidate_core(slug, feature_path):
     return 0
 
 
-def _v2_query(slug, doc_path, q_num, verb, args):
+def _query_verb(slug, doc_path, q_num, verb, args):
     if verb == "define":
         body = read_body(args)
         if not body.strip():
@@ -1921,7 +1921,7 @@ def _v2_query(slug, doc_path, q_num, verb, args):
 
 
 # ------------------------------------------------------------------
-# v2 — V (verification) labels on any doc — new in F236
+# V (verification) labels on any doc — new in F236
 
 
 _V_HEADER_BULLET_RE = re.compile(r"^(\s*)- \*\*V(\d+)\b")
@@ -1943,15 +1943,15 @@ def _next_v_number(doc_text):
     return n
 
 
-def _v2_container_id_for_doc(doc_path):
-    """Block-id container token for ANY v2 doc target: the F-number for a
+def _container_id_for_doc(doc_path):
+    """Block-id container token for ANY doc target: the F-number for a
     feature doc (`F<n> — Title.md`), else a block-id-safe (`[\\w-]`)
     sanitization of the doc's stem.
 
     be._container_id_for_feature does the F-number half but returns the raw
     (unsanitized) stem on fallback — safe there because the legacy Q verbs
     only ever call it with a real `F<n> — Title.md` feature doc (never hits
-    the fallback in practice). v2 generalizes Q/V to ANY doc, so a doc like
+    the fallback in practice). F236 generalized Q/V to ANY doc, so a doc like
     `Smoke Design.md` DOES hit the fallback, and its stem's spaces/em-dashes
     would otherwise land unsanitized inside an Obsidian block-id (`^Smoke
     Design-Q1` — invalid, contains a literal space). Sanitize here instead.
@@ -2057,7 +2057,7 @@ def _v_define_core(slug, doc_path, v_num, body):
     `## Verifications`."""
     text = doc_path.read_text(encoding="utf-8")
     lines = text.splitlines()
-    container_id = _v2_container_id_for_doc(doc_path)
+    container_id = _container_id_for_doc(doc_path)
     loc = _find_v_bullet(lines, v_num)
     new_bullet = _v_format_bullet(v_num, container_id, body)
     if loc is not None:
@@ -2185,7 +2185,7 @@ def _v_remove_core(slug, doc_path, v_num, reason):
     return 0
 
 
-def _v2_verify(slug, doc_path, v_num, verb, args):
+def _verify_verb(slug, doc_path, v_num, verb, args):
     if verb == "define":
         body = read_body(args)
         if not body.strip():
@@ -2200,12 +2200,12 @@ def _v2_verify(slug, doc_path, v_num, verb, args):
 
 
 # ------------------------------------------------------------------
-# v2 — top-level dispatch + CLI
+# Top-level dispatch + CLI
 
 
-def cmd_v2(slug, anchor_path, args):
-    doc_kind, doc_path = resolve_v2_doc(args.doc, slug, anchor_path)
-    letters, num = parse_v2_label(args.label)
+def cmd_item(slug, anchor_path, args):
+    doc_kind, doc_path = resolve_doc(args.doc, slug, anchor_path)
+    letters, num = parse_label(args.label)
     if num == "+" and args.verb != "define":
         raise be.BacklogEditError(
             f"auto-mint label {args.label} is only valid with define"
@@ -2222,28 +2222,46 @@ def cmd_v2(slug, anchor_path, args):
                 label = be.format_row_id("Q", mint_num)
             else:
                 label = args.label
-            return _v2_backlog_q_define(slug, doc_path, label, args, minted=(num == "+"))
-        return _v2_row(slug, doc_path, args.label, args.verb, args)
+            return _backlog_q_define(slug, doc_path, label, args, minted=(num == "+"))
+        return _row_verb(slug, doc_path, args.label, args.verb, args)
     if doc_kind == "backlog" and letters in ("F", "T", "C"):
         if num == "+":
             mint_num = be.mint_cross_file_id(doc_path, be.find_icebox(slug), letters)
             label = be.format_row_id(letters, mint_num)
-            return _v2_row(slug, doc_path, label, args.verb, args, minted=True)
-        return _v2_row(slug, doc_path, args.label, args.verb, args)
+            return _row_verb(slug, doc_path, label, args.verb, args, minted=True)
+        return _row_verb(slug, doc_path, args.label, args.verb, args)
     if doc_kind == "doc" and letters == "Q":
         if num == "+":
             num = be._next_q_number(doc_path.read_text(encoding="utf-8"))
-        return _v2_query(slug, doc_path, num, args.verb, args)
+        return _query_verb(slug, doc_path, num, args.verb, args)
     if doc_kind == "doc" and letters == "V":
         if num == "+":
             num = _next_v_number(doc_path.read_text(encoding="utf-8"))
-        return _v2_verify(slug, doc_path, num, args.verb, args)
+        return _verify_verb(slug, doc_path, num, args.verb, args)
     where = "Backlog" if doc_kind == "backlog" else doc_path.name
     raise be.BacklogEditError(
         f"unknown query kind {args.label!r} for {where} — valid labels: "
         f"F<n>/T<n>/C<n>/Q<n>/F+/T+/C+/Q+ on Backlog (Q = standalone question "
         f"row), Q<n>/V<n>/Q+/V+ on any other doc"
     )
+
+
+def cmd_revalidate(slug, anchor_path, args):
+    """F241 — the doc verb: `state revalidate <anchor> <doc>`.
+
+    v2 had to special-case this shape, because an address-first grammar cannot
+    tell `<doc> <label> <verb>` from `<doc> <verb>` without looking at the last
+    token — and the membership test that did so (F250 #12) hijacked dispatch
+    whenever the word "revalidate" appeared in a --reason or a title. Verb-first
+    makes the ambiguity impossible: the verb is read before anything else, and
+    a verb that takes no label simply does not declare one.
+    """
+    doc_kind, doc_path = resolve_doc(args.doc, slug, anchor_path)
+    if doc_kind != "doc":
+        raise be.BacklogEditError(
+            "revalidate targets a feature/PRD doc's ## Open Questions "
+            "block, not the Backlog")
+    return _q_revalidate_core(slug, doc_path)
 
 
 # ============================================================
@@ -2544,7 +2562,7 @@ def cmd_summary_line(slug, anchor_path, args):
 def cmd_crank(slug, anchor_path, args):
     """Crank-session sentinel (F239) — arms/disarms the Stop-hook gate."""
     sentinel = _CRANK_DIR / f"{slug}.json"
-    if args.verb == "start":
+    if args.subverb == "start":
         backlog_path = be.find_backlog(slug)
         _CRANK_DIR.mkdir(parents=True, exist_ok=True)
         sentinel.write_text(_json.dumps({
@@ -2558,7 +2576,7 @@ def cmd_crank(slug, anchor_path, args):
               "(legal exits: empty frontier / CRANK READY with Ready > 0 / "
               "fresh `state triage` line; `state crank stop` disarms)")
         return 0
-    if args.verb == "stop":
+    if args.subverb == "stop":
         if sentinel.is_file():
             sentinel.unlink()
             print(f"{slug}: crank stop gate disarmed")
@@ -2572,185 +2590,152 @@ def cmd_crank(slug, anchor_path, args):
     return 0
 
 
-_V2_LEGACY_DOMAINS = {"status", "roadmap", "triage", "crank", "groom-list",
-                      "summary-line"}
-_V2_RETIRED_DOMAINS = {"task", "q", "question"}
+_RETIRED_DOMAINS = {"task", "q", "question"}
+
+# Verbs that address an item inside a doc: `<verb> <anchor> <doc> <label>`.
+_ITEM_VERBS = ("define", "set", "resolve", "remove")
+
+# Every top-level verb — item verbs, the doc verb, and the domain verbs. Only
+# the tombstones read this, to tell a retired v2-form invocation (which leads
+# with the address) from a plain typo.
+_ALL_VERBS = _ITEM_VERBS + ("revalidate", "status", "roadmap", "triage",
+                            "crank", "groom-list", "summary-line")
+
+_LABEL_HELP = ("item id — F<n>/T<n>/C<n>/Q<n> on Backlog, Q<n>/V<n> on any "
+               "other doc; LETTERS+'+' auto-mints (F+, T+, C+, Q+, V+)")
 
 
 def _first_positional(argv):
-    """First non-flag positional in argv[1:], skipping -a/--anchor's value.
-    None if there isn't one (bare `-h`, an unrecognized leading flag, or no
-    args at all) — main() falls back to the legacy parser in that case."""
-    i = 1
-    while i < len(argv):
-        tok = argv[i]
-        if tok in ("-a", "--anchor"):
-            i += 2
-            continue
-        if tok.startswith("--anchor="):
-            i += 1
-            continue
-        if tok.startswith("-"):
-            return None
-        return tok
+    """First token of argv[1:] when it is not a flag, else None. Read only by
+    the tombstones, which must fire before argparse turns an unknown verb into
+    its own (less useful) error."""
+    for tok in argv[1:]:
+        return None if tok.startswith("-") else tok
     return None
 
 
-def build_v2_parser():
-    p = argparse.ArgumentParser(
-        prog="state",
-        description=(
-            "state v2 (F236) — one address scheme: "
-            "`state [-a ANCHOR] <doc> <label> <verb> [< body]`. "
-            "doc = Backlog | wiki-name | path. label = LETTERS+DIGITS, or "
-            "LETTERS+'+' to auto-mint (Q7, V3, F157, T8, C23, F+, T+, C+, Q+, V+). "
-            "verb = define | set | resolve | remove (set is Backlog-only). "
-            "Doc-level, no label: `state <doc> revalidate` (F241 — "
-            "validate-then-stamp the Open Questions block after a hand-edit)."
-        ),
-    )
-    p.add_argument("-a", "--anchor", default=None,
-                   help="anchor path or slug; defaults to cwd-walkup to .anchor")
-    p.add_argument("doc", help="Backlog | wiki-name (no slash/.md) | path to a .md doc")
-    p.add_argument("label", help="LETTERS+DIGITS or LETTERS+'+' — Q7, V3, F157, T8, F+, T+")
-    p.add_argument("verb", choices=["define", "set", "resolve", "remove"])
-    p.add_argument("--horizon", default=None,
-                   help="horizon for a NEW Backlog row on define (default: Now)")
-    p.add_argument("--status", default=None,
-                   help="new bracket status (Backlog `set` only)")
-    p.add_argument("--title", default=None,
-                   help="new title (Backlog `set` only)")
-    p.add_argument("--next", dest="next_step", default=None,
-                   help="`- **Next:**` no-user action (Backlog `set` only)")
-    p.add_argument("--verify", default=None,
-                   help="`- **Verify:**` yes/no question (Backlog `set` only)")
-    p.add_argument("--user", dest="user", default=None,
-                   help="F259 — `- **User:**` action a [User] row is gated on "
-                        "(what YOU, the user, must do: log in, click a "
-                        "permission dialog, enter a credential). Backlog `set` "
-                        "only; pair with --status User + --why-user-action.")
-    p.add_argument("--why-user-action", dest="why_user_action", default=None,
-                   help="F259 ownership gate (the F240 sibling) — one sentence "
-                        "naming the credential or human-only faculty a [User] "
-                        "action requires (a login only you hold, a GUI "
-                        "permission dialog, a 2FA device). Required when a row "
-                        "ENTERS [User]; appended to the `- **User:**` sub-bullet "
-                        "as `· *why-user-action: …*`.")
-    p.add_argument("--why-user", dest="why_user", default=None,
-                   help="F240 — one sentence naming the human faculty a "
-                        "Verify/Verify-by/Watching check invokes (taste / "
-                        "preference / ratification / passive-use); required "
-                        "when a row enters that family. Appended to the "
-                        "`- **Verify:**` sub-bullet as `· *why-user: …*`")
-    p.add_argument("--why-ask", dest="why_ask", default=None,
-                   help="F257 — one sentence justifying why a Lean/Strong "
-                        "Open Question is surfaced despite the agent having a "
-                        "recommendation (high-stakes irreversibility: an "
-                        "external action, an interface-sticky name/schema, an "
-                        "architecture lock-in, a taste-only call). Required to "
-                        "mint a Lean/Strong `Q<n> define`; appended as "
-                        "`· *why-ask: …*`")
-    p.add_argument("--choice", default=None,
-                   help='chosen option, e.g. "(A)" — required for `Q<n> resolve`')
-    p.add_argument("--reason", default=None,
-                   help="short reason recorded in the audit trail (remove)")
-    p.add_argument("--body", dest="inline", default=None,
-                   help="inline body (alternative to stdin)")
-    p.add_argument("--from-file", dest="from_file", default=None,
-                   help="read body from file (alternative to stdin)")
-    return p
-
-
-def main_revalidate(argv):
-    """F241 — doc-level verb with no label: `state [-a ANCHOR] <doc> revalidate`."""
-    p = argparse.ArgumentParser(
-        prog="state",
-        description="state <doc> revalidate (F241) — validate-then-stamp the "
-                    "doc's ## Open Questions block after a hand-edit.",
-    )
-    p.add_argument("-a", "--anchor", default=None,
-                   help="anchor path or slug; defaults to cwd-walkup to .anchor")
-    p.add_argument("doc", help="Backlog-adjacent doc: wiki-name or path to a .md doc")
-    p.add_argument("verb", choices=["revalidate"])
-    args = p.parse_args(argv[1:])
-    try:
-        slug, anchor_path = resolve_anchor(args.anchor)
-    except be.BacklogEditError as e:
-        print(f"state: {e}", file=sys.stderr)
-        return 2
-    try:
-        doc_kind, doc_path = resolve_v2_doc(args.doc, slug, anchor_path)
-        if doc_kind != "doc":
-            raise be.BacklogEditError(
-                "revalidate targets a feature/PRD doc's ## Open Questions "
-                "block, not the Backlog")
-        return _q_revalidate_core(slug, doc_path)
-    except be.BacklogEditError as e:
-        print(f"state: {e}", file=sys.stderr)
-        return 1
-
-
-def _is_revalidate_invocation(argv):
-    """F250 #12 — route to `main_revalidate` ONLY for the genuine doc-level
-    shape `state [-a ANCHOR] <doc> revalidate` (verb in the last positional
-    slot, no other flags). A bare `"revalidate" in argv` membership test
-    misfired whenever the word appeared anywhere else — a `--reason
-    revalidate`, a doc/title carrying the word — hijacking dispatch.
-    """
-    rest = list(argv[1:])
-    # Strip a leading anchor option in any accepted form; revalidate supports
-    # only `-a/--anchor` besides its two positionals.
-    if rest and rest[0] in ("-a", "--anchor"):
-        rest = rest[2:]
-    elif rest and (rest[0].startswith("--anchor=")
-                   or (rest[0].startswith("-a") and len(rest[0]) > 2)):
-        rest = rest[1:]
-    # A real revalidate call is exactly `<doc> revalidate` with no flags left.
-    return (len(rest) == 2 and rest[1] == "revalidate"
-            and not any(tok.startswith("-") for tok in rest))
-
-
-def main_v2(argv):
-    if _is_revalidate_invocation(argv):
-        return main_revalidate(argv)
-    parser = build_v2_parser()
-    args = parser.parse_args(argv[1:])
-    try:
-        slug, anchor_path = resolve_anchor(args.anchor)
-    except be.BacklogEditError as e:
-        print(f"state: {e}", file=sys.stderr)
-        return 2
-    try:
-        return cmd_v2(slug, anchor_path, args)
-    except be.BacklogEditError as e:
-        print(f"state: {e}", file=sys.stderr)
-        return 1
-
-
-# ============================================================
-# CLI dispatch
-# ============================================================
+def _add_address(sp, label_help=None):
+    """The address positionals: `<anchor> <doc>`, plus `<label>` for the item
+    verbs. These can be positional only because the verb comes first — v2 had
+    to consume the address before it knew the verb, which is why the anchor
+    had to be an optional flag (and an optional flag cannot be positional in
+    the middle of other positionals)."""
+    sp.add_argument("anchor",
+                    help="anchor SLUG, or a path to a directory holding "
+                         ".anchor — mandatory, never inferred from cwd")
+    sp.add_argument("doc",
+                    help="Backlog | wiki-name (no slash/.md) | path to a .md doc")
+    if label_help:
+        sp.add_argument("label", help=label_help)
 
 
 def build_parser():
     p = argparse.ArgumentParser(
         prog="state",
         description=(
-            "Legacy status/roadmap domains for `state`. Backlog rows and "
-            "feature-doc Open Questions/Verifications go through the v2 "
-            "grammar: `state [-a ANCHOR] <doc> <label> <verb>`. Full spec: "
-            "~/.claude/skills/workflow/DAS State.md."
+            "state v3 (F293) — verb-first: "
+            "`state <verb> <anchor> <doc> [<label>] [flags] [< body]`. "
+            "doc = Backlog | wiki-name | path. label = LETTERS+DIGITS, or "
+            "LETTERS+'+' to auto-mint. Each verb owns its own flags, so "
+            "`state <verb> --help` prints what that verb takes and nothing "
+            "else. Full spec: ~/.claude/skills/workflow/DAS State.md."
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    p.add_argument("-a", "--anchor", default=None,
-                   help="anchor path or slug; defaults to cwd-walkup to .anchor")
-    subs = p.add_subparsers(dest="domain", required=True)
+    subs = p.add_subparsers(dest="verb", required=True)
 
-    # status domain (F130) — manage {slug} Status.md per-facet planning state
-    st = subs.add_parser("status",
-                         help="manage {slug} Status.md per-facet planning status (F130)")
-    st_subs = st.add_subparsers(dest="verb", required=True)
+    # ---- item verbs: define | set | resolve | remove ----------------------
+
+    d = subs.add_parser(
+        "define",
+        help="create-or-replace an item from a complete body (stdin/--body)")
+    _add_address(d, _LABEL_HELP)
+    d.add_argument("--horizon", default=None,
+                   help="horizon for a NEW Backlog row (default: Now)")
+    d.add_argument("--why-ask", dest="why_ask", default=None,
+                   help="F257 — one sentence justifying why a Lean/Strong "
+                        "Open Question is surfaced despite the agent having a "
+                        "recommendation (high-stakes irreversibility: an "
+                        "external action, an interface-sticky name/schema, an "
+                        "architecture lock-in, a taste-only call). Required to "
+                        "mint a Lean/Strong `Q<n>`; appended as `· *why-ask: …*`")
+    d.add_argument("--why-user", dest="why_user", default=None,
+                   help="F240 — one sentence naming the human faculty a "
+                        "Verify/Verify-by/Watching check invokes (taste / "
+                        "preference / ratification / passive-use); required "
+                        "when a row enters that family. Appended to the "
+                        "`- **Verify:**` sub-bullet as `· *why-user: …*`")
+    d.add_argument("--why-user-action", dest="why_user_action", default=None,
+                   help="F259 ownership gate (the F240 sibling) — one sentence "
+                        "naming the credential or human-only faculty a [User] "
+                        "action requires (a login only you hold, a GUI "
+                        "permission dialog, a 2FA device). Required when a row "
+                        "ENTERS [User]; appended to the `- **User:**` sub-bullet "
+                        "as `· *why-user-action: …*`")
+    d.add_argument("--body", dest="inline", default=None,
+                   help="inline body (alternative to stdin)")
+    d.add_argument("--from-file", dest="from_file", default=None,
+                   help="read body from file (alternative to stdin)")
+
+    s = subs.add_parser(
+        "set",
+        help="partial field update on a Backlog row — only flagged fields change")
+    _add_address(s, _LABEL_HELP)
+    s.add_argument("--status", default=None, help="new bracket status")
+    s.add_argument("--horizon", default=None, help="move the row to this horizon")
+    s.add_argument("--title", default=None, help="new title")
+    s.add_argument("--next", dest="next_step", default=None,
+                   help="`- **Next:**` no-user action")
+    s.add_argument("--verify", default=None,
+                   help="`- **Verify:**` yes/no question")
+    s.add_argument("--user", dest="user", default=None,
+                   help="F259 — `- **User:**` action a [User] row is gated on "
+                        "(what YOU, the user, must do: log in, click a "
+                        "permission dialog, enter a credential). Pair with "
+                        "--status User + --why-user-action.")
+    s.add_argument("--why-user", dest="why_user", default=None,
+                   help="F240 — the human faculty a Verify check invokes; "
+                        "required when a row enters that family")
+    s.add_argument("--why-user-action", dest="why_user_action", default=None,
+                   help="F259 — the credential or human-only faculty a [User] "
+                        "action requires; required when a row ENTERS [User]")
+    # No --body-from-stdin and no --from-file: `set` names each field with its
+    # own flag and never reads a body stream. v2 declared --from-file globally
+    # and then refused it here at runtime; the per-verb schema is the check.
+    s.add_argument("--body", dest="inline", default=None, help="new row body")
+
+    r = subs.add_parser(
+        "resolve",
+        help="record an outcome — Backlog row to Done, or a Q/V to its resolved zone")
+    _add_address(r, _LABEL_HELP)
+    r.add_argument("--choice", default=None,
+                   help='chosen option, e.g. "(A)" — required for a Q; '
+                        '"none — <what happened instead>" when the outcome was '
+                        'not one of the listed options')
+    r.add_argument("--body", dest="inline", default=None,
+                   help="inline body (alternative to stdin)")
+    r.add_argument("--from-file", dest="from_file", default=None,
+                   help="read body from file (alternative to stdin)")
+
+    rm_ = subs.add_parser("remove", help="delete an item, echoing what was deleted")
+    _add_address(rm_, _LABEL_HELP)
+    rm_.add_argument("--reason", default=None,
+                     help="short reason recorded in the audit trail")
+
+    # ---- doc verb ---------------------------------------------------------
+
+    rv = subs.add_parser(
+        "revalidate",
+        help="F241 — validate-then-stamp a doc's ## Open Questions block "
+             "after a hand-edit")
+    _add_address(rv)
+
+    # ---- domain verbs -----------------------------------------------------
+
+    st = subs.add_parser(
+        "status", help="manage {slug} Status.md per-facet planning status (F130)")
+    st.add_argument("anchor", help="anchor SLUG or path to a directory holding .anchor")
+    st_subs = st.add_subparsers(dest="subverb", required=True)
 
     sts = st_subs.add_parser("set", help="set a facet's status cell")
     sts.add_argument("facet",
@@ -2764,13 +2749,14 @@ def build_parser():
     stsh.add_argument("facet", nargs="?", default=None,
                       help="facet name (omit to show all)")
 
-    # roadmap domain (F145) — milestone status get/set + whole-milestone migrate
-    rm = subs.add_parser("roadmap",
-                         help="manage {slug} Roadmap.md milestone state + migration (F145)")
-    rm_subs = rm.add_subparsers(dest="verb", required=True)
+    rm = subs.add_parser(
+        "roadmap",
+        help="manage {slug} Roadmap.md milestone state + migration (F145)")
+    rm.add_argument("anchor", help="anchor SLUG or path to a directory holding .anchor")
+    rm_subs = rm.add_subparsers(dest="subverb", required=True)
 
     rmst = rm_subs.add_parser("status", help="get/set a roadmap entry's checkbox state")
-    rmst_subs = rmst.add_subparsers(dest="subverb", required=True)
+    rmst_subs = rmst.add_subparsers(dest="subsubverb", required=True)
     for sv, sv_help in (("get", "read a roadmap entry's checkbox state"),
                         ("set", "write a roadmap entry's checkbox state")):
         sp = rmst_subs.add_parser(sv, help=sv_help)
@@ -2782,71 +2768,86 @@ def build_parser():
                             choices=["checked", "unchecked", "deferred"],
                             help="new checkbox state")
 
-    rmm = rm_subs.add_parser("migrate",
-                             help="migrate a whole completed milestone to Completed Roadmap")
+    rmm = rm_subs.add_parser(
+        "migrate", help="migrate a whole completed milestone to Completed Roadmap")
     rmm.add_argument("milestone", help="top-level milestone id, e.g. M-Store")
     rmm.add_argument("--date", required=True,
                      help="migration date YYYY-MM-DD (REQUIRED — never auto-now)")
 
-    # triage domain (F239) — gated triage stamp + canonical TRIAGE line
-    subs.add_parser(
+    tr = subs.add_parser(
         "triage",
         help="verify the groomed-state gates, render, then stamp + print the "
              "canonical TRIAGE line; dirty gates refuse with the worklist (F239)")
+    tr.add_argument("anchor", help="anchor SLUG or path to a directory holding .anchor")
 
-    # crank domain (F239) — session sentinel for the Stop-hook exit gate
     ck = subs.add_parser(
         "crank", help="crank-session sentinel: start | stop | status (F239)")
-    ck.add_argument("verb", choices=["start", "stop", "status"])
+    ck.add_argument("anchor", help="anchor SLUG or path to a directory holding .anchor")
+    ck.add_argument("subverb", choices=["start", "stop", "status"])
 
-    # groom-list domain (F244) — the grooming worklist presenter
     gl = subs.add_parser(
         "groom-list",
         help="print the grooming worklist (ungroomed frontier), or an "
              "'all caught up' status line when empty (F244)")
+    gl.add_argument("anchor", help="anchor SLUG or path to a directory holding .anchor")
     gl.add_argument("--count", action="store_true",
                     help="print only the integer worklist size")
 
-    # summary-line domain (F248) — the canonical closing/summary line emitter
     sl = subs.add_parser(
         "summary-line",
         help="print the exact T034 closing line the agent shows the user; "
              "counts + separators + blue owned by state, recommendation from "
              "--recommend (required) (F248)")
+    sl.add_argument("anchor", help="anchor SLUG or path to a directory holding .anchor")
     sl.add_argument("--recommend", required=True,
                     choices=["compact", "clear", "crank", "nothing",
                              "answer", "clear-all", "done"],
                     help="the recommendation slot: compact→please /compact, "
-                         "clear→please /clear, crank/nothing→crank with ', "
+                         "clear→please /clear, crank/nothing→crank with \', "
                          "answer→answer the N question(s), clear-all/done→all clear")
 
     return p
 
 
-def main(argv):
-    # F236 — retired domains tombstone: point straight at the v2 replacement
-    # rather than falling through to an "unknown domain" parser error.
-    first = _first_positional(argv)
-    if first is not None and first in _V2_RETIRED_DOMAINS:
-        if first == "task":
-            print(
-                "state: 'state task ...' was retired (F236) — use: "
-                "state [-a ANCHOR] Backlog <F<n>|T<n>|F+|T+> <define|set|resolve|remove>",
-                file=sys.stderr,
-            )
-        else:
-            print(
-                "state: 'state q ...' was retired (F236) — use: "
-                "state [-a ANCHOR] <doc> <Q<n>|Q+> <define|resolve|remove>",
-                file=sys.stderr,
-            )
-        return 2
+def _tombstone(argv):
+    """Print the migration for a retired invocation shape, or None to proceed.
 
-    # F236 v2 dispatch — when the first positional isn't one of the legacy
-    # domain names (status/roadmap), parse it as the v2 grammar:
-    # state [-a ANCHOR] <doc> <label> <verb>.
-    if first is not None and first not in _V2_LEGACY_DOMAINS:
-        return main_v2(argv)
+    Two shapes get a named message rather than argparse's generic "invalid
+    choice". `state task` / `state q` were retired by F236. The whole v2
+    address-first grammar was retired by F293 — and because it led with the
+    doc, its first token is exactly the thing argparse now reads as a verb, so
+    every surviving v2 call site lands here and is told what to type instead.
+    """
+    first = _first_positional(argv)
+    if first is None:
+        return None
+    if first in _RETIRED_DOMAINS:
+        if first == "task":
+            return ("state: 'state task ...' was retired (F236) — use: "
+                    "state <define|set|resolve|remove> <anchor> Backlog <F<n>|T<n>|F+|T+>")
+        return ("state: 'state q ...' was retired (F236) — use: "
+                "state <define|resolve|remove> <anchor> <doc> <Q<n>|Q+>")
+    if first not in _ALL_VERBS:
+        return (
+            f"state: {first!r} is not a verb. The address-first v2 grammar "
+            "(`state [-a ANCHOR] <doc> <label> <verb>`) was REMOVED in F293 — "
+            "the verb comes first now and the anchor is a mandatory "
+            "positional:\n"
+            "    state <verb> <anchor> <doc> [<label>] [flags]\n"
+            "    state set      Tink Backlog T075 --status Done\n"
+            "    state resolve  Tink \"F293 — state CLI v3 — verb-first grammar\" Q1 "
+            "--choice \'(B)\'\n"
+            "    state triage   Tink\n"
+            "Verbs: " + " ".join(_ALL_VERBS)
+        )
+    return None
+
+
+def main(argv):
+    tomb = _tombstone(argv)
+    if tomb is not None:
+        print(tomb, file=sys.stderr)
+        return 2
 
     parser = build_parser()
     args = parser.parse_args(argv[1:])
@@ -2858,28 +2859,32 @@ def main(argv):
         return 2
 
     try:
-        if args.domain == "triage":
+        if args.verb in _ITEM_VERBS:
+            return cmd_item(slug, anchor_path, args)
+        if args.verb == "revalidate":
+            return cmd_revalidate(slug, anchor_path, args)
+        if args.verb == "triage":
             return cmd_triage(slug, anchor_path, args)
-        if args.domain == "crank":
+        if args.verb == "crank":
             return cmd_crank(slug, anchor_path, args)
-        if args.domain == "groom-list":
+        if args.verb == "groom-list":
             return cmd_groom_list(slug, anchor_path, args)
-        if args.domain == "summary-line":
+        if args.verb == "summary-line":
             return cmd_summary_line(slug, anchor_path, args)
-        if args.domain == "status":
-            if args.verb == "set":
+        if args.verb == "status":
+            if args.subverb == "set":
                 return cmd_status_set(slug, anchor_path, args)
-            if args.verb == "show":
+            if args.subverb == "show":
                 return cmd_status_show(slug, anchor_path, args)
-        elif args.domain == "roadmap":
-            if args.verb == "status":
-                if args.subverb == "get":
+        elif args.verb == "roadmap":
+            if args.subverb == "status":
+                if args.subsubverb == "get":
                     return cmd_roadmap_status_get(slug, anchor_path, args)
-                if args.subverb == "set":
+                if args.subsubverb == "set":
                     return cmd_roadmap_status_set(slug, anchor_path, args)
-            if args.verb == "migrate":
+            if args.subverb == "migrate":
                 return cmd_roadmap_migrate(slug, anchor_path, args)
-        print(f"state: unknown verb {args.domain} {args.verb}", file=sys.stderr)
+        print(f"state: unknown verb {args.verb}", file=sys.stderr)
         return 2
     except be.BacklogEditError as e:
         print(f"state: {e}", file=sys.stderr)

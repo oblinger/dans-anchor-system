@@ -82,9 +82,9 @@ If a feature is `[Questions]` or `[Blocked]` mid-flight, that's tracked via the 
 
 **Pick the highest applicable tier.** If you find yourself writing tier 4 with no Blocks-next, pause and reconsider: could a passive signal work? Could the user notice this in normal use? Often the answer is yes and the right tier is 3.
 
-Per `[[DAS Backlog]]` § Numbering policy, F-numbers are monotonic-forever, never recycled, **zero-padded to three digits** as `F001` … `F999`. The F-number is **minted by the workflow skill's `state Backlog F+ define`** in § 1.5 below — run § 1.5 first (after the collision check in § 1b), parse the assigned `F<NNN>` from its stdout, then create the feature doc in the anchor's Features folder. Per **F142** the canonical location is the **Design** folder (Features is a design artifact, D07): `{slug} Design/{slug} Features/F{NNN} — {Feature Name}.md`.
+Per `[[DAS Backlog]]` § Numbering policy, F-numbers are monotonic-forever, never recycled, **zero-padded to three digits** as `F001` … `F999`. The F-number is **minted by the workflow skill's `state define <anchor> Backlog F+`** in § 1.5 below — run § 1.5 first (after the collision check in § 1b), parse the assigned `F<NNN>` from its stdout, then create the feature doc in the anchor's Features folder. Per **F142** the canonical location is the **Design** folder (Features is a design artifact, D07): `{slug} Design/{slug} Features/F{NNN} — {Feature Name}.md`.
 
-If `{slug} Design/{slug} Features/` doesn't exist, create it. (Legacy anchors still hold features at `{slug} Track/{slug} Features/`; the workflow scripts read both during the F142 rollout — but **new** docs go in the Design location.) Filenames carry the F-number prefix from the mint (zero-padded). **Do not read the backlog file directly to compute the next F-number** — `state Backlog F+ define` is the canonical mint.
+If `{slug} Design/{slug} Features/` doesn't exist, create it. (Legacy anchors still hold features at `{slug} Track/{slug} Features/`; the workflow scripts read both during the F142 rollout — but **new** docs go in the Design location.) Filenames carry the F-number prefix from the mint (zero-padded). **Do not read the backlog file directly to compute the next F-number** — `state define <anchor> Backlog F+` is the canonical mint.
 
 #### 1b. Collision check — vault grep for duplicate H1 (per F27)
 
@@ -135,7 +135,7 @@ description: {one-line description}
 
 - **Q0 — {earlier question}** — **Resolution:** {decided X because Y}. Incorporated into Design § {section}.
 
-(**No boilerplate prose** under `## Open Questions` or `### Resolved` headings. No "Blocking decisions / cannot move from Designing → Agreed" intro. Just the heading then the bullets. Per durable feedback memory. **Placement:** while pending Qs exist this block is the file's first H2, immediately below the H1's orientation line. The `<!-- state:q XX -->` stamp is written by the state script on every write — do not hand-edit it or the block; route changes through `state <doc> Q<n> <verb>`. The last `resolve` of a round deletes this block and migrates its decisions to the bottom `## Resolved` H2 — `state` does that, not you.)
+(**No boilerplate prose** under `## Open Questions` or `### Resolved` headings. No "Blocking decisions / cannot move from Designing → Agreed" intro. Just the heading then the bullets. Per durable feedback memory. **Placement:** while pending Qs exist this block is the file's first H2, immediately below the H1's orientation line. The `<!-- state:q XX -->` stamp is written by the state script on every write — do not hand-edit it or the block; route changes through `state <verb> <anchor> <doc> Q<n>`. The last `resolve` of a round deletes this block and migrates its decisions to the bottom `## Resolved` H2 — `state` does that, not you.)
 
 ## Summary
 
@@ -175,7 +175,7 @@ Designing — awaiting design discussion.
 
 **Lifecycle for Questions (F291) — you call `resolve`; the transitions are not yours to make:**
 
-- **The block exists, with N unresolved.** `## Open Questions` H2 is the file's first H2, directly BELOW the H1 (after its one-line orientation). It carries a `<!-- state:q XX -->` integrity stamp the state script maintains; hand-edits that break it trip the on-write warning (R-state-region-03 / audit-q C48). The block has two zones: unresolved questions first, then a `### Resolved` zone. `state <doc> Q<n> resolve` moves a question from the first to the second — it does not remove it, so the open count is always the prefix above the zone heading.
+- **The block exists, with N unresolved.** `## Open Questions` H2 is the file's first H2, directly BELOW the H1 (after its one-line orientation). It carries a `<!-- state:q XX -->` integrity stamp the state script maintains; hand-edits that break it trip the on-write warning (R-state-region-03 / audit-q C48). The block has two zones: unresolved questions first, then a `### Resolved` zone. `state resolve <anchor> <doc> Q<n>` moves a question from the first to the second — it does not remove it, so the open count is always the prefix above the zone heading.
 - **The block has migrated.** The `resolve` that empties the unresolved zone also deletes the block and writes every entry to the top of the bottom `## Resolved` H2, keeping each `^F<n>-Q<n>` block-ID. **`state` does this; the agent performs no part of it.** Top of doc is then clean: H1 → Summary → Design → Status → Resolved.
 - **A new Q later re-opens the block**, numbered above the doc's high-water mark rather than recycling. **This applies even when the feature is `[Done]`** — a re-decision or extension of a feature's design reopens *this doc* (the backlog row rebrackets `[Questions]`); never mint a spin-off backlog row to host the decision (per [[Query PRD]] § Work-item identity: decisions live on the feature's record, rows carry work). When the new resolution supersedes an earlier one, stamp the superseded `## Resolved` entry with a one-line *"superseded {date} → Q{n}"* in the same pass.
 - **Auto-decisions never enter the block.** Agent decisions made under the [[F068 — Assume-and-announce discipline (Drive mode)|F068]] visibility + low-recoverability rule go *directly* into the bottom `## Resolved` H2 as H3 entries. They co-exist there with migrated rounds — which is also why that section is hand-writable while the open block is not.
@@ -199,10 +199,10 @@ Always ASK when: invisible OR high recoverability cost OR irreversible (push / e
 
 Per the active-work invariant: **every feature doc must be reachable from `{slug} Backlog.md` or `{slug} Roadmap.md`** at creation time. No exceptions, no `--orphan` flag.
 
-**For a backlog feature** (the common case): mint the row via the workflow skill's `state Backlog F+ define`. This both reserves the F-number (returned in stdout) and creates the row atomically — no direct backlog edits. Run this **before** creating the feature doc file in § 1 (the F-number names the file).
+**For a backlog feature** (the common case): mint the row via the workflow skill's `state define <anchor> Backlog F+`. This both reserves the F-number (returned in stdout) and creates the row atomically — no direct backlog edits. Run this **before** creating the feature doc file in § 1 (the F-number names the file).
 
 ```bash
-echo '- **F+ — {Feature Name}** [Designing]' | ~/.claude/skills/workflow/scripts/state --anchor {slug} Backlog F+ define
+echo '- **F+ — {Feature Name}** [Designing]' | ~/.claude/skills/workflow/scripts/state define {slug} Backlog F+
 ```
 
 Output: `{slug}: added F<NNN> in Now [Designing]` — parse `F<NNN>` from the second word after `added`. Use that F-number for the feature doc filename (§ 1).
@@ -210,7 +210,7 @@ Output: `{slug}: added F<NNN> in Now [Designing]` — parse `F<NNN>` from the se
 After § 1 creates the feature doc, run a follow-up call to add the wiki-link body so the row links back to the new doc:
 
 ```bash
-~/.claude/skills/workflow/scripts/state --anchor {slug} Backlog F<NNN> set --body "→ [[F<NNN> — {Feature Name}]]"
+~/.claude/skills/workflow/scripts/state set {slug} Backlog F<NNN> --body "→ [[F<NNN> — {Feature Name}]]"
 ```
 
 Use `--horizon Later` for parking-mode stubs (`/feature` used to file something for later). Use `--status Questions` once the Open Questions block has been written and the row should surface (via the queries render) as user-actionable.
@@ -239,11 +239,11 @@ open "<path to feature doc>"
 
 **Rule:** every lifecycle transition in `/feature` (the block migrating when its last Q resolves; a new Q re-opening it; Status changes Designing → Agreed → Implementing → Done) is a state-touching action that must update the backlog row + refresh `~/ob/kmr/Q.md`.
 
-**The mechanism:** call `state Backlog F<NNN> set` with the new status for **every** transition — it auto-refreshes Q.md as a side effect (invokes `audit-q.py --scope backlog --anchor {slug} --fix`).
+**The mechanism:** call `state set <anchor> Backlog F<NNN>` with the new status for **every** transition — it auto-refreshes Q.md as a side effect (invokes `audit-q.py --scope backlog --anchor {slug} --fix`).
 
 ```bash
-~/.claude/skills/workflow/scripts/state --anchor {slug} Backlog F<NNN> set --status Agreed
-~/.claude/skills/workflow/scripts/state --anchor {slug} Backlog F<NNN> set --status Active
+~/.claude/skills/workflow/scripts/state set {slug} Backlog F<NNN> --status Agreed
+~/.claude/skills/workflow/scripts/state set {slug} Backlog F<NNN> --status Active
 # ... and so on for Verify, Done.
 ```
 
@@ -267,16 +267,16 @@ Work with the user to flesh out the design. **Per F128/F129/F236, Q-state change
 
 ```bash
 # Resolve a Q (script auto-migrates to bottom ## Resolved with audit trail):
-state --anchor {slug} "F<n> — {Title}" Q<num> resolve --choice "(A)" < resolution-body.md
+state resolve {slug} "F<n> — {Title}" Q<num> --choice "(A)" < resolution-body.md
 
 # Add a new Q mid-discussion:
-state --anchor {slug} "F<n> — {Title}" Q+ define < q-body.md
+state define {slug} "F<n> — {Title}" Q+ < q-body.md
 
 # Remove a Q that's no longer relevant (preserves audit trail in ### Removed):
-state --anchor {slug} "F<n> — {Title}" Q<num> remove --reason "..."
+state remove {slug} "F<n> — {Title}" Q<num> --reason "..."
 
 # Rewrite a Q's body (no --force gate in F129; verb name IS the explicit intent):
-state --anchor {slug} "F<n> — {Title}" Q<num> define < new-body.md
+state define {slug} "F<n> — {Title}" Q<num> < new-body.md
 ```
 
 After EVERY Q-state change, update the Design (or relevant) section with what the resolution means in the spec. The resolved question and the updated design ship together. **Resolution body should include "Incorporated into Design § `<section>`"** as the closing line so the audit trail in `## Resolved` cross-references where the answer shaped the design.

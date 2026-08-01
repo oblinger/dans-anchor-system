@@ -59,7 +59,7 @@ P=~/.claude/skills/audit/scripts/audit-plan.py
 5. **Report + backlog row** — print the combined pass/fail summary (`audit-plan <anchor> --report` gives it directly). Per the `/audit` default (**audit reports, doesn't fix** — except `/audit dispatch`), file the findings as state-clustered backlog rows per [[audit|SKILL.md]] § Backlog entry format — **unless `dry`**:
    - **Mechanical fail-verdicts → one `[Ready]` row** (spec-clear, mechanically fixable). Sub-bullets = each failed `(rule, target)` with the verdict detail.
    - **Judgment fail-verdicts needing user input → `[Questions]` row(s)** linking a feature doc holding the parked Qs.
-   - All rows minted via `state Backlog F+ define` (never direct-edit the backlog), default horizon `Next` (`--horizon Next`).
+   - All rows minted via `state define <anchor> Backlog F+` (never direct-edit the backlog), default horizon `Next` (`--horizon Next`).
 
    The `.anchor` and H1 fixes are one-line mechanical repairs — offer them, but don't auto-apply (they touch identity).
 

@@ -49,7 +49,7 @@ EOF
 # assert: directive $2 on the current banner emits exactly the golden line $3
 golden() {  # $1=label $2=directive $3=expected-line
     local out
-    out=$(NO_COLOR=1 "$STATE" --anchor "$FIX_ROOT" summary-line --recommend "$2" 2>/dev/null)
+    out=$(NO_COLOR=1 "$STATE" summary-line "$FIX_ROOT" --recommend "$2" 2>/dev/null)
     if [ "$out" = "$3" ]; then ok "$1"; else bad "$1 — got: [$out] want: [$3]"; fi
 }
 
@@ -73,21 +73,21 @@ golden "crank/0"   crank     "F248FIX: crank with ' . Groomed . Runnable 0 . Use
 
 # ---------- Guard A — --recommend is required ----------
 set_banner 3 1 2
-if NO_COLOR=1 "$STATE" --anchor "$FIX_ROOT" summary-line >/dev/null 2>&1; then
+if NO_COLOR=1 "$STATE" summary-line "$FIX_ROOT" >/dev/null 2>&1; then
     bad "guard: missing --recommend must error"
 else
     ok "guard: missing --recommend errors (never-strand)"
 fi
 
 # ---------- Guard B — unknown directive errors ----------
-if NO_COLOR=1 "$STATE" --anchor "$FIX_ROOT" summary-line --recommend bogus >/dev/null 2>&1; then
+if NO_COLOR=1 "$STATE" summary-line "$FIX_ROOT" --recommend bogus >/dev/null 2>&1; then
     bad "guard: unknown directive must error"
 else
     ok "guard: unknown directive errors"
 fi
 
 # ---------- Guard C — piped output carries no ANSI escape (redirect-safe) ----------
-raw=$("$STATE" --anchor "$FIX_ROOT" summary-line --recommend crank 2>/dev/null)
+raw=$("$STATE" summary-line "$FIX_ROOT" --recommend crank 2>/dev/null)
 if printf '%s' "$raw" | grep -q $'\033'; then
     bad "guard: piped output must be plain (no ANSI)"
 else

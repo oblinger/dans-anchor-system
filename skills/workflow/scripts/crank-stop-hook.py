@@ -8,7 +8,7 @@ enforces the F244 *never-strand-the-user* invariant:
 
 "Work-armed" = the ending turn used at least one tool (an edit / write / bash /
 state mutation) — a pure Q&A or design turn is never gated. "Worklist empty"
-= `state groom-list --count` returns 0 (the same `_triage_gate_findings` the
+= `state groom-list <anchor> --count` returns 0 (the same `_triage_gate_findings` the
 groom cascade and F242/C49 use — one source of truth). Recording a question in
 state grooms that item off the worklist, so a chat-only question can't clear
 the gate (the anti-rolloff guarantee). There is NO context-<40% escape and NO
@@ -143,12 +143,12 @@ def _anchor_from_cwd(cwd):
 
 
 def _worklist_count(anchor_path):
-    """The grooming-worklist size via `state groom-list --count`, or None on
+    """The grooming-worklist size via `state groom-list <anchor> --count`, or None on
     any failure (→ fail open)."""
     try:
         r = subprocess.run(
-            [sys.executable, str(STATE_CLI), "--anchor", anchor_path,
-             "groom-list", "--count"],
+            [sys.executable, str(STATE_CLI), "groom-list", anchor_path,
+             "--count"],
             capture_output=True, text=True, timeout=20)
     except (OSError, subprocess.SubprocessError):
         return None
@@ -395,7 +395,7 @@ def _llm_ask_check(payload, anchor, anchor_path):
         return ("stop-gate (F267/F275): your final message asks the user "
                 "something — \"" + q + "\" — that NO open question in the queue "
                 "covers. A chat-only ask strands the user. Mint it as a "
-                "standalone question row: `state --anchor . Backlog Q+ define` "
+                "standalone question row: `state define <anchor> Backlog Q+` "
                 "with `- **(A)**`/`- **(B)**` options, a `- **Recommendation:**`, "
                 "a `- **Damage:**`, and a `- **On answer:**` line (or record it "
                 "in the relevant feature doc via `state ... Q+ define`) — then "
@@ -450,7 +450,7 @@ def main():
         f"stop-gate (F244): {slug or anchor_path} has {count} item(s) on the "
         "grooming worklist — the frontier is not fully groomed, so stopping "
         "would strand the user (they can neither cleanly crank nor answer). "
-        "Run `state --anchor . groom-list` to see them, groom every item to a "
+        "Run `state groom-list <anchor>` to see them, groom every item to a "
         "known state (Ready+Next / Questions / Blocked / Waiting / Verify) — "
         "record any question via `state ... Q+ define`, never only in chat — "
         "and clear any audit-q findings the worklist lists with `/audit q --fix` "

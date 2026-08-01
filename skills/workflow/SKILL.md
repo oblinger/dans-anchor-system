@@ -24,8 +24,8 @@ The canonical state graph for a unit of work — every state, the Definition of 
 |    [[#The lazy-Blocked / lazy-Waiting / lazy-Watching failure mode]] |  |
 | **[[#Skill cross-references]]** |  |
 | **[[#Mutation API — `state`]]** |  |
-|    [[#Backlog rows — `state Backlog <F<n>\|T<n>> <verb>`]] |  |
-|    [[#Doc queries — `state <doc> <Q<n>\|V<n>> <verb>`]] |  |
+|    [[#Backlog rows — `state <verb> <anchor> Backlog <F<n>\|T<n>>`]] |  |
+|    [[#Doc queries — `state <verb> <anchor> <doc> <Q<n>\|V<n>>`]] |  |
 |    [[#Side effects]] |  |
 |    [[#Legacy `backlog-edit.py`]] |  |
 | **[[#Per-surface mappings]]** |  |
@@ -353,7 +353,7 @@ The canonical state editor for everything below the anchor level — backlog row
 **Synopsis:**
 
 ```
-state [-a/--anchor ANCHOR] <doc> <label> <verb> [flags] [< body]
+state <verb> <anchor> <doc> <label> [flags] [< body]
 ```
 
 - **`<doc>`** — `Backlog` (the anchor's backlog file), a wiki-name (case-insensitive basename match, anchor tree first then vault; ambiguity errors listing candidates), or a path to any `.md` doc.
@@ -362,14 +362,14 @@ state [-a/--anchor ANCHOR] <doc> <label> <verb> [flags] [< body]
 
 `--anchor` accepts a path (folder containing `.anchor`) or a slug (`SKA`, `MUX`, …). If absent, the script walks `cwd` UP looking for `.anchor`. In skill templates we usually pass `--anchor {slug}` explicitly.
 
-### Backlog rows — `state Backlog <F<n>|T<n>> <verb>`
+### Backlog rows — `state <verb> <anchor> Backlog <F<n>|T<n>>`
 
 | Verb | Form |
 |---|---|
-| `define` | `echo '- **F+ — TITLE** [STATUS] — BODY' \| state --anchor {slug} Backlog F+ define [--horizon HORIZON]` — create-or-replace the whole row; the body IS the complete row markdown (optionally followed by indented sub-bullets). `F+`/`T+` mints the next number (separate namespaces, zero-padded); an explicit `F<NNN>` replaces that row. Default horizon for a new row is `Now`. |
-| `set` | `state --anchor {slug} Backlog F<NNN> set [--status STATUS] [--horizon HORIZON] [--title "TITLE"] [--body BODY] [--next "STEP"] [--verify "QUESTION"] [--why-user "SENTENCE"]` — partial update; omitted flags preserve current values. Entering Verify/Verify-by/Watching requires `--why-user` naming the human faculty (taste / preference / ratification / passive-use), and a mechanically-phrased Verify question is refused outright (F240 ownership gate; see [[DAS State]]). |
-| `resolve` | `state --anchor {slug} Backlog F<NNN> resolve [--body "NOTE"]` — moves the row to `## Done` `[Done]`, appending `— resolved <date>: <note>` to the body. |
-| `remove` | `state --anchor {slug} Backlog F<NNN> remove` — removes the row entirely (rare). |
+| `define` | `echo '- **F+ — TITLE** [STATUS] — BODY' \| state define {slug} Backlog F+ [--horizon HORIZON]` — create-or-replace the whole row; the body IS the complete row markdown (optionally followed by indented sub-bullets). `F+`/`T+` mints the next number (separate namespaces, zero-padded); an explicit `F<NNN>` replaces that row. Default horizon for a new row is `Now`. |
+| `set` | `state set {slug} Backlog F<NNN> [--status STATUS] [--horizon HORIZON] [--title "TITLE"] [--body BODY] [--next "STEP"] [--verify "QUESTION"] [--why-user "SENTENCE"]` — partial update; omitted flags preserve current values. Entering Verify/Verify-by/Watching requires `--why-user` naming the human faculty (taste / preference / ratification / passive-use), and a mechanically-phrased Verify question is refused outright (F240 ownership gate; see [[DAS State]]). |
+| `resolve` | `state resolve {slug} Backlog F<NNN> [--body "NOTE"]` — moves the row to `## Done` `[Done]`, appending `— resolved <date>: <note>` to the body. |
+| `remove` | `state remove {slug} Backlog F<NNN>` — removes the row entirely (rare). |
 
 Row shape produced:
 
@@ -380,21 +380,21 @@ Row shape produced:
 **Preserve-on-omit semantics.** On `set`, omitted flags preserve the current value. The common bracket-only transition:
 
 ```
-state --anchor SKA Backlog F095 set --status Ready --next "the declared step"    # bracket + Next
-state --anchor SKA Backlog F095 set --status Done --horizon Done                 # move to ## Done
-state --anchor SKA Backlog F095 set --title "New Title"                          # rename
-state --anchor SKA Backlog F095 set --body "Shipped 2026-06-15"                  # body only
+state set SKA Backlog F095 --status Ready --next "the declared step"    # bracket + Next
+state set SKA Backlog F095 --status Done --horizon Done                 # move to ## Done
+state set SKA Backlog F095 --title "New Title"                          # rename
+state set SKA Backlog F095 --body "Shipped 2026-06-15"                  # body only
 ```
 
-### Doc queries — `state <doc> <Q<n>|V<n>> <verb>`
+### Doc queries — `state <verb> <anchor> <doc> <Q<n>|V<n>>`
 
 Any markdown doc can carry labeled queries — feature docs, PRDs, standalone design docs; a doc does not need to be a numbered feature.
 
 | Verb | Form |
 |---|---|
-| `Q define` | `state --anchor {slug} "<doc>" Q+ define < q-body.md` — `Q+` mints the lowest unused Q-number; an explicit `Q<n>` create-or-replaces that Q (subsumes add + rewrite). Lands in `## Open Questions` (the first H2, below the H1). **The q-body must carry a `- **Damage:**` line** (first word ∈ `waste`/`priority`/`irreversible`/`locking`/`taste`/`other`; `waste`/`priority` auto-resolve on define and never surface — [[DAS ask-format]] § The Damage field). |
-| `Q resolve` | `state --anchor {slug} "<doc>" Q<n> resolve --choice "(A)" [body source]` — migrates the Q to the bottom `## Resolved` H3. |
-| `Q remove` | `state --anchor {slug} "<doc>" Q<n> remove --reason "..."` — migrates to `### Removed` H3 with audit trail. |
+| `Q define` | `state define {slug} "<doc>" Q+ < q-body.md` — `Q+` mints the lowest unused Q-number; an explicit `Q<n>` create-or-replaces that Q (subsumes add + rewrite). Lands in `## Open Questions` (the first H2, below the H1). **The q-body must carry a `- **Damage:**` line** (first word ∈ `waste`/`priority`/`irreversible`/`locking`/`taste`/`other`; `waste`/`priority` auto-resolve on define and never surface — [[DAS ask-format]] § The Damage field). |
+| `Q resolve` | `state resolve {slug} "<doc>" Q<n> --choice "(A)" [body source]` — migrates the Q to the bottom `## Resolved` H3. |
+| `Q remove` | `state remove {slug} "<doc>" Q<n> --reason "..."` — migrates to `### Removed` H3 with audit trail. |
 | `V define/resolve/remove` | same grammar with `V<n>`/`V+` — addressable verifications under the doc's `## Verifications` H2 (per F235, the doc is the verify home). |
 
 The script enforces ask-format spec (block-IDs, Q-numbering, the two-zone block lifecycle, ≥2 labeled options + a `Recommendation:` line) at write time. Q-numbers are canonical (referenced by block-IDs and audit-q messages).
@@ -413,7 +413,7 @@ The script enforces ask-format spec (block-IDs, Q-numbering, the two-zone block 
 The script is invoked via `Bash`:
 
 ```
-echo '- **F+ — Title** [Designing] — → [[F095 — Title]]' | ~/.claude/skills/workflow/scripts/state --anchor SKA Backlog F+ define
+echo '- **F+ — Title** [Designing] — → [[F095 — Title]]' | ~/.claude/skills/workflow/scripts/state define SKA Backlog F+
 ```
 
 **Minting flow** (when the caller needs the new F/T number — e.g., `/feature` naming a new feature doc file):
@@ -524,7 +524,7 @@ The icebox is a **sanctioned exception** to the "active" part of the invariant. 
 
 ### Enforcement
 
-- **At creation time** — `feature/SKILL.md` step 1.5 mandates minting a backlog (or roadmap) row when a feature doc is created. The mint happens via `state Backlog F+ define` (see § Mutation API above); no `--orphan` flag, no convention-only escape hatch, no direct backlog edit.
+- **At creation time** — `feature/SKILL.md` step 1.5 mandates minting a backlog (or roadmap) row when a feature doc is created. The mint happens via `state define <anchor> Backlog F+` (see § Mutation API above); no `--orphan` flag, no convention-only escape hatch, no direct backlog edit.
 - **Continuous** — `/audit structure` includes an orphan-check sub-audit: walks `{slug} Features/` and flags any feature doc not linked from backlog/roadmap/icebox.
 - **One-time sweep at landing** — when this invariant first lands per anchor, run `/audit structure --orphan-sweep` to backfill rows for any pre-existing orphans.
 

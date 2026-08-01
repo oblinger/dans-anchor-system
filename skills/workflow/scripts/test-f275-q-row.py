@@ -4,7 +4,7 @@
 A standalone feature-less question row (`state Backlog Q+ define`) is a sibling
 to F/T rows, but the row body IS the question — so it runs the same ask-format
 + F270 Damage + F257 gates as a doc-scoped Q, PLUS the hard-required F275
-`On answer:` clause (M3). This drives the full path through `cmd_v2` (routing +
+`On answer:` clause (M3). This drives the full path through `cmd_item` (routing +
 mint + gates + row write) on a temp backlog, with every vault-touching hook
 stubbed (mirrors test-f247 / test-f270):
 
@@ -97,10 +97,10 @@ def args(doc, label, verb, body=None, why_ask=None):
 
 
 def run(a):
-    """Invoke cmd_v2 capturing stdout+stderr; return (rc, out, err)."""
+    """Invoke cmd_item capturing stdout+stderr; return (rc, out, err)."""
     out, err = io.StringIO(), io.StringIO()
     with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
-        rc = st.cmd_v2("ZZQ", TMP, a)
+        rc = st.cmd_item("ZZQ", TMP, a)
     return rc, out.getvalue(), err.getvalue()
 
 

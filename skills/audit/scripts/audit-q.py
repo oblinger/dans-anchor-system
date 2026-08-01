@@ -3159,7 +3159,7 @@ def check_c45_open_questions_above_h1(entries: list[BacklogEntry]) -> list[Findi
     that already have a resolved arrow link (unresolved links are C1/C22's
     territory; a doc with no `## Open Questions` heading at all is C24/C2's
     "no Qs" case, not a placement violation). Flag-only — moving a block is
-    a content edit, not mechanical; `state <doc> revalidate` relocates it.
+    a content edit, not mechanical; `state revalidate <anchor> <doc>` relocates it.
 
     Dedups per target file: multiple rows linking the same doc emit one
     finding, not one per row.
@@ -3241,7 +3241,7 @@ def check_c48_q_stamp_drift(entries: list[BacklogEntry]) -> list[Finding]:
     grandfathered (legacy docs — no stamp, no finding). Hash impl is
     backlog-edit.py's compute_q_stamp — single source of truth, same shape
     as the C47/is_mechanical_verify sharing. Flag-only: recovery needs the
-    format gates re-run (`state <doc> revalidate`), never a blind re-bless.
+    format gates re-run (`state revalidate <anchor> <doc>`), never a blind re-bless.
     """
     findings: list[Finding] = []
     seen: set[Path] = set()

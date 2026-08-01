@@ -83,14 +83,14 @@ Never drop a durable-shaping decision silently on archival — that loss is exac
 ### 4. Update Status / Stat Records
 
 - If `skl-stat` is in use, post a Done update with the work-unit's S-number and a brief activity note.
-- If the work corresponds to a backlog item (`F<n>` or `B<n>` in `{slug} Backlog.md`), move it to `## Done` via the workflow skill's `state Backlog <row-id> resolve` — never edit the backlog file directly. F/T-number and title are preserved; the resolution note is appended to the body:
+- If the work corresponds to a backlog item (`F<n>` or `B<n>` in `{slug} Backlog.md`), move it to `## Done` via the workflow skill's `state resolve <anchor> Backlog <row-id>` — never edit the backlog file directly. F/T-number and title are preserved; the resolution note is appended to the body:
 
   ```bash
-  ~/.claude/skills/workflow/scripts/state --anchor {slug} Backlog <row-id> resolve \
+  ~/.claude/skills/workflow/scripts/state resolve {slug} Backlog <row-id> \
       --body "Shipped 2026-MM-DD — see [[F<n> — Title]] / PR #N / commit <sha>"
   ```
 
-  (The `--body` note is appended to the existing row body as `— resolved <date>: <note>`; to correct a body after the fact, use `state --anchor {slug} Backlog <row-id> set --body "..."` — omitting `--title` / `--status` preserves the existing values.)
+  (The `--body` note is appended to the existing row body as `— resolved <date>: <note>`; to correct a body after the fact, use `state set {slug} Backlog <row-id> --body "..."` — omitting `--title` / `--status` preserves the existing values.)
 - If a roadmap milestone was closed by this work, mark it complete in the roadmap doc.
 
 ### 5. Update Docs to Match Reality
@@ -109,7 +109,7 @@ Never drop a durable-shaping decision silently on archival — that loss is exac
 
 ### 7. Q.md update post-condition — automatic via `state`
 
-Step 4's `state Backlog <row-id> resolve` call auto-refreshes the anchor's per-anchor section in `~/ob/kmr/Q.md` (by shelling out to `audit-q.py --scope backlog --anchor {slug} --fix`). **The backlog file is NOT reordered** — source order is preserved (per F075 Q2). Bubble-to-top is a Q.md-only behavior; the user reading Q.md sees the just-finalized anchor at the top.
+Step 4's `state resolve <anchor> Backlog <row-id>` call auto-refreshes the anchor's per-anchor section in `~/ob/kmr/Q.md` (by shelling out to `audit-q.py --scope backlog --anchor {slug} --fix`). **The backlog file is NOT reordered** — source order is preserved (per F075 Q2). Bubble-to-top is a Q.md-only behavior; the user reading Q.md sees the just-finalized anchor at the top.
 
 The audit's fix-by-default behavior catches any drift introduced — broken links, stale brackets, banner mismatches, stale `[Done]` rows — and either repairs them mechanically OR (rare) files a `QFix [Ready]` backlog entry. **Surfacing any QFix entry is part of this skill's "done" criteria** — read the script's output for QFix lines and surface them to the user.
 
@@ -132,7 +132,7 @@ When the unit being closed is a **C-row** (an OpenSpec change, [[DAS Changes]]),
 2. **Reconcile design** — if the change carries `design.md` / `design/`, promote its durable content into the anchor's design docs (`{slug} Design/`), then discard the transient notes with the archive.
 3. **Verify tasks.md is all-checked** — an unchecked box means the change isn't done; go back to `/mint` or rebracket honestly.
 4. **Archive** — move the whole folder to `changes/archive/C<NNN>-<slug>/`. Archived changes are history: never edited, never un-archived; follow-ups are new C-numbers.
-5. Row → `[Done]` via `state Backlog C<NNN> set` — then continue the normal sequence below (commit, status, cleanup).
+5. Row → `[Done]` via `state set <anchor> Backlog C<NNN>` — then continue the normal sequence below (commit, status, cleanup).
 
 ## Consumers
 

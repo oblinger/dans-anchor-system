@@ -28,7 +28,7 @@ Create and drive a **change** — the OpenSpec-conformant unit of work defined b
 From the anchor (walk up from `cwd` to `.anchor`):
 
 ```bash
-~/.claude/skills/workflow/scripts/state --anchor {slug} Backlog C+ define <<'EOF'
+~/.claude/skills/workflow/scripts/state define {slug} Backlog C+ <<'EOF'
 - **C001 — {Title}** [Designing] — {one-line what/why}
 EOF
 ```
@@ -47,7 +47,7 @@ Create `changes/C<NNN>-<kebab-slug>/` at the **anchor root** (create `changes/` 
 Then update the row body with a path-qualified link:
 
 ```bash
-~/.claude/skills/workflow/scripts/state --anchor {slug} Backlog C<NNN> set \
+~/.claude/skills/workflow/scripts/state set {slug} Backlog C<NNN> \
   --body "→ [[{anchor-relative-path}/changes/C<NNN>-<slug>/proposal|C<NNN> proposal]] · {one-line}"
 ```
 

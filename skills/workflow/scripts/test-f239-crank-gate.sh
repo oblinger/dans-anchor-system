@@ -65,7 +65,7 @@ cat > "$BACKLOG" <<'EOF'
 
 ## Done
 EOF
-OUT=$("$STATE" --anchor "$FIX_ROOT" triage 2>&1); RC=$?
+OUT=$("$STATE" triage "$FIX_ROOT" 2>&1); RC=$?
 if [ "$RC" -ne 0 ] \
    && echo "$OUT" | grep -q "not actually executable" \
    && echo "$OUT" | grep -q "event-gated"; then
@@ -90,13 +90,13 @@ cat > "$BACKLOG" <<'EOF'
 
 ## Done
 EOF
-LINE=$("$STATE" --anchor "$FIX_ROOT" triage 2>"$TMP/errB"); RC=$?
+LINE=$("$STATE" triage "$FIX_ROOT" 2>"$TMP/errB"); RC=$?
 if [ "$RC" -eq 0 ] && printf '%s' "$LINE" | grep -q "^TRIAGE — Runnable 1"; then
     ok "B: clean gates stamped, canonical line: $LINE"
 else
     bad "B: expected stamp + line — rc=$RC, line: $LINE, err: $(cat "$TMP/errB")"
 fi
-"$STATE" --anchor "$FIX_ROOT" crank start >/dev/null
+"$STATE" crank "$FIX_ROOT" start >/dev/null
 transcript "$LINE"
 BLOCK=$(hook_run "$TRANSCRIPT")
 if [ -z "$BLOCK" ] && [ ! -f ~/.config/anchor-system/crank/F239FIX.json ]; then
@@ -108,7 +108,7 @@ fi
 # B3 — adding a groomed [Questions] row keeps the worklist empty → still ALLOW.
 # (F244 superseded F239's stamp-freshness ceremony: worklist-empty is the gate;
 # a [Questions] row is a groomed state, not a worklist item.)
-"$STATE" --anchor "$FIX_ROOT" crank start >/dev/null
+"$STATE" crank "$FIX_ROOT" start >/dev/null
 # A GENUINELY groomed [Questions] row carries a reachable inline Q (post-F258 the
 # worklist counts audit-q findings, so a target-less [Questions] row is NOT groomed).
 {
@@ -124,7 +124,7 @@ if echo "$BLOCK" | grep -q '"decision": "block"'; then
 else
     ok "B3: groomed [Questions] row keeps the worklist empty — stop allowed (F244)"
 fi
-"$STATE" --anchor "$FIX_ROOT" crank stop >/dev/null
+"$STATE" crank "$FIX_ROOT" stop >/dev/null
 
 # ---------- Case C — an all-parked [Questions] frontier is groomed → ALLOW ----------
 # (F244: no CRANK-READY ceremony — a fully groomed frontier, even all-parked, is
@@ -142,7 +142,7 @@ cat > "$BACKLOG" <<'EOF'
 
 ## Done
 EOF
-"$STATE" --anchor "$FIX_ROOT" crank start >/dev/null
+"$STATE" crank "$FIX_ROOT" start >/dev/null
 transcript "All parked and groomed."
 BLOCK=$(hook_run "$TRANSCRIPT")
 if echo "$BLOCK" | grep -q '"decision": "block"'; then
@@ -179,7 +179,7 @@ cat > "$BACKLOG" <<'EOF'
 
 - **T001 — All done** [Done] — nothing pending ^T001
 EOF
-"$STATE" --anchor "$FIX_ROOT" crank start >/dev/null
+"$STATE" crank "$FIX_ROOT" start >/dev/null
 transcript "Everything landed."
 BLOCK=$(hook_run "$TRANSCRIPT")
 if [ -z "$BLOCK" ] && [ ! -f ~/.config/anchor-system/crank/F239FIX.json ]; then

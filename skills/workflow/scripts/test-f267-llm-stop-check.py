@@ -152,7 +152,7 @@ def main():
     m.subprocess = _Mock('{"asking": true, "summary": "Approve deploy?"}')
     r = m._llm_ask_check({"transcript_path": str(tx)}, "MUX", empty_anchor)
     spent = json.loads(m.LLM_CONF.read_text()).get("fired")
-    check(isinstance(r, str) and "Backlog Q+ define" in r and spent == 1,
+    check(isinstance(r, str) and "define <anchor> Backlog Q+" in r and spent == 1,
           "ENFORCE budget=1 + asking + empty queue → block, fire spent")
 
     # 8 — budget now spent → no block (still logs)

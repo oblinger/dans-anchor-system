@@ -73,7 +73,7 @@ Before reading the feature spec, check the planning-status gate. **Applies only 
 
 Run:
 ```bash
-~/.claude/skills/workflow/scripts/state --anchor {slug} status show
+~/.claude/skills/workflow/scripts/state status {slug} show
 ```
 
 Read the cells for `prd`, `architecture`, `testing`. If **any** of them is `none`, the gate is not satisfied. Surface a three-way prompt:
@@ -94,7 +94,7 @@ Wait for the user's choice (`A` / `B` / `C`).
 - **(B)** Proceed to step 1 with no state change. Next `/mint` invocation will warn again.
 - **(C)** For each blocked facet, run:
   ```bash
-  ~/.claude/skills/workflow/scripts/state --anchor {slug} status set <facet> MVP-user --note "provisional — proceeding without full planning; revisit"
+  ~/.claude/skills/workflow/scripts/state status {slug} set <facet> MVP-user --note "provisional — proceeding without full planning; revisit"
   ```
   Then proceed to step 1. Future mints won't warn for these facets until the user explicitly re-grades them.
 
@@ -150,22 +150,22 @@ Commit after each well-defined piece of activity. Before pausing:
 
 State/status updates go through the workflow `state` CLI (next section), which refreshes the Q.md status banner as a side effect. The former `skl-stat` Now-file mechanism is retired — superseded by `state` + the Q.md render; the Skill Docket subsumes any remaining reporting role.
 
-### 7. Bracket transitions + Q.md refresh — via `state Backlog <row-id> set`
+### 7. Bracket transitions + Q.md refresh — via `state set <anchor> Backlog <row-id>`
 
 State transitions on the backlog row are mandatory and go through the workflow skill's `state` — no direct backlog edits:
 
 ```bash
 # At mint start (Ready → Active):
-~/.claude/skills/workflow/scripts/state --anchor {slug} Backlog <row-id> set --status Active --horizon Active
+~/.claude/skills/workflow/scripts/state set {slug} Backlog <row-id> --status Active --horizon Active
 
 # At mint completion, if verification is needed (Active → Verify):
-~/.claude/skills/workflow/scripts/state --anchor {slug} Backlog <row-id> set --status Verify
+~/.claude/skills/workflow/scripts/state set {slug} Backlog <row-id> --status Verify
 
 # Or if no verification is needed (Active → Done):
-~/.claude/skills/workflow/scripts/state --anchor {slug} Backlog <row-id> set --status Done --horizon Done
+~/.claude/skills/workflow/scripts/state set {slug} Backlog <row-id> --status Done --horizon Done
 ```
 
-`state Backlog <row-id> set` preserves the row's title and body (omit those flags) and auto-refreshes the anchor's per-anchor section in `~/ob/kmr/Q.md` (by shelling out to `audit-q.py --scope backlog --anchor {slug} --fix`). **The backlog file is NOT reordered** — source order is preserved (per F075 Q2). Bubble-to-top is a Q.md-only behavior.
+`state set <anchor> Backlog <row-id>` preserves the row's title and body (omit those flags) and auto-refreshes the anchor's per-anchor section in `~/ob/kmr/Q.md` (by shelling out to `audit-q.py --scope backlog --anchor {slug} --fix`). **The backlog file is NOT reordered** — source order is preserved (per F075 Q2). Bubble-to-top is a Q.md-only behavior.
 
 The audit's fix-by-default behavior catches any drift introduced — broken links, stale brackets, banner mismatches, stale `[Done]` rows — and either repairs them mechanically OR (rare) files a `QFix [Ready]` backlog entry. **Surfacing any QFix entry is part of this skill's "done" criteria** — read the script's output for QFix lines and surface them to the user.
 
@@ -187,7 +187,7 @@ A `[Ready]` **C-row** (`C<NNN>`, per [[DAS Changes]]) mints like a feature with 
 2. **Execute `tasks.md` top to bottom**, checking each `- [ ]` box as its work lands (the checked file is the progress record — keep it current, not batched at the end).
 3. **On completion the row goes to `[Verify]`, not `[Done]`** — closing a C-row is `/finalize`'s archive-merge (fold the `specs/` delta into the anchor's `specs/`, archive the folder). Never fold the delta yourself mid-mint.
 
-Bracket transitions use the same `state Backlog C<NNN> set` calls as F-rows (always the zero-padded id).
+Bracket transitions use the same `state set <anchor> Backlog C<NNN>` calls as F-rows (always the zero-padded id).
 
 ### 9. On Completion
 

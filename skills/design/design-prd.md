@@ -235,7 +235,7 @@ See [[query]] and [[DAS ask-format]] for the full lifecycle (Q-numbering, recomm
 Status lives in `{slug} Track/{slug} Status.md` per [[DAS Status]]. When the PRD survives the rule check AND the section spine is substantive:
 
 ```bash
-~/.claude/skills/workflow/scripts/state --anchor {slug} status set prd MVP-agent --note "<one-line — what's covered>"
+~/.claude/skills/workflow/scripts/state status {slug} set prd MVP-agent --note "<one-line — what's covered>"
 ```
 
 User stamps `MVP-user` via natural-language confirmation ("PRD looks good"); this lets the `/design` picker advance to the next phase.

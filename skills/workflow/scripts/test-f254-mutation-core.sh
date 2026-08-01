@@ -27,7 +27,12 @@ ok(){ echo "  PASS: $1"; PASS=$((PASS+1)); }
 no(){ echo "  FAIL: $1"; FAIL=$((FAIL+1)); }
 cleanup(){ rm -rf "$FH"; }
 trap cleanup EXIT
-run(){ HOME="$FH" "$STATE" --anchor ZZT "$@" 2>&1; }
+# v3 (F293): verb first, then the mandatory anchor. Callers pass
+#   run <doc> <label> <verb> [flags]
+# and the helper reorders — keeping the call sites reading address-first,
+# which is how the assertions below are written.
+run(){ local doc="$1" label="$2" verb="$3"; shift 3;
+       HOME="$FH" "$STATE" "$verb" ZZT "$doc" "$label" "$@" 2>&1; }
 
 build(){
   rm -rf "$A"
@@ -86,7 +91,7 @@ grep -q "F002" "$BL" && no "F002 leaked into Backlog despite refusal" || ok "F00
 
 echo "== #3 mint counts title-less / en-dash rows, no overwrite =="
 build
-out="$(printf '%s' '- **T+ — New minted task** [Designing]' | HOME="$FH" "$STATE" --anchor ZZT Backlog T+ define 2>&1)"
+out="$(printf '%s' '- **T+ — New minted task** [Designing]' | HOME="$FH" "$STATE" define ZZT Backlog T+ 2>&1)"
 echo "$out" | grep -q "T004" && ok "minted T004 (not an in-use id)" || no "mint returned wrong id: $out"
 grep -q "^- \*\*T002\*\* \[Done\]" "$BL" && ok "T002 untouched" || no "T002 was overwritten"
 
@@ -99,7 +104,7 @@ grep -q "precious body text" "$BL" && ok "T003 body preserved" || no "T003 body 
 echo "== #7 re-define existing row REPLACES subs (no duplication) =="
 build
 printf '%s\n%s' '- **T001 — Real task** [Blocked F001] — new body' '  - **Plan:** brand new plan' \
-  | HOME="$FH" "$STATE" --anchor ZZT Backlog T001 define >/dev/null 2>&1
+  | HOME="$FH" "$STATE" define ZZT Backlog T001 >/dev/null 2>&1
 n_new=$(grep -c "brand new plan" "$BL")
 [ "$n_new" -eq 1 ] && ok "new sub-bullet present exactly once" || no "new sub-bullet count=$n_new"
 grep -q "old details" "$BL" && no "old sub-bullet survived (duplication)" || ok "old sub-bullet replaced, not duplicated"

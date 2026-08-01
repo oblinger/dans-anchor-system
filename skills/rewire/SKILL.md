@@ -397,20 +397,20 @@ The synthesis-vs-reference split: **Dev** holds audit-tied implementation refere
 
 - [ ] Folder exists with dispatch page `{slug} User.md`
 - [ ] **`{slug} Interface.md` exists here** — the required top-level human-authored layer contract; see [[DAS Interface]]
-- [ ] **If `{slug} Interface.md` is absent:** auto-create a scaffold (H1 + canonical dispatch placeholder + TODO sections per [[DAS Interface]] § Document Structure) AND file a `## Now [Designing]` backlog row via the workflow skill's `state Backlog F+ define` (per [[SKA workflow]] § Mutation API — never edit `{slug} Backlog.md` directly):
+- [ ] **If `{slug} Interface.md` is absent:** auto-create a scaffold (H1 + canonical dispatch placeholder + TODO sections per [[DAS Interface]] § Document Structure) AND file a `## Now [Designing]` backlog row via the workflow skill's `state define <anchor> Backlog F+` (per [[SKA workflow]] § Mutation API — never edit `{slug} Backlog.md` directly):
 
   ```bash
   echo '- **F+ — Author top-level Interface for {slug}** [Designing] — Rewire scaffolded {slug} Interface.md on {YYYY-MM-DD}. Needs user collaboration to author the layer contract — see [[DAS Interface]]. → [[{slug} Interface]].' | \
-      ~/.claude/skills/workflow/scripts/state --anchor {slug} Backlog F+ define
+      ~/.claude/skills/workflow/scripts/state define {slug} Backlog F+
   ```
 
   The agent does NOT attempt to fill in the contract content — that's the user-collaboration step per [[DAS Interface]] § Interface-validation gate.
 
-- [ ] **Legacy migration:** if `{slug} Rollup.md` exists (predecessor to Interface), do NOT auto-rename. Surface a `## Now [Designing]` backlog row via `state Backlog F+ define`:
+- [ ] **Legacy migration:** if `{slug} Rollup.md` exists (predecessor to Interface), do NOT auto-rename. Surface a `## Now [Designing]` backlog row via `state define <anchor> Backlog F+`:
 
   ```bash
   echo '- **F+ — Migrate {slug} Rollup → {slug} Interface** [Designing] — content review needed (see F062). → [[{slug} Rollup]].' | \
-      ~/.claude/skills/workflow/scripts/state --anchor {slug} Backlog F+ define
+      ~/.claude/skills/workflow/scripts/state define {slug} Backlog F+
   ```
 
   Per F060's forward-only policy, the rename happens when the user touches the anchor.
