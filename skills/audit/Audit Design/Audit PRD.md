@@ -1,5 +1,5 @@
 ---
-description: "What V2 audit is — a rule-driven checker/corrector for vault artifacts, run explicitly and online, across a four-level automation scale that never deletes content."
+description: "product requirements — what /audit produces and for whom"
 ---
 
 # Audit PRD

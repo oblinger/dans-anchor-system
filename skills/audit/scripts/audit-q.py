@@ -2473,6 +2473,28 @@ def check_c18_verify_by_expired(
 # ============================================================
 # C23 — [Designing] is not a valid terminal bracket
 # ============================================================
+#
+# F275 shipped the STANDALONE Q-ROW: a backlog row whose identifier is
+# `Q<n>`, where the row IS the question — no feature doc, no arrow link, and
+# sub-bullets that are ask-format options (`- **(A)** …`) rather than nested
+# `- **Q<n> —` headers. Five checks reason about brackets and only C24 was
+# taught the shape when F275 landed (T079, 2026-08-01). The other four all
+# fire on every standalone Q-row, and C23's auto-fix is actively dangerous:
+# it reads zero pending Qs (the options aren't Q-headers), concludes design
+# is over, and promotes the row to [Ready] — bracketing a question awaiting
+# the user as agent-executable work.
+#
+# The predicate below is the single place that recognises the shape.
+
+
+def _is_standalone_q_row(identifier: str | None) -> bool:
+    """True for an F275 standalone Q-row — the row that IS its own question.
+
+    Self-backing: its number lives in the row header, so it is never counted
+    against a linked doc and never owes a `→ [[F<n>]]` link. While it sits in
+    a live horizon it is exactly ONE pending question.
+    """
+    return bool(re.match(r"^Q\d+$", identifier or ""))
 # Per user direction 2026-05-26 — [Designing] alone creates a deadlock:
 # nobody knows whose turn it is. Force every [Designing] row to resolve
 # to one of two honest forms:
@@ -2498,6 +2520,24 @@ def check_c23_designing_resolves(entries: list[BacklogEntry]) -> list[Finding]:
     findings: list[Finding] = []
     for e in entries:
         if e.status != "Designing":
+            continue
+        # F275 (T079) — a standalone Q-row backs itself: it IS one pending
+        # question, so the honest bracket is [Questions]. Counting it the
+        # normal way yields zero (its sub-bullets are options, not Q-headers)
+        # and the fixer would promote a question awaiting the user to [Ready].
+        if _is_standalone_q_row(e.identifier):
+            findings.append(Finding(
+                severity="warning",
+                surface_file=e.source_file,
+                surface_line=e.source_line,
+                code="C23",
+                message=(
+                    f"row '{e.identifier}' is a standalone Q-row and is its "
+                    f"own single pending question (F275) — bracket must be "
+                    f"[Questions], not [Designing]"
+                ),
+                mechanically_fixable=True,
+            ))
             continue
         # Resolve where to count pending Qs. The row's OWN doc is the
         # arrow-form link only (T012 — `e.link` is the first link of any
@@ -2726,7 +2766,15 @@ def check_c25_designing_justification(backlog_files: list[Path],
             # Skip Done / Icebox; only live horizons.
             if current_horizon in ("Done", "Icebox", ""):
                 continue
-            if not designing_bracket_re.search(line):
+            # Scope the bracket search to the row's HEAD region, the way
+            # _detect_status and the C23/C24 fixers already do. Searching the
+            # whole line makes any row whose BODY discusses `[Designing]` —
+            # a bug report about bracket handling, say — read as a [Designing]
+            # row and get flagged for a justification it does not owe. Live
+            # false positive on Tink T079, which is a bug report about exactly
+            # this bracket. `_head_span` blanks code spans and wiki-links first.
+            h_start, h_end = _head_span(line)
+            if not designing_bracket_re.search(_cleaned_line(line)[h_start:h_end]):
                 continue
             # Identify row type.
             mh3 = h3_row_opener_re.match(line)
@@ -2736,6 +2784,11 @@ def check_c25_designing_justification(backlog_files: list[Path],
                 # Not a row opener — bracketed text inside a sub-bullet or body.
                 continue
             identifier = row_match.group(1)
+            # F275 (T079) — a standalone Q-row's justification IS the question
+            # in its header. F102's "declare what happens next" is a rule about
+            # rows that delegate their design to a linked doc.
+            if _is_standalone_q_row(identifier):
+                continue
             is_h3 = bool(mh3)
             # Look for the row's body span (lines until the next row/heading).
             # Track code-fence state so a YAML/Python comment like `# Before`
@@ -2935,6 +2988,11 @@ def check_c33_designing_needs_link(entries: list[BacklogEntry]) -> list[Finding]
         if e.status != "Designing":
             continue
         if e.link is not None:
+            continue
+        # F275 (T079) — a standalone Q-row by definition has no feature doc:
+        # it IS the question. Demanding a `→ [[F<n>]]` link asks for a doc the
+        # shape exists to avoid. C23 corrects its bracket to [Questions].
+        if _is_standalone_q_row(e.identifier):
             continue
         # Skip Done/Icebox horizons.
         if e.horizon in ("Done", "Icebox"):
@@ -3540,7 +3598,10 @@ def check_c34_inline_q_in_row_body(backlog_files: list[Path]) -> list[Finding]:
             if current_h2 in ("Done", "Icebox", "Verify", ""):
                 continue
             # T-/B-row inline Qs are the sanctioned no-doc form (see docstring).
-            if row_kind in ("T", "B"):
+            # `Q` joins them per F275 (T079): a standalone Q-row's own header
+            # matches `inline_q_re`, so without this the shape the mint writes
+            # is flagged the instant it exists.
+            if row_kind in ("T", "B", "Q"):
                 continue
             if inline_q_re.match(line):
                 findings.append(Finding(
@@ -4149,6 +4210,27 @@ def apply_c23_fix(backlog_file: Path,
         return False, []
     changed = False
     for e in designing:
+        # F275 (T079) — a standalone Q-row IS one pending question; counting
+        # it the normal way yields zero and would promote it to [Ready].
+        if _is_standalone_q_row(e.identifier):
+            pending = 1
+            new_bracket = "[Questions]"
+            line_idx = e.source_line - 1
+            if line_idx < 0 or line_idx >= len(lines):
+                continue
+            old_line = lines[line_idx]
+            h_start, h_end = _head_span(old_line)
+            head = old_line[h_start:h_end]
+            new_head = head.replace("[Designing]", new_bracket, 1)
+            if new_head == head:
+                continue
+            lines[line_idx] = old_line[:h_start] + new_head + old_line[h_end:]
+            changed = True
+            fix_log.append(
+                f"row '{e.identifier}' [Designing] → {new_bracket} "
+                f"(standalone Q-row — self-backing, F275)"
+            )
+            continue
         # Arrow-form link only (T012 — mirrors check_c23's target selection).
         arrow_link = _arrow_target(e)
         if arrow_link is not None:
@@ -4225,6 +4307,13 @@ def apply_c24_fix(backlog_file: Path,
         return False, []
     changed = False
     for e, old_status in questions_rows:
+        # F275 (T079) — a standalone Q-row is self-backing: its bracket is
+        # never counted against anything. THIS was the silent revert behind
+        # T079 — `state … Q001 set --status Questions` wrote [Questions], then
+        # this fixer counted zero inline Qs (the sub-bullets are ask-format
+        # options, not `- **Q<n> —` headers) and rewrote it straight back.
+        if _is_standalone_q_row(e.identifier):
+            continue
         # Arrow-form only (mirrors check_c24, 2026-07-06 + T012 2026-07-13):
         # an in-prose link is a mention, not the row's doc; _arrow_target
         # resolves the arrow link itself (not the row's first link of any
