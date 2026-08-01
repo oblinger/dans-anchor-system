@@ -1197,6 +1197,18 @@ def render_queries_doc(name: str, banner: Optional[str], rows: list[Row],
     queries_file = backlog_file.parent / f"{name} queries.md"
     body: list[str]
     h1: str
+    # Resolve the actual anchor page name — usually equals `name` (slug =
+    # anchor-page basename), but for anchors where the two differ (e.g. slug
+    # `VEC`, anchor page `Vector.md`), fall back to the anchor folder name
+    # (backlog is at `<anchor-dir>/<name> Track/<name> Backlog.md`, so
+    # backlog_file.parent.parent.name is the anchor folder name). If neither
+    # exists in vault_index, stay on `name` (existing behavior; audit-q C22
+    # will surface the broken link if truly unresolvable).
+    anchor_page_name = name
+    if name.lower() not in vault_index:
+        anchor_dir_name = backlog_file.parent.parent.name
+        if anchor_dir_name.lower() in vault_index:
+            anchor_page_name = anchor_dir_name
     if built is None or banner is None:
         # Don't conjure a page for an anchor that never had one — this path
         # exists to correct a stale page, not to populate empty anchors.
@@ -1206,13 +1218,13 @@ def render_queries_doc(name: str, banner: Optional[str], rows: list[Row],
         # derive_banner; reused here rather than minting a token, since a fully
         # drained anchor is the same signal. Counts are all zero by definition:
         # any non-zero horizon or icebox count would have produced a banner.
-        h1 = (f"# [-]  [[{name}|{name}]]  -  Runnable 0    User 0   |   "
+        h1 = (f"# [-]  [[{anchor_page_name}|{name}]]  -  Runnable 0    User 0   |   "
               f"Now 0    Next 0    Later 0    Verify 0    Icebox 0")
         body = ["_Nothing pending._"]
     else:
         # The Q.md banner links the name to `{name} queries` (so the user clicks
         # over); inside queries.md that would be a self-link — retarget to the anchor.
-        h1 = banner.replace(f"[[{name} queries|{name}]]", f"[[{name}|{name}]]")
+        h1 = banner.replace(f"[[{name} queries|{name}]]", f"[[{anchor_page_name}|{name}]]")
         body = built
     # Preserve existing frontmatter; else write a default.
     desc = (f"description: {name} queries — mechanically rendered from the backlog "
