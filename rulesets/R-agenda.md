@@ -6,6 +6,8 @@ description:: Structural rules for the {slug} Agenda.md facet doc; enforces loca
 
 Ruleset for the Agenda facet — spec: [[DAS Agenda]]. Adopted via the `R-facet` umbrella. Sibling of [[R-backlog]] / [[R-status]] in the Tracking group.
 
+**Instance test (T071, 2026-08-01).** The `where::` glob catches every `* Agenda.md`, including documents that merely end in the word — a research agenda, a meeting agenda. Since the facet is elective (R-agenda-10), the checkers treat a file as an instance only when the anchor has evidently adopted it: named `{slug} Agenda.md` for its **owning** anchor, or sitting under that anchor's `{slug} Track/`. Anything else passes as out-of-scope. Both halves are load-bearing — the name test is what lets R-agenda-02 fire on a `{slug} Design/{slug} Agenda.md`, and the location test is what lets R-agenda-01 fire on a `{slug} Track/{slug} Agenda 2026.md`. Note that `{slug} Track/` carries its own `.anchor`, so the checkers resolve past the facet sub-anchor to the project that owns it before reading a slug.
+
 ### RULE R-agenda-01 — File name `{slug} Agenda.md` (checked)
 check:: agenda_filename_valid
 

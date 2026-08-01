@@ -3703,7 +3703,310 @@ def chk_backlog_timed_has_expiry_date(target, anchor_root, args):
     return ("pass", "") if not failures else ("fail", "; ".join(failures[:3]))
 
 
+# -- R-agenda (T071 wire-up) ---------------------------------------------------
+# The Agenda facet's rules were written with `check::` refs before any checker
+# existed, so all nine sat inert — and inert is invisible, because
+# `audit_on_write` suppresses `error` verdicts. Anchor-scope rules (03, 09) take
+# the anchor root; the rest are file-scope on the `* Agenda.md` the `where::`
+# clause selects.
+
+_AGENDA_H2S = ["Purpose", "Success", "Approach", "Constraints", "Cadence"]
+
+# A `{slug} Track` folder carries its own `.anchor`, so the anchor_root handed
+# to a checker for a file living there is the FACET sub-anchor, not the project
+# that owns it — `_anchor_slug` would answer "SV Track" where the rules mean
+# "SV". Walk up past the facet sub-anchors to the owning anchor.
+_AGENDA_FACET_SUFFIXES = (" Track", " Design", " User Docs", " Dev Docs")
+
+
+def _agenda_owner(anchor_root: Path) -> Path:
+    d = anchor_root
+    while (any(d.name.endswith(s) for s in _AGENDA_FACET_SUFFIXES)
+           and (d.parent / ".anchor").is_file()):
+        d = d.parent
+    return d
+
+
+def _agenda_is_instance(f: Path, anchor_root: Path) -> bool:
+    """Is this `* Agenda.md` actually an instance of the Agenda FACET?
+
+    The `where::` glob is `* Agenda.md`, which also catches documents that
+    merely end in the word — a research agenda, a meeting agenda. The facet is
+    elective (R-agenda-10: never scaffolded), so a file is an instance when the
+    anchor has evidently adopted it: named `{slug} Agenda.md` for its owning
+    anchor, or sitting under that anchor's `{slug} Track/`.
+
+    Both halves are needed, and each keeps a rule's teeth: the name test lets
+    R-agenda-02 fire on `{slug} Design/{slug} Agenda.md`, and the location test
+    lets R-agenda-01 fire on `{slug} Track/{slug} Agenda 2026.md`.
+    """
+    owner = _agenda_owner(anchor_root)
+    slug = _anchor_slug(owner)
+    if f.name == f"{slug} Agenda.md":
+        return True
+    track = f"{slug} Track"
+    return f.parent.name == track or (f.parent.parent.name == track
+                                      if f.parent.parent else False)
+
+
+def _agenda_h2s(text: str) -> list[str]:
+    """H2 titles in file order, fences skipped."""
+    out, in_fence = [], False
+    for line in text.splitlines():
+        if line.lstrip().startswith("```"):
+            in_fence = not in_fence
+            continue
+        if not in_fence and line.startswith("## "):
+            out.append(line[3:].strip())
+    return out
+
+
+def chk_agenda_filename_valid(target, anchor_root, args):
+    """R-agenda-01: the file is named `{slug} Agenda.md` — no qualifier suffix."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    if not _agenda_is_instance(f, anchor_root):
+        return "pass", "not an Agenda-facet instance (elective facet, not adopted here)"
+    slug = _anchor_slug(_agenda_owner(anchor_root))
+    if f.name == f"{slug} Agenda.md":
+        return "pass", ""
+    return "fail", (f"basename is {f.name!r}, expected '{slug} Agenda.md' — "
+                    "the Track dispatch, the audit, and any future scaffolder all "
+                    "key on this exact name")
+
+
+def chk_agenda_in_track_folder(target, anchor_root, args):
+    """R-agenda-02: the Agenda lives under `{slug} Track/`, not Design, not the root."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    if not _agenda_is_instance(f, anchor_root):
+        return "pass", "not an Agenda-facet instance (elective facet, not adopted here)"
+    slug = _anchor_slug(_agenda_owner(anchor_root))
+    track = f"{slug} Track"
+    # Two legal shapes: `{Track}/{slug} Agenda.md` and the folder-doc form
+    # `{Track}/{slug} Agenda/{slug} Agenda.md`.
+    if f.parent.name == track or (f.parent.name == f"{slug} Agenda"
+                                  and f.parent.parent.name == track):
+        return "pass", ""
+    return "fail", (f"sits in {f.parent.name!r} — Agenda is tracking metadata about the "
+                    f"activity, so it belongs under '{track}/'")
+
+
+def chk_agenda_single_per_anchor(target, anchor_root, args):
+    """R-agenda-03: at most one Agenda per anchor, nested anchors excluded."""
+    anchor_root = _agenda_owner(anchor_root)
+    found = []
+    for cand in anchor_root.rglob("* Agenda.md"):
+        # A nested anchor owns its own Agenda; walk up to the nearest .anchor.
+        d = cand.parent
+        while d != anchor_root and d.parent != d:
+            if (d / ".anchor").is_file() and _agenda_owner(d) == d:
+                break        # a real nested anchor owns its own Agenda
+            d = d.parent
+        if d == anchor_root:
+            found.append(cand)
+    if len(found) <= 1:
+        return "pass", f"{len(found)} agenda"
+    rel = ", ".join(str(x.relative_to(anchor_root)) for x in sorted(found))
+    return "fail", (f"{len(found)} Agendas under one anchor ({rel}) — two competing "
+                    "theories of victory with nothing to say which governs")
+
+
+def chk_agenda_required_h2s(target, anchor_root, args):
+    """R-agenda-04: all five required H2s present (`Success` matches on its prefix)."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    if not _agenda_is_instance(f, anchor_root):
+        return "pass", "not an Agenda-facet instance (elective facet, not adopted here)"
+    present = _agenda_h2s(_read(f))
+    missing = [h for h in _AGENDA_H2S
+               if not any(x == h or x.startswith(h) for x in present)]
+    if not missing:
+        return "pass", ""
+    return "fail", (f"missing required H2(s): {', '.join('## ' + h for h in missing)} — "
+                    "the five sections are the facet's whole content contract")
+
+
+def chk_agenda_h2_order(target, anchor_root, args):
+    """R-agenda-05: the required H2s appear in the declared order."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    if not _agenda_is_instance(f, anchor_root):
+        return "pass", "not an Agenda-facet instance (elective facet, not adopted here)"
+    present = _agenda_h2s(_read(f))
+    seen = []
+    for x in present:
+        for h in _AGENDA_H2S:
+            if (x == h or x.startswith(h)) and h not in seen:
+                seen.append(h)
+                break
+    expected = [h for h in _AGENDA_H2S if h in seen]
+    if seen == expected:
+        return "pass", ""
+    return "fail", (f"required H2s run {' → '.join(seen)}, expected "
+                    f"{' → '.join(expected)} — the order is an argument, not a layout")
+
+
+_AGENDA_INTERVAL = re.compile(
+    r"\b(weekly|monthly|quarterly|annual(?:ly)?|every\s+\d+\s+(?:day|week|month)s?)\b",
+    re.IGNORECASE)
+
+
+def chk_agenda_cadence_stated(target, anchor_root, args):
+    """R-agenda-06: `## Cadence` names a revisit interval."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    if not _agenda_is_instance(f, anchor_root):
+        return "pass", "not an Agenda-facet instance (elective facet, not adopted here)"
+    lines = _read(f).splitlines()
+    start = next((i for i, l in enumerate(lines) if l.startswith("## Cadence")), None)
+    if start is None:
+        return "fail", "no `## Cadence` section"
+    end = next((i for i in range(start + 1, len(lines)) if lines[i].startswith("## ")),
+               len(lines))
+    body = "\n".join(lines[start + 1:end])
+    if _AGENDA_INTERVAL.search(body):
+        return "pass", ""
+    return "fail", ("`## Cadence` names no interval — an Agenda has no execution "
+                    "forcing-function, so the stated interval is the only thing "
+                    "keeping it from rotting silently")
+
+
+_AGENDA_BRACKET = re.compile(
+    r"\[(Ready|Active|Blocked|Verify|Done|Questions|Waiting|Watching|Designing|Implementing)\]")
+_AGENDA_BLOCKID = re.compile(r"\^[FT]\d{3}")
+
+
+def chk_agenda_no_work_rows(target, anchor_root, args):
+    """R-agenda-07: no workflow brackets and no work-item block anchors."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    if not _agenda_is_instance(f, anchor_root):
+        return "pass", "not an Agenda-facet instance (elective facet, not adopted here)"
+    hits, in_fence = [], False
+    for n, line in enumerate(_read(f).splitlines(), start=1):
+        if line.lstrip().startswith("```"):
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            continue
+        m = _AGENDA_BRACKET.search(line) or _AGENDA_BLOCKID.search(line)
+        if m:
+            hits.append(f"line {n}: {m.group(0)}")
+    if not hits:
+        return "pass", ""
+    return "fail", ("work rows in an Agenda are invisible to `state`, absent from Q.md, "
+                    "and unreachable by /groom and /crank — " + "; ".join(hits[:4]))
+
+
+def chk_agenda_header_shape(target, anchor_root, args):
+    """R-agenda-08: frontmatter `description:` plus an `# {slug} Agenda` H1."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    if not _agenda_is_instance(f, anchor_root):
+        return "pass", "not an Agenda-facet instance (elective facet, not adopted here)"
+    text = _read(f)
+    fm = _frontmatter(text)
+    problems = []
+    if fm is None:
+        problems.append("no YAML frontmatter")
+    elif not re.search(r"^description:\s*\S", fm, re.MULTILINE):
+        problems.append("frontmatter has no non-empty `description:`")
+    slug = _anchor_slug(_agenda_owner(anchor_root))
+    h1 = next((l for l in text.splitlines() if l.startswith("# ")), None)
+    if h1 is None:
+        problems.append("no H1")
+    elif h1.strip() != f"# {slug} Agenda":
+        problems.append(f"H1 is {h1.strip()!r}, expected '# {slug} Agenda'")
+    return ("pass", "") if not problems else ("fail", "; ".join(problems))
+
+
+def chk_agenda_track_dispatch_linked(target, anchor_root, args):
+    """R-agenda-09: `{slug} Track.md` carries a row linking `[[{slug} Agenda]]`."""
+    anchor_root = _agenda_owner(anchor_root)
+    slug = _anchor_slug(anchor_root)
+    track = anchor_root / f"{slug} Track" / f"{slug} Track.md"
+    if not track.is_file():
+        return "pass", "no Track dispatch page"
+    # Dispatch cells escape the pipe, so allow `[[X\|alias]]` as well as `[[X]]`.
+    pat = re.compile(r"\[\[" + re.escape(f"{slug} Agenda") + r"\s*(\\?\||\]|#|/)")
+    if pat.search(_read(track)):
+        return "pass", ""
+    return "fail", (f"'{slug} Track.md' does not link [[{slug} Agenda]] — an elective "
+                    "facet nothing links to is a file the next agent never opens")
+
+
+# -- R-md-03 / R-code-repository-02 / R-versions-01 (T071 wire-up) -------------
+
+def chk_no_git_probe_fallback(target, anchor_root, args):
+    """R-code-repository-02: a `code`-trait anchor with no `code:` key is an error.
+
+    The rule forbids the *fallback*, so the check asserts the misconfiguration
+    the fallback would paper over: trait present, key absent. A `.git/` sitting
+    at the anchor root is named in the failure because it is exactly what a
+    probing resolver would have silently latched onto.
+    """
+    dot = anchor_root / ".anchor"
+    if not dot.is_file():
+        return "pass", "no .anchor"
+    text = _read(dot)
+    traits = re.search(r"^traits:\s*(.*)$", text, re.MULTILINE)
+    has_trait = bool(traits and re.search(r"\bcode\b", traits.group(1)))
+    if not has_trait:
+        # A `traits:` block list also declares it.
+        block = re.search(r"^traits:\s*\n((?:\s*-\s*.+\n?)+)", text, re.MULTILINE)
+        has_trait = bool(block and re.search(r"^\s*-\s*code\s*$", block.group(1),
+                                             re.MULTILINE))
+    if not has_trait:
+        return "pass", "not a code anchor"
+    if re.search(r"^code:\s*\S", text, re.MULTILINE):
+        return "pass", ""
+    probe = " (a `.git/` sits at the anchor root — exactly what a probing " \
+            "resolver would have silently latched onto)" \
+            if (anchor_root / ".git").exists() else ""
+    return "fail", ("declares the `code` trait but carries no `code:` key" + probe +
+                    " — the key is the single source of truth; there is no "
+                    "path-convention fallback and no legacy `code` symlink")
+
+
+def chk_regex_basename(target, anchor_root, args):
+    """R-versions-01 and friends: every file in scope has a basename matching args[0]."""
+    if not args:
+        return "error", "regex_basename requires a pattern argument"
+    pattern = args[0]
+    try:
+        rx = re.compile(pattern)
+    except re.error as exc:
+        return "error", f"bad pattern {pattern!r}: {exc}"
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    if rx.search(f.name):
+        return "pass", ""
+    return "fail", f"basename {f.name!r} does not match {pattern}"
+
+
 CHECKERS = {
+    # R-agenda (T071) — nine rules that had check:: refs but no implementation
+    "agenda_filename_valid": chk_agenda_filename_valid,
+    "agenda_in_track_folder": chk_agenda_in_track_folder,
+    "agenda_single_per_anchor": chk_agenda_single_per_anchor,
+    "agenda_required_h2s": chk_agenda_required_h2s,
+    "agenda_h2_order": chk_agenda_h2_order,
+    "agenda_cadence_stated": chk_agenda_cadence_stated,
+    "agenda_no_work_rows": chk_agenda_no_work_rows,
+    "agenda_header_shape": chk_agenda_header_shape,
+    "agenda_track_dispatch_linked": chk_agenda_track_dispatch_linked,
+    # T071 — the two other inert refs
+    "no_git_probe_fallback": chk_no_git_probe_fallback,
+    "regex_basename": chk_regex_basename,
     "anchor_has": chk_anchor_has,
     "entry_page_matches_slug": chk_entry_page_matches_slug,
     "frontmatter_has": chk_frontmatter_has,
