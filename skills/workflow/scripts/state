@@ -1080,7 +1080,29 @@ def resolve_v2_doc(doc_arg, slug, anchor_path):
     resolves case-insensitively by basename — anchor tree first, then the
     vault root. Zero matches errors; multiple matches errors listing every
     candidate (never guess).
+
+    T082 — the KIND is decided by WHICH FILE resolved, not by which spelling the
+    caller used. `Backlog`, `Tink Backlog`, `Tink Backlog.md` and an absolute
+    path to the same file are all the backlog. Previously only the bare keyword
+    took the backlog branch, so the full-name form resolved the right file and
+    then rejected `F+` as an "unknown query kind" — an error that named
+    `Tink Backlog.md` as the target while listing the labels valid "on Backlog".
+    It cost an agent three wrong turns and produced a false "state is broken"
+    report to Dan.
     """
+    kind, path = _resolve_v2_doc_path(doc_arg, slug, anchor_path)
+    if kind == "doc":
+        try:
+            if path.resolve() == be.find_backlog(slug).resolve():
+                return ("backlog", path)
+        except Exception:
+            pass          # anchor has no backlog — an ordinary doc, then
+    return (kind, path)
+
+
+def _resolve_v2_doc_path(doc_arg, slug, anchor_path):
+    """Locate the file named by `<doc>`. The kind returned here is provisional;
+    `resolve_v2_doc` re-classifies a path that turns out to be the backlog."""
     if doc_arg.strip().lower() == "backlog":
         return ("backlog", be.find_backlog(slug))
 
