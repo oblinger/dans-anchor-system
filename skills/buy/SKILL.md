@@ -211,6 +211,14 @@ A dietary or physical constraint — decaf, gluten-free, unscented, no salt adde
 
 Cost a second wrong recommendation on the *same product line*: the 2026-07-24 Twinings 88-count won on $/bag and turned out to be predominantly caffeinated for a user who drinks decaf. The 2026-08-01 replacement run screened to decaf first, then ranked — and the winner was deliberately **not** the cheapest per bag.
 
+#### One unvalidated item at a time
+
+On an unvalidated consumable, recommend **a single pack and stop** — don't stage a companion buy, a bulk tier, or a second flavor in the same order. Bulk pricing and "while we're here" bundles are only earned *after* a verdict. Until then every extra unit rides on the same unverified assumption, so one wrong assumption spoils the whole order instead of one pack of it.
+
+This compounds with the constraint filter above: the 2026-07-24 tea order bought three products at once on the untested premise that caffeine didn't matter, and all three landed wrong together. The follow-up bought exactly one pack, explicitly holding the re-buy until the user has tried it.
+
+Say the holding pattern out loud in the recommendation — *"one pack now; tell me the verdict and I'll size the restock"* — so the user knows the small order is a deliberate probe rather than an oversight.
+
 Surface a table to the user:
 
 ```
