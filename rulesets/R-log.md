@@ -88,3 +88,27 @@ A sub-anchor with its own Log uses the sub-anchor's name (e.g., `MED Heart Log/`
 **Check pattern:** for each `* Log.md` found, walk up to the nearest `.anchor` file; assert the log's `{slug}` prefix matches that anchor's name (or its slug).
 
 **Why:** Logs are anchor-scoped. A sub-anchor entry inside a parent's log loses its scoping and is harder to find later.
+
+## Mend
+
+Remediation messages for these rules — what to actually do when one fires. Reached as `warden mend R-log-<nn>`; wired by the `mend::` line on each rule. State the fix, point at the facet, never restate it.
+
+### MEND log-location
+
+Put the log where the facet expects it, then re-run the write.
+
+The log is `{slug} Log/` (a folder of dated entries) or `{slug} Log.md` (a single file) directly under the anchor root — never under `{slug} Track/`, never under a Docs folder, never at the vault root. Pick the folder form when entries are long enough to want their own files; the single-file form otherwise. Both are equally valid and you can convert later.
+
+If the file is already written and merely misplaced, move it rather than creating a second one — two logs for one anchor is the failure this rule exists to prevent.
+
+For the model and the entry-naming rules, read [[DAS Log]]. For a worked example, see `SKA Log/`.
+
+### MEND log-dispatch
+
+Add a dispatch row on the anchor page pointing at the log, then re-run the write.
+
+The anchor page (`{slug}.md`) must carry `[[{slug} Log]]` in its masthead so the log is reachable from the anchor's front door. A log nothing links to is a log nobody reads.
+
+Do not hand-author the masthead — run `/audit dispatch`, which builds the row in the correct fixed position. Hand-editing a dispatch table is its own class of error, and the identity cell has a load-bearing `→ ` prefix that is easy to lose.
+
+For the table grammar, read [[DAS Dispatch Table]].
