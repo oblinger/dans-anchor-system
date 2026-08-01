@@ -3243,10 +3243,25 @@ def chk_md_trailing_ws(target, anchor_root, args):
 
 def _mask_code(text: str) -> str:
     """Blank ``` / ~~~ fences and inline code spans (length-preserving) so
-    code examples never trip prose-level markdown checks."""
+    code examples never trip prose-level markdown checks.
+
+    A fence delimiter must OPEN ITS LINE (CommonMark allows up to three spaces
+    of indent). Matching a bare ``` anywhere on a line mis-pairs on two shapes
+    that both occur in this corpus:
+
+    - Prose that names a fence inline — ``the first ```python``` block`` —
+      where the run is content, not a delimiter.
+    - A nested fence escaped with a zero-width space (`\\u200b```) so it renders
+      literally instead of closing the block it sits inside. That is not a
+      fence at all, but the old pattern paired the OUTER opener against it and
+      left the real inner block unmasked. Found 2026-08-01 in
+      `skills/audit/audit-markdown.md`, where it exposed 13 lines of Python to
+      the prose checks and produced a phantom R-markdown-13 finding.
+    """
     blank = lambda m: re.sub(r"[^\n]", " ", m.group(0))
-    masked = re.sub(r"```[\s\S]*?(?:```|\Z)", blank, text)
-    masked = re.sub(r"~~~[\s\S]*?(?:~~~|\Z)", blank, masked)
+    fence = re.compile(
+        r"(?m)^[ \t]{0,3}(`{3,}|~{3,})[^\n]*(?:\n[\s\S]*?^[ \t]{0,3}\1[ \t]*$|\Z)")
+    masked = fence.sub(blank, text)
     return re.sub(r"(`+)[^\n]*?\1", blank, masked)
 
 
@@ -3273,9 +3288,13 @@ _HTML_ALLOW = {
     "strike", "strong", "sub", "summary", "sup", "table", "tbody", "td",
     "th", "thead", "tr", "u", "ul", "video", "audio", "source", "picture",
 }
-# Entrenched vault placeholder letters (`F<n>`, `Q<m>`, `T<n>` …) — broken in
-# strict HTML terms but a standing notation; flagging them would storm.
-_PLACEHOLDER_OK = re.compile(r"^[a-z]$")
+# Q002 (2026-08-01, Dan): single-letter placeholders like `F<n>` are NO LONGER
+# exempt. The exemption was justified by a feared storm that measurement did not
+# support — the real radius was 25 occurrences in 15 files — and the sites were
+# mostly SHIPPED DAS artifacts (templates, skill docs), where a bare `<n>` parses
+# as an unknown HTML element and silently VANISHES from the rendered page. That
+# makes it a rendering defect in the thing a newcomer reads first, not a
+# notation preference. All sites now carry backticks; T084 did the sweep.
 
 
 def chk_md_stray_angle_tag(target, anchor_root, args):
@@ -3289,7 +3308,7 @@ def chk_md_stray_angle_tag(target, anchor_root, args):
     for ln, raw in enumerate(_mask_code(_read(target)).splitlines(), 1):
         for m in re.finditer(r"</?([A-Za-z][A-Za-z0-9_-]*)>", raw):
             name = m.group(1)
-            if name.lower() in _HTML_ALLOW or _PLACEHOLDER_OK.match(name):
+            if name.lower() in _HTML_ALLOW:
                 continue
             hits.append(f"line {ln} <{name}>")
             break

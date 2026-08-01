@@ -519,7 +519,7 @@ The icebox is a **sanctioned exception** to the "active" part of the invariant. 
 1. **F-number namespace is shared across backlog AND icebox** — no F-number collisions; an item moving between the two keeps its F-number.
 2. **`/groom` ignores the icebox by default.** Default scope = backlog only. Iced items don't appear in the body of `/groom`'s output.
 3. **Counts surface the icebox total.** The render (status banner) shows `(Icebox: N)` in the count line — visibility without competing for attention.
-4. **Explicit invocation can target the icebox.** `/groom icebox`, `/groom F<n>` (where F<n> is iced) all work.
+4. **Explicit invocation can target the icebox.** `/groom icebox`, `/groom F<n>` (where `F<n>` is iced) all work.
 5. **Iced feature docs are NOT orphans.** A doc linked from `{slug} Icebox.md` satisfies the invariant.
 
 ### Enforcement

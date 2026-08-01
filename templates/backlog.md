@@ -21,7 +21,7 @@
 - **F{{NNN}} — {{title}}** [ ] — {{long-shot / deferred description}}
 
 ## Done
-- **F{{NNN}} — {{title}}** — {{outcome; e.g. done in PR #N, see [[{slug} Roadmap#M<n>]]}}
+- **F{{NNN}} — {{title}}** — {{outcome; e.g. done in PR #N, see `[[{slug} Roadmap#M<n>]]`}}
 
 ## Legwork
 - **F{{NNN}} — {{title}}** — {{unscheduled chore / follow-up}}
