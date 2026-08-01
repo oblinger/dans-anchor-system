@@ -24,6 +24,7 @@ A YAML file named `.anchor` at the root of an anchor folder. Two jobs: (1) its m
 |---|---|---|
 | `slug` | short canonical id (`DKT`, `MUX`) — **required** | [[DAS Naming]] |
 | `traits` | the anchor's traits (`code`, `skill`, `paper`, `topic`, …) | [[DAS Traits]] |
+| `traits-` | traits the anchor opts OUT of, including the implicit ones every anchor carries | [[DAS Traits]] |
 | `description` | one-line description (mirrors the anchor page's) | this facet |
 | `parents` | up-edges in the anchor DAG | [[DAS anchor-dag]] |
 | `code` | path to the associated code repository | [[DAS Code Repository]] |
