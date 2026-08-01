@@ -76,7 +76,6 @@ The H1 is the status banner (§ The banner): `# [<TAG>]  [[{slug}|{slug}]]  -  R
 ## Verifications — agent runs, user judges
 
 ### RULE R-query-04 — Verifications begin with a bold `**V<n>` handle and carry an answer shape (checked)
-check:: queries_verification_handle_and_shape
 
 Each `## Verifications` bullet **begins** with a bold `**V<n>` handle (so it's answerable by reference — `V1: yes`) and asks the user to **judge** something the agent produced (an embedded image / output / rendered artifact), carrying an answer shape — a bold `**yes/no**`. Enforced mechanically by audit-q **C38** (handle) + **C40** (answer shape).
 
@@ -119,7 +118,6 @@ Every line under Verifications / Immediate Questions / Questions is either a que
 ## Questions
 
 ### RULE R-query-08 — Immediate Questions begin with `**Q<n>` and use the standard expanded question format (checked)
-check:: queries_immediate_question_handle
 
 Each `## Immediate Questions` item **begins** with a bold anchor-local `**Q<n>` handle (so the user answers by reference — `Q1: A`) and is otherwise the **same standard expanded format as a feature-doc `## Open Questions` item** ([[DAS ask-format]]): a one-line context lead naming the feature + what it's about, a `^{slug}-Q<n>` block-ID, each option a **bold `**(A)**` sub-bullet on its own line** (never inline — readability over density, user direction 2026-06-16), and a `- **Recommendation:**` line (which may be `None` — the rule forces the agent to *consider* whether it has a recommendation, not to manufacture one).
 
@@ -164,7 +162,6 @@ When a feature has more than three open questions, `## Questions` carries a sing
 ## Cross-cutting
 
 ### RULE R-query-13 — A bullet that names an F-number links it (checked)
-check:: queries_fnumber_is_link
 
 Any `F<n>` token appearing in *any* queries bullet must be inside a `[[…]]` wiki-link — to its feature doc `[[F<n> — Title|F<n>]]` when one exists, else to the backlog row `[[{slug} Backlog#^F<n>|F<n>]]` (many items are bare backlog rows with no feature doc — e.g. an undesigned `[Ready]` sweep). A bare `F135` is forbidden: the user must always be one click from the item's home. Enforced by audit-q **C37**.
 
@@ -181,7 +178,6 @@ def bare_fnumbers(full_bullet: str) -> list[str]:
 ```
 
 ### RULE R-query-15 — Every artifact a surfaced item names is a live wiki-link (checked)
-check:: queries_named_artifact_is_link
 
 **🚨 HARD REQUIREMENT.** The generalization of `R-query-13` (F-numbers) to **every** artifact. Any doc / file / template / report / folder / section that an answerable item (`## Verifications`, `## Immediate Questions`, `## Questions`) tells the user to *open / look at / skim / check* **MUST appear as a live `[[wiki-link]]`** (or clickable URL) inside that item. It is **illegal to name a thing the user should look at and not link it** — the user cannot click a bare name. Forbidden forms: a bare resolvable doc name (`DAS PRD`), a bare path (`traits/Drive`), a code-span filename (`` `_Disk {{LABEL}} Template.md` ``), or "see the X". Enforced by audit-q **C42**. Fix at the **source** (the backlog `- **Verify:**` line / the question body), then re-render — never edit the rendered `queries.md`.
 
