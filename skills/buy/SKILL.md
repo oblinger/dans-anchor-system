@@ -203,6 +203,14 @@ Always show a **$/unit column** so the comparison is legible either way. Watch f
 
 Missing this cost a wrong recommendation on 2026-07-24: ranked a 44-flavor sampler over the 88-count on lowest ticket + widest discovery, when the product was already validated and $/bag was the real criterion.
 
+#### Screen on hard constraints BEFORE ranking on unit cost
+
+A dietary or physical constraint — decaf, gluten-free, unscented, no salt added, a size that has to fit — is a **filter applied to the candidate set first**, never a tiebreaker inside the ranking. Establish the constraint set for the category before pricing anything, then rank only the survivors by $/unit. A perfect unit price on a product the user can't actually consume is a total loss, not a near miss.
+
+**On variety and assortment packs, verify the contents, not the title.** Marketing copy names the count and the vibe, not the constraint — "44 unique flavours" concealed that the pack was mostly caffeinated. Open the flavor list or the ingredient panel and confirm every item clears the filter, or state plainly that the composition couldn't be verified.
+
+Cost a second wrong recommendation on the *same product line*: the 2026-07-24 Twinings 88-count won on $/bag and turned out to be predominantly caffeinated for a user who drinks decaf. The 2026-08-01 replacement run screened to decaf first, then ranked — and the winner was deliberately **not** the cheapest per bag.
+
 Surface a table to the user:
 
 ```
