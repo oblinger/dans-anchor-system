@@ -3637,6 +3637,12 @@ _BLOCKED_FEATURE_RE = re.compile(r"^Blocked\s+F\d+$")
 _DATE_RE = re.compile(r"\b\d{4}-\d{2}-\d{2}\b")
 _QNUM_SUB_RE = re.compile(r"^\s+-\s+\*\*Q\d+\b")
 _DOC_LINK_RE = re.compile(r"→\s*\[\[")
+# F275 — a standalone `Q<n>` row IS its own question: the number lives in the
+# row header, so it needs neither an inline Q sub-bullet nor a link to a
+# Q-bearing doc. `backlog-edit.check_questions_promise` already exempts these at
+# write time; without the same exemption here the audit contradicts the writer
+# and every Q-row `state` mints is flagged the moment it exists.
+_STANDALONE_Q_ROW_RE = re.compile(r"^-\s+\*\*Q\d+\b")
 
 
 def _row_body(row_line):
@@ -3661,6 +3667,8 @@ def chk_backlog_questions_have_numbered_q(target, anchor_root, args):
     for i, h2, row, subs in _backlog_rows(_read(f)):
         b = _row_bracket(row)
         if b and re.fullmatch(r"(?:\d+\s+)?Questions", b):
+            if _STANDALONE_Q_ROW_RE.match(row):
+                continue  # F275 — self-backing; its number is in the header
             has_inline_q = any(_QNUM_SUB_RE.match(s) for s in subs)
             has_doc_link = bool(_DOC_LINK_RE.search(row)) or any(_DOC_LINK_RE.search(s) for s in subs)
             if not (has_inline_q or has_doc_link):
