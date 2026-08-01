@@ -23,9 +23,11 @@ The verb comes first and `<anchor>` is mandatory — never inferred from where y
 
 Why the guard exists: the backlog carries an integrity stamp, the queue file is rendered from it, and both propagate into the vault-wide `Q.md`. A hand-edit desynchronizes all three, and the drift is detected on the *next* write rather than yours — so the person who has to untangle it is not you.
 
+Read the row first with `state show <anchor> Backlog <label>` — it prints the row and its whole sub-bullet span and changes nothing.
+
 Two cases where `state` genuinely cannot help:
 
-- **The row is malformed enough that `state` cannot parse it.** There is no repair verb today; the only sanctioned path is `remove` then `define`, which loses the row's sub-bullets. Read the row first and keep what you need.
+- **The row is malformed enough that `state` cannot parse it.** There is no repair verb, and there will not be one: a `repair` verb must parse the row to know what to rewrite, and the rows needing repair are exactly the ones the parser cannot read. The sanctioned path is `show` (to capture it), then `remove` then `define`. `remove` also echoes what it deleted, so the sub-bullets are recoverable even if you skipped the `show`.
 - **You are editing prose that is not a row** — an intro line, a section heading. Those are yours to edit; the guard covers the row regions.
 
 On a feature doc the guard covers `## Open Questions` and stops there. A resolved decision under the bottom `## Resolved` is yours to edit (F291): once archived it is not rendered, not counted, and gates nothing, so there is no live state left to desynchronize — and half that section is written by a path no `state` verb can address, since an F068 auto-decision was never a question. Superseded-stamps, link repairs, and hindsight added years later are legitimate edits there. Answering a *pending* question is still `state resolve <anchor> <doc> Q<n>`, which is what moves it into the archive in the first place.
