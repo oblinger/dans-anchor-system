@@ -57,6 +57,14 @@ Checks applied to Q.md, each anchor's backlog, and each feature/Questions doc:
   C51: F259 — a [User] row (gated on a genuinely user-only action) must carry a
        `- **User:**` sub-bullet naming that action. Audit mirror of the mint-time
        guard. [User] rows fold into the Questions banner count (count-only). (report).
+  C53: F281 — two anchor pages sharing a basename. An anchor page is the
+       target of dispatch rows written from anywhere in the vault, so a
+       colliding anchor name resolves by proximity to the LINKING file and is
+       therefore wrong from most of the vault. Error severity: the population
+       is small enough (3 today) to enforce, and enforceable rules that start
+       clean stay clean. Ordinary-file collisions stay a WARNING on
+       `ha --dump --format=collisions` — different in kind, not just count.
+       Filenames mandated by an external format are exempt.            (report).
   D1:  Q.md per-anchor banners derived from each anchor's backlog
        (not validated — overwritten on every run).
 
@@ -1983,6 +1991,70 @@ def check_c22_link_existence_extended(
                     ),
                     mechanically_fixable=False,
                 ))
+    return findings
+
+
+# ============================================================
+# C53 — anchor-name collisions (F281)
+# ============================================================
+
+# Structural collisions are declared, not inferred: a basename mandated by an
+# external format is exempt. Deliberately a short allowlist and NOT a
+# per-instance suppression — per-instance would let real collisions be silenced
+# one at a time until the check means nothing (F281 § Exemption).
+ANCHOR_COLLISION_EXEMPT_STEMS = {"skill", "readme", "claude", "index"}
+
+
+def _is_anchor_page(path: Path) -> bool:
+    """True when `path` is a folder's anchor page: `Foo/Foo.md` beside `Foo/.anchor`."""
+    return path.stem == path.parent.name and (path.parent / ".anchor").is_file()
+
+
+def check_c53_anchor_name_collisions(
+    vault_index: dict[str, list[Path]], vault_root: Path
+) -> list[Finding]:
+    """C53: two or more ANCHOR PAGES share a basename (F281).
+
+    Reads the vault index audit-q already built rather than re-walking or
+    shelling out to `ha --dump --format=collisions` — the index is
+    basename -> paths, which is the collision data itself.
+
+    One finding per colliding anchor page, not one per group, so QFix routing
+    lands each half on its own anchor: the owning anchor of a colliding pair
+    fixes it, never a central agent (F281 Q1 (D)).
+    """
+    findings: list[Finding] = []
+    for stem, paths in sorted(vault_index.items()):
+        if stem in ANCHOR_COLLISION_EXEMPT_STEMS or len(paths) < 2:
+            continue
+        # Resolve before de-duplicating: a symlinked tree can surface the same
+        # file under two walk paths, which is not a collision.
+        seen: dict[Path, Path] = {}
+        for path in paths:
+            if _is_anchor_page(path):
+                seen.setdefault(path.resolve(), path)
+        anchors = sorted(seen.values())
+        if len(anchors) < 2:
+            continue
+        for path in anchors:
+            others = ", ".join(
+                str(o.relative_to(vault_root)) for o in anchors if o != path
+            )
+            findings.append(Finding(
+                severity="error",
+                surface_file=path,
+                surface_line=1,
+                code="C53",
+                message=(
+                    f"anchor name '{path.stem}' collides with {others} — an "
+                    f"anchor page is linked from anywhere in the vault, so "
+                    f"`[[{path.stem}]]` resolves by proximity to the LINKING "
+                    f"file and is wrong from most of it. Rename one anchor "
+                    f"(and sweep its inbound links), or merge them if they "
+                    f"are the same thing"
+                ),
+                mechanically_fixable=False,
+            ))
     return findings
 
 
@@ -5164,6 +5236,8 @@ def main() -> int:
         if queries_md.is_file():
             c22_scope.append(queries_md)
     findings.extend(check_c22_link_existence_extended(c22_scope, vault_index))
+    # C53 — vault-wide, index-driven; runs once per invocation, not per anchor.
+    findings.extend(check_c53_anchor_name_collisions(vault_index, VAULT_ROOT))
     # B16 — C7 walks the same ask-format files + backlogs + Q.md (when in scope)
     c7_scope: list[Path] = []
     if args.scope in ("q", "all"):
