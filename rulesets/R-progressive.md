@@ -6,6 +6,7 @@ The mechanical, whole-document layout checks of this discipline: the **condition
 
 ### RULE R-progressive-01 — never both a dispatch-masthead and a `:>>` breadcrumb (checked)
 check:: dispatch_table_by_context
+mend:: doc-navigation-form
 
 A doc uses **one** navigation form, never two: a **dispatch-masthead** marks the page that *is* a container (the anchor page); a **`:>>` breadcrumb** is the navigation on every other doc. A doc must **never carry both**.
 
@@ -15,6 +16,7 @@ A doc uses **one** navigation form, never two: a **dispatch-masthead** marks the
 
 ### RULE R-progressive-02 — progressive-disclosure section spacing (checked)
 check:: progressive_disclosure_layout
+mend:: doc-spacing
 
 The blank-line conventions that keep a doc's outline scannable: every `## H2` is preceded by a blank line, and the file carries no trailing blank lines. One rule, two assertions.
 
@@ -24,6 +26,7 @@ The blank-line conventions that keep a doc's outline scannable: every `## H2` is
 
 ### RULE R-progressive-03 — Standard doc head: breadcrumb → H1 → orientation line (checked)
 check:: doc_head_orientation_line
+mend:: doc-head
 
 Every markdown doc opens with the `# H1` carrying the file's name (optionally ` — <subname or explanation>`), then an **orientation line** directly under it — a single sentence stating, at the coarsest grain, what this file is / what this item is about. Navigation takes exactly one of two forms (mutually exclusive per `R-progressive-01`):
 
@@ -59,3 +62,38 @@ A summary covers a **set of units** — its own `##` sections for a file-scope d
 **Check pattern:** against the blessing registry (`~/.warden/disclosure.json`), changed-units ÷ total ≥ 0.25, or ≥1 unit added or removed.
 **Why:** counting changed units is what "big chunks moved" means mechanically. File-size delta fires on typo fixes; hashing only the heading set misses a section rewritten wholesale under an unchanged heading — which is exactly when a summary goes stale.
 
+## Mend
+
+Remediation messages for these rules — what to actually do when one fires. Reached as `warden mend R-progressive-<nn>`; wired by the `mend::` line on each rule. State the fix, point at the facet, never restate it.
+
+### MEND doc-navigation-form
+
+Pick one navigation form and delete the other, then re-run the write.
+
+A doc that *is* a container (an anchor page, a spec page) carries a dispatch masthead whose first cell is its own name — the breadcrumb rides in that first row, so a separate `:>>` line is duplicate navigation. Every other doc carries the `:>>` breadcrumb top-row and no masthead of its own.
+
+Deciding which you have: if the file is `Foo/Foo.md`, or has a `.anchor` beside it, it is a container — keep the masthead, delete the `:>>` line. Otherwise keep the `:>>` line and delete the masthead. Do not hand-author the masthead you keep; run `/audit dispatch`, which builds it in the fixed row order and preserves the load-bearing `→ ` prefix on the identity cell.
+
+For the model, read [[DAS Dispatch Table]] and [[feedback_breadcrumb_vs_dispatch_table]].
+
+### MEND doc-spacing
+
+Two mechanical edits, both safe to make blind.
+
+Put a blank line before every `## H2` that is glued to the prose above it, and delete every blank line at the end of the file so the last line has content. Nothing else about spacing is checked — doubled blank lines mid-document are tolerated, and a blank line after the H1 is fine on an ordinary doc.
+
+If a script wrote this file, fix the script rather than the file: a generator that emits trailing blanks will re-emit them on the next write, and the loop is silent because the hook fires on a file you did not hand-edit. That was the shape of T067, where thirteen copies of one join expression left a trailing newline on every `state` write.
+
+For the model, read [[DAS progressive-disclosure]].
+
+### MEND doc-head
+
+Add one prose sentence directly under the H1 saying what this file is, then re-run the write.
+
+One line, not two — the check fails on a sentence that wraps into a second line as surely as on a missing one. It goes after the H1 and after any `key:: value` field lines, and before the masthead table or the first H2. Keep it coarse: what this file *is*, not what it currently says. The longer summary belongs in `## Overview`.
+
+Three head shapes are legal and no others: breadcrumb form (`:>>` row directly above the H1, orientation line below), masthead form (no `:>>`, dispatch table directly below the orientation line), and simple-facet form (`# [[{slug}]] {Facet}` where `{slug}` is the filename's leading token — that H1 does the orienting itself, so no orientation line is wanted). If your doc seems to need a fourth shape, that is a design question to raise, not a local deviation to make.
+
+Machine-written stamps are skipped, so a `<!-- state:backlog XX -->` line between the H1 and the orientation line is fine and does not need moving.
+
+For the model, read [[DAS Doc Structure]]; for worked instances see [[DAS Tracking Design]] (breadcrumb form) and [[DAS Status]] (masthead form).

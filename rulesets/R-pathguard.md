@@ -6,6 +6,7 @@ description:: Veto-path protection for state-managed file regions (F131) — den
 > The first consumer of the F131 veto path (per [[F131 — Hooks — fast inner-loop check substrate (path-rule alerts first)|F131]] — realized on the Warden substrate rather than a separate hook binary). User direct edits are unaffected: the rules fire only on the agent's tool calls. A denied call carries the redirect message, so the agent lands on the owning script instead.
 
 ### RULE R-pathguard-01 — backlog and queries files are script-owned on Edit (when:: tool:pre:Edit)
+mend:: state-owns-the-edit
 
 ```python
 def body(ctx):
@@ -32,6 +33,7 @@ The backlog and queries pages are projections of `state`-managed rows; a direct 
 **Why:** per [[SKA workflow]] mutation discipline and the standing feedback rule — never hand-edit backlog/Q surfaces; `state` refreshes Q.md as part of the write.
 
 ### RULE R-pathguard-02 — feature-doc question regions are `state`-owned (when:: tool:pre:Edit)
+mend:: state-owns-the-edit
 
 ```python
 def body(ctx):
@@ -78,6 +80,7 @@ Matches an Edit that touches either heading LINE or whose `old_string` sits insi
 **Why:** the F130 lesson — Q blocks edited by hand bypass the block-ID / numbering / lifecycle discipline `state q` enforces.
 
 ### RULE R-pathguard-03 — script-owned files are protected wholesale on Write (when:: tool:pre:Write)
+mend:: state-owns-the-edit
 
 ```python
 def body(ctx):
@@ -98,6 +101,7 @@ The Write-tool bypass of rule 01: overwriting the whole file is the same violati
 **Why:** closing the loophole structurally (per the round-trip-loophole feedback rule) — guarding Edit alone just teaches the failure mode a new verb.
 
 ### RULE R-pathguard-04 — Atlas is `/atlas`-owned (when:: tool:pre:Edit)
+mend:: atlas-owns-the-edit
 
 ```python
 def body(ctx):
@@ -116,6 +120,7 @@ def body(ctx):
 **Why:** the vault has ONE Atlas and one maintenance path (per the one-Atlas feedback rule); a hand edit silently breaks the slug-sync invariants the skill enforces.
 
 ### RULE R-pathguard-05 — feature-doc question regions are `state`-owned on Write too (when:: tool:pre:Write)
+mend:: state-owns-the-edit
 
 ```python
 def body(ctx):

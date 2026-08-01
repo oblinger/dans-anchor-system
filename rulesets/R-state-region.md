@@ -6,6 +6,7 @@ description:: The F236 advisory on state-managed doc regions — an agent Edit/W
 > Per [[F236 — state v2 — one address scheme — state doc label verb for rows, questions, and verifications|F236]] § Warden reminder rule (Q3 = advisory): warden's hook sees exactly the writes `state` doesn't make (agent hand-edits), so the two enforcement paths cover each other's blind side — `state`-side integrity via audit-q on every mutation, hand-edit-side via this advisory.
 
 ### RULE R-state-region-01 — state-managed regions of item-bearing docs get the `state` reminder on Edit (when:: tool:pre:Edit)
+mend:: state-owns-the-edit
 
 ```python
 def body(ctx):
@@ -63,6 +64,7 @@ Fires only on an *existing* doc that already carries labeled items (`- **Q7 — 
 **Why:** habit-drift catch without breaking legitimate authoring flows — the long tail of docs `state` can now address (PRDs, design docs, anything with Q/V items), where a hand edit silently skips the atomic propagation chain.
 
 ### RULE R-state-region-02 — same reminder on Write to an existing item-bearing doc (when:: tool:pre:Write)
+mend:: state-owns-the-edit
 
 ```python
 def body(ctx):
@@ -97,6 +99,7 @@ The Write-tool sibling of rule 01. Doc *creation* is exempt by construction — 
 **Why:** guarding Edit alone just teaches the failure mode a new verb (the [[R-pathguard]]-03 lesson), and the advisory has to see the same blind side on both mutation tools.
 
 ### RULE R-state-region-03 — Open Questions integrity stamp must hash-match on write (when:: write:markdown)
+mend:: state-stamp-mismatch
 
 ```python
 def body(ctx):
@@ -149,3 +152,22 @@ def body(ctx):
 The F241 tamper-evidence check. The state script re-stamps the block (a 2-char base-36 sha1 of the trailing-whitespace-normalized block text, heading through the next H2, stamp line excluded) on every write it makes — so a stamp that doesn't match means the block content changed through some other write path. The audit twin over backlog-linked docs is audit-q **C48**; recovery is `state <doc> revalidate` (validate-then-stamp — every pending Q re-runs the same ask-format gates as `Q+ define`; there is deliberately no blind re-bless flag). Hash algorithm mirrors `backlog-edit.py`'s `compute_q_stamp` — rule bodies are sandboxed standalone, so the four-line algorithm is inlined here; if it ever changes, change both.
 
 **Why:** the point is not verifying the questions — it is making the script (whose write path enforces ask-format) the only quiet route to a green block. Rules 01/02 remind on the way in; this one catches what slipped through, including writes warden never saw as tool events.
+
+## Mend
+
+### MEND state-stamp-mismatch
+
+The `## Open Questions` block was changed outside `state`, so its stamp no longer matches the block. Validate and restamp:
+
+```sh
+state -a ANCHOR "DOC-PATH-RELATIVE-TO-ANCHOR" revalidate
+```
+
+`revalidate` re-runs the ask-format gates over every pending Q and rewrites the stamp only if they all pass — so a restamp is a statement that the block is well-formed, not a way to silence the warning. If it refuses, fix what it names (usually a Q missing labeled options, a `- **Recommendation:**` line, or a `- **Damage:**` whose first word is not one of the six categories) and run it again.
+
+Do not hand-edit the stamp. It is a hash of the block; typing a new value asserts something you have not checked, and the next real write catches it anyway.
+
+If you are *adding* or *answering* a question rather than repairing one, use the verbs instead — `Q+ define`, `Q<n> define` to rewrite one, `Q<n> resolve --choice "(A)"` — and the stamp maintains itself.
+
+For the model, read [[DAS ask-format]].
+
