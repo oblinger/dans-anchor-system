@@ -19,11 +19,17 @@ The **design internals** — the `{skill} Design` / `{skill} PRD` pages that spe
 | [[SKL Search\|Search]]+ | [[DAS Find Design\|Find]],  [[DAS Profile Design\|Describe]],  [[DAS Purchase Design\|Purchase]],  [[DAS Survey Design\|Survey]],   |
 | [[SKL Utility\|Utility]]+ | [[DAS Cook Design\|Cook]],  [[DAS Ctrl Design\|Ctrl]],  [[DAS Exp Design\|Exp]],  [[DAS Parley Design\|Parley]],  [[DAS Snip Design\|Snip]],   |
 | --- | |
-| [[DAS Anchor Design]] | Subsystem design for the Anchor group — the folder-shape substrate every other subsystem rides on, plus the lifecycle verbs that create, restructure, relocate, publish, and archive anchors. |
-| [[DAS Code Skill Design]] | design surface for SKL Code |
-| [[DAS Design Design\|Design]] | Subsystem design for the Design group — the artifact pipeline, gates, and verbs that turn an idea into an agreed, buildable specification before execution starts. |
-| [[DAS Doc Design]] | Subsystem design for the Doc group — the authoring verbs that shape, illustrate, polish, and route documents, plus the round-trip to external document apps. |
-| [[DAS Drive Design]] | Subsystem design for the Drive group — the autonomous-execution loop that consumes Ready work (crank → mint → finalize), the feeders that mint new work, and the bounded stop. |
-| [[DAS Hygiene Design]] | Subsystem design for the Hygiene group — rules declared once, checked everywhere (Warden on-write + /audit sweeps), and repaired to zero via the 100%-fix discipline. |
-| [[DAS Search Design]] | Subsystem design for the Search group — the research verbs that answer questions about the world (find one, profile one, compare many, buy one) and file dated result docs. |
-| [[DAS Utility Design]] | Subsystem design for the Utility group — machine access (local, remote, GPU, GUI), capture pipelines (voice, text), and life utilities; always available, no anchor trait. |
+| [[DAS Anchor Design]]  | Subsystem design for the Anchor group — the folder-shape substrate every other subsystem rides on, plus the lifecycle verbs that create, restructure, relocate, publish, and archive anchors. |
+| [[DAS Bridge Design]]  | system design — PRD, UX Design, Testing |
+| [[DAS Bridge PRD]]  | what bridge produces; the three kinds of bridging (control / sync / claude); mechanism-vs-goal; config-is-the-recipe |
+| [[DAS Bridge Testing]]  | testing strategy + proposed integration tests, grouped by bridge kind |
+| [[DAS Bridge UX Design]]  | the subskill command surface — every verb, its arguments, output shape, confirmation gates |
+| [[DAS Code Skill Design]]  | design surface for SKL Code |
+| [[DAS Daybreak Design]]  | design surface for the Daybreak morning routine |
+| [[DAS Daybreak PRD]]  | product requirements for the Daybreak morning routine |
+| [[DAS Doc Design]]  | Subsystem design for the Doc group — the authoring verbs that shape, illustrate, polish, and route documents, plus the round-trip to external document apps. |
+| [[DAS Drive Design]]  | Subsystem design for the Drive group — the autonomous-execution loop that consumes Ready work (crank → mint → finalize), the feeders that mint new work, and the bounded stop. |
+| [[DAS Hygiene Design]]  | Subsystem design for the Hygiene group — rules declared once, checked everywhere (Warden on-write + /audit sweeps), and repaired to zero via the 100%-fix discipline. |
+| [[DAS Search Design]]  | Subsystem design for the Search group — the research verbs that answer questions about the world (find one, profile one, compare many, buy one) and file dated result docs. |
+| [[DAS Utility Design]]  | Subsystem design for the Utility group — machine access (local, remote, GPU, GUI), capture pipelines (voice, text), and life utilities; always available, no anchor trait. |
+| [[DAS Design Design\|Design]]  | Subsystem design for the Design group — the artifact pipeline, gates, and verbs that turn an idea into an agreed, buildable specification before execution starts. |
