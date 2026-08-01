@@ -15,6 +15,7 @@ Man-page-style reference for the `state` CLI — the one write path for backlog 
 
 ```
 state <verb> <anchor> <doc> <label> [verb-flags] [< body]   # item verbs
+state show <anchor> <doc> <label>                           # read verb (T064)
 state revalidate <anchor> <doc>                             # doc verb (F241)
 
 state status  <anchor> <set|show> ...       # {slug} Status.md facet cells (F130)
@@ -25,7 +26,7 @@ state groom-list   <anchor> [--count]       # grooming worklist (F244)
 state summary-line <anchor> --recommend R   # the canonical closing line (F248)
 ```
 
-- **`<verb>`** — comes FIRST, and each verb owns its own flag schema, so `state <verb> --help` prints what that verb takes and nothing else. There are **item verbs** (`define` | `set` | `resolve` | `remove`) that address something inside a doc, **one doc verb** (`revalidate`) that acts on the doc itself, and the **domain verbs** listed above. A flag a verb does not declare is rejected by name — `set --from-file` and `resolve --horizon` are parse errors, not runtime complaints.
+- **`<verb>`** — comes FIRST, and each verb owns its own flag schema, so `state <verb> --help` prints what that verb takes and nothing else. There are **item verbs** (`define` | `set` | `resolve` | `remove` | `show`) that address something inside a doc, **one doc verb** (`revalidate`) that acts on the doc itself, and the **domain verbs** listed above. A flag a verb does not declare is rejected by name — `set --from-file` and `resolve --horizon` are parse errors, not runtime complaints.
 - **`<anchor>`** — MANDATORY on every verb; see ANCHOR RESOLUTION.
 - **`<doc>`** — the addressed document: the literal **`Backlog`** (the anchor's backlog file), a **wiki-name** (case-insensitive `.md` basename match — anchor tree first, then vault root; zero matches errors, multiple matches errors listing every candidate), or a **path**. Any markdown doc qualifies — feature docs, PRDs, standalone design docs.
 - **`<label>`** — LETTERS+DIGITS, the item's primary key within the doc: `F157` / `T8` / `Q9` on the Backlog, `Q7` / `V3` on any other doc. The mint form LETTERS+`+` (`F+`, `T+`, `Q+`, `V+`) assigns the next unused number — valid only with `define`; the assigned label is printed in the output. **`Q<n>` is polymorphic on the `<doc>` argument** (F275): on `Backlog` it is a *standalone feature-less question row* (the row body IS the question); on any other doc it is a *doc-scoped Open Question*. The two number-spaces are independent.
@@ -158,6 +159,44 @@ V define    create-or-replace V<n> under ## Verifications (H2 auto-created). V+ 
 V resolve   record the user's answer on the V-item.
 V remove    soft-delete with audit trail.
 ```
+
+## READING AN ITEM — `state show <anchor> <doc> <label>`
+
+```
+show      print the item's full markdown — the row line or Q/V header PLUS its
+          sub-bullet span — and do nothing else. Reads F/T/C/Q rows on the
+          Backlog (Icebox included) and Q/V items on any other doc, in ANY
+          zone: unresolved, `### Resolved`, `### Removed`, or archived under
+          the bottom `## Resolved`. Not knowing which zone an item is in is
+          the reason to be asking.
+          stdout is the markdown verbatim, so it pipes straight back into
+          `define`; the file + line locator goes to stderr.
+          Runs NONE of the post-conditions below — no audit-q, no Q.md
+          refresh, no Messages entry. Reading is not an event.
+```
+
+Until T064 (2026-08-01) `state` had no read verb: `define` / `set` / `resolve` /
+`remove` are every one of them writes, so you could create and mutate a row but
+never ask what one said. That hole is what made a malformed row unrecoverable —
+`state` refuses to edit a row its parser cannot read, `R-pathguard` refuses the
+hand edit, and the only way through was `remove` then `define`, with nothing to
+look at first.
+
+**`show`, not `get`.** `get` reads as the symmetric opposite of `set`, and the
+symmetry does not hold: `set` is rows-only by design while `show` reads Q/V on
+any doc, and `set` writes a *field* (`--status Done`) whose true inverse returns
+one value, whereas `show` dumps the whole item. Git draws the same line for the
+same reason — `git show` displays an object, `git config --get` retrieves a
+value. `get` is deliberately left unspent for the operation that genuinely is
+`set`'s inverse: scriptable field access, `state get <addr> --status` printing
+to stdout, which anything branching on a row's state would want today.
+
+**`remove` echoes what it deleted**, to stderr, before printing its status line
+— kept as a backstop rather than an alternative. `show` serves the caller who
+looks first; the echo serves the one who does not. A row `remove` is a HARD
+delete of the row *and* every sub-bullet under it, with none of the `### Removed`
+audit trail a Q gets. This is also why a `remove --dry-run` was dropped rather
+than built: a dry run only helps someone who already suspected they needed one.
 
 ## BODY SOURCE
 

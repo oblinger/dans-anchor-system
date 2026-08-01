@@ -1650,10 +1650,26 @@ def _row_verb(slug, backlog_path, label, verb, args, minted=False):
     if verb == "resolve":
         return _row_resolve(slug, backlog_path, label, args)
     if verb == "remove":
-        return _delegate_row_edit(
+        # T064 — echo what is about to be lost, read BEFORE the delete.
+        # A row `remove` is a HARD delete: the row line and every sub-bullet
+        # under it go, with none of the `### Removed` audit trail a Q gets.
+        # `show` serves the caller who looks first; this serves the one who
+        # does not, which is why a `remove --dry-run` was dropped rather than
+        # built — a dry run only helps someone who already suspected they
+        # needed one. Echoed to stderr so stdout stays the status line.
+        src = backlog_path.read_text(encoding="utf-8").splitlines(keepends=True)
+        span = _row_span(src, label)
+        deleted = src[span[0]:span[1]] if span is not None else None
+        rc = _delegate_row_edit(
             slug, "same", label, "delete", "", "",
             title_provided=False, body_provided=False,
         )
+        if deleted:
+            print(f"{slug}: removed markdown was —", file=sys.stderr)
+            sys.stderr.write("".join(deleted))
+            if not deleted[-1].endswith("\n"):
+                sys.stderr.write("\n")
+        return rc
     raise be.BacklogEditError(f"unknown verb {verb!r} for a Backlog row")
 
 
@@ -2246,6 +2262,125 @@ def cmd_item(slug, anchor_path, args):
     )
 
 
+def _row_span(lines, label):
+    """(start, end) of a Backlog row and its indented sub-bullets, or None.
+
+    The span ends at the next indent-0 row or the next H2 — the same boundary
+    `be._ensure_subbullet` uses, so `show` and the editors agree on what a row
+    IS. Trailing blank lines are trimmed off the end.
+    """
+    for i, line in enumerate(lines):
+        rm = be.ROW_HEADER_RE.match(line)
+        if not (rm and len(rm.group(1)) == 0 and rm.group(2) == label):
+            continue
+        end = len(lines)
+        for j in range(i + 1, len(lines)):
+            if be.H2_RE.match(lines[j].rstrip()):
+                end = j
+                break
+            rm2 = be.ROW_HEADER_RE.match(lines[j])
+            if rm2 and len(rm2.group(1)) == 0:
+                end = j
+                break
+        while end > i + 1 and not lines[end - 1].strip():
+            end -= 1
+        return i, end
+    return None
+
+
+_ITEM_HEADER_RES = (be._Q_HEADER_BULLET_RE, be._Q_HEADER_H3_RE,
+                    _V_HEADER_BULLET_RE, _V_HEADER_H3_RE)
+
+
+def _doc_item_span(lines, letters, num):
+    """(start, end) of a `Q<n>`/`V<n>` item ANYWHERE in a doc, or None.
+
+    Deliberately not restricted to the pending zone: the whole point of a read
+    verb is to answer "what does this item say" without the caller having to
+    know which zone it is currently sitting in — unresolved, `### Resolved`,
+    `### Removed`, or archived under the bottom `## Resolved`. The span ends at
+    the next item header or the next heading of any level.
+    """
+    want = re.compile(rf"^(\s*)(?:- \*\*|### ){letters}{num}\b")
+    for i, line in enumerate(lines):
+        if not want.match(line):
+            continue
+        end = len(lines)
+        for j in range(i + 1, len(lines)):
+            if lines[j].startswith("#"):
+                end = j
+                break
+            if any(rx.match(lines[j]) for rx in _ITEM_HEADER_RES):
+                end = j
+                break
+        while end > i + 1 and not lines[end - 1].strip():
+            end -= 1
+        return i, end
+    return None
+
+
+def cmd_show(slug, anchor_path, args):
+    """T064 — `state show <anchor> <doc> <label>`: print an item's full markdown,
+    sub-bullet span included, and do nothing else.
+
+    `state` had no read verb at all: define/set/resolve/remove are every one of
+    them writes, so an agent could create and mutate a row but never ask what
+    one currently says. That hole is what made a malformed row unrecoverable —
+    the only way through was `remove` (which deletes the row AND its
+    sub-bullets outright) then `define`, and nothing let you look first.
+
+    Named `show`, not `get`. `get` reads as the symmetric opposite of `set`,
+    and the symmetry does not hold on two counts: `set` is rows-only by design
+    while this reads rows, Qs and Vs on any doc, and `set` writes a FIELD
+    (`--status Done`) whose true inverse returns one value, whereas this dumps
+    the whole item. Git draws the same line for the same reason — `git show`
+    displays an object, `git config --get` retrieves a value — and leaving
+    `get` unspent keeps it available for scriptable field access later.
+
+    Runs none of the mutation post-conditions: no audit-q, no Q.md refresh, no
+    Messages.md entry. Reading is not an event. stdout is the item's markdown
+    verbatim so it can be piped straight back into `define`; the locator goes
+    to stderr.
+    """
+    doc_kind, doc_path = resolve_doc(args.doc, slug, anchor_path)
+    letters, num = parse_label(args.label)
+    if num == "+":
+        raise be.BacklogEditError(
+            f"{args.label} auto-mints a NEW number — there is nothing to show. "
+            f"Pass an existing label.")
+
+    lines = doc_path.read_text(encoding="utf-8").splitlines(keepends=True)
+    if doc_kind == "backlog" and letters in ("F", "T", "C", "Q"):
+        span = _row_span(lines, args.label)
+        # A row may have been iceboxed rather than deleted; look there too,
+        # exactly as resolve/remove do before reporting a row missing.
+        if span is None:
+            icebox_path = be.find_icebox(slug)
+            if icebox_path is not None:
+                ice = icebox_path.read_text(encoding="utf-8").splitlines(keepends=True)
+                span = _row_span(ice, args.label)
+                if span is not None:
+                    lines, doc_path = ice, icebox_path
+    elif letters in ("Q", "V"):
+        span = _doc_item_span(lines, letters, num)
+    else:
+        raise be.BacklogEditError(
+            f"unknown label kind {args.label!r} — show reads F/T/C/Q rows on "
+            f"Backlog and Q/V items on any other doc")
+
+    if span is None:
+        raise be.BacklogEditError(
+            f"{args.label} not found in {doc_path.name}")
+
+    start, end = span
+    print(f"{slug}: {args.label} in {doc_path.name} "
+          f"(lines {start + 1}-{end})", file=sys.stderr)
+    sys.stdout.write("".join(lines[start:end]))
+    if lines[end - 1:end] and not lines[end - 1].endswith("\n"):
+        sys.stdout.write("\n")
+    return 0
+
+
 def cmd_revalidate(slug, anchor_path, args):
     """F241 — the doc verb: `state revalidate <anchor> <doc>`.
 
@@ -2598,8 +2733,8 @@ _ITEM_VERBS = ("define", "set", "resolve", "remove")
 # Every top-level verb — item verbs, the doc verb, and the domain verbs. Only
 # the tombstones read this, to tell a retired v2-form invocation (which leads
 # with the address) from a plain typo.
-_ALL_VERBS = _ITEM_VERBS + ("revalidate", "status", "roadmap", "triage",
-                            "crank", "groom-list", "summary-line")
+_ALL_VERBS = _ITEM_VERBS + ("show", "revalidate", "status", "roadmap",
+                            "triage", "crank", "groom-list", "summary-line")
 
 _LABEL_HELP = ("item id — F<n>/T<n>/C<n>/Q<n> on Backlog, Q<n>/V<n> on any "
                "other doc; LETTERS+'+' auto-mints (F+, T+, C+, Q+, V+)")
@@ -2722,6 +2857,11 @@ def build_parser():
     rm_.add_argument("--reason", default=None,
                      help="short reason recorded in the audit trail")
 
+    sh = subs.add_parser(
+        "show",
+        help="print an item's full markdown, sub-bullet span included (T064)")
+    _add_address(sh, _LABEL_HELP)
+
     # ---- doc verb ---------------------------------------------------------
 
     rv = subs.add_parser(
@@ -2837,6 +2977,7 @@ def _tombstone(argv):
             "    state set      Tink Backlog T075 --status Done\n"
             "    state resolve  Tink \"F293 — state CLI v3 — verb-first grammar\" Q1 "
             "--choice \'(B)\'\n"
+            "    state show     Tink Backlog T041\n"
             "    state triage   Tink\n"
             "Verbs: " + " ".join(_ALL_VERBS)
         )
@@ -2861,6 +3002,8 @@ def main(argv):
     try:
         if args.verb in _ITEM_VERBS:
             return cmd_item(slug, anchor_path, args)
+        if args.verb == "show":
+            return cmd_show(slug, anchor_path, args)
         if args.verb == "revalidate":
             return cmd_revalidate(slug, anchor_path, args)
         if args.verb == "triage":
