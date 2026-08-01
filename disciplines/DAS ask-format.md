@@ -43,7 +43,7 @@ This is a discipline, not a user-invocable skill — other skills cite it via `[
 |    [[#Block-ID on the item]] |  |
 |    [[#Link form for references]] |  |
 | **[[#Numbering policy]]** |  |
-| **[[#Phase 1 / 2 / 3 lifecycle (Open Questions blocks)]]** |  |
+| **[[#Block lifecycle (Open Questions blocks)]]** |  |
 | **[[#Acceptance & rollback (per F086)]]** |  |
 |    [[#Acceptance — the user must explicitly say "resolution(s)"]] |  |
 |    [[#Rollback]] |  |
@@ -100,7 +100,9 @@ The **first word is the category** — always a single word, so `state` can pars
 
 **Auto-resolve — `waste` and `priority` never reach the user, mechanically.** When a minted question's category is `waste` or `priority`, **`state Q define` neither surfaces nor refuses it** — it defines the question, immediately resolves it to the agent's leaned choice (the `(X)` in the Recommendation, else the first labeled option), moves it to `## Resolved` with an `auto-resolved ({category})` note, and prints *⚑ Q10 auto-resolved — damage was waste, picked (B); proceed.* The agent is told it was handled, so there is **no refusal to work around** — the failure mode where a refused agent reframes the question or silently drops it. (Better still: an agent usually shouldn't mint a `waste`/`priority` question at all — it decides and announces — but if it does, the mint resolves it instead of nagging the user. With no lean but a *findable* answer, the agent goes and finds it rather than minting.)
 
-**The resolution format.** The auto-resolve does **not** rewrite the question or its Recommendation (the user may later override the pick). It reuses the ordinary resolve path — `state "{doc}" Q{n} resolve --choice "(B)" --body "auto-resolved (waste) — {why}"` — which moves the question into `## Resolved` with a `**Choice:** (B)` line plus the note, preserving the original question and recommendation as quoted context. One added line, not a rewrite. (The same command is what the agent runs by hand to close a *surfaced* question once the user answers.)
+**The resolution format.** The auto-resolve does **not** rewrite the question or its Recommendation (the user may later override the pick). It reuses the ordinary resolve path — `state "{doc}" Q{n} resolve --choice "(B)" --body "auto-resolved (waste) — {why}"` — so the archived entry takes the same shape as any other: the question, then `**Resolved:** (B) — {option text}`, then the note, the options one line each, and `**Lean:**`. One added line, not a rewrite. (The same command is what the agent runs by hand to close a *surfaced* question once the user answers.)
+
+**Lean and Resolved are separate lines, on purpose.** The old single `**Choice:** (B)` line conflated *what the agent recommended* with *what was decided*, and could not express an outcome that was none of the options — closing [[F272 — Essay home surface for the DAS-TAS writing channel (SCOUT F002 recipe)|F272]] produced a `**Choice:** (A)` sitting above a body explaining that nothing had been decided. Splitting them preserves the delta between advice and outcome, which is the calibration signal, and `--choice none` records honestly that the resolution landed outside the list.
 
 **Surface — the complete list of reasons to ask.** A question may reach the user only if its damage is `irreversible`, `locking`, `taste`, or (the honest escape) `other`. If the agent cannot file a question under one of those, it *is* waste or priority by definition, and it auto-resolves. That is the downside gate as a closed enumeration.
 
@@ -114,7 +116,7 @@ The **first word is the category** — always a single word, so `state` can pars
 |---|---|
 | `/ask` | Question layout (both parented and bare modes), numbering, write-surfaces, acceptance/rollback phrases. |
 | `queries-render.py` | Recognizes well-formed Q-rows and Verify-rows when rendering the body. Does not enforce — that's `/audit q`. |
-| `/feature` | The `## Open Questions` block format — first H2, below the H1. Phase 1/2/3 lifecycle. |
+| `/feature` | The `## Open Questions` block format — first H2, below the H1. Two-zone block lifecycle. |
 | `/groom` | When parking questions into newly-created feature docs, uses this format. |
 | `/crank` | When `/crank` is about to surface a Question or Verify to the user, uses this format. Prevents the flatfooted ask. |
 | `/audit q` | **Enforces** the discipline mechanically via rules C6–C11. |
@@ -324,17 +326,19 @@ When referring to a specific Q or Verify from elsewhere:
 - V-namespace is independent of Q-namespace (so `F23` can have both `Q3` and `V1`).
 
 
-## Phase 1 / 2 / 3 lifecycle (Open Questions blocks)
+## Block lifecycle (Open Questions blocks)
 
-A document with `Q<n>` items moves through three phases (per [[SKA ask]]):
+A document with `Q<n>` items has **two states**, and `state` moves it between them. The agent never performs a transition; it calls `resolve` with the choice and the explanation, and everything else is invisible mechanics (per [[F291 — Question lifecycle owned end-to-end by state|F291]], 2026-08-01 — replaces the earlier Phase 1/2/3 lifecycle, in which the block was deleted when its last Q resolved and *recreated* when a new one arrived; each recreation was an opportunity to write the format wrong).
 
-**Phase 1 — pending Qs exist.** `## Open Questions` H2 sits **immediately below the H1** — the document's first H2, right after the H1's one-line orientation prose (per [[F241 — Questions block below H1 + state-stamped integrity hash|F241]], 2026-07-15; supersedes the earlier above-the-H1 placement). It keeps its prominence (first H2, hit the moment the reader passes the head) while the file stays structurally normal — Obsidian outline, masthead convention, and heading tree all stop fighting it. Open Questions are questions *about* the document: when they all resolve the whole block goes away and the document underneath is untouched. This holds for **any** document, not only feature docs. It contains the pending Qs; Resolved Qs accumulate inside as a `### Resolved` H3 sub-section. The state script re-stamps the block with a 2-char integrity hash (`<!-- state:q XX -->`) on every write; a hand-edit that breaks the stamp trips the on-write warning (warden R-state-region-03 / audit-q C48) — recover with `state <doc> revalidate`.
+**State 1 — the block exists, with N unresolved.** `## Open Questions` H2 sits **immediately below the H1** — the document's first H2, right after the H1's one-line orientation prose (per [[F241 — Questions block below H1 + state-stamped integrity hash|F241]], 2026-07-15; supersedes the earlier above-the-H1 placement). It keeps its prominence (first H2, hit the moment the reader passes the head) while the file stays structurally normal — Obsidian outline, masthead convention, and heading tree all stop fighting it. Open Questions are questions *about* the document: when they all resolve the whole block goes away and the document underneath is untouched. This holds for **any** document, not only feature docs.
 
-**Phase 2 — all Qs resolved.** Delete the `## Open Questions` H2 entirely. Migrate the `### Resolved` content to a `## Resolved` H2 at the bottom of the doc.
+The block holds **two zones**: every unresolved question first, then a `### Resolved` zone. Resolving moves a question down into the second zone; it does not remove it, and it keeps its full option list with the resolution appended. Two properties follow — the open count is a prefix length rather than a scan, so the top of the block is always exactly the actionable set, and a question arriving mid-round simply lands in the unresolved zone with no structural event at all. The state script re-stamps the block with a 2-char integrity hash (`<!-- state:q XX -->`) on every write; a hand-edit that breaks the stamp trips the on-write warning (warden R-state-region-03 / audit-q C48) — recover with `state <doc> revalidate`.
 
-**Phase 3 — new Q arises later.** Recreate `## Open Questions` below the H1 (first H2); same lifecycle as Phase 1.
+**State 2 — the block has migrated.** The `resolve` that empties the unresolved zone also deletes the block and writes its entries to the **top** of the bottom `## Resolved` H2, above anything already there — so the section reads newest-batch-first, interleaving migrated rounds with auto-decisions in rough chronological order. Each entry keeps its `^F<n>-Q<n>` block-ID, which is the address the backlog row, `Q.md`, and chat asks point at. Migration is machine-authored because it is the single highest-drift moment in the lifecycle — the one write that touches every question at once — and because it needs no judgment: `state` already holds each question's text, its options, the chosen letter, and the note.
 
-Auto-decisions made under [[F068 — Assume-and-announce discipline (Drive mode)|F068]] (visible + low recoverability) **skip Phase 1 entirely** — they go directly into the bottom `## Resolved` H2 as H3 entries, without staging at top.
+A later question re-opens the block, numbered above the document's high-water mark rather than recycling — a reused number would put the same block-ID in the file twice.
+
+Auto-decisions made under [[F068 — Assume-and-announce discipline (Drive mode)|F068]] (visible + low recoverability) **never enter the block at all** — they go directly into the bottom `## Resolved` H2 as un-numbered H3 entries, where they co-exist with migrated rounds. That is also why `## Resolved` is not machine-owned: half of it is populated by a path no `Q<n>` verb can address.
 
 
 ## Acceptance & rollback (per F086)

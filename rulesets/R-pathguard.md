@@ -48,7 +48,8 @@ def body(ctx):
     inp = getattr(ev, "input", None) or {}
     old = inp.get("old_string") or ""
     new = inp.get("new_string") or ""
-    heads = ("## Open Questions", "## Resolved")
+    # `## Resolved` was here until F291 and is now [[R-state-region]]'s (warn).
+    heads = ("## Open Questions",)
     # Location-based, NOT substring-based (T045 defect 2): fire only when the
     # edit touches a REAL managed heading LINE (`^## Open Questions$`) — prose
     # that merely quotes the heading string inline (e.g. a `## Recovery note`
@@ -71,11 +72,13 @@ def body(ctx):
             pass
     if not hit:
         return []
-    return ["DENY: `## Open Questions` / `## Resolved` in a feature doc are owned by "
+    return ["DENY: `## Open Questions` in a feature doc is owned by "
             "`state <doc> <Q<n>|Q+> <define|resolve|remove>` — do not Edit the region directly."]
 ```
 
-Matches an Edit that touches either heading LINE or whose `old_string` sits inside the heading's section (between it and the next H2). It does **not** fire on prose that merely quotes the heading string inline — the T045 false positive that refused a `## Recovery note` edit for containing the managed headings as literal text.
+Matches an Edit that touches the heading LINE or whose `old_string` sits inside the heading's section (between it and the next H2). It does **not** fire on prose that merely quotes the heading string inline — the T045 false positive that refused a `## Recovery note` edit for containing the managed heading as literal text.
+
+The scope is the **open block alone**. `## Resolved` was covered here until F291 and now carries only [[R-state-region]]'s advisory, on the rule *deny where desync is possible, detect where it is not*. Three facts make uniform machine-ownership of the resolved section incoherent: half of it (F068 auto-decisions) is written straight in as un-numbered H3s that no `state <doc> Q<n>` verb can ever address, so a blanket deny forbids the mechanism that populates it; there is no live state left to desynchronize once an entry is archived (it is not rendered, not counted, gates nothing); and the vault is committed continuously, so tamper-evidence already exists at the commit layer. Denying there bought prevention where evidence already existed, at the cost of making legitimate edits illegal — superseded-stamps, link repairs, hindsight added years later. It also produced the [[Tink Backlog#^T066|T066]] deadlock: a lint demanding a fix inside a region every write path forbade.
 
 **Why:** the F130 lesson — Q blocks edited by hand bypass the block-ID / numbering / lifecycle discipline `state q` enforces.
 
@@ -148,7 +151,8 @@ def body(ctx):
     # quotes the heading inline has no real region, so it never trips.
     def _regions(text):
         out = {}
-        for m in re.finditer(r"^(## Open Questions|## Resolved)[ \t]*$", text, re.M):
+        # Open block only since F291 — `## Resolved` is R-state-region's now.
+        for m in re.finditer(r"^(## Open Questions)[ \t]*$", text, re.M):
             tail = text[m.end():]
             nxt = re.search(r"^## ", tail, re.M)
             out[m.group(1)] = tail[:nxt.start()] if nxt else tail
@@ -162,7 +166,7 @@ def body(ctx):
         return []
     if _regions(content) == on_disk:   # region preserved verbatim → allow
         return []
-    return ["DENY: `## Open Questions` / `## Resolved` in a feature doc are owned by "
+    return ["DENY: `## Open Questions` in a feature doc is owned by "
             "`state <doc> <Q<n>|Q+> <define|resolve|remove>` — this Write changes or drops "
             "the managed region. Preserve it verbatim (rewrite prose only) and route question "
             "edits through `state`."]

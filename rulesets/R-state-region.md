@@ -1,6 +1,6 @@
 # RULESET R-state-region
 include::
-description:: The F236 advisory on state-managed doc regions — an agent Edit/Write touching `## Open Questions` / `## Resolved` / `## Status` on an existing doc that carries labeled items (Q/V bullets, resolved `### Q<n>` H3s) gets the use-`state` reminder; the edit stands. Rides the anchor base (adopted 2026-07-13, F236 M3) — fires vault-wide. Doc creation is exempt; the backlog / queries / feature-doc surfaces keep their harder [[R-pathguard]] DENY rules.
+description:: The F236 advisory on state-managed doc regions — an agent Edit/Write touching `## Open Questions` / `## Resolved` / `## Status` on an existing doc that carries labeled items (Q/V bullets, resolved `### Q<n>` H3s) gets the use-`state` reminder; the edit stands. Rides the anchor base (adopted 2026-07-13, F236 M3) — fires vault-wide. Doc creation is exempt; the backlog / queries surfaces and a feature doc's `## Open Questions` keep their harder [[R-pathguard]] DENY. A feature doc's `## Resolved` landed here in F291, on the rule *deny where desync is possible, detect where it is not* — an archived decision is not rendered, not counted, and gates nothing, so there is no live state left to protect.
 
 > [!info] Provenance
 > Per [[F236 — state v2 — one address scheme — state doc label verb for rows, questions, and verifications|F236]] § Warden reminder rule (Q3 = advisory): warden's hook sees exactly the writes `state` doesn't make (agent hand-edits), so the two enforcement paths cover each other's blind side — `state`-side integrity via audit-q on every mutation, hand-edit-side via this advisory.
@@ -21,13 +21,17 @@ def body(ctx):
     if not name.endswith(".md"):
         return []
     # Surfaces owned by harder R-pathguard DENY rules are not re-advised here.
-    if name.endswith(" Backlog.md") or name.endswith(" queries.md") \
-            or re.match(r"F\d+\s+—", name):
+    if name.endswith(" Backlog.md") or name.endswith(" queries.md"):
         return []
     inp = getattr(ev, "input", None) or {}
     old = inp.get("old_string") or ""
     new = inp.get("new_string") or ""
     heads = ("## Open Questions", "## Resolved", "## Status")
+    # A feature doc's OPEN block is still R-pathguard's DENY; its `## Resolved`
+    # and `## Status` moved here (warn) in F291 — so the doc is no longer
+    # skipped wholesale, only the region the harder rule still covers.
+    if re.match(r"F\d+\s+—", name):
+        heads = ("## Resolved", "## Status")
     hit = any(h in old or h in new for h in heads)
     text = None
     if not hit and old:
@@ -78,12 +82,13 @@ def body(ctx):
     name = p.name
     if not name.endswith(".md") or not p.is_file():
         return []
-    if name.endswith(" Backlog.md") or name.endswith(" queries.md") \
-            or re.match(r"F\d+\s+—", name):
+    if name.endswith(" Backlog.md") or name.endswith(" queries.md"):
         return []
     inp = getattr(ev, "input", None) or {}
     content = inp.get("content") or ""
     heads = ("## Open Questions", "## Resolved", "## Status")
+    if re.match(r"F\d+\s+—", name):     # open block stays R-pathguard's (F291)
+        heads = ("## Resolved", "## Status")
     if not any(h in content for h in heads):
         return []
     if not re.search(r"^\s*- \*\*[A-Z]+\d+ —|^### Q\d+\b", content, re.M):
@@ -170,4 +175,3 @@ Do not hand-edit the stamp. It is a hash of the block; typing a new value assert
 If you are *adding* or *answering* a question rather than repairing one, use the verbs instead — `Q+ define`, `Q<n> define` to rewrite one, `Q<n> resolve --choice "(A)"` — and the stamp maintains itself.
 
 For the model, read [[DAS ask-format]].
-

@@ -4,7 +4,7 @@ description: "How to ask the user a question inline — ONE crisp, bold, `[quest
 # DAS ask-inline
 **Quick summary for another agent:** When you need a decision from the user, ask **one immediate question** — a single **bold** line, set off by blank lines, tagged **`[question]`**, that they can answer in a word (yes/no or a short pick). Put any must-know context *inside that line*. **Never bury the question under paragraphs of explanation** — if the user has to hunt for what you're asking, you've failed. One line; two at most.
 
-| -[[DAS ask-inline]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS ask-inline](hook://p/DAS%20ask-inline)<br>: How to ask the user a question inline — ONE crisp, bold, `[question]`-tagged line they can answer immediately, with the context inside it. The style that finally worked after the user struggled for a long time to get agents to ask answerable questions. |
+| -[[DAS ask-inline]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [docs](hook://docs) → [DAS ask-inline](hook://p/DAS%20ask-inline)<br>: How to ask the user a question inline — ONE crisp, bold, `[question]`-tagged line they can answer immediately, with the context inside it. The style that finally worked after the user struggled for a long time to get agents to ask answerable questions. |
 | --- | --- |
 | ... |  |
 
@@ -45,4 +45,4 @@ But default to a single question. Two is already a lot; more is a wall.
 
 The user spent a long time unable to get agents to ask answerable questions. The failure mode is always the same: the question is real but **unfindable or unanswerable** because it's buried or vague. The fix is mechanical — one bold, tagged, blank-line-delimited, one-line question with the context inside it. Confirmed by the user: *"that was an amazingly good question. It's in bold, it's separated away. It's very clear. I can answer it."*
 
-Related: [[DAS ask-format]] (the full asking discipline — recommendation strengths, block-IDs, Phase 1/2/3 lifecycle), [[DAS Ask]] (the `/ask` skill).
+Related: [[DAS ask-format]] (the full asking discipline — recommendation strengths, block-IDs, the two-zone block lifecycle), [[DAS Ask]] (the `/ask` skill).

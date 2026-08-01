@@ -208,11 +208,11 @@ def _resolve_q_identifier(lines, q_num, slug):
     if q_num is not None and slug is not None:
         raise be.BacklogEditError("specify either -n N or --slug NAME, not both")
     if q_num is not None:
-        loc = be._find_q_bullet(lines, q_num)
+        loc = _find_pending_q(lines, q_num)
         if loc is None:
             raise be.BacklogEditError(f"Q{q_num} not found in pending Open Questions")
-        s, e, ind = loc
-        return s, e, ind, q_num
+        s, e = loc
+        return s, e, "", q_num
     if slug is not None:
         loc = _find_q_bullet_by_slug(lines, slug)
         if loc is None:
@@ -405,62 +405,342 @@ def _clamp_h2_end_to_h1(lines, h2_start, h2_end):
     return h2_end
 
 
+# ------------------------------------------------------------------
+# F291 — the two-zone Open Questions block
+#
+# A resolved question does not leave the block. It moves to a second zone at
+# the bottom (`### Resolved`) and stays there until the LAST question of the
+# round lands, at which point `state` deletes the block and writes every
+# entry to the top of the doc's bottom `## Resolved` in one machine-authored
+# write. Two consequences the old delete-at-Phase-2 / recreate-at-Phase-3
+# lifecycle did not have: the open count is a prefix length rather than a
+# scan, and a question arriving mid-round is not a structural event at all.
+
+_Q_OPTION_RE = re.compile(r"^(\s*)- \*\*\(([^)]{1,4})\)\*\*\s*(.*)$")
+_Q_FIELD_RE = re.compile(r"^\s*- \*\*([A-Za-z][A-Za-z -]*):\*\*\s*(.*)$")
+_Q_ANCHOR_RE = re.compile(r"\s*(\^[\w-]+)\s*$")
+
+
+def _oneline(parts):
+    """Join a sub-bullet's continuation lines into one line. The archive keeps
+    every option, one line each (F291 Q1=B) — the compression is structural
+    (drop the wrapping), never lossy (no truncation)."""
+    return re.sub(r"\s+", " ", " ".join(p.strip() for p in parts if p.strip())).strip()
+
+
+def _parse_q_block(block_lines):
+    """Split a pending Q bullet into the pieces the resolved entry is built
+    from: title, block-ID, the question's own prose, the labeled options, and
+    the Recommendation — which becomes the LEAN.
+
+    Everything else in the bullet (Damage, On answer, the `why-ask`
+    annotation) is scaffolding for the ASK, spent once the question is
+    answered, and is deliberately not carried into the archive.
+    """
+    header = block_lines[0]
+    anchor = ""
+    m = _Q_ANCHOR_RE.search(header)
+    if m:
+        anchor = m.group(1)
+        header = header[:m.start()]
+    # Two header shapes: the bullet `state` writes, and the H3 a hand-authored
+    # block uses. In the bullet the question rides the header after the bold
+    # title; in the H3 it is the prose underneath, so `prose` collects it.
+    hm = re.match(r"^\s*- \*\*Q\d+\s+—\s+(.*?)\*\*\s*(?:[—-]\s*)?(.*)$", header)
+    h3 = re.match(r"^\s*###\s+Q\d+\s+—\s+(.*)$", header)
+    if hm:
+        title, question = hm.group(1).strip(), hm.group(2).strip()
+    elif h3:
+        title, question = h3.group(1).strip(), ""
+    else:
+        title, question = "Untitled", re.sub(r"^\s*-\s+", "", header).strip()
+    # A question resolved in PROSE — the state this feature exists to absorb —
+    # usually announces itself in the heading (`— RESOLVED 2026-08-01`). The
+    # entry stamps `(resolved <date>)` itself, so keeping the marker would say
+    # it twice; drop it rather than carry a title that reads as a stutter.
+    title = re.sub(r"\s*[—-]\s*RESOLVED\b.*$", "", title).strip() or title
+    options, lean, cur, prose = [], "", None, []
+    seen_field = False
+    for line in block_lines[1:]:
+        om = _Q_OPTION_RE.match(line)
+        if om:
+            options.append([om.group(2).strip(), [om.group(3)]])
+            cur = options[-1][1]
+            seen_field = True
+            continue
+        fm = _Q_FIELD_RE.match(line)
+        if fm:
+            field = fm.group(1).strip().lower()
+            seen_field = True
+            if field == "recommendation":
+                cur = [fm.group(2)]
+                lean = cur
+            else:
+                cur = None       # Damage / On answer — ask scaffolding, dropped
+            continue
+        if cur is not None and line.strip():
+            cur.append(line)
+        elif not seen_field:
+            prose.append(line)
+    if not question and prose:
+        question = "\n".join(prose).strip()
+    return {
+        "title": title,
+        "anchor": anchor,
+        "question": question,
+        "options": [(letter, _oneline(parts)) for letter, parts in options],
+        "lean": _oneline(lean) if lean else "",
+    }
+
+
+def _resolve_outcome(choice, options, q_num):
+    """Turn `--choice` into the `**Resolved:**` line, refusing an option letter
+    that is not on the list.
+
+    The flag stays REQUIRED with `none` as a legal value (F291, revised
+    2026-08-01). An omitted flag cannot be distinguished from the agent
+    forgetting to pass one, so optionality would turn a real signal into an
+    ambiguity — the T079 failure mode (a write reporting success while quietly
+    doing nothing), and there is no reason to build a second instance of it on
+    purpose. Requiring an explicit `none` forces a positive statement that the
+    outcome fell outside the option list.
+    """
+    raw = (choice or "").strip()
+    if not raw:
+        raise be.BacklogEditError(
+            f"resolve requires --choice for Q{q_num} — an option letter "
+            '("(B)"), or `none` when the outcome fell outside every listed '
+            'option (`--choice "none — handed to DMP F005"`).'
+        )
+    nm = re.match(r"^none\b\s*[—-]?\s*(.*)$", raw, re.I)
+    if nm:
+        rest = nm.group(1).strip()
+        return "none of the above" + (f" — {rest}" if rest else "")
+    letter = raw.strip("()").strip()
+    listed = {L.strip("()").strip(): text for L, text in options}
+    if options and letter not in listed:
+        names = ", ".join(f"({L})" for L, _ in options)
+        raise be.BacklogEditError(
+            f"resolve refused: Q{q_num} has no option ({letter}) — the listed "
+            f"options are {names}. Pass one of those, or `--choice none` if "
+            "the resolution landed outside the list (that is legal and "
+            "recorded as such)."
+        )
+    text = listed.get(letter, "")
+    return f"({letter})" + (f" — {text}" if text else "")
+
+
+def _format_resolved_entry(q_num, parsed, outcome, note, today):
+    """The archived entry: question → resolution → options → lean (F291).
+
+    Inverts the old layout, which led with `**Choice:**` and buried the
+    question inside a `> Original Q context:` quote at the bottom — forcing a
+    reader past the answer to find out what was asked. Lean and Resolved are
+    separate lines on purpose: one records what was advised, the other what
+    happened, and the delta between them is the calibration signal that the
+    single conflated `**Choice:**` line destroyed.
+    """
+    out = ["", f"### Q{q_num} — {parsed['title']} (resolved {today})"]
+    # The block-ID rides the question line — it is the address the backlog row,
+    # Q.md, and chat asks point at, so dropping it at migration would break
+    # every inbound link to the decision. Headings cannot carry one.
+    q_line = parsed["question"] or parsed["title"]
+    if parsed["anchor"]:
+        q_line = f"{q_line} {parsed['anchor']}"
+    out += [q_line.rstrip(), "", f"**Resolved:** {outcome}", ""]
+    if note.strip():
+        out += [note.rstrip(), ""]
+    for letter, text in parsed["options"]:
+        out.append(f"- **({letter})** {text}".rstrip())
+    if parsed["options"]:
+        out.append("")
+    if parsed["lean"]:
+        out += [f"**Lean:** {parsed['lean']}", ""]
+    return out
+
+
+_Q_ZONE_HEADS = ("### Resolved", "### Removed")
+
+
+def _pending_q_heads(lines):
+    """([(q_num, line_idx), …], zone_start) for the block's UNRESOLVED zone.
+
+    The zone ends at the first `### Resolved` / `### Removed` heading, so the
+    open count is a prefix length rather than a scan. It is NOT "the first
+    `### ` line": a question may itself be written as an H3 (`### Q2 — …`, the
+    shape audit-q F012 taught the checkers to read, and the shape every
+    question on F294 uses), so only the two ZONE names end the zone. Both Q
+    shapes are recognized above it.
+    """
+    rng = be._open_questions_range(lines)
+    if rng is None:
+        return [], None
+    start, end = rng
+    heads = []
+    for k in range(start + 1, end):
+        if lines[k].strip() in _Q_ZONE_HEADS:
+            end = k
+            break
+        m = be._Q_HEADER_BULLET_RE.match(lines[k]) or be._Q_HEADER_H3_RE.match(lines[k])
+        if m:
+            heads.append((int(m.group(2)), k))
+    return heads, end
+
+
+def _find_pending_q(lines, q_num):
+    """(start, end) of Q<n> in the unresolved zone, either shape, or None."""
+    heads, zone_end = _pending_q_heads(lines)
+    for i, (num, s) in enumerate(heads):
+        if num == q_num:
+            return (s, heads[i + 1][1] if i + 1 < len(heads) else zone_end)
+    return None
+
+
+def _zone_range(lines, oq_start, oq_end, name):
+    """(start, end) of the block's `### {name}` zone, or None.
+
+    NOT be._find_h3_in_h2 — that ends the range at the next `### `, and a
+    zone's own entries ARE `### Q<n>` H3s, so it would report the zone as
+    ending at its first entry and every append would land at the top. A zone
+    runs to the next ZONE heading (the sibling `### Resolved`/`### Removed`)
+    or to the end of the block.
+    """
+    zones = ("### Resolved", "### Removed")
+    start = None
+    for i in range(oq_start + 1, oq_end):
+        if lines[i].strip() == f"### {name}":
+            start = i
+            break
+    if start is None:
+        return None
+    end = oq_end
+    for j in range(start + 1, oq_end):
+        if lines[j].strip() in zones or lines[j].startswith("## "):
+            end = j
+            break
+    return (start, end)
+
+
+def _insert_into_resolved_zone(lines, entry_lines):
+    """Append an entry to the block's `### Resolved` zone, creating the zone if
+    this is the round's first resolution. Ordered above `### Removed` when both
+    exist, so the block reads unresolved → resolved → removed."""
+    oq_start, oq_end = be._open_questions_range(lines)
+    zone = _zone_range(lines, oq_start, oq_end, "Resolved")
+    if zone is None:
+        removed = _zone_range(lines, oq_start, oq_end, "Removed")
+        insert_at = removed[0] if removed is not None else oq_end
+        while insert_at > oq_start + 1 and not lines[insert_at - 1].strip():
+            insert_at -= 1
+        return lines[:insert_at] + ["", "### Resolved"] + entry_lines + lines[insert_at:]
+    z_start, z_end = zone
+    insert_at = z_end
+    while insert_at > z_start + 1 and not lines[insert_at - 1].strip():
+        insert_at -= 1
+    return lines[:insert_at] + entry_lines + lines[insert_at:]
+
+
+def _migrate_block_to_resolved(lines):
+    """The last resolve of a round: delete the Open Questions block and write
+    its entries to the TOP of the bottom `## Resolved`, above anything already
+    there — so the section reads newest-batch-first, interleaving migrated
+    rounds with F068 auto-decisions in rough chronological order.
+
+    Machine-authored because this is the single highest-drift moment in the
+    lifecycle — the one write that touches every question at once — and
+    because it needs no judgment: `state` already holds each question's text,
+    its options, the chosen letter, and the note. The agent contributes
+    nothing but an opportunity to typo.
+    """
+    oq_start, oq_end = be._open_questions_range(lines)
+    entries = []
+    for k in range(oq_start + 1, oq_end):
+        ln = lines[k]
+        if ln.strip() in ("### Resolved", "### Removed"):
+            continue
+        if ln.startswith("### "):
+            entries.append([ln])
+        elif entries:
+            entries[-1].append(ln)
+    entries = [e for e in ([_trim_blanks(e) for e in entries]) if e]
+    drop_end = oq_end
+    while drop_end < len(lines) and not lines[drop_end].strip():
+        drop_end += 1
+    lines = lines[:oq_start] + lines[drop_end:]
+    if not entries:
+        return lines, 0
+    lines, (rh2_start, _rh2_end) = be._ensure_bottom_resolved_h2(lines)
+    payload = []
+    for e in entries:
+        payload.extend(e)
+        payload.append("")
+    tail = lines[rh2_start + 1:]
+    while tail and not tail[0].strip():
+        tail.pop(0)
+    lines = lines[:rh2_start + 1] + [""] + payload + tail
+    return lines, len(entries)
+
+
+def _trim_blanks(block):
+    while block and not block[-1].strip():
+        block.pop()
+    return block
+
+
+def _tidy_open_questions_spacing(lines):
+    """Collapse blank runs inside the block to a single separator, and leave
+    exactly one before the next H2. Each `define` leaves its own trailing
+    blank, so a three-question round accumulates a run of them, and re-zoning
+    a question carries that run down with it."""
+    rng = be._open_questions_range(lines)
+    if rng is None:
+        return lines
+    start, end = rng
+    body = []
+    for ln in lines[start:end]:
+        if not ln.strip() and body and not body[-1].strip():
+            continue
+        body.append(ln)
+    if body and body[-1].strip():
+        body.append("")
+    return lines[:start] + body + lines[end:]
+
+
 def _q_answer_core(slug, feature_path, q_num, q_slug, choice, body):
-    """Block-surgery for Q-answer, called by the v2 `<doc> Q<n> resolve` verb
-    against any resolved doc path (F236)."""
+    """`<doc> Q<n> resolve` — annotate in place, and migrate the whole block
+    when this was the last unresolved question (F291).
+
+    Nothing relocates until the last one lands: the question moves to the
+    block's resolved zone keeping its full option list, with the resolution
+    appended below it. The duplication between option B and the resolution's
+    restatement of B is safe *because* `state` writes both and nothing may
+    hand-edit either — redundancy is only hazardous when two copies can drift
+    independently, and the guard is what makes that impossible.
+    """
     text = feature_path.read_text(encoding="utf-8")
     lines = text.splitlines()
     start, end, _, q_num = _resolve_q_identifier(lines, q_num, q_slug)
-    header = lines[start]
-    title_m = re.match(r"^\s*- \*\*Q\d+\s+—\s+([^*]+?)\*\*", header)
-    title = title_m.group(1).strip() if title_m else "Untitled"
-    original_body = "\n".join(lines[start:end]).rstrip()
-    today = date.today().isoformat()
-    h3_lines = [
-        "",
-        f"### Q{q_num} — {title} (resolved {today})",
-        f"**Choice:** {choice}",
-        "",
-    ]
-    if body.strip():
-        h3_lines.append(body.rstrip())
-        h3_lines.append("")
-    h3_lines.append("> Original Q context:")
-    for ol in original_body.splitlines():
-        h3_lines.append(f"> {ol}")
-    h3_lines.append("")
+    parsed = _parse_q_block(_trim_blanks(lines[start:end]))
+    outcome = _resolve_outcome(choice, parsed["options"], q_num)
+    entry = _format_resolved_entry(q_num, parsed, outcome, body,
+                                   date.today().isoformat())
     lines = lines[:start] + lines[end:]
-    lines, (rh2_start, rh2_end) = be._ensure_bottom_resolved_h2(lines)
-    insert_at = rh2_end
-    while insert_at > rh2_start + 1 and not lines[insert_at - 1].strip():
-        insert_at -= 1
-    lines = lines[:insert_at] + h3_lines + lines[insert_at:]
-    # Phase-2 transition: drop empty ## Open Questions
-    oq = be._find_h2(lines, "Open Questions")
-    if oq is not None:
-        oq_start, oq_end = oq
-        oq_end = _clamp_h2_end_to_h1(lines, oq_start, oq_end)
-        empty = True
-        for k in range(oq_start + 1, oq_end):
-            if (lines[k].strip() and not lines[k].startswith("### ")
-                    and not be._Q_STAMP_RE.match(lines[k].strip())):
-                empty = False
-                break
-            if lines[k].startswith("### "):
-                empty = False
-                break
-        if empty:
-            drop_end = oq_end
-            while drop_end < len(lines) and not lines[drop_end].strip():
-                drop_end += 1
-            if drop_end < len(lines):
-                lines = lines[:oq_start] + lines[drop_end:]
-            else:
-                lines = lines[:oq_start]
+    lines = _insert_into_resolved_zone(lines, entry)
+    lines = _tidy_open_questions_spacing(lines)
+    still_open = [n for n, _ in _pending_q_heads(lines)[0]]
+    migrated = 0
+    if not still_open:
+        lines, migrated = _migrate_block_to_resolved(lines)
     lines = be.restamp_open_questions(lines)
     be._write_feature_lines(feature_path, lines)
     _selffire(feature_path)
-    summary = f"answered Q{q_num} (choice {choice}) in {feature_path.name}"
+    summary = f"resolved Q{q_num} ({outcome.split(' — ')[0]}) in {feature_path.name}"
+    if migrated:
+        summary += (f" — last of the round; migrated {migrated} entr"
+                    f"{'y' if migrated == 1 else 'ies'} to ## Resolved and "
+                    "retired the block")
+    else:
+        summary += f" — {len(still_open)} still open"
     _post_conditions_and_print(slug, feature_path, summary)
     return 0
 
@@ -493,7 +773,7 @@ def _q_remove_core(slug, feature_path, q_num, q_slug, reason):
     else:
         oq_start, oq_end = oq
         oq_end = _clamp_h2_end_to_h1(lines, oq_start, oq_end)
-    removed = be._find_h3_in_h2(lines, oq_start, oq_end, "Removed")
+    removed = _zone_range(lines, oq_start, oq_end, "Removed")
     if removed is None:
         insert_at = oq_end
         while insert_at > oq_start + 1 and not lines[insert_at - 1].strip():
@@ -1630,10 +1910,9 @@ def _v2_query(slug, doc_path, q_num, verb, args):
         return _q_define_core(slug, doc_path, q_num, body,
                               why_ask=getattr(args, "why_ask", None))
     if verb == "resolve":
-        if not args.choice:
-            raise be.BacklogEditError(
-                'resolve requires --choice "(A)" for a Q label'
-            )
+        # The required-ness of --choice, and the legality of `none`, live in
+        # _resolve_outcome — it is the only place that can see the option list
+        # and so the only place that can say what a valid value would be.
         body = read_body(args)
         return _q_answer_core(slug, doc_path, q_num, None, args.choice, body)
     if verb == "remove":

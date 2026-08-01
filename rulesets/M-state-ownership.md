@@ -2,7 +2,7 @@
 description: "mend messages for script-owned surfaces"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [rulesets](hook://rulesets) → [M-state-ownership](hook://p/M-state-ownership)
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [rulesets](hook://rulesets) → [M-state-ownership](hook://p/M-state-ownership) 
 # M-state-ownership
 Remediation messages shared by [[R-pathguard]] and [[R-state-region]] — the twin rulesets that guard the same script-owned surfaces, one by denying the edit and one by warning about it.
 
@@ -27,6 +27,8 @@ Two cases where `state` genuinely cannot help:
 
 - **The row is malformed enough that `state` cannot parse it.** There is no repair verb today; the only sanctioned path is `remove` then `define`, which loses the row's sub-bullets. Read the row first and keep what you need.
 - **You are editing prose that is not a row** — an intro line, a section heading. Those are yours to edit; the guard covers the row regions.
+
+On a feature doc the guard covers `## Open Questions` and stops there. A resolved decision under the bottom `## Resolved` is yours to edit (F291): once archived it is not rendered, not counted, and gates nothing, so there is no live state left to desynchronize — and half that section is written by a path no `state` verb can address, since an F068 auto-decision was never a question. Superseded-stamps, link repairs, and hindsight added years later are legitimate edits there. Answering a *pending* question is still `state <doc> Q<n> resolve`, which is what moves it into the archive in the first place.
 
 For the model, read [[DAS Backlog]] and [[DAS State]].
 

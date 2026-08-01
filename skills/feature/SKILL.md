@@ -40,7 +40,7 @@ Manage a feature from initial idea through design, agreement, implementation, te
 
 **MANDATORY: Commit discipline.** Before starting a new feature or switching to any other activity, commit all uncommitted work from the current feature. The natural commit point is the transition — not when you think you're done, but when you're about to do something else.
 
-**Question format**: the `## Open Questions` H2 (first H2, below the H1) follows the [[DAS ask-format]] discipline (five-piece layout, block-IDs, Phase 1/2/3 lifecycle).
+**Question format**: the `## Open Questions` H2 (first H2, below the H1) follows the [[DAS ask-format]] discipline (five-piece layout, block-IDs, the two-zone block lifecycle).
 
 ## When to Use
 
@@ -135,7 +135,7 @@ description: {one-line description}
 
 - **Q0 — {earlier question}** — **Resolution:** {decided X because Y}. Incorporated into Design § {section}.
 
-(**No boilerplate prose** under `## Open Questions` or `### Resolved` headings. No "Blocking decisions / cannot move from Designing → Agreed" intro. Just the heading then the bullets. Per durable feedback memory. **Placement:** while pending Qs exist this block is the file's first H2, immediately below the H1's orientation line. The `<!-- state:q XX -->` stamp is written by the state script on every write — do not hand-edit it or the block; route changes through `state <doc> Q<n> <verb>`. On resolution the doc enters Phase 2: this block is deleted and its decisions migrate to the bottom `## Resolved` H2.)
+(**No boilerplate prose** under `## Open Questions` or `### Resolved` headings. No "Blocking decisions / cannot move from Designing → Agreed" intro. Just the heading then the bullets. Per durable feedback memory. **Placement:** while pending Qs exist this block is the file's first H2, immediately below the H1's orientation line. The `<!-- state:q XX -->` stamp is written by the state script on every write — do not hand-edit it or the block; route changes through `state <doc> Q<n> <verb>`. The last `resolve` of a round deletes this block and migrates its decisions to the bottom `## Resolved` H2 — `state` does that, not you.)
 
 ## Summary
 
@@ -173,17 +173,17 @@ Designing — awaiting design discussion.
 {Brief reasoning. Includes what was discussed; references Design § X if the resolution was incorporated.}
 ```
 
-**Lifecycle phases for Questions:**
+**Lifecycle for Questions (F291) — you call `resolve`; the transitions are not yours to make:**
 
-- **Phase 1 — pending user Qs exist.** `## Open Questions` H2 is the file's first H2, directly BELOW the H1 (after its one-line orientation) — containing pending Qs. It carries a `<!-- state:q XX -->` integrity stamp the state script maintains; hand-edits that break it trip the on-write warning (R-state-region-03 / audit-q C48). Resolved Qs accumulate inside as a `### Resolved` H3 sub-section *until all are answered*.
-- **Phase 2 — all Qs resolved.** Delete the `## Open Questions` H2 entirely. Migrate the staged `### Resolved` H3 content to the bottom `## Resolved` H2 (creating it if absent). Top of doc is now clean: H1 → Summary → Design → Status → Resolved.
-- **Phase 3 — new Q arises later.** Recreate `## Open Questions` H2 as the first H2 below the H1 with the new Q. Same lifecycle as Phase 1. **This applies even when the feature is `[Done]`** — a re-decision or extension of a feature's design reopens *this doc* (the backlog row rebrackets `[Questions]`); never mint a spin-off backlog row to host the decision (per [[Query PRD]] § Work-item identity: decisions live on the feature's record, rows carry work). When the new resolution supersedes an earlier one, stamp the superseded `## Resolved` entry with a one-line *"superseded {date} → Q{n}"* in the same pass.
-- **Auto-decisions skip Phase 1 entirely.** Agent decisions made under the [[F068 — Assume-and-announce discipline (Drive mode)|F068]] visibility + low-recoverability rule go *directly* into the bottom `## Resolved` H2 as H3 entries, without staging at top. They co-exist there with user-answered Qs.
+- **The block exists, with N unresolved.** `## Open Questions` H2 is the file's first H2, directly BELOW the H1 (after its one-line orientation). It carries a `<!-- state:q XX -->` integrity stamp the state script maintains; hand-edits that break it trip the on-write warning (R-state-region-03 / audit-q C48). The block has two zones: unresolved questions first, then a `### Resolved` zone. `state <doc> Q<n> resolve` moves a question from the first to the second — it does not remove it, so the open count is always the prefix above the zone heading.
+- **The block has migrated.** The `resolve` that empties the unresolved zone also deletes the block and writes every entry to the top of the bottom `## Resolved` H2, keeping each `^F<n>-Q<n>` block-ID. **`state` does this; the agent performs no part of it.** Top of doc is then clean: H1 → Summary → Design → Status → Resolved.
+- **A new Q later re-opens the block**, numbered above the doc's high-water mark rather than recycling. **This applies even when the feature is `[Done]`** — a re-decision or extension of a feature's design reopens *this doc* (the backlog row rebrackets `[Questions]`); never mint a spin-off backlog row to host the decision (per [[Query PRD]] § Work-item identity: decisions live on the feature's record, rows carry work). When the new resolution supersedes an earlier one, stamp the superseded `## Resolved` entry with a one-line *"superseded {date} → Q{n}"* in the same pass.
+- **Auto-decisions never enter the block.** Agent decisions made under the [[F068 — Assume-and-announce discipline (Drive mode)|F068]] visibility + low-recoverability rule go *directly* into the bottom `## Resolved` H2 as H3 entries. They co-exist there with migrated rounds — which is also why that section is hand-writable while the open block is not.
 
 **Structural rules:**
 - **H1 carries the anchor-slug breadcrumb + F-number.** Format: `# [[{slug}]] · F{n} — {Feature Name}`. The leading `[[{slug}]]` is a wiki-link to the anchor page (jumps back to the anchor's home from any feature doc) and tells the reader at a glance which anchor they're in — load-bearing when many anchors are active and feature docs look similar across them.
 - **`## Open Questions` lives below the H1 as the file's first H2 only while pending user Qs exist** — deleted otherwise; answered Qs migrate to the bottom `## Resolved` H2. The state script stamps the block for tamper-evidence (F241).
-- **`## Resolved` at the bottom holds all resolved decisions as H3 entries** — both agent-decided and user-answered. The H3 outline IS the decision list; click any H3 to read its full record. H3 title format: `### Q{N} — {Title}` for user-answered (Q-numbered); `### {Title}` for agent-decided (no Q-number — they were never asked). Each H3 body has: `**Choice:** X.` + brief reasoning + alternatives considered + why rejected.
+- **`## Resolved` at the bottom holds all resolved decisions as H3 entries** — both agent-decided and user-answered. The H3 outline IS the decision list; click any H3 to read its full record. H3 title format: `### Q{N} — {Title}` for user-answered (Q-numbered); `### {Title}` for agent-decided (no Q-number — they were never asked). A migrated Q-entry is machine-written as question → `**Resolved:**` → options → `**Lean:**`; an agent-decided entry is hand-written as `**Choice:** X.` + brief reasoning + alternatives considered + why rejected.
 - The `/ask` skill (`[[SKA queries]]`) is the universal asking subroutine — feature docs, PRDs, plan docs, anything with questions follows the same shape. Invoke `/ask --doc <path>` to add questions to a feature doc; the runbook handles formatting, glance, and global-page maintenance.
 
 **When to ask vs auto-decide (per [[F068 — Assume-and-announce discipline (Drive mode)|F068]] amendment 2026-05-22):**
@@ -237,7 +237,7 @@ open "<path to feature doc>"
 
 ### 1c. Refresh the anchor's Q.md section — automatic via `state`
 
-**Rule:** every Phase transition in `/feature` (Phase 1 → Phase 2 when all Qs resolve; Phase 2 → Phase 3 when a new Q arises; Status changes Designing → Agreed → Implementing → Done) is a state-touching action that must update the backlog row + refresh `~/ob/kmr/Q.md`.
+**Rule:** every lifecycle transition in `/feature` (the block migrating when its last Q resolves; a new Q re-opening it; Status changes Designing → Agreed → Implementing → Done) is a state-touching action that must update the backlog row + refresh `~/ob/kmr/Q.md`.
 
 **The mechanism:** call `state Backlog F<NNN> set` with the new status for **every** transition — it auto-refreshes Q.md as a side effect (invokes `audit-q.py --scope backlog --anchor {slug} --fix`).
 
@@ -263,7 +263,7 @@ skl-stat add "Proposed" "<Feature Name>" "Feature doc created"
 
 ### 3. Design Discussion
 
-Work with the user to flesh out the design. **Per F128/F129/F236, Q-state changes delegate to `state` (the v2 query grammar)** — the canonical state-editor enforces ask-format spec, Q-numbering policy, and Phase 1/2/3 lifecycle at write time. Agents should not hand-edit `## Open Questions` blocks.
+Work with the user to flesh out the design. **Per F128/F129/F236, Q-state changes delegate to `state` (the v2 query grammar)** — the canonical state-editor enforces ask-format spec, Q-numbering policy, and the block lifecycle at write time. Agents should not hand-edit `## Open Questions` blocks.
 
 ```bash
 # Resolve a Q (script auto-migrates to bottom ## Resolved with audit trail):
