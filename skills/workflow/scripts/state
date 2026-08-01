@@ -372,8 +372,7 @@ def _sync_roadmap_on_done(slug, backlog_path, row_id):
         if box != " ":
             return None
         lines[idx] = _set_box_on_line(lines[idx], "x")
-        roadmap.write_text("\n".join(lines) + ("\n" if text.endswith("\n") else ""),
-                           encoding="utf-8")
+        be._write_feature_lines(roadmap, lines)
         _selffire(roadmap)
         return f"roadmap auto-sync — flipped {row_id} checkbox to [x]"
     except (be.BacklogEditError, OSError, UnicodeDecodeError):
@@ -459,10 +458,7 @@ def _q_answer_core(slug, feature_path, q_num, q_slug, choice, body):
             else:
                 lines = lines[:oq_start]
     lines = be.restamp_open_questions(lines)
-    feature_path.write_text(
-        "\n".join(lines) + ("\n" if text.endswith("\n") else ""),
-        encoding="utf-8",
-    )
+    be._write_feature_lines(feature_path, lines)
     _selffire(feature_path)
     summary = f"answered Q{q_num} (choice {choice}) in {feature_path.name}"
     _post_conditions_and_print(slug, feature_path, summary)
@@ -510,10 +506,7 @@ def _q_remove_core(slug, feature_path, q_num, q_slug, reason):
             insert_at -= 1
         lines = lines[:insert_at] + h3_lines + lines[insert_at:]
     lines = be.restamp_open_questions(lines)
-    feature_path.write_text(
-        "\n".join(lines) + ("\n" if text.endswith("\n") else ""),
-        encoding="utf-8",
-    )
+    be._write_feature_lines(feature_path, lines)
     _selffire(feature_path)
     summary = f"removed Q{q_num} from {feature_path.name} (reason: {reason})"
     _post_conditions_and_print(slug, feature_path, summary)
@@ -822,8 +815,7 @@ def cmd_roadmap_status_set(slug, anchor_path, args):
     idx, kind, old_box = _find_roadmap_entry(lines, args.feature, args.milestone)
     new_box = _STATE_TO_BOX[args.state]
     lines[idx] = _set_box_on_line(lines[idx], new_box)
-    path.write_text("\n".join(lines) + ("\n" if text.endswith("\n") else ""),
-                    encoding="utf-8")
+    be._write_feature_lines(path, lines)
     _selffire(path)
     ref = args.milestone or args.feature
     print(f"{slug}: roadmap {ref} {_BOX_TO_STATE[old_box]} → {args.state} (line {idx + 1})")
@@ -1480,10 +1472,7 @@ def _q_define_core(slug, feature_path, q_num, body, why_ask=None):
         lines = lines[:insert_at] + new_lines + lines[insert_at:]
         verb_done = "defined"
     lines = be.restamp_open_questions(lines)
-    feature_path.write_text(
-        "\n".join(lines) + ("\n" if text.endswith("\n") else ""),
-        encoding="utf-8",
-    )
+    be._write_feature_lines(feature_path, lines)
     _selffire(feature_path)
     if auto_resolve:
         # waste/priority never reach the user — the Q is now written to
@@ -1598,10 +1587,7 @@ def _q_revalidate_core(slug, feature_path):
     lines, phase2 = be.drop_open_questions_if_empty(lines)
     if not phase2:
         lines = be.restamp_open_questions(lines)
-    feature_path.write_text(
-        "\n".join(lines) + ("\n" if text.endswith("\n") else ""),
-        encoding="utf-8",
-    )
+    be._write_feature_lines(feature_path, lines)
     _selffire(feature_path)
     if phase2:
         summary = (f"retired the spent ## Open Questions block in "
@@ -1790,9 +1776,7 @@ def _v_define_core(slug, doc_path, v_num, body):
         new_lines = new_lines + [""]
         lines = lines[:insert_at] + new_lines + lines[insert_at:]
         verb_done = "defined"
-    doc_path.write_text(
-        "\n".join(lines) + ("\n" if text.endswith("\n") else ""), encoding="utf-8"
-    )
+    be._write_feature_lines(doc_path, lines)
     summary = f"{verb_done} V{v_num} in {doc_path.name}"
     _post_conditions_and_print(slug, doc_path, summary)
     return 0
@@ -1844,9 +1828,7 @@ def _v_resolve_core(slug, doc_path, v_num, body):
     while insert_at > rh2_start + 1 and not lines[insert_at - 1].strip():
         insert_at -= 1
     lines = lines[:insert_at] + h3_lines + lines[insert_at:]
-    doc_path.write_text(
-        "\n".join(lines) + ("\n" if text.endswith("\n") else ""), encoding="utf-8"
-    )
+    be._write_feature_lines(doc_path, lines)
     summary = f"resolved V{v_num} in {doc_path.name}"
     _post_conditions_and_print(slug, doc_path, summary)
     return 0
@@ -1896,9 +1878,7 @@ def _v_remove_core(slug, doc_path, v_num, reason):
         while insert_at > r_start + 1 and not lines[insert_at - 1].strip():
             insert_at -= 1
         lines = lines[:insert_at] + h3_lines + lines[insert_at:]
-    doc_path.write_text(
-        "\n".join(lines) + ("\n" if text.endswith("\n") else ""), encoding="utf-8"
-    )
+    be._write_feature_lines(doc_path, lines)
     summary = f"removed V{v_num} from {doc_path.name} (reason: {reason})"
     _post_conditions_and_print(slug, doc_path, summary)
     return 0
