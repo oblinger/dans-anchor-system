@@ -41,7 +41,7 @@ Everything goes to **[[IMGEN]]** at `~/ob/kmr/Log/IMGEN/`, alongside [[VOX]] —
 |---|---|
 | A shoot | `IMGEN{nnn} — {what it was about}/` — one sitting; number sorts and is permanent, title reads |
 | A roll | `IMGEN{nnn}-{prompt}{variant}.png` — `IMGEN002-4B` is shoot 2, prompt 4, roll B |
-| The record | the shoot's namesake page — prompt groups newest first, prompt as plain text under its images |
+| The record | the shoot's namesake page — prompt groups newest first, prompt as a **bulleted list** under its images (one attribute per bullet — a mix-and-match kit) |
 | The index | [[IMGEN Gallery]] — one image per shoot, newest first |
 
 **A new shoot writes in three places** and the script does all three: the shoot folder and its page, a member row in the [[IMGEN]] masthead, and an entry at the top of [[IMGEN Gallery]]. Adding to an existing shoot touches only the shoot page.
@@ -58,7 +58,7 @@ Only `fal` is wired today. `recraft` and `local` are declared seams, not impleme
 
 ## The disciplines
 
-- **The prompt is written with the image, in the same action.** Not afterwards, not by the agent remembering to. For a generated image the prompt *is* the source, and [[feedback_figure_source_alongside_output]] applies exactly as it does to a `.d2` beside an `.svg`. It goes down as a plain paragraph — no heading, no blockquote, no fence — so it copies clean. [[IMGEN001 — Lumen portrait]] is the cautionary example: real images, prompts gone, unrecoverable.
+- **The prompt is written with the image, in the same action.** Not afterwards, not by the agent remembering to. For a generated image the prompt *is* the source, and [[feedback_figure_source_alongside_output]] applies exactly as it does to a `.d2` beside an `.svg`. **By default it goes down as a sequence of bullets** — a short lead line naming medium + subject, then one attribute per bullet (dress, hair, expression, setting, style) — no heading, no blockquote, no fence, so it copies clean. Bullets are the default because they make the prompt a **mix-and-match kit**: swap or re-roll a single attribute without rewriting the whole thing. (Keep the lead line dash-free so a leading `-` is not read as a CLI flag.) [[IMGEN001 — Lumen portrait]] is the cautionary example: real images, prompts gone, unrecoverable.
 - **Cost is stated, never silent.** Every run prints rolls written and dollars spent. A run costing more than `--confirm-over` (default $1.00) refuses without `--yes`, so a fan-out cannot quietly burn real money.
 - **Presets lock a character.** Once a look is right, save it (`--save-preset tink`) and later runs reload the locked prompt with only the scene varying. This is what keeps a recurring character recognizably itself instead of drifting every generation.
 - **Never place an image into [[IMGEN]] by hand.** Copying a file in gives you a picture with no prompt, and the prompt cannot be recovered afterwards. If images already exist somewhere else and belong in the anchor, moving them in means writing their prompt group by hand in the same pass — or knowingly leaving orphans, which is what [[IMGEN001 — Lumen portrait]] is.

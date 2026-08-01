@@ -145,6 +145,17 @@ Q resolve   move the Q to the block's `### Resolved` zone as a `### Q<n> — Tit
                           absorbs implementation detail fills the archive with text that
                           is stale within a week.
 
+            If the bottom ## Resolved ALREADY holds a `### Q<n>` for a question in
+            the migrating batch — an agent wrote the entry itself, which F291 made
+            legal — the two are MERGED, not both written. The agent's text wins:
+            it was written while the decision was fresh and is normally better
+            reasoned than a generated stub, so only a missing `**Resolved:**` line
+            is grafted on, at the end, where it reorders nothing. `state` says so
+            on stderr (`Q8 already had a Resolved entry; kept yours`). Writing both
+            would put `^F<n>-Q<n>` in the file twice — a duplicate block-ID, the
+            F281 collision class at document scale, which no audit check looks for
+            (T085).
+
             The entry reads question → resolution → options → lean. Resolution and lean are
             separate lines because they answer different questions: `**Lean:**` carries what
             the agent recommended, `**Resolved:**` what actually happened, and the delta

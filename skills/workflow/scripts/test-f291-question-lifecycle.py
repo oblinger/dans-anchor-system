@@ -241,5 +241,68 @@ with tempfile.TemporaryDirectory() as td:
           be._open_questions_range(h3doc.read_text().splitlines()), None)
     check("both archived", sorted(archived(h3doc.read_text())), [1, 2])
 
+    print("9. T085 — a pre-written ## Resolved entry is merged, not duplicated")
+    # F291 released R-pathguard's deny on `## Resolved`, so an agent can now
+    # write a `### Q<n>` entry there itself — typically while the decision is
+    # still fresh, before it gets around to calling resolve. Without a merge,
+    # migration writes a SECOND entry for the same Q and the file ends up
+    # carrying `^F<n>-Q<n>` twice: a duplicate block-ID, which is the F281
+    # collision class at document scale, and which no audit check looks for.
+    race = Path(td) / "F003 — Pre-written.md"
+    race.write_text(
+        "# [[ZZ]] · F003 — Pre-written\n"
+        "Orientation.\n\n"
+        "## Summary\n\nBody.\n\n"
+        "## Resolved\n\n"
+        "### Q1 — the one the agent wrote up first\n"
+        "the question as the agent phrased it ^F003-Q1\n\n"
+        "**Resolved:** (B) — with the reasoning the agent had in hand\n\n"
+        "A paragraph of context only the agent could write.\n",
+        encoding="utf-8")
+    n = be._next_q_number(race.read_text(encoding="utf-8"))
+    check("minting respects the pre-written entry's number", n, 2)
+    # Re-open Q1 as a pending question — the shape the race produces.
+    st._q_define_core("ZZ", race, 1,
+                      q_body(1, "the one the agent wrote up first",
+                             [("A", "no"), ("B", "yes")], "Lean (B)."),
+                      why_ask="taste — no mechanical check settles it")
+    st._q_answer_core("ZZ", race, 1, None, "(B)", "generated stub note")
+    t = race.read_text()
+    check("exactly one ### Q1 entry survives",
+          len([l for l in t.splitlines() if l.startswith("### Q1")]), 1)
+    check("exactly one ^F003-Q1 block-ID survives", t.count("^F003-Q1"), 1)
+    ok("the agent's prose is the one kept",
+       "A paragraph of context only the agent could write." in t
+       and "generated stub note" not in t, "agent text won")
+    ok("the agent's own Resolved line is untouched",
+       "**Resolved:** (B) — with the reasoning the agent had in hand" in t,
+       "no second Resolved line grafted")
+    check("the block is gone either way",
+          be._open_questions_range(t.splitlines()), None)
+
+    print("10. A pre-written entry MISSING the machine-critical line gets it")
+    bare = Path(td) / "F004 — Bare.md"
+    bare.write_text(
+        "# [[ZZ]] · F004 — Bare\n"
+        "Orientation.\n\n"
+        "## Summary\n\nBody.\n\n"
+        "## Resolved\n\n"
+        "### Q1 — written up without the resolution line\n"
+        "the question ^F004-Q1\n\n"
+        "Reasoning, but no **Resolved** line anywhere.\n",
+        encoding="utf-8")
+    st._q_define_core("ZZ", bare, 1,
+                      q_body(1, "written up without the resolution line",
+                             [("A", "no"), ("B", "yes")], "Lean (A)."),
+                      why_ask="taste — no mechanical check settles it")
+    st._q_answer_core("ZZ", bare, 1, None, "(A)", "note")
+    t = bare.read_text()
+    check("still exactly one entry",
+          len([l for l in t.splitlines() if l.startswith("### Q1")]), 1)
+    ok("the agent's reasoning survives",
+       "Reasoning, but no **Resolved** line anywhere." in t, "prose kept")
+    ok("the missing **Resolved:** line was grafted on",
+       "**Resolved:** (A) — no" in t, t[-400:])
+
 print(f"\ntest-f291-question-lifecycle: {PASS} passed, {FAIL} failed")
 sys.exit(1 if FAIL else 0)

@@ -9,7 +9,8 @@ generated image without the prompt that made it is a lucky roll nobody can
 reproduce, and the only way that pairing survives is if writing the image and
 recording the prompt are the same action. One sitting is a SHOOT — a numbered
 folder; rolls inside it are `IMGEN<shoot>-<prompt><variant>.png`; the shoot's
-own page carries every prompt, newest first, as plain copy-pasteable text.
+own page carries every prompt, newest first, as a bulleted mix-and-match kit
+(copy-pasteable, one attribute per bullet).
 
 Credentials come from the login keychain, never from a file on disk:
     security find-generic-password -s FAL_KEY -w
@@ -136,7 +137,8 @@ def _insert_before_first_group(text, block):
 def record_prompt(shoot_dir, shoot_n, idx, title, prompt, files, meta):
     """Write the prompt group into the shoot page, above any earlier group.
 
-    The prompt goes LAST in the block, as a plain paragraph — no heading, no
+    The prompt goes LAST in the block, by default as a sequence of bullets
+    (one attribute per bullet — a mix-and-match kit) — no heading, no
     blockquote, no fence — so it survives a copy without anything to strip off
     it. That is the whole reason this file writes markdown at all, and it is why
     the seeds line sits above the images rather than under the prompt: nothing
