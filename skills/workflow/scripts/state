@@ -669,6 +669,18 @@ def _migrate_block_to_resolved(lines):
     lines = lines[:oq_start] + lines[drop_end:]
     if not entries:
         return lines, 0
+
+    # T085 — merge, don't clobber. F291 released the guard on `## Resolved`,
+    # so an agent can now write a `### Q<n>` entry there BEFORE calling
+    # resolve — and this migration would then write a SECOND entry for the
+    # same question. That is worse than a duplicate record: both carry
+    # `^F<n>-Q<n>`, putting one block-ID in a file twice, which is the F281
+    # collision class at document scale and which no audit check looks for.
+    lines, (rh2_start, rh2_end) = be._ensure_bottom_resolved_h2(lines)
+    lines, kept = _merge_prewritten(lines, entries, rh2_start, rh2_end)
+    if not entries:
+        return lines, len(kept)
+
     lines, (rh2_start, _rh2_end) = be._ensure_bottom_resolved_h2(lines)
     payload = []
     for e in entries:
@@ -678,7 +690,63 @@ def _migrate_block_to_resolved(lines):
     while tail and not tail[0].strip():
         tail.pop(0)
     lines = lines[:rh2_start + 1] + [""] + payload + tail
-    return lines, len(entries)
+    return lines, len(entries) + len(kept)
+
+
+# Lines a downstream reader depends on, and so the only ones grafted into an
+# agent-written entry that lacks them. Everything else about that entry —
+# wording, ordering, extra prose — is left exactly as written.
+_MERGE_CRITICAL = ("**Resolved:**",)
+
+
+def _merge_prewritten(lines, entries, rh2_start, rh2_end):
+    """Fold every entry whose Q-number already has a `### Q<n>` H3 under the
+    bottom `## Resolved` into that existing entry, and drop it from `entries`
+    so the caller does not append a second copy.
+
+    The agent's text WINS. It is normally better-reasoned than a generated
+    stub — the agent wrote it while holding the discussion that produced the
+    decision — so only a missing machine-critical line is grafted on, at the
+    end, where it cannot reorder anything. The alternatives were all worse: a
+    hard error forces a delete-and-retry dance over something recoverable,
+    writing both leaves the duplicate this exists to prevent, and a silent
+    skip loses the signal that two writers touched one entry.
+
+    Returns (lines, [Q-numbers merged]); mutates `entries` in place.
+    """
+    existing = {}
+    for k in range(rh2_start + 1, min(rh2_end, len(lines))):
+        m = be._Q_HEADER_H3_RE.match(lines[k])
+        if m:
+            existing[int(m.group(2))] = k
+    if not existing:
+        return lines, []
+
+    kept = []
+    # Highest line first: grafting shifts every index below the splice.
+    todo = []
+    for entry in list(entries):
+        m = be._Q_HEADER_H3_RE.match(entry[0])
+        if m and int(m.group(2)) in existing:
+            todo.append((existing[int(m.group(2))], int(m.group(2)), entry))
+    for at, q_num, entry in sorted(todo, reverse=True):
+        entries.remove(entry)
+        kept.append(q_num)
+        end = at + 1
+        while end < len(lines) and not lines[end].startswith("#"):
+            end += 1
+        block = lines[at:end]
+        have = any(c in b for b in block for c in _MERGE_CRITICAL)
+        graft = [] if have else [l for l in entry[1:]
+                                 if any(l.lstrip().startswith(c)
+                                        for c in _MERGE_CRITICAL)]
+        if graft:
+            lines = (lines[:at] + _trim_blanks(list(block)) + [""]
+                     + graft + [""] + lines[end:])
+        print(f"  Q{q_num} already had a Resolved entry; kept yours"
+              + (" (added the **Resolved:** line)" if graft else ""),
+              file=sys.stderr)
+    return lines, sorted(kept)
 
 
 def _trim_blanks(block):
