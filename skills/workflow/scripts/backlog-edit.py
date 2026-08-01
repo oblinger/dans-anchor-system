@@ -466,10 +466,11 @@ def verify_no_implementation_in_verify(status, body):
     ~50 anchors of remaining implementation work behind 'review the 6 done
     ones; sweep the rest if you're happy.'
     """
-    if not status:
-        return
-    status_root = status.split()[0]
-    if not status_root.startswith("Verify"):
+    # An unset row carries `[ ]`, whose status string is whitespace — truthy
+    # but with no first token, so a bare `status.split()[0]` raises IndexError
+    # and takes the whole edit down. Split first, then test.
+    parts = status.split() if status else []
+    if not parts or not parts[0].startswith("Verify"):
         return
     if not body:
         return
@@ -1078,11 +1079,11 @@ def verify_completion_block(status, body, existing_status):
     Grandfathers existing Done rows: skip the check when the prior status
     was already a Done* variant. Fires only on the **transition** to Done.
     """
-    if not status:
+    parts = status.split() if status else []          # `[ ]` → whitespace, no tokens
+    if not parts or not parts[0].startswith("Done"):
         return
-    if not status.split()[0].startswith("Done"):
-        return
-    if existing_status and existing_status.split()[0].startswith("Done"):
+    prior = existing_status.split() if existing_status else []
+    if prior and prior[0].startswith("Done"):
         return  # already Done; allow re-touch
     if not body or not body.strip():
         sys.stderr.write(
@@ -1141,9 +1142,10 @@ def warn_verify_watching_horizon(status, horizon_name):
     over explicit verify-before-next-step. This is a nudge, not a refusal —
     the rare critical-verify case is legitimate and just ignores the line.
     """
-    status_root = status.split()[0] if status else ""
-    if not status_root:
+    parts = status.split() if status else []          # `[ ]` → whitespace, no tokens
+    if not parts:
         return
+    status_root = parts[0]
     is_verify_or_watching = any(
         status_root.startswith(prefix) for prefix in VERIFY_WATCHING_FAMILY
     )

@@ -3,15 +3,7 @@ description: Per-client transcode pipeline started on a direct-play miss
 ---
 
 # [[HBR]] · F002 — On-the-Fly Transcode Session
-
-## Open Questions
-
-- **Q2 — segment cache eviction policy?** — when many clients transcode different titles, the segment Cache can grow without bound. Options: (a) LRU by total bytes, (b) per-session TTL, (c) both. Leaning (a) with a configurable cap in `harbor.toml`; need user input on whether per-session TTL is worth the extra bookkeeping. ^F002-Q2
-
-### Resolved
-
-- **Q1 — transcode container: HLS or fragmented MP4?** — **Resolution:** HLS. Broadest LAN-client support (TVs, mobile browsers) and it segments naturally for the Cache. Landed in Design § Pipeline.
-
+Starts a per-client HLS transcode when a title cannot direct-play, so playback begins in seconds without the user choosing a format.
 
 ## Summary
 
@@ -41,4 +33,24 @@ On a direct-play miss the Streamer asks Serve to `start_session`; the Transcoder
 
 ## Status
 
-Designing — awaiting Q2 (cache eviction) resolution.
+**Active** (2026-08-01) — the HLS pipeline and session keying are wired; Q2 settled the cache policy on (A) LRU-by-bytes, so the remaining work is the byte-cap sweep (tracked as `T001 — Cache eviction`) plus a time-to-first-segment measurement.
+
+## Resolved
+
+### Q1 — Transcode container: HLS or fragmented MP4? (resolved)
+**Choice:** HLS.
+
+Broadest LAN-client support (TVs, mobile browsers) and it segments naturally for the Cache, so the Streamer serves what the Transcoder writes with no repackaging step. Landed in Design § Pipeline.
+
+### Q2 — Segment-cache eviction policy? (resolved 2026-08-01)
+**Choice:** (A)
+
+auto-resolved (waste) — a wrong first pick costs one module's rework; the policy is internal to the Cache
+
+> Original Q context:
+> - **Q2 — Segment-cache eviction policy?** — when many clients transcode different titles the segment Cache grows without bound; v1 needs a bounded policy before the first long-lived deployment. ^F002-Q2
+>   - **(A)** LRU by total bytes — evict least-recently-served segments once the cache dir passes a `cache_max_bytes` cap in `harbor.toml`.
+>   - **(B)** Per-session TTL — drop a session's segments a fixed interval after the session ends.
+>   - **(C)** Both — a byte cap for the hard ceiling plus a TTL to release idle sessions early.
+>   - **Recommendation:** Lean (A). One knob, one invariant (the cache never exceeds its cap), and no per-session bookkeeping; a TTL can be added later if idle sessions turn out to hold the cap hostage.
+>   - **Damage:** waste — a wrong first pick costs one module's rework; the policy is internal to the Cache.

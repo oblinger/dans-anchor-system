@@ -9,13 +9,12 @@ The design of Harbor: what it's for, how it's shaped, and the rulings behind it.
 | Anchor | [[HBR]] (parent) |
 | Related | [[HBR Components]],  [[DAS Design Docs]],  [[HBR Architecture]] (root-level sibling folder), |
 | Members | [[HBR PRD\|PRD]],  [[HBR UX Design\|UX Design]],  [[HBR CLI\|CLI]],  [[HBR API Design\|API]],  [[HBR Decisions\|Decisions]],  [[HBR Testing\|Testing]],  [[HBR Roadmap\|Roadmap]],  [[HBR Features\|Features]],   |
-| [[HBR PRD]] |  |
-| [[HBR UX Design]] |  |
-| [[HBR Testing]] |  |
-| [[HBR Decisions]] |  |
-| [[HBR Roadmap]] |  |
-| [[HBR Features]] |  |
+| [[HBR PRD]]  |  |
+| [[HBR UX Design]]  |  |
+| [[HBR Testing]]  |  |
+| [[HBR Decisions]]  |  |
+| [[HBR Roadmap]]  |  |
+| [[HBR Features]]  |  |
 | --- | |
-| [[HBR CLI Help.txt]] |  |
-| [[HBR Design/HBR Decisions]] | durable rulings |
-| [[HBR Design/HBR Features]] | feature index |
+| [[HBR CLI Help.txt]]  |  |
+| [[HBR Design/HBR Decisions]]  | durable rulings |
