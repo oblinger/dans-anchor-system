@@ -3542,8 +3542,14 @@ def chk_facet_examples_row(target, anchor_root, args):
 # --- R-backlog (F228 frontier invariants) -----------------------------------
 
 _FRONTIER_H2S = ("Active", "Ready", "Now", "Next")
+# The title run is "anything up to the closing `**`", which is NOT `[^*]*`: a
+# title may legitimately carry a lone asterisk (a glob — `svg_*`, `* Agenda.md`),
+# and `[^*]*` cannot cross it, so the whole row reads as bracketless. That is
+# under-enforcement, not a stray warning — the bracket-keyed checks (R-backlog-02
+# /-04/-05) skip a row they cannot read. Match a non-`*` char OR a `*` that does
+# not begin the closing `**`; the branches are disjoint, so no backtracking.
 _ROW_BRACKET_RE = re.compile(
-    r"^-\s+\*\*(?:\[([^\[\]]+)\]\*\*|[^*]*\*\*\s*\[([^\[\]]+)\])")
+    r"^-\s+\*\*(?:\[([^\[\]]+)\]\*\*|(?:[^*]|\*(?!\*))*\*\*\s*\[([^\[\]]+)\])")
 
 
 def _backlog_rows(text):
