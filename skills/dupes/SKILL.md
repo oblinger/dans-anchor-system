@@ -192,7 +192,7 @@ Common patterns to handle:
 - *"E12 option C"* / *"on E12 go with C"* → execute E12 using option C (override default).
 - *"E20 leave alone, E25 option D"* → mixed.
 - *"X is also expected"* → append `X` to `expected.md`, re-run from § 2.
-- *"reviewed E<n>"* / *"mark E<n> reviewed-OK"* → append a new H2 to `decisions.md` capturing E<n>'s sorted path tuple + `verdict:: leave-alone` (and any free-form note the user provided). Future scans suppress this exact group. Per [[F073]].
+- *"reviewed `E<n>`"* / *"mark `E<n>` reviewed-OK"* → append a new H2 to `decisions.md` capturing `E<n>`'s sorted path tuple + `verdict:: leave-alone` (and any free-form note the user provided). Future scans suppress this exact group. Per [[F073]].
 - *"unmark <H2 title>"* / *"forget reviewed group <name>"* → remove the H2 from `decisions.md`. The group will re-surface on next scan.
 - *"cancel"* / *"actually no, none of those"* → exit without changes.
 

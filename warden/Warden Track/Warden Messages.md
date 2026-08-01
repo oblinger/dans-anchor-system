@@ -209,3 +209,6 @@ description: agent inbox — system messages for this anchor; cleared on every p
 [2026-07-30 09:27:44] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
 [2026-07-30 09:27:59] [INFO] Warden: updated F235 in Done [Done] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
 [2026-07-30 09:28:00] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-08-01 15:08:49] [INFO] Warden: added T020 in Now [Ready] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-08-01 15:08:49] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-08-01 15:08:51] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited

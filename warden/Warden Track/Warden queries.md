@@ -2,11 +2,12 @@
 description: Warden queries — mechanically rendered from the backlog (Blockers / Ready+Next / Questions / Blocked / Verifications / Other), and copied verbatim into Q.md. Do not hand-edit; edit the backlog rows.
 ---
 
-# [U+A]  [[Warden|Warden]]  -  Runnable 3    User 2   |   Now 3    Next 2    Later 5    Verify 0    Icebox 0
+# [U+A]  [[Warden|Warden]]  -  Runnable 4    User 2   |   Now 4    Next 2    Later 5    Verify 0    Icebox 0
 
 ## Ready
 - [[Warden Backlog#^F236|F236]] — **Next:** Two parts. (1) **Enforcement gap:** R-cards-04 (≤69-char card lines) does NOT fire on markdown save — a live edit to `RR/STAT/stat/stat distributions.md` created an 80-char card TITLE and the Warden...
 - [[Warden Backlog#^T019|T019]] — **Next:** teach `_repl_outside_code` to mask 4-space indented code blocks; repoint `chk_md_em_dash` at it so one predicate serves both; make the fixer skip lines with odd backtick parity and warn instead; add...
+- [[Warden Backlog#^T020|T020]] — **Next:** Backtick the placeholder tokens at `Warden Backlog.md` lines 132, 135, 136 (two on 136) — route through `state -a Warden Backlog <row> set --next/--body`, never a hand edit....
 - [[Warden Backlog#^T018|T018]] — **Next:** Implement the graduated rollout the user described in a 2026-07-18 voice capture (routed here by [[LUMEN]] T001). **(a) Ship at fire-once.** Do not flip full enforcement on: allow a rule to fire exactly once, then go quiet....
 
 ## Questions
