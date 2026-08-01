@@ -2,8 +2,8 @@
 description: "product requirements — what `/architect` produces and for whom"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[Architect]] → [[Architect Design]] → [Architect PRD](hook://p/Architect%20PRD)
-# Architect PRD
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [design](hook://design) → [DAS Architect PRD](hook://p/DAS%20Architect%20PRD)
+# DAS Architect PRD
 
 ## Overview
 
