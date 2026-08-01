@@ -2600,8 +2600,15 @@ def chk_doc_head_orientation_line(target, anchor_root, args):
     if m_sf and m_sf.group(1).strip() == f.stem.split(" ")[0]:
         return "pass", "simple facet form — orientation line waived (fused-breadcrumb H1)"
     field = re.compile(r"^[\w-]+::\s")
+    # Machine-written stamps (`<!-- state:backlog XX -->`, `<!-- state:q XX -->`)
+    # sit directly under the H1 on every state-managed doc, so they land between
+    # the H1 and the orientation line. They are not prose and must be skipped —
+    # without this a stamped doc can never satisfy the rule, since the stamp is
+    # written by `state`, not the author (found on the HBR reference anchor).
+    comment = re.compile(r"^\s*<!--.*-->\s*$")
     j = h1 + 1
-    while j < len(lines) and (lines[j].strip() == "" or field.match(lines[j])):
+    while j < len(lines) and (lines[j].strip() == "" or field.match(lines[j])
+                              or comment.match(lines[j])):
         j += 1
 
     def _prose(ln):

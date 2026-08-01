@@ -3,10 +3,17 @@ description: Periodic SQLite catalog checkpoint so a crash resumes from the last
 ---
 
 # [[HBR]] · F003 — Scheduled Catalog Checkpoint
+Runs a scheduled SQLite WAL checkpoint so an unclean shutdown resumes from the last good catalog state with no manual repair.
 
 ## Open Questions
+<!-- state:q 5n -->
 
-- **Q1 — checkpoint interval: fixed or write-triggered?** — a fixed clock (e.g. every 5 min) is simple but can lose a burst of ingest writes; a write-count trigger bounds loss but adds bookkeeping. Leaning fixed-interval with the interval set in `harbor.toml`, since v1 ingest is bursty-then-idle and a missed-by-minutes catalog is acceptable. ^F003-Q1
+- **Q1 — Checkpoint trigger: fixed interval or write-count?** — the WAL checkpoint bounds how much ingest work an unclean shutdown can lose, and the trigger choice sets the `harbor.toml` surface v1 ships with. ^F003-Q1
+  - **(A)** Fixed interval — checkpoint every N minutes, N set in `harbor.toml`. Simple and predictable, but a burst of ingest writes inside one window is all at risk.
+  - **(B)** Write-count trigger — checkpoint every N catalog writes. Bounds worst-case loss in units the user cares about (files), at the cost of a write counter in the Backup stage.
+  - **(C)** Both — whichever fires first, so an idle catalog still checkpoints and a burst still bounds its loss.
+- **Recommendation:** Lean (A) for v1. Ingest is bursty-then-idle, so a catalog missed by minutes is acceptable, and the config surface stays one key. · *why-ask: locking: the trigger names the `harbor.toml` key v1 ships, and changing it after release is a config migration rather than an internal edit*
+  - **Damage:** locking — the trigger names the `harbor.toml` key v1 ships, and changing it after release is a config migration rather than an internal edit.
 
 ### Resolved
 

@@ -3,15 +3,7 @@ description: Skip files already in the catalog by content hash during ingest
 ---
 
 # [[HBR]] · F001 — Content-Hash Dedup
-
-## Open Questions
-
-_None — design is clean._
-
-### Resolved
-
-- **Q1 — hash the whole file or a sampled prefix?** — **Resolution:** whole-file BLAKE3. Sampled-prefix hashing risks collisions across re-encodes that share a header; ingest is not latency-critical, so the full read is acceptable. Landed in Design § Hashing. See [[HBR Decisions]] (content-hash dedup).
-
+Folds files already in the catalog out of an ingest run by whole-file content hash, so re-running ingest adds nothing and a moved file is not duplicated.
 
 ## Summary
 
@@ -42,3 +34,10 @@ The Importer computes `content_hash` (whole-file BLAKE3) before writing a row; t
 ## Status
 
 Done — shipped in v1; covered by ingest integration tests.
+
+## Resolved
+
+### Q1 — Hash the whole file or a sampled prefix? (resolved)
+**Choice:** whole-file BLAKE3.
+
+Sampled-prefix hashing risks collisions across re-encodes that share a header; ingest is not latency-critical, so the full read is acceptable. Landed in Design § Hashing. See [[HBR Decisions]] (content-hash dedup).
