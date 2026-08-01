@@ -9,7 +9,7 @@ The **design internals** — the `{skill} Design` / `{skill} PRD` pages that spe
 | -[[DAS Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [design](hook://design) → [DAS Design](hook://p/DAS%20Design)<br>: the design pipeline — per-skill design docs + PRDs, grouped by group |
 | --- | --- |
 | Related | [[DAS Docs\|Docs]],  [[DAS Skills\|Skills]],  [[DAS Design Folder\|Design (facet)]],  [[DAS\|dans-anchor-system]],   |
-|  | **GROUPS** |
+|  | **SKILL GROUPS** |
 | [[SKL Anchor\|Anchor]]+ | [[DAS Anchor Toolkit Design\|Anchor Toolkit]],  [[DAS Create Design\|Create]],  [[DAS Install Design\|Install]],  [[DAS Migrate Design\|Migrate]],  [[DAS Move Design\|Move]],  [[DAS Publish Design\|Publish]],  [[DAS Streams Design\|Streams]],  [[DAS WP Design\|WP]],  [[DAS Yore Design\|Yore]],   |
 | [[SKL Track\|Track]]+ | [[DAS Tracking Design\|**Tracking (subsystem)**]],  [[DAS Groom Design\|Groom]],  [[DAS Groom PRD\|Groom PRD]],  [[Query PRD]],  [[DAS Backlog]],  [[DAS Messages]],  [[DAS Plan]],  [[DAS workflow]],   |
 | [[SKL Drive\|Drive]]+ | [[DAS Feature Design\|Feature]],  [[DAS Feature PRD\|Feature PRD]],  [[DAS Crank Design\|Crank]],  [[DAS Crank PRD\|Crank PRD]],  [[DAS Mint Design\|Mint]],  [[DAS Mint PRD\|Mint PRD]],  [[DAS Finalize Design\|Finalize]],  [[DAS Finalize PRD\|Finalize PRD]],  [[DAS Land Design\|Land]],  [[DAS Land PRD\|Land PRD]],  [[DAS Fortify Design\|Fortify]],  [[DAS Fortify PRD\|Fortify PRD]],   |
@@ -20,6 +20,7 @@ The **design internals** — the `{skill} Design` / `{skill} PRD` pages that spe
 | [[SKL Utility\|Utility]]+ | [[DAS Cook Design\|Cook]],  [[DAS Ctrl Design\|Ctrl]],  [[DAS Exp Design\|Exp]],  [[DAS Parley Design\|Parley]],  [[DAS Snip Design\|Snip]],   |
 | --- | |
 | [[DAS Anchor Design]]  | Subsystem design for the Anchor group — the folder-shape substrate every other subsystem rides on, plus the lifecycle verbs that create, restructure, relocate, publish, and archive anchors. |
+| [[DAS Architect PRD]]  | product requirements — what `/architect` produces and for whom |
 | [[DAS Bridge Design]]  | system design — PRD, UX Design, Testing |
 | [[DAS Bridge PRD]]  | what bridge produces; the three kinds of bridging (control / sync / claude); mechanism-vs-goal; config-is-the-recipe |
 | [[DAS Bridge Testing]]  | testing strategy + proposed integration tests, grouped by bridge kind |

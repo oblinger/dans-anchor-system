@@ -78,5 +78,43 @@ for name in ("backlog-edit.py", "state"):
     else:
         ok(f"{name} has no conditional-newline write sites")
 
+print("3. T080 — the BACKLOG write path normalizes too")
+
+# T067's source-level guard passed while the bug survived on the file `state`
+# touches most: backlog writers join a `splitlines(keepends=True)` list with
+# `""`, a different construction the idiom regex above cannot see. Assert on
+# behaviour, not on source text.
+
+KEEPENDS_CASES = [
+    ("trailing blank line", ["# ZZ Backlog\n", "\n", "- **T1 — x** [Ready]\n", "\n"],
+     "# ZZ Backlog\n\n- **T1 — x** [Ready]\n"),
+    ("two trailing blanks", ["# ZZ Backlog\n", "\n", "- **T1 — x** [Ready]\n", "\n", "\n"],
+     "# ZZ Backlog\n\n- **T1 — x** [Ready]\n"),
+    ("already correct", ["# ZZ Backlog\n", "\n", "- **T1 — x** [Ready]\n"],
+     "# ZZ Backlog\n\n- **T1 — x** [Ready]\n"),
+    ("no final newline", ["# ZZ Backlog\n", "\n", "- **T1 — x** [Ready]"],
+     "# ZZ Backlog\n\n- **T1 — x** [Ready]\n"),
+]
+
+with tempfile.TemporaryDirectory() as td:
+    for label, lines, want in KEEPENDS_CASES:
+        p = Path(td) / "ZZ Backlog.md"
+        be.write_backlog_lines(p, list(lines))
+        got = p.read_text(encoding="utf-8")
+        if got == want:
+            ok(f"backlog {label} → exactly one terminating newline")
+        else:
+            no(f"backlog {label}: wrote {got!r}, wanted {want!r}")
+
+# And no backlog writer may bypass it — the failure mode was a raw write_text,
+# not the T067 idiom, so guard the shape that actually broke.
+RAW_BACKLOG_WRITE = re.compile(r'backlog_path\.write_text\(\s*"" ?\.join')
+for name in ("backlog-edit.py", "state"):
+    src = (HERE / name).read_text(encoding="utf-8")
+    if RAW_BACKLOG_WRITE.search(src):
+        no(f"{name} still writes a backlog without the normalizer")
+    else:
+        ok(f"{name} routes every backlog write through write_backlog_lines")
+
 print(f"\ntest-t067-eof-newline: {PASS} passed, {FAIL} failed")
 sys.exit(1 if FAIL else 0)

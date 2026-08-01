@@ -3,7 +3,7 @@ description: Architect — SKA skill anchor; design tree + dispatch for `/archit
 ---
 # Architect
 
-| -[[Architect]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [SKL](hook://SKL) → [Architect](hook://p/Architect)<br>: SKA skill anchor for `/architect` |
+| -[[Architect]]- | → [[kmr]] → [[SYS]] → [[symlinks]] → [SKL](hook://SKL) → [Architect](hook://p/Architect)<br>: SKA skill anchor for `/architect` |
 | --- | --- |
 | Skill | [[architect/SKILL\|SKILL.md]],  [[DAS Architect\|User Docs]],   |
 | [[DAS Architect Design\|Design]]  | [[DAS Architect PRD\|PRD]],   |

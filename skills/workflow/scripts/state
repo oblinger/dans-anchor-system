@@ -321,7 +321,7 @@ def _delegate_row_edit(slug, horizon, row_id_arg, status, title, body,
         _bl_lines = backlog_path.read_text(encoding="utf-8").splitlines(keepends=True)
         _bl_stamped = be.restamp_backlog(_bl_lines)
         if _bl_stamped != _bl_lines:
-            backlog_path.write_text("".join(_bl_stamped), encoding="utf-8")
+            be.write_backlog_lines(backlog_path, _bl_stamped)
     except OSError:
         pass
     # F145 auto-sync — a Done transition on an F-row flips the matching roadmap

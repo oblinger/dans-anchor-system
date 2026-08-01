@@ -1491,7 +1491,7 @@ def perform_edit(
             raise BacklogEditError(f"{row_id} not found — cannot delete")
         start, end, existing_h2, _ = existing
         del lines[start:end]
-        backlog_path.write_text("".join(lines))
+        write_backlog_lines(backlog_path, lines)
         _selffire(backlog_path)
         return {
             "summary": f"deleted {row_id}",
@@ -1742,7 +1742,7 @@ def perform_edit(
                     lines.insert(j + k, sl if sl.endswith("\n") else sl + "\n")
                 break
 
-    backlog_path.write_text("".join(lines))
+    write_backlog_lines(backlog_path, lines)
     _selffire(backlog_path)
 
     # Soft nudge — Verify/Watching usually belongs in Later.
@@ -2341,6 +2341,25 @@ def read_q_stamp(lines, start, end):
     return None
 
 
+def write_backlog_lines(backlog_path, lines):
+    """Write a backlog's lines back with exactly one terminating newline.
+
+    The keepends-list sibling of `_write_feature_lines` (T080). T067 fixed this
+    for feature docs but every backlog writer joins a `splitlines(keepends=True)`
+    list with `""`, so a trailing blank entry — which row insertion and deletion
+    both routinely leave behind — reached disk verbatim and the on-write hook
+    fired `R-progressive-02` on the file `state` had just written. It fired on
+    EVERY `state Backlog …` call, which is what made it worth a second fix
+    rather than a second exemption.
+    """
+    while lines and not lines[-1].strip():
+        lines.pop()
+    text = "".join(lines)
+    if text and not text.endswith("\n"):
+        text += "\n"
+    backlog_path.write_text(text, encoding="utf-8")
+
+
 def _write_feature_lines(feature_path, lines):
     """Write a feature doc's lines back with exactly one terminating newline.
 
@@ -2473,7 +2492,7 @@ def heal_backlog_if_stale(slug, backlog_path):
     lines2 = raw2.splitlines(keepends=True)
     stamped = restamp_backlog(lines2)
     if stamped != lines2:
-        backlog_path.write_text("".join(stamped), encoding="utf-8")
+        write_backlog_lines(backlog_path, stamped)
         _selffire(backlog_path)
     if stored is None:
         return None  # grandfathered — silent heal + first stamp
