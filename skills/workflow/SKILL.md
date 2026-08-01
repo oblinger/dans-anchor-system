@@ -397,7 +397,7 @@ Any markdown doc can carry labeled queries — feature docs, PRDs, standalone de
 | `Q remove` | `state --anchor {slug} "<doc>" Q<n> remove --reason "..."` — migrates to `### Removed` H3 with audit trail. |
 | `V define/resolve/remove` | same grammar with `V<n>`/`V+` — addressable verifications under the doc's `## Verifications` H2 (per F235, the doc is the verify home). |
 
-The script enforces ask-format spec (block-IDs, Q-numbering, Phase 1/2/3 lifecycle, ≥2 labeled options + a `Recommendation:` line) at write time. Q-numbers are canonical (referenced by block-IDs and audit-q messages).
+The script enforces ask-format spec (block-IDs, Q-numbering, the two-zone block lifecycle, ≥2 labeled options + a `Recommendation:` line) at write time. Q-numbers are canonical (referenced by block-IDs and audit-q messages).
 
 ### Side effects
 

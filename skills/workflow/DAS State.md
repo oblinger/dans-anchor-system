@@ -96,11 +96,17 @@ A `Q<n>` row is a **feature-less question** — sibling to `F`/`T`, minted with 
 
 ## DOC QUERIES — `state <doc> <Q<n>|V<n>> <verb>`
 
-Questions (`Q`) live in `## Open Questions` ABOVE the doc's H1 while pending (Phase 1/2/3 lifecycle per [[DAS ask-format]]); verifications (`V`) live under the doc's `## Verifications` H2 (per F235 the doc is the verify home).
+Questions (`Q`) live in `## Open Questions`, the first H2 below the doc's H1; verifications (`V`) live under the doc's `## Verifications` H2 (per F235 the doc is the verify home).
+
+**The block has two zones and two states (F291).** While it lives it holds every question the round raised — unresolved first, then a `### Resolved` zone — and `resolve` moves a question between them rather than removing it. So the open count is a prefix length rather than a scan, and a question arriving mid-round is not a structural event at all. The block only ever leaves the doc once: the `resolve` that empties the unresolved zone also deletes the block and writes every entry to the top of the bottom `## Resolved`. That replaces the old Phase 1/2/3 lifecycle, in which the block was deleted when its last Q resolved and **recreated** when a new one arrived — each recreation an opportunity to write the format wrong. The agent performs no part of the migration.
 
 ```
-Q define    create-or-replace Q<n> in place (subsumes add + rewrite). Q+ mints the lowest
-            unused Q-number. Body via stdin / --body / --from-file; accepts either the bare
+Q define    create-or-replace Q<n> in place (subsumes add + rewrite). Q+ mints ONE ABOVE
+            the doc's high-water Q-number — monotonic forever, never recycled, because a
+            migrated entry keeps its ^F<n>-Q<n> block-ID and a reused number would put that
+            anchor in the file twice (Obsidian resolves the duplicate by proximity, and no
+            audit check would catch it). Same policy F-numbers already follow.
+            Body via stdin / --body / --from-file; accepts either the bare
             body or the complete `- **Q<n> — ...` bullet. Write-time gate: ask-format
             requires >=2 own-line labeled option bullets (`- **(A)** ...`) AND a
             `- **Recommendation:**` line at indent 0 (value may be None).
@@ -114,12 +120,30 @@ Q define    create-or-replace Q<n> in place (subsumes add + rewrite). Q+ mints t
                           rename) is refused regardless of --why-ask. An already-annotated
                           Q is grandfathered on re-touch. audit-q C50 is the mirror.
 
-Q resolve   move the Q to the bottom ## Resolved as a `### Q<n> — Title` H3.
-            --choice OPT  required. the chosen option label, e.g. '(A)' — written into
-                          `**Choice:** OPT` in the H3.
-            <BODY>        optional resolution body; the blockquoted original Q context is
-                          appended automatically. When the last pending Q resolves, the doc
-                          enters Phase 2 (the above-H1 block is deleted).
+Q resolve   move the Q to the block's `### Resolved` zone as a `### Q<n> — Title` H3,
+            keeping its ^F<n>-Q<n> block-ID. When that empties the unresolved zone, the
+            same call migrates: the block is deleted and every entry is written to the TOP
+            of the bottom ## Resolved, above what is already there — so the section reads
+            newest-batch-first, interleaving migrated rounds with F068 auto-decisions.
+            --choice OPT  required. An option label ('(B)') — validated against the Q's own
+                          listed options, so a resolve issued against a stale reading of
+                          them is refused — or the literal `none` when the resolution
+                          landed outside every listed option, optionally with what happened
+                          instead: --choice 'none — handed to DMP F005'. Required rather
+                          than optional on purpose: an omitted flag cannot be told apart
+                          from a forgotten one, so optionality would trade a real signal
+                          for an ambiguity (the T079 failure mode).
+            <BODY>        optional rationale — WHY this option won. What got BUILT as a
+                          result belongs on the backlog row's Next/Done; a note that
+                          absorbs implementation detail fills the archive with text that
+                          is stale within a week.
+
+            The entry reads question → resolution → options → lean. Resolution and lean are
+            separate lines because they answer different questions: `**Lean:**` carries what
+            the agent recommended, `**Resolved:**` what actually happened, and the delta
+            between them is the calibration signal the old conflated `**Choice:**` line
+            destroyed. Rejected options ride along, one line each, so the record stands
+            alone instead of sending a reader to git.
 
 Q remove    soft-delete (audit trail in ### Removed H3). --reason TEXT optional.
             Q-numbers stay consumed forever; never reused.
@@ -199,7 +223,9 @@ The design decisions behind the grammar (F236, user-designed 2026-07-13):
 - **anchor optional (cwd-walkup)** — agents know their anchor via cwd; path lookup handles non-unique slugs; explicit slug still accepted.
 - **Doesn't create the feature-doc file** — `state Backlog F+ define` mints the ROW; `/feature` owns the doc. Orphan rows surface as audit-q findings by design; bundling would duplicate `/feature`'s shape conventions into the script.
 
-**Enforcement is two-sided.** `state`-side integrity runs audit-q on every mutation; hand-edit-side, warden's `R-pathguard` denies backlog/queries hand-edits and `R-state-region` (anchor-base, vault-wide) reminds on hand-edits to any item-bearing doc's `## Open Questions` / `## Resolved` / `## Status` regions (advisory, per F236 Q3).
+**Enforcement is two-sided.** `state`-side integrity runs audit-q on every mutation; hand-edit-side, warden's `R-pathguard` denies backlog/queries hand-edits and hand-edits to a feature doc's `## Open Questions`, while `R-state-region` (anchor-base, vault-wide) reminds on hand-edits to any item-bearing doc's `## Open Questions` / `## Resolved` / `## Status` regions (advisory, per F236 Q3).
+
+**The guard covers the open block, not the archive (F291).** A feature doc's `## Resolved` carries only the advisory, on the rule *deny where desync is possible, detect where it is not*. `state` owns the open block because it maintains things that can silently drift — the integrity stamp, the Q-numbering, the rendered queue, the counts that reach `Q.md`. None of that survives archiving: a resolved entry is not rendered, not counted, and gates nothing. Half the section is unaddressable by construction anyway — F068 auto-decisions go straight in as un-numbered H3s that no `Q<n>` verb can reach — so a blanket deny forbade the mechanism that populates it, and produced the T066 deadlock where a lint demanded a fix inside a region every write path refused.
 
 ## IMPLEMENTATION STATUS
 

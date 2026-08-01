@@ -102,7 +102,7 @@ f = fresh_doc()
 out, _ = define(f, body("Lean (B). cheaper", "waste — only a wasted run"))
 txt = f.read_text()
 good = ("## Resolved" in txt and "auto-resolved (waste)" in txt
-        and "**Choice:** (B)" in txt and "auto-resolved" in out
+        and "**Resolved:** (B)" in txt and "auto-resolved" in out
         and "- **Q1 —" not in txt.split("## Resolved")[0])
 ok("waste Q auto-resolves to the lean (B) in ## Resolved, none pending") if good \
     else no(f"waste not auto-resolved:\nOUT={out!r}\nTXT={txt}")
@@ -111,7 +111,7 @@ ok("waste Q auto-resolves to the lean (B) in ## Resolved, none pending") if good
 f = fresh_doc()
 out, _ = define(f, body("Strong (A). ordering", "priority — just sequence"))
 txt = f.read_text()
-ok("priority Q auto-resolves") if ("auto-resolved (priority)" in txt and "**Choice:** (A)" in txt) \
+ok("priority Q auto-resolves") if ("auto-resolved (priority)" in txt and "**Resolved:** (A)" in txt) \
     else no(f"priority not auto-resolved:\n{txt}")
 
 # (c) locking + Lean, NO --why-ask → SURFACES (Damage satisfies the gate), pending.

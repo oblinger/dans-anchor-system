@@ -2086,18 +2086,29 @@ _Q_HEADER_H3_RE = re.compile(r"^(\s*)### Q(\d+)\b")
 
 
 def _next_q_number(doc_text):
-    """Lowest unused Q-number across pending bullets + ### Resolved + bottom
-    ## Resolved + ### Removed sub-sections. Per F128 § Q-numbering policy.
+    """One above the HIGH-WATER Q-number across pending bullets + ### Resolved
+    + bottom ## Resolved + ### Removed sub-sections. Per F128 § Q-numbering
+    policy, tightened to monotonic-per-document by F291.
+
+    Was lowest-unused, which recycles a number as soon as its block migrates.
+    That is unsafe now that a migrated entry keeps its `^F<n>-Q<n>` block-ID
+    (F291 § Migration): a recycled Q1 puts that anchor in the file TWICE, and
+    Obsidian block-IDs are unique per file — `[[F283#^F283-Q1]]` then resolves
+    to whichever one it picks. Nothing would catch it; there is no duplicate-
+    block-ID check anywhere in audit, so the collision is silent and surfaces
+    later as a link landing on the wrong decision. Monotonic also aligns
+    Q-numbers with the F-number policy in [[DAS Backlog]] § Numbering policy —
+    two rules for two identifiers that behave identically is a trap.
+
+    The scan is already document-wide: `_Q_HEADER_H3_RE` matches the `### Q<n>`
+    entries in the bottom `## Resolved`, so a migrated round raises the mark.
     """
-    used = set()
+    used = {0}
     for line in doc_text.splitlines():
         m = _Q_HEADER_BULLET_RE.match(line) or _Q_HEADER_H3_RE.match(line)
         if m:
             used.add(int(m.group(2)))
-    n = 1
-    while n in used:
-        n += 1
-    return n
+    return max(used) + 1
 
 
 def _find_h2(lines, h2_name):
@@ -2589,7 +2600,7 @@ def main_q(argv):
         description=(
             "F128 Q-management — add / resolve / remove / rewrite Open Questions "
             "in a feature doc. The script enforces ask-format spec (block-IDs, "
-            "Q-numbering, Phase 1/2/3 lifecycle) and runs audit-q lenient as a "
+            "Q-numbering, the two-zone block lifecycle) and runs audit-q lenient as a "
             "post-condition (queries.md is built on demand by /query — no render step). "
             "Body content via stdin (primary), --from-file (fallback for long Qs), "
             "or -m (inline one-liner)."
