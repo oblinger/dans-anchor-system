@@ -8,6 +8,7 @@ Ruleset for this facet — spec: [[DAS Log]] (extracted from the spec 2026-07-12
 
 ### RULE R-log-01 — Log path is `{slug} Log/` or `{slug} Log.md` (checked)
 check:: log_path_exists
+mend:: log-location
 
 The log lives at `{slug}/{slug} Log/` (folder form) or `{slug}/{slug} Log.md` (single-file form). Not under Track, not under Docs, not at the vault root.
 
@@ -72,6 +73,7 @@ The `{slug} Log.md` dispatch page does NOT contain a ` # BRIEF` second-H1 (or `B
 
 ### RULE R-log-08 — Anchor page links to `[[{slug} Log]]` (sampled)
 check:: log_anchor_page_link
+mend:: log-dispatch
 
 The anchor's main page (`{slug}.md`) carries a dispatch row pointing at `[[{slug} Log]]`.
 
