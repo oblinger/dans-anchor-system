@@ -2341,6 +2341,20 @@ def read_q_stamp(lines, start, end):
     return None
 
 
+def _write_feature_lines(feature_path, lines):
+    """Write a feature doc's lines back with exactly one terminating newline.
+
+    Every Q verb inserts around blank-line separators, so `lines` routinely
+    ends in one or more empty strings; joining those verbatim left trailing
+    blank lines at EOF and the on-write hook then fired R-progressive-02 on a
+    file `state` had just written (T067, reproduced 3/3). Normalizing here —
+    rather than at each call site — keeps the four Q verbs from drifting apart.
+    """
+    while lines and not lines[-1].strip():
+        lines.pop()
+    feature_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
 def restamp_open_questions(lines):
     """Insert-or-update the integrity stamp on the line under the
     ## Open Questions heading. No block → lines returned unchanged. Call
@@ -2622,8 +2636,7 @@ def main_q(argv):
         new_lines = new_lines + [""]
         lines = lines[:insert_at] + new_lines + lines[insert_at:]
         lines = restamp_open_questions(lines)
-        feature_path.write_text("\n".join(lines) + ("\n" if text.endswith("\n") else ""),
-                                encoding="utf-8")
+        _write_feature_lines(feature_path, lines)
         _selffire(feature_path)
         summary = f"added Q{q_num} to {feature_path.name}"
 
@@ -2678,8 +2691,7 @@ def main_q(argv):
         # Phase-2 transition: retire the block once nothing pending remains.
         lines, _dropped = drop_open_questions_if_empty(lines)
         lines = restamp_open_questions(lines)
-        feature_path.write_text("\n".join(lines) + ("\n" if text.endswith("\n") else ""),
-                                encoding="utf-8")
+        _write_feature_lines(feature_path, lines)
         _selffire(feature_path)
         summary = f"resolved Q{args.q_num} (choice {args.choice}) in {feature_path.name}"
 
@@ -2733,8 +2745,7 @@ def main_q(argv):
                 insert_at -= 1
             lines = lines[:insert_at] + h3_lines + lines[insert_at:]
         lines = restamp_open_questions(lines)
-        feature_path.write_text("\n".join(lines) + ("\n" if text.endswith("\n") else ""),
-                                encoding="utf-8")
+        _write_feature_lines(feature_path, lines)
         _selffire(feature_path)
         summary = f"removed Q{args.q_num} from {feature_path.name} (reason: {reason})"
 
@@ -2769,8 +2780,7 @@ def main_q(argv):
         new_bullet_lines = new_bullet.splitlines()
         lines = replace_q_bullet(lines, start, end, new_bullet_lines)
         lines = restamp_open_questions(lines)
-        feature_path.write_text("\n".join(lines) + ("\n" if text.endswith("\n") else ""),
-                                encoding="utf-8")
+        _write_feature_lines(feature_path, lines)
         _selffire(feature_path)
         summary = f"rewrote Q{args.q_num} in {feature_path.name}"
     else:
