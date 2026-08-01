@@ -74,13 +74,13 @@ with tempfile.TemporaryDirectory() as td:
         ("full wiki-name `ZZ Backlog`", "ZZ Backlog"),
         ("absolute path", str(backlog)),
     ]:
-        kind, path = st.resolve_v2_doc(arg, "ZZ", root)
+        kind, path = st.resolve_doc(arg, "ZZ", root)
         check(f"{label} → backlog", (kind, path.resolve()), ("backlog", backlog.resolve()))
 
     print("2. A non-backlog doc still classifies as 'doc'")
-    kind, path = st.resolve_v2_doc("F001 — Something", "ZZ", root)
+    kind, path = st.resolve_doc("F001 — Something", "ZZ", root)
     check("feature doc by wiki-name → doc", (kind, path.resolve()), ("doc", feature.resolve()))
-    kind, path = st.resolve_v2_doc(str(feature), "ZZ", root)
+    kind, path = st.resolve_doc(str(feature), "ZZ", root)
     check("feature doc by path → doc", (kind, path.resolve()), ("doc", feature.resolve()))
 
     print("3. An anchor with no backlog does not crash the classifier")
@@ -89,7 +89,7 @@ with tempfile.TemporaryDirectory() as td:
         raise RuntimeError("no backlog for this anchor")
 
     st.be.find_backlog = boom
-    kind, path = st.resolve_v2_doc("F001 — Something", "ZZ", root)
+    kind, path = st.resolve_doc("F001 — Something", "ZZ", root)
     check("still resolves the doc", (kind, path.resolve()), ("doc", feature.resolve()))
 
 print(f"\ntest-t082-doc-arg-kind: {PASS} passed, {FAIL} failed")

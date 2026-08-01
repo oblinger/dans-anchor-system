@@ -6,12 +6,14 @@ residual fixes in the `state` CLI.
       mentioning the F-number `[x]`: milestone headings, deferred `[~]` rows,
       and secondary cross-refs. Now: inline rows only, primary (first) F-ref
       only, unchecked `[ ]` boxes only, unique-match-or-refuse.
-  #11 (MED)  `_v2_find_by_basename` surfaced one real doc as several candidates
+  #11 (MED)  `_find_doc_by_basename` surfaced one real doc as several candidates
       (symlink mirrors / Closet copies) → false "ambiguous" refusal. Now skips
       `/symlinks/` + `/Closet/` and dedupes by resolved path.
   #12 (LOW)  `"revalidate" in argv` membership hijacked dispatch whenever the
-      word appeared anywhere. Now `_is_revalidate_invocation` matches only the
-      genuine `state [-a ANCHOR] <doc> revalidate` shape.
+      word appeared anywhere. F250 narrowed that to a shape-matcher; F293
+      deleted the ambiguity outright — the verb is now the FIRST token, so
+      dispatch never has to guess which token was meant to be one. The case
+      list below survives as a regression pin on the new grammar.
 
 Self-contained: imports the `state` module in-process, builds fixtures in a
 tmpdir, cleans up. Never touches the real vault (warden self-fire disabled)."""
@@ -98,27 +100,34 @@ try:
     else:
         no(f"F260 ambiguity not refused — msg={msg!r}\n{out}")
 
-    # ---- #12: _is_revalidate_invocation dispatch precision ------------------
-    print("== #12 revalidate routes only on the genuine <doc> revalidate shape ==")
+    # ---- #12: the verb token, and nothing else, decides dispatch -----------
+    print("== #12 the word 'revalidate' in a value cannot hijack dispatch ==")
+    parser = st.build_parser()
     cases = [
-        (["state", "MyDoc", "revalidate"], True, "bare <doc> revalidate"),
-        (["state", "-a", "SKA", "MyDoc", "revalidate"], True, "-a ANCHOR form"),
-        (["state", "--anchor=SKA", "MyDoc", "revalidate"], True, "--anchor= form"),
-        (["state", "Backlog", "F5", "set", "--reason", "revalidate"],
-         False, "revalidate as a --reason value"),
-        (["state", "Backlog", "F5", "set", "--body", "please revalidate this"],
-         False, "revalidate inside a body value"),
-        (["state", "revalidate", "F5", "define"], False,
-         "doc literally named 'revalidate' with a define verb"),
+        (["revalidate", "SKA", "MyDoc"], "revalidate", "the genuine doc verb"),
+        (["remove", "SKA", "Backlog", "F5", "--reason", "revalidate"],
+         "remove", "revalidate as a --reason value"),
+        (["set", "SKA", "Backlog", "F5", "--body", "please revalidate this"],
+         "set", "revalidate inside a body value"),
+        (["define", "SKA", "revalidate", "F5"], "define",
+         "a doc literally named 'revalidate'"),
     ]
     for argv, want, desc in cases:
-        got = st._is_revalidate_invocation(argv)
+        got = parser.parse_args(argv).verb
         if got == want:
             ok(f"{desc} → {want}")
         else:
-            no(f"{desc}: got {got}, want {want}")
+            no(f"{desc}: routed to {got!r}, want {want!r}")
 
-    # ---- #11: _v2_find_by_basename dedup + skip -----------------------------
+    # The doc verb declares no label, so the v2 shape that needed a
+    # last-token check to disambiguate is now a parse error by construction.
+    try:
+        parser.parse_args(["revalidate", "SKA", "MyDoc", "Q1"])
+        no("revalidate accepted a label it does not declare")
+    except SystemExit:
+        ok("revalidate refuses a <label> — the doc verb takes none")
+
+    # ---- #11: _find_doc_by_basename dedup + skip -----------------------------
     print("== #11 basename search dedupes symlink copies + skips /symlinks/,/Closet/ ==")
     root = TMP / "search"
     real = root / "ANCHOR" / "ZZR Track"
@@ -128,7 +137,7 @@ try:
     link = root / "ANCHOR" / "mirror"
     try:
         os.symlink(real, link, target_is_directory=True)
-        foo = st._v2_find_by_basename(root, "foo.md")
+        foo = st._find_doc_by_basename(root, "foo.md")
         if len(foo) == 1:
             ok("Foo.md reachable via a symlinked dir returns a single candidate")
         else:
@@ -141,7 +150,7 @@ try:
     sk.mkdir(parents=True, exist_ok=True)
     (sk / "Bar.md").write_text("y", encoding="utf-8")
     (real / "Bar.md").write_text("z", encoding="utf-8")
-    bar = st._v2_find_by_basename(root, "bar.md")
+    bar = st._find_doc_by_basename(root, "bar.md")
     if len(bar) == 1 and "/symlinks/" not in str(bar[0]):
         ok("Bar.md under /symlinks/ is skipped; only the live copy is returned")
     else:

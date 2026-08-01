@@ -50,7 +50,7 @@ EOF
 
 # ---------- Case A — missing --why-user refused ----------
 fresh_backlog
-OUT=$("$STATE" --anchor "$FIX_ROOT" Backlog T001 set --status Verify \
+OUT=$("$STATE" set "$FIX_ROOT" Backlog T001 --status Verify \
       --verify "do the groupings read right to you?" 2>&1); RC=$?
 if [ "$RC" -ne 0 ] && echo "$OUT" | grep -q -- "--why-user"; then
     ok "A: missing --why-user refused (rc=$RC)"
@@ -65,7 +65,7 @@ fi
 
 # ---------- Case B — mechanical phrasing refused even WITH --why-user ----------
 fresh_backlog
-OUT=$("$STATE" --anchor "$FIX_ROOT" Backlog T001 set --status Verify \
+OUT=$("$STATE" set "$FIX_ROOT" Backlog T001 --status Verify \
       --verify "did the render pass on the fixture anchor?" \
       --why-user "I want to see it myself" 2>&1); RC=$?
 if [ "$RC" -ne 0 ] && echo "$OUT" | grep -qi "machine event"; then
@@ -76,7 +76,7 @@ fi
 
 # ---------- Case C — genuine taste check passes; annotation lands ----------
 fresh_backlog
-OUT=$("$STATE" --anchor "$FIX_ROOT" Backlog T001 set --status Verify --horizon Verify \
+OUT=$("$STATE" set "$FIX_ROOT" Backlog T001 --status Verify --horizon Verify \
       --verify "does the fixture layout feel right in daily use?" \
       --why-user "taste call on the layout" 2>&1); RC=$?
 if [ "$RC" -eq 0 ] && grep -q "\[Verify\]" "$BACKLOG"; then
@@ -91,7 +91,7 @@ else
 fi
 
 # ---------- Case E — same-family re-touch grandfathered (no --why-user) ----------
-OUT=$("$STATE" --anchor "$FIX_ROOT" Backlog T001 set --horizon Later 2>&1); RC=$?
+OUT=$("$STATE" set "$FIX_ROOT" Backlog T001 --horizon Later 2>&1); RC=$?
 if [ "$RC" -eq 0 ]; then
     ok "E: horizon move of an existing [Verify] row needs no --why-user"
 else

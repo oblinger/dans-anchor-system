@@ -101,13 +101,13 @@ Each sub-audit produces **≥1 backlog row**, pre-split by **state-cluster** of 
 
 **Default horizon: `## Next`, NOT `## Now`.** Audit findings are surfaced but **deprioritized by default** — they don't compete with whatever's currently flowing through `## Now`. The user can promote to `## Now` explicitly when the audit work moves up in priority. Use `## Now` only when the audit was explicitly invoked because the user wants the findings to land in the active horizon.
 
-**Mutation discipline — every audit row goes through `state Backlog F+ define`.** Direct `Edit`/`Write` against `{slug} Backlog.md` is forbidden (per [[SKA workflow]] § Mutation API). The workflow skill's `state` mints the F-number atomically (no agent-side scan), inserts the row in the right H2, preserves source order, and auto-refreshes `~/ob/kmr/Q.md` — so § Q.md update post-condition below is satisfied as a side effect.
+**Mutation discipline — every audit row goes through `state define <anchor> Backlog F+`.** Direct `Edit`/`Write` against `{slug} Backlog.md` is forbidden (per [[SKA workflow]] § Mutation API). The workflow skill's `state` mints the F-number atomically (no agent-side scan), inserts the row in the right H2, preserves source order, and auto-refreshes `~/ob/kmr/Q.md` — so § Q.md update post-condition below is satisfied as a side effect.
 
 For each row (one per state-cluster), invoke:
 
 ```bash
 echo '- **F+ — <Kind> audit (<state-cluster>): <N> findings (<YYYY-MM-DD>)** [Ready] — work surfaced by /audit <kind>. Sub-bullets are candidate splits if this needs to be broken up.' | \
-    ~/.claude/skills/workflow/scripts/state --anchor {slug} Backlog F+ define --horizon Next
+    ~/.claude/skills/workflow/scripts/state define {slug} Backlog F+ --horizon Next
 ```
 
 Parse the assigned `F<NNN>` from stdout (`<slug>: added F<NNN> in Next [Ready]` — second word after `added`).
@@ -116,7 +116,7 @@ For `[Questions]` rows, swap `[Ready]` → `[Questions]` and put the feature-doc
 
 ```bash
 echo '- **F+ — <Kind> audit (Questions: <cluster name>): <N> findings (<YYYY-MM-DD>)** [Questions] — → [[F<NNN> — <Title>]]' | \
-    ~/.claude/skills/workflow/scripts/state --anchor {slug} Backlog F+ define --horizon Next
+    ~/.claude/skills/workflow/scripts/state define {slug} Backlog F+ --horizon Next
 ```
 
 The script produces row shape:

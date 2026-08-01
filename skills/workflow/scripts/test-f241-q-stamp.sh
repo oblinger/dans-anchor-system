@@ -79,7 +79,7 @@ has_stamp() { grep -q '<!-- state:q [0-9a-z][0-9a-z] -->' "$1"; }
 # ---------- Case A — define places block below H1 with a valid stamp ----------
 fresh_backlog; fresh_doc
 printf -- '- **Q1 — Pick a color** — Which color?\n  - **(A)** Red.\n  - **(B)** Blue.\n- **Recommendation:** None\n' \
-  | "$STATE" --anchor "$FIX_ROOT" "Fixture Doc" Q1 define >/dev/null 2>&1
+  | "$STATE" define "$FIX_ROOT" "Fixture Doc" Q1 >/dev/null 2>&1
 OQ=$(oq_line "$DOC"); H1=$(h1_line "$DOC")
 if [ -n "$OQ" ] && [ -n "$H1" ] && [ "$OQ" -gt "$H1" ]; then
     ok "A: Open Questions is below the H1 (H1=$H1, OQ=$OQ)"
@@ -116,7 +116,7 @@ else
 fi
 
 # ---------- Case C1 — revalidate re-stamps a format-valid hand-edited block ----------
-OUT=$("$STATE" --anchor "$FIX_ROOT" "Fixture Doc" revalidate 2>&1); RC=$?
+OUT=$("$STATE" revalidate "$FIX_ROOT" "Fixture Doc" 2>&1); RC=$?
 VERDICT=$(python3 - "$DOC" "$BE" <<'PY'
 import sys, importlib.util, pathlib
 doc, be_path = sys.argv[1], sys.argv[2]
@@ -140,7 +140,7 @@ import sys, re, pathlib
 p = pathlib.Path(sys.argv[1]); s = p.read_text()
 p.write_text(re.sub(r"- \*\*Recommendation:\*\* None\n", "", s))
 PY
-OUT=$("$STATE" --anchor "$FIX_ROOT" "Fixture Doc" revalidate 2>&1); RC=$?
+OUT=$("$STATE" revalidate "$FIX_ROOT" "Fixture Doc" 2>&1); RC=$?
 if [ "$RC" -ne 0 ] && echo "$OUT" | grep -qi "ask-format"; then
     ok "C2: revalidate refused a format-invalid block (rc=$RC)"
 else
@@ -199,7 +199,7 @@ Orientation line.
 
 Body.
 EOF
-"$STATE" --anchor "$FIX_ROOT" "Fixture Doc" revalidate >/dev/null 2>&1
+"$STATE" revalidate "$FIX_ROOT" "Fixture Doc" >/dev/null 2>&1
 OQ=$(oq_line "$DOC"); H1=$(h1_line "$DOC")
 if [ -n "$OQ" ] && [ -n "$H1" ] && [ "$OQ" -gt "$H1" ] && has_stamp "$DOC"; then
     ok "E: revalidate relocated the legacy above-H1 block below the H1 + stamped (H1=$H1, OQ=$OQ)"
@@ -212,7 +212,7 @@ fi
 # strip ate a line-final `[[Doc#^id|alias]]` back to a bare `[[Doc#`). ----------
 fresh_backlog; fresh_doc
 printf -- '- **Q1 — Section link survives** — See [[F241FIX Backlog#^T001|T001]]\n  - **(A)** Yes.\n  - **(B)** No.\n- **Recommendation:** None\n' \
-  | "$STATE" --anchor "$FIX_ROOT" "Fixture Doc" Q1 define >/dev/null 2>&1
+  | "$STATE" define "$FIX_ROOT" "Fixture Doc" Q1 >/dev/null 2>&1
 if grep -qF '[[F241FIX Backlog#^T001|T001]]' "$DOC"; then
     ok "F: section-anchored wiki-link survives the define round-trip (T027)"
 else

@@ -1,11 +1,11 @@
 ---
-description: "CLI reference for the `state` script — canonical state editor for everything below the anchor level, on one address scheme: `state <doc> <label> <verb>` for backlog rows, doc questions, and doc verifications. F129 (shipped 2026-06-07), unified by F236 (2026-07-13)."
+description: "CLI reference for the `state` script — canonical state editor for everything below the anchor level. Verb-first: `state <verb> <anchor> <doc> [<label>]` for backlog rows, doc questions, and doc verifications. F129 (shipped 2026-06-07), unified by F236 (2026-07-13), verb-first since F293 (2026-08-01)."
 ---
 
 # state — canonical state editor (CLI reference)
 Man-page-style reference for the `state` CLI — the one write path for backlog rows, doc Open Questions, and doc Verifications.
 
-> **STATUS:** Canonical. Shipped 2026-06-07 via F129; unified on the one-address-scheme v2 grammar 2026-07-13 via F236. Legacy `backlog-edit.py` ships alongside at the helper level — `state` delegates to it via importlib; new code always invokes `state`.
+> **STATUS:** Canonical. Shipped 2026-06-07 via F129; unified on one address scheme 2026-07-13 via F236; moved to the verb-first v3 grammar 2026-08-01 via F293, which REMOVED the address-first v2 form rather than deprecating it. `backlog-edit.py` ships alongside at the helper level — `state` delegates to it via importlib; new code always invokes `state`.
 
 ## NAME
 
@@ -14,27 +14,33 @@ Man-page-style reference for the `state` CLI — the one write path for backlog 
 ## SYNOPSIS
 
 ```
-state [-a ANCHOR] <doc> <label> <verb> [flags] [< body]
+state <verb> <anchor> <doc> <label> [verb-flags] [< body]   # item verbs
+state revalidate <anchor> <doc>                             # doc verb (F241)
 
-state [-a ANCHOR] status  <set|show> ...       # {slug} Status.md facet cells (F130)
-state [-a ANCHOR] roadmap <status|migrate> ... # {slug} Roadmap.md milestone state (F145)
+state status  <anchor> <set|show> ...       # {slug} Status.md facet cells (F130)
+state roadmap <anchor> <status|migrate> ... # {slug} Roadmap.md milestone state (F145)
+state triage  <anchor>                      # crank exit handshake (F239)
+state crank   <anchor> <start|stop|status>  # crank-session sentinel (F239)
+state groom-list   <anchor> [--count]       # grooming worklist (F244)
+state summary-line <anchor> --recommend R   # the canonical closing line (F248)
 ```
 
+- **`<verb>`** — comes FIRST, and each verb owns its own flag schema, so `state <verb> --help` prints what that verb takes and nothing else. There are **item verbs** (`define` | `set` | `resolve` | `remove`) that address something inside a doc, **one doc verb** (`revalidate`) that acts on the doc itself, and the **domain verbs** listed above. A flag a verb does not declare is rejected by name — `set --from-file` and `resolve --horizon` are parse errors, not runtime complaints.
+- **`<anchor>`** — MANDATORY on every verb; see ANCHOR RESOLUTION.
 - **`<doc>`** — the addressed document: the literal **`Backlog`** (the anchor's backlog file), a **wiki-name** (case-insensitive `.md` basename match — anchor tree first, then vault root; zero matches errors, multiple matches errors listing every candidate), or a **path**. Any markdown doc qualifies — feature docs, PRDs, standalone design docs.
 - **`<label>`** — LETTERS+DIGITS, the item's primary key within the doc: `F157` / `T8` / `Q9` on the Backlog, `Q7` / `V3` on any other doc. The mint form LETTERS+`+` (`F+`, `T+`, `Q+`, `V+`) assigns the next unused number — valid only with `define`; the assigned label is printed in the output. **`Q<n>` is polymorphic on the `<doc>` argument** (F275): on `Backlog` it is a *standalone feature-less question row* (the row body IS the question); on any other doc it is a *doc-scoped Open Question*. The two number-spaces are independent.
 - **`<verb>`** — `define` | `set` | `resolve` | `remove` (per-target semantics below).
 
 ## ANCHOR RESOLUTION
 
-`-a ANCHOR` (long form: `--anchor`) is OPTIONAL on every invocation. Resolved in this order:
+`<anchor>` is a **mandatory positional on every verb**, resolved two ways:
 
-1. `-a PATH` — path to an anchor folder (the directory containing `.anchor`).
-2. `-a SLUG` — slug name; script looks up via `ha --dump`. Errors if non-unique across the vault.
-3. Flag absent — script walks cwd UP looking for `.anchor`; uses that folder.
+1. **SLUG** — the normal form; looked up by the vault scan. Errors if no `{slug} Backlog.md` is found.
+2. **PATH** — a directory containing `.anchor`; the slug is read from that file's `slug:` line. For anchors not yet reachable by name.
 
-Errors if all three modes fail (flag absent AND no `.anchor` ancestor of cwd).
+**Nothing is inferred (F293).** v2 accepted the anchor as an optional `-a` flag and, when it was omitted, walked cwd upward to the nearest `.anchor`. That made the same command write to a different anchor depending on where the caller was standing, with nothing in the output naming which one it picked — *"a bug waiting to happen"* (Dan, 2026-08-01). `state` is a called tool, not a typed one, so the address is spelled out. Removing the inference is also what let the whole address become positional: an optional argument cannot sit in the middle of other positionals, which is the only reason the anchor was ever a flag.
 
-## BACKLOG ROWS — `state Backlog <F<n>|T<n>> <verb>`
+## BACKLOG ROWS — `state <verb> <anchor> Backlog <F<n>|T<n>>`
 
 ```
 define    create-or-replace the WHOLE row. Body (stdin / --body / --from-file) is the
@@ -88,13 +94,13 @@ resolve   move the row to ## Done [Done], appending `— resolved <date>: <note>
 remove    delete the row entirely. Rare — normally `resolve`, or `set --status Done`.
 ```
 
-`F` rows are features (have a feature doc; the row links it `→ [[F<n> — Title]]`); `T` rows are tasks (the row IS the spec). `B-QFix` is a grandfathered machinery singleton owned by `audit-q.py --fix`, not a v2-addressable label.
+`F` rows are features (have a feature doc; the row links it `→ [[F<n> — Title]]`); `T` rows are tasks (the row IS the spec). `B-QFix` is a grandfathered machinery singleton owned by `audit-q.py --fix`, not a `state`-addressable label.
 
-### Standalone question rows — `state Backlog Q<n> define` (F275 M2/M3)
+### Standalone question rows — `state define <anchor> Backlog Q<n>` (F275 M2/M3)
 
-A `Q<n>` row is a **feature-less question** — sibling to `F`/`T`, minted with `state Backlog Q+ define`. It exists because a genuine question may have no host feature (a config value, a spoken-vocabulary word, a cross-cutting call); the row **body is the question itself**, so `define` runs the same gates as a doc-scoped Q — ask-format (≥2 labeled options + `- **Recommendation:**`), the F270 `- **Damage:**` field (a `waste`/`priority` row auto-resolves to the lean and lands `[Done]`, never surfacing) — **plus** a hard-required F275 `- **On answer:**` clause (the concrete consequence of each answer; a define missing it is refused). The row brackets `[Questions]`, is self-backing (its number lives in the header, so it needs no linked Q-bearing doc and is exempt from the `[Questions]`-promise write-guard and audit-q C24), renders under `## Questions` in `{slug} queries.md`, and resolves with `state Backlog Q<n> resolve`.
+A `Q<n>` row is a **feature-less question** — sibling to `F`/`T`, minted with `state define <anchor> Backlog Q+`. It exists because a genuine question may have no host feature (a config value, a spoken-vocabulary word, a cross-cutting call); the row **body is the question itself**, so `define` runs the same gates as a doc-scoped Q — ask-format (≥2 labeled options + `- **Recommendation:**`), the F270 `- **Damage:**` field (a `waste`/`priority` row auto-resolves to the lean and lands `[Done]`, never surfacing) — **plus** a hard-required F275 `- **On answer:**` clause (the concrete consequence of each answer; a define missing it is refused). The row brackets `[Questions]`, is self-backing (its number lives in the header, so it needs no linked Q-bearing doc and is exempt from the `[Questions]`-promise write-guard and audit-q C24), renders under `## Questions` in `{slug} queries.md`, and resolves with `state resolve <anchor> Backlog Q<n>`.
 
-## DOC QUERIES — `state <doc> <Q<n>|V<n>> <verb>`
+## DOC QUERIES — `state <verb> <anchor> <doc> <Q<n>|V<n>>`
 
 Questions (`Q`) live in `## Open Questions`, the first H2 below the doc's H1; verifications (`V`) live under the doc's `## Verifications` H2 (per F235 the doc is the verify home).
 
@@ -159,9 +165,13 @@ Pick ONE. Priority order if multiple given:
 
 ```
 --body TEXT      inline (short one-liners; shell-quoted).
---from-file P    read from file (long bodies).
-<stdin>          default when neither given. Heredoc-friendly. (`set` is the exception —
-                 it never reads stdin; its --body is the row body value.)
+--from-file P    read from file (long bodies). Declared by `define` and `resolve`.
+<stdin>          default when neither given. Heredoc-friendly.
+
+`set` is the exception: it names each field with its own flag and reads no body stream at
+all, so it declares `--body` (the row body value) and not `--from-file`. Under v2 that was
+a runtime refusal inside the handler, because all thirteen flags were declared globally and
+every verb inherited every one of them; per-verb schemas make it a parse error instead.
 ```
 
 ## POST-CONDITIONS
@@ -182,46 +192,53 @@ Every mutation runs the full sync in one call — this is the atomic-propagation
 
 ```
 # row: mint a new Designing feature, default horizon Now — parse "added F<NNN>" from stdout
-echo '- **F+ — Sparse-checkout docs migration** [Designing]' | state Backlog F+ define
+echo '- **F+ — Sparse-checkout docs migration** [Designing]' | state define SKA Backlog F+
 
-# row: cross-anchor mint (explicit slug)
-echo '- **F+ — Dmux ghost-panel bug** [Designing]' | state -a MUX Backlog F+ define
+# row: another anchor — the same call shape, because the anchor is always spelled out
+echo '- **F+ — Dmux ghost-panel bug** [Designing]' | state define MUX Backlog F+
 
 # row: promote to Ready (guards demand the Next)
-state Backlog F099 set --status Ready --next "implement per Design § 2"
+state set SKA Backlog F099 --status Ready --next "implement per Design § 2"
 
 # row: move horizon AND change body
-state Backlog F099 set --horizon Later --body "→ [[F099 — sparse-checkout]] — deferred to v2"
+state set SKA Backlog F099 --horizon Later --body "→ [[F099 — sparse-checkout]] — deferred"
 
 # row: finish with a resolution note
-state Backlog F099 resolve --body "Shipped 2026-07-13 — commit abc123"
+state resolve SKA Backlog F099 --body "Shipped 2026-07-13 — commit abc123"
 
 # q: mint on any doc (feature doc, PRD, design doc) — ask-format enforced at write time
-state "MUX PRD" Q+ define < q-body.md
+state define MUX "MUX PRD" Q+ < q-body.md
 
 # q: replace an existing Q's body (define IS the rewrite)
-state "F091 — Trigger mechanism" Q5 define < new-body.md
+state define SKA "F091 — Trigger mechanism" Q5 < new-body.md
 
 # q: resolve by number
-echo 'team picked A' | state "F091 — Trigger mechanism" Q5 resolve --choice '(A)'
+echo 'team picked A' | state resolve SKA "F091 — Trigger mechanism" Q5 --choice '(A)'
+
+# q: the outcome was none of the listed options
+state resolve SKA "F091 — Trigger mechanism" Q5 --choice 'none — handed to DMP F005'
 
 # q: remove with audit trail
-state "F091 — Trigger mechanism" Q5 remove --reason 'obsoleted by F128'
+state remove SKA "F091 — Trigger mechanism" Q5 --reason 'obsoleted by F128'
 
 # v: define an addressable verification on the doc (F235)
-echo 'Does the render link the doc first? — check SKA queries.md' | state "Bridge Design" V+ define
+echo 'Does the render link the doc first?' | state define SKA "Bridge Design" V+
+
+# doc: validate-then-stamp an Open Questions block after a hand-edit (F241)
+state revalidate SKA "F091 — Trigger mechanism"
 ```
 
 ## DESIGN NOTES
 
-The design decisions behind the grammar (F236, user-designed 2026-07-13):
+The design decisions behind the grammar (F236, user-designed 2026-07-13; F293, 2026-08-01):
 
-- **One address scheme** — a document's stateful sub-items are all the same kind of thing, addressed the same way; `state <doc> <label> <verb>` collapses the old per-family surface (`task`/`q`/`--verify`) to one grammar, the label letter (F/T/Q/V) distinguishing kind.
+- **One address scheme** — a document's stateful sub-items are all the same kind of thing, addressed the same way; `<anchor> <doc> <label>` collapses the old per-family surface (`task`/`q`/`--verify`) to one grammar, the label letter (F/T/Q/V) distinguishing kind.
+- **Verb-first (F293)** — the verb is read before anything else, which is what makes per-verb flag schemas possible at all: v2 had to consume the address before it knew the verb, so every flag was declared globally and all thirteen printed on every usage line. It also deletes a class of ambiguity rather than managing it — `revalidate` takes no label, and under an address-first grammar that shape could only be told from `<doc> <label> <verb>` by inspecting the last token, a heuristic that hijacked dispatch whenever the word appeared in a `--reason` or a title (F250 #12).
 - **`define` is create-or-replace** — one idempotent verb, no add-vs-rewrite mode split; the audit trail is git + `remove`'s soft-delete, not write-mode ceremony.
 - **`set` exists for rows only** — the bracket-only transition is the common case; `set`'s preserve-on-omit flags keep `--status X --next "..."` convenient. Q/V partial edits are full-body `define`s.
 - **Any doc can carry items** — a design doc with open questions is a first-class target; asking a question IS assigning it to a document.
-- **anchor optional (cwd-walkup)** — agents know their anchor via cwd; path lookup handles non-unique slugs; explicit slug still accepted.
-- **Doesn't create the feature-doc file** — `state Backlog F+ define` mints the ROW; `/feature` owns the doc. Orphan rows surface as audit-q findings by design; bundling would duplicate `/feature`'s shape conventions into the script.
+- **anchor mandatory (F293)** — spelled out on every call, never inferred. See ANCHOR RESOLUTION for why cwd-walkup went.
+- **Doesn't create the feature-doc file** — `state define <anchor> Backlog F+` mints the ROW; `/feature` owns the doc. Orphan rows surface as audit-q findings by design; bundling would duplicate `/feature`'s shape conventions into the script.
 
 **Enforcement is two-sided.** `state`-side integrity runs audit-q on every mutation; hand-edit-side, warden's `R-pathguard` denies backlog/queries hand-edits and hand-edits to a feature doc's `## Open Questions`, while `R-state-region` (anchor-base, vault-wide) reminds on hand-edits to any item-bearing doc's `## Open Questions` / `## Resolved` / `## Status` regions (advisory, per F236 Q3).
 
@@ -229,7 +246,7 @@ The design decisions behind the grammar (F236, user-designed 2026-07-13):
 
 ## IMPLEMENTATION STATUS
 
-- **Canonical (F236, 2026-07-13):** the v2 grammar above — `<doc> <label> <verb>` with `+`-mint and `set` — plus the surviving `status` (F130) and `roadmap` (F145) domains. The F129 `task`/`q` verb families were retired in the same release (tombstones point at the v2 forms); all skill runbooks (`/feature`, `/ask`, `/groom`, `/crank`, `/mint`, `/finalize`, `/rewire`, `/audit`, workflow) were swept in the same pass.
+- **Canonical (F293, 2026-08-01):** the verb-first grammar above — `<verb> <anchor> <doc> [<label>]` with `+`-mint, `set`, and per-verb flag schemas — plus the `status` (F130), `roadmap` (F145), `triage`/`crank` (F239), `groom-list` (F244) and `summary-line` (F248) domains, each now carrying the same mandatory anchor. The address-first v2 form was REMOVED in the same commit that added v3, not deprecated beside it: a half-done migration leaves both grammars live, which is the outcome Q003 rated worst. A v2-shaped call gets a tombstone naming the v3 form. Earlier: F236 (2026-07-13) unified the address scheme and retired the F129 `task`/`q` verb families.
 - **Helper layer:** `~/.claude/skills/workflow/scripts/backlog-edit.py` holds the shared row/Q helpers; `state` delegates via importlib — single source of truth at the helper level; both share the same state.json file used by `/audit integrity`.
 
 ## RELATED
@@ -239,4 +256,5 @@ The design decisions behind the grammar (F236, user-designed 2026-07-13):
 - [[F235 — Verification lives in the feature doc — Success Criteria as the verify home, render links the doc|F235]] — the doc-first verification chain V-items complete.
 - [[F127 — Always-render ask report — ask invariant render + audit + glance before dialogue|F127]] — the render-audit-glance invariant the doc-target post-conditions implement.
 - [[F128 — Status script as source-of-truth for Q-management — extend backlog-edit.py|F128]] / F129 — the predecessors (2026-06-07).
+- [[F293 — state CLI v3 — verb-first grammar|F293]] — the verb-first grammar, mandatory anchor, and per-verb schemas.
 - [[DAS workflow]] — user-voice discipline page.

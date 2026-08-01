@@ -2,7 +2,7 @@
 description: "deferred work — roadmap milestones M0–M5"
 ---
 # Warden Backlog
-<!-- state:backlog 70 -->
+<!-- state:backlog iq -->
 
 ## Active
 
@@ -27,7 +27,7 @@ _None._
     - **Why this matters beyond the bug:** `_repl_outside_code` is a textbook **chokepoint** — the single place answering "what counts as code" — and it is bypassed by its own paired checker. This is a live in-house instance of exactly the failure [[F286 — Chokepoint interfaces — declared in Architecture, compile-enforced, graded exceptions|SKA F286]] is being built to prevent, and a strong first candidate for that feature's adoption scan.
 
 - **T020 — Backtick 4 single-letter placeholders in Warden Backlog (handed over from Tink T084)** [Ready] — Q002 (Dan, 2026-08-01) removed the single-letter exemption from `R-markdown-13`: `<n>` and `<m>` are no longer tolerated bare, because a bare angle placeholder parses as an unknown HTML element and silently VANISHES from the rendered page. Tink swept every site it owns; these four sit in Warden's backlog and are Warden's to fix. All four are on `[Done]` rows, so this is cosmetic and safe. ^T020
-  - **Next:** Backtick the placeholder tokens at `Warden Backlog.md` lines 132, 135, 136 (two on 136) — route through `state -a Warden Backlog <row> set --next/--body`, never a hand edit. Then confirm with `chk_md_stray_angle_tag` (in `skills/audit/scripts/audit-plan.py`) that the file passes. CAUTION carried over from the sweep: do NOT bulk-substitute — a backtick between a word and `s` is often a real code span followed by a possessive, and a blind pass severed one on Tink's backlog before it was caught.
+  - **Next:** Backtick the placeholder tokens at `Warden Backlog.md` lines 132, 135, 136 (two on 136) — route through `state set Warden Backlog <row> --next/--body`, never a hand edit. Then confirm with `chk_md_stray_angle_tag` (in `skills/audit/scripts/audit-plan.py`) that the file passes. CAUTION carried over from the sweep: do NOT bulk-substitute — a backtick between a word and `s` is often a real code span followed by a possessive, and a blind pass severed one on Tink's backlog before it was caught.
 
 ## Next
 

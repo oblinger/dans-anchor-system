@@ -4,7 +4,7 @@ where:: `file: **/changes/C*/proposal.md`
 description:: Rules for the OpenSpec-conformant `changes/` folder ([[DAS Changes]]) — C-numbered change folders created by `/change`, executed by `/mint`, closed by `/finalize`'s archive-merge.
 
 ### RULE R-changes-01 — One folder per change, required artifacts (stated)
-Each change is a `changes/C<NNN>-<kebab-slug>/` folder holding `proposal.md` and `tasks.md` (required); `design.md`/`design/` and a `specs/` delta are optional. The C-number matches a backlog row minted by `state Backlog C+ define`.
+Each change is a `changes/C<NNN>-<kebab-slug>/` folder holding `proposal.md` and `tasks.md` (required); `design.md`/`design/` and a `specs/` delta are optional. The C-number matches a backlog row minted by `state define <anchor> Backlog C+`.
 **Why:** the folder is the change's whole record; a change without a proposal or task list can't be executed or audited.
 
 ### RULE R-changes-02 — Delta requirements carry scenarios (stated)

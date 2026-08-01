@@ -101,8 +101,8 @@ if blocked "$OUT"; then bad "C: pure-chat turn must not be gated — out: $OUT";
 # ---------- D — grooming the row (add Next) empties worklist → ALLOW ----------
 rm -f ~/.config/anchor-system/stopgate/F244FIX.json
 dirty_backlog
-"$STATE" --anchor "$FIX_ROOT" Backlog T001 set --status Ready --next "run the concrete first step with zero user involvement" >/dev/null 2>&1
-CNT=$("$STATE" --anchor "$FIX_ROOT" groom-list --count 2>/dev/null | tail -1)
+"$STATE" set "$FIX_ROOT" Backlog T001 --status Ready --next "run the concrete first step with zero user involvement" >/dev/null 2>&1
+CNT=$("$STATE" groom-list "$FIX_ROOT" --count 2>/dev/null | tail -1)
 OUT=$(payload "$TOOL_TX" | python3 "$HOOK" 2>/dev/null)
 if [ "$CNT" = "0" ] && ! blocked "$OUT"; then ok "D: adding a Next empties the worklist and allows the stop"; else bad "D: expected count=0 + allow — count=$CNT out: $OUT"; fi
 

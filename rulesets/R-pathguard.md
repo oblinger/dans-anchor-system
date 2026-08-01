@@ -17,7 +17,7 @@ def body(ctx):
     from pathlib import Path
     name = Path(target).name
     if name.endswith(" Backlog.md"):
-        return ["DENY: " + name + " is owned by `state Backlog <F<n>|T<n>|F+|T+> "
+        return ["DENY: " + name + " is owned by `state <define|set|resolve|remove> "
                 "<define|set|resolve|remove>` — never Edit backlog rows directly "
                 "(~/.claude/skills/workflow/scripts/state)."]
     if name.endswith(" queries.md") or name == "Q.md":
@@ -73,12 +73,12 @@ def body(ctx):
     if not hit:
         return []
     return ["DENY: `## Open Questions` in a feature doc is owned by "
-            "`state <doc> <Q<n>|Q+> <define|resolve|remove>` — do not Edit the region directly."]
+            "`state <define|resolve|remove> <anchor> <doc> <Q<n>|Q+>` — do not Edit the region directly."]
 ```
 
 Matches an Edit that touches the heading LINE or whose `old_string` sits inside the heading's section (between it and the next H2). It does **not** fire on prose that merely quotes the heading string inline — the T045 false positive that refused a `## Recovery note` edit for containing the managed heading as literal text.
 
-The scope is the **open block alone**. `## Resolved` was covered here until F291 and now carries only [[R-state-region]]'s advisory, on the rule *deny where desync is possible, detect where it is not*. Three facts make uniform machine-ownership of the resolved section incoherent: half of it (F068 auto-decisions) is written straight in as un-numbered H3s that no `state <doc> Q<n>` verb can ever address, so a blanket deny forbids the mechanism that populates it; there is no live state left to desynchronize once an entry is archived (it is not rendered, not counted, gates nothing); and the vault is committed continuously, so tamper-evidence already exists at the commit layer. Denying there bought prevention where evidence already existed, at the cost of making legitimate edits illegal — superseded-stamps, link repairs, hindsight added years later. It also produced the [[Tink Backlog#^T066|T066]] deadlock: a lint demanding a fix inside a region every write path forbade.
+The scope is the **open block alone**. `## Resolved` was covered here until F291 and now carries only [[R-state-region]]'s advisory, on the rule *deny where desync is possible, detect where it is not*. Three facts make uniform machine-ownership of the resolved section incoherent: half of it (F068 auto-decisions) is written straight in as un-numbered H3s that no `state <verb> <anchor> <doc> Q<n>` call can ever address, so a blanket deny forbids the mechanism that populates it; there is no live state left to desynchronize once an entry is archived (it is not rendered, not counted, gates nothing); and the vault is committed continuously, so tamper-evidence already exists at the commit layer. Denying there bought prevention where evidence already existed, at the cost of making legitimate edits illegal — superseded-stamps, link repairs, hindsight added years later. It also produced the [[Tink Backlog#^T066|T066]] deadlock: a lint demanding a fix inside a region every write path forbade.
 
 **Why:** the F130 lesson — Q blocks edited by hand bypass the block-ID / numbering / lifecycle discipline `state q` enforces.
 
@@ -94,7 +94,7 @@ def body(ctx):
     from pathlib import Path
     name = Path(target).name
     if name.endswith(" Backlog.md") or name.endswith(" queries.md") or name == "Q.md":
-        return ["DENY: " + name + " is script-owned (`state Backlog ...` / queries-render.py) — "
+        return ["DENY: " + name + " is script-owned (`state <verb> <anchor> Backlog ...` / queries-render.py) — "
                 "a wholesale Write bypasses the same discipline Edit is denied for."]
     return []
 ```
@@ -167,7 +167,7 @@ def body(ctx):
     if _regions(content) == on_disk:   # region preserved verbatim → allow
         return []
     return ["DENY: `## Open Questions` in a feature doc is owned by "
-            "`state <doc> <Q<n>|Q+> <define|resolve|remove>` — this Write changes or drops "
+            "`state <define|resolve|remove> <anchor> <doc> <Q<n>|Q+>` — this Write changes or drops "
             "the managed region. Preserve it verbatim (rewrite prose only) and route question "
             "edits through `state`."]
 ```

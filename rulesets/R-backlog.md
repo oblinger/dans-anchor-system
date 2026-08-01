@@ -81,7 +81,7 @@ Remediation messages for these rules — what to actually do when one fires. Rea
 Give the row a next step through `state`, or drop the bracket that promised one.
 
 ```sh
-state -a <anchor> Backlog <id> set --next "<the concrete step, no user involved>"
+state set <anchor> Backlog <id> --next "<the concrete step, no user involved>"
 ```
 
 The step must be something the agent can start now with zero user involvement. If you cannot write one, the bracket is the thing that is wrong — the row is not Ready. Rebracket it to the state it actually satisfies: `[Questions]` if a decision is missing, `[Blocked <handle>]` if something else must land first, `[User]` if the next move is genuinely the user's, `[ ]` under `## Later` if it is simply not scheduled.
@@ -110,7 +110,7 @@ For the model, read [[DAS Backlog]] § The groom frontier.
 Add the concrete yes/no the user can answer from where they sit.
 
 ```sh
-state -a <anchor> Backlog <id> set --verify "<do X, observe Y — did Y happen?>"
+state set <anchor> Backlog <id> --verify "<do X, observe Y — did Y happen?>"
 ```
 
 The render quotes this verbatim, so it has to stand alone: name the observation, not the feature. "Have you sent a Voice Memo since 2026-05-28 and seen the transcript land in `~/ob/kmr/Log/VOX/`?" is answerable; "verify F093" is not.
@@ -126,7 +126,7 @@ Make the bracket's promise true, or change the bracket.
 `[Questions]` promises that following the row lands the user on a numbered `Q<n>` they can answer in chat. Two ways to keep it:
 
 - The row owns its questions — add inline `- **Q<n> — …**` sub-bullets at the top of the row body. Right for task-rows with no feature doc.
-- A feature doc owns them — add a `→ [[F<n> — Title]]` link and put the questions in that doc's `## Open Questions` via `state "<doc>" Q+ define`.
+- A feature doc owns them — add a `→ [[F<n> — Title]]` link and put the questions in that doc's `## Open Questions` via `state define <anchor> "<doc>" Q+`.
 
 If the row has neither and no question is actually pending, the bracket is stale — rebracket it. Landing a user on prose with nothing to answer is the round-trip loophole this rule exists to close.
 

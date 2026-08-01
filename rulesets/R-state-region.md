@@ -58,7 +58,7 @@ def body(ctx):
     if not re.search(r"^\s*- \*\*[A-Z]+\d+ —|^### Q\d+\b", text, re.M):
         return []
     return ["state-managed region — `## Open Questions` / `## Resolved` / `## Status` on a "
-            "doc carrying labeled items are maintained by `state <doc> <label> <verb>` "
+            "doc carrying labeled items are maintained by `state <verb> <anchor> <doc> <label>` "
             "(define | set | resolve | remove); prefer it over a direct edit so the doc, "
             "backlog, queries.md, and Q.md stay locked together."]
 ```
@@ -94,7 +94,7 @@ def body(ctx):
     if not re.search(r"^\s*- \*\*[A-Z]+\d+ —|^### Q\d+\b", content, re.M):
         return []
     return ["state-managed region — `## Open Questions` / `## Resolved` / `## Status` on a "
-            "doc carrying labeled items are maintained by `state <doc> <label> <verb>` "
+            "doc carrying labeled items are maintained by `state <verb> <anchor> <doc> <label>` "
             "(define | set | resolve | remove); prefer it over a wholesale Write so the doc, "
             "backlog, queries.md, and Q.md stay locked together."]
 ```
@@ -149,12 +149,12 @@ def body(ctx):
         return []
     return [f"`## Open Questions` integrity stamp mismatch (stored `{stored}`, "
             f"computed `{computed}`) — this block is maintained by "
-            "`state <doc> <label> <verb>`; a hand-edit bypasses its ask-format "
+            "`state <verb> <anchor> <doc> <label>`; a hand-edit bypasses its ask-format "
             "gates. Re-issue the change through `state`, or run "
             "`state \"<doc>\" revalidate` to validate-then-restamp (F241)."]
 ```
 
-The F241 tamper-evidence check. The state script re-stamps the block (a 2-char base-36 sha1 of the trailing-whitespace-normalized block text, heading through the next H2, stamp line excluded) on every write it makes — so a stamp that doesn't match means the block content changed through some other write path. The audit twin over backlog-linked docs is audit-q **C48**; recovery is `state <doc> revalidate` (validate-then-stamp — every pending Q re-runs the same ask-format gates as `Q+ define`; there is deliberately no blind re-bless flag). Hash algorithm mirrors `backlog-edit.py`'s `compute_q_stamp` — rule bodies are sandboxed standalone, so the four-line algorithm is inlined here; if it ever changes, change both.
+The F241 tamper-evidence check. The state script re-stamps the block (a 2-char base-36 sha1 of the trailing-whitespace-normalized block text, heading through the next H2, stamp line excluded) on every write it makes — so a stamp that doesn't match means the block content changed through some other write path. The audit twin over backlog-linked docs is audit-q **C48**; recovery is `state revalidate <anchor> <doc>` (validate-then-stamp — every pending Q re-runs the same ask-format gates as `Q+ define`; there is deliberately no blind re-bless flag). Hash algorithm mirrors `backlog-edit.py`'s `compute_q_stamp` — rule bodies are sandboxed standalone, so the four-line algorithm is inlined here; if it ever changes, change both.
 
 **Why:** the point is not verifying the questions — it is making the script (whose write path enforces ask-format) the only quiet route to a green block. Rules 01/02 remind on the way in; this one catches what slipped through, including writes warden never saw as tool events.
 
@@ -165,7 +165,7 @@ The F241 tamper-evidence check. The state script re-stamps the block (a 2-char b
 The `## Open Questions` block was changed outside `state`, so its stamp no longer matches the block. Validate and restamp:
 
 ```sh
-state -a ANCHOR "DOC-PATH-RELATIVE-TO-ANCHOR" revalidate
+state revalidate ANCHOR "DOC-PATH-RELATIVE-TO-ANCHOR"
 ```
 
 `revalidate` re-runs the ask-format gates over every pending Q and rewrites the stamp only if they all pass — so a restamp is a statement that the block is well-formed, not a way to silence the warning. If it refuses, fix what it names (usually a Q missing labeled options, a `- **Recommendation:**` line, or a `- **Damage:**` whose first word is not one of the six categories) and run it again.
