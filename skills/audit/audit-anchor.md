@@ -22,10 +22,10 @@ Takes one anchor (or folder) and checks it against the **anchor ruleset** — th
 - [ ] It declares a **`slug:`** — UNLESS the anchor is in the one deliberate bare-name zone (the `dans-anchor-system` pillars). An **empty `.anchor`** is a finding: breadcrumb inference skips the anchor and jumps to its grandparent (see the `DAS` incident).
 - [ ] It declares **`traits:`** identifying the kind (e.g. `[skill]`, `[Code]`, `collection`).
 
-### B — anchor page conforms *([[DAS Anchor Page]] § Ruleset, + D06)*
+### B — anchor page conforms *([[DAS Anchor Page]] § Ruleset)*
 *Reference: read the [[DAS Anchor Page]] ruleset **`R-anchor-page`**, or diff the anchor against the matching kind in [[DAS Examples]] — [[HBR]] (project), [[HBR Components]] (grouped), [[HBR Ingest]] (sub-folder), [[FEX Snapshot]] (skill).*
 - [ ] The anchor page **`{slug}.md`** exists (filename = slug; H1's readable name may differ).
-- [ ] **H1 = `{slug} - {Full Name}`** (per [[SKA Decisions|D06]]) — slug leads, then the readable name. (Bare-name anchors: H1 is just the name.)
+- [ ] **H1 = `{slug} <dash> {Full Name}`** (per [[R-anchor-page]] rule 05) — slug leads, then the readable name; any dash form. (Bare-name anchors: H1 is just the name.)
 - [ ] **No blank line after the H1** — the one-sentence summary sits on the very next line. Then a blank, then the optional figure, then the dispatch table. (Top-of-page order: H1 → summary → figure? → dispatch.)
 - [ ] `description:` frontmatter present.
 
@@ -72,6 +72,6 @@ P=~/.claude/skills/audit/scripts/audit-plan.py
 
 ## Related
 
-- Rules read: [[DAS Anchor Page]], [[DAS Dispatch Table]], [[DAS progressive-disclosure]]; decisions [[SKA Decisions|D06 / D07 / D08]].
+- Rules read: [[DAS Anchor Page]], [[DAS Dispatch Table]], [[DAS progressive-disclosure]]; decisions [[SKA Decisions|D07 / D08]].
 - Builder it calls: [[audit-dispatch]].
 - Vault-wide connectivity walk: [[DAS anchor-dag]].

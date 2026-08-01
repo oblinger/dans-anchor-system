@@ -37,11 +37,11 @@ The page opens with YAML frontmatter carrying a one-line `description:`.
 ### RULE R-anchor-page-05 — H1 is `{slug} - {Full Name}` (checked)
 check:: h1_matches_slug
 
-The H1 leads with the slug, then ` - `, then the readable name. Bare-name anchors (no short slug) use just the name.
+The H1 leads with the slug, then a dash, then the readable name — `# SVAI — Shared AI Development Skills`. Any dash form is accepted (`-`, `–`, `—`). An anchor with no short slug, or whose slug simply *is* its name, uses the bare name.
 
-**Check pattern:** first H1 matches `^{slug} - .+` (or equals the bare name for slugless anchors).
+**Check pattern:** first H1 matches `^{slug}\s*[-–—]\s+\S`, or equals the slug, or equals the anchor folder name.
 
-**Why:** the H1 must both cement the jump-key and name the page ([[SKA Decisions|D06]]).
+**Why:** the H1 does two jobs — it cements the jump-key so a reader learns the address, and it names the page in human terms. Slug-only hides the name; name-only hides the key.
 
 ## Top of page (fixed order)
 
