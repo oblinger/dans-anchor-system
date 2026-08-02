@@ -189,6 +189,15 @@ EXCLUDED_PATH_FRAGMENTS = (".trash", "Closet", "Yore", "worktrees", ".claude")
 # Horizon H2s in a per-anchor backlog. `## Done` is the archive surface for
 # C4's stale-Done migration; everything else is a "live" horizon.
 LIVE_HORIZON_H2S = {"Active", "Ready", "Now", "Next", "Later", "Verify", "Legwork"}
+
+# Canonical horizon PRIORITY — the order a reader should meet these in, which is
+# not necessarily the order they sit in a file. Named once here because it was
+# previously implicit in a counts-dict initializer duplicated across this file and
+# `queries-render.py`, and anything that needed to ORDER by it had nothing to call
+# (T091). Unknown//absent horizons sort last. `Icebox` is included for ordering even
+# though it is not a LIVE horizon; `Legwork` sits with the active group.
+HORIZON_ORDER = ("Active", "Ready", "Now", "Next", "Legwork", "Later", "Verify", "Icebox")
+HORIZON_RANK = {h: i for i, h in enumerate(HORIZON_ORDER)}
 ALL_KNOWN_H2S = LIVE_HORIZON_H2S | {"Done", "Icebox", "Notes"}
 
 # ============================================================
