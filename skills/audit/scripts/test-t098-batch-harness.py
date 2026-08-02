@@ -56,7 +56,7 @@ with tempfile.TemporaryDirectory() as td:
     # The point of REPLACE over ignore/strict: structure must be unchanged, so a
     # checker reaches the same verdict it would on a clean file.
     check("...and structure is untouched — the H1 is still found at line 0",
-          ap._first_h1(ap._read(bad)), (0, "Head"))
+          ap._head_h1(ap._read(bad)), (0, "Head"))
     check("a clean doc is byte-identical through the same path",
           ap._read(good), "# Head\nOrientation line.\n")
 
