@@ -413,13 +413,26 @@ def _read_open_questions(target_path: Path) -> list[tuple[str, str, str]]:
         if in_resolved:
             continue
         # bullet-form pending Q: `- **Q10 — Title** — question text ^anchor`
-        m = re.match(r"\s*-\s+\*\*(Q\d+)\s+—\s+(.*?)\*\*\s*(?:—\s*(.*))?$", line)
+        # The `—` after the bold title is OPTIONAL: `/feature`-authored Qs write
+        # `- **Q8 — Title.** How should …` with the body running straight on. The
+        # earlier form required the em-dash, so those questions matched nothing
+        # and vanished from the render entirely — the row still showed `(2Q)`
+        # but never listed a single one. Same fix already applied to
+        # `_read_row_inline_questions`; this is its twin.
+        m = re.match(r"\s*-\s+\*\*(Q\d+)\s+—\s+(.*?)\*\*\s*(?:—\s*)?(.*)$", line)
         if m:
             flush()
             cur_id = m.group(1)
             title, rest = m.group(2).strip(), (m.group(3) or "").strip()
             rest = re.sub(r"\s*\^\S+\s*$", "", rest)
-            cur_text = rest if rest else title
+            # Lead with the TITLE, then the body. The title is where the actual
+            # question lives (`**Q8 — Should the cascade become the default?**`);
+            # dropping it whenever a body existed meant the rendered line opened
+            # on background — "Today `anchor rename` renames only the anchor
+            # page…" — and never stated what was being asked. Since the line is
+            # truncated to `qlimit`, the question has to come first or it is the
+            # part that gets cut.
+            cur_text = f"{title} {rest}".strip() if rest else title
             continue
         # H3-form pending Q: `### Q1 — question?`
         m3 = re.match(r"###\s+(Q\d+)\s+—\s+(.*)$", line)
