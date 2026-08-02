@@ -150,6 +150,84 @@ check("_breadcrumb_h1_positions agrees too",
       ap._breadcrumb_h1_positions(FENCED.splitlines() + ["", "# Real Head"])[1],
       h1(FENCED + "\n# Real Head\n")[0])
 
+# -- setext is deliberately NOT an H1 here (measured, then reverted) ----------
+# `===` in this vault is a divider, not an underline. Recognizing setext scored
+# zero true heads and four false ones, including a git merge-conflict marker.
+
+check("`Title` over `===` is NOT read as an H1",
+      h1("Title\n=====\n\nbody\n"), (None, None))
+check("a git conflict marker over `=======` is NOT an H1",
+      h1("<<<<<<< HEAD\n=======\n\n:: item\n"), (None, None))
+
+# -- empty frontmatter: the two spellings agreed after `_split_frontmatter` ----
+
+check("empty frontmatter is frontmatter for `_first_h1`",
+      h1("---\n---\n# SKA\nOrientation.\n"), (2, "SKA"))
+check("...and for chk_h1_after_frontmatter, which used to trip on the `---`",
+      ap._split_frontmatter("---\n---\n# SKA\n")[1], "# SKA\n")
+
+# -- the EOF message names what is actually wrong (165 vault docs) ------------
+
+import tempfile  # noqa: E402
+
+with tempfile.TemporaryDirectory() as td:
+    stub = Path(td) / "stub.md"
+    stub.write_text("# Just A Head\n", encoding="utf-8")
+    verd, msg = ap.chk_no_blank_after_h1(stub, Path(td), [])
+    check("an H1-only stub fails...", verd, "fail")
+    check("...but is not told to delete a blank line that is not there",
+          "blank line" in msg, False)
+
+    # -- chk_rule_numbers_unique: a mention is not a declaration --------------
+    rs = Path(td) / "R-fx.md"
+    rs.write_text(
+        "# RULESET R-fx\n\n"
+        "### RULE R-fx-01 — first (checked)\n"
+        "Prose explaining why RULE R-fx-01 exists at all.\n\n"
+        "### RULE R-fx-02 — second (checked)\n"
+        "An example of the form:\n\n"
+        "```markdown\n"
+        "### RULE R-fx-01 — a fenced illustration\n"
+        "```\n", encoding="utf-8")
+    check("prose citing a rule id is not a duplicate declaration",
+          ap.chk_rule_numbers_unique(rs, Path(td), [])[0], "pass")
+
+    dupe = Path(td) / "R-dupe.md"
+    dupe.write_text("# RULESET R-dupe\n\n"
+                    "### RULE R-dupe-01 — a (checked)\n\n"
+                    "### RULE R-dupe-01 — b (checked)\n", encoding="utf-8")
+    check("a REAL duplicate heading still fails (masking is not suppression)",
+          ap.chk_rule_numbers_unique(dupe, Path(td), [])[0], "fail")
+
+    # -- chk_checked_rules_have_pattern: a fenced `#` does not end the body ---
+    pat = Path(td) / "R-pat.md"
+    pat.write_text(
+        "# RULESET R-pat\n\n"
+        "### RULE R-pat-01 — a rule (checked)\n\n"
+        "```python\n"
+        "# a comment at COLUMN ZERO inside the fence — an indented one would not\n"
+        "# have reproduced this, which is why the first fixture written here was\n"
+        "# not load-bearing. `DAS Ruleset.md` carried the column-zero form.\n"
+        "def body(ctx):\n"
+        "    return []\n"
+        "```\n\n"
+        "**Check pattern:** the field sits BELOW the code block.\n", encoding="utf-8")
+    check("a fenced `# comment` does not terminate a rule body",
+          ap.chk_checked_rules_have_pattern(pat, Path(td), [])[0], "pass")
+
+    nopat = Path(td) / "R-nopat.md"
+    nopat.write_text("# RULESET R-nopat\n\n"
+                     "### RULE R-nopat-01 — a rule (checked)\n\n"
+                     "Body with no field at all.\n", encoding="utf-8")
+    check("a genuinely missing Check pattern still fails",
+          ap.chk_checked_rules_have_pattern(nopat, Path(td), [])[0], "fail")
+
+    # -- `# BRIEF` is matched by the parsed heading, not the literal line -----
+    br = Path(td) / "B.md"
+    br.write_text("# Doc\nOrientation.\n\n# BRIEF #\nAgent contract.\n", encoding="utf-8")
+    check("`# BRIEF #` (ATX closing sequence) is still the BRIEF head",
+          ap.chk_brief_is_last_h1(br, Path(td), [])[0], "pass")
+
 print()
 if FAILS:
     print(f"{len(FAILS)} FAILED: " + ", ".join(FAILS))

@@ -828,6 +828,34 @@ def _frontmatter(text: str) -> str | None:
 # which is not part of the heading content and which `ln[2:].strip()` used to keep.
 _H1_RE = re.compile(r"^ {0,3}#[ \t]+(\S.*?)(?:[ \t]+#+)?[ \t]*$")
 
+# SETEXT H1s (`Title` underlined by `===`) are deliberately NOT recognized, and the
+# reason is measurement rather than laziness. They are real CommonMark H1s, and the
+# omission is genuinely inconsistent — `chk_h1_present` fails such a doc "no H1"
+# while `chk_doc_top_order` exempts it "no H1 — out of scope". But implementing it
+# was tried here and reverted: of the FOUR vault docs whose only candidate head is a
+# `===` underline, not one is a heading. One is a git merge-conflict marker
+# (`<<<<<<< HEAD` over `=======` in `House Crime.md`), one is a console banner in
+# captured tool output, and two are `=====` used as an ASCII divider in pasted prose
+# and in a math scratchpad. Supporting setext scored zero true positives, four false
+# heads, and — worse — moved four docs from silently-exempt to failing
+# `chk_doc_head_orientation_line` and `chk_doc_top_order` with findings pointing
+# hundreds of lines into a body. In this vault `===` is a divider, not an underline.
+
+
+def _split_frontmatter(text: str) -> tuple[int, str]:
+    """`(lines consumed, remaining body)` for a leading YAML frontmatter block.
+
+    ONE definition, because two spellings of it disagreed: `_first_h1` accepted an
+    empty `---\\n---\\n` block while `chk_h1_after_frontmatter`'s `.*?` required at
+    least one interior line, so the same doc could pass `chk_h1_present` and fail
+    `chk_h1_after_frontmatter` on the literal `---`. No vault doc has empty
+    frontmatter today; the disagreement is the defect, not its current blast radius.
+    """
+    m = re.match(r"\A---\n(?:.*?\n)??---\n", text, re.DOTALL)
+    if not m:
+        return 0, text
+    return text[:m.end()].count("\n"), text[m.end():]
+
 
 def _first_h1(text: str) -> tuple[int | None, str | None]:
     """The document's H1 as `(line index, heading text)`, or `(None, None)`.
@@ -845,9 +873,7 @@ def _first_h1(text: str) -> tuple[int | None, str | None]:
     every caller that reports a line number reports it to a human who will open the
     file at that line.
     """
-    m = re.match(r"\A---\n.*?\n---\n", text, re.DOTALL)
-    off = text[:m.end()].count("\n") if m else 0
-    body = text[m.end():] if m else text
+    off, body = _split_frontmatter(text)
     for i, ln in enumerate(_strip_fenced(body).splitlines()):
         hit = _H1_RE.match(ln)
         if hit:
@@ -900,7 +926,12 @@ def chk_no_blank_after_h1(target, anchor_root, args):
         return "fail", "no H1"
     # `lines` is the ORIGINAL text, so the line after an H1 that opens a fenced
     # block is the fence marker (non-blank) rather than the blanked-out interior.
-    if i + 1 >= len(lines) or lines[i + 1].strip() == "":
+    if i + 1 >= len(lines):
+        # 165 vault docs are an H1 and nothing else. Reporting "blank line directly
+        # after H1" on them describes a defect that is not there, and sends the
+        # reader hunting for a blank line to delete; the file simply ends.
+        return "fail", "the H1 is the last line — no orientation line follows it"
+    if lines[i + 1].strip() == "":
         return "fail", "blank line directly after H1"
     return "pass", ""
 
@@ -987,8 +1018,7 @@ def chk_h1_after_frontmatter(target, anchor_root, args):
     if f is None:
         return "error", "no file"
     text = _read(f)
-    m = re.match(r"^---\n.*?\n---\n", text, re.DOTALL)
-    body = text[m.end():] if m else text
+    _, body = _split_frontmatter(text)
     in_questions = False
     for ln in body.splitlines():
         if not ln.strip():
@@ -1190,8 +1220,16 @@ def chk_rule_numbers_unique(target, anchor_root, args):
     if f is None:
         return "error", "no file"
     seen = set()
-    for ln in _read(f).splitlines():
-        m = re.search(r"RULE\s+(R-[a-z0-9-]+-\d{2})\b", ln)
+    # A rule is DECLARED by a heading, the same anchoring its sibling
+    # `chk_all_rules_have_tier` already uses. The unanchored `re.search` this
+    # replaced counted any line MENTIONING an id — so a ruleset whose prose cites
+    # its own `RULE R-x-01` (to explain why rule 03 exists, say) reported that id
+    # as a duplicate declaration, and the remediation on offer is to delete one of
+    # the two — either the real rule or the sentence explaining it. Fences are
+    # stripped for the same reason: a ruleset that shows an example RULE heading
+    # is documenting the form, not declaring a second rule.
+    for ln in _strip_fenced(_read(f)).splitlines():
+        m = re.match(r"^ {0,3}#+\s+RULE\s+(R-[a-z0-9-]+-\d{2})\b", ln)
         if m:
             if m.group(1) in seen:
                 return "fail", f"duplicate rule id: {m.group(1)}"
@@ -1218,16 +1256,21 @@ def chk_checked_rules_have_pattern(target, anchor_root, args):
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
-    lines = _read(f).splitlines()
+    # Structure comes off the fence-stripped copy. Every rule body in a ruleset
+    # ends in a ```python block, and a `# comment` at column 0 inside it matched
+    # the `^#+\s+` body terminator — so the body ended AT the code, and a
+    # `**Check pattern:**` written below it was never seen. The finding that
+    # produces ("missing Check pattern") points at a rule that has one.
+    lines = _strip_fenced(_read(f)).splitlines()
     missing = []
     i = 0
     while i < len(lines):
-        m = re.match(r"^#+\s+RULE\s+(R-[a-z0-9-]+-\d{2})", lines[i])
+        m = re.match(r"^ {0,3}#+\s+RULE\s+(R-[a-z0-9-]+-\d{2})", lines[i])
         if m and re.search(r"\((checked|sampled)\)\s*$", lines[i]):
             rule_id = m.group(1)
             body = ""
             i += 1
-            while i < len(lines) and not re.match(r"^#+\s+", lines[i]):
+            while i < len(lines) and not re.match(r"^ {0,3}#+\s+", lines[i]):
                 body += lines[i] + "\n"
                 i += 1
             if "**Check pattern:**" not in body:
@@ -1994,15 +2037,22 @@ def chk_queries_banner_form(target, anchor_root, args):
         return "pass", "not a file"
     if not target.name.endswith(" queries.md"):
         return "pass", "not a queries file"
-    for ln, raw in enumerate(_read(target).splitlines(), 1):
-        if raw.startswith("# ") and not raw.startswith("## "):
-            if _QUERIES_BANNER_RE.match(raw):
-                return "pass", ""
-            return "fail", (f"H1 (line {ln}) is not the locked status-banner "
-                            "form — expected `# [<TAG>]  <slug>  -  Runnable N    "
-                            "User N   |   Now N    Next N    Later N    "
-                            "Verify N    Icebox N` (re-render via queries-render.py)")
-    return "fail", "no H1 — a queries file opens with the status-banner H1"
+    # The banner is machine-rendered, but this check exists precisely to catch a
+    # hand-mangled file — the population where a stray fenced `# ` line above the
+    # banner is most likely. Locate the H1 the way every other checker now does,
+    # then match the RAW line, since the banner's exact spacing is the thing under
+    # test and `_first_h1` returns text with the indent and closing hashes removed.
+    text = _read(target)
+    idx, _ = _first_h1(text)
+    if idx is None:
+        return "fail", "no H1 — a queries file opens with the status-banner H1"
+    raw = text.splitlines()[idx]
+    if _QUERIES_BANNER_RE.match(raw):
+        return "pass", ""
+    return "fail", (f"H1 (line {idx + 1}) is not the locked status-banner "
+                    "form — expected `# [<TAG>]  <slug>  -  Runnable N    "
+                    "User N   |   Now N    Next N    Later N    "
+                    "Verify N    Icebox N` (re-render via queries-render.py)")
 
 
 def chk_queries_catchall_links(target, anchor_root, args):
@@ -2882,7 +2932,15 @@ def chk_brief_is_last_h1(target, anchor_root, args):
     # heading is not last. The backward `^#\s+\S` scan made that worse than the
     # forward ones: it starts at the file's END, where the examples live.
     stripped = _strip_fenced(text).splitlines()
-    brief_count = sum(1 for ln in stripped if ln.strip() == "# BRIEF")
+    # Compare the PARSED heading text, not the literal line: `#\tBRIEF` and
+    # `# BRIEF #` are both H1s whose content is exactly `BRIEF` by this file's own
+    # `_H1_RE`, and a function that carries two definitions of an H1 is the very
+    # thing the primitive exists to stop. (No vault doc spells it either way today.)
+    def _is_brief(ln):
+        m = _H1_RE.match(ln)
+        return bool(m) and m.group(1) == "BRIEF"
+
+    brief_count = sum(1 for ln in stripped if _is_brief(ln))
     if brief_count == 0:
         return "fail", "no '# BRIEF' heading"
     if brief_count > 1:
@@ -2892,7 +2950,7 @@ def chk_brief_is_last_h1(target, anchor_root, args):
         if _H1_RE.match(stripped[i]):
             last_h1 = i
             break
-    if last_h1 is None or stripped[last_h1].strip() != "# BRIEF":
+    if last_h1 is None or not _is_brief(stripped[last_h1]):
         return "fail", "'# BRIEF' is not the last H1"
     if not "\n".join(lines[last_h1 + 1:]).strip():
         return "fail", "'# BRIEF' section is empty"
