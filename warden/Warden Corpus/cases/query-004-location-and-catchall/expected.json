@@ -105,34 +105,14 @@
   "status": "pass"
  },
  {
-  "rule": "R-query-04",
-  "target": "FX6 queries.md",
-  "status": "error"
- },
- {
   "rule": "R-query-05",
   "target": "FX6 queries.md",
   "status": "pass"
  },
  {
-  "rule": "R-query-08",
-  "target": "FX6 queries.md",
-  "status": "error"
- },
- {
   "rule": "R-query-09",
   "target": "FX6 queries.md",
   "status": "fail"
- },
- {
-  "rule": "R-query-13",
-  "target": "FX6 queries.md",
-  "status": "error"
- },
- {
-  "rule": "R-query-15",
-  "target": "FX6 queries.md",
-  "status": "error"
  },
  {
   "rule": "R-query-16",
