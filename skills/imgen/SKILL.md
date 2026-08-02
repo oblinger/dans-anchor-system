@@ -101,6 +101,17 @@ Two implementation facts that are load-bearing, both learned the hard way:
 
 **A text prompt does not control face, age, or affect.** One batch off a single prompt routinely spans ~30 years of apparent age and the full range from near-tears to drill-sergeant; the keeper is a lucky draw, not a specification. Two consequences: shoot **6+ per batch** when a face matters, and once a face is chosen, **never try to reproduce it by prompting** — start from the keeper and `edit`/`inpaint`, which hold identity.
 
+### What the model reliably gets wrong
+
+Craft that transfers to any subject. Subject-specific findings belong in that subject's own doc, not here.
+
+- **Age undershoots, badly, and worst on women.** Asking for "mid forties" lands at late thirties. **Ask for a decade older than you want** and let it undershoot into range. Structural cues work — crow's feet, jawline, nasolabial lines; *"a few strands of grey"* is ignored outright.
+- **A secondary element loses to a dominant one** unless it is named **early** in the prompt and given a size word. A corkboard listed after a wall of monitors renders as almost nothing; the same board named first and called *large* fills a third of the frame.
+- **A dark scene comes out too dark to read.** Atmosphere words ("late at night", "lit by screens") are enough on their own; the face additionally needs to be called **well exposed and clearly readable** or every variant is silhouette.
+- **A gesture must agree with the gaze.** Pointing at something while looking at the camera reads as staged no matter how well it renders — nobody points at what they are not looking at. Either the eyes follow the hand, or there is no hand.
+- **Rendered text is always noise.** Screens, signage, documents and handwriting come back text-shaped and meaningless. Compose so that density rather than legibility carries the meaning, and never spend rolls trying to fix it.
+- **A big mask is the tool for re-posing.** To move a limb, mask it **entirely** — fingertip to shoulder — plus wherever it is going, and keep the face outside. Everything inside is regenerated, so props and screens caught in the mask will differ between variants; keep out of the mask whatever must survive.
+
 **When two passes miss in opposite directions, blend instead of re-rolling.** An inpaint result is a composite of its source, so the two are pixel-identical outside the mask — compositing between them through the same mask moves *only* that region, along exactly the axis that was overshot. It is free, deterministic, and dial-able, and it beats paying for another guess. [[IMGEN002 — Tink portrait studies]] Batch 15 is the worked example.
 
 ## The disciplines
