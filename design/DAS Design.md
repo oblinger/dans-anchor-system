@@ -13,21 +13,15 @@ The **design internals** — the `{skill} Design` / `{skill} PRD` pages that spe
 | [[SKL Anchor\|Anchor]]+ | [[DAS Anchor Toolkit Design\|Anchor Toolkit]],  [[DAS Create Design\|Create]],  [[DAS Install Design\|Install]],  [[DAS Migrate Design\|Migrate]],  [[DAS Move Design\|Move]],  [[DAS Publish Design\|Publish]],  [[DAS Streams Design\|Streams]],  [[DAS WP Design\|WP]],  [[DAS Yore Design\|Yore]],   |
 | [[SKL Track\|Track]]+ | [[DAS Tracking Design\|**Tracking (subsystem)**]],  [[DAS Groom Design\|Groom]],  [[DAS Groom PRD\|Groom PRD]],  [[Query PRD]],  [[DAS Backlog]],  [[DAS Messages]],  [[DAS Plan]],  [[DAS workflow]],   |
 | [[SKL Drive\|Drive]]+ | [[DAS Feature Design\|Feature]],  [[DAS Feature PRD\|Feature PRD]],  [[DAS Crank Design\|Crank]],  [[DAS Crank PRD\|Crank PRD]],  [[DAS Mint Design\|Mint]],  [[DAS Mint PRD\|Mint PRD]],  [[DAS Finalize Design\|Finalize]],  [[DAS Finalize PRD\|Finalize PRD]],  [[DAS Land Design\|Land]],  [[DAS Land PRD\|Land PRD]],  [[DAS Fortify Design\|Fortify]],  [[DAS Fortify PRD\|Fortify PRD]],   |
-| [[SKL Code\|Dev]]+ | [[DAS Architect Design\|Architect]],  [[DAS Code Design\|Code]],  [[DAS Fix Design\|Fix]],  [[DAS Pilot Flow Design\|Pilot Flow]],  [[DAS PR Flow Design\|PR Flow]],   |
+| [[DAS Design Design\|Design]]+ | [[DAS Architect Design\|Architect]],  [[DAS Architect PRD\|Architect PRD]],   |
+| [[SKL Code\|Dev]]+ | [[DAS Code Design\|Code]],  [[DAS Fix Design\|Fix]],  [[DAS Pilot Flow Design\|Pilot Flow]],  [[DAS PR Flow Design\|PR Flow]],   |
 | [[SKL Doc\|Doc]]+ | [[DAS MD Design\|MD]],  [[DAS Viz Design\|Viz]],   |
 | [[SKL Hygiene\|Hygiene]]+ | [[DAS Audit Design\|Audit]],  [[DAS Dupes Design\|Dupes]],  [[DAS Maintain Design\|Maintain]],  [[DAS Rewire Design\|Rewire]],  [[DAS Slug Scan Design\|Slug Scan]],  [[DAS Tidy Design\|Tidy]],   |
 | [[SKL Search\|Search]]+ | [[DAS Find Design\|Find]],  [[DAS Profile Design\|Describe]],  [[DAS Purchase Design\|Purchase]],  [[DAS Survey Design\|Survey]],   |
-| [[SKL Utility\|Utility]]+ | [[DAS Cook Design\|Cook]],  [[DAS Ctrl Design\|Ctrl]],  [[DAS Exp Design\|Exp]],  [[DAS Parley Design\|Parley]],  [[DAS Snip Design\|Snip]],   |
+| [[SKL Utility\|Utility]]+ | [[DAS Bridge Design\|Bridge]],  [[DAS Bridge PRD\|Bridge PRD]],  [[DAS Bridge Testing\|Bridge Testing]],  [[DAS Bridge UX Design\|Bridge UX]],  [[DAS Cook Design\|Cook]],  [[DAS Ctrl Design\|Ctrl]],  [[DAS Daybreak Design\|Daybreak]],  [[DAS Daybreak PRD\|Daybreak PRD]],  [[DAS Exp Design\|Exp]],  [[DAS Parley Design\|Parley]],  [[DAS Snip Design\|Snip]],   |
 | --- | |
 | [[DAS Anchor Design]]  | Subsystem design for the Anchor group — the folder-shape substrate every other subsystem rides on, plus the lifecycle verbs that create, restructure, relocate, publish, and archive anchors. |
-| [[DAS Architect PRD]]  | product requirements — what `/architect` produces and for whom |
-| [[DAS Bridge Design]]  | system design — PRD, UX Design, Testing |
-| [[DAS Bridge PRD]]  | what bridge produces; the three kinds of bridging (control / sync / claude); mechanism-vs-goal; config-is-the-recipe |
-| [[DAS Bridge Testing]]  | testing strategy + proposed integration tests, grouped by bridge kind |
-| [[DAS Bridge UX Design]]  | the subskill command surface — every verb, its arguments, output shape, confirmation gates |
 | [[DAS Code Skill Design]]  | design surface for SKL Code |
-| [[DAS Daybreak Design]]  | design surface for the Daybreak morning routine |
-| [[DAS Daybreak PRD]]  | product requirements for the Daybreak morning routine |
 | [[DAS Doc Design]]  | Subsystem design for the Doc group — the authoring verbs that shape, illustrate, polish, and route documents, plus the round-trip to external document apps. |
 | [[DAS Drive Design]]  | Subsystem design for the Drive group — the autonomous-execution loop that consumes Ready work (crank → mint → finalize), the feeders that mint new work, and the bounded stop. |
 | [[DAS Hygiene Design]]  | Subsystem design for the Hygiene group — rules declared once, checked everywhere (Warden on-write + /audit sweeps), and repaired to zero via the 100%-fix discipline. |
