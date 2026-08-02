@@ -131,9 +131,16 @@ def extract_ruleset_block(text: str, name: str | None = None) -> tuple[list[str]
     """Return (block_lines, heading_level) for `# RULESET <name>` (or first RULESET
     block when name is None). Block spans until the next heading of level <= its own."""
     lines = text.splitlines()
+    # Structural decisions read the code-MASKED lines; the block returned is the
+    # real ones (F296 finding 3). Without this, a shell `# comment` inside a
+    # fenced example parses as a level-1 heading, and `<= level` is true of every
+    # level — so the block ends at the fence and every RULE after it silently
+    # leaves the engine: never planned, never judged, never reported N/A. That is
+    # the one failure here with NO output at all, so nothing would ever show it.
+    masked = _code_masked_lines(text)
     start = None
     level = None
-    for i, ln in enumerate(lines):
+    for i, ln in enumerate(masked):
         m = _RULESET_RE.match(ln)
         if m and (name is None or m.group(2) == name):
             start = i
@@ -142,8 +149,8 @@ def extract_ruleset_block(text: str, name: str | None = None) -> tuple[list[str]
     if start is None or level is None:
         return None
     end = len(lines)
-    for j in range(start + 1, len(lines)):
-        hm = re.match(r"^(#+)\s+\S", lines[j])
+    for j in range(start + 1, len(masked)):
+        hm = re.match(r"^(#+)\s+\S", masked[j])
         if hm and len(hm.group(1)) <= level:
             end = j
             break
@@ -180,9 +187,19 @@ def parse_ruleset_block(block: list[str], source: Path) -> dict:
         elif key == "description":
             rs["description"] = val or None
         i += 1
-    # RULE entries.
+    # RULE entries. A fenced example of a RULE heading or a `check::` field is a
+    # picture of the form, not the form (F296 finding 3) — a phantom rule, or a
+    # real rule's action overwritten by an illustration. Structure is decided on
+    # the masked block; VALUES are still read from the real line, because
+    # `_mask_code` blanks inline spans and `where:: `file:…`` is authored with
+    # them (F172). A line the mask emptied but the source did not is code.
+    masked_block = _code_masked_lines("\n".join(block))
     cur = None
-    for ln in block[i:]:
+    for idx in range(i, len(block)):
+        ln = block[idx]
+        mln = masked_block[idx] if idx < len(masked_block) else ln
+        if ln.strip() and not mln.strip():
+            continue
         rm = _RULE_RE.match(ln)
         if rm:
             cur = {
