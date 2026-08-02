@@ -18,7 +18,7 @@ def body(ctx):
     name = Path(target).name
     if name.endswith(" Backlog.md"):
         return ["DENY: " + name + " is owned by `state <define|set|resolve|remove> "
-                "<define|set|resolve|remove>` — never Edit backlog rows directly "
+                "<anchor> Backlog <label>` — never Edit backlog rows directly "
                 "(~/.claude/skills/workflow/scripts/state)."]
     if name.endswith(" queries.md") or name == "Q.md":
         return ["DENY: " + name + " is mechanically rendered by queries-render.py — "
