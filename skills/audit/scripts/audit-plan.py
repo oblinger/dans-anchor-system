@@ -559,10 +559,40 @@ def sub_anchor_roots(target: Path) -> set[Path]:
     t = target.resolve()
     roots = set()
     for dot in target.rglob(".anchor"):
+        if _under_dot_dir(dot, target):
+            continue  # T100 — a `.anchor` inside `.trash` is not a live sub-anchor
         parent = dot.parent.resolve()
         if parent != t:
             roots.add(parent)
     return roots
+
+
+def _under_dot_dir(p: Path, root: Path) -> bool:
+    """True when any directory between `root` and `p` is dot-prefixed.
+
+    T100. This replaces a hardcoded `"/.git/" in str(p)` — one name, chosen because
+    it was the one that hurt first. The vault-wide batch ([[T098]]) exposed the rest:
+    of 376,166 planned rule-target pairs, **4,377 sat under a dot-directory** —
+    `.trash` (3,579 pairs), `.anchor.d`, `.pytest_cache`, `.trash-hud` — so the audit
+    reported findings against documents the user had DELETED, and fix-by-default
+    would have cheerfully repaired them.
+
+    `.anchor.d` was the one the row flagged as needing a decision rather than a rule,
+    since it is anchor metadata rather than junk. The contents settle it: 222 of its
+    238 files are `.json` machine state, 3 are `.yaml` config, and the 13 `.md` are
+    machine-written stat log entries (`stat/A03241200.md`) — no authored document
+    among them, so nothing there wants a doc-structure verdict. A dot-prefix rule is
+    right, and no named exception list is needed.
+
+    Measured RELATIVE to the walk root, not absolutely: auditing a target that itself
+    lives under a dot-directory (`~/.claude/skills/...` is a real case) must still
+    enumerate its own files. Only dot-directories the walk DESCENDS INTO are skipped.
+    """
+    try:
+        rel = p.relative_to(root)
+    except ValueError:
+        return False
+    return any(part.startswith(".") for part in rel.parts[:-1])
 
 
 def enumerate_scope(target: Path, mode: str,
@@ -582,7 +612,7 @@ def enumerate_scope(target: Path, mode: str,
     exclude_roots = exclude_roots or set()
     files = []
     for p in target.rglob("*.md"):
-        if "/.git/" in str(p):
+        if _under_dot_dir(p, target):
             continue
         if any(r == p.parent or r in p.parents for r in exclude_roots):
             continue
@@ -5083,7 +5113,11 @@ def main(argv):
 
     if args.batch:
         root = Path(args.batch).expanduser().resolve()
-        anchors = sorted({p.parent for p in root.rglob(".anchor")})
+        # T100 — same exclusion as `enumerate_scope`, and it has to be here too: an
+        # anchor discovered under `.trash` would get a whole plan of its own, not
+        # merely contribute files to someone else's.
+        anchors = sorted({p.parent for p in root.rglob(".anchor")
+                          if not _under_dot_dir(p, root)})
         order = args.order or "rule"
         stats: dict = {}
         plans = []
