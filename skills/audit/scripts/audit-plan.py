@@ -190,6 +190,7 @@ def parse_ruleset_block(block: list[str], source: Path) -> dict:
         "where": None,
         "description": None,
         "includes": [],
+        "imports": [],
         "rules": [],
         "source": str(source.relative_to(REPO_ROOT)),
     }
@@ -206,6 +207,11 @@ def parse_ruleset_block(block: list[str], source: Path) -> dict:
         key, val = fm.group(1), fm.group(2).strip()
         if key == "include":
             rs["includes"] = [_strip_link_target(m.group(0)) for m in _WIKILINK_RE.finditer(val)]
+        elif key == "import":
+            # Corpus-root-relative paths to the Python providing this ruleset's
+            # `check::` implementations (F289). Accumulated across repeated
+            # `import::` lines; whitespace- or comma-separated within one.
+            rs["imports"].extend(_strip_ticks(p) for p in re.split(r"[,\s]+", val) if p.strip())
         elif key == "where":
             rs["where"] = _strip_ticks(val) or None
         elif key == "description":
@@ -332,7 +338,196 @@ def flatten_umbrella(umbrella: str, warnings: list[str]) -> list[dict]:
             continue
         seen.add(rs["name"])
         out.append(rs)
+    register_imports(out)
     return out
+
+
+# ── checker registration — `import::` on the ruleset (F289) ─────────────────
+#
+# Where a `check::` ref finds its implementation used to be engine policy: the
+# fire path loaded exactly one file, at a path assembled from a hardcoded string
+# inside dans-anchor-system, and that file's `CHECKERS` dict was the entire
+# vocabulary a ref could name. A consumer handed the engine could write
+# `check:: my_thing` and had nowhere on disk to put `my_thing`.
+#
+# A ruleset now declares the Python its refs need, beside the `include::` it
+# already carries, corpus-root-relative:
+#
+#     import:: skills/audit/scripts/audit-plan.py
+#
+# Execution uses ONE merged environment — `check::` refs are global names against
+# a flat registry, and per-ruleset environments would misdescribe that. But a
+# purely global model lets a ruleset's refs resolve BY ACCIDENT, satisfied by an
+# import some neighbouring ruleset declared: harmless inside one corpus, and
+# precisely the failure when that ruleset is extracted into a new one, where it
+# breaks because its dependency was covered by a file it never named. So
+# `verify_registrations` checks each ruleset's refs against its OWN declared
+# imports and warns when a ref resolves only globally. Runtime is unchanged; the
+# declaration merely loses the ability to lie.
+
+class CorpusError(RuntimeError):
+    """A corpus declares something the engine cannot honour — a missing import
+    file, an unloadable module. Raised rather than warned: an import that does
+    not resolve silently empties a ruleset's whole vocabulary, and every rule in
+    it then reads as agent-judgment work with nothing to say it was demoted."""
+
+
+_IMPORTED: dict[str, dict] = {}      # corpus-relative path -> its CHECKERS
+_REGISTRY: dict | None = None        # merged name -> fn
+_REGISTRY_OWNER: dict[str, str] = {}  # name -> the import that first defined it
+
+
+def _load_checker_module(rel: str) -> dict:
+    """Load one corpus-root-relative Python file and return its `CHECKERS`.
+
+    Loading THIS file is the common case (dans-anchor-system's own rulesets name
+    it), and it is short-circuited to the live module: re-executing audit-plan
+    from disk would duplicate 5,000 lines of definitions and hand back checker
+    functions that are not the ones the rest of the process holds."""
+    if rel in _IMPORTED:
+        return _IMPORTED[rel]
+    path = (REPO_ROOT / rel).resolve()
+    if path == Path(__file__).resolve():
+        _IMPORTED[rel] = CHECKERS
+        return CHECKERS
+    if not path.is_file():
+        raise CorpusError(f"import:: {rel!r} — no such file under {REPO_ROOT}")
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(f"_das_checkers_{abs(hash(rel))}", path)
+    if spec is None or spec.loader is None:
+        raise CorpusError(f"import:: {rel!r} — not loadable as a Python module")
+    mod = importlib.util.module_from_spec(spec)
+    try:
+        spec.loader.exec_module(mod)
+    except Exception as e:
+        raise CorpusError(f"import:: {rel!r} — {type(e).__name__}: {e}") from e
+    reg = getattr(mod, "CHECKERS", None)
+    if not isinstance(reg, dict):
+        raise CorpusError(f"import:: {rel!r} — module defines no CHECKERS dict")
+    _IMPORTED[rel] = reg
+    return reg
+
+
+def register_imports(rulesets: list[dict]) -> None:
+    """Load every module any of these rulesets names, merging into the registry.
+
+    Idempotent and cheap on repeat — a batch run flattens once per umbrella and
+    calls this on every return path, including the cached ones."""
+    for rs in rulesets:
+        for rel in rs.get("imports") or ():
+            if rel in _IMPORTED:
+                continue
+            reg = _load_checker_module(rel)
+            merged = registry()
+            for name, fn in reg.items():
+                if name in _REGISTRY_OWNER and _REGISTRY_OWNER[name] != rel:
+                    continue  # first wins; verify_registrations reports the clash
+                _REGISTRY_OWNER.setdefault(name, rel)
+                merged[name] = fn
+
+
+def registry() -> dict:
+    """The merged checker environment every `check::` ref resolves against.
+
+    Seeded with this module's own `CHECKERS` because audit-plan is both the
+    driver and dans-anchor-system's checker library — the two are the same file
+    today, so its definitions are ambiently in scope no matter what any ruleset
+    declares. That is why the declaration is VERIFIED rather than enforced
+    (`verify_registrations`): splitting the checker library out of the driver is
+    what would make the seam exclusive, and it is a separate change."""
+    global _REGISTRY
+    if _REGISTRY is None:
+        _REGISTRY = dict(CHECKERS)
+        for n in CHECKERS:
+            _REGISTRY_OWNER.setdefault(n, "skills/audit/scripts/audit-plan.py")
+    return _REGISTRY
+
+
+def all_corpus_rulesets() -> list[dict]:
+    """Every RULESET block in the corpus, reachable from an umbrella or not.
+
+    The distinction is load-bearing and was not obvious: flattening `R-doc` +
+    `R-anchor` reaches **24** rulesets, and the corpus holds far more. A ruleset
+    outside that closure never runs, so a ghost ref inside it costs nothing
+    today — but it is exactly the ref that will be wrong on the day something
+    does include it, and it is what `import::` declarations exist to keep
+    honest. `--verify-registry` checks the whole population; `plan_one` warns
+    only about the closure, because that is what is executing for that plan."""
+    out: list[dict] = []
+    seen: set[str] = set()
+    for p in sorted(REPO_ROOT.rglob("*.md")):
+        if "/.git/" in str(p):
+            continue
+        try:
+            text = p.read_text(encoding="utf-8")
+        except OSError:
+            continue
+        if "RULESET " not in text:
+            continue
+        for ln in _code_masked_lines(text):
+            m = _RULESET_RE.match(ln)
+            if not m or m.group(2) in seen:
+                continue
+            blk = extract_ruleset_block(text, m.group(2))
+            if blk is None:
+                continue
+            rs = parse_ruleset_block(blk[0], p)
+            if rs["rules"]:
+                seen.add(rs["name"])
+                out.append(rs)
+    return out
+
+
+def verify_registrations(rulesets: list[dict]) -> dict:
+    """Check the `check::`↔registry mapping in both directions.
+
+    Neither direction is checked today and both were found broken (F289): 11
+    refs named a checker nothing registers, and 23 registered checkers were
+    invoked by no rule. The ghost direction is the expensive one and it fails
+    QUIETLY BY DESIGN — `_needs_judgment` decides mechanical-vs-agent with a
+    membership test, so a name that is not there misses, the rule is promoted to
+    agent judgment, and `run_checker`'s `unknown checker` error never runs
+    because the rule never reaches it. One typo turns a free deterministic check
+    into a billed non-deterministic one that reports nothing.
+
+    Returns {ghosts, undeclared, clashes, orphans}. `ghosts` is the corpus
+    error; `undeclared` and `clashes` are warnings; `orphans` wants a human —
+    an uninvoked checker is either a rule waiting to be written or dead code,
+    and only reading each one tells you which."""
+    register_imports(rulesets)
+    reg = registry()
+    ghosts, undeclared, clashes = [], [], []
+    used: set[str] = set()
+
+    seen_owner: dict[str, str] = {}
+    for rs in rulesets:
+        own: set[str] = set()
+        for rel in rs.get("imports") or ():
+            names = _IMPORTED.get(rel) or {}
+            for n in names:
+                if n in seen_owner and seen_owner[n] != rel:
+                    clashes.append(f"checker {n!r} defined by both "
+                                   f"{seen_owner[n]} and {rel} — first wins")
+                seen_owner.setdefault(n, rel)
+            own |= set(names)
+        for r in rs["rules"]:
+            for field in ("check", "fix"):
+                ref = r.get(field)
+                if not ref:
+                    continue
+                name = ref.split()[0]
+                if field == "check":
+                    used.add(name)
+                if name not in reg:
+                    ghosts.append(f"{r['id']} — {field}:: {name!r} is registered nowhere; "
+                                  f"the rule silently becomes agent judgment")
+                elif name not in own:
+                    undeclared.append(f"{r['id']} — {field}:: {name!r} resolves only "
+                                      f"globally; {rs['name']} declares no import:: "
+                                      f"that defines it")
+    orphans = sorted(n for n in reg if n not in used)
+    return {"ghosts": ghosts, "undeclared": undeclared,
+            "clashes": clashes, "orphans": orphans}
 
 
 # ── flattened-umbrella cache (shared across all anchors in a batch / re-audit) ─
@@ -366,9 +561,13 @@ def flatten_umbrella_cached(umbrella: str, cdir: Path | None, warnings: list[str
         if stats is not None:
             stats[k] = stats.get(k, 0) + 1
 
+    # Both cache hits below bypass flatten_umbrella, so each re-registers: the
+    # rulesets round-trip through JSON with their `imports` intact, but the
+    # loaded modules do not survive a new process.
     if umbrella in _FLATTEN_MEM:
         rs, warns = _FLATTEN_MEM[umbrella]
         warnings.extend(warns)
+        register_imports(rs)
         bump("flatten_mem_hit")
         return rs
 
@@ -386,6 +585,7 @@ def flatten_umbrella_cached(umbrella: str, cdir: Path | None, warnings: list[str
             rs, warns = data["rulesets"], data.get("warnings", [])
             _FLATTEN_MEM[umbrella] = (rs, warns)
             warnings.extend(warns)
+            register_imports(rs)
             bump("flatten_disk_hit")
             return rs
         except (OSError, json.JSONDecodeError):
@@ -716,6 +916,15 @@ def plan_one(target: Path, mode: str, cdir: Path | None, warnings: list[str],
              exclude_roots: set[Path] | None = None, stats: dict | None = None) -> dict:
     umbrella = "R-doc" if mode == "doc" else "R-anchor"
     rulesets = flatten_umbrella_cached(umbrella, cdir, warnings, stats)
+    # One line, not one per ref: a ghost ref is a corpus fault, not a finding
+    # about this target, and it must not scale with how many documents were
+    # audited. `--verify-registry` prints the full report.
+    ghosts = verify_registrations(rulesets)["ghosts"]
+    if ghosts:
+        warnings.append(
+            f"{len(ghosts)} check::/fix:: ref(s) resolve to no registered checker — "
+            f"those rules are silently agent-judgment; run "
+            f"`audit-plan.py --verify-registry` for the list")
     anchor_root, scope_files = enumerate_scope(target, mode, exclude_roots)
 
     # Whole-plan (anchor-manifest) cache — skip selector resolution when the tree
@@ -4871,7 +5080,7 @@ CHECKERS = {
 def run_checker(check: str, target: Path, anchor_root: Path) -> tuple[str, str]:
     parts = check.split()
     name, args = parts[0], parts[1:]
-    fn = CHECKERS.get(name)
+    fn = registry().get(name)
     if fn is None:
         return "error", f"unknown checker {name!r}"
     try:
@@ -5271,7 +5480,7 @@ def _needs_judgment(rule: dict) -> bool:
     if rule["tier"] == "tracked":
         return False
     chk = rule.get("check")
-    if chk and chk.split()[0] in CHECKERS:
+    if chk and chk.split()[0] in registry():
         return False
     return True
 
@@ -5391,9 +5600,45 @@ def main(argv):
                     help="F177 hook driver: fix mechanical fails in place; emit messages for fails with no fixer")
     ap.add_argument("--cache-dir")
     ap.add_argument("--no-cache", action="store_true")
+    ap.add_argument("--verify-registry", action="store_true",
+                    help="check check::/fix:: refs against the registry both ways (F289)")
     args = ap.parse_args(argv)
 
     cdir = None if args.no_cache else cache_dir(args.cache_dir)
+
+    if args.verify_registry:
+        warns: list[str] = []
+        rulesets, seen = [], set()
+        for u in ("R-doc", "R-anchor"):
+            for rs in flatten_umbrella(u, warns):
+                if rs["name"] not in seen:
+                    seen.add(rs["name"])
+                    rulesets.append(rs)
+        reachable = len(rulesets)
+        for rs in all_corpus_rulesets():
+            if rs["name"] not in seen:
+                seen.add(rs["name"])
+                rulesets.append(rs)
+        rep = verify_registrations(rulesets)
+        rep["reachable"] = reachable
+        rep["total"] = len(rulesets)
+        if args.json:
+            print(json.dumps(rep, indent=2))
+            return 1 if rep["ghosts"] else 0
+        print(f"{rep['total']} rulesets with rules — {rep['reachable']} reachable from "
+              f"R-doc/R-anchor, {rep['total'] - rep['reachable']} outside the closure")
+        for label, key in (("ghost refs (registered nowhere — silently agent-judgment)", "ghosts"),
+                           ("undeclared (resolves only globally — breaks on extraction)", "undeclared"),
+                           ("name clashes (first wins)", "clashes")):
+            print(f"\n{label}: {len(rep[key])}")
+            for line in rep[key]:
+                print(f"  {line}")
+        print(f"\norphan checkers (registered, invoked by no rule): {len(rep['orphans'])}")
+        print("  each is either a rule waiting to be written or dead code — "
+              "only reading it tells you which")
+        for n in rep["orphans"]:
+            print(f"  {n}")
+        return 1 if rep["ghosts"] else 0
 
     if args.record_verdict:
         if not args.key or not args.status:

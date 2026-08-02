@@ -1,5 +1,6 @@
 # RULESET R-query
 include::
+import:: skills/audit/scripts/audit-plan.py
 where:: `file:{anchor}/**/* queries.md`
 description:: the `{slug} queries.md` format
 

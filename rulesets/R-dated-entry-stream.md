@@ -1,6 +1,7 @@
 # RULESET R-dated-entry-stream
 
 include:: [[R-file-association]]
+import:: skills/audit/scripts/audit-plan.py
 where:: `sentinel: ^## \d{4}-\d{2}-\d{2} —`
 description:: Rules ADDED by the dated specialization on top of [[R-file-association]] — newest-first ordering + prepend immutability, the parallel-entry-skeleton invariant, and ISO-date entry-file naming.
 

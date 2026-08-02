@@ -1,5 +1,6 @@
 # RULESET R-ruleset
 include::
+import:: skills/audit/scripts/audit-plan.py
 where:: `sentinel: ^#+ RULESET R-`
 description:: Format every ruleset definition obeys — sentinels, header fields, per-rule structure, numbering, includes.
 

@@ -1,5 +1,6 @@
 # RULESET R-agenda
 include::
+import:: skills/audit/scripts/audit-plan.py
 where:: `file:{anchor}/**/* Agenda.md, !**/DAS *.md`
 exclusion-note:: `!**/DAS *.md` exempts the facet-spec catalog (a `DAS <Name>.md` is the SPEC for the facet, not an instance; specs are governed by [[R-facet-spec]]). Standalone `FEX <Name>.md` teaching artifacts under `examples/` satisfy the content rules but are exempt from the location rules R-agenda-02 / R-agenda-09 — they belong to no project world and so have no Track folder or dispatch page (per [[DAS Facet]] § Examples of a facet).
 description:: Structural rules for the {slug} Agenda.md facet doc; enforces location, the five required H2s and their order, the stated-interval Cadence, and the no-work-rows discipline.

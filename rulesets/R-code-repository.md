@@ -1,5 +1,6 @@
 # RULESET R-code-repository
 include::
+import:: skills/audit/scripts/audit-plan.py
 where:: `file:{anchor}/.anchor`
 description:: how an anchor declares & resolves its associated code repository
 

@@ -1,5 +1,6 @@
 # RULESET R-stories
 include::
+import:: skills/audit/scripts/audit-plan.py
 where:: `file:{anchor}/**/{slug} Stories.md, {anchor}/**/US-*.md`
 description:: Structural rules for the {slug} Stories facet — folder shape, story file naming, dispatch table, bidirectional linking.
 

@@ -1,5 +1,6 @@
 # RULESET R-diagram-geometry
 include::
+import:: skills/audit/scripts/audit-plan.py
 where:: `{anchor}/**/*.svg`
 description:: Hard-fail geometric correctness for hand-authored diagrams — overlap, floating endpoints, tunneling, text overflow, label-association ambiguity, label-label collision.
 
