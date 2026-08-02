@@ -359,6 +359,25 @@ class Row:
         return bool(self.live_links)
 
     @property
+    def is_label(self) -> bool:
+        """A linkless row whose content is bolded prose — a section header.
+
+        T090, the mirror of T088: that one kept rows it should drop, this one
+        dropped a row it should keep. `design/DAS Design.md` separates its
+        per-group rows from the profiles block below with `|  | **SKILL
+        GROUPS** |`, and the empty-row test read that as content-free, so
+        `--fix` would have deleted it and collapsed two visually distinct
+        zones into one undifferentiated block.
+
+        Bold is the whole signal, and deliberately so — an unbolded linkless
+        row IS the stub the empty-row drop exists to remove, and widening this
+        to "any prose" would retire that drop entirely.
+        """
+        if self.links:
+            return False
+        return any(re.search(r"\*\*[^*]+\*\*", c) for c in self.cells)
+
+    @property
     def is_dead(self) -> bool:
         """The row has links, and every one of them points at nothing.
 
@@ -433,7 +452,7 @@ def rebuild(rows: list[Row], folder: Path, page: Path, anchor_name: str):
     report = {
         "breadcrumb_title_fixed": False,
         "dropped_empty_rows": [],      # list of raw lines dropped
-        "dropped_dead_rows": [],       # T088 — every link struck through
+        "dropped_dead_rows": [],       # T088 — every link points at nothing
         "kept_rows": 0,
         "auto_filled_children": [],    # wiki targets injected
         "carried_forward": [],         # link keys rescued into Related
@@ -501,7 +520,7 @@ def rebuild(rows: list[Row], folder: Path, page: Path, anchor_name: str):
             # one outlived its target.
             report["dropped_dead_rows"].append(r.raw.strip())
             continue
-        if r.has_links:
+        if r.has_links or r.is_label:
             out.append(r.raw)
             report["kept_rows"] += 1
         else:
