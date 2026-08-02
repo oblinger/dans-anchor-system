@@ -542,6 +542,41 @@ def generate(model, prompt, size, source, out):
     return out, resp.get("seed")
 
 
+def contact_sheet(paths, out, cols=3, cell=560):
+    """Composite a whole batch into ONE labelled image.
+
+    A shoot is judged by comparing its variants, so it wants a single window —
+    six `open` calls give six overlapping windows in arbitrary order and no way
+    to see them side by side. Each cell is captioned with its variant id
+    (`1A`, `1B`, …) so the sheet can be pointed at directly.
+
+    Free, and deliberately NOT embedded in the roll page: the page already
+    carries the images themselves, and a sheet there would double every batch.
+    The `-sheet` suffix cannot match `IMAGE_RE`, so it is never counted as a
+    render or picked up as a variant.
+    """
+    from PIL import Image, ImageDraw, ImageFont
+    rows = -(-len(paths) // cols)
+    pad, bar = 8, 34
+    sheet = Image.new("RGB", (cols * (cell + pad) + pad,
+                              rows * (cell + bar + pad) + pad), (24, 24, 26))
+    draw = ImageDraw.Draw(sheet)
+    try:
+        font = ImageFont.truetype("/System/Library/Fonts/SFNSMono.ttf", 22)
+    except OSError:
+        font = ImageFont.load_default()
+    for i, p in enumerate(paths):
+        x = pad + (i % cols) * (cell + pad)
+        y = pad + (i // cols) * (cell + bar + pad)
+        im = Image.open(p).convert("RGB")
+        im.thumbnail((cell, cell), Image.Resampling.LANCZOS)
+        sheet.paste(im, (x + (cell - im.width) // 2, y))
+        draw.text((x + 4, y + cell + 6), re.sub(rf"^{SLUG}\d{{3}}-", "", p.stem),
+                  font=font, fill=(210, 210, 214))
+    sheet.save(out)
+    return out
+
+
 # ----------------------------------------------------------------------- run it
 
 def _do_render(roll_dir, roll_n, count, size, confirm_over, yes, dry):
@@ -588,7 +623,7 @@ def _do_render(roll_dir, roll_n, count, size, confirm_over, yes, dry):
 
     specs = {v: (v,) for v in variants}
     date, seeds = read_batch_meta(roll_dir, batch)      # carry forward an append's earlier seeds
-    written, failed = [], []
+    written, failed, sheet = [], [], None
     with cf.ThreadPoolExecutor(min(4, count)) as ex:
         futs = {ex.submit(one, *s): v for v, s in specs.items()}
         for fut in futs:
@@ -619,10 +654,15 @@ def _do_render(roll_dir, roll_n, count, size, confirm_over, yes, dry):
         write_batch(roll_dir, batch, command, prompt, all_imgs, meta)
         if not (ANCHOR / f"{SLUG} Gallery.md").read_text(encoding="utf-8").count(roll_dir.name):
             add_to_gallery(roll_dir, written[0])
+        if len(all_imgs) > 1:
+            sheet = contact_sheet(all_imgs,
+                                  roll_dir / f"{SLUG}{roll_n:03d}-{batch}-sheet.png")
     for p in sorted(written):
         print(f"  {p.name}")
     for f in failed:
         print(f"  FAILED: {f}", file=sys.stderr)
+    if sheet:
+        print(f"  review → {sheet}")
     print(f"{len(written)} image(s) → Batch {batch} of {roll_dir.name}, "
           f"{cents(BACKENDS[model]['cost']*len(written))} "
           f"(roll total ${update_spend(roll_dir):.2f})")
