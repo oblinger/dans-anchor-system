@@ -106,7 +106,22 @@ _RULE_RE = re.compile(
     r"^#+\s+RULE\s+(R-[\w-]+-\d+)\s+[—-]\s+(.*?)\s*\((checked|sampled|stated|tracked)\)\s*$"
 )
 _FIELD_RE = re.compile(r"^([a-z][a-z_-]*)::\s*(.*)$")
-_WIKILINK_RE = re.compile(r"\[\[([^\]]+)\]\]")
+# One wiki-link span, for the whole file. `group(0)` is the span, `group(1)` its
+# inner text. The class excludes `[` as well as `]`, and that is the point: the
+# earlier `[^\]]+` let an UNCLOSED `[[` run forward to the next `]]` anywhere on
+# the line, so in a table row `| [[broken | [[Good]] |` it matched from `[[broken`
+# across the real cell delimiter. `fix_md_table_pipe_escape` escaped that
+# delimiter, merging two cells, and the paired check went fail → pass — so the
+# on-write driver reported the row FIXED. Forbidding a nested `[[` stops the span
+# at the typo instead of swallowing the row. Alias / heading / block-id pipes stay
+# INSIDE the span deliberately: they are link content, and escaping them is what
+# the table-pipe caller exists to do.
+#
+# A second definition of this name was briefly added near the structure primitives
+# and SHADOWED this one at module level — silently, since both answered `group(0)`.
+# One name, one definition; that is the whole T099 thesis and it applies to the
+# fix as much as to the defect.
+_WIKILINK_RE = re.compile(r"\[\[([^\[\]]*?)\]\]")
 
 
 def _strip_link_target(raw: str) -> str:
@@ -114,7 +129,16 @@ def _strip_link_target(raw: str) -> str:
     inner = raw.strip()
     if inner.startswith("[[") and inner.endswith("]]"):
         inner = inner[2:-2]
-    return inner.split("|", 1)[0].strip()
+    # Split at the alias pipe whether or not it carries the in-table escape, then
+    # drop the escape. This is the OPPOSITE of `_row_cells`, deliberately: there a
+    # `\|` is NOT a cell boundary; here it IS the alias separator, merely written
+    # for a table. Splitting on unescaped pipes only was tried and is wrong — it
+    # hands back the whole `Target\|Label` as the target. Without the `rstrip` the
+    # target keeps a trailing backslash, and the sole caller feeds `include::`
+    # targets to `load_ruleset`, where a residue resolves to no file and the
+    # included ruleset silently never loads — the zero-output failure mode again.
+    # Latent today (no live `include::` uses the escape), and cheap to close.
+    return inner.split("|", 1)[0].rstrip("\\").strip()
 
 
 def _strip_ticks(val: str) -> str:
@@ -886,6 +910,34 @@ _H2_RE = re.compile(r"^ {0,3}##[ \t]+(\S.*?)(?:[ \t]+#+)?[ \t]*$")
 # through. `#tag` is correctly NOT a heading under either spelling.
 _ANY_HEADING_RE = re.compile(r"^ {0,3}#{1,6}([ \t]|$)")
 
+def _row_cells(line: str) -> list[str]:
+    """Interior cells of a GFM table row, split on UNESCAPED pipes only.
+
+    Five callers each spelled this as `ln.split("|")`, and every one of them was
+    wrong on the form THIS FILE'S OWN RULE mandates: `chk_md_table_pipe_escape`
+    requires a wiki-link in a cell to be written `[[Target\\|Label]]`, so a naive
+    split cuts the link in half and hands the caller `spec]]` as a "cell". Measured
+    consequences were a false finding on the mandated form
+    (`chk_spec_cells_format_valid`), a cell read as empty when it was not
+    (`chk_proposed_tests_rows_have_spec`), and — the quiet one — an aliased row
+    dropped entirely by `_subsystem_names`, so kebab-naming and link-resolution
+    silently stopped checking any subsystem that used an alias.
+
+    Written as a shared primitive rather than five patches under the T099 rule that
+    a helper is speculation until a defect names it. Four independent defects name
+    it, so it is no longer speculation.
+
+    A trailing pipe is optional in GFM: only an empty final field is dropped, so
+    `| a | b` keeps `b` — the `[1:-1]` idiom this replaces silently lost it.
+    """
+    s = line.strip()
+    if not s.startswith("|"):
+        return []
+    parts = re.split(r"(?<!\\)\|", s)[1:]
+    if parts and parts[-1] == "":
+        parts = parts[:-1]
+    return [c.strip() for c in parts]
+
 # SETEXT H1s (`Title` underlined by `===`) are deliberately NOT recognized, and the
 # reason is measurement rather than laziness. They are real CommonMark H1s, and the
 # omission is genuinely inconsistent — `chk_h1_present` fails such a doc "no H1"
@@ -1572,6 +1624,16 @@ def _section_body(lines, header_re, stop_re=r"^ {0,3}## "):
     would come back blank and read as empty.
     """
     marks = _strip_fenced("\n".join(lines)).splitlines()
+    # `_strip_fenced` blanks fenced lines, and `"\n".join(...).splitlines()` then
+    # DROPS the trailing empties — so on any document whose last lines are inside a
+    # fence, `marks` comes back shorter than `lines`. The scan below walks `lines`
+    # while indexing `marks`, and raised IndexError on exactly those docs: the
+    # checker returned `("error", "IndexError: ...")` instead of a verdict, so every
+    # `_section_body` consumer silently stopped evaluating on a doc that ends in a
+    # code block — a common shape, and a fail-open one. Padding rather than
+    # shortening the loop is deliberate: the dropped lines are real content that a
+    # section may legitimately contain, and truncating would end the section early.
+    marks += [""] * (len(lines) - len(marks))
     start = None
     for i, ln in enumerate(marks):
         if re.match(header_re, ln):
@@ -1743,7 +1805,7 @@ def chk_proposed_tests_rows_have_spec(target, anchor_root, args):
     if rows is None:
         return "fail", "no ## Proposed Tests section"
     for ln in rows:
-        cells = [c.strip() for c in ln.split("|")[1:-1]]
+        cells = _row_cells(ln)
         if not cells:
             continue
         if re.match(r"^[\s:-]+$", cells[-1]):  # separator row
@@ -1762,7 +1824,7 @@ def chk_spec_cells_format_valid(target, anchor_root, args):
     if rows is None:
         return "fail", "no ## Proposed Tests section"
     for ln in rows:
-        cells = [c.strip() for c in ln.split("|")[1:-1]]
+        cells = _row_cells(ln)
         if not cells:
             continue
         spec = cells[-1]
@@ -1953,7 +2015,16 @@ def _subsystems_table_rows(lines):
     body = _section_body(lines, r"^## Subsystems\s*$")
     if body is None:
         return None
-    rows = [ln for ln in body if ln.lstrip().startswith("|")]
+    # Strip again on the way in, exactly as `_bold_item_names` does and documents:
+    # `_section_body` finds boundaries on the stripped copy but returns the ORIGINAL
+    # lines, deliberately, so a section whose content IS a code block does not read
+    # as empty. That is the wrong half here — a fenced `| [[No-Such-Doc]] | example |`
+    # is an illustration, and harvesting it made `chk_subsystem_link_convention`
+    # report a missing subsystem doc against the page's own example. Worse than the
+    # false finding: `rows[2:]` skips the header POSITIONALLY, so a fenced row above
+    # the real table shifts that window and the real header is read as data.
+    rows = [ln for ln in _strip_fenced("\n".join(body)).splitlines()
+            if ln.lstrip().startswith("|")]
     return rows[2:] if len(rows) >= 2 else []
 
 
@@ -1993,8 +2064,8 @@ def _subsystem_names(rows):
     """(name, is_wikilink) per table data row's first cell, bracketed entries only."""
     out = []
     for ln in rows:
-        cells = ln.split("|")
-        cell = cells[1].strip() if len(cells) > 1 else ""
+        cells = _row_cells(ln)
+        cell = cells[0] if cells else ""
         m = _SUBSYS_CELL_RE.search(cell)
         if m:
             out.append(((m.group(1) or m.group(2)).strip(), bool(m.group(1))))
@@ -2072,7 +2143,7 @@ def chk_tests_table_present(target, anchor_root, args):
     data = rows[2:] if len(rows) >= 2 else []
     if not data:
         return "fail", "## Tests has no table with data rows"
-    nolink = sum(1 for ln in data if "[[" not in ln.split("|")[1])
+    nolink = sum(1 for ln in data if "[[" not in (_row_cells(ln) or [""])[0])
     if nolink:
         return "fail", f"{nolink} kind row(s) without a [[wiki-link]] first cell"
     return "pass", ""
@@ -2693,7 +2764,7 @@ def _disclosure_descriptive(f):
         if not re.match(r"^\|\s*(?:\*\*)?(?:\[\[|-?\[\[|→)", ln):
             continue
         # Strip the link cell, then look for surviving prose in later cells.
-        cells = [c.strip() for c in ln.strip().strip("|").split("|")]
+        cells = _row_cells(ln)
         for cell in cells[1:]:
             gloss = re.sub(r"\[\[[^\]]*\]\]|\*\*|`[^`]*`|<br>|→|:", " ", cell)
             if len(gloss.split()) >= 3:
@@ -3237,7 +3308,14 @@ def chk_file_association_folder_structure(target, anchor_root, args):
         return "fail", f"method-3 folder {folder} contains no item files"
     item_names = {p.stem for p in items}
     links = re.findall(r"\[\[([^\]|]+)", anchor_text)
-    linked = {link.split("|")[0].split("/")[0].split("#")[0] for link in links}
+    # Compared against `p.stem`, so the target must be reduced to a BASENAME, and
+    # two steps of that were wrong in ways that both zeroed the intersection and so
+    # produced the same "links none of the N item files" on a compliant folder.
+    # `.split("/")[0]` took the FIRST path segment, but a wiki-link resolves by its
+    # LAST (`[[SKA Notes/Item One]]` is `Item One`). And the capture class stops at
+    # `|` while happily eating the backslash before it, so the mandated in-table
+    # form `[[F001 — Thing\|F001]]` yielded `F001 — Thing\` — a stem no file has.
+    linked = {link.rstrip("\\").split("#")[0].split("/")[-1].strip() for link in links}
     if not item_names & linked:
         return "fail", f"dispatch table links none of the {len(items)} item files"
     return "pass", f"folder structure OK: {len(items)} items linked"
@@ -3449,7 +3527,7 @@ def chk_md_table_pipe_escape(target, anchor_root, args):
     for ln, masked in enumerate(_code_masked_lines(_read(target)), 1):
         if not masked.lstrip().startswith("|"):
             continue
-        for m in re.finditer(r"\[\[[^\]]*?\]\]", masked):
+        for m in _WIKILINK_RE.finditer(masked):
             if re.search(r"(?<!\\)\|", m.group(0)):
                 hits.append(f"line {ln}")
                 break
@@ -4811,11 +4889,22 @@ def fix_md_trailing_ws(target, anchor_root, args):
     spaces after a link down to the canonical one (killing an accidental `<br>`
     hard break) rather than leaving them, and it is a normalization, so applying
     it twice is a no-op."""
-    lines = _read(target).split("\n")
+    text = _read(target)
+    lines = text.split("\n")
+    # The re-pad reuses `_terminal_link_pad_lines` — the SAME eligibility its sibling
+    # `fix_md_terminal_link_pad` and the paired check use — rather than re-deriving
+    # it. The local spelling this replaced carried only the table exclusion, and
+    # `_ends_with_terminal_link` fires on anything ending `]]` that contains `[[`.
+    # So it appended a pad INSIDE fenced code (`sub = grid[[0, 1]]` → a trailing
+    # space added to a Python line) and to frontmatter values (`up: [[Parent]]`),
+    # on the on-write path. Both were invisible: `chk_md_trailing_ws` and
+    # `chk_md_terminal_link_pad` exempt exactly those regions, so nothing reported
+    # the bytes this fixer had just written. Three fixers now share one predicate.
+    padable = {i for i, _ in _terminal_link_pad_lines(text)}
     new = []
-    for l in lines:
+    for i, l in enumerate(lines):
         s = l.rstrip()
-        new.append(s + " " if _ends_with_terminal_link(s) and not s.lstrip().startswith("|") else s)
+        new.append(s + " " if i in padable and _ends_with_terminal_link(s) else s)
     if new != lines:
         target.write_text("\n".join(new), encoding="utf-8")
         return True, "stripped trailing whitespace"
@@ -4848,13 +4937,24 @@ def fix_md_table_pipe_escape(target, anchor_root, args):
     # uses, so writer and reader cannot disagree about which lines are table rows.
     # Before F296 this fixer tested `raw` and so escaped the pipe inside fenced
     # EXAMPLES of the row form, on the on-write path, silently.
+    #
+    # F296 cured the FENCE half and left the INLINE-SPAN half, which is the same
+    # bug one level in: the row-ness test moved to the masked line but the `re.sub`
+    # still ran over the whole raw line, spans included. A doc documenting the
+    # table form as `` | `[[A|B]]` | literal shown as code | `` had its own example
+    # rewritten to `` `[[A\|B]]` ``, and the check passed both before and after —
+    # so nothing ever pointed at the line the fixer had just corrupted. Backticking
+    # is how markdown says "literal", and it has to be a defence here too, hence
+    # `_repl_outside_inline`. (`_mask_code` cannot serve: it BLANKS spans, and this
+    # caller must emit the original bytes, not a masked copy.)
     masked_lines = _code_masked_lines(text)
     changed = False
     for i, raw in enumerate(lines):
         if i >= len(masked_lines) or not masked_lines[i].lstrip().startswith("|"):
             continue
-        newline = re.sub(r"\[\[[^\]]*?\]\]",
-                         lambda m: re.sub(r"(?<!\\)\|", r"\\|", m.group(0)), raw)
+        newline = _repl_outside_inline(
+            raw, lambda s: _WIKILINK_RE.sub(
+                lambda m: re.sub(r"(?<!\\)\|", r"\\|", m.group(0)), s))
         if newline != raw:
             lines[i] = newline; changed = True
     if changed:
@@ -4893,12 +4993,33 @@ def fix_breadcrumb_position(target, anchor_root, args):
 
 def fix_md_svg_embed_width(target, anchor_root, args):
     """Append the page-wide default `|3000` hint to bare `![[x.svg]]` embeds.
-    Paired to the `md_svg_embed_width` check; skips code fences / inline code."""
+    Paired to the `md_svg_embed_width` check; skips code fences / inline code.
+
+    Inside a table row the hint is written `\\|3000`, because a bare `|` there is a
+    CELL DELIMITER. Writing it unescaped turned `| ![[diagram.svg]] | the arch |`
+    into a three-cell row, and `chk_md_table_pipe_escape` then failed the file this
+    fixer had just written — two fixers fighting, one manufacturing the defect the
+    other exists to remove, with the user's table broken in between.
+    """
     if not target.is_file():
         return False, "not a file"
     text = _read(target)
-    new = _repl_outside_code(
-        text, lambda s: re.sub(r"!\[\[([^\]|]+?\.svg)\]\]", r"![[\1|3000]]", s))
+    # Line-by-line, because the replacement now depends on whether THIS line is a
+    # table row. Fence exclusion therefore cannot come from `_repl_outside_code`
+    # (it tracks fence state across the whole text and would see each line alone);
+    # it comes from the masked copy, which blanks fenced lines length-preservingly.
+    # Inline spans are still handled by `_repl_outside_inline` per line.
+    masked = _code_masked_lines(text)
+    out = []
+    for i, raw in enumerate(text.split("\n")):
+        m = masked[i] if i < len(masked) else ""
+        if raw.strip() and not m.strip():
+            out.append(raw)                       # inside a fence — leave it alone
+            continue
+        repl = r"![[\1\|3000]]" if m.lstrip().startswith("|") else r"![[\1|3000]]"
+        out.append(_repl_outside_inline(
+            raw, lambda s, r=repl: re.sub(r"!\[\[([^\]|]+?\.svg)\]\]", r, s)))
+    new = "\n".join(out)
     if new != text:
         target.write_text(new, encoding="utf-8")
     return (new != text), ("added |3000 width hint to bare SVG embed(s)" if new != text else "")
