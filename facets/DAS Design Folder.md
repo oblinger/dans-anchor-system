@@ -12,7 +12,7 @@ The Design folder facet — marks an anchor as following the designed-lifecycle 
 | Rules | [[R-design]],   |
 | ... | [[anchor-page]],  [[DAS Agenda]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Page]],  [[DAS Anchor Tree]],  [[DAS Aspects]],  [[DAS Backlog]],  [[DAS Brief]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Claude]],  [[DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[DAS Design Docs]],  [[DAS Dev Dispatch]],  [[DAS Discussion]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facet]],  [[DAS Facets]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Log]],  [[DAS Messages]],  [[DAS Module Doc]],  [[facets/DAS Move]],  [[DAS Naming]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Ruleset]],  [[facets/DAS Skill]],  [[DAS Specs]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Track]],  [[DAS User Dispatch]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
 
-**Linkage** — this facet's existence ⟺ the anchor has been architected by the [[architect]] skill; the two share one design folder, [[DAS Architect Design]] (hosted on the behavioral core), reachable from either page per [[SKA Decisions]] D10.
+**Linkage** — this facet's existence ⟺ the anchor has been architected by the [[architect]] skill; the two share one design folder, [[DAS Architect Design]] (hosted on the behavioral core), reachable from either page (§ What the folder's existence claims).
 
 **TLDR** — The Design facet is triggered by the **existence of a `{slug} Design/` folder** (not by any `.anchor` trait field). When the folder exists, three children are required (PRD, Architecture, Testing), several others are recommended, and the `/design` skill operates on the anchor. Cardinality: **one per anchor** — an anchor has at most one Design folder. The embedded `R-design` ruleset encodes the auditable rules; `# BRIEF` is the agent-maintenance guide.
 
@@ -120,6 +120,16 @@ The user then iterates with `/design prd`, `/design architect`, etc. — each su
 - **Design folder absent** → offer to scaffold. If the user confirms, scaffold per § Scaffolding above and proceed. If declined, stop with a one-line explanation.
 
 The `code` trait is **deprecated as a `/design` gate** — kept for backward compatibility (existing anchors with `code` in their `traits:` still work; no anchor is broken), but new anchors don't need it. Phase 2 vault sweep retires the trait from anchors where the Design folder is the better signal.
+
+## What the folder's existence claims — and what its absence does not
+
+A `{slug} Design/` folder existing means the anchor **has been architected** — its design is the [[architect]] skill's subject, walked and checked for completeness. There is deliberately **no separate "design discipline"**: the architect skill carries the rules and the Design facet is the artifact it maintains. (Its sibling is asymmetric on purpose — a Track facet existing ⟺ the anchor runs the [[workflow]] discipline. Tracking is continuous, so it is a way of working; architecting is periodic, so it is a skill.)
+
+**Absence is valid, never an error.** No Design folder means "not architected" — a claim the anchor is entitled to make, and one it may make forever. So an empty Design scaffold is safe to delete anywhere, and a missing one is not a finding. The one population that overrides this is the SKA sub-project (skill / facet / discipline / example), where the folder is mandatory from creation — see [[R-anchor-page]] § SKA sub-project.
+
+**A design folder covers a coherent design *unit*, not one object.** Where a facet and its behavioral core are two objects describing one design — the Track facet with the [[workflow]] discipline, this facet with the [[architect]] skill — they share **one** folder, hosted on the behavioral core, and **both** dispatch pages carry a Design row pointing at it. Two mutually-referential design folders for one design is the failure this prevents. The facet keeps its own `# RULESET` regardless: a structural contract is a different kind of document from a design folder's rationale.
+
+**The masthead Design row's member order is fixed, and is NOT this page's pipeline order.** The row lists PRD → UX Design → CLI → API → Architecture → Decisions → Testing → Roadmap → Features ([[R-anchor-page]]-13); the lifecycle pipeline above runs PRD → UX Design → API Design → Architecture → Testing → Decisions → Roadmap. They answer different questions — *where does the reader look first* versus *what gets written first* — so neither is a typo for the other. Do not "correct" one to match the other.
 
 ## Trait system — what's still in scope
 

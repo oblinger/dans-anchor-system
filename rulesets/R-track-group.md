@@ -13,7 +13,7 @@ The `Facets` row links every track / work-surface facet (Backlog, Inbox, Icebox,
 
 ### RULE R-track-group-02 — Specifies the work surfaces; SKA owns the instances (stated)
 
-This family *specifies* the work-surface facets, but the live tracking instances for the skills ecosystem are centralized on the shared SKA surface ([[SKA Decisions|D08]]) — SKA sub-projects carry no `{slug} Track/` of their own.
+This family *specifies* the work-surface facets, but the live tracking instances for the skills ecosystem are centralized on one shared surface ([[DAS Track]] § Who owns a Track folder) — SKA sub-projects carry no `{slug} Track/` of their own.
 
 ### RULE R-track-group-03 — Track folder presence is a trait; omit when no active tracking (checked)
 

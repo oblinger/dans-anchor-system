@@ -21,4 +21,4 @@ description: "design-pipeline docs for the Audit skill"
 | [[DAS Audit Completed Roadmap\|Completed Roadmap]]  | shipped milestones |
 | ... |  |
 
-Design is the umbrella for system-spec content for the **Audit** skill — PRD, UX Design, Architecture, and the rest of the design pipeline. Member order follows the canonical Design-row order ([[SKA Decisions|D07]]): PRD → (Stories) → UX Design → (CLI) → API → Architecture → (System / Files) → Decisions → Testing → Roadmap. As a SKA sub-project the Audit skill owns this design but no tracking or status ([[SKA Decisions|D08]]); see [[DAS Design Docs]] for the canonical Design-dispatch shape.
+Design is the umbrella for system-spec content for the **Audit** skill — PRD, UX Design, Architecture, and the rest of the design pipeline. Member order follows the canonical Design-row order ([[R-anchor-page]]-13): PRD → (Stories) → UX Design → (CLI) → API → Architecture → (System / Files) → Decisions → Testing → Roadmap. As a SKA sub-project the Audit skill owns this design but no tracking or status ([[DAS Track]] § Who owns a Track folder); see [[DAS Design Docs]] for the canonical Design-dispatch shape.

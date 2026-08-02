@@ -34,7 +34,7 @@ When the anchor has a Design sub-area, the masthead carries a **Design** row who
 ### RULE R-dispatch-table-10 — Track row links the sub-anchor and enumerates the tracking items (checked)
 check:: dispatch_area_row Track
 mend:: dispatch-rebuild
-When the anchor **owns its tracking**, the masthead carries a **Track** row: **left cell `[[{X} Track\|Track]]`**, **right cell the key tracking items** that exist — Backlog, Features, Roadmap, Now. Absent when tracking is unified at a parent (per [[SKA Decisions]] D10).
+When the anchor **owns its tracking**, the masthead carries a **Track** row: **left cell `[[{X} Track\|Track]]`**, **right cell the key tracking items** that exist — Backlog, Features, Roadmap, Now. Absent when tracking is unified at a parent (per [[DAS Track]] § Who owns a Track folder).
 **Check pattern:** a row whose left cell links to `{X} Track` and whose right cell holds ≥1 tracking-item link, whenever the anchor owns a `{X} Track` folder.
 **Why:** the track row is the direct line to the backlog and in-flight work; surfacing the items makes the anchor's status reachable in one click.
 

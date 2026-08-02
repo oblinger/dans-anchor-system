@@ -72,6 +72,6 @@ P=~/.claude/skills/audit/scripts/audit-plan.py
 
 ## Related
 
-- Rules read: [[DAS Anchor Page]], [[DAS Dispatch Table]], [[DAS progressive-disclosure]]; decisions [[SKA Decisions|D07 / D08]].
+- Rules read: [[DAS Anchor Page]], [[DAS Dispatch Table]], [[DAS progressive-disclosure]]; row placement [[R-anchor-page]]-12/-13/-14; tracking ownership [[DAS Track]] § Who owns a Track folder.
 - Builder it calls: [[audit-dispatch]].
 - Vault-wide connectivity walk: [[DAS anchor-dag]].
