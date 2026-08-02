@@ -270,8 +270,11 @@ F_REF_BEFORE_Q_RE = re.compile(r"\bF\d+\s+Q\d+\b")
 VERIFY_BY_BRACKET_RE = re.compile(r"\[Verify-by\s+(\d{4}-\d{2}-\d{2})\]")
 # B16 (C12) — "Naturally exercised by" rationale text
 NATURALLY_EXERCISED_RE = re.compile(r"[Nn]aturally exercised by\b")
-# B16 — F-number extraction from feature-doc stems: `F089 — Title` → `F089`
-F_NUMBER_PREFIX_RE = re.compile(r"^(F\d+)\s+—")
+# B16 — F-number extraction from feature-doc stems: `F089 — Title` → `F089`,
+# and (F298) `SKA F089 — Title` → `F089`. The optional single-token slug prefix
+# is permanent: docs authored before 2026-08-02 keep the bare form and are
+# never renamed. Canonical copy: `backlog_edit.FEATURE_STEM_RE`.
+F_NUMBER_PREFIX_RE = re.compile(r"^(?:[A-Za-z][A-Za-z0-9]*\s+)?(F\d+)\s+—")
 # F089 (C18) — Verify-by bracket date extraction (parses the date for expiry check)
 VERIFY_BY_DATE_RE = re.compile(r"^Verify-by\s+(\d{4})-(\d{2})-(\d{2})\b")
 

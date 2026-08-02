@@ -43,7 +43,12 @@ def body(ctx):
         return []
     import re
     from pathlib import Path
-    if not re.match(r"F\d+\s+—", Path(target).name):
+    # `F<n> — Title.md` OR `{slug} F<n> — Title.md` (F298). The slug prefix is
+    # optional forever: docs authored before 2026-08-02 keep the bare form and
+    # are not renamed. Canonical copy of this pattern lives at
+    # `backlog_edit.FEATURE_STEM_RE`; rule bodies are exec'd in isolation and
+    # cannot import, so it is repeated here rather than shared.
+    if not re.match(r"(?:[A-Za-z][A-Za-z0-9]*\s+)?F\d+\s+—", Path(target).name):
         return []
     inp = getattr(ev, "input", None) or {}
     old = inp.get("old_string") or ""
@@ -134,7 +139,8 @@ def body(ctx):
     import re
     from pathlib import Path
     p = Path(target)
-    if not re.match(r"F\d+\s+—", p.name):
+    # `F<n> — Title.md` OR `{slug} F<n> — Title.md` (F298) — see R-pathguard-02.
+    if not re.match(r"(?:[A-Za-z][A-Za-z0-9]*\s+)?F\d+\s+—", p.name):
         return []
     # Doc creation is exempt — the /feature flow Writes a NEW doc's initial
     # Open Questions block. Fire only when the doc already exists on disk.
