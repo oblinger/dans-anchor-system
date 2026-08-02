@@ -1,5 +1,6 @@
 # RULESET R-doc-structure
 include::
+import:: skills/audit/scripts/audit-plan.py
 where:: always
 description:: the canonical document layering — progressive disclosure for a document. Scope: every authored document — any `.md` the system owns, identified by a leading `# ` H1 (the checkers skip H1-less files as out of scope).
 

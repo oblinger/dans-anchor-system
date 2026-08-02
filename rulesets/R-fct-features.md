@@ -1,5 +1,6 @@
 # RULESET R-fct-features
 include::
+import:: skills/audit/scripts/audit-plan.py
 where:: `file: **/Features/F*.md, **/* Features/F*.md, F* — *.md, **/{slug} Features.md`
 description:: The rules every Features-facet instance must satisfy — covering the folder layout, filename pattern, the two-zone feature-doc structure, and the index page shape. Embedded per F133. Tier legend: **checked** (mechanically verifiable), **sampled** (spot-checked), **stated** (author-honored principle).
 

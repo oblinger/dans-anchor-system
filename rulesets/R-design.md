@@ -1,5 +1,6 @@
 # RULESET R-design
 include::
+import:: skills/audit/scripts/audit-plan.py
 where:: `anchor`
 description:: design facet — the `{slug} Design/` folder marks an anchor as following the designed-lifecycle convention; folder presence IS the signal (no trait field required)
 

@@ -1,5 +1,6 @@
 # RULESET R-naming
 include::
+import:: skills/audit/scripts/audit-plan.py
 description:: file-naming facet — `{slug} <X>.md` default + explicit exception allowlist
 
 Embedded ruleset for the Naming facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Adopted via `R-facet` umbrella. Vault-wide application — every anchor's files are subject to this set, no explicit `include::` needed.

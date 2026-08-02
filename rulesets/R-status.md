@@ -1,5 +1,6 @@
 # RULESET R-status
 include::
+import:: skills/audit/scripts/audit-plan.py
 where:: `file:{anchor}/**/* Status.md`
 description:: Structural rules for the {slug} Status.md facet doc; enforces the per-facet dataview-line shape and cell ladder.
 

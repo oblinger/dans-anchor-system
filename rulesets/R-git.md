@@ -6,6 +6,7 @@ Umbrella over the git-discipline rulesets. Adopt `R-git` to pull every git rules
 
 # RULESET R-commit-discipline
 include::
+import:: skills/audit/scripts/audit-plan.py
 where:: `anchor`
 description:: commit cadence and message hygiene — when to commit, never amend, no boilerplate, co-author trailer
 

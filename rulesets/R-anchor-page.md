@@ -1,5 +1,6 @@
 # RULESET R-anchor-page
 include::
+import:: skills/audit/scripts/audit-plan.py
 where:: `anchor`
 description:: the `{slug}.md` entry-page format
 

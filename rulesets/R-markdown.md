@@ -1,5 +1,6 @@
 # RULESET R-markdown
 include::
+import:: skills/audit/scripts/audit-plan.py
 where:: `**/*.md`
 description:: Mechanical + authoring rules for every markdown document; cited by every facet and skill that produces markdown.
 

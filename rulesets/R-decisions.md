@@ -1,5 +1,6 @@
 # RULESET R-decisions
 include::
+import:: skills/audit/scripts/audit-plan.py
 where:: `file:{anchor}/** Design/**/*.md contains:(?m)^##\s+Decisions\s*$ ; file:{anchor}/**/* Decisions.md`
 description:: spec for decisions — a `## Decisions` section (with `### D<N>` records) in any design doc, plus the optional central `{slug} Decisions.md`
 

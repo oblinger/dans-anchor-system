@@ -1,5 +1,6 @@
 # RULESET R-file-association
 include::
+import:: skills/audit/scripts/audit-plan.py
 where:: `anchor`
 description:: Rules for the general typed-association pattern — three placement methods, cardinality→placement, parent + plural-suffix naming, one-way migration, one-form-per-parent, parent linkage, sibling-folder shape, and the citing-facet method declaration.
 

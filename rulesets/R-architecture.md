@@ -1,5 +1,6 @@
 # RULESET R-architecture
 include::
+import:: skills/audit/scripts/audit-plan.py
 where:: `file:{anchor}/**/* Architecture.md, !**/DAS *.md`
 exclusion-note:: `!**/DAS *.md` exempts the facet-spec catalog (a `DAS <Name>.md` is the SPEC for the facet, not an instance; specs are governed by [[R-facet-spec]]) — added 2026-07-13, T014 follow-on.
 description:: spec for the `{slug} Architecture.md` entry-point design facet — section spine, mandatory visual figure, subsystem dispatch + link convention, API content kept off the page

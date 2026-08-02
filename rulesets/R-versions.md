@@ -1,5 +1,6 @@
 # RULESET R-versions
 include::
+import:: skills/audit/scripts/audit-plan.py
 where:: `file: versions/*.dmg`
 description:: the versions/ release-artifact store — immutable, tag-gated published builds
 

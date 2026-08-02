@@ -1,5 +1,6 @@
 # RULESET R-roadmap
 include::
+import:: skills/audit/scripts/audit-plan.py
 where:: `file:{anchor}/**/* Roadmap.md`
 description:: facet spec for the project sequencing-design doc — milestones, shapes, and numbering
 
