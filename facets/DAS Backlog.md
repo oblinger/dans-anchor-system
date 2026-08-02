@@ -116,15 +116,17 @@ This is a change from the legacy B-number policy, which used gap-fill (lowest un
 
 ### Wiki-link conventions for feature docs
 
-F-numbers are per-anchor namespaces; the same `F<n> — Title` filename can appear in multiple anchors over time. Obsidian wiki-links resolve by path-proximity, which makes within-anchor links unambiguous but cross-anchor links potentially incorrect — a bare `[[F<n> — Title]]` link from anchor A could silently resolve to anchor B's file if A doesn't have one with that name.
+F-numbers are per-anchor namespaces, so the number alone does not identify a document. Since **F298** (2026-08-02) new feature docs carry the anchor slug in the filename — `{slug} F<n> — Title.md` — which makes every cross-anchor reference unambiguous by construction. Docs authored before that date keep the bare `F<n> — Title.md` name and are never renamed, so the corpus is permanently mixed and both forms below are live.
 
 **Rule:**
 
-- **Within-anchor wiki-links** to feature docs use the bare form: `[[F<n> — Title]]`. Path-proximity resolves correctly.
-- **Cross-anchor wiki-links** to feature docs must be **path-qualified**: `[[ANCHOR Slug/.../Features/F<n> — Title]]`, or use an explicit alias like `[[F<n> — Title|SKA F<n>]]` when the link target is unambiguous in the surrounding context.
+- **Within-anchor wiki-links** use the shortest form that resolves: `[[{slug} F<n> — Title]]` for a slug-named doc, `[[F<n> — Title]]` for a legacy one. Links resolve by **filename**, so the target must spell the file as it actually is.
+- **Cross-anchor wiki-links** to a slug-named doc are just `[[SKA F294 — Title]]` — the slug is already in the filename, so there is nothing left to qualify. Only a **legacy** target still needs the old defence: path-qualify it (`[[ANCHOR Slug/.../Features/F<n> — Title]]`) or alias it, because a bare `[[F<n> — Title]]` resolves by Obsidian path-proximity and can silently land on another anchor's same-named file.
+- **Displayed text stays bare.** Use the pipe form — `[[Tink F298 — Title|F298]]` — wherever the slug would be noise: backlog rows inside their own anchor, `{slug} queries.md`, `Q.md`. That is also what audit-q **C37** asks for, so rendered surfaces read exactly as they did before F298; the slug lives in the link target, where it does the work.
 - `Q.md` and `{slug} queries.md` only ever link to `[[ANCHOR]]` and `[[{slug} queries|{slug}]]` — never directly to feature docs across anchors — so they are unaffected by this rule.
+- **In chat, keep saying the bare `F<n>`.** The session window names the anchor, so the disambiguating context is already on screen. An F-number is ambiguous only *out of* context — and the filename is the one surface that has none, which is why it is the surface that carries the slug.
 
-**Creation-time guard.** `/feature` step 1b (per `[[SKA feature]]` § 1b) greps the vault for an existing H1 with the same title before writing a new feature doc. If a same-title file already exists in another anchor, the agent surfaces it as a single inline question — rename, or proceed knowing both files exist and cross-anchor links to either must be qualified per the rule above. Within-anchor collisions block creation outright (titles must be unique within an anchor).
+**Creation-time guard.** `/feature` step 1b (per `[[SKA feature]]` § 1b) checks the *current anchor's* Features folder for a same-titled doc and blocks creation if it finds one — titles must be unique within an anchor. The former vault-wide grep and its cross-anchor inline question **retired with F298**: two anchors holding same-titled features is no longer a collision, because their filenames differ by slug.
 
 ### Transition note: pre-existing B-numbers
 

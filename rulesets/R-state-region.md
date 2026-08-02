@@ -30,7 +30,9 @@ def body(ctx):
     # A feature doc's OPEN block is still R-pathguard's DENY; its `## Resolved`
     # and `## Status` moved here (warn) in F291 — so the doc is no longer
     # skipped wholesale, only the region the harder rule still covers.
-    if re.match(r"F\d+\s+—", name):
+    # `F<n> — Title.md` OR `{slug} F<n> — Title.md` (F298); the slug prefix is
+    # optional forever, since pre-2026-08-02 docs keep the bare form.
+    if re.match(r"(?:[A-Za-z][A-Za-z0-9]*\s+)?F\d+\s+—", name):
         heads = ("## Resolved", "## Status")
     hit = any(h in old or h in new for h in heads)
     text = None
@@ -87,7 +89,8 @@ def body(ctx):
     inp = getattr(ev, "input", None) or {}
     content = inp.get("content") or ""
     heads = ("## Open Questions", "## Resolved", "## Status")
-    if re.match(r"F\d+\s+—", name):     # open block stays R-pathguard's (F291)
+    # Optional `{slug} ` prefix per F298; open block stays R-pathguard's (F291).
+    if re.match(r"(?:[A-Za-z][A-Za-z0-9]*\s+)?F\d+\s+—", name):
         heads = ("## Resolved", "## Status")
     if not any(h in content for h in heads):
         return []

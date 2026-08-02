@@ -13,6 +13,8 @@ user_invocable: true
 requires:: vault, anchor-cli, skill:ask, skill:mint, facet:backlog, facet:query
 subsystem:: [[DAS Drive Design]] — the Drive group's subsystem profile
 
+The runbook for the `/feature` skill — drives a feature from idea through Designing → Agreed → Implementing → Testing → Done with a single F-numbered doc, an explicit user-agreement gate, and mandatory backlog/Q.md sync at every transition.
+
 | Table of Contents |  |
 |---|---|
 | **[[#When to Use]]** |  |
@@ -31,8 +33,6 @@ subsystem:: [[DAS Drive Design]] — the Drive group's subsystem profile
 | **[[#Commit Discipline]]** |  |
 | **[[#Feature Doc Conventions]]** |  |
 | **[[#Stat Integration]]** |  |
-
-The runbook for the `/feature` skill — drives a feature from idea through Designing → Agreed → Implementing → Testing → Done with a single F-numbered doc, an explicit user-agreement gate, and mandatory backlog/Q.md sync at every transition.
 
 Manage a feature from initial idea through design, agreement, implementation, testing, and completion. Every feature gets a dated design document, posts to stat throughout its lifecycle, and requires explicit user agreement before implementation begins.
 
@@ -82,38 +82,30 @@ If a feature is `[Questions]` or `[Blocked]` mid-flight, that's tracked via the 
 
 **Pick the highest applicable tier.** If you find yourself writing tier 4 with no Blocks-next, pause and reconsider: could a passive signal work? Could the user notice this in normal use? Often the answer is yes and the right tier is 3.
 
-Per `[[DAS Backlog]]` § Numbering policy, F-numbers are monotonic-forever, never recycled, **zero-padded to three digits** as `F001` … `F999`. The F-number is **minted by the workflow skill's `state define <anchor> Backlog F+`** in § 1.5 below — run § 1.5 first (after the collision check in § 1b), parse the assigned `F<NNN>` from its stdout, then create the feature doc in the anchor's Features folder. Per **F142** the canonical location is the **Design** folder (Features is a design artifact, D07): `{slug} Design/{slug} Features/F{NNN} — {Feature Name}.md`.
+Per `[[DAS Backlog]]` § Numbering policy, F-numbers are monotonic-forever, never recycled, **zero-padded to three digits** as `F001` … `F999`. The F-number is **minted by the workflow skill's `state define <anchor> Backlog F+`** in § 1.5 below — run § 1.5 first (after the collision check in § 1b), parse the assigned `F<NNN>` from its stdout, then create the feature doc in the anchor's Features folder. Per **F142** the canonical location is the **Design** folder (Features is a design artifact, D07): `{slug} Design/{slug} Features/{slug} F{NNN} — {Feature Name}.md`.
 
-If `{slug} Design/{slug} Features/` doesn't exist, create it. (Legacy anchors still hold features at `{slug} Track/{slug} Features/`; the workflow scripts read both during the F142 rollout — but **new** docs go in the Design location.) Filenames carry the F-number prefix from the mint (zero-padded). **Do not read the backlog file directly to compute the next F-number** — `state define <anchor> Backlog F+` is the canonical mint.
+**The filename leads with the anchor slug (F298, 2026-08-02).** `{slug}` is the anchor's **file-prefix form** — `Tink`, `SKA`, `MUSE` — the same token already used by `{slug} Backlog.md` and `{slug} Features/`, *not* the uppercase `.anchor` slug (`TINK`), which would be inconsistent with every sibling file in the folder. The slug is there because F-numbers are a **per-anchor** namespace that resets at F1 in every anchor, so a bare `F26` names as many files as there are anchors and cannot be turned into a file search. Dan, 2026-08-02: *"if you tell me that you're working on F26 — the problem is, I can't actually find that document, because the slug is not part of it."*
 
-#### 1b. Collision check — vault grep for duplicate H1 (per F27)
+**Only the filename changes.** In chat, keep saying the bare `F298` — the session window already names the anchor, so the context that disambiguates is on screen; an F-number is ambiguous only *out of* context, and the filename is the one surface that has none. Backlog rows, `queries.md`, and `Q.md` also stay bare. Where a wiki-link must *target* a slug-named doc, use the pipe form so the displayed text stays bare: `[[Tink F298 — Title|F298]]` — which is what audit-q **C37** requires anyway.
 
-**Before writing the file**, scan the vault for an existing feature doc with the same H1. F-numbers are per-anchor namespaces that reset at F1 in each anchor (per `[[DAS Backlog]]` § Numbering policy), so the same `F<n> — <Title>` filename can appear in multiple anchors. Obsidian wiki-link resolution by path-proximity makes this safe within an anchor but ambiguous across anchors — F27 catches the collision at creation time.
+**Pre-2026-08-02 docs keep the bare `F{NNN} — {Title}.md` form and are never renamed** (Dan's call). The corpus stays permanently mixed; every matcher accepts both forms rather than switching between them.
+
+If `{slug} Design/{slug} Features/` doesn't exist, create it. (Legacy anchors still hold features at `{slug} Track/{slug} Features/`; the workflow scripts read both during the F142 rollout — but **new** docs go in the Design location.) Filenames carry the F-number from the mint (zero-padded). **Do not read the backlog file directly to compute the next F-number** — `state define <anchor> Backlog F+` is the canonical mint.
+
+#### 1b. Collision check — within-anchor title only (F27, narrowed by F298)
+
+**Before writing the file**, check the *current anchor's* Features folder for an existing feature doc with the same H1 title. Within-anchor titles must be unique.
+
+**The cross-anchor half of this check retired with F298.** It existed because the same `F<n> — <Title>` filename could appear in several anchors, making Obsidian's path-proximity wiki-link resolution ambiguous across anchors. With the slug in the filename that collision is **impossible by construction** — `[[SKA F294 — Title]]` and `[[Tink F294 — Title]]` are distinct filenames — so there is nothing left to warn about and no inline question to ask. Two anchors may now freely hold same-titled features.
 
 **Procedure:**
 
-1. **Resolve the vault root** from `cwd` — walk up to the kmr root (the directory containing the user's anchors), or fall back to `~/ob/kmr/`.
-2. **Grep all `Features/` folders** under the vault root for an H1 that exactly matches `# F<n> — <Title>` with the new file's title. Equivalent forms are acceptable:
-   ```bash
-   grep -lr "^# F[0-9]\+ — <exact title>$" <vault root>/**/Features/
-   ```
-   Or a Read of every `Features/` folder followed by H1 inspection.
-3. **Branch on results:**
-   - **Zero matches** — proceed normally to the file write.
-   - **One or more matches in *other* anchors** — surface as a single inline question (active mode, since the user is engaging with `/feature` right now):
-     ```
-     /feature — heads up: this title already exists at:
-     - <path/to/other/file>
-     [...]
-     Options:
-       (A) proceed with the same title — cross-anchor wiki-links to either file must be qualified per [[DAS Backlog]] § Wiki-link conventions for feature docs.
-       (B) rename — suggest a slightly disambiguating title and re-run.
-     Recommendation: lean (A) if cross-anchor links to this feature are not anticipated; lean (B) if you expect cross-anchor references.
-     ```
-     Wait for the user's pick before writing the file.
-   - **Match in the *same* anchor** — within-anchor title collision is genuinely bad (within-anchor titles must be unique). Surface as a stronger error: "Within-anchor title collision — pick a different title." Block creation; do not write the file.
+1. **Read the current anchor's `{slug} Features/` folder** (both the `{slug} Design/` and legacy `{slug} Track/` locations).
+2. **Branch on results:**
+   - **No same-titled doc in this anchor** — proceed to the file write.
+   - **Same title already in this anchor** — surface a hard error: "Within-anchor title collision — pick a different title." Block creation; do not write the file.
 
-This is the one place in `/feature` where an inline question is appropriate (vs. routing through `/ask`'s batch surface): it's a yes/no creation-time prompt that needs an answer in the same turn, and the user is in active mode by virtue of having invoked `/feature`.
+No vault-wide grep is needed, and no user prompt is raised: the one surviving case is an error the agent resolves by choosing a different title, not a fork the user decides.
 
 **Feature doc structure — Open Questions is the first H2 BELOW the H1 (after the H1's one-line orientation) while any pending Qs exist; deleted entirely once all are resolved, with answered Qs migrating to a `## Resolved` H2 at the bottom of the doc** (per [[F241 — Questions block below H1 + state-stamped integrity hash|F241]], 2026-07-15 — supersedes the earlier above-the-H1 placement). The lifecycle:
 
@@ -210,8 +202,10 @@ Output: `{slug}: added F<NNN> in Now [Designing]` — parse `F<NNN>` from the se
 After § 1 creates the feature doc, run a follow-up call to add the wiki-link body so the row links back to the new doc:
 
 ```bash
-~/.claude/skills/workflow/scripts/state set {slug} Backlog F<NNN> --body "→ [[F<NNN> — {Feature Name}]]"
+~/.claude/skills/workflow/scripts/state set {slug} Backlog F<NNN> --body "→ [[{slug} F<NNN> — {Feature Name}|F<NNN> — {Feature Name}]]"
 ```
+
+The link **targets** the slug-carrying filename (Obsidian resolves by filename, so it must) and **displays** the bare `F<NNN> — {Feature Name}`, so the backlog reads exactly as it did before F298. For a pre-2026-08-02 doc whose file has no slug, keep the plain `→ [[F<NNN> — {Feature Name}]]` — those are never renamed.
 
 Use `--horizon Later` for parking-mode stubs (`/feature` used to file something for later). Use `--status Questions` once the Open Questions block has been written and the row should surface (via the queries render) as user-actionable.
 

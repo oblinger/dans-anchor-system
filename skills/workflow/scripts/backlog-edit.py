@@ -1311,6 +1311,25 @@ def format_row_id(kind, rest_or_num):
 
 
 # --------------------------------------------------------------------------
+# Feature-doc filename grammar (F298)
+
+# A feature doc's stem is `F<n> — Title` OR `{slug} F<n> — Title`, e.g. both
+# `F294 — URL validation` and `SKA F294 — URL validation`. The slug went into
+# the filename because an F-number is a PER-ANCHOR namespace that resets at F1
+# in every anchor, so `F26` alone names as many files as there are anchors and
+# cannot be found by search. Docs authored before 2026-08-02 keep the bare form
+# and are never renamed — hence optional, not required, permanently.
+#
+# The slug alternative is one bare alphanumeric token (`Tink`, `SKA`, `LUMEN`),
+# which is the anchor's file-prefix form. Deliberately NOT `[\w\s]+`: a greedy
+# multi-token prefix would match ordinary prose stems (`Notes on F12 — foo`).
+#
+# This is the canonical copy. `state` reads it as `be.FEATURE_STEM_RE`; the
+# rule bodies in R-pathguard / R-state-region are exec'd in isolation and
+# cannot import, so they carry the same pattern inline with a pointer here.
+FEATURE_STEM_RE = re.compile(r"^(?:[A-Za-z][A-Za-z0-9]*\s+)?(F\d+)\s+—")
+
+# --------------------------------------------------------------------------
 # Backlog scanning
 
 ROW_HEADER_RE = re.compile(
@@ -2630,8 +2649,16 @@ def _ensure_bottom_resolved_h2(lines):
 
 
 def _container_id_for_feature(feature_path):
-    """Return container ID for block-IDs (e.g., 'F128')."""
-    m = re.match(r"^(F\d+)\s+—", feature_path.stem)
+    """Return container ID for block-IDs (e.g., 'F128').
+
+    The F-number is pulled from wherever it sits in the stem, so a slug-named
+    doc (`Tink F298 — Title.md`, F298) yields the same `F298` as the legacy
+    `F298 — Title.md`. That equality is the whole point: block-IDs are
+    permanent deep-link targets and `queries.md` / `Q.md` address questions as
+    `^F<n>-Q<n>` — minting `^Tink-F298---Title-Q1` instead would strand every
+    link into the doc while looking like it worked.
+    """
+    m = FEATURE_STEM_RE.match(feature_path.stem)
     if m:
         return m.group(1)
     return feature_path.stem

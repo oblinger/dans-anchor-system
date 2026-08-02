@@ -9,7 +9,7 @@ A self-hosted media server that ingests, transcodes, and streams a personal libr
 | -[[HBR]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [HBR](hook://p/HBR)<br>: Harbor — example project anchor — a designed software project with a grouped component tree |
 | --- | --- |
 | Related | [[Clarifier]] (sibling project),  [[Devtools]] (grouped variant),  [[DAS Examples]] (the example gallery),  [Repo](https://github.com/example/harbor),  [Docs site](https://example.github.io/harbor/)  |
-| [[HBR Design\|Design]]+ | [[HBR PRD\|PRD]],  [[HBR Architecture\|Architecture]],  [[HBR Decisions\|Decisions]],  [[HBR UX Design\|UX Design]],  [[HBR CLI\|CLI]],  [[HBR API Design\|API]],  [[HBR Roadmap\|Roadmap]],  [[HBR Testing\|Testing]],  [[HBR Features\|Features]],  [[HBR CLI Help.txt\|CLI Help.txt]],  [[HBR CLI Help.txt\|CLI Help.txt]],  [[HBR Design/HBR Decisions\|Design/HBR Decisions]],   |
+| [[HBR Design\|Design]]+ | [[HBR PRD\|PRD]],  [[HBR Architecture\|Architecture]],  [[HBR Decisions\|Decisions]],  [[HBR UX Design\|UX Design]],  [[HBR CLI\|CLI]],  [[HBR API Design\|API]],  [[HBR Roadmap\|Roadmap]],  [[HBR Testing\|Testing]],  [[HBR Features\|Features]],  [[HBR CLI Help.txt\|CLI Help.txt]],  [[HBR Design/HBR Decisions\|Design/HBR Decisions]],  [[HBR CLI Help.txt\|CLI Help.txt]],   |
 | [[HBR Track\|Track]]+ | [[HBR Backlog\|Backlog]],  [[HBR Messages\|Messages]],  [[HBR Status\|Status]],  [[HBR queries\|queries]],   |
 | [[HBR User Docs\|User Docs]]+ | [[HBR Guide\|Guide]],   |
 | [[HBR Dev Docs\|Dev Docs]]+ | [[HBR Files\|Files]],  [[HBR Versions\|Versions]],   |

@@ -22,3 +22,6 @@ Spec for the **Messages facet** — the per-anchor file `{slug} Messages.md` tha
 - **Load-bearing distinction to preserve** — the frontmatter `description` and R-messages-03 both fix the Messages-vs-Inbox split (agent-read background notes vs. user-dropped raw input); any edit that loosens or removes that distinction breaks the facet's reason for existing.
 - **Cross-references to keep in sync** — [[DAS Anchor Tree]] dispatch tables, [[DAS Anchor Tree]] tree, and any anchor template that scaffolds a `{slug} Messages.md`.
 - **Conventions** — refer to sibling facets by their CAB filename (`~~[[DAS Inbox]]~~`, `[[DAS Backlog]]`); refer to per-anchor instances with the `{slug}` placeholder, never a concrete anchor's name.
+[2026-08-02 13:46:35] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/facets/DAS Backlog.md was edited
+[2026-08-02 13:53:36] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/facets/DAS Backlog.md was edited
+[2026-08-02 13:53:50] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/facets/DAS Backlog.md was edited
