@@ -3202,29 +3202,47 @@ def chk_md_fence_no_markdown(target, anchor_root, args):
     (re-express as live markdown), so this rule carries NO `fix::` — it messages."""
     if not target.is_file():
         return "pass", "not a file"
-    lines = _read(target).splitlines()
-    in_fence = False
-    exempt = False
-    body = []
-    for ln in lines:
-        if ln.lstrip().startswith("```"):
-            if not in_fence:
-                # Capture the info string (language tag) on the opening fence.
-                # A language-tagged code fence (```python, ```bash, ```json, …) is
-                # literal content and is EXEMPT — code legitimately contains `[[`
-                # (regex) or `#` (comments). Only fences meant to SHOW rendered
-                # markdown — unlabeled ``` or ```markdown / ```md — are checked.
-                info = ln.lstrip()[3:].strip().lower()
-                exempt = bool(info) and info not in ("markdown", "md")
-                in_fence, body = True, []
-            else:
-                if not exempt:
-                    blob = "\n".join(body)
-                    if "[[" in blob or re.search(r"^#{1,6}\s", blob, re.M):
-                        return "fail", "fenced code block contains markdown (wiki-link or heading) — re-express as live markdown"
-                in_fence, exempt = False, False
-        elif in_fence:
-            body.append(ln)
+    text = _read(target)
+    # Fence pairing comes from `_FENCE_RE`, not a local toggle. The toggle this
+    # replaced tested `startswith("```")`, which is blind twice over: a `~~~`
+    # fence was never a fence at all, so its contents were never inspected AND a
+    # ``` line inside one flipped the toggle, exempting or checking every fence
+    # below it at random. That is the same defect `_strip_fenced` was cured of
+    # earlier in F296, left standing in the one checker whose whole subject is
+    # fences. `_FENCE_RE` also runs an unclosed fence to end-of-document the way
+    # CommonMark does; the toggle silently dropped that fence's body on the floor.
+    for m in _FENCE_RE.finditer(text):
+        inner = m.group(0).split("\n")
+        opener, inner = inner[0], inner[1:]
+        # The info string is whatever follows the fence-character run. A
+        # language-tagged fence (```python, ~~~bash, ```json …) is literal source
+        # and is EXEMPT — code legitimately contains `[[` (a regex) or `#` (a
+        # comment). Only fences meant to SHOW rendered markdown — untagged, or
+        # tagged `markdown`/`md` — are checked.
+        info = opener.strip().lstrip(m.group(1)[0]).strip().lower()
+        if info and info not in ("markdown", "md"):
+            continue
+        if inner and re.match(r"^[ \t]{0,3}" + re.escape(m.group(1)) + r"[ \t]*$", inner[-1]):
+            inner = inner[:-1]  # drop the closer; an unclosed fence has none
+        # De-indent the body by the OPENER's own indent, then probe at column zero.
+        # Both halves of that are corpus-driven. A fence nested in a list item
+        # carries its whole body at the fence's indent, so its `## Choice points`
+        # is at column zero *relative to the fence* — probing the raw line missed
+        # three real instances (`survey-skill.md`, DMUX `F026`, HA `F064`), each a
+        # ```markdown block showing headings the author meant to render. But the
+        # blanket `^ {0,3}` relaxation used everywhere else in F296 is WRONG here:
+        # it newly failed `TPM OKR Cards.md` on `  # evaluations completed` (a
+        # count symbol) and `MACAPP restic.md` on `  # Stop the job` (a shell
+        # comment) — both column-zero fences whose `#` is genuinely indented and
+        # genuinely not a heading. De-indenting separates the two cases exactly.
+        pad = len(opener) - len(opener.lstrip())
+        blob = "\n".join(ln[pad:] if ln[:pad].isspace() else ln for ln in inner)
+        # `[ \t]` rather than `\s`: `\s` matches a newline, so a lone `#` on its
+        # own line read as a heading.
+        if "[[" in blob or re.search(r"^#{1,6}[ \t]", blob, re.M):
+            line = text.count("\n", 0, m.start()) + 1
+            return "fail", (f"fenced code block at line {line} contains markdown "
+                            "(wiki-link or heading) — re-express as live markdown")
     return "pass", ""
 
 
