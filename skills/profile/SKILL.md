@@ -38,7 +38,7 @@ Layers 1-3 ship with the skill; 4-6 are user overrides loaded from [[SRCH rules]
 A markdown profile:
 
 - **Title line** with the entity name + tier label.
-- **Results table at top** (per legacy RRR convention) — at-a-glance facts.
+- **Results table at top** (per the SRCH report shape) — at-a-glance facts.
 - **Body sections** organized by the noun's standard dimensions; facts source-attributed inline or in footnotes.
 - **Contradictions** — surfaced explicitly, never harmonized away.
 - **Gaps** — explicit "no source coverage for X" section in Deep; doesn't get filled by inference.

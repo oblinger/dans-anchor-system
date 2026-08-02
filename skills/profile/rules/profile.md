@@ -1,5 +1,5 @@
 ---
-description: Default rules for the profile skill, applied across all noun types. Ships with the skill. User overrides in SRCH rules/. Includes the RRR report-shape from the legacy /research family.
+description: Default rules for the profile skill, applied across all noun types. Ships with the skill. User overrides in SRCH rules/. Includes the SRCH report shape from the legacy /research family.
 ---
 # profile — default rules
 
@@ -7,7 +7,7 @@ Default verb-level rules for `profile`. Ships with the skill; user overrides in 
 
 Pair files (`profile-person.md`, `profile-corp.md`, `profile-product.md`, `profile-book.md`, …) carry noun-specific defaults and augment these.
 
-## Default output shape — RRR convention
+## Default output shape — the SRCH report shape
 
 Every profile follows the **Research-Report Convention** (migrated from legacy `/research`):
 
@@ -37,7 +37,7 @@ Entries inside the report (when listing related entities) are ranked by value to
 The profile in [[Profile]] (`~/ob/kmr/Topic/Search/Profile/`):
 
 - Title: `# <Entity Name> — <tier>`
-- Results table at top (per RRR convention)
+- Results table at top (per the SRCH report shape)
 - Body sections by noun-dimension (per the pair file)
 - Contradictions surfaced inline
 - Gaps named explicitly

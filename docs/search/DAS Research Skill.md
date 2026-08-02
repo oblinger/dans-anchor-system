@@ -4,7 +4,7 @@ description: "Compare agent skills that do similar work — find how others buil
 # DAS Research Skill
 Specialized survey for **comparing agent skills** that do similar work. You give it a concept ("architect", "feature designer", "PRD writer"), it finds skills others have built that address it, and produces a comparison report with **choice-point analysis** and a recommendation.
 
-| -[[DAS Research Skill]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Research Skill](hook://p/DAS%20Research%20Skill)<br>: Compare agent skills that do similar work — find how others built a given skill concept and produce a choice-point comparison with a recommendation |
+| -[[DAS Research Skill]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [docs](hook://docs) → [DAS Research Skill](hook://p/DAS%20Research%20Skill)<br>: Compare agent skills that do similar work — find how others built a given skill concept and produce a choice-point comparison with a recommendation |
 | --- | --- |
 | ... |  |
 
@@ -22,7 +22,7 @@ If you just want a flat list of what's out there, use `/research survey`. Use `/
 
 ## What you get
 
-A report at `~/ob/kmr/RR/RR Research Reports/{date} Skill Survey — {concept}/`:
+A report in the [[SRCH]] Survey stream at `~/ob/kmr/Topic/Search/Survey/{date} Skill Survey — {concept}.md`:
 
 1. **Results table** at the top — clickable links to every found SKILL.md, with columns for *what it outputs*, *what it does*, and its *notable architectural decision* (one keyword phrase per skill).
 2. **Choice points** section — high-level architectural decisions baked into the skills, with which skills go which way for each axis. *This is where you decide which side you're on before committing to an approach.* Example: "Single architecture doc OR folder with subsystem sub-docs?" — followed by which 3 skills do single-doc and which 4 do folder.

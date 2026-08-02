@@ -90,7 +90,7 @@ Markdown-friendly. The agent applies the annotation to **the cell value** (not t
 
 ## Output shape
 
-The standard RRR report shape (per [[survey/rules/survey|survey.md]]) with three appendices for the three stages:
+The standard SRCH report shape (per [[survey/rules/survey|survey.md]]) with three appendices for the three stages:
 
 1. **Stage 3 results table** at the top — this is the user's main deliverable, cells annotated per the scheme above.
 2. **Interpretive notes** — what's notable, where the table is sparse, where uncertainty clusters.

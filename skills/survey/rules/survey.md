@@ -7,9 +7,9 @@ Default verb-level rules for `survey`. Ships with the skill; user overrides in `
 
 Pair files (`survey-person.md`, `survey-corp.md`, `survey-product.md`, `survey-skill.md`, …) carry noun-specific defaults and augment these.
 
-## Default output shape — RRR convention
+## Default output shape — the SRCH report shape
 
-Every survey follows the **Research-Report Convention** (migrated from legacy `/research survey`):
+Every survey follows the **SRCH report shape** (see the template at [[_{{DATE}} {{REPORT_TITLE}} Template]]; migrated from legacy `/research survey`):
 
 1. **Results table at the top** — at-a-glance comparable facts. First column is the entity name as a markdown link to its primary URL (no separate "Name" + "URL" columns). Entries ranked by value to the user, with a blank separator row between top-tier and the rest.
 2. **Body** — overview, analysis, recommendations (only when asked).
@@ -52,7 +52,7 @@ Trigger phrases: *"survey skills that do X"*, *"compare skills for Y"*, *"is any
 The survey in [[Survey]] (`~/ob/kmr/Topic/Search/Survey/`):
 
 - Title: `# <Survey topic> Survey`
-- Results table at top (per RRR convention)
+- Results table at top (per the SRCH report shape)
 - Scope note immediately after the table (population, bound, dimensions, generation date)
 - Body: overview → analysis → (recommendation if asked)
 - Sources at end with full URLs

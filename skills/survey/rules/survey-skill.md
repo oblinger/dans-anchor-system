@@ -60,9 +60,9 @@ Pre-baked columns for the survey table:
 
 - **Skill** column is the skill name as a markdown link directly to the SKILL.md (or repo-root if SKILL.md isn't web-visible).
 - **Rank** by relevance to the user's stated target, highest first.
-- **Visual separator row** (empty) between top-tier candidates and the rest (per RRR convention in [[survey/rules/survey|survey.md]]).
+- **Visual separator row** (empty) between top-tier candidates and the rest (per the SRCH report shape in [[survey/rules/survey|survey.md]]).
 
-## Default report sections (in order, on top of RRR convention)
+## Default report sections (in order, on top of SRCH report shape)
 
 1. **Results table** (above) — always first.
 
@@ -81,7 +81,7 @@ Pre-baked columns for the survey table:
 
 4. **Recommendation** — given the user's target, which existing skill is closest and what to borrow vs. adapt vs. discard.
 
-5. **Sources** — full URLs (per RRR convention).
+5. **Sources** — full URLs (per the SRCH report shape).
 
 ## Default sources (authority order)
 
