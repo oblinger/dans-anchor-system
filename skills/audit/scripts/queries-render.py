@@ -69,6 +69,25 @@ _spec.loader.exec_module(audit_q)
 LinkEntry = audit_q.LinkEntry
 BacklogEntry = audit_q.BacklogEntry
 LIVE_HORIZON_H2S = audit_q.LIVE_HORIZON_H2S
+HORIZON_RANK = audit_q.HORIZON_RANK
+
+
+def _by_horizon(rows):
+    """Rows in canonical horizon priority, stable within a horizon (T091).
+
+    The renderer took its order from raw FILE POSITION, so a `## Later` row rendered
+    above a `## Next` row whenever a backlog's horizon H2s sat out of order. That is
+    latent rather than loud only by luck of the corpus — [[T076]] measured 33 of 34
+    backlogs carrying `Now -> Next -> Later` contiguous and correctly ordered, and
+    fixed the one file that was scrambled. Fixing the file did not fix the renderer,
+    which still has no idea what the priority IS.
+
+    Sorting is stable, so within one horizon the author's deliberate ordering is
+    preserved — only the between-horizon order is imposed. Unknown horizons sort
+    last rather than raising: a new H2 should not crash the render of an existing
+    queue, and it lands where an unrecognised bucket belongs anyway.
+    """
+    return sorted(rows, key=lambda r: HORIZON_RANK.get(r.horizon, len(HORIZON_RANK)))
 ACTIVE_HORIZONS_BANNER = {"Active", "Ready", "Now", "Next", "Legwork"}
 # Banner `Questions` total counts `[Questions]` rows ONLY in active horizons
 # (matches ACTIVE_HORIZONS_BANNER above) — `## Later` is deferred by user
@@ -992,10 +1011,12 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
     # An empty B-QFix (zero residuals) is NOT Ready — nothing to do — so drop it
     # from the Ready render (per user 2026-06-29: "not really ready, what's it doing there").
     qfix_empty = _count_qfix_subs(backlog_file) == 0
-    ready = [r for r in eligible if id(r) not in promoted
-             and r.bracket in READY_ACTIVE_BRACKETS
-             and not (r.identifier == "B-QFix" and qfix_empty)]
-    qs = [r for r in eligible if id(r) not in promoted and "Questions" in r.bracket]
+    # Same ordering defect, same fix — leaving the sibling list on file order is
+    # exactly the "fixed one, left the other" failure T099 keeps naming.
+    ready = _by_horizon([r for r in eligible if id(r) not in promoted
+                         and r.bracket in READY_ACTIVE_BRACKETS
+                         and not (r.identifier == "B-QFix" and qfix_empty)])
+    qs = _by_horizon([r for r in eligible if id(r) not in promoted and "Questions" in r.bracket])
     # The ledger. `[Waiting]` rides with `[Blocked <handle>]` because both mean
     # "not moving, and not by the user's hand" — the difference is only who
     # eventually moves it, which the bracket itself already says.
