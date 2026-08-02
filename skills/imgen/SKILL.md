@@ -28,6 +28,8 @@ Generate an image from a prompt, or edit one you already have, into the anchor t
 
 A roll page is a **regular file, not an anchor page** — so it heads with a `:>>` breadcrumb and never a dispatch table. Under that: the `# H1`, then **one line saying what this sitting is about** — who the subject is, what was being explored, which image became the keeper. That line is not for navigation meta: "newest first" is the anchor's standing convention, not this roll's news, and stating it here just costs a line. Set it with `new --about "…"`; it defaults to the bare title, which is worth replacing.
 
+Under that sits **`**Spent so far:** $N.NNN`** — the roll's cumulative cost, maintained by the script, never by hand. It is re-summed from the batches' own provenance lines on every write, so a rewritten or deleted batch can't leave the total quietly wrong.
+
 Then, in this order:
 
 - **`## Pick`** — the chosen keeper, shown large (2000px). Optional; set by `pick`.
@@ -43,13 +45,15 @@ A command line names the verb, the model, and (for edits) the source image:
 
 ## Invocation
 
-    imgen new    {roll} {prompt} [--about "…"]   open a new roll, seed its Next render
-    imgen get    {roll}                 print the Next render — command and prompt, separately
-    imgen update {roll} [--command C] [--prompt P]    rewrite the Next render; renders nothing
-    imgen render {roll} [prompt] [-n N] run the Next render N times (a prompt resets it to create)
-    imgen edit   {roll} {image} {instruction} [-n N]  instruction-edit an image (flux-kontext)
-    imgen pick   {roll} {image}         pin the keeper — top of the page + gallery cover; free
-    imgen list   [roll]                 rolls with their numbers, or the images in one roll
+    imgen new     {roll} {prompt} [--about "…"]   open a new roll, seed its Next render
+    imgen get     {roll}                print the Next render — command and prompt, separately
+    imgen update  {roll} [--command C] [--prompt P]   rewrite the Next render; renders nothing
+    imgen render  {roll} [prompt] [-n N]  run the Next render N times (a prompt resets it to create)
+    imgen edit    {roll} {image} {instruction} [-n N]  instruction-edit the whole image (flux-kontext)
+    imgen mask    {roll} {image} {region} --ellipse cx,cy,rx,ry   author a mask + preview; free
+    imgen inpaint {roll} {image} {region} {instruction} [--ellipse …] [-n N]  repaint inside the mask
+    imgen pick    {roll} {image}        pin the keeper — top of the page + gallery cover; free
+    imgen list    [roll]                rolls with their numbers, or the images in one roll
 
 `{roll}` takes the number (`4`, `004`) **or** a substring of the title (`scout`). Spend verbs also take `-s/--size` (default `square_hd`), `--confirm-over` (default $1.00), `--yes`, and `--dry-run`.
 
@@ -70,9 +74,29 @@ Everything goes to **[[IMGEN]]** at `~/ob/kmr/Log/IMGEN/`, alongside [[VOX]] —
 | `flux-dev` | `create` | $0.025/image | text → image. The quality default for a fresh picture. |
 | `flux-kontext` | `edit` | $0.040/image | image + instruction → image. Changes what you name and holds the rest — face, style, composition. |
 
-Both run on fal.run. The source image is sent **inline as a base64 data URI**, so editing needs no upload step and works on a file that has never left the machine. Vector output (Recraft) and on-device generation (Draw Things) are declared seams, not implementations — adding one means a new entry in `BACKENDS` in the script.
+All run on fal.run. Images are sent **inline as base64 data URIs**, so nothing is uploaded and a file that never left the machine still works. Vector output (Recraft) and on-device generation (Draw Things) are declared seams, not implementations — adding one means a new entry in `BACKENDS`.
 
-**Editing is instruction-based, not region-based.** You say *what to change* in words; there is no mask. Masked inpainting (FLUX Fill) would need a mask image and a way to paint it — deferred deliberately, not forgotten.
+### Three ways to change an image — pick by who chooses the region
+
+| Verb | Who picks the region | When to reach for it |
+|---|---|---|
+| `edit` | nobody — the whole frame is in play | a change to the *scene*: background, lighting, clothing, setting |
+| `inpaint` | **the agent**, by reading the image | a change to one small thing that must not disturb the rest: a nose, a hand, an object |
+| *(not built)* | the user, painting directly | would need a paint UI; deferred, not forgotten |
+
+`edit` (flux-kontext) re-renders everything from a sentence. It is strong on scene-level change and **weak on small anatomical detail** — it weights identity preservation heavily and will quietly decline to alter a face. Two rounds on one nose produced no usable change; that is the signal to switch to `inpaint`.
+
+`inpaint` (flux-fill) is a two-step loop, and the first step is free:
+
+1. `imgen mask {roll} {image} {region} --ellipse cx,cy,rx,ry` writes `{image}-{region}-mask.png` **and** `{image}-{region}-preview.png` — the original with a **pure-green outline** drawn on it. Show the *preview*, never the raw mask: a black-and-white mask cannot be mapped onto the picture by eye, which defeats the review it exists to enable. One image, not a before/after pair.
+2. `imgen inpaint {roll} {image} {region} "{instruction}"` repaints inside it.
+
+Two implementation facts that are load-bearing, both learned the hard way:
+
+- **FLUX Fill is not pixel-preserving.** It re-renders the whole frame and may return a different resolution (480² from a 500² input). So the script composites its output back into the source through the feathered mask — outside the mask the result is byte-identical to the source. Without that step, a "masked" edit silently degrades the entire image.
+- **Fill is starved below ~1MP.** The source is upscaled to 1024² first (`FILL_SIZE`); a 500² original gives the model a quarter of the pixels it needs and the patch comes back mushy.
+
+**When two passes miss in opposite directions, blend instead of re-rolling.** An inpaint result is a composite of its source, so the two are pixel-identical outside the mask — compositing between them through the same mask moves *only* that region, along exactly the axis that was overshot. It is free, deterministic, and dial-able, and it beats paying for another guess. [[IMGEN002 — Tink portrait studies]] Batch 15 is the worked example.
 
 ## The disciplines
 

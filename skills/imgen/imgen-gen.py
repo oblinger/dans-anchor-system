@@ -40,12 +40,15 @@ ROLL_RE = re.compile(rf"^{SLUG}(\d{{3}})(?: — (.*))?$")     # a roll folder
 IMAGE_RE = re.compile(rf"^{SLUG}\d{{3}}-(\d+)([A-Z])\.")    # an image file: batch, variant
 
 BACKENDS = {
-    "flux-dev":     {"endpoint": "https://fal.run/fal-ai/flux/dev",         "cost": 0.025},
-    "flux-kontext": {"endpoint": "https://fal.run/fal-ai/flux-kontext/dev", "cost": 0.040},
+    "flux-dev":     {"endpoint": "https://fal.run/fal-ai/flux/dev",           "cost": 0.025},
+    "flux-kontext": {"endpoint": "https://fal.run/fal-ai/flux-kontext/dev",   "cost": 0.040},
+    "flux-fill":    {"endpoint": "https://fal.run/fal-ai/flux-pro/v1/fill",   "cost": 0.050},
 }
 # The verb the user types → the model that runs it. The H4 command records both,
-# e.g. `create flux-dev` / `edit flux-kontext 6E`.
-VERB_MODEL = {"create": "flux-dev", "edit": "flux-kontext"}
+# e.g. `create flux-dev` / `edit flux-kontext 6E` / `inpaint flux-fill 1A [nose]`.
+VERB_MODEL = {"create": "flux-dev", "edit": "flux-kontext", "inpaint": "flux-fill"}
+# Fill works best near 1MP; a 500² source starves it. Masks scale with the image.
+FILL_SIZE = 1024
 KEYCHAIN = "FAL_KEY"
 
 
@@ -134,15 +137,18 @@ def resolve_image(roll_dir, image):
 
 # ------------------------------------------------------------------ command (H4)
 
-def format_command(verb, image=None):
-    """`create flux-dev` / `edit flux-kontext 6E`."""
+def format_command(verb, image=None, region=None):
+    """`create flux-dev` / `edit flux-kontext 6E` / `inpaint flux-fill 1A [nose]`."""
     model = VERB_MODEL[verb]
-    return f"{verb} {model}" + (f" {image}" if image else "")
+    return (f"{verb} {model}" + (f" {image}" if image else "")
+            + (f" [{region}]" if region else ""))
 
 
 def parse_command(cmd):
-    """`edit flux-kontext 6E` → (verb, model, image|None)."""
-    parts = cmd.split()
+    """`inpaint flux-fill 1A [nose]` → (verb, model, image|None, region|None)."""
+    rm = re.search(r"\[([^\]]+)\]\s*$", cmd)
+    region = rm.group(1) if rm else None
+    parts = (cmd[:rm.start()] if rm else cmd).split()
     if not parts or parts[0] not in VERB_MODEL:
         raise ImgenError(f"unknown command '{cmd}' — verb must be one of {sorted(VERB_MODEL)}")
     verb = parts[0]
@@ -150,7 +156,9 @@ def parse_command(cmd):
     image = parts[2] if len(parts) > 2 else None
     if model not in BACKENDS:
         raise ImgenError(f"unknown model '{model}' in command '{cmd}'")
-    return verb, model, image
+    if verb == "inpaint" and not region:
+        raise ImgenError(f"'{cmd}' needs a mask region, e.g. `inpaint flux-fill 1A [nose]`")
+    return verb, model, image, region
 
 
 # --------------------------------------------------------------------- the page
@@ -266,6 +274,37 @@ def strip_meta(block):
     return "\n".join(lines).strip("\n")
 
 
+SPEND_RE = re.compile(r"^\*\*Spent so far:\*\*.*$", re.M)
+
+
+def update_spend(roll_dir):
+    """Recompute the roll's cumulative cost and park it under the summary line.
+
+    Derived, never accumulated: every batch's provenance line carries its own
+    dollar figure, so the total is re-summed from the page each time. That way a
+    deleted or rewritten batch can never leave the total silently wrong."""
+    page = roll_page(roll_dir)
+    text = page.read_text(encoding="utf-8")
+    # Count a dollar figure only on a provenance line — one that also names a model
+    # or a seed. Older rolls wrote provenance as plain prose rather than the italic
+    # line, so keying on `*…*` alone silently under-reports them as $0.000.
+    total = 0.0
+    for ln in text.split("\n"):
+        if re.search(r"\b(seed|seeds|flux|fal-ai|local-blend)\b", ln, re.I):
+            m = re.search(r"\$([0-9]+\.[0-9]+)", ln)
+            if m:
+                total += float(m.group(1))
+    line = f"**Spent so far:** ${total:.3f}"
+    if SPEND_RE.search(text):
+        text = SPEND_RE.sub(line, text, count=1)
+    else:                                   # insert just above the first H2
+        m = re.search(r"^## ", text, re.M)
+        pos = m.start() if m else len(text)
+        text = text[:pos].rstrip("\n") + f"\n\n{line}\n\n" + text[pos:]
+    page.write_text(re.sub(r"\n{3,}", "\n\n", text), encoding="utf-8")
+    return total
+
+
 def read_batch_meta(roll_dir, n):
     """Recover a past batch's provenance line → (date|None, {variant: seed}).
 
@@ -313,6 +352,7 @@ def write_batch(roll_dir, n, command, prompt, images, meta=None):
         pos = nr[1] if nr else len(text)
         new = text[:pos].rstrip("\n") + "\n\n" + block + ("\n" + text[pos:] if pos < len(text) else "")
     page.write_text(re.sub(r"\n{3,}", "\n\n", new), encoding="utf-8")
+    update_spend(roll_dir)
 
 
 # ------------------------------------------------------------------ pick / index
@@ -376,6 +416,76 @@ def _data_uri(path):
     return "data:image/png;base64," + base64.b64encode(path.read_bytes()).decode()
 
 
+# ------------------------------------------------------------------- masking
+
+def mask_path(roll_dir, image_stem, region):
+    return roll_dir / f"{image_stem}-{region}-mask.png"
+
+
+def build_mask(src, region, ellipse, size):
+    """Write `<image>-<region>-mask.png` at `size`², plus a review preview.
+
+    The preview is the ORIGINAL image with a pure-green outline drawn on it —
+    one picture, not a before/after pair. A separate black-and-white mask is
+    unreadable to a human: you cannot map its coordinates onto the photo by eye,
+    which is exactly the review the mask exists to enable."""
+    from PIL import Image, ImageDraw, ImageFilter
+    lanczos = Image.Resampling.LANCZOS
+    im = Image.open(src).convert("RGB")
+    k = size / im.width
+    cx, cy, rx, ry = (round(v * k) for v in ellipse)
+
+    mask = Image.new("L", (size, size), 0)
+    ImageDraw.Draw(mask).ellipse((cx - rx, cy - ry, cx + rx, cy + ry), fill=255)
+    mp = mask_path(src.parent, src.stem, region)
+    mask.convert("RGB").save(mp)
+
+    edge = (mask.filter(ImageFilter.FIND_EDGES)
+                .point(lambda v: 255 if v > 40 else 0)
+                .filter(ImageFilter.MaxFilter(5)))          # thicken so it reads
+    prev = im.resize((size, size), lanczos)
+    prev.paste(Image.new("RGB", (size, size), (0, 255, 0)), mask=edge)
+    pp = src.parent / f"{src.stem}-{region}-preview.png"
+    prev.save(pp)
+    return mp, pp
+
+
+def inpaint(model, prompt, source, mask, out, size=FILL_SIZE):
+    """Fill inside `mask` only. Returns (path, seed).
+
+    FLUX Fill is NOT pixel-preserving — it re-renders the whole frame and may
+    even hand back a different resolution. So its output is composited back into
+    the source through the (feathered) mask: outside the mask the result is
+    byte-for-byte the source, which is what makes a mask mean what it says."""
+    from PIL import Image, ImageFilter
+    lanczos = Image.Resampling.LANCZOS
+    big = Image.open(source).convert("RGB").resize((size, size), lanczos)
+    tmp = source.parent / f".{source.stem}-up.png"
+    big.save(tmp)
+    try:
+        cfg = BACKENDS[model]
+        payload = {"prompt": prompt, "image_url": _data_uri(tmp),
+                   "mask_url": _data_uri(mask)}
+        req = urllib.request.Request(cfg["endpoint"], data=json.dumps(payload).encode(),
+                                     headers={"Authorization": f"Key {keychain()}",
+                                              "Content-Type": "application/json"})
+        try:
+            resp = json.load(urllib.request.urlopen(req, timeout=180))
+        except urllib.error.HTTPError as e:
+            raise ImgenError(f"{model} HTTP {e.code}: {e.read().decode('utf-8','replace')[:200]}")
+        if not resp.get("images"):
+            raise ImgenError(f"{model} returned no images: {str(resp)[:200]}")
+        raw = source.parent / f".{source.stem}-raw.png"
+        raw.write_bytes(urllib.request.urlopen(resp["images"][0]["url"], timeout=120).read())
+        filled = Image.open(raw).convert("RGB").resize((size, size), lanczos)
+        m = Image.open(mask).convert("L").resize((size, size), lanczos)
+        Image.composite(filled, big, m.filter(ImageFilter.GaussianBlur(6))).save(out)
+        raw.unlink(missing_ok=True)
+        return out, resp.get("seed")
+    finally:
+        tmp.unlink(missing_ok=True)
+
+
 def generate(model, prompt, size, source, out):
     """One image → (path, seed). `source` is a Path for edit models, else None (text→image)."""
     cfg = BACKENDS[model]
@@ -403,10 +513,16 @@ def generate(model, prompt, size, source, out):
 def _do_render(roll_dir, roll_n, count, size, confirm_over, yes, dry):
     """Shared by `render` and `edit`: execute the Next render `count` times."""
     command, prompt = read_next(roll_dir)
-    verb, model, image = parse_command(command)
+    verb, model, image, region = parse_command(command)
     if not prompt.strip():
         raise ImgenError("Next render has an empty prompt — set one with `update` or a prompt arg")
-    source = resolve_image(roll_dir, image) if verb == "edit" else None
+    source = resolve_image(roll_dir, image) if verb in ("edit", "inpaint") else None
+    mask = None
+    if verb == "inpaint":
+        mask = mask_path(roll_dir, source.stem, region)
+        if not mask.exists():
+            raise ImgenError(f"no mask {mask.name} — build it first with "
+                             f"`imgen mask {roll_n} {image} {region} --ellipse cx,cy,rx,ry`")
 
     cost = BACKENDS[model]["cost"] * count
     if cost > confirm_over and not yes:
@@ -430,12 +546,17 @@ def _do_render(roll_dir, roll_n, count, size, confirm_over, yes, dry):
               f"({SLUG}{roll_n:03d}-{batch}[{''.join(variants)}]) (${cost:.3f})")
         return []
 
-    specs = {v: (model, prompt, size, source,
-                 roll_dir / f"{SLUG}{roll_n:03d}-{batch}{v}.png") for v in variants}
+    def one(v):
+        out = roll_dir / f"{SLUG}{roll_n:03d}-{batch}{v}.png"
+        if verb == "inpaint":
+            return inpaint(model, prompt, source, mask, out)
+        return generate(model, prompt, size, source, out)
+
+    specs = {v: (v,) for v in variants}
     date, seeds = read_batch_meta(roll_dir, batch)      # carry forward an append's earlier seeds
     written, failed = [], []
     with cf.ThreadPoolExecutor(min(4, count)) as ex:
-        futs = {ex.submit(generate, *s): v for v, s in specs.items()}
+        futs = {ex.submit(one, *s): v for v, s in specs.items()}
         for fut in futs:
             try:
                 path, seed = fut.result()
@@ -448,7 +569,9 @@ def _do_render(roll_dir, roll_n, count, size, confirm_over, yes, dry):
                            for v in batch_variants(roll_dir, batch)),
                           key=lambda p: p.name)
         # An edit inherits its source's dimensions, so record the source instead of a size.
-        meta = format_meta(model, size if source is None else f"source {source.stem}",
+        detail = (size if source is None else
+                  f"{source.stem} · mask {mask.name}" if mask else f"source {source.stem}")
+        meta = format_meta(model, detail,
                            date or dt.date.today().isoformat(),
                            BACKENDS[model]["cost"] * len(all_imgs), batch, seeds)
         write_batch(roll_dir, batch, command, prompt, all_imgs, meta)
@@ -512,6 +635,29 @@ def cmd_edit(a):
     return 0
 
 
+def cmd_mask(a):
+    """Author a mask and render its green-outline preview. No API call, no cost."""
+    _, _, d = find_roll(a.roll)
+    src = resolve_image(d, a.image)
+    try:
+        cx, cy, rx, ry = (int(v) for v in a.ellipse.split(","))
+    except ValueError:
+        raise ImgenError("--ellipse wants cx,cy,rx,ry in the source image's own pixels")
+    mp, pp = build_mask(src, a.region, (cx, cy, rx, ry), a.size_px)
+    print(f"  {mp.name}\n  {pp.name}   <- review this one (green outline on the image)")
+    return 0
+
+
+def cmd_inpaint(a):
+    n, _, d = find_roll(a.roll)
+    src = resolve_image(d, a.image)
+    if a.ellipse:
+        build_mask(src, a.region, tuple(int(v) for v in a.ellipse.split(",")), a.size_px)
+    write_next(d, format_command("inpaint", a.image, a.region), " ".join(a.instruction).strip())
+    _do_render(d, n, a.count, a.size, a.confirm_over, a.yes, a.dry_run)
+    return 0
+
+
 def cmd_pick(a):
     _, _, d = find_roll(a.roll)
     img = resolve_image(d, a.image)
@@ -569,6 +715,21 @@ def main():
     p.add_argument("roll"); p.add_argument("image"); p.add_argument("instruction", nargs="+")
     spend_opts(p)
     p.set_defaults(fn=cmd_edit)
+
+    p = sub.add_parser("mask", help="author a mask + green-outline preview (free)")
+    p.add_argument("roll"); p.add_argument("image"); p.add_argument("region")
+    p.add_argument("--ellipse", required=True, metavar="cx,cy,rx,ry")
+    p.add_argument("--size-px", type=int, default=FILL_SIZE)
+    p.set_defaults(fn=cmd_mask)
+
+    p = sub.add_parser("inpaint", help="repaint inside a mask (flux-fill)")
+    p.add_argument("roll"); p.add_argument("image"); p.add_argument("region")
+    p.add_argument("instruction", nargs="+")
+    p.add_argument("--ellipse", default=None, metavar="cx,cy,rx,ry",
+                   help="(re)build the mask first; omit to reuse the existing one")
+    p.add_argument("--size-px", type=int, default=FILL_SIZE)
+    spend_opts(p)
+    p.set_defaults(fn=cmd_inpaint)
 
     p = sub.add_parser("pick", help="mark an image as the roll's pick")
     p.add_argument("roll"); p.add_argument("image"); p.set_defaults(fn=cmd_pick)
