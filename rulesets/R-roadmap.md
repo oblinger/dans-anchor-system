@@ -30,7 +30,7 @@ Every H1 marked as a top milestone, H2 marked as a milestone point, and H3 marke
 
 **Why:** the checkbox is the grazer's primary read of milestone state. Missing checkbox = milestone state is invisible to a quick scan.
 
-### RULE R-roadmap-04 — Milestones with checkbox `[x]` or `[ ]` carry a `**Status**:` line (sampled)
+### RULE R-roadmap-04 — Milestones with checkbox `[x]` or `[~]` carry a `**Status**:` line (sampled)
 check:: milestone_status_line
 
 Within ~5 lines of the milestone heading, a `**Status**:` line summarizes the state — *"Complete — N tests passing"* / *"Core complete — …"* / *"In progress — …"*. Required for `[x]` and `[~]`; recommended for `[ ]` once work begins.
