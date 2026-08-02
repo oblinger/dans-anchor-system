@@ -910,6 +910,75 @@ _H2_RE = re.compile(r"^ {0,3}##[ \t]+(\S.*?)(?:[ \t]+#+)?[ \t]*$")
 # through. `#tag` is correctly NOT a heading under either spelling.
 _ANY_HEADING_RE = re.compile(r"^ {0,3}#{1,6}([ \t]|$)")
 
+# A TABLE ROW, spelled once. Five sites disagreed about what one is (T103 class b),
+# and the disagreement was not academic in either direction. `chk_breadcrumb_row` and
+# `_row_cells` anchored on `lstrip()`/`strip()`, so a four-space INDENTED CODE BLOCK
+# showing a sample table read as the document's first table row — `DKT Standard.md`
+# opens `### kv-table` with exactly that, and the checker failed the page for a
+# malformed masthead while the real breadcrumb table sat untouched below. The other
+# three anchored at column zero (`^\|`), so a table legitimately indented as the
+# continuation of a list item was invisible: `ATT F004` carries a two-space symlink
+# table, `chk_breadcrumb_row` sees it and `chk_design_row_iff_folder` does not, and
+# the same document gets both verdicts about the same table.
+#
+# `{0,3}` is CommonMark's bound and it separates exactly those two cases. It is
+# deliberately NOT the `[ \t]*` that `_FENCE_RE` settled on, and the asymmetry is
+# measured rather than sloppy: CommonMark counts those three spaces from the
+# containing block's content column, so both bounds are approximations of a block
+# parser this file does not have. For fences the permissive one won because a fence's
+# contents are literal either way, so over-recognising costs nothing and
+# under-recognising exposes markup samples to the fixers. For table rows the trade is
+# reversed — over-recognising a code sample turns it into live structure that
+# checkers then demand the author repair.
+_TABLE_ROW_RE = re.compile(r"^ {0,3}\|")
+# A GFM delimiter row: `|---|---|`, `| :-- | --: |`. Interior is dashes, colons,
+# pipes and space, and it must carry at least one dash — without that requirement
+# `| | |` (an empty row) reads as a separator.
+_TABLE_SEP_RE = re.compile(r"^ {0,3}\|[\s:|-]*-[\s:|-]*\|\s*$")
+
+
+def _is_table_row(line: str) -> bool:
+    """Is this line the start of a GFM table row? The one definition."""
+    return bool(_TABLE_ROW_RE.match(line))
+
+
+def _table_blocks(lines) -> list[list[str]]:
+    """Contiguous runs of table rows, in order — one entry per table.
+
+    Named by two defects at once. `chk_tests_table_present` took `rows[2:]` over
+    EVERY row in its section, so a second small table's header and separator were
+    judged as coverage data rows and reported as "kind row(s) without a wiki-link
+    first cell" — a finding about a table that is not the coverage table. And
+    `_proposed_tests_rows` identified the separator LEXICALLY, so an all-placeholder
+    data row `| - | - | - |` matched the separator pattern, was dropped, and took
+    the real row above it out with it (the row a separator follows is a header) —
+    silent suppression, the worse half. Both stop being possible once a table is a
+    block with a header, an optional separator, and data, instead of a flat list of
+    pipe-lines with an index arithmetic guess on top.
+    """
+    blocks, cur = [], []
+    for ln in lines:
+        if _is_table_row(ln):
+            cur.append(ln)
+        elif cur:
+            blocks.append(cur)
+            cur = []
+    if cur:
+        blocks.append(cur)
+    return blocks
+
+
+def _table_data_rows(block: list[str]) -> list[str]:
+    """Data rows of ONE table block — header dropped, separator dropped if present.
+
+    Positional, not lexical: the separator can only be the second line of a block,
+    so a data row that happens to look like one (`| - | - | - |`) stays data.
+    """
+    if len(block) >= 2 and _TABLE_SEP_RE.match(block[1]):
+        return block[2:]
+    return block[1:]
+
+
 def _row_cells(line: str) -> list[str]:
     """Interior cells of a GFM table row, split on UNESCAPED pipes only.
 
@@ -930,9 +999,9 @@ def _row_cells(line: str) -> list[str]:
     A trailing pipe is optional in GFM: only an empty final field is dropped, so
     `| a | b` keeps `b` — the `[1:-1]` idiom this replaces silently lost it.
     """
-    s = line.strip()
-    if not s.startswith("|"):
+    if not _is_table_row(line):
         return []
+    s = line.strip()
     parts = re.split(r"(?<!\\)\|", s)[1:]
     if parts and parts[-1] == "":
         parts = parts[:-1]
@@ -1230,7 +1299,7 @@ def chk_breadcrumb_row(target, anchor_root, args):
     if f is None:
         return "error", "no file"
     for ln in _read(f).splitlines():
-        if ln.lstrip().startswith("|"):
+        if _is_table_row(ln):
             if re.search(r"\|\s*-\[\[.+?\]\]-\s*\|.*hook://", ln.strip()):
                 return "pass", ""
             return "fail", "first table row is not a breadcrumb (-[[…]]- … hook://)"
@@ -1246,8 +1315,8 @@ def chk_design_row_iff_folder(target, anchor_root, args):
     text = _read(f)
     # A *Design row*'s first cell is the design-folder link aliased exactly "Design"
     # (or a bare "Design" cell) — NOT a member doc like "UX Design"/"API Design".
-    has_row = (bool(re.search(r"^\|\s*\[\[[^\]|]*\|Design\]\]", text, re.MULTILINE))
-               or bool(re.search(r"^\|\s*Design\s*\|", text, re.MULTILINE)))
+    has_row = (bool(re.search(r"^ {0,3}\|\s*\[\[[^\]|]*\|Design\]\]", text, re.MULTILINE))
+               or bool(re.search(r"^ {0,3}\|\s*Design\s*\|", text, re.MULTILINE)))
     if has_folder == has_row:
         return "pass", "both present" if has_folder else "neither (no design facet)"
     if has_folder and not has_row:
@@ -1340,15 +1409,14 @@ def chk_facet_dispatch_top(target, anchor_root, args):
     # summary line: first non-blank, non-table line within 2 lines of the H1
     summary_idx = None
     for i in range(h1_idx + 1, min(h1_idx + 3, len(lines))):
-        s = lines[i].strip()
-        if s and not s.startswith("|"):
+        if lines[i].strip() and not _is_table_row(lines[i]):
             summary_idx = i
             break
     if summary_idx is None:
         return "fail", "no one-line summary after H1"
     # require a breadcrumb dispatch table within ~12 lines of the summary
     for i in range(summary_idx + 1, min(summary_idx + 12, len(lines))):
-        if re.search(r"^\|\s*-\[\[.+?\]\]-\s*\|", lines[i]):
+        if re.search(r"^ {0,3}\|\s*-\[\[.+?\]\]-\s*\|", lines[i]):
             return "pass", "H1 -> summary -> breadcrumb table"
     return "fail", "no breadcrumb dispatch table (missing masthead)"
 
@@ -1766,34 +1834,31 @@ def chk_all_test_kinds_have_targets(target, anchor_root, args):
     return "pass", ""
 
 
-_TABLE_SEP_RE = re.compile(r"^\s*\|[\s:|-]+\|\s*$")
-
-
 def _proposed_tests_rows(lines):
-    """Data-row lines under ## Proposed Tests — header rows (the row a separator
-    follows) and separator rows are dropped.
+    """Data-row lines under ## Proposed Tests — every table in the section, each
+    with its own header and separator dropped.
 
     Stripped here rather than at the two callsites so neither can be fixed and the
     other left behind — the exact way the fence defect stayed alive across three
-    F296 presses (T099).
+    F296 presses (T099). Header/separator identification is POSITIONAL now
+    (`_table_blocks` / `_table_data_rows`): the lexical form dropped a legitimate
+    all-placeholder row `| - | - | - |` as a separator and took the real row above
+    it along, because the row a separator follows is treated as a header.
     """
     lines = _strip_fenced("\n".join(lines)).splitlines()
     pt_start = None
     for i, ln in enumerate(lines):
-        if re.match(r"^## Proposed Tests\b", ln):
+        if re.match(r"^ {0,3}## Proposed Tests\b", ln):
             pt_start = i
             break
     if pt_start is None:
         return None
-    rows = []
+    body = []
     for i in range(pt_start + 1, len(lines)):
-        if re.match(r"^## ", lines[i]):
+        if _H2_RE.match(lines[i]):
             break
-        if re.match(r"^\|", lines[i]):
-            rows.append(lines[i])
-    return [ln for idx, ln in enumerate(rows)
-            if not _TABLE_SEP_RE.match(ln)
-            and not (idx + 1 < len(rows) and _TABLE_SEP_RE.match(rows[idx + 1]))]
+        body.append(lines[i])
+    return [ln for block in _table_blocks(body) for ln in _table_data_rows(block)]
 
 
 def chk_proposed_tests_rows_have_spec(target, anchor_root, args):
@@ -1808,8 +1873,11 @@ def chk_proposed_tests_rows_have_spec(target, anchor_root, args):
         cells = _row_cells(ln)
         if not cells:
             continue
-        if re.match(r"^[\s:-]+$", cells[-1]):  # separator row
-            continue
+        # No lexical separator guard here. `_proposed_tests_rows` drops the header
+        # and separator POSITIONALLY now, and the guard that used to sit here made
+        # the very next line unreachable: a `-` Spec cell matched `^[\s:-]+$` and
+        # was skipped as a separator — which is the exact failure this rule exists
+        # to catch, silently declared out of scope by its own guard.
         if not cells[-1] or cells[-1] == "-":
             return "fail", f"row has empty Spec cell: {ln[:60]}"
     return "pass", ""
@@ -1828,7 +1896,10 @@ def chk_spec_cells_format_valid(target, anchor_root, args):
         if not cells:
             continue
         spec = cells[-1]
-        if not spec or spec == "-" or re.match(r"^[\s:-]+$", spec):
+        # An unfilled placeholder is the SIBLING rule's business
+        # (`proposed_tests_rows_have_spec` fails it); separators are already gone
+        # positionally, so no lexical test is needed for them here either.
+        if not spec or spec == "-":
             continue
         if not re.match(r"^\[\[.+\]\]$", spec) and not re.match(r"^\[[^\]]+\]$", spec):
             return "fail", f"Spec cell invalid (not wiki-link or bracket): {spec}"
@@ -2138,9 +2209,12 @@ def chk_tests_table_present(target, anchor_root, args):
     over_i = next((i for i, t in titles if t == "Overview"), None)
     if over_i is not None and tests_i > over_i:
         return "fail", "## Tests appears after ## Overview (must precede it)"
-    body = _section_body(lines, r"^## Tests\s*$") or []
-    rows = [ln for ln in body if ln.lstrip().startswith("|")]
-    data = rows[2:] if len(rows) >= 2 else []
+    body = _section_body(lines, r"^ {0,3}## Tests\s*$") or []
+    # The COVERAGE table is the first table in the section. A second table below it
+    # (a legend, a note) is not coverage, and flattening the section into one row
+    # list made its header and separator read as kind rows missing a wiki-link.
+    blocks = _table_blocks(body)
+    data = _table_data_rows(blocks[0]) if blocks else []
     if not data:
         return "fail", "## Tests has no table with data rows"
     nolink = sum(1 for ln in data if "[[" not in (_row_cells(ln) or [""])[0])
@@ -2737,15 +2811,22 @@ def _disclosure_units(f, scope):
     return units
 
 
+# A SUMMARY ROW — a TOC row, an in-doc `[[#…]]` outline row, or a dispatch masthead
+# row. Spelled once because the two functions that asked the question disagreed:
+# `_disclosure_summary` allowed a bold wrapper only on the `[[#…]]` form, while
+# `_disclosure_descriptive` allowed it on all three. A masthead whose first cell is
+# `| **[[Alpha]]** |` — the bolded-lead form the dispatch spec itself uses — was
+# therefore judged to HAVE no summary and, in the same pass, to have a DESCRIPTIVE
+# one. Bold is presentation; it belongs in one place, applied to every form.
+_SUMMARY_ROW_RE = re.compile(r"^ {0,3}\|\s*(?:\*\*)?(?:-?\[\[|→)")
+
+
 def _disclosure_summary(f):
     """(has_summary, hash_of_summary_region). A summary is a TOC table, an
     in-doc `[[#…]]` outline, or a dispatch masthead."""
     import hashlib
     lines = _strip_fenced(_read(f)).splitlines()
-    rows = [ln for ln in lines
-            if re.match(r"^\|\s*(?:\*\*)?\[\[#", ln)
-            or re.match(r"^\|\s*-?\[\[", ln)
-            or re.match(r"^\|\s*→", ln)]
+    rows = [ln for ln in lines if _SUMMARY_ROW_RE.match(ln)]
     return bool(rows), hashlib.sha1("\n".join(rows).encode()).hexdigest()[:12]
 
 
@@ -2761,7 +2842,7 @@ def _disclosure_descriptive(f):
     """
     lines = _strip_fenced(_read(f)).splitlines()
     for ln in lines:
-        if not re.match(r"^\|\s*(?:\*\*)?(?:\[\[|-?\[\[|→)", ln):
+        if not _SUMMARY_ROW_RE.match(ln):
             continue
         # Strip the link cell, then look for surviving prose in later cells.
         cells = _row_cells(ln)
