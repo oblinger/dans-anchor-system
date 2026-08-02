@@ -1041,6 +1041,16 @@ def chk_h1_after_frontmatter(target, anchor_root, args):
     text = _read(f)
     _, body = _split_frontmatter(text)
     in_questions = False
+    # DELIBERATELY NOT fence-stripped, and the T099 sweep that converted its twelve
+    # siblings stopped here on purpose. The loop below accepts only three things
+    # before the H1 — blank, `:>>`, `## Open Questions` — and rejects everything
+    # else, so it trips on the fence OPENER itself, which is correct: a code block
+    # above the H1 is precisely the "anything else" this rule forbids. Stripping
+    # would blank that opener, the loop would skip it as empty, and the checker
+    # would pass a file it exists to fail. Its neighbour `chk_architecture_h1_present`
+    # reads the opposite way — it matches only HEADING lines, steps over the opener,
+    # and does need stripping. Same class, opposite fix; the discriminator is
+    # whether the scan rejects unknown lines or ignores them.
     for ln in body.splitlines():
         if not ln.strip():
             continue
@@ -1232,7 +1242,13 @@ def chk_all_rules_have_id(target, anchor_root, args):
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
-    headings = [ln for ln in _read(f).splitlines() if re.match(r"^#+\s+RULE\s+", ln)]
+    # Same stripping, same reason, as the sibling `chk_rule_numbers_unique` below:
+    # a ruleset showing an example RULE heading is documenting the form, not
+    # declaring a rule. No rule invokes this checker today (T099 census: one of six
+    # such orphans), so the conversion moves nothing — it is here so that wiring it
+    # later does not re-import the defect its wired siblings already shed.
+    headings = [ln for ln in _strip_fenced(_read(f)).splitlines()
+                if re.match(r"^#+\s+RULE\s+", ln)]
     if not headings:
         return "pass", "no rules found"
     for h in headings:
@@ -1269,7 +1285,8 @@ def chk_all_rules_have_tier(target, anchor_root, args):
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
-    headings = [ln for ln in _read(f).splitlines() if re.match(r"^#+\s+RULE\s+", ln)]
+    headings = [ln for ln in _strip_fenced(_read(f)).splitlines()
+                if re.match(r"^#+\s+RULE\s+", ln)]
     if not headings:
         return "pass", "no rules found"
     for h in headings:
@@ -1314,7 +1331,12 @@ def chk_ruleset_no_frontmatter(target, anchor_root, args):
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
-    lines = _read(f).splitlines()
+    # The `---` scan is the fence-sensitive half, and it is the whole verdict: once
+    # the file is judged a standalone ruleset, ANY later line starting `---` fails
+    # it. A fenced YAML sample or a `---` thematic break shown as markup therefore
+    # reports frontmatter on a file that has none — and real frontmatter is never
+    # fenced, so stripping cannot hide the case this is for. Orphan today (T099).
+    lines = _strip_fenced(_read(f)).splitlines()
     first = next((ln for ln in lines if ln.strip()), None)
     if first is None:
         return "pass", "empty file"
@@ -1499,7 +1521,12 @@ def chk_proposed_tests_structure(target, anchor_root, args):
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
-    lines = _read(f).splitlines()
+    # Every boundary this reads — the section H2, the H3s, the `|` rows — comes off
+    # the fence-stripped copy, for the reason `_section_body` already documents: a
+    # Testing doc that SHOWS a proposed-tests table in a fence would otherwise have
+    # that sample counted as the section's real content, and the H3 it sits under
+    # judged complete on a table it doesn't have.
+    lines = _strip_fenced(_read(f)).splitlines()
     pt_start = None
     for i, ln in enumerate(lines):
         if re.match(r"^## Proposed Tests\b", ln):
@@ -1529,11 +1556,19 @@ def chk_proposed_tests_structure(target, anchor_root, args):
 
 
 def _bold_item_names(lines, header_re):
-    """**Name** at start of bullets under a section heading."""
+    """**Name** at start of bullets under a section heading.
+
+    `_section_body` finds boundaries on the stripped copy but hands back the
+    ORIGINAL lines — deliberately, so a section whose content IS a code block does
+    not read as empty. That is the wrong half for this caller: a bullet name is
+    never code, so a `- **Sample Kind**` shown inside a fence would be harvested as
+    a declared kind. Strip again on the way in; on already-blanked text it is a
+    no-op, so the double call costs nothing.
+    """
     body = _section_body(lines, header_re, stop_re=r"^### ")
     names = set()
     if body:
-        for ln in body:
+        for ln in _strip_fenced("\n".join(body)).splitlines():
             m = re.match(r"^-\s*\*\*([^*]+)\*\*", ln)
             if m:
                 names.add(m.group(1).strip())
@@ -1545,7 +1580,7 @@ def chk_proposed_tests_subset_of_strategy(target, anchor_root, args):
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
-    lines = _read(f).splitlines()
+    lines = _strip_fenced(_read(f)).splitlines()
     test_kinds = _bold_item_names(lines, r"^### Test Kinds\b")
     pt_start = None
     proposed = set()
@@ -1584,7 +1619,13 @@ _TABLE_SEP_RE = re.compile(r"^\s*\|[\s:|-]+\|\s*$")
 
 def _proposed_tests_rows(lines):
     """Data-row lines under ## Proposed Tests — header rows (the row a separator
-    follows) and separator rows are dropped."""
+    follows) and separator rows are dropped.
+
+    Stripped here rather than at the two callsites so neither can be fixed and the
+    other left behind — the exact way the fence defect stayed alive across three
+    F296 presses (T099).
+    """
+    lines = _strip_fenced("\n".join(lines)).splitlines()
     pt_start = None
     for i, ln in enumerate(lines):
         if re.match(r"^## Proposed Tests\b", ln):
@@ -1746,7 +1787,14 @@ def chk_architecture_h1_present(target, anchor_root, args):
     fm = re.match(r"^---\n.*?\n---\n", text, re.DOTALL)
     body = text[fm.end():] if fm else text
     expected = f"# {f.stem}"
-    for ln in body.splitlines():
+    # Unlike its neighbour `chk_h1_after_frontmatter`, which matches ANY non-blank
+    # line and so trips on the fence OPENER before ever reaching its body, this one
+    # matches only heading lines — it steps straight over the opener and reads the
+    # first heading INSIDE the fence as the document's first heading. An
+    # Architecture doc opening with a fenced `# Example` layout sketch fails on a
+    # heading that is a sample, and the reported "expected" name is the right one,
+    # which makes the finding read as a genuine mismatch.
+    for ln in _strip_fenced(body).splitlines():
         if re.match(r"^#{1,6}\s", ln):
             if ln.strip() == expected:
                 return "pass", ""
@@ -2169,7 +2217,10 @@ def chk_user_stories_use_rid_numbering(target, anchor_root, args):
     slug = _anchor_slug(anchor_root)
     in_stories = False
     ids = []
-    for ln in text.splitlines():
+    # A PRD that documents the US-{slug}-N form by showing one — the likeliest place
+    # in the vault for a sample `### US-EXAMPLE-1:` to appear — would otherwise have
+    # its own illustration reported as a malformed user story.
+    for ln in _strip_fenced(text).splitlines():
         if re.match(r"^## User Stories", ln):
             in_stories = True
             continue
@@ -2807,7 +2858,10 @@ def chk_milestone_checkbox(target, anchor_root, args):
     if f is None:
         return "error", "no file to inspect"
     failures = []
-    for i, ln in enumerate(_read(f).splitlines(), 1):
+    # Line numbers stay true: `_strip_fenced` blanks fenced lines rather than
+    # removing them, so `line {i}` still points where the reader would look.
+    # Orphan today (T099).
+    for i, ln in enumerate(_strip_fenced(_read(f)).splitlines(), 1):
         if re.match(r"^## (M-|M\d)", ln) and not re.match(r"^## \[[x ~]\] ", ln):
             failures.append(f"line {i}: missing checkbox")
     return ("pass", "") if not failures else ("fail", "; ".join(failures[:3]))
@@ -2819,10 +2873,21 @@ def chk_milestone_status_line(target, anchor_root, args):
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file to inspect"
-    lines = _read(f).splitlines()
+    # Both halves read the stripped copy: a fenced sample milestone must not DEMAND
+    # a Status line, and a fenced `**Status**:` must not SATISFY one.
+    lines = _strip_fenced(_read(f)).splitlines()
     failures = []
     for i, ln in enumerate(lines):
-        m = re.match(r"^#+\s+\[[x~]\]\s+(M\d+(?:\.\d+)*)\b", ln)
+        # The `[a-z]*` is load-bearing, and its absence was a live defect the T099
+        # fence pass surfaced rather than caused. Without it, `### [x] M1.8a — …`
+        # does not capture `M1.8a`: `\b` fails after `M1.8` because `a` is a word
+        # character, so the regex BACKTRACKS to `M1`, where `\b` succeeds against
+        # the `.`. A lettered SUB-milestone was therefore read as top-level `M1` and
+        # required to carry its own **Status** line. `ABIO Roadmap.md` reported 20
+        # such findings, 19 of them naming an `M1` that does have a Status line
+        # while pointing at a line that is not M1. Capturing the suffix makes
+        # `M1.8a` fail the `fullmatch` below, which is the intended reading.
+        m = re.match(r"^#+\s+\[[x~]\]\s+(M\d+(?:\.\d+)*[a-z]*)\b", ln)
         if m and re.fullmatch(r"M\d+", m.group(1)):  # top-level only
             if not any(re.match(r"^\*\*Status\*\*:", lines[j])
                        for j in range(i + 1, min(i + 11, len(lines)))):
@@ -2852,7 +2917,11 @@ def chk_milestone_section_separator(target, anchor_root, args):
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file to inspect"
-    lines = _read(f).splitlines()
+    # This one measures DISTANCE between H2s (`nxt - start < 20`), so a fenced H2
+    # does not merely add a spurious section — it shortens the gap around real ones
+    # and pulls them under the <20-line arm that demands a separator. Orphan today
+    # (T099). Blanked-not-removed keeps those distances honest.
+    lines = _strip_fenced(_read(f)).splitlines()
     h2 = [i for i, ln in enumerate(lines) if re.match(r"^## ", ln)]
     if len(h2) < 2:
         return "pass", "fewer than 2 H2 milestones"
@@ -3018,7 +3087,10 @@ def chk_brief_not_nested(target, anchor_root, args):
         return "pass", "not a Brief.md file"
     if " Brief Brief.md" in target.name:
         return "fail", "nested brief: file named '* Brief Brief.md'"
-    if re.search(r"^# BRIEF$", _read(target), re.MULTILINE):
+    # A Brief that QUOTES the `# BRIEF` heading — explaining the convention to the
+    # agent that reads it, which is exactly what a Brief is for — is not a nested
+    # brief. Orphan today (T099); converted so wiring it later is safe.
+    if re.search(r"^# BRIEF$", _strip_fenced(_read(target)), re.MULTILINE):
         return "fail", "Brief.md file contains '# BRIEF' heading"
     return "pass", ""
 
@@ -3089,7 +3161,10 @@ def chk_dated_entries_reverse_chronological(target, anchor_root, args):
     if f is None:
         return "error", "no file to inspect"
     dates = []
-    for ln in _read(f).splitlines():
+    # A log doc quoting an older entry inside a fence would inject that entry's date
+    # into the sequence at the point it is QUOTED, not where it belongs — and the
+    # failure names two real dates, so it reads as a genuine ordering error.
+    for ln in _strip_fenced(_read(f)).splitlines():
         m = re.match(r"^## (\d{4}-\d{2}-\d{2}) —", ln)
         if m:
             dates.append(m.group(1))
