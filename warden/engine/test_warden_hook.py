@@ -198,10 +198,28 @@ def test_audit_on_write():
     print("PASS  audit_on_write (F229 A′ — base-implied, file-anchored)")
 
 
+def _redirects_to(deny: str, *tokens: str) -> bool:
+    """Does this DENY name every one of `tokens`?
+
+    Assert what a redirect must TELL the agent — the tool, and the surface it
+    owns — rather than one spelling of the sentence. Two assertions here were
+    pinned to literal fragments (`"state Backlog"`, `"state <doc>"`) that
+    stopped appearing when the messages adopted the
+    `state <verb> <anchor> <doc> <label>` grammar; the DENYs kept firing
+    correctly, but the suite read red until someone re-read it.
+    """
+    return all(t in deny for t in tokens)
+
+
 def test_pathguard_veto():
     """F131: the veto path — R-pathguard denies the agent's Edit/Write on
-    script-owned surfaces (backlog, queries, feature-doc Q regions, Atlas) in
-    an anchor declaring `pathguard`, and stays inert without the trait."""
+    script-owned surfaces (backlog, queries, feature-doc Q regions, Atlas).
+
+    F264 (2026-07-18) moved `pathguard` into the anchor base, so it now fires
+    vault-wide rather than only where the trait is declared — the point of that
+    change being that NO anchor had adopted the opt-in trait, so the DENY had
+    never once fired. The final block therefore asserts base-implied firing,
+    the same shape `test_audit_on_write` pins for F229 A'."""
     home = _compiled_home()
     old = os.environ.get("WARDEN_HOME")
     os.environ["WARDEN_HOME"] = str(home)
@@ -217,7 +235,7 @@ def test_pathguard_veto():
             denies = [s for s in pre("Edit", file_path=str(anchor / "FX Backlog.md"),
                                      old_string="a", new_string="b")
                       if s.startswith(wh.DENY_SENTINEL)]
-            assert len(denies) == 1 and "state Backlog" in denies[0], denies
+            assert len(denies) == 1 and _redirects_to(denies[0], "state", "Backlog"), denies
             # 01 — queries page Edit denied with the renderer redirect
             denies = [s for s in pre("Edit", file_path=str(anchor / "FX queries.md"),
                                      old_string="a", new_string="b")
@@ -232,7 +250,7 @@ def test_pathguard_veto():
                                      old_string="- **Q1 — pick one?** ^F001-Q1",
                                      new_string="- answered")
                       if s.startswith(wh.DENY_SENTINEL)]
-            assert len(denies) == 1 and "state <doc>" in denies[0], denies
+            assert len(denies) == 1 and _redirects_to(denies[0], "state", "Open Questions"), denies
             # ...but an edit elsewhere in the same doc passes
             clean = pre("Edit", file_path=str(fdoc), old_string="prose", new_string="better prose")
             assert not [s for s in clean if s.startswith(wh.DENY_SENTINEL)], clean
@@ -256,15 +274,30 @@ def test_pathguard_veto():
                                     "old_string": "a", "new_string": "b"},
                      "cwd": elsewhere})
                     if s.startswith(wh.DENY_SENTINEL)]
-                assert len(denies) == 1 and "state Backlog" in denies[0], denies
+                assert len(denies) == 1 and _redirects_to(denies[0], "state", "Backlog"), denies
 
-        # trait OFF → the same event fires nothing
+        # trait UNDECLARED → still denied, because pathguard rides the anchor
+        # base (F264). This assertion read `not [...]` until 2026-08-02, which
+        # was the pre-F264 contract; it kept passing only while the rule was
+        # inert, and the whole reason F264 landed is that the rule was inert.
         with tempfile.TemporaryDirectory() as td:
-            anchor = _anchor(Path(td), "Commit")
+            anchor = _anchor(Path(td), "Commit")  # no pathguard declared
             steers = wh.dispatch({"hook_event_name": "PreToolUse", "tool_name": "Edit",
                                   "tool_input": {"file_path": str(anchor / "FX Backlog.md"),
                                                  "old_string": "a", "new_string": "b"},
                                   "cwd": str(anchor)})
+            denies = [s for s in steers if s.startswith(wh.DENY_SENTINEL)]
+            assert len(denies) == 1 and _redirects_to(denies[0], "state", "Backlog"), steers
+
+        # ...but an UN-ANCHORED file has no anchor to carry the base, so nothing
+        # fires — the boundary that keeps "vault-wide" from meaning "everywhere".
+        with tempfile.TemporaryDirectory() as td:
+            loose = Path(td) / "FX Backlog.md"
+            loose.write_text("rows\n", encoding="utf-8")
+            steers = wh.dispatch({"hook_event_name": "PreToolUse", "tool_name": "Edit",
+                                  "tool_input": {"file_path": str(loose),
+                                                 "old_string": "a", "new_string": "b"},
+                                  "cwd": str(td)})
             assert not [s for s in steers if s.startswith(wh.DENY_SENTINEL)], steers
     finally:
         os.environ["WARDEN_HOME"] = old if old else str(home)

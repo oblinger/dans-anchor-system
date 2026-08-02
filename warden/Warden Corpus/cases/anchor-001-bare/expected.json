@@ -1,10 +1,5 @@
 [
  {
-  "rule": "R-anchor-page-01",
-  "target": "{anchor}",
-  "status": "fail"
- },
- {
   "rule": "R-anchor-page-02",
   "target": "{anchor}",
   "status": "fail"
