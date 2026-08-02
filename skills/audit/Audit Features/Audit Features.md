@@ -3,7 +3,7 @@ description: "Feature design records for the Audit skill — the per-feature des
 ---
 # Audit Features
 
-| -[[Audit Features]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [SKL](hook://SKL) → [[Audit]] → [Audit Features](hook://p/Audit%20Features)<br>: feature design records defining V2 audit |
+| -[[Audit Features]]- | → [[kmr]] → [[SYS]] → [[symlinks]] → [SKL](hook://SKL) → [[Audit]] → [Audit Features](hook://p/Audit%20Features)<br>: feature design records defining V2 audit |
 | --- | --- |
 | [[F001 — Rule-driven audit engine — resolve, run, judge]]  | The engine: resolve applicable rules per target, run mechanical by script, judge the rest by agent; content-hash cached. |
 | [[F002 — Audit fix-by-default + Python rule functions]]  | Fix-by-default + leveled automation; rules carry Python checks distilled into a merged module. |

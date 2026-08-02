@@ -10,7 +10,7 @@ Why the morning routine exists, who it serves, and what would make it fail.
 
 ## The problem
 
-The user runs many agents. [[SEEK]] owns the job search, [[SV]] owns work, [[MUX]] and [[HA]] own their codebases. Each is competent inside its lane and blind outside it. Nothing owns the question *"across everything, what should I do today?"* — and that is the question a person actually wakes up with.
+The user runs many agents. [[SONAR]] owns the job search, [[SV]] owns work, [[MUX]] and [[HA]] own their codebases. Each is competent inside its lane and blind outside it. Nothing owns the question *"across everything, what should I do today?"* — and that is the question a person actually wakes up with.
 
 Two failure modes follow, and they are the ones Daybreak exists to prevent:
 
