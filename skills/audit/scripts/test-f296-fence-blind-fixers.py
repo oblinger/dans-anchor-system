@@ -116,8 +116,17 @@ check("a REAL stray generic in prose still fails",
 
 print("One fence pattern, shared")
 
-check("`_repl_outside_code` uses the module-level `_FENCE_RE`",
-      ap._FENCE_RE.pattern.startswith("(?m)^[ \\t]{0,3}"), True)
+# Assert the SHARING, not the indent bound. Pinning the literal `{0,3}` prefix
+# made this assertion fail the moment T099 relaxed the bound to `[ \t]*` so that
+# a fence nested in a list item (indent 4, legal CommonMark relative to the list's
+# content column) is seen at all — a change the rest of this suite agreed with.
+# A test that breaks on a deliberate improvement to the thing it guards is testing
+# the spelling, not the property.
+check("one multiline fence pattern is shared, tilde and backtick both",
+      ap._FENCE_RE.pattern.startswith("(?m)^[ \\t]")
+      and "`{3,}" in ap._FENCE_RE.pattern and "~{3,}" in ap._FENCE_RE.pattern, True)
+check("...and a fence indented 4 inside a list item is recognised (T099)",
+      bool(ap._FENCE_RE.search("- item\n\n    ```\n    | a | b |\n    ```\n")), True)
 check("tilde fences pair too",
       ap.chk_md_table_pipe_escape(
           write("# N\nWhat this is.\n\n~~~\n| [[A|B]] |\n~~~\n"),
