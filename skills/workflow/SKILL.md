@@ -357,7 +357,7 @@ state <verb> <anchor> <doc> <label> [flags] [< body]
 ```
 
 - **`<doc>`** — `Backlog` (the anchor's backlog file), a wiki-name (case-insensitive basename match, anchor tree first then vault; ambiguity errors listing candidates), or a path to any `.md` doc.
-- **`<label>`** — LETTERS+DIGITS (`F157`, `T8` on Backlog; `Q7`, `V3` on any doc) or LETTERS+`+` to auto-mint the next number (`F+`, `T+`, `Q+`, `V+` — mint is `define`-only).
+- **`<label>`** — LETTERS+DIGITS (`F157`, `T8` on Backlog; `Q7`, `V3` on any doc) or LETTERS+`+` to auto-mint the next number (`F+`, `T+`, `Q+`, `V+` — mint is `define`-only). A dotted `<row>.Q<n>` (`T041.Q1`) addresses a question hosted **inside** a Backlog row — `resolve` and `show` only (T086).
 - **`<verb>`** — `define` (create-or-replace whole body) | `set` (partial row update, Backlog-only) | `resolve` (move to the item's resolved home) | `remove` (soft-delete with audit trail).
 
 `--anchor` accepts a path (folder containing `.anchor`) or a slug (`SKA`, `MUX`, …). If absent, the script walks `cwd` UP looking for `.anchor`. In skill templates we usually pass `--anchor {slug}` explicitly.
@@ -396,6 +396,17 @@ Any markdown doc can carry labeled queries — feature docs, PRDs, standalone de
 | `Q resolve` | `state resolve {slug} "<doc>" Q<n> --choice "(A)" [body source]` — migrates the Q to the bottom `## Resolved` H3. |
 | `Q remove` | `state remove {slug} "<doc>" Q<n> --reason "..."` — migrates to `### Removed` H3 with audit trail. |
 | `V define/resolve/remove` | same grammar with `V<n>`/`V+` — addressable verifications under the doc's `## Verifications` H2 (per F235, the doc is the verify home). |
+
+### Row-hosted questions — `state resolve <anchor> Backlog <row>.Q<n>`
+
+A backlog row may carry its own numbered questions as `- **Q<n> — …**` sub-bullets instead of linking a feature doc (R-backlog-05) — the shape a T-/B-row uses when the question is *about the row* and there is no design doc to put it in. Those questions are written by `define`/`set` on the row itself; the dotted address exists for the one thing the row grammar cannot express, which is answering a single question in place.
+
+| Verb | Form |
+|---|---|
+| `resolve` | `state resolve {slug} Backlog T041.Q1 --choice "(C)" [body source]` — archives the question in the row's own `- **Resolved**` zone with its options and lean intact, and recounts a `[N Questions]` bracket. |
+| `show` | `state show {slug} Backlog T041.Q1` — prints the question from either zone, labeling which. |
+
+The archive stays **in the row**. That is the one place this diverges from the doc-hosted lifecycle, and the divergence is forced: F291 deletes a doc's `## Open Questions` block once the last question lands because the block is scaffolding around the questions, whereas a row is the work item itself and outlives every question asked about it — so there is nowhere to migrate to. At zero remaining, the bracket is deliberately left alone rather than guessed at; what a question-free row should say next is a judgment (`[Ready]` needs a `- **Next:**` per F171), and audit-q's C24 already reports it with that judgment attached.
 
 The script enforces ask-format spec (block-IDs, Q-numbering, the two-zone block lifecycle, ≥2 labeled options + a `Recommendation:` line) at write time. Q-numbers are canonical (referenced by block-IDs and audit-q messages).
 

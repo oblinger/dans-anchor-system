@@ -125,10 +125,12 @@ Make the bracket's promise true, or change the bracket.
 
 `[Questions]` promises that following the row lands the user on a numbered `Q<n>` they can answer in chat. Two ways to keep it:
 
-- The row owns its questions — add inline `- **Q<n> — …**` sub-bullets at the top of the row body. Right for task-rows with no feature doc.
+- The row owns its questions — add inline `- **Q<n> — …**` sub-bullets at the top of the row body. Right for task-rows with no feature doc. Answer one with `state resolve <anchor> Backlog <row>.Q<n> --choice "(B)"`, which archives it in the row's own `- **Resolved**` zone and recounts the bracket (T086).
 - A feature doc owns them — add a `→ [[F<n> — Title]]` link and put the questions in that doc's `## Open Questions` via `state define <anchor> "<doc>" Q+`.
 
 If the row has neither and no question is actually pending, the bracket is stale — rebracket it. Landing a user on prose with nothing to answer is the round-trip loophole this rule exists to close.
+
+Only the **pending prefix** counts toward the promise. An answered question stays in the row below the `- **Resolved**` zone head, keeping its `**Q<n> —` header, so a row whose every question has landed cannot go on honouring `[Questions]` on the strength of its own history.
 
 For the model, read [[DAS Backlog]] § B-row inline Qs and [[DAS ask-format]].
 

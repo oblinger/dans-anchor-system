@@ -140,6 +140,11 @@ is_nonanswer = _be_mod.is_nonanswer  # F242 (C49) — punt detector, same sharin
 recommendation_strength = _be_mod.recommendation_strength
 has_why_ask_annotation = _be_mod.has_why_ask_annotation
 is_agent_territory_question = _be_mod.is_agent_territory_question
+# T086 (C24) — where a row's PENDING inline questions stop and its resolved
+# archive begins. Shared rather than re-expressed: `state`'s resolve verb
+# writes the boundary, this counts across it, and a row whose bracket and
+# contents disagree is precisely the drift C24 exists to catch.
+row_pending_q_lines = _be_mod.row_pending_q_lines
 # ---------------------------------------------------------------------------
 
 
@@ -866,18 +871,26 @@ def _row_inline_q_count(e: BacklogEntry) -> int:
     WHOLE backlog file regardless of container, so two Questions T-rows each
     counted both rows' Qs. Scope here is the row's own sub-bullet span — the
     lines after the row up to the next top-level bullet, heading, or EOF
-    (same forward-scan as C44)."""
+    (same forward-scan as C44).
+
+    T086: PENDING is now a real distinction here, and it was not before. A
+    row's answered questions stay in the row, below a `- **Resolved**` zone
+    head, keeping their `- **Q<n> —` header exactly as the doc-side archive
+    keeps its own — so counting every header would have this check report a
+    fully-answered row as still asking, and C24's `--fix` would write the
+    bracket back up on every run. `be.row_pending_q_lines` is the boundary,
+    shared with `state`'s resolve verb and the Questions-promise gate so the
+    three cannot disagree about where pending ends."""
     try:
         lines = e.source_file.read_text(encoding="utf-8").splitlines()
     except (OSError, UnicodeDecodeError):
         return 0
-    count = 0
+    span = []
     for nxt in lines[e.source_line:]:  # e.source_line is 1-indexed; starts on the next line
         if HEADING_RE.match(nxt) or re.match(r"^- \*\*", nxt):
             break
-        if Q_HEADER_RE.match(nxt):
-            count += 1
-    return count
+        span.append(nxt)
+    return sum(1 for l in row_pending_q_lines(span) if Q_HEADER_RE.match(l))
 
 
 def _row_has_next(e: BacklogEntry) -> bool:

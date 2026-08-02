@@ -25,6 +25,7 @@ Generate an image from a prompt, into the anchor that keeps the prompt with it, 
 | `/imgen -n "{topic}" {prompt}` | open a NEW shoot and roll into it |
 | `/imgen -a {N} {prompt}` | add to shoot N |
 | `/imgen -l` | list the shoots with their numbers — how you find N |
+| `/imgen --pick {roll}` | mark a roll (`IMGEN004-3I`) as the shoot's **pick** — pins it to the top of the page + sets the gallery cover; no cost |
 | `/imgen -a {N} -r 4 {prompt}` | four rolls off the one prompt |
 | `/imgen -n "{topic}" -p {preset} {scene}` | load a named preset, append the scene |
 | *"really imgen, {prompt}"* | the spoken form — the dictation pipeline prefixes `/imgen` |
@@ -46,6 +47,8 @@ Everything goes to **[[IMGEN]]** at `~/ob/kmr/Log/IMGEN/`, alongside [[VOX]] —
 
 **A new shoot writes in three places** and the script does all three: the shoot folder and its page, a member row in the [[IMGEN]] masthead, and an entry at the top of [[IMGEN Gallery]]. Adding to an existing shoot touches only the shoot page.
 
+A shoot page is a **regular file, so its head is a `:>>` breadcrumb, not a dispatch table** — only anchor pages ([[IMGEN]] itself) get tables. Once a keeper is chosen it is pinned at the top of the page as a `## Pick` block (see § The disciplines).
+
 ## Backends
 
 | Backend | Model | Cost | Use for |
@@ -61,13 +64,14 @@ Only `fal` is wired today. `recraft` and `local` are declared seams, not impleme
 - **The prompt is written with the image, in the same action.** Not afterwards, not by the agent remembering to. For a generated image the prompt *is* the source, and [[feedback_figure_source_alongside_output]] applies exactly as it does to a `.d2` beside an `.svg`. **By default it goes down as a sequence of bullets** — a short lead line naming medium + subject, then one attribute per bullet (dress, hair, expression, setting, style) — no heading, no blockquote, no fence, so it copies clean. Bullets are the default because they make the prompt a **mix-and-match kit**: swap or re-roll a single attribute without rewriting the whole thing. (Keep the lead line dash-free so a leading `-` is not read as a CLI flag.) [[IMGEN001 — Lumen portrait]] is the cautionary example: real images, prompts gone, unrecoverable.
 - **Cost is stated, never silent.** Every run prints rolls written and dollars spent. A run costing more than `--confirm-over` (default $1.00) refuses without `--yes`, so a fan-out cannot quietly burn real money.
 - **Presets lock a character.** Once a look is right, save it (`--save-preset tink`) and later runs reload the locked prompt with only the scene varying. This is what keeps a recurring character recognizably itself instead of drifting every generation.
+- **A pick pins the keeper.** When the user chooses the winning roll, `--pick IMGEN{nnn}-{roll}` lifts it to a `## Pick` block at the **top of the shoot page**, shown large (2000px wide), and repoints the [[IMGEN Gallery]] cover to it. No API call, no cost; changeable any time — re-pick and both surfaces update in one step. New prompt groups still land *below* the pick, so the keeper stays pinned as the shoot grows.
 - **Never place an image into [[IMGEN]] by hand.** Copying a file in gives you a picture with no prompt, and the prompt cannot be recovered afterwards. If images already exist somewhere else and belong in the anchor, moving them in means writing their prompt group by hand in the same pass — or knowingly leaving orphans, which is what [[IMGEN001 — Lumen portrait]] is.
 
 ## Script
 
 | Script | Usage |
 |---|---|
-| `imgen-gen.py` | `python3 ~/.claude/skills/imgen/imgen-gen.py (-n "{title}" \| -a {N} \| -l) "{prompt}" [-r 4] [-c "{caption}"] [-b fal] [-p {preset}] [--save-preset {name}] [--dry-run]` |
+| `imgen-gen.py` | `python3 ~/.claude/skills/imgen/imgen-gen.py (-n "{title}" \| -a {N} \| -l \| --pick {roll}) "{prompt}" [-r 4] [-c "{caption}"] [-b fal] [-p {preset}] [--save-preset {name}] [--dry-run]` |
 
 `--dry-run` resolves the shoot and prints the filenames it would write without calling the API — use it to check where a roll is about to land.
 
@@ -81,3 +85,4 @@ On invocation:
 3. Run `imgen-gen.py`. Use `-l` if you need the number and do not have it, and `--dry-run` if you want to confirm the destination before spending. Neither costs anything.
 4. Show the images: `open "{path}"` on each roll written. Never describe an image the user has not been shown.
 5. Report the cost line as printed, and name the shoot the rolls landed in so the user can ask for more of the same.
+6. **When the user picks a keeper**, run `--pick IMGEN{nnn}-{roll}` to pin it to the top of the shoot page and update the gallery cover — then, for a recurring character, write the settled appearance bullets into that character's persona doc.
