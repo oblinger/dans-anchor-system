@@ -7,7 +7,7 @@ description: "the unified map: rules, rulesets, `include::` composition, dispatc
 The rule system is how a portable, audit-checkable constraint is **defined** (the `RULE` / `RULESET` primitives), **composed** (`include::` containment), **placed** in the vault and **adopted** by an anchor, **bound** to the contexts (`where::`) and events (`when::`) that should trigger it, and finally **run** by two consumers — the on-demand audit/rule engine and the always-on hook subsystem — over one shared corpus. This page is the structural overview that ties those subsystems together; each subsystem's prescriptive spec lives in the facet or feature doc cited in its section.
 
 > [!info] Scope
-> This is the architecture *of the rule language and its runtime*. The prescriptive file-format spec is [[DAS Ruleset]]; the per-audit execution pipeline is [[Audit Architecture]] and [[F001 — Rule-driven audit engine — resolve, run, judge|F001]]. This page is the connective tissue: it names the subsystems, shows how they fit, and points at the source of truth for each.
+> This is the architecture *of the rule language and its runtime*. The prescriptive file-format spec is [[DAS Ruleset]]; the per-audit execution pipeline is [[DAS Audit Architecture|Audit Architecture]] and [[F001 — Rule-driven audit engine — resolve, run, judge|F001]]. This page is the connective tissue: it names the subsystems, shows how they fit, and points at the source of truth for each.
 
 ## Rule system — define · compose · run
 
@@ -230,7 +230,7 @@ This is the path the **performance budget** rides on — it instruments nearly e
 
 ### 7b · The on-demand audit pipeline (explicit path)
 
-The thorough backstop — `Resolve → Run → Judge → Fix`, mechanical-by-script and judgment-by-agent, cached so re-audits are cheap. Full design + ship status: [[F001 — Rule-driven audit engine — resolve, run, judge|F001]]; pipeline detail: [[Audit Architecture]].
+The thorough backstop — `Resolve → Run → Judge → Fix`, mechanical-by-script and judgment-by-agent, cached so re-audits are cheap. Full design + ship status: [[F001 — Rule-driven audit engine — resolve, run, judge|F001]]; pipeline detail: [[DAS Audit Architecture|Audit Architecture]].
 
 1. **Resolve** (`audit-plan.py`, pure compute, cached) — detect the target's facets → flatten the union of their sets through `include::` (§2) → bind each rule to concrete targets via `where::` (§4). A selector that matches nothing ⇒ the rule is **N/A** (skipped, never failed). Output: a `(rule-id, target, body-kind)` worklist.
 2. **Run** the **Python-bodied** rules by script, verdict-cached by `(rule-id, rule-body-hash, target-content-hash)`.
@@ -310,7 +310,7 @@ Load-bearing policy with real failure modes (the 2026-07-06 veto-surface audit f
 | `when::` clause + executable rules | [[F180 — When-trigger executable rules\|F180]] |
 | Trigger discipline (`compact` / `markdown-write`) | [[F091 — Trigger discipline\|F091]] |
 | Trigger-axis taxonomy (open-ended contexts) | [[F006 — Rule triggering — when the agent attends to rules\|F006]] |
-| Execution engine (Resolve→Run→Judge→Fix, caches) | [[F001 — Rule-driven audit engine — resolve, run, judge\|F001]], [[Audit Architecture]] |
+| Execution engine (Resolve→Run→Judge→Fix, caches) | [[F001 — Rule-driven audit engine — resolve, run, judge\|F001]], [[DAS Audit Architecture|Audit Architecture]] |
 | On-write hook + safety guard | [[F005 — Doc audit-on-write — vault-wide rollout + safety guard\|F005]] |
 | Standard rulesets (historical first design) | [[F017 — Standard Rule Sets\|F017]] |
 

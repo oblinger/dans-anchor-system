@@ -2,9 +2,10 @@
 description: "invocation surface + output format"
 ---
 
-# Audit UX Design
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [design](hook://design) → [DAS Audit UX Design](hook://p/DAS%20Audit%20UX%20Design)
+# DAS Audit UX Design
 
-How the user and agent invoke audit and what they see back. The interaction shape follows the two trigger modes and four levels in [[Audit PRD]].
+How the user and agent invoke audit and what they see back. The interaction shape follows the two trigger modes and four levels in [[DAS Audit PRD|Audit PRD]].
 
 ## Command grammar
 
@@ -23,7 +24,7 @@ The default explicit run **fixes** at Standard and prints a per-rule summary. Th
 
 `structure · anchor · doc · dispatch · rules · docs · publish · code · q · q-fix · features · markdown · architecture · integrity`
 
-Each keeps its current behavior; the roadmap ([[Audit Roadmap]]) migrates them onto the unified engine. `dispatch`, `q`, and `features` already fix by default; under V2 every action does, with `dry` as the universal opt-out.
+Each keeps its current behavior; the roadmap ([[DAS Audit Roadmap|Audit Roadmap]]) migrates them onto the unified engine. `dispatch`, `q`, and `features` already fix by default; under V2 every action does, with `dry` as the universal opt-out.
 
 One further action sits apart from the rule-checking roster: **`sweep`** (§ Deletion mark + sweep) — the only operation that *deletes*, and only ever the content inside `Recommend deleting` callouts. It runs no rules, so it is not a conformance action; it is listed here so the grammar is complete.
 

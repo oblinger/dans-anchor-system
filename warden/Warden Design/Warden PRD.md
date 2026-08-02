@@ -99,7 +99,7 @@ Same corpus, same `when/where/if` vocabulary; the explicit path is the safety ne
 
 ## Place in the system
 
-The rule system is a part of **[[SKA]]**, tied to the **ruleset** primitive ([[DAS Ruleset]]) as its definitional core, and cross-linked into **[[Audit Architecture|audit]]** (the explicit consumer) and the **hook subsystem** (the implicit consumer) — and open to other future consumers (any skill that wants to fire rules at a moment). [[Warden Architecture]] is the unified map; this PRD is the why + the requirements; the [[Warden Roadmap]] sequences the build.
+The rule system is a part of **[[SKA]]**, tied to the **ruleset** primitive ([[DAS Ruleset]]) as its definitional core, and cross-linked into **[[DAS Audit Architecture|audit]]** (the explicit consumer) and the **hook subsystem** (the implicit consumer) — and open to other future consumers (any skill that wants to fire rules at a moment). [[Warden Architecture]] is the unified map; this PRD is the why + the requirements; the [[Warden Roadmap]] sequences the build.
 
 ## Open questions
 

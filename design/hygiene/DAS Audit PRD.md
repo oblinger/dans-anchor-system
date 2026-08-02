@@ -2,7 +2,8 @@
 description: "product requirements — what /audit produces and for whom"
 ---
 
-# Audit PRD
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [design](hook://design) → [DAS Audit PRD](hook://p/DAS%20Audit%20PRD)
+# DAS Audit PRD
 
 Audit checks the user's artifacts against the rules that govern their structure — sourced from the facet and discipline specs — and corrects the violations it finds, both on explicit command and online as files are written.
 
@@ -16,11 +17,11 @@ It serves both the user — who runs `/audit` to bring an anchor into conformanc
 
 | Phase | Doc |
 |---|---|
-| Requirements (this doc) | [[Audit PRD]] |
-| User stories | [[Audit Stories]] |
-| Interaction surface | [[Audit UX Design]] |
-| System design | [[Audit Architecture]] |
-| Milestones | [[Audit Roadmap]] |
+| Requirements (this doc) | [[DAS Audit PRD|Audit PRD]] |
+| User stories | [[DAS Audit Stories|Audit Stories]] |
+| Interaction surface | [[DAS Audit UX Design|Audit UX Design]] |
+| System design | [[DAS Audit Architecture|Audit Architecture]] |
+| Milestones | [[DAS Audit Roadmap|Audit Roadmap]] |
 
 ## Goals
 
@@ -40,7 +41,7 @@ It serves both the user — who runs `/audit` to bring an anchor into conformanc
 
 ## User Stories
 
-Full set in [[Audit Stories]]. In brief:
+Full set in [[DAS Audit Stories|Audit Stories]]. In brief:
 
 - **As the agent editing a file**, I want the safest mechanical defects auto-fixed and the subjective ones flagged the moment I write, so I self-correct in the loop without being asked.
 - **As the user**, I want `/audit <anchor>` to bring it into conformance — fixing what is safe, reporting the rest — in one pass.
