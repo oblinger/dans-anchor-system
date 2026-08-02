@@ -54,9 +54,11 @@ When extracted to method 2 or 3, the parent links to it from its dispatch table 
 ### RULE R-file-association-07 — Sibling-folder shape (checked)
 check:: file_association_folder_structure
 
-Method 3: the folder `{Parent} {Facet}s/` contains an anchor file `{Parent} {Facet}s.md` (H1 = filename) with a dispatch table of all items, PLUS one file per item. (Per-item file naming is dimension-specific — dated streams add an ISO prefix per [[R-dated-entry-stream]].)
+Method 3: the folder `{Parent} {Facet}s/` contains an anchor file `{Parent} {Facet}s.md` (H1 = filename) whose **dispatch area** lists all items, PLUS one file per item. (Per-item file naming is dimension-specific — dated streams add an ISO prefix per [[R-dated-entry-stream]].)
 
-**Check pattern:** for each method-3 folder, assert the anchor file exists, the dispatch lists every item file, and item files follow the facet's naming.
+The dispatch area is the masthead **table rows plus the list items below them** — both forms count. The reference instance [[HBR Features]] carries its three feature docs as a bullet list under a `^^^` auto-management separator, and four other vault folders use that shape; this rule read "dispatch table" literally until 2026-08-02 (T103a), which would have failed all five. What is NOT the dispatch area: a prose paragraph mentioning an item, and a fenced example listing one.
+
+**Check pattern:** for each method-3 folder, assert the anchor file exists, the dispatch area lists every item file, and item files follow the facet's naming.
 
 **Why:** the folder form is only useful if its structure is predictable.
 

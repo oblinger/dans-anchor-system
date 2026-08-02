@@ -1684,15 +1684,31 @@ def chk_testing_filename_correct(target, anchor_root, args):
     return "pass", ""
 
 
-def _section_body(lines, header_re, stop_re=r"^ {0,3}## "):
+def _section_body(lines, header_re, stop_re=r"^ {0,3}## ", structure=False):
     """Lines under the first heading matching header_re, up to next stop_re.
 
-    Boundaries are found on the FENCE-STRIPPED copy; the returned lines come from
-    the ORIGINAL. Both halves are load-bearing. Finding boundaries on raw text let a
-    fenced `## Examples` — 110 vault docs carry one — close a section early, so the
-    checker judged a fragment. Returning stripped lines would be worse: a section
-    whose content IS a code block (`## Architecture Diagram`, a `## Tests` body)
-    would come back blank and read as empty.
+    Boundaries are always found on the FENCE-STRIPPED copy: finding them on raw
+    text let a fenced `## Examples` — 110 vault docs carry one — close a section
+    early, so the checker judged a fragment.
+
+    `structure` picks which copy comes BACK, and every caller must choose. The
+    two halves answer different questions and neither default is safe for the
+    other (T103a):
+
+    - `structure=False` — the ORIGINAL lines. For callers asking *is there
+      content here* / *what does it say*. A section whose body IS a code block
+      (`## Architecture Diagram`, a `## Tests` body) must not read as empty.
+    - `structure=True` — the fence-blanked lines. For callers asking *what
+      structure does this section declare* — an H3, a table row, a bullet name,
+      an image embed. A fenced one of those is a picture of the thing, and the
+      docs most likely to show the picture are the docs these rules govern.
+
+    The flag exists because the re-strip it replaces was got wrong three times.
+    `_bold_item_names` and `_subsystems_table_rows` (T102) each re-derived the
+    stripped copy at the call site, with a paragraph apiece explaining why;
+    `chk_tests_table_present` and `chk_architecture_diagram_section_with_embed`
+    did not, and a fenced example table / a fenced `![[diagram.svg]]` satisfied
+    both rules outright. One seam, decided once per caller.
     """
     marks = _strip_fenced("\n".join(lines)).splitlines()
     # `_strip_fenced` blanks fenced lines, and `"\n".join(...).splitlines()` then
@@ -1712,11 +1728,12 @@ def _section_body(lines, header_re, stop_re=r"^ {0,3}## "):
             break
     if start is None:
         return None
+    src = marks if structure else lines
     out = []
     for i in range(start + 1, len(lines)):
         if re.match(stop_re, marks[i]):
             break
-        out.append(lines[i])
+        out.append(src[i])
     return out
 
 
@@ -1726,7 +1743,9 @@ def chk_strategy_subsections_present_ordered(target, anchor_root, args):
     if f is None:
         return "error", "no file"
     lines = _read(f).splitlines()
-    body = _section_body(lines, r"^## Strategy\b")
+    # structure=True: the four H3s are the thing being required, so a fenced
+    # sample listing them satisfied the rule on a doc that declares none.
+    body = _section_body(lines, r"^## Strategy\b", structure=True)
     if body is None:
         return "fail", "no ## Strategy section"
     required = ["### Test Kinds", "### Completeness Targets", "### Responsibilities", "### Tier Mapping"]
@@ -1781,17 +1800,13 @@ def chk_proposed_tests_structure(target, anchor_root, args):
 def _bold_item_names(lines, header_re):
     """**Name** at start of bullets under a section heading.
 
-    `_section_body` finds boundaries on the stripped copy but hands back the
-    ORIGINAL lines — deliberately, so a section whose content IS a code block does
-    not read as empty. That is the wrong half for this caller: a bullet name is
-    never code, so a `- **Sample Kind**` shown inside a fence would be harvested as
-    a declared kind. Strip again on the way in; on already-blanked text it is a
-    no-op, so the double call costs nothing.
+    structure=True: a bullet name is never code, so a `- **Sample Kind**` shown
+    inside a fence would be harvested as a declared kind.
     """
-    body = _section_body(lines, header_re, stop_re=r"^### ")
+    body = _section_body(lines, header_re, stop_re=r"^### ", structure=True)
     names = set()
     if body:
-        for ln in _strip_fenced("\n".join(body)).splitlines():
+        for ln in body:
             m = re.match(r"^-\s*\*\*([^*]+)\*\*", ln)
             if m:
                 names.add(m.group(1).strip())
@@ -2050,7 +2065,11 @@ def chk_architecture_diagram_section_with_embed(target, anchor_root, args):
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
-    body = _section_body(_read(f).splitlines(), r"^## Architecture [Dd]iagram\s*$")
+    # structure=True: an embed is exactly what this rule requires, so a fenced
+    # `![[example.svg]]` showing the reader HOW to embed one satisfied the rule on
+    # a page whose diagram is still to be drawn.
+    body = _section_body(_read(f).splitlines(), r"^## Architecture [Dd]iagram\s*$",
+                         structure=True)
     if body is None:
         return "fail", "no ## Architecture diagram H2"
     if not any(_IMG_EMBED_RE.search(ln) for ln in body):
@@ -2086,20 +2105,18 @@ def chk_no_ascii_diagram(target, anchor_root, args):
 def _subsystems_table_rows(lines):
     """Data rows of the table under `## Subsystems` (header + separator skipped).
     None = no section; [] = section without a usable table."""
-    body = _section_body(lines, r"^## Subsystems\s*$")
+    # structure=True: a fenced `| [[No-Such-Doc]] | example |` is an illustration,
+    # and harvesting it made `chk_subsystem_link_convention` report a missing
+    # subsystem doc against the page's own example.
+    body = _section_body(lines, r"^## Subsystems\s*$", structure=True)
     if body is None:
         return None
-    # Strip again on the way in, exactly as `_bold_item_names` does and documents:
-    # `_section_body` finds boundaries on the stripped copy but returns the ORIGINAL
-    # lines, deliberately, so a section whose content IS a code block does not read
-    # as empty. That is the wrong half here — a fenced `| [[No-Such-Doc]] | example |`
-    # is an illustration, and harvesting it made `chk_subsystem_link_convention`
-    # report a missing subsystem doc against the page's own example. Worse than the
-    # false finding: `rows[2:]` skips the header POSITIONALLY, so a fenced row above
-    # the real table shifts that window and the real header is read as data.
-    rows = [ln for ln in _strip_fenced("\n".join(body)).splitlines()
-            if ln.lstrip().startswith("|")]
-    return rows[2:] if len(rows) >= 2 else []
+    # Blocks, not a flat row list (T103b): the subsystems table is the FIRST table
+    # in the section, and the blanket `rows[2:]` this replaces skipped the header
+    # POSITIONALLY across every table at once — so a second small table below
+    # contributed its own header and separator as data rows.
+    blocks = _table_blocks(body)
+    return _table_data_rows(blocks[0]) if blocks else []
 
 
 def chk_subsystems_section_present(target, anchor_root, args):
@@ -2212,7 +2229,10 @@ def chk_tests_table_present(target, anchor_root, args):
     over_i = next((i for i, t in titles if t == "Overview"), None)
     if over_i is not None and tests_i > over_i:
         return "fail", "## Tests appears after ## Overview (must precede it)"
-    body = _section_body(lines, r"^ {0,3}## Tests\s*$") or []
+    # structure=True: a `## Tests` section that SHOWS what a coverage table looks
+    # like put that fenced sample first, so `blocks[0]` was the picture and the
+    # real table below it was never inspected.
+    body = _section_body(lines, r"^ {0,3}## Tests\s*$", structure=True) or []
     # The COVERAGE table is the first table in the section. A second table below it
     # (a legend, a note) is not coverage, and flattening the section into one row
     # list made its header and separator read as kind rows missing a wiki-link.
@@ -2453,7 +2473,12 @@ def chk_user_stories_use_rid_numbering(target, anchor_root, args):
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
-    text = _read(f)
+    # Strip ONCE, up front (T103a). The scan below was already fence-aware, but the
+    # folder-form escape above it read RAW text — so a fenced `| Stories |
+    # [[X Stories]] |` illustrating the extracted form deferred the ENTIRE rule on a
+    # PRD carrying its stories inline. A silent escape is the worst shape here: the
+    # rule reports `pass` with a reason that sounds deliberate.
+    text = _strip_fenced(_read(f))
     if re.search(r"\[\[\s*[^\]]*\s*Stories\s*\]\]", text):
         return "pass", "folder form (deferred to R-stories)"
     slug = _anchor_slug(anchor_root)
@@ -2462,7 +2487,7 @@ def chk_user_stories_use_rid_numbering(target, anchor_root, args):
     # A PRD that documents the US-{slug}-N form by showing one — the likeliest place
     # in the vault for a sample `### US-EXAMPLE-1:` to appear — would otherwise have
     # its own illustration reported as a malformed user story.
-    for ln in _strip_fenced(text).splitlines():
+    for ln in text.splitlines():
         if re.match(r"^## User Stories", ln):
             in_stories = True
             continue
@@ -2492,7 +2517,10 @@ def chk_design_workflow_modern_names(target, anchor_root, args):
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
-    body = _section_body(_read(f).splitlines(), r"^## Design Workflow")
+    # structure=True: this rule's subject is which phase NAMES the section uses, so
+    # a doc that quotes the retired names in a fence to say they are retired was
+    # failed for its own explanation — remediation: delete the explanation.
+    body = _section_body(_read(f).splitlines(), r"^## Design Workflow", structure=True)
     if body is None:
         return "fail", "no ## Design Workflow section"
     workflow = "\n".join(body)
@@ -3396,14 +3424,30 @@ def chk_file_association_folder_structure(target, anchor_root, args):
     anchor_file = target / f"{folder}.md"
     if not anchor_file.is_file():
         return "fail", f"method-3 folder missing anchor file {folder}.md"
-    anchor_text = _read(anchor_file)
-    if not re.search(r"\|\s*\[\[[^\]]+\]\]", anchor_text):
+    # R-file-association-07 asserts "the dispatch LISTS every item file", so links
+    # are harvested from the DISPATCH AREA — table rows and list items — not from
+    # the whole document, which is what this did (T103a). "The dispatch links its
+    # items" was really "the doc mentions them somewhere", prose paragraphs and
+    # fenced examples included.
+    #
+    # The area is deliberately WIDER than the rule's own word "table". Measured:
+    # narrowing to table rows alone newly failed five folders, and one of them is
+    # `examples/HBR/HBR Design/HBR Features` — this repo's reference method-3
+    # folder, whose items are a bullet list under a `^^^` auto-management
+    # separator. When the corpus and the rule's wording disagree and the reference
+    # instance is on the corpus's side, the wording is what is narrow. A list item
+    # under the masthead is a dispatch entry; a sentence in § Notes is not.
+    text = _strip_fenced(_read(anchor_file))
+    dispatch = [ln for ln in text.splitlines()
+                if _is_table_row(ln) or re.match(r"^\s*[-*+]\s", ln)]
+    if not any(re.search(r"\|\s*\[\[[^\]]+\]\]", ln) for ln in text.splitlines()
+               if _is_table_row(ln)):
         return "fail", f"anchor {folder}.md has no dispatch table with wiki-links"
     items = [p for p in target.glob("*.md") if p != anchor_file]
     if not items:
         return "fail", f"method-3 folder {folder} contains no item files"
     item_names = {p.stem for p in items}
-    links = re.findall(r"\[\[([^\]|]+)", anchor_text)
+    links = re.findall(r"\[\[([^\]|]+)", "\n".join(dispatch))
     # Compared against `p.stem`, so the target must be reduced to a BASENAME, and
     # two steps of that were wrong in ways that both zeroed the intersection and so
     # produced the same "links none of the N item files" on a compliant folder.
@@ -4096,12 +4140,14 @@ def chk_facet_has_ruleset(target, anchor_root, args):
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
-    # Fence-stripped (T099): both tests here fail OPEN — a fenced `# RULESET R-x`
-    # or `[[R-x]]` shown as an EXAMPLE would satisfy the rule, and a facet spec
+    # Code-masked (T099, deepened by T103a): both tests here fail OPEN — a `# RULESET
+    # R-x` or `[[R-x]]` shown as an EXAMPLE would satisfy the rule, and a facet spec
     # illustrating what a ruleset looks like is the single most likely doc in the
-    # vault to carry one. The wrong direction to be blind in: a doc with no
-    # ruleset at all passes because it explains rulesets well.
-    t = _strip_fenced(_read(f))
+    # vault to carry one. The wrong direction to be blind in: a doc with no ruleset
+    # at all passes because it explains rulesets well. `_strip_fenced` closed only
+    # the fenced half — a facet naming its ruleset as an INLINE span, `` `[[R-x]]` ``,
+    # in ordinary prose still passed, which is the same failure one layer down.
+    t = _mask_code(_read(f))
     if re.search(r"^#+\s*RULESET\s+R-", t, re.MULTILINE):
         return "pass", "embedded ruleset"
     if re.search(r"\[\[R-[^\]|]+", t):
@@ -4178,8 +4224,12 @@ def chk_facet_examples_row(target, anchor_root, args):
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
-    for line in _read(f).splitlines():
-        if re.match(r"^\|\s*Examples\s*\|", line):
+    # Fence-stripped and `{0,3}`-bounded (T103a/b), and it was wrong in BOTH
+    # directions: a facet spec showing what an Examples row looks like satisfied
+    # the rule with its own picture, while a legally-indented real row was
+    # reported missing. `_is_table_row` is the one definition of a table row.
+    for line in _strip_fenced(_read(f)).splitlines():
+        if _is_table_row(line) and re.match(r"^ {0,3}\|\s*Examples\s*\|", line):
             return ("pass", "examples row present") if "[[" in line else ("fail", "Examples row has no wiki-link")
     return "fail", "no Examples row in masthead"
 
