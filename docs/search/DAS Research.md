@@ -22,18 +22,19 @@ Every research action shares the same output skeleton: a dated report folder wit
 
 Sub-skill docs marked with broken links are not yet written (tracked by [[Tink Backlog#^B-skl-user-docs|B-skl-user-docs]]).
 
-## Common output: the RRR report
+## Common output: a dated file in the matching stream
 
-Every action writes to:
+Every action writes to the [[SRC]] output stream matching the shape of what it produced — [[Survey]] (comparisons), [[Profile]] (one-entity dossiers), [[Find]] (lookups), [[Guide]] (playbooks):
 
 ```
-~/ob/kmr/RR/RR Research Reports/
-└── {YYYY-MM-DD} {Report Name}/
-    ├── {YYYY-MM-DD} {Report Name}.md   ← main report (folder file)
-    └── ...                              ← supporting files (optional)
+~/ob/kmr/Topic/Search/{Survey|Profile|Find|Guide}/
+├── {YYYY-MM-DD} {Report Name}.md        ← the usual case: one flat dated file
+└── {YYYY-MM-DD} {Report Name}/          ← only when there are supporting files
+    ├── {YYYY-MM-DD} {Report Name}.md    ← folder note, same name as the folder
+    └── ...                              ← supporting files (PDF, docx, sub-reports)
 ```
 
-After writing, the action prepends a row to `[[RRR]]` (the Research Reports dispatch page) with a link and one-line description, so every report is one click away from the dispatch.
+After writing, the action prepends a row to that stream's catalog page with a link and one-line description, so every report is one click from the dispatch. The former `RR/RR Research Reports/` home ([[SLUG|RRR]]) was retired 2026-08-01 and its reports migrated into these streams — don't write there.
 
 ## Common shape: results table first
 
