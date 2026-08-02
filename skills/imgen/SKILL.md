@@ -97,6 +97,8 @@ Two implementation facts that are load-bearing, both learned the hard way:
 - **FLUX Fill is not pixel-preserving.** It re-renders the whole frame and may return a different resolution (480² from a 500² input). So the script composites its output back into the source through the feathered mask — outside the mask the result is byte-identical to the source. Without that step, a "masked" edit silently degrades the entire image.
 - **Fill is starved below ~1MP.** The source is upscaled to 1024² first (`FILL_SIZE`); a 500² original gives the model a quarter of the pixels it needs and the patch comes back mushy.
 
+**A text prompt does not control face, age, or affect.** One batch off a single prompt routinely spans ~30 years of apparent age and the full range from near-tears to drill-sergeant; the keeper is a lucky draw, not a specification. Two consequences: shoot **6+ per batch** when a face matters, and once a face is chosen, **never try to reproduce it by prompting** — start from the keeper and `edit`/`inpaint`, which hold identity.
+
 **When two passes miss in opposite directions, blend instead of re-rolling.** An inpaint result is a composite of its source, so the two are pixel-identical outside the mask — compositing between them through the same mask moves *only* that region, along exactly the axis that was overshot. It is free, deterministic, and dial-able, and it beats paying for another guess. [[IMGEN002 — Tink portrait studies]] Batch 15 is the worked example.
 
 ## The disciplines
