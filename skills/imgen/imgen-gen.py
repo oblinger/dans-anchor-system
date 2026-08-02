@@ -10,7 +10,9 @@ reproduce, and the only way that pairing survives is if writing the image and
 recording the prompt are the same action. One sitting is a SHOOT — a numbered
 folder; rolls inside it are `IMGEN<shoot>-<prompt><variant>.png`; the shoot's
 own page carries every prompt, newest first, as a bulleted mix-and-match kit
-(copy-pasteable, one attribute per bullet).
+(copy-pasteable, one attribute per bullet). The chosen keeper is marked with
+--pick, which pins it large to the top of the shoot page and sets the gallery
+cover.
 
 Credentials come from the login keychain, never from a file on disk:
     security find-generic-password -s FAL_KEY -w
@@ -101,13 +103,13 @@ def new_shoot(title):
     path = ANCHOR / f"{SLUG}{n:03d} — {title}"
     path.mkdir(parents=True)
     name = path.name
+    # A shoot page is a regular file, not an anchor page — so its head is a
+    # `:>>` breadcrumb, not a dispatch table (only anchor pages get tables).
     (path / f"{name}.md").write_text(
+        f":>> [[kmr]] → [[Log/Log]] → [[{SLUG}]] "
+        f"→ [{name}](hook://p/{urllib.parse.quote(name)}) \n"
         f"# {name}\n"
-        f"{title}. Newest prompt first.\n\n"
-        f"| -[[{name}]]- | → [[kmr]] → [[Log/Log]] → [[{SLUG}]] "
-        f"→ [{name}](hook://p/{urllib.parse.quote(name)}) |\n"
-        f"| --- | --- |\n"
-        f"| ... |  |\n", encoding="utf-8")
+        f"{title}. Newest prompt first.\n", encoding="utf-8")
     return n, path
 
 
@@ -177,6 +179,63 @@ def add_member_row(shoot_dir):
                      encoding="utf-8")
 
 
+# ---------------------------------------------------------------------- pick
+
+PICK_BLOCK_RE = re.compile(r"^## Pick\b.*?(?=^## |\Z)", re.M | re.S)
+
+
+def resolve_pick(roll_arg):
+    """Turn a `--pick` value (IMGEN004-3I, with or without .png) into
+    (shoot_dir, roll_file), erroring loudly if either does not exist."""
+    name = roll_arg.strip()
+    if name.lower().endswith(".png"):
+        name = name[:-4]
+    m = re.match(rf"^{SLUG}(\d{{3}})-\d+[A-Z]$", name)
+    if not m:
+        raise ImgenError(f"--pick wants a roll id like {SLUG}004-3I (got '{roll_arg}')")
+    shoot_n = int(m.group(1))
+    hit = [b for b in shoots() if b[0] == shoot_n]
+    if not hit:
+        raise ImgenError(f"no shoot {shoot_n:03d} for pick '{name}'")
+    shoot_dir = hit[0][2]
+    roll_file = shoot_dir / f"{name}.png"
+    if not roll_file.exists():
+        raise ImgenError(f"no roll {roll_file.name} in {shoot_dir.name}")
+    return shoot_dir, roll_file
+
+
+def set_pick(shoot_dir, roll_name, width=2000):
+    """Lift the chosen roll to the very top of the shoot page, shown large.
+    The pick is a `## Pick` block above every prompt group; re-picking replaces
+    it and nothing else moves. New prompt groups still land BELOW the pick —
+    record_prompt inserts before the first `## IMGEN…` group, not `## Pick`."""
+    page = shoot_dir / f"{shoot_dir.name}.md"
+    text = page.read_text(encoding="utf-8")
+    text = PICK_BLOCK_RE.sub("", text)
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    block = f"## Pick\n\n![[{roll_name}|{width}]]\n\n"
+    m = re.search(r"^## ", text, re.M)
+    text = (text[:m.start()] + block + text[m.start():] if m
+            else text.rstrip("\n") + "\n\n" + block)
+    page.write_text(text, encoding="utf-8")
+
+
+def set_gallery_cover(shoot_name, cover_name, width=500):
+    """Point the shoot's gallery entry at a different roll — used when the pick
+    changes, so the visual index tracks the keeper."""
+    g = ANCHOR / f"{SLUG} Gallery.md"
+    if not g.exists():
+        return
+    text = g.read_text(encoding="utf-8")
+    h2 = re.search(rf"^## \[\[{re.escape(shoot_name)}\]\].*$", text, re.M)
+    if not h2:
+        return
+    head, tail = text[:h2.end()], text[h2.end():]
+    tail, n = re.subn(r"!\[\[[^\]]*\]\]", f"![[{cover_name}|{width}]]", tail, count=1)
+    if n:
+        g.write_text(head + tail, encoding="utf-8")
+
+
 # ------------------------------------------------------------------ generate
 
 def generate(spec):
@@ -226,6 +285,10 @@ def main():
                        help="append to shoot N (see --list)")
     where.add_argument("-l", "--list", action="store_true",
                        help="print the shoots and exit")
+    where.add_argument("--pick", metavar="ROLL", default=None,
+                       help="mark ROLL (e.g. IMGEN004-3I) as the shoot's pick — "
+                            "pins it to the top of the shoot page and sets the "
+                            "gallery cover; no API call, changeable any time")
     ap.add_argument("-c", "--caption", default=None,
                     help="heading for this prompt group (defaults to the shoot title)")
     ap.add_argument("-p", "--preset", default=None, help="named preset to load")
@@ -240,6 +303,13 @@ def main():
     if a.list:
         for n, title, d in shoots():
             print(f"  {n:03d}  {title}  ({next_prompt_index(d) - 1} prompt group(s))")
+        return 0
+
+    if a.pick:
+        shoot_dir, roll_file = resolve_pick(a.pick)
+        set_pick(shoot_dir, roll_file.name)
+        set_gallery_cover(shoot_dir.name, roll_file.name)
+        print(f"pick: {roll_file.stem} → top of {shoot_dir.name} + gallery cover updated")
         return 0
 
     prompt = " ".join(a.prompt).strip()
