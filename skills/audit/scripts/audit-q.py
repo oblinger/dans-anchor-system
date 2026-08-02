@@ -1292,6 +1292,13 @@ def find_ask_format_files(
             queries_file = backlog_file.parent / f"{name} queries.md"
             if queries_file.is_file():
                 out.append((name, queries_file))
+        # The backlog itself carries row-scoped Qs (F275 standalone Q rows and
+        # inline `- **Q<n> —` sub-bullets on a row). They go through the same
+        # ask-format gate on write, so they belong under the same checks here.
+        # `extract_q_entries` re-attributes each to its hosting row, so the
+        # container passed in is only a fallback.
+        if backlog_file.is_file():
+            out.append((name, backlog_file))
     return out
 
 
@@ -1320,6 +1327,11 @@ def extract_q_entries(file_path: Path, container_id: str) -> list[QEntry]:
     in_h3_resolved = False  # inside `### Resolved` H3 (case-insensitive)
     in_fence = False        # inside ``` ... ``` (or ~~~) fenced code block
     pending_q: Optional[QEntry] = None
+    # A Q hosted inside a backlog row belongs to that ROW, not to the file: its
+    # block-ID is `^T001-Q1`, never `^HA-Q1`. Track the label of the row whose
+    # body we are inside so such a Q gets the right container. `None` outside
+    # any row, which is every Q in a feature doc or a queries file.
+    row_container: Optional[str] = None
 
     def flush():
         nonlocal pending_q
@@ -1344,10 +1356,18 @@ def extract_q_entries(file_path: Path, container_id: str) -> list[QEntry]:
             continue
         if in_fence:
             continue
+        # Track which backlog row (if any) we are inside, so a Q hosted in a
+        # row is attributed to the row rather than to the file. Any top-level
+        # bullet opens a new row context; a bullet that is not a row opener
+        # clears it, as does any heading (handled below).
+        if line.startswith("- "):
+            row_m = ROW_OPENER_RE.match(line)
+            row_container = row_m.group(1) if row_m else None
         # Track Resolved-section state via H2/H3. Any new H2 resets H3 context.
         # A line is in a Resolved area iff in_h2_resolved OR in_h3_resolved.
         heading_m = _local_heading_re.match(line)
         if heading_m:
+            row_container = None
             level = len(heading_m.group(2))
             heading_text = heading_m.group(3).strip()
             if level == 2:
@@ -1424,7 +1444,11 @@ def extract_q_entries(file_path: Path, container_id: str) -> list[QEntry]:
                 source_line=line_num,
                 indent=indent,
                 q_num=q_num,
-                container_id=container_id,
+                # A row-hosted Q is `^T001-Q1`, not `^HA-Q1` — attribute it to
+                # the row. `row_container` is None everywhere but a backlog,
+                # so feature docs and queries files keep the file container.
+                container_id=(row_container if (row_container and indent)
+                              else container_id),
                 has_block_id=has_block_id,
                 block_id_value=block_id_value,
                 inline_alternatives=inline_alt,
