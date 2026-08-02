@@ -1,9 +1,9 @@
 ---
-description: "the work-surface facets (centralized in SKA per D08, but specified here)"
+description: "the work-surface facet group — the {slug} Track/ folder holding an anchor's backlog, queries and streams"
 ---
 
 # DAS Track
-The work-surface facet group — the `{slug} Track/` folder that houses an anchor's backlog, queries, and streams (centralized in SKA per D08, but specified here).
+The work-surface facet group — the `{slug} Track/` folder that houses an anchor's backlog, queries, and streams; § Who owns a Track folder says which anchors get one.
 
 | -[[DAS Track]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets\|FCT]] → [DAS Track](hook://p/DAS%20Track)  |
 | --- | --- |
@@ -14,11 +14,29 @@ The work-surface facet group — the `{slug} Track/` folder that houses an ancho
 | Rules | [[R-track-group]],  [[R-track-dispatch]],   |
 | ... | [[anchor-page]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Page]],  [[DAS Anchor Tree]],  [[DAS API Design]],  [[DAS Architecture]],  [[DAS Aspects]],  [[DAS Brief]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Claude]],  [[DAS CLI]],  [[DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[DAS Decisions]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Dev Dispatch]],  [[DAS Discussion]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facet]],  [[DAS Facets]],  [[DAS Features]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Interface]],  [[DAS Module Doc]],  [[facets/DAS Move]],  [[DAS Naming]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS PRD]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Roadmap]],  [[DAS Ruleset]],  [[facets/DAS Skill]],  [[DAS Specs]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS User Dispatch]],  [[DAS UX Design]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
 
-**Linkage** — this facet's existence ⟺ the anchor runs the ~~[[workflow]]~~ discipline; the two share one design folder, [[Workflow Design]] (hosted on the behavioral core), reachable from either page per [[SKA Decisions]] D10.
+**Linkage** — this facet's existence ⟺ the anchor runs the ~~[[workflow]]~~ discipline; the two share one design folder, [[Workflow Design]] (hosted on the behavioral core), reachable from either page. The one-folder-per-design-unit rule that puts it there is [[DAS Design Folder]] § What the folder's existence claims.
 
 **Cardinality:** one `{slug} Track/` folder per anchor, holding one `{slug} Track.md` dispatch page. The folder is present **iff** the anchor maintains active tracking (R-track-group-03).
 
 **Location:** `{slug} Track/{slug} Track.md` (root-level folder, per F094 — renamed from `{slug} Plan/` to match the [[Track]] trait name).
+
+## Who owns a Track folder — the agent holds the queue, the subject holds the knowledge
+
+**Not every anchor tracks its own work, and the skill ecosystem tracks none of it.** A skill, facet, discipline, or example anchor carries **no Track folder and no `track` row** ([[R-anchor-page]]-15, checked) — each is far too small to earn a backlog, and dozens of near-empty per-anchor queues would bury the handful of real ones. Their work is queued on one shared surface, with the anchor named in the item.
+
+The split that decides *which* surface is **the agent holds the queue, the subject holds the knowledge**:
+
+| Lives with the **agent** (`Tink Track/`) | Lives with the **subject** (`SKA Design/`) |
+|---|---|
+| [[Tink Backlog]] — the work queue | [[SKA Decisions]] — load-bearing decisions |
+| [[Tink queries]] — open questions for the user | `SKA Design/SKA Features/` — one doc per feature |
+| [[Tink Messages]], [[Tink Icebox]] | the design docs the features distill into |
+
+Work is *transient and owned by whoever is doing it*, so it belongs to the agent working the ecosystem. Design is *durable and about the thing itself*, so it belongs to the thing. That is why feature docs sit under `SKA Design/`, not beside the backlog: a feature doc is a design artifact with a Summary, Success Criteria, and Open Questions, and it outlives the row that scheduled it.
+
+**Exception by kind, not by location.** A standalone project anchor with its own repo — MUX, HA — does track its own work. The no-tracking rule is specifically the skill ecosystem, which is why [[FEX Project Root]] keeps a `Track` row while [[HBR]], a skill-ecosystem anchor, drops it.
+
+*(Historical note: this arrangement was decided as D07/D08/D10 in [[SKA Decisions]] when tracking sat on an `SKA Track/` folder. That folder no longer exists — the queue moved to the Tink agent — so the decisions were corrected against the live layout and inlined here rather than cited. See [[F295 — Inline the cited SKA decisions into the specs that depend on them|F295]].)*
 
 ## The `{slug} Track.md` dispatch page
 

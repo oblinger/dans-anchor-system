@@ -9,7 +9,7 @@ description: "product requirements — what `/architect` produces and for whom"
 
 `/architect` creates and maintains the **top-level architecture document** for an anchor — the single page that decomposes a system into subsystems and shows how they fit together. Architecture lives in `{slug} Design/`: a single `{slug} Architecture.md` by default, upgraded to a `{slug} Architecture/` folder-doc once it grows subsystems. The skill reads **module docs as ground truth**, rolls them up into a decomposition (subsystems → components → boundaries), and keeps a **bidirectional `module ↔ arch` link** (an `Arch` row in each module doc's dispatch table) so the architecture and the modules never drift apart.
 
-Per [[SKA Decisions|D10]], `/architect` is the **behavioral core of the [[DAS Design Folder]] facet**: an anchor's `{slug} Design/` folder existing ⟺ the anchor has been *architected* — its design is the artifact `/architect` walks for completeness. (The asymmetry with Track/Workflow — Design→*skill*, Track→*discipline* — reflects periodic architecting vs. continuous tracking.)
+Per [[DAS Design Folder]] § What the folder's existence claims, `/architect` is the **behavioral core of the [[DAS Design Folder]] facet**: an anchor's `{slug} Design/` folder existing ⟺ the anchor has been *architected* — its design is the artifact `/architect` walks for completeness. (The asymmetry with Track/Workflow — Design→*skill*, Track→*discipline* — reflects periodic architecting vs. continuous tracking.)
 
 ## Goals
 
@@ -20,7 +20,7 @@ Per [[SKA Decisions|D10]], `/architect` is the **behavioral core of the [[DAS De
 
 ## Non-Goals
 
-- **Not tracking.** Backlog/feature state is unified at SKA ([[SKA Decisions|D08]]); the architecture doc records *what is*, not *what's in flight*.
+- **Not tracking.** Backlog/feature state is not this skill's ([[DAS Track]] § Who owns a Track folder); the architecture doc records *what is*, not *what's in flight*.
 - **Not the design dispatch.** The Design-pipeline ordering and folder shape belong to [[DAS Design Folder]] / [[DAS Design Docs]]; `/architect` maintains the Architecture artifact within that shape.
 - **Not per-file documentation.** The output is an architecture-level decomposition (a handful of subsystems), not a per-file inventory.
 

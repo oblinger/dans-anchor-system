@@ -97,14 +97,14 @@ check:: breadcrumb_row
 
 `Related` is the first masthead row after the breadcrumb (when it has content), and is **omitted entirely when empty** — never left blank. It carries **only links that ordinary navigation cannot already reach**: NOT the anchor's own contents (reach those by going *in / down*), NOT its ancestors (reach those via the breadcrumb, going *up*), and NOT anything reachable from a parent anchor (you'd arrive there *through* the parent). `Related` is reserved for genuinely **lateral / cross-cutting** links none of those paths surface — e.g. a sibling project, a spec in another tree.
 
-**Check pattern:** if present, `Related` has content and precedes other category rows; **none of its links is a breadcrumb ancestor, a member listed below, or the parent anchor** (those are redundant — drop them). ([[SKA Decisions|D07]])
+**Check pattern:** if present, `Related` has content and precedes other category rows; **none of its links is a breadcrumb ancestor, a member listed below, or the parent anchor** (those are redundant — drop them). Full masthead order: [[DAS Dispatch Table]] § Masthead rows.
 
 ### RULE R-anchor-page-13 — `Design` row present iff a design folder exists (checked)
 check:: design_row_iff_folder
 
 If `{slug} Design/` exists, a `Design` row is present as the second masthead row, members in the fixed order PRD → UX Design → CLI → API → Architecture → Decisions → Testing → Roadmap → Features. **Minimum form:** the row appears as soon as the `{slug} Design/` folder exists, carrying just the `~~[[{slug} Design]]~~` link with **zero member docs** (an empty design folder); members appear, in the fixed order, only as their files are created — the row lists only docs that exist, and grows over time.
 
-**Check pattern:** `{slug} Design/` exists ⇔ a `Design` row exists; verify member order. ([[SKA Decisions|D07]])
+**Check pattern:** `{slug} Design/` exists ⇔ a `Design` row exists. The member order above is **stated, not checked** — `chk_design_row_iff_folder` asserts only the biconditional, and the pattern claimed to "verify member order" for as long as it never did.
 
 ### RULE R-anchor-page-14 — Masthead is minimal (stated)
 
@@ -116,7 +116,7 @@ A skill / facet / discipline / example anchor carries no `track` row.
 
 **Check pattern:** if `traits` ∈ {skill, facet, discipline, example}, assert no `track` row.
 
-**Why:** their tracking is centralized in SKA ([[SKA Decisions|D08]]).
+**Why:** the skill ecosystem's tracking is one shared surface, not one per anchor — [[DAS Track]] § Who owns a Track folder.
 
 ### RULE R-anchor-page-16 — Wiki-links in cells escape the pipe (checked)
 
@@ -176,7 +176,7 @@ Parallel to the Design row (R-anchor-page-13): a **`track` row** is present iff 
 
 Absent a Status doc, the Design / Track rows may be **partial** — listing only the docs that actually exist. The Status doc is what flips a project from partial to full. **This holds for most Code projects.**
 
-**Check pattern:** `{slug} Status.md` exists ⇒ assert (a) every design doc + every track doc exists (empty allowed), (b) each is listed in its dispatch page, (c) the masthead Design + Track rows carry the full sets in the fixed orders. ([[SKA Decisions|D07]], [[DAS Design Dispatch]], [[DAS Track]])
+**Check pattern:** `{slug} Status.md` exists ⇒ assert (a) every design doc + every track doc exists (empty allowed), (b) each is listed in its dispatch page, (c) the masthead Design + Track rows carry the full sets in the fixed orders. ([[R-anchor-page]]-13, [[DAS Design Dispatch]], [[DAS Track]])
 
 ## Kind-specific rules
 
@@ -203,7 +203,7 @@ A single skill-ecosystem spec page — a **facet**, a **discipline**, or a **ski
 
 **SKA sub-projects are the exception to the project pattern.** A skill / facet / discipline is part of the *single* SKA project, so **SKA owns its tracking** — each is too small to merit its own backlog. But the sub-projects are too numerous to fold into one unified SKA design, so each **merits its own design**: as much design system as it needs, from nothing (just the design anchor) up to a full PRD + UX + architecture. The exception in one line: **own design (however small), no tracking, no status.**
 - **Masthead roster:** breadcrumb + **Related** + the **type row** (`skill` / `Discipline` / `Facet`, carrying the runtime / user-doc links) + **Design** (**always present** — the `{slug} Design/` folder is mandatory per § Minimum shape, so every SKA sub-project carries exactly one Design row). The Design row may be **empty** — carrying just the `~~[[{slug} Design]]~~` link to the design anchor page and no member docs — and grows in the D07 order as docs are added (R-anchor-page-13).
-- **Owns Design, not Track** — every SKA sub-project anchor (skill / facet / discipline / example) **owns its own design but never its own tracking**. Per [[SKA Decisions|D08]] all activity-tracking for the skills ecosystem lives on the **shared SKA surface** (`SKA Backlog` / `SKA Features` / `SKA Messages` / …); a per-anchor `{slug} Track/` is forbidden for these kinds.
+- **Owns Design, not Track** — every SKA sub-project anchor (skill / facet / discipline / example) **owns its own design but never its own tracking**. Per [[DAS Track]] § Who owns a Track folder the ecosystem's work queue lives with the agent working it ([[Tink Backlog]] / [[Tink queries]]) while design and features stay with the subject (`SKA Design/`); a per-anchor `{slug} Track/` is forbidden for these kinds.
 - **No `track` row** — follows from the above (this is R-anchor-page-15 in kind terms).
 - **No `Status`** — a SKA sub-project carries **no `{slug} Status.md`**. Design-phase completeness is tracked only for SKA-the-project, never per sub-project — you can design a skill, but there is no completeness rollup for it.
 - **Minimum shape** — a dispatch table + a `{slug} Design/` folder that is **present from creation with its `.anchor` even when it holds no design docs yet** — the folder stands ready so design can land later without restructuring. It grows by adding `{slug} PRD.md` and other design docs as the anchor earns them — many skills / facets need little design. The Design row (R-anchor-page-13) is present whenever the folder is, carrying zero members until docs arrive.

@@ -3,7 +3,7 @@ description: "Feature design records for the Audit skill — the per-feature des
 ---
 # Audit Features
 
-| -[[Audit Features]]- | → [[kmr]] → [[SYS]] → [[symlinks]] → [SKL](hook://SKL) → [[Audit]] → [Audit Features](hook://p/Audit%20Features)<br>: feature design records defining V2 audit |
+| -[[Audit Features]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [SKL](hook://SKL) → [[Audit]] → [Audit Features](hook://p/Audit%20Features)<br>: feature design records defining V2 audit |
 | --- | --- |
 | [[F001 — Rule-driven audit engine — resolve, run, judge]]  | The engine: resolve applicable rules per target, run mechanical by script, judge the rest by agent; content-hash cached. |
 | [[F002 — Audit fix-by-default + Python rule functions]]  | Fix-by-default + leveled automation; rules carry Python checks distilled into a merged module. |
@@ -25,7 +25,7 @@ description: "Feature design records for the Audit skill — the per-feature des
 
 ## Provenance
 
-These features were authored on the SKA backlog, then relocated here and renumbered to an Audit-local namespace (2026-06-15) so the Audit skill carries a self-contained record of what defines it. Their **tracking** rows remain on the SKA backlog under their original SKA F-numbers (SKA owns tracking for the skills ecosystem, per [[SKA Decisions|D08]]); only the **design docs** moved and renumbered. Old → new:
+These features were authored on the SKA backlog, then relocated here and renumbered to an Audit-local namespace (2026-06-15) so the Audit skill carries a self-contained record of what defines it. Their **tracking** rows remain on the SKA backlog under their original SKA F-numbers (the skills ecosystem's tracking is one shared surface, per [[DAS Track]] § Who owns a Track folder); only the **design docs** moved and renumbered. Old → new:
 
 | SKA (tracking id) | Audit (design doc) |
 | --- | --- |
