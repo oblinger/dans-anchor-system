@@ -25,15 +25,16 @@ import pathlib
 import tempfile
 
 RULESET = pathlib.Path(__file__).parent / "R-pathguard.md"
+STATE_REGION = pathlib.Path(__file__).parent / "R-state-region.md"
 
 
-def load_body(rule_id: str):
+def load_body(rule_id: str, ruleset: pathlib.Path = RULESET):
     """Exec the ```python block under `### RULE {rule_id}` and return its body()."""
-    text = RULESET.read_text(encoding="utf-8")
+    text = ruleset.read_text(encoding="utf-8")
     m = re.search(r"^### RULE " + re.escape(rule_id) + r"\b.*?```python\n(.*?)\n```",
                   text, re.S | re.M)
     if not m:
-        raise SystemExit(f"could not extract {rule_id} from {RULESET}")
+        raise SystemExit(f"could not extract {rule_id} from {ruleset}")
     ns: dict = {}
     exec(m.group(1), ns)
     return ns["body"]
@@ -117,9 +118,18 @@ check("editing inside the on-disk Open Questions section fires",
       denied(body02(Ctx(str(p), {"old_string": "should the ritual read Gmail or Fastmail?",
                                  "new_string": "which inbox?"}))), True)
 
-# 4. old_string inside the on-disk Resolved section → fires
-check("editing inside the on-disk Resolved section fires",
-      denied(body02(Ctx(str(p), {"old_string": "**Choice:** (A)", "new_string": "**Choice:** (B)"}))), True)
+# 4. old_string inside the on-disk Resolved section → NO LONGER this rule's.
+# F291 moved a feature doc's `## Resolved` to R-state-region as a warn, on the
+# rule *deny where desync is possible, detect where it is not*: an archived
+# decision is not rendered, not counted, and gates nothing, so there is no live
+# state left to protect. Both halves are asserted so the handoff cannot quietly
+# become a coverage hole.
+resolved_edit = Ctx(str(p), {"old_string": "**Choice:** (A)",
+                             "new_string": "**Choice:** (B)"})
+check("editing the on-disk Resolved section no longer DENIES here (F291)",
+      denied(body02(resolved_edit)), False)
+check("...and R-state-region picks it up as a warning instead",
+      bool(load_body("R-state-region-01", STATE_REGION)(resolved_edit)), True)
 
 # 5. non-feature-doc filename is never guarded by this rule
 q = temp_feature(name="Some Note.md")
