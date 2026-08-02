@@ -1,9 +1,9 @@
 ---
-description: Default rules for finding a person — ships with the skill. User overrides in SRC rules/.
+description: Default rules for finding a person — ships with the skill. User overrides in SRCH rules/.
 ---
 # find-person — default rules
 
-Default rules for `find` on noun-type **person**. Ships with the skill; user overrides in `[[SRC rules/find-person|SRC rules/]]`.
+Default rules for `find` on noun-type **person**. Ships with the skill; user overrides in `[[SRCH rules/find-person|SRCH rules/]]`.
 
 When finding a person, the goal is identifying a *specific* individual matching criteria — not building a profile (that's [[profile/SKILL|/profile]]).
 
@@ -54,4 +54,4 @@ Before returning a confidence-high identifier, cross-check against at least one 
 
 ## User rules
 
-(Empty — user adds in `SRC rules/find-person.md` to override these defaults.)
+(Empty — user adds in `SRCH rules/find-person.md` to override these defaults.)

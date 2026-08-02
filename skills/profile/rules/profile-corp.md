@@ -1,9 +1,9 @@
 ---
-description: Default rules for describing an organization — ships with the skill. User overrides in SRC rules/.
+description: Default rules for describing an organization — ships with the skill. User overrides in SRCH rules/.
 ---
 # profile-corp — default rules
 
-Default rules for `profile` on noun-type **corp**. Ships with the skill; user overrides in `[[SRC rules/profile-corp|SRC rules/]]`.
+Default rules for `profile` on noun-type **corp**. Ships with the skill; user overrides in `[[SRCH rules/profile-corp|SRCH rules/]]`.
 
 ## Default dimensions
 
@@ -71,4 +71,4 @@ Startup (stage, cap-table-relevant, growth velocity) · public company (SEC-driv
 
 ## User rules
 
-(Empty — user adds in `SRC rules/profile-corp.md` to override these defaults.)
+(Empty — user adds in `SRCH rules/profile-corp.md` to override these defaults.)

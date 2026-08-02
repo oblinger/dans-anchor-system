@@ -4,7 +4,7 @@ description: "How the search skill family combines knowledge and rules — the m
 # DAS Search Overview
 The mental model behind the **search skill family** (`find`, `describe`, `survey`) — how the pieces fit together so you know how to ask, where to find rules, and where results land.
 
-| -[[DAS Search Overview]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Search Overview](hook://p/DAS%20Search%20Overview)<br>: How the search skill family combines knowledge and rules — the mental model behind find/profile/survey. |
+| -[[DAS Search Overview]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [docs](hook://docs) → [DAS Search Overview](hook://p/DAS%20Search%20Overview)<br>: How the search skill family combines knowledge and rules — the mental model behind find/profile/survey. |
 | --- | --- |
 | ... |  |
 
@@ -26,15 +26,15 @@ When a search verb runs (e.g. `survey products`), the agent loads in this order:
 | **1. Methodology** | `<skill>/SKILL.md` | invariant runbook — how to do this verb |
 | **2. Default verb rules** | `<skill>/rules/<verb>.md` | ships with skill |
 | **3. Default pair rules** | `<skill>/rules/<verb>-<noun>.md` | ships with skill — entity knowledge built in |
-| **4. Your verb rules** | [[SRC rules]] `/<verb>.md` | overrides default for this verb |
-| **5. Your noun rules** | [[SRC rules]] `/<noun>.md` | overrides default for this noun, any verb |
-| **6. Your pair rules** | [[SRC rules]] `/<verb>-<noun>.md` | most specific, wins all |
+| **4. Your verb rules** | [[SRCH rules]] `/<verb>.md` | overrides default for this verb |
+| **5. Your noun rules** | [[SRCH rules]] `/<noun>.md` | overrides default for this noun, any verb |
+| **6. Your pair rules** | [[SRCH rules]] `/<verb>-<noun>.md` | most specific, wins all |
 
 Layers 1-3 ship with the skill → it works out of the box on a fresh install. Layers 4-6 are yours → custom behavior. More-specific wins on conflict.
 
 ## Where outputs land
 
-Each verb writes to a folder under [[SRC|the Search anchor]]:
+Each verb writes to a folder under [[SRCH|the Search anchor]]:
 
 | Verb | Output folder | Filename pattern |
 |---|---|---|
@@ -58,6 +58,6 @@ Each verb has Quick / Standard / Deep tiers — specify in the request (*"survey
 
 ## Adding rules
 
-To set a preference for *all* surveys: edit [[SRC rules/survey|SRC rules/survey.md]]. To set a preference for *all product searches regardless of verb*: edit [[SRC rules/product|SRC rules/product.md]]. To set a preference for *surveys of products specifically*: create [[SRC rules/survey-product|SRC rules/survey-product.md]] (it wins on conflict).
+To set a preference for *all* surveys: edit [[SRCH rules/survey|SRCH rules/survey.md]]. To set a preference for *all product searches regardless of verb*: edit [[SRCH rules/product|SRCH rules/product.md]]. To set a preference for *surveys of products specifically*: create [[SRCH rules/survey-product|SRCH rules/survey-product.md]] (it wins on conflict).
 
 Standard: [[skill-search-rules]].

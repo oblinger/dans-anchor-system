@@ -1,9 +1,9 @@
 ---
-description: Default rules for finding an organization — ships with the skill. User overrides in SRC rules/.
+description: Default rules for finding an organization — ships with the skill. User overrides in SRCH rules/.
 ---
 # find-corp — default rules
 
-Default rules for `find` on noun-type **corp**. Ships with the skill; user overrides in `[[SRC rules/find-corp|SRC rules/]]`.
+Default rules for `find` on noun-type **corp**. Ships with the skill; user overrides in `[[SRCH rules/find-corp|SRCH rules/]]`.
 
 Goal: identify the *specific* organization matching criteria — not profile it (that's [[profile/SKILL|/profile]]).
 
@@ -45,4 +45,4 @@ Cross-check the identified org against the company's own site (canonical brand) 
 
 ## User rules
 
-(Empty — user adds in `SRC rules/find-corp.md` to override these defaults.)
+(Empty — user adds in `SRCH rules/find-corp.md` to override these defaults.)

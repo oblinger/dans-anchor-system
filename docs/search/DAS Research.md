@@ -24,7 +24,7 @@ Sub-skill docs marked with broken links are not yet written (tracked by [[Tink B
 
 ## Common output: a dated file in the matching stream
 
-Every action writes to the [[SRC]] output stream matching the shape of what it produced — [[Survey]] (comparisons), [[Profile]] (one-entity dossiers), [[Find]] (lookups), [[Guide]] (playbooks):
+Every action writes to the [[SRCH]] output stream matching the shape of what it produced — [[Survey]] (comparisons), [[Profile]] (one-entity dossiers), [[Find]] (lookups), [[Guide]] (playbooks):
 
 ```
 ~/ob/kmr/Topic/Search/{Survey|Profile|Find|Guide}/

@@ -1,9 +1,9 @@
 ---
-description: Default rules for the find skill, applied across all noun types. Ships with the skill. User overrides in SRC rules/.
+description: Default rules for the find skill, applied across all noun types. Ships with the skill. User overrides in SRCH rules/.
 ---
 # find — default rules
 
-Default verb-level rules for `find`. Ships with the skill; user overrides in `[[SRC rules/find|SRC rules/find.md]]`.
+Default verb-level rules for `find`. Ships with the skill; user overrides in `[[SRCH rules/find|SRCH rules/find.md]]`.
 
 Pair files (`find-person.md`, `find-corp.md`, `find-product.md`) carry noun-specific defaults and augment these.
 
@@ -33,4 +33,4 @@ Pair files (`find-person.md`, `find-corp.md`, `find-product.md`) carry noun-spec
 
 ## User rules
 
-(Empty — user adds in `SRC rules/find.md` to override these defaults.)
+(Empty — user adds in `SRCH rules/find.md` to override these defaults.)

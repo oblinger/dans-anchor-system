@@ -1,9 +1,9 @@
 ---
-description: Default rules for surveying people — ships with the skill. User overrides in SRC rules/.
+description: Default rules for surveying people — ships with the skill. User overrides in SRCH rules/.
 ---
 # survey-person — default rules
 
-Default rules for `survey` on noun-type **person**. Ships with the skill; user overrides in `[[SRC rules/survey-person|SRC rules/]]`.
+Default rules for `survey` on noun-type **person**. Ships with the skill; user overrides in `[[SRCH rules/survey-person|SRCH rules/]]`.
 
 Applies when comparing multiple individuals — candidates for a role, researchers in a domain, founders in a sector, speakers at a conference.
 
@@ -50,4 +50,4 @@ When several candidates share a name in your population, disambiguate per [[find
 
 ## User rules
 
-(Empty — user adds in `SRC rules/survey-person.md` to override these defaults.)
+(Empty — user adds in `SRCH rules/survey-person.md` to override these defaults.)

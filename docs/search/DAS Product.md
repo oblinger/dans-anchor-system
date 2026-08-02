@@ -2,10 +2,10 @@
 description: "skim → click into the rule that applies"
 ---
 # DAS Product
-| -[[DAS Product]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Product](hook://p/DAS%20Product)<br>: skim → click into the rule that applies |
+| -[[DAS Product]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [docs](hook://docs) → [DAS Product](hook://p/DAS%20Product)<br>: skim → click into the rule that applies |
 | --- | --- |
-| Product rules (any verb) | [[SRC rules/product\|product.md]],   |
-| Verbs | [[SRC rules/find-product\|find-product]],  [[SRC rules/profile-product\|describe-product]],  [[SRC rules/survey-product\|survey-product]],   |
+| Product rules (any verb) | [[SRCH rules/product\|product.md]],   |
+| Verbs | [[SRCH rules/find-product\|find-product]],  [[SRCH rules/profile-product\|describe-product]],  [[SRCH rules/survey-product\|survey-product]],   |
 | ... |  |
 
 When the search agent runs against a **product** — finding, describing, or surveying — these are the rules that apply.

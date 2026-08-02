@@ -3,7 +3,7 @@ description: Survey — skill anchor for building multi-dimensional comparison t
 ---
 # Survey
 
-| -[[Survey]]- | → [[kmr]] → [[Topic]] → [[SRC]] → [Survey](hook://p/Survey)<br>: comparison table across many entities — rows × dimensions + interpretive notes |
+| -[[Survey]]- | → [[kmr]] → [[Topic]] → [[SRCH]] → [Survey](hook://p/Survey)<br>: comparison table across many entities — rows × dimensions + interpretive notes |
 | --- | --- |
 | Skill | [[survey/SKILL\|SKILL.md]],  [[DAS Survey\|User Docs]],   |
 | Methodology | [[survey/SKILL\|SKILL.md § Runbook]],   |

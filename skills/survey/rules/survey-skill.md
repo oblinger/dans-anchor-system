@@ -1,9 +1,9 @@
 ---
-description: Default rules for surveying agent skills — ships with the skill. User overrides in SRC rules/. Migrated from legacy /research skill.
+description: Default rules for surveying agent skills — ships with the skill. User overrides in SRCH rules/. Migrated from legacy /research skill.
 ---
 # survey-skill — default rules
 
-Default rules for `survey` on noun-type **skill** — comparing agent skills (Claude Code skills, MCP servers, agentic toolings) that do similar work. Ships with the skill; user overrides in `[[SRC rules/survey-skill|SRC rules/]]`.
+Default rules for `survey` on noun-type **skill** — comparing agent skills (Claude Code skills, MCP servers, agentic toolings) that do similar work. Ships with the skill; user overrides in `[[SRCH rules/survey-skill|SRCH rules/]]`.
 
 Subsumes the legacy `/research skill` action. Applies when the survey population is **agent skills** ("survey architect skills", "compare PRD writer skills", "what's the landscape of feature-design skills").
 
@@ -100,4 +100,4 @@ Pre-baked columns for the survey table:
 
 ## User rules
 
-(Empty — user adds in `SRC rules/survey-skill.md` to override these defaults.)
+(Empty — user adds in `SRCH rules/survey-skill.md` to override these defaults.)

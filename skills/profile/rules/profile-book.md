@@ -1,9 +1,9 @@
 ---
-description: Default rules for describing a book — ships with the skill. User overrides in SRC rules/. Migrated from legacy /research book.
+description: Default rules for describing a book — ships with the skill. User overrides in SRCH rules/. Migrated from legacy /research book.
 ---
 # profile-book — default rules
 
-Default rules for `profile` on noun-type **book**. Ships with the skill; user overrides in `[[SRC rules/profile-book|SRC rules/]]`.
+Default rules for `profile` on noun-type **book**. Ships with the skill; user overrides in `[[SRCH rules/profile-book|SRCH rules/]]`.
 
 Subsumes the legacy `/research book` action — produces a book summary + dossier given a title and author.
 
@@ -95,7 +95,7 @@ Subsumes the legacy `/research book` action — produces a book summary + dossie
 
 ## Default output location (legacy)
 
-The legacy `/research book` action wrote to `~/ob/kmr/Topic/Misc/BOOK/BOOK Summary/{YYYY-MM-DD} {Title} by {Author}.md`. Under the new search-skill architecture, output lands in [[Profile]] (`~/ob/kmr/Topic/Search/Profile/`) per the [[profile/SKILL|/profile]] default — the BOOK Summary location is a legacy convention the user may still prefer for books specifically; if so, the user's `SRC rules/profile-book.md` overrides the output location.
+The legacy `/research book` action wrote to `~/ob/kmr/Topic/Misc/BOOK/BOOK Summary/{YYYY-MM-DD} {Title} by {Author}.md`. Under the new search-skill architecture, output lands in [[Profile]] (`~/ob/kmr/Topic/Search/Profile/`) per the [[profile/SKILL|/profile]] default — the BOOK Summary location is a legacy convention the user may still prefer for books specifically; if so, the user's `SRCH rules/profile-book.md` overrides the output location.
 
 ## Gotchas
 
@@ -107,4 +107,4 @@ The legacy `/research book` action wrote to `~/ob/kmr/Topic/Misc/BOOK/BOOK Summa
 
 ## User rules
 
-(Empty — user adds in `SRC rules/profile-book.md` to override these defaults.)
+(Empty — user adds in `SRCH rules/profile-book.md` to override these defaults.)

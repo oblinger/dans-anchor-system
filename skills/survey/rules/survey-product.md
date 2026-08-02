@@ -1,9 +1,9 @@
 ---
-description: Default rules for surveying products — ships with the skill. User overrides in SRC rules/. Migrated from the legacy /product hunt action.
+description: Default rules for surveying products — ships with the skill. User overrides in SRCH rules/. Migrated from the legacy /product hunt action.
 ---
 # survey-product — default rules
 
-Default rules for `survey` on noun-type **product**. Ships with the skill; user overrides in `[[SRC rules/survey-product|SRC rules/]]`.
+Default rules for `survey` on noun-type **product**. Ships with the skill; user overrides in `[[SRCH rules/survey-product|SRCH rules/]]`.
 
 Subsumes the broad-research phase of legacy `/product hunt`. Applies when comparing multiple products in a category — "best CRMs for a 20-person sales team," "DSLR cameras under $1500," "Pomodoro apps for Mac."
 
@@ -85,4 +85,4 @@ For a product category not surveyed before, **run meta-survey first** (per [[pro
 
 ## User rules
 
-(Empty — user adds in `SRC rules/survey-product.md` to override these defaults.)
+(Empty — user adds in `SRCH rules/survey-product.md` to override these defaults.)

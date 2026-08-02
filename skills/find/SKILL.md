@@ -15,11 +15,11 @@ Locate **one specific match** for the criteria the user provides. Return an iden
 1. **This SKILL.md** — methodology (the runbook below).
 2. `find/rules/find.md` — default verb rules (ships with skill).
 3. `find/rules/find-<noun>.md` — default pair rules with entity knowledge baked in (ships with skill).
-4. `SRC rules/find.md` — user's verb-level overrides (if present).
-5. `SRC rules/<noun>.md` — user's noun-level overrides, cross-verb (if present).
-6. `SRC rules/find-<noun>.md` — user's pair-level overrides (most specific, wins all).
+4. `SRCH rules/find.md` — user's verb-level overrides (if present).
+5. `SRCH rules/<noun>.md` — user's noun-level overrides, cross-verb (if present).
+6. `SRCH rules/find-<noun>.md` — user's pair-level overrides (most specific, wins all).
 
-Layers 1-3 ship with the skill; 4-6 are user overrides loaded from [[SRC rules]] at `~/ob/kmr/Topic/Search/SRC rules/`.
+Layers 1-3 ship with the skill; 4-6 are user overrides loaded from [[SRCH rules]] at `~/ob/kmr/Topic/Search/SRCH rules/`.
 
 ## Runbook
 
@@ -64,4 +64,4 @@ Lands in `~/ob/kmr/Topic/Search/Find/` as a markdown file with the identifier, c
 - User reference: [[DAS Find|Find]]
 - Overview of how it all combines: [[DAS Search Overview]]
 - Rules trait: [[skill-search-rules]]
-- User overrides: [[SRC rules]]
+- User overrides: [[SRCH rules]]

@@ -1,9 +1,9 @@
 ---
-description: Default rules for finding a software project (canonical URL, install vector, license-and-pricing) — ships with the skill. User overrides in SRC rules/.
+description: Default rules for finding a software project (canonical URL, install vector, license-and-pricing) — ships with the skill. User overrides in SRCH rules/.
 ---
 # find-software — default rules
 
-Default rules for `find` on noun-type **software** — pinning a specific software project, its canonical home page, and how to install it. Ships with the skill; user overrides in `[[SRC rules/find-software|SRC rules/]]`.
+Default rules for `find` on noun-type **software** — pinning a specific software project, its canonical home page, and how to install it. Ships with the skill; user overrides in `[[SRCH rules/find-software|SRCH rules/]]`.
 
 Software is **like product, with the purchase action optional** — most software has either a free install path (OSS / freemium) or a paid one (SaaS / commercial license). The find resolves *which path applies*, not just *where to buy*.
 
@@ -52,4 +52,4 @@ This skill resolves the canonical identifier and install vector. For full evalua
 
 ## User rules
 
-(Empty — user adds in `SRC rules/find-software.md` to override these defaults.)
+(Empty — user adds in `SRCH rules/find-software.md` to override these defaults.)

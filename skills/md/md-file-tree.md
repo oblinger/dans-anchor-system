@@ -45,7 +45,7 @@ A markdown file-tree table with two columns.
 | ---------------------- | --------------- |
 | [[MyProject]]/         | project root    |
 | `├──` [[MyProject.md]] | identity file   |
-| `├──`  [[src]]/        | source code     |
+| `├──`  [[SRCH]]/        | source code     |
 | `│ .  └──`  [[lib]]/   | library modules |
 
 

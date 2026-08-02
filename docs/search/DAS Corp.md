@@ -2,10 +2,10 @@
 description: "skim → click into the rule that applies"
 ---
 # DAS Corp
-| -[[DAS Corp]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Corp](hook://p/DAS%20Corp)<br>: skim → click into the rule that applies |
+| -[[DAS Corp]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [docs](hook://docs) → [DAS Corp](hook://p/DAS%20Corp)<br>: skim → click into the rule that applies |
 | --- | --- |
-| Corp rules (any verb) | [[SRC rules/corp\|corp.md]],   |
-| Verbs | [[SRC rules/find-corp\|find-corp]],  [[SRC rules/profile-corp\|describe-corp]],  [[SRC rules/survey-corp\|survey-corp]],   |
+| Corp rules (any verb) | [[SRCH rules/corp\|corp.md]],   |
+| Verbs | [[SRCH rules/find-corp\|find-corp]],  [[SRCH rules/profile-corp\|describe-corp]],  [[SRCH rules/survey-corp\|survey-corp]],   |
 | ... |  |
 
 When the search agent runs against an **organization** — finding, describing, or surveying — these are the rules that apply.

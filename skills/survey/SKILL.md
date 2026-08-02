@@ -17,11 +17,11 @@ Build a **multi-dimensional comparison table** over many entities, plus interpre
 1. **This SKILL.md** — methodology (the runbook below) + meta-survey sub-pattern.
 2. `survey/rules/survey.md` — default verb rules (ships with skill); includes RRR output convention and the skill-survey specialized variant.
 3. `survey/rules/survey-<noun>.md` — default pair rules with entity knowledge baked in (ships with skill).
-4. `SRC rules/survey.md` — user's verb-level overrides (if present).
-5. `SRC rules/<noun>.md` — user's noun-level overrides, cross-verb (if present).
-6. `SRC rules/survey-<noun>.md` — user's pair-level overrides (most specific, wins all).
+4. `SRCH rules/survey.md` — user's verb-level overrides (if present).
+5. `SRCH rules/<noun>.md` — user's noun-level overrides, cross-verb (if present).
+6. `SRCH rules/survey-<noun>.md` — user's pair-level overrides (most specific, wins all).
 
-Layers 1-3 ship with the skill; 4-6 are user overrides loaded from [[SRC rules]] at `~/ob/kmr/Topic/Search/SRC rules/`.
+Layers 1-3 ship with the skill; 4-6 are user overrides loaded from [[SRCH rules]] at `~/ob/kmr/Topic/Search/SRCH rules/`.
 
 ## Runbook
 
@@ -91,5 +91,5 @@ Lands in `~/ob/kmr/Topic/Search/Survey/` as a markdown file. The [[Survey]] anch
 - User reference: [[DAS Survey]]
 - Overview of composition: [[DAS Search Overview]]
 - Rules trait: [[skill-search-rules]]
-- User overrides: [[SRC rules]]
+- User overrides: [[SRCH rules]]
 - Legacy: this skill subsumes `/research survey`, `/research skill` (as a specialized variant in `rules/survey.md`), and the broad-research phase of `/product hunt` (in `rules/survey-product.md`).

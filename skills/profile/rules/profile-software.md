@@ -1,9 +1,9 @@
 ---
-description: Default rules for describing a software project — ships with the skill. User overrides in SRC rules/.
+description: Default rules for describing a software project — ships with the skill. User overrides in SRCH rules/.
 ---
 # profile-software — default rules
 
-Default rules for `profile` on noun-type **software**. Ships with the skill; user overrides in `[[SRC rules/profile-software|SRC rules/]]`.
+Default rules for `profile` on noun-type **software**. Ships with the skill; user overrides in `[[SRCH rules/profile-software|SRCH rules/]]`.
 
 Software profiles are **like product profiles, with two structural differences**: (1) the **purchase / pricing card** is conditional — many candidates are free or freemium, so the profile must handle both paid and unpaid; (2) the **ecosystem-and-source signal** is unusually rich (GitHub activity, package downloads, community size, integration list) and replaces some of the review-aggregator structure used for physical products.
 
@@ -75,4 +75,4 @@ For paid software, run the standard buy-decision factors from profile-product]] 
 
 ## User rules
 
-(Empty — user adds in `SRC rules/profile-software.md` to override these defaults.)
+(Empty — user adds in `SRCH rules/profile-software.md` to override these defaults.)

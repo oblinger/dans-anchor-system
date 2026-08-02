@@ -1,9 +1,9 @@
 ---
-description: Default rules for finding a product (SKU-level identification, retailer comparison) — ships with the skill. User overrides in SRC rules/. Migrated and extended from the legacy /product find skill.
+description: Default rules for finding a product (SKU-level identification, retailer comparison) — ships with the skill. User overrides in SRCH rules/. Migrated and extended from the legacy /product find skill.
 ---
 # find-product — default rules
 
-Default rules for `find` on noun-type **product** — pinning a specific SKU, comparing retailers, identifying the canonical purchase URL. Ships with the skill; user overrides in `[[SRC rules/find-product|SRC rules/]]`.
+Default rules for `find` on noun-type **product** — pinning a specific SKU, comparing retailers, identifying the canonical purchase URL. Ships with the skill; user overrides in `[[SRCH rules/find-product|SRCH rules/]]`.
 
 Subsumes the legacy `/product find` action from [[DAS Purchase]].
 
@@ -48,4 +48,4 @@ This skill **identifies** the SKU and the cheapest URL — it doesn't execute pu
 
 ## User rules
 
-(Empty — user adds in `SRC rules/find-product.md` to override these defaults.)
+(Empty — user adds in `SRCH rules/find-product.md` to override these defaults.)
