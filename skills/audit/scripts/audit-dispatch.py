@@ -78,6 +78,150 @@ def link_keys(cell_text: str) -> list[str]:
     return keys
 
 
+STRUCK_RE = re.compile(r"~~.+?~~", re.DOTALL)
+
+VAULT_ROOT = Path.home() / "ob" / "kmr"
+# `/Yore/` is load-bearing here, not incidental: archiving to Yore is HOW a doc
+# is retired, so a link into Yore is a link to something deliberately gone.
+SKIP_PATH_FRAGMENTS = ("/.history/", "/worktrees/", "/Yore/", "/.trash/",
+                       "/Closet/")
+
+_BASENAME_INDEX: set[str] | None = None
+
+
+def vault_basenames() -> set[str]:
+    """Every live filename in the vault, indexed both ways — built once per run.
+
+    EVERY file, not just `.md`. A wiki-link may name a PDF, a spreadsheet, an
+    image, a `.txt` — those are ordinary Obsidian links and their targets are
+    ordinary files. Indexing only `.md` made 417 rows across 121 anchors look
+    dead on the first vault-wide dry sweep of this check, nearly all of them
+    perfectly good links to `.pdf` / `.xlsx` / `.ppt` attachments. That sweep
+    is why this function walks everything: the drop is destructive and its
+    input is a resolver, so the resolver's blind spots ARE the damage.
+
+    Each file is indexed under both its full name (`Foo.pdf`, how an
+    attachment is linked) and its stem (`Foo`, how a note is linked).
+    """
+    global _BASENAME_INDEX
+    if _BASENAME_INDEX is None:
+        import os
+        found: set[str] = set()
+        for root, dirs, files in os.walk(VAULT_ROOT, followlinks=False):
+            if any(frag in root + "/" for frag in SKIP_PATH_FRAGMENTS):
+                dirs[:] = []
+                continue
+            dirs[:] = [d for d in dirs if not d.startswith(".")]
+            # Folders count. `[[SVAI Design]]` naming a folder that holds docs
+            # but no `SVAI Design.md` is an unresolved link Obsidian would
+            # flag, yet the row is pointing at something real and the repair is
+            # to give the folder an index page — not to delete the row.
+            found.update(dirs)
+            for f in files:
+                if f.startswith("."):
+                    continue
+                found.add(f)
+                stem = f.rsplit(".", 1)[0]
+                if stem:
+                    found.add(stem)
+        _BASENAME_INDEX = found
+    return _BASENAME_INDEX
+
+
+_HA_COMMANDS: set[str] | None = None
+_HA_AVAILABLE = True
+
+
+def ha_command_names() -> set[str]:
+    """Every HookAnchor command name, lowercased — built once per run.
+
+    A wiki-link in a dispatch table does not always name a file. Catalog pages
+    (`DIR`, `AGENT`) put their content INSIDE the dispatch table by design, and
+    their links are HookAnchor command names — `[[grove]]`, `[[Public Gdrive
+    Page]]`, `[[qball]]`. Some bind to paths outside the vault, some to URLs
+    and so have no path at all. Judging those by vault residency marks live
+    catalog rows dead; the vault-wide dry sweep put 20-odd such rows on the
+    chopping block, which is how this was caught before it ran with `--fix`.
+
+    If `ha` cannot be reached, `_HA_AVAILABLE` goes false and the dead-row drop
+    disables itself. A resolver that failed to load is not evidence of absence,
+    and this check deletes rows — the fail-safe direction is to keep them.
+    """
+    global _HA_COMMANDS, _HA_AVAILABLE
+    if _HA_COMMANDS is None:
+        try:
+            out = subprocess.run(["ha", "--dump", "--format=name"],
+                                 capture_output=True, text=True, timeout=60)
+            names = {l.strip().lower() for l in out.stdout.splitlines() if l.strip()}
+            if not names:
+                raise RuntimeError("empty dump")
+            _HA_COMMANDS = names
+        except Exception:
+            _HA_AVAILABLE = False
+            _HA_COMMANDS = set()
+    return _HA_COMMANDS
+
+
+def wiki_target_resolves(target: str) -> bool:
+    """Does `[[target]]` name something that still exists?
+
+    The target is stripped of any `#heading` / `#^block` before lookup — those
+    live or die with their file. A target carrying a path (`Folder/Doc`) is
+    matched on its last segment, the same way Obsidian resolves one.
+    """
+    base = target.split("#", 1)[0].strip().rstrip("/")
+    base = base.rsplit("/", 1)[-1].strip()
+    if not base:
+        return False
+    return base in vault_basenames() or base.lower() in ha_command_names()
+
+
+def live_link_keys(cell_text: str) -> list[str]:
+    """`link_keys`, minus every link whose target is gone.
+
+    T088 — the runbook lists "remove rows pointing at deleted children" among
+    the fixes this tool applies mechanically without asking. It never applied
+    that one, because the keep/drop test only asked whether a row contained
+    link *syntax*, never whether the link had a *target*. Found 2026-08-01
+    finishing T087: after `SKA Audit Design/` was archived to Yore, `SKA
+    audit.md` kept `| [[SKA Audit Design|Design]] | [[SKA Audit PRD|PRD]], |`,
+    a row whose two links both pointed at nothing, and the tool reported the
+    table "already in good form" on two consecutive runs. Dropping it by hand
+    is exactly what the never-hand-author-a-dispatch-table rule exists to
+    prevent, so the tool has to be the one that does it.
+
+    A link is dead two ways, and both answer the same question — is there
+    anything at the other end?
+
+      * its target does not resolve to a live `.md` in the vault; or
+      * it is struck through (`~~[[X|Design]]~~`), which is the maintenance
+        pass declaring the target gone by hand. Honoring the strikethrough is
+        a short-circuit of the resolution check, not a second rule.
+
+    Only wiki-links are resolution-checked. A markdown href (`file://`,
+    `https://`, a relative path) is treated as live-unknown and keeps its row:
+    this tool cannot see the other end of those, and a row it cannot judge is
+    a row it must not delete.
+    """
+    spans = [(m.start(), m.end()) for m in STRUCK_RE.finditer(cell_text)]
+
+    def struck(pos: int) -> bool:
+        return any(s <= pos < e for s, e in spans)
+
+    keys: list[str] = []
+    for m in WIKI_RE.finditer(cell_text):
+        target = m.group(1).strip()
+        if struck(m.start()) or not wiki_target_resolves(target):
+            continue
+        keys.append("wiki:" + target)
+    for m in MDLINK_RE.finditer(cell_text):
+        href = m.group(1).strip()
+        if href.startswith("hook://") or struck(m.start()):
+            continue
+        keys.append("href:" + href)
+    return keys
+
+
 DASH_CELL_RE = re.compile(r"^:?-{2,}:?$")
 
 
@@ -198,12 +342,13 @@ def on_disk_children(folder: Path, page: Path) -> list[str]:
 # ---------------------------------------------------------------------------
 
 class Row:
-    __slots__ = ("raw", "cells", "links")
+    __slots__ = ("raw", "cells", "links", "live_links")
 
     def __init__(self, raw: str):
         self.raw = raw.rstrip("\n")
         self.cells = split_cells(raw)
         self.links = link_keys(raw)
+        self.live_links = live_link_keys(raw)
 
     @property
     def label(self) -> str:
@@ -211,7 +356,28 @@ class Row:
 
     @property
     def has_links(self) -> bool:
-        return bool(self.links)
+        return bool(self.live_links)
+
+    @property
+    def is_dead(self) -> bool:
+        """The row has links, and every one of them points at nothing.
+
+        A row mixing live and dead links is NOT dead: the live link is the
+        reason the row is still there, and the dead one is a note beside it.
+        Nor is a row that merely has no links — that one never had a target,
+        and `dropped_empty_rows` already covers it.
+
+        A `hook://` link keeps a row alive too. `link_keys` drops those from
+        the link universe on purpose (they are the breadcrumb's own identity
+        and must not be carried forward), but "not curated member content" and
+        "not a target" are different claims — outside the breadcrumb a
+        `hook://` link points at something this tool cannot follow, and an
+        unfollowable target is unjudgeable, not absent."""
+        if "hook://" in self.raw and not is_breadcrumb_row(self.cells):
+            return False
+        if not self.live_links and not _HA_AVAILABLE:
+            return False  # resolver did not load — never delete on a guess
+        return bool(self.links) and not self.live_links
 
 
 def extract_region(lines: list[str]):
@@ -267,6 +433,7 @@ def rebuild(rows: list[Row], folder: Path, page: Path, anchor_name: str):
     report = {
         "breadcrumb_title_fixed": False,
         "dropped_empty_rows": [],      # list of raw lines dropped
+        "dropped_dead_rows": [],       # T088 — every link struck through
         "kept_rows": 0,
         "auto_filled_children": [],    # wiki targets injected
         "carried_forward": [],         # link keys rescued into Related
@@ -305,9 +472,12 @@ def rebuild(rows: list[Row], folder: Path, page: Path, anchor_name: str):
     out.append(header_sep)
 
     # --- collect the OLD link universe (everything except breadcrumb) --
+    # Dead links are excluded here as well as at the drop test — otherwise the
+    # carry-forward net below rescues the dead link into a Related row and
+    # silently undoes the drop in the same pass (T088).
     old_links: set[str] = set()
     for r in rows[1:]:
-        old_links.update(r.links)
+        old_links.update(r.live_links)
 
     # --- walk remaining rows: keep those with links / electric markers;
     #     drop empty (no-link, non-marker) rows -------------------------
@@ -323,6 +493,13 @@ def rebuild(rows: list[Row], folder: Path, page: Path, anchor_name: str):
             out.append(r.raw)
             electric_indices.append(len(out) - 1)
             report["kept_rows"] += 1
+            continue
+        if r.is_dead:
+            # Tested before has_links so a wholly-dead row cannot reach the
+            # keep branch; it is reported separately from an empty row because
+            # the two say different things — one row never had a target, this
+            # one outlived its target.
+            report["dropped_dead_rows"].append(r.raw.strip())
             continue
         if r.has_links:
             out.append(r.raw)
@@ -344,7 +521,7 @@ def rebuild(rows: list[Row], folder: Path, page: Path, anchor_name: str):
     # --- SAFETY: carry forward any old link the rebuild dropped --------
     new_links: set[str] = set()
     for line in out[1:]:  # exclude breadcrumb (preserved verbatim)
-        new_links.update(link_keys(line))
+        new_links.update(live_link_keys(line))
     # auto-filled children are also "new"; they were not in old anyway
     missing = sorted(old_links - new_links)
     if missing:
@@ -385,11 +562,15 @@ def print_report(name, page, old_rows, new_lines, report, applied):
         print(f"  • dropped {len(report['dropped_empty_rows'])} empty row(s) (no link targets):")
         for d in report["dropped_empty_rows"]:
             print(f"      {d}")
+    if report["dropped_dead_rows"]:
+        print(f"  • dropped {len(report['dropped_dead_rows'])} dead row(s) (every link points at nothing):")
+        for d in report["dropped_dead_rows"]:
+            print(f"      {d}")
     if report["auto_filled_children"]:
         print(f"  • auto-filled {len(report['auto_filled_children'])} unlisted child(ren) into the container: "
               + ", ".join(report["auto_filled_children"]))
     if not (report["breadcrumb_title_fixed"] or report["dropped_empty_rows"]
-            or report["auto_filled_children"]):
+            or report["dropped_dead_rows"] or report["auto_filled_children"]):
         print("  • no structural changes (table already in good form)")
     print()
     print("── curated-link preservation ──")
