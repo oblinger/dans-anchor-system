@@ -372,13 +372,25 @@ class CorpusError(RuntimeError):
     it then reads as agent-judgment work with nothing to say it was demoted."""
 
 
-_IMPORTED: dict[str, dict] = {}      # corpus-relative path -> its CHECKERS
-_REGISTRY: dict | None = None        # merged name -> fn
-_REGISTRY_OWNER: dict[str, str] = {}  # name -> the import that first defined it
+# `check::` and `fix::` are TWO registries, not one. Conflating them is not a
+# hypothetical: the first cut of this verification checked both against
+# `CHECKERS` and reported `R-doc-structure-01 — fix:: breadcrumb_position` as a
+# ghost, when `breadcrumb_position` is a perfectly good registered FIXER. F289's
+# own "11 ghosts" measurement carried the same conflation and is corrected to 10
+# here. A ref is a ghost only against the registry its FIELD resolves through.
+_IMPORTED: dict[str, tuple[dict, dict]] = {}  # corpus-relative path -> (CHECKERS, FIXERS)
+_REGISTRY: dict | None = None          # merged checker name -> fn
+_FIX_REGISTRY: dict | None = None      # merged fixer name -> fn
+_REGISTRY_OWNER: dict[str, str] = {}   # name -> the import that first defined it
 
 
-def _load_checker_module(rel: str) -> dict:
-    """Load one corpus-root-relative Python file and return its `CHECKERS`.
+def _load_checker_module(rel: str) -> tuple[dict, dict]:
+    """Load one corpus-root-relative Python file; return its (CHECKERS, FIXERS).
+
+    `CHECKERS` is required — a module named by `import::` that registers nothing
+    is a corpus mistake worth saying out loud. `FIXERS` is optional: plenty of
+    rulesets check without repairing, and requiring an empty dict would be
+    ceremony.
 
     Loading THIS file is the common case (dans-anchor-system's own rulesets name
     it), and it is short-circuited to the live module: re-executing audit-plan
@@ -388,8 +400,8 @@ def _load_checker_module(rel: str) -> dict:
         return _IMPORTED[rel]
     path = (REPO_ROOT / rel).resolve()
     if path == Path(__file__).resolve():
-        _IMPORTED[rel] = CHECKERS
-        return CHECKERS
+        _IMPORTED[rel] = (CHECKERS, FIXERS)
+        return _IMPORTED[rel]
     if not path.is_file():
         raise CorpusError(f"import:: {rel!r} — no such file under {REPO_ROOT}")
     import importlib.util
@@ -404,8 +416,9 @@ def _load_checker_module(rel: str) -> dict:
     reg = getattr(mod, "CHECKERS", None)
     if not isinstance(reg, dict):
         raise CorpusError(f"import:: {rel!r} — module defines no CHECKERS dict")
-    _IMPORTED[rel] = reg
-    return reg
+    fixers = getattr(mod, "FIXERS", None)
+    _IMPORTED[rel] = (reg, fixers if isinstance(fixers, dict) else {})
+    return _IMPORTED[rel]
 
 
 def register_imports(rulesets: list[dict]) -> None:
@@ -417,13 +430,28 @@ def register_imports(rulesets: list[dict]) -> None:
         for rel in rs.get("imports") or ():
             if rel in _IMPORTED:
                 continue
-            reg = _load_checker_module(rel)
-            merged = registry()
-            for name, fn in reg.items():
-                if name in _REGISTRY_OWNER and _REGISTRY_OWNER[name] != rel:
-                    continue  # first wins; verify_registrations reports the clash
-                _REGISTRY_OWNER.setdefault(name, rel)
-                merged[name] = fn
+            reg, fixers = _load_checker_module(rel)
+            for src, dst in ((reg, registry()), (fixers, fixer_registry())):
+                for name, fn in src.items():
+                    if name in _REGISTRY_OWNER and _REGISTRY_OWNER[name] != rel:
+                        continue  # first wins; verify_registrations reports the clash
+                    _REGISTRY_OWNER.setdefault(name, rel)
+                    dst[name] = fn
+
+
+def fixer_registry() -> dict:
+    """The merged fixer environment every `fix::` ref resolves against.
+
+    Separate from `registry()` because the two vocabularies are separate: 127
+    checkers and 7 fixers today, overlapping by name wherever a check and its
+    repair share one (`md_table_pipe_escape`), and disjoint where they do not
+    (`breadcrumb_position` is a fixer with no checker of that name)."""
+    global _FIX_REGISTRY
+    if _FIX_REGISTRY is None:
+        _FIX_REGISTRY = dict(FIXERS)
+        for n in FIXERS:
+            _REGISTRY_OWNER.setdefault(n, "skills/audit/scripts/audit-plan.py")
+    return _FIX_REGISTRY
 
 
 def registry() -> dict:
@@ -495,21 +523,23 @@ def verify_registrations(rulesets: list[dict]) -> dict:
     an uninvoked checker is either a rule waiting to be written or dead code,
     and only reading each one tells you which."""
     register_imports(rulesets)
-    reg = registry()
+    # Each field resolves against its OWN registry — see the note on `_IMPORTED`.
+    REG = {"check": registry(), "fix": fixer_registry()}
     ghosts, undeclared, clashes = [], [], []
     used: set[str] = set()
 
     seen_owner: dict[str, str] = {}
     for rs in rulesets:
-        own: set[str] = set()
+        own: dict[str, set] = {"check": set(), "fix": set()}
         for rel in rs.get("imports") or ():
-            names = _IMPORTED.get(rel) or {}
-            for n in names:
+            checkers, fixers = _IMPORTED.get(rel) or ({}, {})
+            for n in set(checkers) | set(fixers):
                 if n in seen_owner and seen_owner[n] != rel:
-                    clashes.append(f"checker {n!r} defined by both "
+                    clashes.append(f"{n!r} defined by both "
                                    f"{seen_owner[n]} and {rel} — first wins")
                 seen_owner.setdefault(n, rel)
-            own |= set(names)
+            own["check"] |= set(checkers)
+            own["fix"] |= set(fixers)
         for r in rs["rules"]:
             for field in ("check", "fix"):
                 ref = r.get(field)
@@ -518,14 +548,14 @@ def verify_registrations(rulesets: list[dict]) -> dict:
                 name = ref.split()[0]
                 if field == "check":
                     used.add(name)
-                if name not in reg:
+                if name not in REG[field]:
                     ghosts.append(f"{r['id']} — {field}:: {name!r} is registered nowhere; "
                                   f"the rule silently becomes agent judgment")
-                elif name not in own:
+                elif name not in own[field]:
                     undeclared.append(f"{r['id']} — {field}:: {name!r} resolves only "
                                       f"globally; {rs['name']} declares no import:: "
                                       f"that defines it")
-    orphans = sorted(n for n in reg if n not in used)
+    orphans = sorted(n for n in REG["check"] if n not in used)
     return {"ghosts": ghosts, "undeclared": undeclared,
             "clashes": clashes, "orphans": orphans}
 
@@ -5394,7 +5424,7 @@ FIXERS = {
 def run_fixer(fix: str, target: Path, anchor_root: Path) -> tuple[bool, str]:
     parts = fix.split()
     name, args = parts[0], parts[1:]
-    fn = FIXERS.get(name)
+    fn = fixer_registry().get(name)
     if fn is None:
         return False, f"unknown fixer {name!r}"
     try:

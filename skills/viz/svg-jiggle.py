@@ -39,6 +39,7 @@ import re
 import math
 import argparse
 import xml.etree.ElementTree as ET
+from pathlib import Path
 
 # ---- geometry tuning constants ------------------------------------------------
 WIDTH_FACTOR = 0.58     # text width  ~= len * font_size * WIDTH_FACTOR  (per spec)
@@ -54,6 +55,14 @@ PERP_STEP = 4.0
 PAR_PAD = 100.0         # slide search: parallel reach beyond half the edge length
 PAR_STEP = 8.0
 HEAD_FRAC = 0.20        # arrowhead may be at most this fraction of its segment length
+# `shrink_arrowhead` drives the head to EXACTLY `HEAD_FRAC * L`, and the marker
+# size is re-read from the rewritten file, so it comes back a whisker above the
+# target (6.80001 vs 6.8). Under a strict `>` the detector then re-flags the
+# very edge its own repair just fixed — the repair loop can never retire that
+# issue, and a fully-jiggled diagram still reports it. Found 2026-08-02 by
+# wiring the checker (T074) and running it over the vault: a `.jiggled.svg`
+# failed `svg_overweighted_head`, which is the one thing a jiggled file must not do.
+HEAD_EPS = 1e-3         # tolerance so a head AT the target is not a finding
 VIS_MIN = 24.0          # arrow segments shorter than this are "below visibility"
 BREATHE = 6.0           # minimum clearance a move must leave around the moved object
 NUDGE_OPEN = 16.0       # clearance a nudge-box opens between the box and the trapped label
@@ -670,7 +679,7 @@ def detect_overweighted_head(m):
         L = e.length()
         if L <= 0:
             continue
-        if e.head_len() > HEAD_FRAC * L:
+        if e.head_len() > HEAD_FRAC * L + HEAD_EPS:
             out.append(Issue('overweighted-head', (e,),
                              f"head {e.head_len():g} > 20% of seg {L:.0f} @ {e.label()}"))
     return out
@@ -1125,6 +1134,90 @@ def rewrite(src, m):
     for s, e, txt in all_edits:
         src = src[:s] + txt + src[e:]
     return src
+
+
+# ---- audit checkers (T074) ----------------------------------------------------
+#
+# `R-svg-jiggle-02..05` declare `check:: svg_*`, and until now nothing registered
+# those names. That failed SILENTLY, which is the whole reason this wiring is a
+# tracked task rather than a chore: the audit engine decides mechanical-vs-agent
+# by a registry membership test, so an unregistered name simply misses and the
+# rule is promoted to a billed agent-judgment task that reports nothing. Four
+# rules looked enforced and were not.
+#
+# The checkers live HERE, beside the geometry, and `R-svg-jiggle` reaches them
+# with `import:: skills/viz/svg-jiggle.py` (F289). That placement is the point:
+# the detectors below already existed and are the same ones `--issues` and the
+# repair loop use, so a checker cannot drift from the geometry it checks. Wiring
+# them into audit-plan instead would have meant a second implementation of
+# `text_bbox` / `rect_overlap` / edge association — a 1,100-line duplicate of
+# exactly the kind T099's census found 129 of.
+
+def _svg_model(target, anchor_root):
+    """(model, None) or (None, error-verdict) — the shared adapter preamble."""
+    f = Path(target)
+    if f.is_dir() or not f.is_file():
+        return None, ("error", "not a file")
+    try:
+        return parse_svg(f.read_text(encoding="utf-8")), None
+    except ET.ParseError as e:
+        # Malformed XML is R-svg-jiggle's sibling rule `svg_validates_xml`, not
+        # this one. Reporting `error` rather than `fail` keeps the geometry
+        # rules from all restating the same parse failure four times over.
+        return None, ("error", f"unparseable SVG: {e}")
+
+
+def _issue_verdict(detect, target, anchor_root, empty_msg):
+    m, bad = _svg_model(target, anchor_root)
+    if bad is not None:
+        return bad
+    issues = detect(m)
+    if not issues:
+        return "pass", empty_msg
+    return "fail", "; ".join(i.detail for i in issues[:6]) + (
+        f" (+{len(issues) - 6} more)" if len(issues) > 6 else "")
+
+
+def chk_svg_label_over_box(target, anchor_root, args):
+    """R-svg-jiggle-02 — an edge label printed across a box (hard)."""
+    return _issue_verdict(detect_label_over_box, target, anchor_root,
+                          "no label spills a box")
+
+
+def chk_svg_label_over_wrong_line(target, anchor_root, args):
+    """R-svg-jiggle-03 — a label sitting on an edge it does not annotate (soft)."""
+    return _issue_verdict(detect_label_over_wrong_line, target, anchor_root,
+                          "every label sits on its own edge")
+
+
+def chk_svg_overweighted_head(target, anchor_root, args):
+    """R-svg-jiggle-04 — arrowhead longer than 20% of its segment (soft)."""
+    return _issue_verdict(detect_overweighted_head, target, anchor_root,
+                          "no arrowhead exceeds 20% of its segment")
+
+
+def chk_svg_crowded_band(target, anchor_root, args):
+    """R-svg-jiggle-05 — a row/column of sub-visibility arrows (soft).
+
+    Often an honest residual rather than a defect: `widen` is the only fix for a
+    whole-band crowd and is gated (R-svg-jiggle-10), so this reports the band
+    rather than implying a cheap repair exists."""
+    return _issue_verdict(detect_crowded_band, target, anchor_root,
+                          "no crowded band")
+
+
+# The five `fix::` refs on R-svg-jiggle-06..10 stay unregistered on purpose.
+# They are resolutions inside the repair loop, selected against a cost function
+# and re-detected after each move — not standalone document fixers that the
+# on-write hook could fire one at a time. Registering them under the fixer
+# protocol would claim a capability the shapes do not match. `svg-jiggle.py`
+# remains the way to apply them.
+CHECKERS = {
+    "svg_label_over_box": chk_svg_label_over_box,
+    "svg_label_over_wrong_line": chk_svg_label_over_wrong_line,
+    "svg_overweighted_head": chk_svg_overweighted_head,
+    "svg_crowded_band": chk_svg_crowded_band,
+}
 
 
 # ---- reporting ----------------------------------------------------------------

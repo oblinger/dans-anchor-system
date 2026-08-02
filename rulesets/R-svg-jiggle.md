@@ -1,6 +1,6 @@
 # RULESET R-svg-jiggle
 include::
-import:: skills/audit/scripts/audit-plan.py
+import:: skills/viz/svg-jiggle.py
 where:: `{anchor}/**/*.svg`
 description:: Geometry-aware layout-repair ("jiggle") for hand-authored SVG diagrams — detect a named, explicit issue list, then resolve each issue with the cheapest resolution that closes it without opening a new one.
 

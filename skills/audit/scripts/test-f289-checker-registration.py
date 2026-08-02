@@ -176,8 +176,11 @@ print("\nImporting audit-plan itself short-circuits to the live module")
 # and hand back checker functions that are not the ones the rest of the process
 # holds — so a verdict cache keyed on identity, or a test that patches a checker,
 # would quietly diverge from what actually ran.
+_self = ap._load_checker_module("skills/audit/scripts/audit-plan.py")
 check("the self-import returns the live CHECKERS object, not a fresh copy",
-      ap._load_checker_module("skills/audit/scripts/audit-plan.py") is ap.CHECKERS, True)
+      _self[0] is ap.CHECKERS, True)
+check("...and the live FIXERS alongside it — a module supplies both vocabularies",
+      _self[1] is ap.FIXERS, True)
 
 
 # ── both directions, on the real corpus ─────────────────────────────────────
@@ -208,16 +211,30 @@ check("no ruleset's ref resolves only globally — every one names its own modul
       REPORT["undeclared"], [])
 check("...and no name is defined twice", REPORT["clashes"], [])
 
-# A ratchet, not a gate: the eleven below are pre-existing and each has a home
-# (eight are Tink T074's SVG geometry work). New ones must not join them
-# silently, and closing one must shrink this list in the same commit.
+# The conflation that produced a false ghost, asserted so it cannot come back.
+check("a `fix::` ref resolves through FIXERS, not CHECKERS — `breadcrumb_position` "
+      "is a registered fixer with no checker of that name",
+      ("breadcrumb_position" in ap.fixer_registry()
+       and "breadcrumb_position" not in ap.registry()), True)
+check("...so it is not reported as a ghost",
+      any("breadcrumb_position" in g for g in REPORT["ghosts"]), False)
+
+# A ratchet, not a gate: the six below are pre-existing and each has a home. New
+# ones must not join them silently, and closing one must shrink this list in the
+# same commit — T074 did exactly that on 2026-08-02, taking the four
+# `R-svg-jiggle-02..05` checks out by registering them.
+#
+# F289's design recorded ELEVEN ghosts and this list started as that eleven. Two
+# corrections since, both measured:
+#   - `R-doc-structure-01 — fix:: breadcrumb_position` was never a ghost. The
+#     first cut checked `fix::` refs against CHECKERS; they resolve through
+#     FIXERS, where `breadcrumb_position` has always been registered. 11 -> 10.
+#   - T074 registered the four `svg_*` checks. 10 -> 6.
+# The five `R-svg-jiggle-06..10` fixes stay: they are resolutions inside the
+# repair loop, selected against a cost function and re-detected after each move,
+# not standalone fixers the on-write hook could fire one at a time.
 KNOWN_GHOSTS = {
-    "R-doc-structure-01": {"breadcrumb_position"},
     "R-md-03": {"md_angle_brackets_backtick_only"},
-    "R-svg-jiggle-02": {"svg_label_over_box"},
-    "R-svg-jiggle-03": {"svg_label_over_wrong_line"},
-    "R-svg-jiggle-04": {"svg_overweighted_head"},
-    "R-svg-jiggle-05": {"svg_crowded_band"},
     "R-svg-jiggle-06": {"slide_label_along_edge"},
     "R-svg-jiggle-07": {"flip_label_across_edge"},
     "R-svg-jiggle-08": {"nudge_box"},
