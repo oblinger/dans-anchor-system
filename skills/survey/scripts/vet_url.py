@@ -37,10 +37,12 @@ what removes any pressure to reach for Dan's screen.
 """
 import argparse
 import concurrent.futures as cf
+import hashlib
 import html
 import json
 import re
 import sys
+import time
 import urllib.error
 import urllib.request
 from dataclasses import dataclass, field
@@ -563,6 +565,135 @@ def vet(links, workers=WORKERS, check_labels=True, deep=False, expect=None) -> l
     return sorted(out, key=lambda v: (v.link.lines[:1] or [0], v.link.url))
 
 
+# ---- layer 5: Stop-hook mode --------------------------------------------------
+#
+# Do not delay the answer; check afterward and let the agent self-correct. The
+# turn's text has already reached Dan at full speed by the time this runs.
+#
+# Three properties make it safe to leave armed on every turn:
+#   - a turn with no URLs exits before doing any work, which is nearly all turns
+#   - it is tier-1 only. `--deep` is never invoked here and no browser is ever
+#     launched, because the hook fires unattended
+#   - it fails open. An unparseable event, an unreadable cache, any exception at
+#     all allows the stop. A hook that can trap a session is worse than no hook.
+
+HOOK_DIR = Path.home() / ".config" / "anchor-system" / "vet-url"
+CACHE_TTL = 3600
+# Only unambiguous non-resolution forces a correction. MISMATCH is deliberately
+# excluded: it is fuzzy, and a false block in chat is the failure that gets the
+# whole hook switched off. It still reports in documents, where a human reads it.
+HOOK_BLOCKS = ("DEAD", "GONE", "SOFT-404")
+
+
+def _load(p: Path, default):
+    try:
+        return json.loads(p.read_text(encoding="utf-8"))
+    except Exception:
+        return default
+
+
+def _save(p: Path, obj) -> None:
+    try:
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(json.dumps(obj), encoding="utf-8")
+    except Exception:
+        pass
+
+
+def user_supplied_urls(transcript_path: str) -> set:
+    """URLs Dan put into the conversation himself.
+
+    Quoting a link back to the person who sent it, or discussing one, is not a
+    citation. Correcting those is the noise that gets a hook switched off."""
+    out = set()
+    try:
+        with open(transcript_path, encoding="utf-8") as fh:
+            for line in fh:
+                try:
+                    e = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if e.get("type") != "user":
+                    continue
+                c = (e.get("message") or {}).get("content")
+                text = c if isinstance(c, str) else " ".join(
+                    b.get("text", "") for b in (c or []) if isinstance(b, dict))
+                out.update(l.url for l in extract(text))
+    except OSError:
+        pass
+    return out
+
+
+def cached_vet(links, now: int) -> list:
+    """Reachability only, memoized by URL for an hour.
+
+    Label matching is skipped rather than cached — it depends on the link *text*,
+    which changes between turns, and MISMATCH cannot block here anyway."""
+    p = HOOK_DIR / "cache.json"
+    cache = _load(p, {})
+    if not isinstance(cache, dict):
+        cache = {}
+    fresh, stale = [], []
+    for l in links:
+        c = cache.get(l.url)
+        if isinstance(c, dict) and now - c.get("t", 0) < CACHE_TTL:
+            fresh.append(Verdict(l, c.get("s", "OK"), c.get("d", "")))
+        else:
+            stale.append(l)
+    out = fresh + (vet(stale, check_labels=False) if stale else [])
+    for v in out:
+        cache[v.link.url] = {"s": v.status, "d": v.detail, "t": now}
+    _save(p, {k: c for k, c in cache.items()
+              if isinstance(c, dict) and now - c.get("t", 0) < CACHE_TTL})
+    return out
+
+
+def hook(event: dict, now: int) -> dict:
+    """The Stop decision for one turn, or {} to allow it."""
+    if event.get("stop_hook_active"):
+        return {}
+    msg = event.get("last_assistant_message") or ""
+    links = extract(msg)
+    if not links:
+        return {}                       # the overwhelmingly common turn
+    supplied = user_supplied_urls(event.get("transcript_path") or "")
+    links = [l for l in links if l.url not in supplied]
+    if not links:
+        return {}
+
+    session = re.sub(r"[^A-Za-z0-9_-]", "", str(event.get("session_id", "-")))[:64]
+    seen_p = HOOK_DIR / f"seen-{session or 'none'}.json"
+    seen = _load(seen_p, [])
+    seen = seen if isinstance(seen, list) else []
+    # Keyed on the URL SET, not the turn, so a given set reports exactly once —
+    # independent of whatever loop protection the runtime happens to supply.
+    key = hashlib.sha256("\n".join(sorted(l.url for l in links))
+                         .encode()).hexdigest()[:16]
+    if key in seen:
+        return {}
+    verdicts = cached_vet(links, now)
+    _save(seen_p, sorted(set(seen) | {key})[-200:])
+
+    bad = [v for v in verdicts if v.status in HOOK_BLOCKS]
+    if not bad:
+        return {}
+    reason = [f"{len(bad)} URL(s) in your last message do not resolve. Post a "
+              "correction that names them; do not re-assert them."]
+    for v in bad:
+        reason.append(f"  [{v.status}] {v.link.url} — {v.detail}")
+    return {"decision": "block", "reason": "\n".join(reason)}
+
+
+def hook_main(stdin_text: str) -> int:
+    try:
+        out = hook(json.loads(stdin_text or "{}"), int(time.time()))
+    except Exception:
+        return 0                        # fail open, always
+    if out:
+        print(json.dumps(out))
+    return 0
+
+
 # ---- reporting ----------------------------------------------------------------
 
 def report(verdicts, doc=None) -> str:
@@ -596,9 +727,16 @@ def main(argv=None):
     ap.add_argument("--deep", action="store_true",
                     help="layer 4 — registry probes, fragment checks, Wayback "
                          "fallback. Tier-1 HTTP only; never launches a browser")
+    ap.add_argument("--hook", action="store_true",
+                    help="layer 5 — read a Stop-hook event on stdin and, if the "
+                         "turn cited a URL that does not resolve, force a "
+                         "correction. Tier-1 only; fails open")
     ap.add_argument("--workers", type=int, default=WORKERS)
     ap.add_argument("--json", action="store_true")
     a = ap.parse_args(argv)
+
+    if a.hook:
+        return hook_main(sys.stdin.read())
 
     if a.doc:
         p = Path(a.doc)
