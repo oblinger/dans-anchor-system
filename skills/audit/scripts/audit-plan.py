@@ -994,10 +994,36 @@ def chk_frontmatter_has(target, anchor_root, args):
 
 
 def chk_h1_present(target, anchor_root, args):
+    """A head H1 exists. Reports WHICH failure it is, because they want opposite fixes.
+
+    "No head H1" covers two populations that a bare `no H1` message conflates, and
+    T101 measured the split on the 23 in-scope feature docs that fail: only 6 have
+    no `# ` line at all, while **17 carry the correct title H1 further down**, below
+    an earlier `##` — `# F035 — Tiered Runtime` at line 145, `# F043 — Controllable
+    Named Views` at line 24, each under a `## Resolved Decisions` block written in
+    the pre-F241 above-the-H1 style. Told `no H1`, an author adds a second one; told
+    where the existing one sits, they move it. Reporting a true fault with a message
+    that implies the wrong remediation is the same damage signature as T092/T093,
+    one layer in — the line number is right and the instruction is not.
+
+    The message states the observation and stops short of prescribing, deliberately.
+    Whether a displaced H1 should MOVE depends on the doc class: in a feature doc it
+    is a misplaced title, but in the 124 loose notes T101 excluded from scope the
+    same shape is a deliberate `# LOG` / `# BRIEF` body marker that must stay put.
+    One checker cannot tell those apart; the `where::` glob can, so the checker
+    reports what it sees and the rule's scope decides what it means.
+    """
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
-    return ("pass", "") if _head_h1(_read(f))[0] is not None else ("fail", "no H1")
+    text = _read(f)
+    if _head_h1(text)[0] is not None:
+        return "pass", ""
+    off, body = _split_frontmatter(text)
+    for i, ln in enumerate(_strip_fenced(body).splitlines()):
+        if _H1_RE.match(ln):
+            return "fail", f"no head H1 (an H1 sits at line {off + i + 1}, below an earlier heading)"
+    return "fail", "no H1"
 
 
 def chk_no_blank_after_h1(target, anchor_root, args):
