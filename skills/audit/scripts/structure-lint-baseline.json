@@ -1,0 +1,157 @@
+{
+  "_agenda_h2s": {
+    "heading": 1
+  },
+  "_backlog_rows": {
+    "heading": 1
+  },
+  "_collect": {
+    "wiki-link": 1
+  },
+  "_disclosure_descriptive": {
+    "wiki-link": 1
+  },
+  "_disclosure_units": {
+    "heading": 1
+  },
+  "_proposed_tests_rows": {
+    "heading": 1
+  },
+  "_prose": {
+    "fence": 1,
+    "table": 1
+  },
+  "_strip_link_target": {
+    "wiki-link": 1
+  },
+  "_terminal_link_pad_lines": {
+    "table": 1
+  },
+  "chk_agenda_cadence_stated": {
+    "heading": 2
+  },
+  "chk_all_rules_have_id": {
+    "heading": 1
+  },
+  "chk_all_rules_have_tier": {
+    "heading": 1
+  },
+  "chk_architecture_h1_present": {
+    "heading": 1
+  },
+  "chk_breadcrumb_row": {
+    "wiki-link": 1
+  },
+  "chk_brief_not_nested": {
+    "heading": 1
+  },
+  "chk_checked_rules_have_pattern": {
+    "heading": 2
+  },
+  "chk_dated_entries_reverse_chronological": {
+    "heading": 1
+  },
+  "chk_design_row_iff_folder": {
+    "table": 2,
+    "wiki-link": 1
+  },
+  "chk_dispatch_table_stories_row": {
+    "table": 1
+  },
+  "chk_doc_head_orientation_line": {
+    "heading": 2,
+    "table": 1,
+    "wiki-link": 1
+  },
+  "chk_facet_dispatch_top": {
+    "table": 1,
+    "wiki-link": 1
+  },
+  "chk_facet_examples_row": {
+    "table": 1
+  },
+  "chk_facet_has_ruleset": {
+    "heading": 1,
+    "wiki-link": 1
+  },
+  "chk_facet_tldr_if_substantial": {
+    "heading": 1
+  },
+  "chk_file_association_folder_structure": {
+    "wiki-link": 2
+  },
+  "chk_h1_after_frontmatter": {
+    "heading": 1
+  },
+  "chk_log_dispatch_newest_first": {
+    "wiki-link": 1
+  },
+  "chk_md_fence_no_markdown": {
+    "heading": 1
+  },
+  "chk_md_table_blank_lines": {
+    "table": 3
+  },
+  "chk_md_table_pipe_escape": {
+    "table": 1
+  },
+  "chk_milestone_checkbox": {
+    "heading": 2,
+    "wiki-link": 1
+  },
+  "chk_milestone_section_separator": {
+    "heading": 2
+  },
+  "chk_milestone_status_line": {
+    "heading": 1,
+    "wiki-link": 1
+  },
+  "chk_no_dispatch_table": {
+    "table": 1,
+    "wiki-link": 1
+  },
+  "chk_progressive_disclosure_layout": {
+    "heading": 1
+  },
+  "chk_proposed_tests_structure": {
+    "heading": 5,
+    "table": 1
+  },
+  "chk_proposed_tests_subset_of_strategy": {
+    "heading": 3
+  },
+  "chk_queries_catchall_links": {
+    "heading": 1,
+    "wiki-link": 1
+  },
+  "chk_rule_numbers_unique": {
+    "heading": 1
+  },
+  "chk_ruleset_no_frontmatter": {
+    "heading": 1
+  },
+  "chk_spec_cells_format_valid": {
+    "wiki-link": 2
+  },
+  "chk_toc_table_iff_long": {
+    "table": 1,
+    "wiki-link": 1
+  },
+  "chk_triggers_section_iff_declared": {
+    "heading": 3
+  },
+  "chk_user_stories_use_rid_numbering": {
+    "heading": 3,
+    "wiki-link": 1
+  },
+  "fix_md_svg_embed_width": {
+    "table": 1,
+    "wiki-link": 1
+  },
+  "fix_md_table_pipe_escape": {
+    "table": 1
+  },
+  "fix_table_blank_lines": {
+    "table": 1
+  }
+}
