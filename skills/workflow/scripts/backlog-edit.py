@@ -950,6 +950,45 @@ def parse_status_block(text):
     return (leading_word if leading_word is not None else "", "\n".join(body_lines).strip())
 
 
+def _pointer_provenance(body, arrow_links):
+    """Explain WHICH `→ [[…]]` in the body became the row's doc pointer.
+
+    T089 — the detector matches `→ [[…]]` anywhere in the body, last one wins,
+    and an em-arrow is ordinary prose punctuation: a Done body describing a
+    rename as `` `prj/Ask/` `` → `[[Ask Project]]` was read as a pointer and
+    F102 refused, naming a real anchor page with a real missing `## Status` H2.
+    The refusal was therefore indistinguishable from a legitimate block, and
+    the natural response — go add a Status block to an unrelated doc — is
+    exactly the wrong repair.
+
+    Positionless matching is kept deliberately. The alternative is a positional
+    slot, and the corpus rules it out: of 298 rows vault-wide carrying an
+    arrow-link, 215 lead with it but 58 put it trailing and 25 have prose after
+    it, so requiring the leading slot would silently drop the F102 gate on 83
+    rows — quiet coverage loss on the very check that exists to stop drift,
+    which is strictly worse than a loud refusal that explains itself. So the
+    refusal explains itself instead: it names the substring it matched, and
+    when more than one arrow appears it says so, because a second arrow is the
+    strongest available signal that one of them is prose.
+    """
+    matched = arrow_links[-1].group(0).strip() if arrow_links else ""
+    lines = [f"  Pointer matched from the body text: {matched!r}"]
+    if len(arrow_links) > 1:
+        others = ", ".join(repr(a.group(0).strip()) for a in arrow_links[:-1])
+        lines.append(
+            f"  This body holds {len(arrow_links)} `→ [[…]]` sequences and the LAST wins;\n"
+            f"  the others were {others}."
+        )
+    lines.append(
+        "  F102 reads `→ [[…]]` anywhere in the body, so an em-arrow used as prose\n"
+        "  punctuation (`old/path/` → `[[New Name]]`) is read as a doc pointer. If that\n"
+        "  is what happened here, the fix is in THIS row, not in the target doc: reword\n"
+        "  the prose arrow (an em-dash or the word 'to' reads the same), or give the row\n"
+        "  a real leading `→ [[F<n> — …]]` pointer so the last-wins rule lands on it."
+    )
+    return "\n".join(lines)
+
+
 def verify_status_block(status, body, existing_status):
     """Per F102 — refuse status writes when the linked feature doc's
     `## Status` H2 does not match the about-to-set status. Fires on EVERY
@@ -985,6 +1024,7 @@ def verify_status_block(status, body, existing_status):
         )
         return
     basename = m.group(1).strip()
+    provenance = _pointer_provenance(body, arrow_links)
     target_path = find_file_by_basename(basename)
     if target_path is None:
         sys.stderr.write(
@@ -1005,14 +1045,16 @@ def verify_status_block(status, body, existing_status):
             f"[{status}] refused: target [[{basename}]] has no `## Status` H2.\n"
             f"  Per F102, every status transition requires the feature doc's `## Status`\n"
             f"  block at the bottom to begin with `**{status}**` followed by a justification.\n"
-            f"  Add the block to the feature doc, then re-run."
+            f"  Add the block to the feature doc, then re-run.\n"
+            f"{provenance}"
         )
     if leading_word.strip() != status.strip():
         raise BacklogEditError(
             f"[{status}] refused: target [[{basename}]] `## Status` body begins with\n"
             f"  `**{leading_word}**` but the status being set is `**{status}**`.\n"
             f"  Update the feature doc's Status block to reflect the new status with\n"
-            f"  a one-sentence justification, then re-run."
+            f"  a one-sentence justification, then re-run.\n"
+            f"{provenance}"
         )
     # Designing-specific: must contain a next-action line (kills the deadlock case)
     if status.strip().lower() == "designing":
