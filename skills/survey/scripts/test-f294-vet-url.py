@@ -240,6 +240,253 @@ def test_the_report_separates_findings_from_unknowns():
           "NOT a finding" in text, True)
 
 
+print("\nLayer 3 — the claim about the page, not just the page")
+
+
+def test_the_claim_that_cost_three_round_trips():
+    """A badge whose text lives only in `alt=` IS on the page and is NOT
+    necessarily on the screen — mySleepButton's Play badge collapses behind a
+    hamburger on tablet. A yes/no answer here would have been wrong in the
+    direction that wasted Dan's time, so the check is three-valued."""
+    page = ('<p>Fall asleep faster.</p>'
+            '<a href="/play"><img alt="Get it on Google Play" src="b.png"></a>')
+    check("a string present only in an attribute reports as markup, not text",
+          vu.expectation(page, "Get it on Google Play"), "markup")
+    check("a string in the visible copy reports as text",
+          vu.expectation(page, "fall asleep faster"), "text")
+    check("a string that is simply absent reports as absent",
+          vu.expectation(page, "Nintendo Switch edition"), None)
+    check("...and whitespace/case differences do not manufacture an absence",
+          vu.expectation("<p>Get it   on\nGoogle  Play</p>", "get it on google play"),
+          "text")
+
+
+def test_expect_annotates_a_stronger_finding_rather_than_masking_it():
+    _stub(resp=_Resp("<title>Crime Junkie</title><p>true crime</p>"))
+    try:
+        out = vu.vet([vu.Link(url="https://example.com/x", text="Sleep With Me")],
+                     expect="lullaby")
+    finally:
+        vu.urllib.request.urlopen = _real_urlopen
+    check("the label mismatch survives — it is the more actionable fault",
+          out[0].status, "MISMATCH")
+    check("...and the failed expectation is appended, not substituted",
+          "does not contain 'lullaby'" in out[0].detail, True)
+
+
+def test_a_page_that_never_loaded_cannot_be_asserted_about():
+    v = verdict_for(exc=urllib.error.HTTPError(
+        "https://example.com/x", 404, "nf", {}, io.BytesIO(b"")))
+    check("no body means no expectation check — the verdict stays DEAD",
+          (v.status, v.body), ("DEAD", ""))
+
+
+print("\nLayer 4 — the registry probe, which is why --deep exists")
+
+_real_get = vu._get
+
+APPLE_PODCAST = ('{"resultCount":1,"results":[{"wrapperType":"track",'
+                 '"kind":"podcast","collectionName":"Nothing Much Happens"}]}')
+APPLE_SONG = ('{"resultCount":1,"results":[{"wrapperType":"track","kind":"song",'
+              '"collectionName":"\\u041a\\u0440\\u0438\\u0432\\u0438\\u0446\\u043a\\u0438\\u0439"}]}')
+APPLE_NONE = '{"resultCount":0,"results":[]}'
+
+
+def _stub_get(mapping):
+    """Route registry calls by URL substring; anything unmatched returns ''
+    (the unreachable case), so a test can only pass by naming its own traffic."""
+    def fake(url, timeout=None):
+        for frag, body in mapping.items():
+            if frag in url:
+                return body
+        return ""
+    vu._get = fake
+
+
+def probe(url, mapping):
+    _stub_get(mapping)
+    try:
+        return vu.registry_probe(url)
+    finally:
+        vu._get = _real_get
+
+
+def test_an_id_that_exists_is_not_the_question():
+    """Found live, and the reason this test exists: the fabricated podcast ID
+    1509001470 resolves with resultCount 1 — to a Russian children's choir
+    recording. Apple runs ONE numeric namespace across podcasts, apps and songs,
+    so an existence-only probe would have cleared a fabricated podcast URL on the
+    strength of an unrelated song."""
+    p = probe("https://podcasts.apple.com/us/podcast/sleep-with-me/id1509001470",
+              {"itunes.apple.com/lookup": APPLE_SONG})
+    check("a song ID behind a /podcast/ URL is NOT found", p.found, False)
+    check("...and the evidence names what the ID actually is",
+          "a song" in p.detail and "not what this URL claims" in p.detail, True)
+    p = probe("https://podcasts.apple.com/us/podcast/nothing-much/id1487513861",
+              {"itunes.apple.com/lookup": APPLE_PODCAST})
+    check("the same ID shape with kind=podcast is found", p.found, True)
+    check("...and hands back the canonical name for layer 2",
+          p.name, "Nothing Much Happens")
+
+
+def test_the_verdict_the_ten_fabrications_would_have_got():
+    p = probe("https://podcasts.apple.com/us/podcast/x/id1268371860",
+              {"itunes.apple.com/lookup": APPLE_NONE})
+    check("resultCount 0 is a definitive no-such-ID", p.found, False)
+    check("...naming the lookup, per success criterion 4",
+          "resultCount 0" in p.detail and "1268371860" in p.detail, True)
+
+
+def test_each_registry_answers_for_its_own_ids():
+    p = probe("https://doi.org/10.1038/nature14539",
+              {"doi.org/api/handles": '{"responseCode":1,"handle":"10.1038/n"}'})
+    check("DOI responseCode 1 is registered", (p.registry, p.found), ("doi", True))
+    # The Handle API answers "no such handle" with responseCode 100 *and* HTTP
+    # 404. `_get` must read error bodies or this verdict is silently lost —
+    # which is exactly what happened on the first live run.
+    p = probe("https://doi.org/10.1038/nature99999",
+              {"doi.org/api/handles": '{"responseCode":100,"handle":"x"}'})
+    check("DOI responseCode 100 is no-such-DOI", p.found, False)
+    p = probe("https://arxiv.org/abs/2401.99999",
+              {"export.arxiv.org": "<feed><title>ArXiv Query</title>"
+                                   "<entry><title>Error</title></entry></feed>"})
+    check("arXiv's Error entry is no-such-ID", (p.registry, p.found), ("arxiv", False))
+    p = probe("https://arxiv.org/abs/1706.03762",
+              {"export.arxiv.org": "<feed><title>ArXiv Query</title>"
+                                   "<entry><title>Attention Is All You Need</title></entry></feed>"})
+    check("...and a real one carries its title", p.name, "Attention Is All You Need")
+    p = probe("https://pubmed.ncbi.nlm.nih.gov/28978842/",
+              {"esummary.fcgi": '{"result":{"28978842":{"title":"Sleep and memory"}}}'})
+    check("PubMed answers for a PMID", (p.registry, p.name), ("pubmed", "Sleep and memory"))
+    check("a URL carrying no registry ID gets no probe",
+          probe("https://example.com/blog/post", {}), None)
+
+
+def test_an_unreachable_registry_is_undetermined_not_a_verdict():
+    """The same discipline as BLOCKED: 'could not ask' must never masquerade as
+    'the answer is no', or the tool invents dead links during a network blip."""
+    p = probe("https://podcasts.apple.com/us/podcast/x/id123456789", {})
+    check("no response from the lookup yields found=None", p.found, None)
+
+
+def test_deepen_can_condemn_and_can_clear():
+    v = vu.Verdict(vu.Link(url="https://podcasts.apple.com/us/podcast/x/id1268371860"),
+                   "OK", "", 200, "Some Page")
+    _stub_get({"itunes.apple.com/lookup": APPLE_NONE, "archive.org": "{}"})
+    try:
+        vu.deepen(v)
+    finally:
+        vu._get = _real_get
+    check("a page that served happily is condemned by the registry", v.status, "DEAD")
+
+    v = vu.Verdict(vu.Link(url="https://podcasts.apple.com/us/podcast/x/id1487513861"),
+                   "BLOCKED", "HTTP 403", 403)
+    _stub_get({"itunes.apple.com/lookup": APPLE_PODCAST})
+    try:
+        vu.deepen(v)
+    finally:
+        vu._get = _real_get
+    check("...and a bot wall is cleared by it, with no browser involved",
+          v.status, "OK")
+    check("...the API sidestep saying so in the detail",
+          "resolved via registry" in v.detail, True)
+
+
+def test_a_dead_link_is_offered_its_last_snapshot():
+    """Reporting a dead citation without its archive date makes the user redo the
+    lookup by hand; the point is a repointable link, not a red mark."""
+    v = vu.Verdict(vu.Link(url="https://old.example.com/x"), "DEAD", "HTTP 404", 404)
+    _stub_get({"archive.org/wayback": '{"archived_snapshots":{"closest":'
+                                      '{"available":true,"timestamp":"20190412034500"}}}'})
+    try:
+        vu.deepen(v)
+    finally:
+        vu._get = _real_get
+    check("the snapshot date is appended", "last archived 2019-04-12" in v.detail, True)
+
+    v = vu.Verdict(vu.Link(url="https://old.example.com/y"), "DEAD", "HTTP 404", 404)
+    _stub_get({"archive.org/wayback": '{"archived_snapshots":{}}'})
+    try:
+        vu.deepen(v)
+    finally:
+        vu._get = _real_get
+    check("...and nothing is invented when there is no snapshot", v.detail, "HTTP 404")
+
+
+def test_a_resolver_doing_its_job_is_not_link_rot():
+    """A DOI exists to hand you off to a publisher. Flagging that as
+    REDIR-OFFSITE would fire on every correctly-working DOI in the vault."""
+    check("doi.org → nature.com is not a finding",
+          vu._classify_redirect("https://doi.org/10.1038/nature14539",
+                                "https://www.nature.com/articles/nature14539"), ("", ""))
+    check("...while an ordinary site crossing domains still is",
+          vu._classify_redirect("https://old.example.com/x",
+                                "https://other.example.net/x")[0], "REDIR-OFFSITE")
+
+
+print("\nLayer 4 — fragments, where the SPA guard prevents a false alarm")
+
+
+def test_a_fragment_is_only_judged_when_the_page_renders_anchors():
+    page = '<h2 id="Format_and_structure">F</h2><h2 id="References">R</h2>'
+    check("a fragment matching no id on an id-rendering page is absent",
+          vu._fragment_state("https://x/y#Format", page), False)
+    check("...and one that matches is present",
+          vu._fragment_state("https://x/y#References", page), True)
+    check("a percent-encoded fragment is decoded before comparing",
+          vu._fragment_state("https://x/y#Format%5Fand%5Fstructure",
+                             '<h2 id="Format_and_structure">F</h2>'), True)
+    # The guard that keeps this check honest: a page carrying no ids at all is an
+    # SPA shell building its anchors client-side, so absence proves nothing.
+    check("a page with no ids at all yields no verdict, not a failure",
+          vu._fragment_state("https://x/y#anything", "<div><p>hi</p></div>"), None)
+    check("a URL with no fragment is not asked about",
+          vu._fragment_state("https://x/y", page), None)
+    check("a #:~:text= scroll-to-text fragment is not an anchor claim",
+          vu._fragment_state("https://x/y#:~:text=hello", page), None)
+
+
+def test_no_anchor_is_a_deep_only_verdict():
+    _stub(resp=_Resp('<title>T</title><h2 id="Real">R</h2>',
+                     url="https://example.com/p#Missing"))
+    try:
+        shallow = vu.vet([vu.Link(url="https://example.com/p#Missing")])
+        deep = vu.vet([vu.Link(url="https://example.com/p#Missing")], deep=True)
+    finally:
+        vu.urllib.request.urlopen = _real_urlopen
+    check("the default pass does not report anchors", shallow[0].status, "OK")
+    check("--deep does", deep[0].status, "NO-ANCHOR")
+
+
+def test_the_canonical_name_outranks_the_page_title():
+    """The registry knows what the target IS; a page <title> is marketing. When
+    both are available the registry wins the layer-2 comparison."""
+    _stub(resp=_Resp("<title>Podcasts on Apple Podcasts</title>",
+                     url="https://podcasts.apple.com/us/podcast/x/id777"))
+    _stub_get({"itunes.apple.com/lookup": APPLE_PODCAST})
+    try:
+        out = vu.vet([vu.Link(url="https://podcasts.apple.com/us/podcast/x/id777",
+                              text="Sleep With Me")], deep=True)
+    finally:
+        vu.urllib.request.urlopen = _real_urlopen
+        vu._get = _real_get
+    check("a link labelled 'Sleep With Me' pointing at 'Nothing Much Happens' "
+          "is caught by the registry name", out[0].status, "MISMATCH")
+    check("...and the detail quotes the registry, not the boilerplate title",
+          "Nothing Much Happens" in out[0].detail, True)
+
+
+def test_the_body_never_escapes_the_verdict():
+    """Pages are held only long enough for layers 3-4 to read them. Leaving them
+    on the verdict would put 200 KB of HTML into every --json report."""
+    _stub(resp=_Resp("<title>T</title>" + "<p>x</p>" * 500))
+    try:
+        out = vu.vet([vu.Link(url="https://example.com/x")])
+    finally:
+        vu.urllib.request.urlopen = _real_urlopen
+    check("the body is cleared before the verdict is returned", out[0].body, "")
+
+
 test_the_paren_regression()
 test_every_markdown_form_is_reached()
 test_what_must_never_be_fetched()
@@ -253,6 +500,20 @@ test_why_layer_2_exists()
 test_label_matching_is_deliberately_generous()
 test_mismatch_only_applies_to_an_otherwise_healthy_page()
 test_the_report_separates_findings_from_unknowns()
+test_the_claim_that_cost_three_round_trips()
+test_expect_annotates_a_stronger_finding_rather_than_masking_it()
+test_a_page_that_never_loaded_cannot_be_asserted_about()
+test_an_id_that_exists_is_not_the_question()
+test_the_verdict_the_ten_fabrications_would_have_got()
+test_each_registry_answers_for_its_own_ids()
+test_an_unreachable_registry_is_undetermined_not_a_verdict()
+test_deepen_can_condemn_and_can_clear()
+test_a_dead_link_is_offered_its_last_snapshot()
+test_a_resolver_doing_its_job_is_not_link_rot()
+test_a_fragment_is_only_judged_when_the_page_renders_anchors()
+test_no_anchor_is_a_deep_only_verdict()
+test_the_canonical_name_outranks_the_page_title()
+test_the_body_never_escapes_the_verdict()
 
 print(f"\n{sum(results)}/{len(results)} passed")
 raise SystemExit(0 if all(results) else 1)
