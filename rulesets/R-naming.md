@@ -7,7 +7,7 @@ Embedded ruleset for the Naming facet, co-located with the facet spec above per 
 ### RULE R-naming-01 — Default file name is `{slug} <X>.md` inside an anchor (checked)
 check:: name_slug_prefixed
 
-A markdown file inside `{anchor}/` (or any sub-folder rooted at the anchor) is named `{slug} <X>.md` where `{slug}` is the anchor's slug. Sub-folder marker files match their folder name: `{slug} Design/{slug} Design.md`, `{slug} Track/{slug} Track.md`.
+A markdown file inside `{anchor}/` (or any sub-folder rooted at the anchor) is named `{slug} <X>.md` where `{slug}` is the anchor's **implied slug** — its explicit `slug:` when declared, otherwise its **basename** verbatim ([[ANC Standard]] § S2; `slug:` is optional per [[DAS Dot Anchor]]). `_ancestor_anchor_slugs` already accepts both forms, so an anchor that declares no slug prefixes its files with its folder name. Sub-folder marker files match their folder name: `{slug} Design/{slug} Design.md`, `{slug} Track/{slug} Track.md`.
 
 **Check pattern:** for each `.md` file under an anchor, assert the filename starts with `{slug} ` (with a trailing space) OR matches one of the sanctioned exception patterns from R-naming-03.
 

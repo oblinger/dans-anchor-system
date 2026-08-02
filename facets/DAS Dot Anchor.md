@@ -41,7 +41,7 @@ This facet said `slug` was **required** while [[ANC Standard]] — the upstream 
 - **DAS's own tooling already implements the implied-slug fallback.** `audit-plan.py`'s `_anchor_name` reads `slug:` from `.anchor` and *falls back to the folder name* when it is absent — which is ANC's implied slug, arrived at independently. Every `where:: {slug}` selector in the ruleset corpus resolves through it.
 - **The corpus never obeyed the strict rule.** Of **1,332 `.anchor` files in the vault, 1,147 — 86% — declare no `slug` at all.** A requirement violated by six anchors in seven, enforced by no checker, is not a stricter standard; it is drift with a confident sentence in front of it.
 
-So the two specs now agree, and they agree on ANC's reading. Where a consumer needs to tell a *declared* slug from a *defaulted* one it must read the `slug` field directly rather than the implied value — that distinction is the one thing this reconciliation does not erase.
+So the two specs now agree, and they agree on ANC's reading — **and so does the enforcement**: `R-anchor-page-01`, the one live rule that asserted the field, dropped it 2026-08-02 (T104) and now checks `traits:` only. Where a consumer needs to tell a *declared* slug from a *defaulted* one it must read the `slug` field directly rather than the implied value — that distinction is the one thing this reconciliation does not erase.
 
 ## Getting to the code
 
