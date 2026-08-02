@@ -2,23 +2,30 @@
 """test-imgen-anchor.py — the anchor bookkeeping in imgen-gen.py.
 
 Everything here runs against a throwaway tree, so the only untested thing left
-in the skill is the network call itself. What is asserted is the set of
-properties the IMGEN anchor's `# BRIEF` promises, because those are what every
-derived view reads back:
+in the skill is the network call itself. What is asserted is the page shape
+SKILL.md § The roll page promises, because that shape is what every derived view
+and every later hand-edit reads back:
 
-  - a new shoot takes the next free number and gets its namesake page
-  - a new prompt group lands ABOVE the older ones (newest-first is load-bearing;
-    the gallery and the masthead both trust the order)
-  - the prompt is the LAST thing in its group — nothing may come between it and
-    the end of the section, or a copy picks up trailing junk
-  - the seeds line therefore sits above the images, not under the prompt
+  - a new roll takes the next free number and gets its namesake page
+  - that page is a REGULAR file — `:>>` breadcrumb, never a dispatch table
+  - `## Next render` holds exactly one pending operation: an `#### {command}`
+    H4 followed by its prompt
+  - `## Batch {n}` sections sit newest-first, each one heading → image grid →
+    the `####` command and prompt that produced it
+  - a rewritten batch keeps its hand-authored subtitle and lead commentary,
+    which are unrecoverable if regenerated away
   - grids wrap 3-across and pad the short final row
-  - a fresh shoot registers in the masthead member zone and at the top of the
+  - a fresh roll registers in the masthead member zone and at the top of the
     gallery
+
+Rewritten 2026-08-02: the suite still spoke the skill's pre-redesign vocabulary
+(`new_shoot` / `record_prompt` / prompt-groups) and had been failing at import
+since the roll/batch redesign landed.
+
+    python3 test-imgen-anchor.py
 """
 import importlib.util
 import pathlib
-import re
 import shutil
 import sys
 import tempfile
@@ -42,6 +49,16 @@ def check(label, got, want):
         FAIL += 1
 
 
+def images(roll_dir, n, letters):
+    """Create batch-n image files and return them in order."""
+    out = []
+    for letter in letters:
+        f = roll_dir / f"IMGEN001-{n}{letter}.png"
+        f.write_bytes(b"x")
+        out.append(f)
+    return out
+
+
 def main():
     tmp = pathlib.Path(tempfile.mkdtemp())
     try:
@@ -50,55 +67,87 @@ def main():
         (tmp / "IMGEN Gallery.md").write_text(
             "# IMGEN Gallery\nx\n\n## [[old]]\n\n![[o.png|500]]\n", encoding="utf-8")
 
-        n, d = ig.new_shoot("Kitchen concepts")
-        check("new shoot takes the next number", (n, d.name),
+        n, d = ig.new_roll("Kitchen concepts", "a bright kitchen",
+                           about="Exploring a warm morning kitchen.")
+        check("a new roll takes the next number", (n, d.name),
               (1, "IMGEN001 — Kitchen concepts"))
-        check("namesake page written", (d / f"{d.name}.md").exists(), True)
+        check("namesake page written", ig.roll_page(d).exists(), True)
 
-        files = []
-        for letter in "ABCD":
-            f = d / f"IMGEN001-1{letter}.png"
-            f.write_bytes(b"x")
-            files.append(f)
-        ig.record_prompt(d, 1, 1, "Kitchen concepts", "a bright kitchen", files,
-                         "model · seed 7")
+        page = ig.roll_page(d).read_text(encoding="utf-8")
+        # A roll page is a regular file, so it heads with a breadcrumb. A
+        # dispatch table here would misidentify it as an anchor page.
+        check("the page heads with a `:>>` breadcrumb, not a dispatch table",
+              page.startswith(":>>") and "| ^^^ |" not in page, True)
+        check("the about line replaces the bare title when given",
+              "Exploring a warm morning kitchen." in page, True)
+        check("Next render carries the seeded prompt",
+              "## Next render" in page and "a bright kitchen" in page, True)
+        check("...under an `####` command H4",
+              page.index("####") < page.index("a bright kitchen"), True)
+
+        first = images(d, 1, "ABCD")
+        ig.write_batch(d, 1, ig.format_command("create"), "a bright kitchen", first,
+                       "flux-dev · seed 7 · $0.10")
         ig.add_member_row(d)
-        ig.add_to_gallery(d, files[0])
-        check("prompt index advances", ig.next_prompt_index(d), 2)
+        ig.add_to_gallery(d, first[0])
+        check("the batch index advances off the image files on disk",
+              ig.next_batch_index(d), 2)
 
-        f2 = d / "IMGEN001-2A.png"
-        f2.write_bytes(b"x")
-        ig.record_prompt(d, 1, 2, "darker", "make it darker", [f2], "model · seed 9")
-        page = (d / f"{d.name}.md").read_text(encoding="utf-8")
+        second = images(d, 2, "A")
+        ig.write_batch(d, 2, ig.format_command("create"), "make it darker", second,
+                       "flux-dev · seed 9 · $0.03")
 
-        check("newest group is above the older one",
-              page.index("IMGEN001-2 —") < page.index("IMGEN001-1 —"), True)
+        page = ig.roll_page(d).read_text(encoding="utf-8")
+        check("the newest batch sits above the older one",
+              page.index("## Batch 2") < page.index("## Batch 1"), True)
+        check("...and both sit below the pending Next render",
+              page.index("## Next render") < page.index("## Batch 2"), True)
 
-        groups = re.split(r"^## (?=IMGEN)", page, flags=re.M)[1:]
-        check("newest group ends with its own prompt",
-              groups[0].strip().endswith("make it darker"), True)
-        check("older group ends with its own prompt",
-              groups[1].strip().endswith("a bright kitchen"), True)
-        check("seeds line sits above the images",
-              page.index("seed 9") < page.index("IMGEN001-2A.png"), True)
+        # Within a batch the images come first and the prompt is recorded with
+        # them; a batch that lost its prompt is unrecoverable (IMGEN001 is the
+        # cautionary example), so the pairing is the property worth pinning.
+        b2 = page[page.index("## Batch 2"):page.index("## Batch 1")]
+        check("the grid precedes the command that made it",
+              b2.index("IMGEN001-2A.png") < b2.index("####"), True)
+        check("the prompt follows its own command, inside its own batch",
+              b2.index("####") < b2.index("make it darker"), True)
+        check("the older batch keeps its own prompt, not the newer one",
+              "a bright kitchen" in page[page.index("## Batch 1"):], True)
 
-        check("grid wraps 3-across",
+        check("the grid wraps 3-across",
               "| ![[IMGEN001-1A.png\\|500]] | ![[IMGEN001-1B.png\\|500]] "
               "| ![[IMGEN001-1C.png\\|500]] |" in page, True)
-        check("short final row is padded",
+        check("the short final row is padded",
               "| ![[IMGEN001-1D.png\\|500]] |  |  |" in page, True)
 
-        check("shoot registered in the masthead",
+        # Rewriting a batch (the append case) must not cost it its identity —
+        # a heading subtitle and any commentary above the grid are hand-authored
+        # and cannot be regenerated.
+        text = ig.roll_page(d).read_text(encoding="utf-8")
+        text = text.replace("## Batch 2\n\n",
+                            "## Batch 2 — the keeper\n\nThe light finally reads right.\n\n")
+        ig.roll_page(d).write_text(text, encoding="utf-8")
+        ig.write_batch(d, 2, ig.format_command("create"), "make it darker",
+                       second + images(d, 2, "B"), "flux-dev · seed 9 · $0.06")
+        page = ig.roll_page(d).read_text(encoding="utf-8")
+        check("a rewritten batch keeps its hand-authored subtitle",
+              "## Batch 2 — the keeper" in page, True)
+        check("...and the commentary written above its grid",
+              "The light finally reads right." in page, True)
+
+        check("the roll is registered in the masthead",
               "[[IMGEN001 — Kitchen concepts]]" in
               (tmp / "IMGEN.md").read_text(encoding="utf-8"), True)
         gallery = (tmp / "IMGEN Gallery.md").read_text(encoding="utf-8")
-        check("gallery entry goes on top",
+        check("the gallery entry goes on top",
               gallery.index("Kitchen concepts") < gallery.index("[[old]]"), True)
 
-        # A second shoot must not disturb the first, and must sort after it.
-        n2, d2 = ig.new_shoot("Rooftop")
-        check("second shoot takes 002", (n2, d2.name), (2, "IMGEN002 — Rooftop"))
-        check("both shoots are seen", [b[0] for b in ig.shoots()], [1, 2])
+        # A second roll must not disturb the first, and must sort after it.
+        n2, d2 = ig.new_roll("Rooftop", "a rooftop at dusk")
+        check("the second roll takes 002", (n2, d2.name), (2, "IMGEN002 — Rooftop"))
+        check("both rolls are seen", [b[0] for b in ig.rolls()], [1, 2])
+        check("the first roll's page is untouched by the second",
+              "Kitchen concepts" in ig.roll_page(d).read_text(encoding="utf-8"), True)
     finally:
         shutil.rmtree(tmp)
 
