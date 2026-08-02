@@ -193,5 +193,56 @@ check("a backticked `where::` value still parses",
                              pathlib.Path(ap.REPO_ROOT) / "rulesets" / "R-x.md")["where"],
       "always")
 
+print("Backlog rows: a fenced block inside a row does not close the row")
+
+# Finding 4, second half. The first half of that finding — that F275 standalone
+# Q-rows are indented and so invisible to `_backlog_rows` — was MEASURED AND
+# REJECTED: all 21 indented label-shaped bullets across the vault's 37 backlogs
+# are row-hosted `- **Q<n> —` sub-bullets, which are subs BY DESIGN (R-backlog-05,
+# read through T086's `count_row_pending_qs`). The writer's indent-tolerant
+# `ROW_HEADER_RE` exists to match those sub-headers, which is not the same claim
+# as rows being indented. Assertion A pins the behaviour that was correct already,
+# so a future "fix" cannot regress it.
+
+A = ("## Ready\n\n"
+     "- **T001 — parent** [Questions] — body\n"
+     "  - **Q1 — a row-hosted question** — options\n"
+     "  - **Next:** do the thing\n")
+rows = ap._backlog_rows(A)
+check("an indented `- **Q1 —` stays a SUB, not a second row", len(rows), 1)
+check("and it is visible in the row's subs", len(rows[0][3]), 2)
+
+# The real half: a row documenting a command opens a fence at column 0, which
+# the "col-0 non-list line closes the row" arm read as the end of the row.
+B = ("## Ready\n\n"
+     "- **T002 — parent** [Ready] — body showing a command\n"
+     "```bash\n"
+     "state show Tink Backlog T002\n"
+     "```\n"
+     "  - **Next:** do the thing\n")
+rows = ap._backlog_rows(B)
+check("a col-0 fence does not close the row", len(rows), 1)
+check("the `- **Next:**` after the fence still belongs to the row",
+      any("Next:" in s for s in rows[0][3]), True)
+check("and the fenced lines are NOT counted as sub-bullets", len(rows[0][3]), 1)
+
+# A fenced EXAMPLE of a row is not a row.
+C = ("## Ready\n\n"
+     "- **T003 — parent** [Ready] — the row form is written like this:\n"
+     "```\n"
+     "- **T999 — illustration** [Ready] — body\n"
+     "```\n"
+     "  - **Next:** do the thing\n")
+check("a fenced example row does not become a row", len(ap._backlog_rows(C)), 1)
+
+# Masking must not become suppression: a real col-0 paragraph still closes a row.
+D = ("## Ready\n\n"
+     "- **T004 — parent** [Ready] — body\n"
+     "\n"
+     "Loose prose at column zero.\n"
+     "  - **Next:** orphaned, must NOT attach\n")
+rows = ap._backlog_rows(D)
+check("a real col-0 prose line still closes the row", len(rows[0][3]), 0)
+
 print(f"\n{sum(results)}/{len(results)} passed")
 raise SystemExit(0 if all(results) else 1)

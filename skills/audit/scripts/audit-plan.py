@@ -3631,7 +3631,22 @@ def _backlog_rows(text):
     rows = []
     h2 = None
     cur = None
+    in_fence = False
     for i, ln in enumerate(text.splitlines(), 1):
+        # A fenced block inside a row is NEUTRAL — it neither closes the row nor
+        # joins its sub-bullets (F296 finding 4). A row that documents a command
+        # opens the fence at column 0, which the `elif ln.strip()` arm below read
+        # as "a col-0 non-list line", closing the row and DETACHING the
+        # `- **Next:**` that followed — a false "[Ready] row declares no
+        # `- **Next:**` step" on a row that declares one, whose obvious
+        # remediation is to add a second, duplicate Next. Keeping fenced content
+        # out of `subs` also means a fenced `- **Q1 —` example is not counted as
+        # one of the row's questions.
+        if re.match(r"^\s{0,3}(```|~~~)", ln):
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            continue
         m = re.match(r"^##\s+(.+?)\s*$", ln)
         if m:
             h2, cur = m.group(1), None
