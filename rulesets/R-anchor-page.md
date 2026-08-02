@@ -7,14 +7,16 @@ What `/audit anchor` checks every `{slug}.md` against. All anchor-page kinds (sk
 
 ## Identity & frontmatter
 
-### RULE R-anchor-page-01 — `.anchor` declares slug + traits (checked)
-check:: anchor_has slug traits
+### RULE R-anchor-page-01 — `.anchor` declares traits; `slug` is optional and inferred (checked)
+check:: anchor_has traits
 
-The anchor folder carries a non-empty `.anchor` file declaring `slug:`, `title:`, and `traits:`.
+The anchor folder carries a non-empty `.anchor` file declaring `traits:`. **`slug:` is NOT required** — an anchor without one is addressed by its **basename**, and any consumer needing a guaranteed handle uses the **implied slug**: the explicit slug when declared, otherwise the basename verbatim ([[ANC Standard]] § S2).
 
-**Check pattern:** the folder has a `.anchor`; parse it and confirm non-blank `slug:` and `traits:` keys.
+**Check pattern:** the folder has a `.anchor`; parse it and confirm a non-blank `traits:` key. Do not assert `slug:`.
 
-**Why:** an empty `.anchor` makes breadcrumb inference skip the anchor and jump to its grandparent (the DAS incident).
+**Why:** an empty `.anchor` makes breadcrumb inference skip the anchor and jump to its grandparent (the DAS incident) — that is what `traits:` guards against, and it stands.
+
+The `slug:` half was dropped 2026-08-02 (T068 / T104) on the user's call, aligning DAS with [[ANC Standard]]. It was never a policy DAS enforced anywhere but here: **`_anchor_slug` has always fallen back to the folder name**, and `_entry_page`, `chk_h1_matches_slug`, `chk_entry_page_matches_slug` and `_ancestor_anchor_slugs` all resolve through it — so the inference this rule demanded be made explicit was already happening everywhere downstream. Measured against the live vault: **1,147 of 1,332 `.anchor` files (86%) declare no `slug`**, so the requirement was contradicted by the tooling that implements it and violated by six anchors in seven. Note this clears **125** of those failures, not all of them — the remaining **1,022** fail on the `traits:` half, which is a separate question and deliberately untouched.
 
 ### RULE R-anchor-page-02 — Page filename equals the slug (checked)
 check:: entry_page_matches_slug
