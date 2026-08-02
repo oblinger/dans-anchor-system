@@ -436,6 +436,57 @@ def _read_open_questions(target_path: Path) -> list[tuple[str, str, str]]:
     return out
 
 
+def _read_row_inline_questions(backlog_file: Path, r: "Row") -> list[tuple[str, str, str]]:
+    """Pending Qs hosted INLINE in a backlog row's own sub-bullets, as
+    (qid, question_text, recommendation) — the same shape `_read_open_questions`
+    returns for doc-backed rows.
+
+    T-/B-rows may carry their questions inline (F233) instead of in a feature
+    doc. The Questions section used to skip those on the reasoning that such a
+    row "carries its Qs in the row body already" — but the body is truncated to
+    160 chars before it is rendered, so the Q text was silently dropped and the
+    user saw only a `(1Q)` badge with no question attached (Dan, 2026-08-02:
+    *"Does T18 have questions? … I can't see the questions here"*). A counted
+    but unreadable question is a question that was never actually asked.
+    """
+    try:
+        lines = backlog_file.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeDecodeError):
+        return []
+    out: list[tuple[str, str, str]] = []
+    # Scan the row's sub-bullets: everything indented under the opener, stopping
+    # at the next H2, H3, or top-level bullet (the next row).
+    for line in lines[r.line_num:]:
+        if H2_HEADING_RE.match(line) or line.startswith("### ") or line.startswith("- **"):
+            break
+        if not line.strip():
+            continue
+        # `  - **Q1 — title?** rest…` — the rest may follow directly with no
+        # em-dash separator (the inline form packs context + options + the
+        # recommendation onto the one line), so the tail is captured either way.
+        m = re.match(r"\s+-\s+\*\*(Q\d+)\s+—\s+(.*?)\*\*\s*(?:—\s*)?(.*)$", line)
+        if not m:
+            continue
+        qid = m.group(1)
+        title, rest = m.group(2).strip(), (m.group(3) or "").strip()
+        rest = re.sub(r"\s*\^\S+\s*$", "", rest)
+        text = rest if rest else title
+        # An inline Q packs its options and recommendation into the same line.
+        # Split the recommendation off so it renders in the same `· *…*` slot
+        # doc-backed Qs use, rather than trailing off the end of the truncation.
+        rec = ""
+        rm = re.search(r"\*\*Recommendation:\*\*\s*(.*)$", text)
+        if rm:
+            rec = re.split(r"\s*·\s*\*why-ask", rm.group(1).strip())[0].strip()
+            text = text[:rm.start()].rstrip()
+        # Keep the leading title when the body opened with one — an inline Q's
+        # title IS the question ("land the bundle-relative fix?").
+        if rest and title and not text.startswith(title):
+            text = f"{title} — {text}"
+        out.append((qid, text.strip(), rec))
+    return out
+
+
 def _row_q_doc_path(r: "Row", vault_index: dict):
     """Resolve the on-disk doc a `[Questions]` row's Qs live in (same resolution
     _row_q_count uses), for reading the question text to inline in the queue."""
@@ -1104,11 +1155,22 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
                 body.append(f"- {link}{cnt}" + (f" — {txt}" if txt else ""))
             # Inline each pending question's TEXT under the row (user 2026-07-18:
             # the queue must SHOW the questions, not just a (NQ) badge). Mirrors
-            # the Verifications section. Doc-less inline T-/B-rows carry their Qs
-            # in the row body already, so only expand rows with a resolvable doc.
+            # the Verifications section. A doc-backed row reads its feature doc's
+            # `## Open Questions`; a doc-less T-/B-row reads its OWN sub-bullets
+            # (F233 inline form) — the latter used to be skipped, which left the
+            # question invisible everywhere the user looks (Dan, 2026-08-02).
             qdoc = _row_q_doc_path(r, vault_index)
-            if qdoc:
-                for qid, qtext, qrec in _read_open_questions(qdoc):
+            q_entries = (_read_open_questions(qdoc) if qdoc
+                         else _read_row_inline_questions(backlog_file, r))
+            # A doc-backed Q is a PREVIEW — the answerable form (options,
+            # block-id, Recommendation) lives one click away in the feature doc,
+            # so 200 chars is enough to identify it. An inline row Q has no such
+            # home: this render is the only place the user will read it, so it
+            # must carry its `**(A)**`/`**(B)**` options or it is unanswerable
+            # (North Star 2 — everything needed to answer is in the entry).
+            qlimit = 200 if qdoc else 420
+            if q_entries:
+                for qid, qtext, qrec in q_entries:
                     if not qtext:
                         continue
                     rec_txt = f" · *{_truncate_body(qrec, 90)}*" if qrec else ""
@@ -1120,7 +1182,7 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
                     # `- **Q<n>` — that shape is parsed by audit-q's Q_HEADER_RE
                     # as a formal Q and would trip C6 (block-id)/C9 (recommendation)
                     # on every render of this generated file.
-                    body.append(f"    - {qid} — {_truncate_body(qtext, 200)}{rec_txt}")
+                    body.append(f"    - {qid} — {_truncate_body(qtext, qlimit)}{rec_txt}")
     # F283 — the visibility ledger. Scanned, not worked: "if it's legitimately
     # blocked on something else, then I don't really want to see it, I just wanna
     # work on the thing that it's blocked by." It renders anyway so that nothing
