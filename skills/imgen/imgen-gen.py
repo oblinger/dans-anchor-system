@@ -299,13 +299,15 @@ def update_spend(roll_dir):
         model = next((k for k in BACKENDS if k in block), None)
         if model is None and "fal-ai/flux/dev" in block:
             model = "flux-dev"
-        shots = len(re.findall(r"!\[\[[^\]]*?\.(?:png|jpg)", block, re.I))
+        # A mask preview is embedded in the batch but costs nothing — never bill it.
+        shots = len([e for e in re.findall(r"!\[\[([^\]|]*?\.(?:png|jpg))", block, re.I)
+                     if "-preview." not in e])
         if model and shots:
             total += BACKENDS[model]["cost"] * shots
         else:                                   # local blends, or a batch with no model
             c, d = re.search(r"(\d+)¢", block), re.search(r"\$([0-9]+\.[0-9]+)", block)
             total += int(c.group(1)) / 100 if c else float(d.group(1)) if d else 0.0
-    line = f"**Spent so far:** ${total:.3f}"
+    line = f"**Spent so far:** ${total:.2f}"
     if SPEND_RE.search(text):
         text = SPEND_RE.sub(line, text, count=1)
     else:                                   # insert just above the first H2
@@ -596,12 +598,20 @@ def _do_render(roll_dir, roll_n, count, size, confirm_over, yes, dry):
         all_imgs = sorted((roll_dir / f"{SLUG}{roll_n:03d}-{batch}{v}.png"
                            for v in batch_variants(roll_dir, batch)),
                           key=lambda p: p.name)
+        # An inpaint batch leads with its mask preview, so the region that was
+        # repainted is visible in the record beside what it produced — you can
+        # judge the mask and the result in one glance, without opening files.
+        shots = len(all_imgs)                      # paid renders, before the free preview
+        if mask is not None:
+            preview = mask.with_name(mask.name.replace("-mask.png", "-preview.png"))
+            if preview.exists():
+                all_imgs = [preview] + all_imgs
         # An edit inherits its source's dimensions, so record the source instead of a size.
         detail = (size if source is None else
                   f"{source.stem} · mask {mask.name}" if mask else f"source {source.stem}")
         meta = format_meta(model, detail,
                            date or dt.date.today().isoformat(),
-                           BACKENDS[model]["cost"] * len(all_imgs), batch, seeds)
+                           BACKENDS[model]["cost"] * shots, batch, seeds)
         write_batch(roll_dir, batch, command, prompt, all_imgs, meta)
         if not (ANCHOR / f"{SLUG} Gallery.md").read_text(encoding="utf-8").count(roll_dir.name):
             add_to_gallery(roll_dir, written[0])
