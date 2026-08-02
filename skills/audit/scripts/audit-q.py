@@ -1402,6 +1402,13 @@ def extract_q_entries(file_path: Path, container_id: str) -> list[QEntry]:
         qm = Q_HEADER_RE.match(line)
         if qm:
             flush()
+            # A header stamped `(resolved …)` / `(removed …)` is the record
+            # `state resolve` / `state remove` leaves behind, not a pending Q.
+            # The H3-form path has always skipped these (T024/F239); the bullet
+            # form did not, so a resolved row-scoped Q kept reporting as pending
+            # and its whole archived body read as malformed options.
+            if re.search(r"\((?:removed|resolved)\b", line, re.IGNORECASE):
+                continue
             indent = qm.group(1)
             q_num = int(qm.group(2))
             block_id_match = Q_BLOCK_ID_TRAILING_RE.search(line)
@@ -1754,6 +1761,10 @@ OPTION_BULLET_RE = re.compile(
     r"(?:\s|$)"
 )
 SUB_BULLET_RE = re.compile(r"^(\s+)-\s+")
+# Any list bullet, indent 0 included — SUB_BULLET_RE requires leading
+# whitespace, so it cannot recognise a top-level sibling. Used to find where a
+# Q's option zone ends.
+ANY_BULLET_RE = re.compile(r"^(\s*)[-*+]\s+")
 # Two option labels on the same line — only the bolded canonical form counts
 # as evidence of an attempted (and malformed) option list. Bare parens like
 # `(no)` and `(yes)` in prose would over-match the loosened form, so DOUBLE
@@ -1791,6 +1802,28 @@ def check_c19_option_bullets(q_entries: list[QEntry]) -> list[Finding]:
                 qs_sorted[i + 1].source_line if i + 1 < len(qs_sorted) else len(lines) + 1
             )
             q_indent_len = len(q.indent)
+            # …but never past the end of the block that HOSTS the Q. A Q with no
+            # Recommendation line (which C9 flags separately) otherwise runs its
+            # option zone to the next Q or to EOF, swallowing unrelated content.
+            # Harmless in a feature doc, where the Qs are consecutive inside one
+            # H2; wrong anywhere Qs are scattered — a backlog file, where the
+            # next Q can be hundreds of rows away, has every intervening row's
+            # prose sub-bullets read as this Q's malformed options. Options can
+            # only be *more*-indented than the Q header, so the first heading or
+            # the first bullet at or above the Q's own indent ends the zone.
+            # An H3-form Q hosts its options at indent 0, so only a heading can
+            # close its zone; a bullet-form Q is closed by either.
+            closes_on_sibling_bullet = q.shape != "h3"
+            for probe in range(start_line + 1, end_line):
+                probe_line = lines[probe - 1]
+                if probe_line.startswith("#"):
+                    end_line = probe
+                    break
+                bullet_m = ANY_BULLET_RE.match(probe_line)
+                if (closes_on_sibling_bullet and bullet_m
+                        and len(bullet_m.group(1)) <= q_indent_len):
+                    end_line = probe
+                    break
             # F123: for H3-form Qs, options live at top-level (indent 0)
             # rather than nested. Use indent==0 (TOP_BULLET_RE) for option
             # detection; the unlabeled-sub-bullet flag fires when a
