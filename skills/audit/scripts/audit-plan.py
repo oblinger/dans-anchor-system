@@ -534,8 +534,14 @@ def match_targets(kind: str, arg: str, scope_files: list[Path], anchor_root: Pat
             return []
         out = []
         for p in scope_files:
+            # `is_file()` first: the vault contains directories whose name ends
+            # `.md` (`SV/ww/2025 bzz.md`), and reading one raises IsADirectoryError
+            # here at PLAN time — outside `run_checker`'s per-checker guard, so it
+            # takes the whole run down rather than one verdict (T098).
+            if not p.is_file():
+                continue
             try:
-                if rx.search(p.read_text(encoding="utf-8")):
+                if rx.search(_read(p)):
                     out.append(p)
             except OSError:
                 pass
@@ -787,7 +793,21 @@ def render_recipe(plan: dict, order: str, cdir: Path | None) -> str:
 # anchor root dir; helpers resolve the entry page from it.
 
 def _read(path: Path) -> str:
-    return path.read_text(encoding="utf-8")
+    """Decode a doc, replacing bytes that are not UTF-8 rather than raising.
+
+    T098. `UnicodeDecodeError` is a `ValueError`, not an `OSError`, so it slipped
+    past every `except OSError` guard in this file and aborted the whole run at
+    the FIRST bad byte — `--batch ~/ob/kmr` died on one 0xbb in one doc and audited
+    nothing. That is why the audit has had no vault-wide harness, and why the
+    F296 measurements had to be hand-scoped (and were published wrong twice).
+
+    Replacement is the right call for a STRUCTURAL audit rather than a fallback
+    that hides a fault: an undecodable byte becomes U+FFFD, which is not a `#`, a
+    backtick or a pipe, so every heading/fence/table judgement is unchanged. What
+    would be a fallback is swallowing a missing or unreadable file — so OSError is
+    still allowed to propagate, and callers that ENUMERATE files skip non-files
+    before getting here."""
+    return path.read_text(encoding="utf-8", errors="replace")
 
 
 def _anchor_slug(anchor_root: Path) -> str:
