@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""F294 layers 0-2 — extraction, verdict classes, label matching.
+"""F294 layers 0-5 — extraction, verdicts, label matching, assertions, registry
+probes, and the Stop hook.
 
 Offline by construction. Layer 1 is exercised against a stubbed opener rather
 than the live web, because a test that needs the network tells you about the
@@ -15,6 +16,9 @@ paren regression must never come back.
 """
 import importlib.util
 import io
+import json
+import pathlib
+import tempfile
 import sys
 import urllib.error
 from pathlib import Path
@@ -487,6 +491,124 @@ def test_the_body_never_escapes_the_verdict():
     check("the body is cleared before the verdict is returned", out[0].body, "")
 
 
+print("\nLayer 5 — the Stop hook, which must never trap a session")
+
+vu.HOOK_DIR = pathlib.Path(tempfile.mkdtemp(prefix="vet-url-test-"))
+NOW = 1_800_000_000
+
+
+def _transcript(*user_texts):
+    p = vu.HOOK_DIR / "t.jsonl"
+    p.write_text("".join(
+        json.dumps({"type": "user", "message": {"content": t}}) + "\n"
+        for t in user_texts), encoding="utf-8")
+    return str(p)
+
+
+def hook_for(msg, resp=None, exc=None, session="s1", transcript="", active=False):
+    _stub(resp=resp, exc=exc)
+    try:
+        return vu.hook({"last_assistant_message": msg, "session_id": session,
+                        "transcript_path": transcript,
+                        "stop_hook_active": active}, NOW)
+    finally:
+        vu.urllib.request.urlopen = _real_urlopen
+
+
+def test_a_turn_with_no_urls_does_no_work():
+    """Nearly every turn. It must cost nothing, so the check has to end before
+    any I/O — no transcript read, no cache read, no fetch."""
+    _stub(exc=AssertionError("a URL-free turn must never reach the network"))
+    try:
+        out = vu.hook({"last_assistant_message": "Done — 37 suites green.",
+                       "session_id": "s0"}, NOW)
+    finally:
+        vu.urllib.request.urlopen = _real_urlopen
+    check("no URLs means allow, untouched", out, {})
+
+
+def test_a_dead_citation_forces_a_correction():
+    out = hook_for("See [the show](https://example.com/gone)",
+                   exc=urllib.error.HTTPError("https://example.com/gone", 404,
+                                              "nf", {}, io.BytesIO(b"")),
+                   session="dead1")
+    check("a 404 blocks the stop", out.get("decision"), "block")
+    check("...naming the URL so the correction can be specific",
+          "https://example.com/gone" in out.get("reason", ""), True)
+    check("...and telling the agent not to simply re-assert it",
+          "do not re-assert" in out.get("reason", ""), True)
+
+
+def test_what_must_never_block_a_conversation():
+    """A bot wall says nothing about existence, and a label mismatch is fuzzy.
+    Either one blocking chat is the false alarm that gets the hook turned off —
+    so the hook fires only on unambiguous non-resolution."""
+    out = hook_for("[a](https://example.com/walled)",
+                   exc=urllib.error.HTTPError("https://example.com/walled", 403,
+                                              "no", {}, io.BytesIO(b"")),
+                   session="blk1")
+    check("BLOCKED does not block", out, {})
+    out = hook_for("[Sleep With Me](https://example.com/other)",
+                   resp=_Resp("<title>Crime Junkie</title>",
+                              url="https://example.com/other"), session="mis1")
+    check("MISMATCH does not block chat either", out, {})
+    out = hook_for("[fine](https://example.com/ok)",
+                   resp=_Resp("<title>All good</title>",
+                              url="https://example.com/ok"), session="ok1")
+    check("a healthy link is silent", out, {})
+
+
+def test_one_correction_per_url_set_no_loop():
+    """A blocking Stop hook can re-fire on its own continuation. Keyed on the URL
+    set rather than the turn, so the guard holds regardless of what loop
+    protection the runtime supplies."""
+    args = dict(exc=urllib.error.HTTPError("https://example.com/x", 404, "nf",
+                                           {}, io.BytesIO(b"")), session="loop1")
+    first = hook_for("[a](https://example.com/x)", **args)
+    second = hook_for("[a](https://example.com/x)", **args)
+    check("the first report blocks", first.get("decision"), "block")
+    check("the identical set does not block twice", second, {})
+    check("the runtime's own loop flag is honoured too",
+          hook_for("[a](https://example.com/y)", active=True, session="loop2",
+                   exc=args["exc"]), {})
+
+
+def test_a_url_dan_supplied_is_not_corrected_at_him():
+    t = _transcript("have a look at https://example.com/dans-link please")
+    out = hook_for("Sure — https://example.com/dans-link is the one you sent.",
+                   exc=urllib.error.HTTPError("https://example.com/dans-link", 404,
+                                              "nf", {}, io.BytesIO(b"")),
+                   session="own1", transcript=t)
+    check("quoting back a link Dan supplied is not a finding", out, {})
+
+
+def test_the_hook_fails_open_on_anything_unexpected():
+    """The whole point of a Stop hook is that it runs unattended on every turn.
+    Trapping a session is a worse outcome than missing a dead link."""
+    check("unparseable stdin allows the stop", vu.hook_main("not json at all"), 0)
+    check("empty stdin allows the stop", vu.hook_main(""), 0)
+
+
+def test_the_cache_spends_one_fetch_per_url_per_hour():
+    calls = []
+
+    def counting(req, timeout=None):
+        calls.append(req.full_url)
+        return _Resp("<title>Fine</title>", url="https://example.com/cached")
+
+    vu.urllib.request.urlopen = counting
+    try:
+        vu.hook({"last_assistant_message": "[a](https://example.com/cached)",
+                 "session_id": "c1"}, NOW)
+        vu.hook({"last_assistant_message": "again [b](https://example.com/cached) "
+                                           "and [c](https://example.com/cached2)",
+                 "session_id": "c2"}, NOW + 5)
+    finally:
+        vu.urllib.request.urlopen = _real_urlopen
+    check("the repeated URL is fetched once across turns",
+          calls.count("https://example.com/cached"), 1)
+
+
 test_the_paren_regression()
 test_every_markdown_form_is_reached()
 test_what_must_never_be_fetched()
@@ -500,6 +622,13 @@ test_why_layer_2_exists()
 test_label_matching_is_deliberately_generous()
 test_mismatch_only_applies_to_an_otherwise_healthy_page()
 test_the_report_separates_findings_from_unknowns()
+test_a_turn_with_no_urls_does_no_work()
+test_a_dead_citation_forces_a_correction()
+test_what_must_never_block_a_conversation()
+test_one_correction_per_url_set_no_loop()
+test_a_url_dan_supplied_is_not_corrected_at_him()
+test_the_hook_fails_open_on_anything_unexpected()
+test_the_cache_spends_one_fetch_per_url_per_hour()
 test_the_claim_that_cost_three_round_trips()
 test_expect_annotates_a_stronger_finding_rather_than_masking_it()
 test_a_page_that_never_loaded_cannot_be_asserted_about()

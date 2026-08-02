@@ -31,8 +31,9 @@ Layers 1-3 ship with the skill; 4-6 are user overrides loaded from [[SRCH rules]
 4. **Normalize** — units, dates, naming. Note where normalization is lossy.
 5. **Sort + sectionize** — by a primary key the user can act on.
 6. **Surface gaps + outliers** — missing cells, surprising values, entities that don't fit.
-7. **Write the report** to `~/ob/kmr/Topic/Search/Survey/YYYY-MM-DD <survey-name>.md`.
-8. Return path + the 2-3 most notable findings.
+7. **Vet every URL — MANDATORY, before the file is written.** Draft the report, then run `vet_url --doc <draft> --deep` and repair or drop every reportable verdict. A survey is written once and read for months, so a fabricated citation lives in the vault indefinitely; deep mode adds no measurable time (45 URLs in ~4 s) because the registry probes ride the same thread pool. **`BLOCKED` is not a finding** — a bot wall says nothing about whether the page exists; leave those citations alone. Never launch a browser to resolve one.
+8. **Write the report** to `~/ob/kmr/Topic/Search/Survey/YYYY-MM-DD <survey-name>.md`.
+9. Return path + the 2-3 most notable findings.
 
 ## Meta-survey (sub-pattern)
 
@@ -88,8 +89,8 @@ Lands in `~/ob/kmr/Topic/Search/Survey/` as a markdown file. The [[Survey]] anch
 
 ## Related
 
-- User reference: [[DAS Survey]]
-- Overview of composition: [[DAS Search Overview]]
-- Rules trait: [[skill-search-rules]]
-- User overrides: [[SRCH rules]]
+- User reference: [[DAS Survey]] 
+- Overview of composition: [[DAS Search Overview]] 
+- Rules trait: [[skill-search-rules]] 
+- User overrides: [[SRCH rules]] 
 - Legacy: this skill subsumes `/research survey`, `/research skill` (as a specialized variant in `rules/survey.md`), and the broad-research phase of `/product hunt` (in `rules/survey-product.md`).
