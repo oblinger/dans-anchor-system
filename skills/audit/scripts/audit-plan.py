@@ -827,6 +827,7 @@ def _frontmatter(text: str) -> str | None:
 # and never did. The trailing group strips an ATX closing sequence (`# Title #`),
 # which is not part of the heading content and which `ln[2:].strip()` used to keep.
 _H1_RE = re.compile(r"^ {0,3}#[ \t]+(\S.*?)(?:[ \t]+#+)?[ \t]*$")
+_H2_RE = re.compile(r"^ {0,3}##[ \t]+(\S.*?)(?:[ \t]+#+)?[ \t]*$")
 
 # SETEXT H1s (`Title` underlined by `===`) are deliberately NOT recognized, and the
 # reason is measurement rather than laziness. They are real CommonMark H1s, and the
@@ -1422,10 +1423,19 @@ def chk_testing_filename_correct(target, anchor_root, args):
     return "pass", ""
 
 
-def _section_body(lines, header_re, stop_re=r"^## "):
-    """Lines under the first heading matching header_re, up to next stop_re."""
+def _section_body(lines, header_re, stop_re=r"^ {0,3}## "):
+    """Lines under the first heading matching header_re, up to next stop_re.
+
+    Boundaries are found on the FENCE-STRIPPED copy; the returned lines come from
+    the ORIGINAL. Both halves are load-bearing. Finding boundaries on raw text let a
+    fenced `## Examples` — 110 vault docs carry one — close a section early, so the
+    checker judged a fragment. Returning stripped lines would be worse: a section
+    whose content IS a code block (`## Architecture Diagram`, a `## Tests` body)
+    would come back blank and read as empty.
+    """
+    marks = _strip_fenced("\n".join(lines)).splitlines()
     start = None
-    for i, ln in enumerate(lines):
+    for i, ln in enumerate(marks):
         if re.match(header_re, ln):
             start = i
             break
@@ -1433,7 +1443,7 @@ def _section_body(lines, header_re, stop_re=r"^## "):
         return None
     out = []
     for i in range(start + 1, len(lines)):
-        if re.match(stop_re, lines[i]):
+        if re.match(stop_re, marks[i]):
             break
         out.append(lines[i])
     return out
@@ -1627,9 +1637,14 @@ def chk_status_field_valid(target, anchor_root, args):
 # -- R-architecture (T015, 2026-07-13) ------------------------------------------
 
 def _h2_titles(lines):
-    """(line_idx, title) for every `^## ` heading, in document order."""
-    return [(i, re.sub(r"^##\s+", "", ln).strip()) for i, ln in enumerate(lines)
-            if re.match(r"^##\s+\S", ln)]
+    """(line_idx, title) for every H2 heading, in document order — fences skipped.
+
+    Indices are into the ORIGINAL `lines`, since callers report them. The vault has
+    six genuinely indented H2s (` ## TODO`, `   ## old`) and no multi-space form, so
+    the indent allowance is the small half here; the fence is the large one."""
+    marks = _strip_fenced("\n".join(lines)).splitlines()
+    return [(i, m.group(1).strip()) for i, ln in enumerate(marks)
+            for m in [_H2_RE.match(ln)] if m]
 
 
 def _ancestor_anchor_roots(anchor_root: Path, cap: int = 4) -> list[Path]:
@@ -1968,8 +1983,8 @@ def chk_h1_no_frontmatter(target, anchor_root, args):
 
 
 def _h2_headings(text):
-    return [m.group(1).strip() for ln in text.splitlines()
-            for m in [re.match(r"^## (.+)$", ln)] if m]
+    """Titles only — the text view of `_h2_titles`, sharing its one definition."""
+    return [t for _, t in _h2_titles(text.splitlines())]
 
 
 def chk_required_sections_in_order(target, anchor_root, args):
