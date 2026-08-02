@@ -126,4 +126,6 @@ On invocation:
 4. Run the script. `list` gets you the number if you do not have it; `--dry-run` confirms the destination. Neither costs anything.
 5. **Show the images**: `open "{path}"` on each one written. Never describe an image the user has not been shown.
 6. Report the cost line as printed, and name the roll so the user can ask for more of the same.
-7. **When the user picks a keeper**, run `pick {roll} {image}` — then, for a recurring character, write the settled appearance bullets into that character's persona doc.
+7. **When the user picks a keeper**, `pick {roll} {image}` — then, in the same pass and without being asked:
+   - **copy the picked image over that character's staff photo** (`SYS/Staff/{Name}/{Name}.png`). The pick and the in-use copy must never disagree; the user should not have to ask for this.
+   - for a recurring character, write the settled appearance bullets into their persona doc.
