@@ -1,23 +1,26 @@
 #!/usr/bin/env python3
-"""imgen-gen.py — generate images into the IMGEN anchor, prompt kept beside them.
+"""imgen-gen.py — generate & edit images into the IMGEN anchor, prompt kept beside them.
 
-The engine behind the /imgen skill (SKA F276). Backends are pluggable; `fal`
-(FLUX) is the only one wired today.
+The engine behind the /imgen skill (SKA F276). A sitting is a ROLL — a numbered
+folder `IMGEN<nnn> — <title>/` whose namesake page carries everything; individual
+pictures inside it are IMAGES, `IMGEN<nnn>-<batch><variant>.png`.
 
-Everything this writes lands in ONE place — `~/ob/kmr/Log/IMGEN/` — because a
-generated image without the prompt that made it is a lucky roll nobody can
-reproduce, and the only way that pairing survives is if writing the image and
-recording the prompt are the same action. One sitting is a SHOOT — a numbered
-folder; rolls inside it are `IMGEN<shoot>-<prompt><variant>.png`; the shoot's
-own page carries every prompt, newest first, as a bulleted mix-and-match kit
-(copy-pasteable, one attribute per bullet). The chosen keeper is marked with
---pick, which pins it large to the top of the shoot page and sets the gallery
-cover.
+The page is stateful. Under the H1 it holds, in order:
+    ## Pick            the chosen image, shown large   (optional, set by `pick`)
+    ## Next render     the ONE pending operation: an `#### <command>` H4 + a prompt
+    ## Batch N …        past renders, newest first: H2 title → images → #### command → prompt
 
-Credentials come from the login keychain, never from a file on disk:
+`render` executes the Next render. The command sticks (after any run, Next render
+is whatever just ran), so bare `render` repeats it; a fresh prompt resets it to a
+`create`. If the Next render still matches the newest batch, `render` APPENDS to
+that batch instead of starting a new one — "more of the same" stays one section.
+
+Backends are pluggable; `flux-dev` (text→image) and `flux-kontext` (instruction
+edit) are wired. Credentials come from the login keychain, never a file on disk:
     security find-generic-password -s FAL_KEY -w
 """
 import argparse
+import base64
 import concurrent.futures as cf
 import datetime as dt
 import json
@@ -31,29 +34,26 @@ import urllib.request
 from pathlib import Path
 
 ANCHOR = Path.home() / "ob/kmr/Log/IMGEN"
-PRESET_DIR = Path.home() / ".config/anchor-system/imgen/presets"
 SLUG = "IMGEN"
 
-# `IMGEN007 — Portrait studies` — the number sorts, the title reads.
-SHOOT_RE = re.compile(rf"^{SLUG}(\d{{3}})(?: — (.*))?$")
-# `IMGEN007-4B.png` — shoot, prompt index, roll letter.
-ROLL_RE = re.compile(rf"^{SLUG}\d{{3}}-(\d+)([A-Z])\.")
+ROLL_RE = re.compile(rf"^{SLUG}(\d{{3}})(?: — (.*))?$")     # a roll folder
+IMAGE_RE = re.compile(rf"^{SLUG}\d{{3}}-(\d+)([A-Z])\.")    # an image file: batch, variant
 
 BACKENDS = {
-    "fal": {
-        "endpoint": "https://fal.run/fal-ai/flux/dev",
-        "model": "fal-ai/flux/dev",
-        "keychain": "FAL_KEY",
-        "cost_per_image": 0.025,
-    },
+    "flux-dev":     {"endpoint": "https://fal.run/fal-ai/flux/dev",         "cost": 0.025},
+    "flux-kontext": {"endpoint": "https://fal.run/fal-ai/flux-kontext/dev", "cost": 0.040},
 }
+# The verb the user types → the model that runs it. The H4 command records both,
+# e.g. `create flux-dev` / `edit flux-kontext 6E`.
+VERB_MODEL = {"create": "flux-dev", "edit": "flux-kontext"}
+KEYCHAIN = "FAL_KEY"
 
 
 class ImgenError(RuntimeError):
     pass
 
 
-def keychain(service):
+def keychain(service=KEYCHAIN):
     """Read a secret from the login keychain. Fails loudly — no fallback."""
     r = subprocess.run(["security", "find-generic-password", "-s", service, "-w"],
                        capture_output=True, text=True)
@@ -64,61 +64,123 @@ def keychain(service):
     return r.stdout.strip()
 
 
-def load_preset(name):
-    f = PRESET_DIR / f"{name}.json"
-    return json.loads(f.read_text()) if f.exists() else None
+# ---------------------------------------------------------------- rolls / images
 
-
-def save_preset(name, prompt):
-    PRESET_DIR.mkdir(parents=True, exist_ok=True)
-    (PRESET_DIR / f"{name}.json").write_text(
-        json.dumps({"name": name, "prompt": prompt,
-                    "created": dt.date.today().isoformat()}, indent=2))
-
-
-# ---------------------------------------------------------------- the anchor
-
-def shoots():
-    """Every shoot folder, ascending by number. [(n, title, path), ...]"""
+def rolls():
+    """Every roll folder, ascending by number. [(n, title, path), ...]"""
     if not ANCHOR.is_dir():
         return []
     out = []
     for d in ANCHOR.iterdir():
-        m = SHOOT_RE.match(d.name) if d.is_dir() else None
+        m = ROLL_RE.match(d.name) if d.is_dir() else None
         if m:
             out.append((int(m.group(1)), m.group(2) or "", d))
     return sorted(out)
 
 
-def next_prompt_index(shoot_dir):
-    """One past the highest prompt index already used in this shoot."""
-    used = [int(m.group(1)) for f in shoot_dir.iterdir()
-            if (m := ROLL_RE.match(f.name))]
+def find_roll(arg):
+    """Resolve a roll by number ('4' / '004') or by name substring. → (n, title, path)."""
+    found = rolls()
+    if not found:
+        raise ImgenError('no rolls yet — open one with `imgen new "<title>"`')
+    s = str(arg).strip()
+    if s.isdigit():
+        hit = [b for b in found if b[0] == int(s)]
+    else:
+        low = s.lower()
+        hit = [b for b in found if low in f"{SLUG}{b[0]:03d} — {b[1]}".lower()]
+    if len(hit) == 1:
+        return hit[0]
+    have = ", ".join(f"{b[0]:03d} ({b[1]})" for b in found)
+    if not hit:
+        raise ImgenError(f"no roll matching '{arg}' — have: {have}")
+    raise ImgenError(f"'{arg}' matches several rolls — be specific. Have: {have}")
+
+
+def roll_page(roll_dir):
+    return roll_dir / f"{roll_dir.name}.md"
+
+
+def batch_variants(roll_dir, n):
+    """Variant letters already present in batch n, sorted."""
+    out = []
+    for f in roll_dir.iterdir():
+        m = IMAGE_RE.match(f.name)
+        if m and int(m.group(1)) == n:
+            out.append(m.group(2))
+    return sorted(out)
+
+
+def next_batch_index(roll_dir):
+    used = [int(m.group(1)) for f in roll_dir.iterdir()
+            if (m := IMAGE_RE.match(f.name))]
     return max(used, default=0) + 1
 
 
-def new_shoot(title):
-    """Create the next shoot folder and its namesake page. Returns (n, path)."""
-    n = max((b[0] for b in shoots()), default=0) + 1
+def resolve_image(roll_dir, image):
+    """Turn a loose image ref ('6E', 'IMGEN004-6E', '...png') into an existing Path."""
+    name = image.strip()
+    if name.lower().endswith(".png"):
+        name = name[:-4]
+    if not name.startswith(SLUG):
+        m = ROLL_RE.match(roll_dir.name)
+        prefix = f"{SLUG}{m.group(1)}" if m else roll_dir.name.split(" ")[0]
+        name = f"{prefix}-{name}"
+    p = roll_dir / f"{name}.png"
+    if not p.exists():
+        raise ImgenError(f"no image {p.name} in {roll_dir.name}")
+    return p
+
+
+# ------------------------------------------------------------------ command (H4)
+
+def format_command(verb, image=None):
+    """`create flux-dev` / `edit flux-kontext 6E`."""
+    model = VERB_MODEL[verb]
+    return f"{verb} {model}" + (f" {image}" if image else "")
+
+
+def parse_command(cmd):
+    """`edit flux-kontext 6E` → (verb, model, image|None)."""
+    parts = cmd.split()
+    if not parts or parts[0] not in VERB_MODEL:
+        raise ImgenError(f"unknown command '{cmd}' — verb must be one of {sorted(VERB_MODEL)}")
+    verb = parts[0]
+    model = parts[1] if len(parts) > 1 else VERB_MODEL[verb]
+    image = parts[2] if len(parts) > 2 else None
+    if model not in BACKENDS:
+        raise ImgenError(f"unknown model '{model}' in command '{cmd}'")
+    return verb, model, image
+
+
+# --------------------------------------------------------------------- the page
+
+def _quote(name):
+    return urllib.parse.quote(name)
+
+
+def new_roll(title, prompt):
+    """Create the next roll folder + its page (breadcrumb head + a Next render). Returns (n, path)."""
+    n = max((b[0] for b in rolls()), default=0) + 1
     path = ANCHOR / f"{SLUG}{n:03d} — {title}"
     path.mkdir(parents=True)
     name = path.name
-    # A shoot page is a regular file, not an anchor page — so its head is a
-    # `:>>` breadcrumb, not a dispatch table (only anchor pages get tables).
-    (path / f"{name}.md").write_text(
-        f":>> [[kmr]] → [[Log/Log]] → [[{SLUG}]] "
-        f"→ [{name}](hook://p/{urllib.parse.quote(name)}) \n"
-        f"# {name}\n"
-        f"{title}. Newest prompt first.\n", encoding="utf-8")
+    # A roll page is a regular file, not an anchor page — so its head is a `:>>`
+    # breadcrumb, not a dispatch table (only anchor pages get tables).
+    head = (f":>> [[kmr]] → [[Log/Log]] → [[{SLUG}]] → [{name}](hook://p/{_quote(name)}) \n"
+            f"# {name}\n"
+            f"{title}. Newest render on top.\n\n"
+            f"## Next render\n\n#### {format_command('create')}\n{prompt}\n")
+    roll_page(path).write_text(head, encoding="utf-8")
     return n, path
 
 
-def grid(files, width=500, across=3):
+def grid(images, width=500, across=3):
     """A borderless N-across table. The header row is left empty on purpose —
     markdown makes the first row a heading, and an image there renders as a
     column label instead of a picture."""
-    rows = [files[i:i + across] for i in range(0, len(files), across)]
-    cols = min(across, max(len(r) for r in rows)) if rows else 1
+    rows = [images[i:i + across] for i in range(0, len(images), across)]
+    cols = min(across, max((len(r) for r in rows), default=1)) if rows else 1
     out = ["| " * cols + "|", "| " + " | ".join(["---"] * cols) + " |"]
     for r in rows:
         cells = [f"![[{f.name}\\|{width}]]" for f in r] + [""] * (cols - len(r))
@@ -126,274 +188,387 @@ def grid(files, width=500, across=3):
     return "\n".join(out)
 
 
-def _insert_before_first_group(text, block):
-    """Put a prompt group above the existing ones. Newest-first is not a
-    preference here — every derived view in this anchor reads top-down and
-    trusts that order."""
-    m = re.search(rf"^## {SLUG}\d{{3}}-\d+ ", text, re.M)
-    if m:
-        return text[:m.start()] + block + "\n" + text[m.start():]
-    return text.rstrip("\n") + "\n\n" + block
+def _section_span(text, heading_re):
+    """(start, stop) of a `## …` section: from its heading to the next `## `, or EOF.
+    Returns None if the heading is absent."""
+    m = re.search(heading_re, text, re.M)
+    if not m:
+        return None
+    nxt = re.search(r"^## ", text[m.end():], re.M)
+    return m.start(), (m.end() + nxt.start() if nxt else len(text))
 
 
-def record_prompt(shoot_dir, shoot_n, idx, title, prompt, files, meta):
-    """Write the prompt group into the shoot page, above any earlier group.
-
-    The prompt goes LAST in the block, by default as a sequence of bullets
-    (one attribute per bullet — a mix-and-match kit) — no heading, no
-    blockquote, no fence — so it survives a copy without anything to strip off
-    it. That is the whole reason this file writes markdown at all, and it is why
-    the seeds line sits above the images rather than under the prompt: nothing
-    may come between the prompt and the end of its section."""
-    page = shoot_dir / f"{shoot_dir.name}.md"
-    block = (f"## {SLUG}{shoot_n:03d}-{idx} — {title}\n\n"
-             f"*{meta}*\n\n"
-             f"{grid(files)}\n\n{prompt}\n")
-    page.write_text(_insert_before_first_group(page.read_text(encoding="utf-8"), block),
-                    encoding="utf-8")
+def read_next(roll_dir):
+    """Parse the `## Next render` block → (command, prompt)."""
+    text = roll_page(roll_dir).read_text(encoding="utf-8")
+    span = _section_span(text, r"^## Next render[ \t]*$")
+    if not span:
+        raise ImgenError(f"{roll_dir.name} has no '## Next render' block "
+                         f"(old-format roll? migrate it first)")
+    block = text[span[0]:span[1]]
+    cm = re.search(r"^####[ \t]+(.*)$", block, re.M)
+    if not cm:
+        raise ImgenError(f"{roll_dir.name} Next render has no '#### <command>' line")
+    return cm.group(1).strip(), block[cm.end():].strip("\n")
 
 
-def add_to_gallery(shoot_dir, cover):
-    """One image per shoot, newest at the top — the visual index."""
-    g = ANCHOR / f"{SLUG} Gallery.md"
-    if not g.exists():
-        return
-    entry = f"## [[{shoot_dir.name}]]\n\n![[{cover.name}|500]]\n"
-    text = g.read_text(encoding="utf-8")
-    m = re.search(r"^## ", text, re.M)
-    g.write_text(text[:m.start()] + entry + "\n" + text[m.start():] if m
-                 else text.rstrip("\n") + "\n\n" + entry, encoding="utf-8")
+def write_next(roll_dir, command, prompt):
+    """Replace (or insert) the `## Next render` block."""
+    page = roll_page(roll_dir)
+    text = page.read_text(encoding="utf-8")
+    block = f"## Next render\n\n#### {command}\n{prompt}\n"
+    span = _section_span(text, r"^## Next render[ \t]*$")
+    if span:
+        new = text[:span[0]] + block + ("\n" + text[span[1]:] if span[1] < len(text) else "")
+    else:
+        # Insert after a Pick block if present, else after the H1 header, before batches.
+        anchor = _section_span(text, r"^## Pick[ \t]*$")
+        first_h2 = re.search(r"^## ", text, re.M)
+        pos = anchor[1] if anchor else (first_h2.start() if first_h2 else len(text))
+        new = text[:pos].rstrip("\n") + "\n\n" + block + ("\n" + text[pos:] if pos < len(text) else "")
+    page.write_text(re.sub(r"\n{3,}", "\n\n", new), encoding="utf-8")
 
 
-def add_member_row(shoot_dir):
-    """Register the shoot in the anchor masthead's member zone."""
-    a = ANCHOR / f"{SLUG}.md"
-    if not a.exists():
-        return
-    text = a.read_text(encoding="utf-8")
-    if shoot_dir.name in text:
-        return
-    marker = "| ^^^ | |\n"
-    if marker in text:
-        a.write_text(text.replace(marker, f"{marker}| [[{shoot_dir.name}]]  |  |\n", 1),
-                     encoding="utf-8")
+def newest_batch(roll_dir):
+    """The top-most `## Batch N` section → (n, command, prompt) or None."""
+    text = roll_page(roll_dir).read_text(encoding="utf-8")
+    m = re.search(r"^## Batch (\d+)\b.*$", text, re.M)
+    if not m:
+        return None
+    n = int(m.group(1))
+    body = text[m.end():]
+    end = re.search(r"^## ", body, re.M)
+    block = body[:end.start()] if end else body
+    cm = re.search(r"^####[ \t]+(.*)$", block, re.M)
+    command = cm.group(1).strip() if cm else ""
+    prompt = strip_meta(block[cm.end():]) if cm else ""
+    return n, command, prompt
 
 
-# ---------------------------------------------------------------------- pick
+def strip_meta(block):
+    """Drop a batch's trailing italic provenance line, leaving just the prompt.
+
+    Load-bearing: `render` decides append-vs-new-batch by comparing this prompt
+    against the Next render's, so a meta line left attached here would make every
+    repeat look like a different prompt and open a new batch each time."""
+    lines = block.strip("\n").split("\n")
+    while lines and not lines[-1].strip():
+        lines.pop()
+    if lines and re.fullmatch(r"\*.*\*", lines[-1].strip()):
+        lines.pop()
+    return "\n".join(lines).strip("\n")
+
+
+def read_batch_meta(roll_dir, n):
+    """Recover a past batch's provenance line → (date|None, {variant: seed}).
+
+    Seeds are what make a batch re-rollable, so an append must carry forward the
+    ones already recorded rather than overwrite them with only the new images'."""
+    text = roll_page(roll_dir).read_text(encoding="utf-8")
+    span = _section_span(text, rf"^## Batch {n}\b.*$")
+    if not span:
+        return None, {}
+    block = text[span[0]:span[1]]
+    dm = re.search(r"\b(\d{4}-\d{2}-\d{2})\b", block)
+    seeds = dict(re.findall(rf"\b{n}([A-Z])\s+(\d+)", block))
+    return (dm.group(1) if dm else None), seeds
+
+
+def format_meta(model, size, date, cost, n, seeds):
+    """The italic provenance line that closes a batch block."""
+    listed = ", ".join(f"{n}{v} {seeds[v]}" for v in sorted(seeds) if seeds[v])
+    parts = [model, size, date, f"${cost:.3f}"] + ([f"seeds {listed}"] if listed else [])
+    return "*" + " · ".join(parts) + "*"
+
+
+def write_batch(roll_dir, n, command, prompt, images, meta=None):
+    """Create or replace the `## Batch n` section (title → images → #### command → prompt → meta)."""
+    page = roll_page(roll_dir)
+    text = page.read_text(encoding="utf-8")
+    span = _section_span(text, rf"^## Batch {n}\b.*$")
+    # Rewriting a batch must not cost it its identity: a heading subtitle ("the
+    # keeper") and any commentary written above the grid are hand-authored and
+    # unrecoverable, so carry them across rather than regenerating a bare heading.
+    heading, lead = f"## Batch {n}", ""
+    if span:
+        old = text[span[0]:span[1]]
+        heading = old.split("\n", 1)[0].rstrip()
+        body = old.split("\n", 1)[1] if "\n" in old else ""
+        gm = re.search(r"^\|", body, re.M)
+        lead = body[:gm.start()].strip("\n") if gm else ""
+    block = (f"{heading}\n\n" + (f"{lead}\n\n" if lead else "")
+             + f"{grid(images)}\n\n#### {command}\n{prompt}\n"
+             + (f"\n{meta}\n" if meta else ""))
+    if span:                                   # replace in place (append case)
+        new = text[:span[0]] + block + ("\n" + text[span[1]:] if span[1] < len(text) else "")
+    else:                                      # insert just below the Next render block
+        nr = _section_span(text, r"^## Next render[ \t]*$")
+        pos = nr[1] if nr else len(text)
+        new = text[:pos].rstrip("\n") + "\n\n" + block + ("\n" + text[pos:] if pos < len(text) else "")
+    page.write_text(re.sub(r"\n{3,}", "\n\n", new), encoding="utf-8")
+
+
+# ------------------------------------------------------------------ pick / index
 
 PICK_BLOCK_RE = re.compile(r"^## Pick\b.*?(?=^## |\Z)", re.M | re.S)
 
 
-def resolve_pick(roll_arg):
-    """Turn a `--pick` value (IMGEN004-3I, with or without .png) into
-    (shoot_dir, roll_file), erroring loudly if either does not exist."""
-    name = roll_arg.strip()
-    if name.lower().endswith(".png"):
-        name = name[:-4]
-    m = re.match(rf"^{SLUG}(\d{{3}})-\d+[A-Z]$", name)
-    if not m:
-        raise ImgenError(f"--pick wants a roll id like {SLUG}004-3I (got '{roll_arg}')")
-    shoot_n = int(m.group(1))
-    hit = [b for b in shoots() if b[0] == shoot_n]
-    if not hit:
-        raise ImgenError(f"no shoot {shoot_n:03d} for pick '{name}'")
-    shoot_dir = hit[0][2]
-    roll_file = shoot_dir / f"{name}.png"
-    if not roll_file.exists():
-        raise ImgenError(f"no roll {roll_file.name} in {shoot_dir.name}")
-    return shoot_dir, roll_file
-
-
-def set_pick(shoot_dir, roll_name, width=2000):
-    """Lift the chosen roll to the very top of the shoot page, shown large.
-    The pick is a `## Pick` block above every prompt group; re-picking replaces
-    it and nothing else moves. New prompt groups still land BELOW the pick —
-    record_prompt inserts before the first `## IMGEN…` group, not `## Pick`."""
-    page = shoot_dir / f"{shoot_dir.name}.md"
-    text = page.read_text(encoding="utf-8")
-    text = PICK_BLOCK_RE.sub("", text)
+def set_pick(roll_dir, image_name, width=2000):
+    """Lift the chosen image to a `## Pick` block at the very top (above Next render)."""
+    page = roll_page(roll_dir)
+    text = PICK_BLOCK_RE.sub("", page.read_text(encoding="utf-8"))
     text = re.sub(r"\n{3,}", "\n\n", text)
-    block = f"## Pick\n\n![[{roll_name}|{width}]]\n\n"
+    block = f"## Pick\n\n![[{image_name}|{width}]]\n\n"
     m = re.search(r"^## ", text, re.M)
     text = (text[:m.start()] + block + text[m.start():] if m
             else text.rstrip("\n") + "\n\n" + block)
     page.write_text(text, encoding="utf-8")
 
 
-def set_gallery_cover(shoot_name, cover_name, width=500):
-    """Point the shoot's gallery entry at a different roll — used when the pick
-    changes, so the visual index tracks the keeper."""
+def set_gallery_cover(roll_name, cover_name, width=500):
     g = ANCHOR / f"{SLUG} Gallery.md"
     if not g.exists():
         return
     text = g.read_text(encoding="utf-8")
-    h2 = re.search(rf"^## \[\[{re.escape(shoot_name)}\]\].*$", text, re.M)
+    h2 = re.search(rf"^## \[\[{re.escape(roll_name)}\]\].*$", text, re.M)
     if not h2:
         return
     head, tail = text[:h2.end()], text[h2.end():]
-    tail, n = re.subn(r"!\[\[[^\]]*\]\]", f"![[{cover_name}|{width}]]", tail, count=1)
-    if n:
+    tail, k = re.subn(r"!\[\[[^\]]*\]\]", f"![[{cover_name}|{width}]]", tail, count=1)
+    if k:
         g.write_text(head + tail, encoding="utf-8")
 
 
-# ------------------------------------------------------------------ generate
+def add_to_gallery(roll_dir, cover):
+    g = ANCHOR / f"{SLUG} Gallery.md"
+    if not g.exists() or f"[[{roll_dir.name}]]" in g.read_text(encoding="utf-8"):
+        return
+    entry = f"## [[{roll_dir.name}]]\n\n![[{cover.name}|500]]\n"
+    text = g.read_text(encoding="utf-8")
+    m = re.search(r"^## ", text, re.M)
+    g.write_text(text[:m.start()] + entry + "\n" + text[m.start():] if m
+                 else text.rstrip("\n") + "\n\n" + entry, encoding="utf-8")
 
-def generate(spec):
-    """One roll. spec = (backend, prompt, size, out_dir, stem)."""
-    backend, prompt, size, out_dir, stem = spec
-    cfg = BACKENDS[backend]
-    body = json.dumps({"prompt": prompt, "image_size": size, "num_images": 1}).encode()
-    req = urllib.request.Request(cfg["endpoint"], data=body, headers={
-        "Authorization": f"Key {keychain(cfg['keychain'])}",
-        "Content-Type": "application/json"})
+
+def add_member_row(roll_dir):
+    a = ANCHOR / f"{SLUG}.md"
+    if not a.exists():
+        return
+    text = a.read_text(encoding="utf-8")
+    if roll_dir.name in text:
+        return
+    marker = "| ^^^ | |\n"
+    if marker in text:
+        a.write_text(text.replace(marker, f"{marker}| [[{roll_dir.name}]]  |  |\n", 1),
+                     encoding="utf-8")
+
+
+# ------------------------------------------------------------------ generate one
+
+def _data_uri(path):
+    return "data:image/png;base64," + base64.b64encode(path.read_bytes()).decode()
+
+
+def generate(model, prompt, size, source, out):
+    """One image → (path, seed). `source` is a Path for edit models, else None (text→image)."""
+    cfg = BACKENDS[model]
+    payload = {"prompt": prompt, "num_images": 1}
+    if source is None:
+        payload["image_size"] = size
+    else:
+        payload["image_url"] = _data_uri(source)
+    req = urllib.request.Request(cfg["endpoint"], data=json.dumps(payload).encode(),
+                                 headers={"Authorization": f"Key {keychain()}",
+                                          "Content-Type": "application/json"})
     try:
         resp = json.load(urllib.request.urlopen(req, timeout=180))
     except urllib.error.HTTPError as e:
-        detail = e.read().decode("utf-8", "replace")[:200]
-        raise ImgenError(f"{backend} HTTP {e.code}: {detail}")
+        raise ImgenError(f"{model} HTTP {e.code}: {e.read().decode('utf-8', 'replace')[:200]}")
     if not resp.get("images"):
-        raise ImgenError(f"{backend} returned no images: {str(resp)[:200]}")
-
-    out = out_dir / f"{stem}.png"
+        raise ImgenError(f"{model} returned no images: {str(resp)[:200]}")
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_bytes(urllib.request.urlopen(resp["images"][0]["url"], timeout=120).read())
-    return out, resp.get("seed", "unknown")
+    return out, resp.get("seed")
 
 
-def main():
-    ap = argparse.ArgumentParser(
-        description="Generate images into the IMGEN anchor, with the prompt recorded beside them.")
-    ap.add_argument("prompt", nargs="*", help="the prompt (omit when using --preset alone)")
-    ap.add_argument("-b", "--backend", default="fal", choices=sorted(BACKENDS))
-    ap.add_argument("-r", "--rolls", type=int, default=1, help="images off this prompt")
-    ap.add_argument("-s", "--size", default="square_hd")
-    # Exactly one of these is required. There is deliberately NO default: an
-    # unflagged call used to append to whatever was newest, which is silent and
-    # wrong the moment the newest shoot is not the one you meant. A stateful
-    # "current shoot" pointer was considered and rejected for the same reason —
-    # it outlives the sitting and is shared across agents, so it reproduces the
-    # silent mis-append with extra machinery to debug.
-    # `-a` takes the number rather than defaulting to the newest. Two reasons:
-    # an optional-argument `-a` swallows the prompt as its own value, so the
-    # bare form is unusable next to a positional; and "the newest" is the same
-    # implicit choice this whole flag pair exists to remove. `--list` is how you
-    # find the number, and a wrong one names every shoot you do have.
-    where = ap.add_mutually_exclusive_group(required=True)
-    where.add_argument("-n", "--new", metavar="TITLE", default=None,
-                       help="open a NEW shoot with this title")
-    where.add_argument("-a", "--append", type=int, default=None, metavar="N",
-                       help="append to shoot N (see --list)")
-    where.add_argument("-l", "--list", action="store_true",
-                       help="print the shoots and exit")
-    where.add_argument("--pick", metavar="ROLL", default=None,
-                       help="mark ROLL (e.g. IMGEN004-3I) as the shoot's pick — "
-                            "pins it to the top of the shoot page and sets the "
-                            "gallery cover; no API call, changeable any time")
-    ap.add_argument("-c", "--caption", default=None,
-                    help="heading for this prompt group (defaults to the shoot title)")
-    ap.add_argument("-p", "--preset", default=None, help="named preset to load")
-    ap.add_argument("--save-preset", default=None, help="save this prompt as a preset")
-    ap.add_argument("--confirm-over", type=float, default=1.00,
-                    help="refuse a run costing more than this without --yes")
-    ap.add_argument("--yes", action="store_true", help="skip the cost confirmation")
-    ap.add_argument("--dry-run", action="store_true",
-                    help="resolve the shoot and print what would be written; no API call")
-    a = ap.parse_args()
+# ----------------------------------------------------------------------- run it
 
-    if a.list:
-        for n, title, d in shoots():
-            print(f"  {n:03d}  {title}  ({next_prompt_index(d) - 1} prompt group(s))")
-        return 0
+def _do_render(roll_dir, roll_n, count, size, confirm_over, yes, dry):
+    """Shared by `render` and `edit`: execute the Next render `count` times."""
+    command, prompt = read_next(roll_dir)
+    verb, model, image = parse_command(command)
+    if not prompt.strip():
+        raise ImgenError("Next render has an empty prompt — set one with `update` or a prompt arg")
+    source = resolve_image(roll_dir, image) if verb == "edit" else None
 
-    if a.pick:
-        shoot_dir, roll_file = resolve_pick(a.pick)
-        set_pick(shoot_dir, roll_file.name)
-        set_gallery_cover(shoot_dir.name, roll_file.name)
-        print(f"pick: {roll_file.stem} → top of {shoot_dir.name} + gallery cover updated")
-        return 0
+    cost = BACKENDS[model]["cost"] * count
+    if cost > confirm_over and not yes:
+        raise ImgenError(f"would cost ${cost:.2f} (> ${confirm_over:.2f}). Re-run with --yes.")
 
-    prompt = " ".join(a.prompt).strip()
-    if a.preset:
-        pre = load_preset(a.preset)
-        if not pre:
-            raise ImgenError(f"no preset '{a.preset}' in {PRESET_DIR}")
-        prompt = f"{pre['prompt']} {prompt}".strip()
-    if not prompt:
-        ap.error("no prompt (give one, or use --preset)")
-    if a.save_preset:
-        save_preset(a.save_preset, prompt)
-        print(f"preset '{a.save_preset}' saved to {PRESET_DIR}")
-
-    cost = BACKENDS[a.backend]["cost_per_image"] * a.rolls
-    if cost > a.confirm_over and not a.yes:
-        raise ImgenError(
-            f"would cost ${cost:.2f} (> ${a.confirm_over:.2f}). Re-run with --yes.")
-    if a.rolls > len(string.ascii_uppercase):
-        raise ImgenError(f"at most {len(string.ascii_uppercase)} rolls off one prompt")
-
-    # Resolve the shoot from the flag the caller was forced to pick.
-    fresh = False
-    if a.new:
-        if a.dry_run:
-            n = max((b[0] for b in shoots()), default=0) + 1
-            print(f"dry-run: would open {SLUG}{n:03d} — {a.new} ← "
-                  f"{SLUG}{n:03d}-1[{string.ascii_uppercase[:a.rolls]}] (${cost:.3f})")
-            return 0
-        shoot_n, shoot_dir = new_shoot(a.new)
-        shoot_title, fresh = a.new, True
+    # Append to the newest batch iff it ran the exact same command+prompt; else new batch.
+    nb = newest_batch(roll_dir)
+    if nb and nb[1] == command and nb[2] == prompt:
+        batch = nb[0]
+        start = len(batch_variants(roll_dir, batch))
     else:
-        found = shoots()
-        if not found:
-            raise ImgenError('nothing to append to — open one with -n "<what it is about>"')
-        if a.append:
-            hit = [b for b in found if b[0] == a.append]
-            if not hit:
-                have = ", ".join(f"{b[0]:03d} ({b[1]})" for b in found)
-                raise ImgenError(f"no shoot {a.append:03d} in {ANCHOR} — have {have}")
-            shoot_n, shoot_title, shoot_dir = hit[0]
-        else:
-            shoot_n, shoot_title, shoot_dir = found[-1]
+        batch = next_batch_index(roll_dir)
+        start = 0
+    if start + count > len(string.ascii_uppercase):
+        raise ImgenError(f"batch {batch} would exceed 26 images")
+    variants = [string.ascii_uppercase[start + i] for i in range(count)]
 
-    idx = next_prompt_index(shoot_dir)
-    if a.dry_run:
-        print(f"dry-run: {shoot_dir.name} ← {SLUG}{shoot_n:03d}-{idx}"
-              f"[{string.ascii_uppercase[:a.rolls]}] (${cost:.3f})")
-        return 0
+    if dry:
+        where = "append to" if start else "new"
+        print(f"dry-run: {command!r} × {count} → {where} Batch {batch} "
+              f"({SLUG}{roll_n:03d}-{batch}[{''.join(variants)}]) (${cost:.3f})")
+        return []
 
-    specs = [(a.backend, prompt, a.size, shoot_dir,
-              f"{SLUG}{shoot_n:03d}-{idx}{string.ascii_uppercase[i]}")
-             for i in range(a.rolls)]
-
-    rolls, failed = [], []
-    with cf.ThreadPoolExecutor(min(4, a.rolls)) as ex:
-        for fut in [ex.submit(generate, s) for s in specs]:
+    specs = {v: (model, prompt, size, source,
+                 roll_dir / f"{SLUG}{roll_n:03d}-{batch}{v}.png") for v in variants}
+    date, seeds = read_batch_meta(roll_dir, batch)      # carry forward an append's earlier seeds
+    written, failed = [], []
+    with cf.ThreadPoolExecutor(min(4, count)) as ex:
+        futs = {ex.submit(generate, *s): v for v, s in specs.items()}
+        for fut in futs:
             try:
-                rolls.append(fut.result())
+                path, seed = fut.result()
+                written.append(path)
+                seeds[futs[fut]] = seed
             except Exception as e:
                 failed.append(str(e))
-    rolls.sort()
-    written = [p for p, _ in rolls]
-
-    # Record only what actually landed. A half-failed run still gets its prompt
-    # written, because the rolls that DID land are unreproducible without it.
     if written:
-        cfg = BACKENDS[a.backend]
-        seeds = ", ".join(f"{p.stem.split('-')[-1]} {s}" for p, s in rolls)
-        meta = (f"{cfg['model']} · {a.size} · {dt.date.today().isoformat()} · "
-                f"${cfg['cost_per_image'] * len(written):.3f} · seeds {seeds}")
-        record_prompt(shoot_dir, shoot_n, idx, a.caption or shoot_title,
-                      prompt, written, meta)
-        if fresh:
-            add_member_row(shoot_dir)
-            add_to_gallery(shoot_dir, written[0])
-
-    for p in written:
+        all_imgs = sorted((roll_dir / f"{SLUG}{roll_n:03d}-{batch}{v}.png"
+                           for v in batch_variants(roll_dir, batch)),
+                          key=lambda p: p.name)
+        # An edit inherits its source's dimensions, so record the source instead of a size.
+        meta = format_meta(model, size if source is None else f"source {source.stem}",
+                           date or dt.date.today().isoformat(),
+                           BACKENDS[model]["cost"] * len(all_imgs), batch, seeds)
+        write_batch(roll_dir, batch, command, prompt, all_imgs, meta)
+        if not (ANCHOR / f"{SLUG} Gallery.md").read_text(encoding="utf-8").count(roll_dir.name):
+            add_to_gallery(roll_dir, written[0])
+    for p in sorted(written):
         print(f"  {p.name}")
     for f in failed:
         print(f"  FAILED: {f}", file=sys.stderr)
-    print(f"{len(written)} roll(s) as {SLUG}{shoot_n:03d}-{idx}, "
-          f"${BACKENDS[a.backend]['cost_per_image']*len(written):.3f} — {shoot_dir}")
-    return 1 if failed else 0
+    print(f"{len(written)} image(s) → Batch {batch} of {roll_dir.name}, "
+          f"${BACKENDS[model]['cost']*len(written):.3f}")
+    return written
+
+
+# -------------------------------------------------------------------- the verbs
+
+def cmd_new(a):
+    n, path = new_roll(a.roll, " ".join(a.prompt).strip())
+    add_member_row(path)
+    print(f"created {path.name} — check its Next render, then `imgen render {n}`")
+    return 0
+
+
+def cmd_get(a):
+    _, _, d = find_roll(a.roll)
+    command, prompt = read_next(d)
+    print(f"command: {command}")
+    print(f"prompt:\n{prompt}")
+    return 0
+
+
+def cmd_update(a):
+    _, _, d = find_roll(a.roll)
+    command, prompt = read_next(d)
+    if a.command is None and a.prompt is None:
+        raise ImgenError("nothing to update — give --command and/or --prompt")
+    if a.command is not None:
+        parse_command(a.command)               # validate
+        command = a.command.strip()
+    if a.prompt is not None:
+        prompt = a.prompt
+    write_next(d, command, prompt)
+    print(f"Next render is now: {command}")
+    return 0
+
+
+def cmd_render(a):
+    n, _, d = find_roll(a.roll)
+    prompt = " ".join(a.prompt).strip()
+    if prompt:                                 # a prompt resets Next render to a fresh create
+        write_next(d, format_command("create"), prompt)
+    _do_render(d, n, a.count, a.size, a.confirm_over, a.yes, a.dry_run)
+    return 0
+
+
+def cmd_edit(a):
+    n, _, d = find_roll(a.roll)
+    resolve_image(d, a.image)                   # fail early if the image is missing
+    write_next(d, format_command("edit", a.image), " ".join(a.instruction).strip())
+    _do_render(d, n, a.count, a.size, a.confirm_over, a.yes, a.dry_run)
+    return 0
+
+
+def cmd_pick(a):
+    _, _, d = find_roll(a.roll)
+    img = resolve_image(d, a.image)
+    set_pick(d, img.name)
+    set_gallery_cover(d.name, img.name)
+    print(f"pick: {img.stem} → top of {d.name} + gallery cover")
+    return 0
+
+
+def cmd_list(a):
+    if a.roll:
+        _, _, d = find_roll(a.roll)
+        for f in sorted(p.name for p in d.iterdir() if IMAGE_RE.match(p.name)):
+            print(f"  {f}")
+    else:
+        for n, title, d in rolls():
+            nb = newest_batch(d)
+            tail = f"— latest Batch {nb[0]}" if nb else "— empty"
+            print(f"  {n:03d}  {title}  {tail}")
+    return 0
+
+
+def main():
+    ap = argparse.ArgumentParser(prog="imgen",
+                                 description="Generate & edit images into the IMGEN anchor.")
+    sub = ap.add_subparsers(dest="verb", required=True)
+
+    def spend_opts(p):
+        p.add_argument("-n", "--count", type=int, default=1, help="how many images (default 1)")
+        p.add_argument("-s", "--size", default="square_hd")
+        p.add_argument("--confirm-over", type=float, default=1.00)
+        p.add_argument("--yes", action="store_true")
+        p.add_argument("--dry-run", action="store_true")
+
+    p = sub.add_parser("new", help="create a new roll")
+    p.add_argument("roll"); p.add_argument("prompt", nargs="*")
+    p.set_defaults(fn=cmd_new)
+
+    p = sub.add_parser("get", help="print the Next render block")
+    p.add_argument("roll"); p.set_defaults(fn=cmd_get)
+
+    p = sub.add_parser("update", help="rewrite the Next render (no render)")
+    p.add_argument("roll")
+    p.add_argument("--command", default=None)
+    p.add_argument("--prompt", default=None)
+    p.set_defaults(fn=cmd_update)
+
+    p = sub.add_parser("render", help="run the Next render N times")
+    p.add_argument("roll"); p.add_argument("prompt", nargs="*"); spend_opts(p)
+    p.set_defaults(fn=cmd_render)
+
+    p = sub.add_parser("edit", help="instruction-edit an image → new batch")
+    p.add_argument("roll"); p.add_argument("image"); p.add_argument("instruction", nargs="+")
+    spend_opts(p)
+    p.set_defaults(fn=cmd_edit)
+
+    p = sub.add_parser("pick", help="mark an image as the roll's pick")
+    p.add_argument("roll"); p.add_argument("image"); p.set_defaults(fn=cmd_pick)
+
+    p = sub.add_parser("list", help="list rolls, or images in a roll")
+    p.add_argument("roll", nargs="?"); p.set_defaults(fn=cmd_list)
+
+    a = ap.parse_args()
+    return a.fn(a)
 
 
 if __name__ == "__main__":
