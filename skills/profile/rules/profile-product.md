@@ -1,9 +1,9 @@
 ---
-description: Default rules for describing a product — ships with the skill. User overrides in SRC rules/.
+description: Default rules for describing a product — ships with the skill. User overrides in SRCH rules/.
 ---
 # profile-product — default rules
 
-Default rules for `profile` on noun-type **product**. Ships with the skill; user overrides in `[[SRC rules/profile-product|SRC rules/]]`.
+Default rules for `profile` on noun-type **product**. Ships with the skill; user overrides in `[[SRCH rules/profile-product|SRCH rules/]]`.
 
 ## Default dimensions
 
@@ -67,4 +67,4 @@ Consumer physical (Wirecutter-style) · B2B SaaS (G2-style, contract-driven) · 
 
 ## User rules
 
-(Empty — user adds in `SRC rules/profile-product.md` to override these defaults.)
+(Empty — user adds in `SRCH rules/profile-product.md` to override these defaults.)

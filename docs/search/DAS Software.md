@@ -2,10 +2,10 @@
 description: "skim → click into the rule that applies"
 ---
 # DAS Software
-| -[[DAS Software]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Software](hook://p/DAS%20Software)<br>: skim → click into the rule that applies |
+| -[[DAS Software]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [docs](hook://docs) → [DAS Software](hook://p/DAS%20Software)<br>: skim → click into the rule that applies |
 | --- | --- |
-| Software rules (any verb) | [[SRC rules/software\|software.md]],   |
-| Verbs | [[SRC rules/find-software\|find-software]],  [[SRC rules/profile-software\|describe-software]],  [[SRC rules/survey-software\|survey-software]],   |
+| Software rules (any verb) | [[SRCH rules/software\|software.md]],   |
+| Verbs | [[SRCH rules/find-software\|find-software]],  [[SRCH rules/profile-software\|describe-software]],  [[SRCH rules/survey-software\|survey-software]],   |
 | ... |  |
 
 When the search agent runs against **software** — an OSS project, a SaaS product, a library, a CLI tool, a mobile / desktop app — these are the rules that apply.

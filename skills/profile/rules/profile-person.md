@@ -1,9 +1,9 @@
 ---
-description: Default rules for describing a person — ships with the skill. User overrides in SRC rules/.
+description: Default rules for describing a person — ships with the skill. User overrides in SRCH rules/.
 ---
 # profile-person — default rules
 
-Default rules for `profile` on noun-type **person**. Ships with the skill; the user can override in `[[SRC rules/profile-person|SRC rules/]]` for their own preferences.
+Default rules for `profile` on noun-type **person**. Ships with the skill; the user can override in `[[SRCH rules/profile-person|SRCH rules/]]` for their own preferences.
 
 ## Default dimensions
 
@@ -45,7 +45,7 @@ The legacy `/research person` action wrote person dossiers to the user's AT (add
 - If a company folder exists at `AT/Corp/@{Company}/` → write to `AT/Corp/@{Company}/@{Name}.md`.
 - Otherwise → write at AT top level: `AT/@{Name}.md`.
 
-When the user's `SRC rules/profile-person.md` (or `SRC rules/person.md`) selects the AT location instead of the default [[Profile]] output, follow this shape.
+When the user's `SRCH rules/profile-person.md` (or `SRCH rules/person.md`) selects the AT location instead of the default [[Profile]] output, follow this shape.
 
 **Line 1 — the `#pp` header:**
 
@@ -128,4 +128,4 @@ Public figure (all sources fair game) · researcher/academic (citation graph, h-
 
 ## User rules
 
-(Empty — user adds in `SRC rules/profile-person.md` to override these defaults.)
+(Empty — user adds in `SRCH rules/profile-person.md` to override these defaults.)

@@ -2,10 +2,10 @@
 description: "skim → click into the rule that applies"
 ---
 # DAS Person
-| -[[DAS Person]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Person](hook://p/DAS%20Person)<br>: skim → click into the rule that applies |
+| -[[DAS Person]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [docs](hook://docs) → [DAS Person](hook://p/DAS%20Person)<br>: skim → click into the rule that applies |
 | --- | --- |
-| Person rules (any verb) | [[SRC rules/person\|person.md]],   |
-| Verbs | [[SRC rules/find-person\|find-person]],  [[SRC rules/profile-person\|describe-person]],  [[SRC rules/survey-person\|survey-person]],   |
+| Person rules (any verb) | [[SRCH rules/person\|person.md]],   |
+| Verbs | [[SRCH rules/find-person\|find-person]],  [[SRCH rules/profile-person\|describe-person]],  [[SRCH rules/survey-person\|survey-person]],   |
 | ... |  |
 
 When the search agent runs against a **person** — finding, describing, or surveying — these are the rules that apply.

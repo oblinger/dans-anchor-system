@@ -1,9 +1,9 @@
 ---
-description: Default rules for surveying organizations — ships with the skill. User overrides in SRC rules/.
+description: Default rules for surveying organizations — ships with the skill. User overrides in SRCH rules/.
 ---
 # survey-corp — default rules
 
-Default rules for `survey` on noun-type **corp**. Ships with the skill; user overrides in `[[SRC rules/survey-corp|SRC rules/]]`.
+Default rules for `survey` on noun-type **corp**. Ships with the skill; user overrides in `[[SRCH rules/survey-corp|SRCH rules/]]`.
 
 Applies when comparing multiple organizations — vendors in a market, startups in a sector, public competitors, M&A target shortlists, hiring landscape.
 
@@ -49,4 +49,4 @@ Per [[find-corp]]: brand vs legal entity, holding vs subsidiary, same-name-diffe
 
 ## User rules
 
-(Empty — user adds in `SRC rules/survey-corp.md` to override these defaults.)
+(Empty — user adds in `SRCH rules/survey-corp.md` to override these defaults.)

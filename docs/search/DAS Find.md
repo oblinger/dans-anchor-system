@@ -2,12 +2,12 @@
 description: "skim → click into the rule that applies"
 ---
 # DAS Find
-| -[[DAS Find]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Find](hook://p/DAS%20Find)<br>: skim → click into the rule that applies |
+| -[[DAS Find]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [docs](hook://docs) → [DAS Find](hook://p/DAS%20Find)<br>: skim → click into the rule that applies |
 | --- | --- |
 | Related | [[skills/find/SKILL.md\|SKILL]],   |
-| Find rules (any type) | [[SRC rules/find\|find.md]],   |
-| Types | [[SRC rules/find-person\|find-person]],  [[SRC rules/find-corp\|find-corp]],  [[SRC rules/find-product\|find-product]],   |
-| [[DAS Find Design\|Design]] |  |
+| Find rules (any type) | [[SRCH rules/find\|find.md]],   |
+| Types | [[SRCH rules/find-person\|find-person]],  [[SRCH rules/find-corp\|find-corp]],  [[SRCH rules/find-product\|find-product]],   |
+| [[DAS Find Design\|Design]]  |  |
 | ... |  |
 
 **Find** locates one specific match for given criteria and returns identifier + canonical URL + 1-line context + confidence + sources. It disambiguates when candidates score close, rather than silently picking. For just identifying — not profiling (use [[DAS Profile]]) or comparing many (use [[DAS Survey]]).

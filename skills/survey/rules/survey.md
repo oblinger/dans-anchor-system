@@ -3,7 +3,7 @@ description: "surveys — comparison tables produced by the survey skill"
 ---
 # survey — default rules
 
-Default verb-level rules for `survey`. Ships with the skill; user overrides in `[[SRC rules/survey|SRC rules/survey.md]]`.
+Default verb-level rules for `survey`. Ships with the skill; user overrides in `[[SRCH rules/survey|SRCH rules/survey.md]]`.
 
 Pair files (`survey-person.md`, `survey-corp.md`, `survey-product.md`, `survey-skill.md`, …) carry noun-specific defaults and augment these.
 
@@ -59,4 +59,4 @@ The survey in [[Survey]] (`~/ob/kmr/Topic/Search/Survey/`):
 
 ## User rules
 
-(Empty — user adds in `SRC rules/survey.md` to override these defaults.)
+(Empty — user adds in `SRCH rules/survey.md` to override these defaults.)

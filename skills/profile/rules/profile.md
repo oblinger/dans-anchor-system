@@ -1,9 +1,9 @@
 ---
-description: Default rules for the profile skill, applied across all noun types. Ships with the skill. User overrides in SRC rules/. Includes the RRR report-shape from the legacy /research family.
+description: Default rules for the profile skill, applied across all noun types. Ships with the skill. User overrides in SRCH rules/. Includes the RRR report-shape from the legacy /research family.
 ---
 # profile — default rules
 
-Default verb-level rules for `profile`. Ships with the skill; user overrides in `[[SRC rules/profile|SRC rules/profile.md]]`.
+Default verb-level rules for `profile`. Ships with the skill; user overrides in `[[SRCH rules/profile|SRCH rules/profile.md]]`.
 
 Pair files (`profile-person.md`, `profile-corp.md`, `profile-product.md`, `profile-book.md`, …) carry noun-specific defaults and augment these.
 
@@ -45,4 +45,4 @@ The profile in [[Profile]] (`~/ob/kmr/Topic/Search/Profile/`):
 
 ## User rules
 
-(Empty — user adds in `SRC rules/profile.md` to override these defaults.)
+(Empty — user adds in `SRCH rules/profile.md` to override these defaults.)

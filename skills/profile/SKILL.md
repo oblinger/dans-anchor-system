@@ -17,11 +17,11 @@ The Deep tier is what users sometimes call **"dig"** — full dossier, multi-sou
 1. **This SKILL.md** — methodology (the runbook below).
 2. `profile/rules/profile.md` — default verb rules (ships with skill).
 3. `profile/rules/profile-<noun>.md` — default pair rules with entity knowledge baked in (ships with skill).
-4. `SRC rules/profile.md` — user's verb-level overrides (if present).
-5. `SRC rules/<noun>.md` — user's noun-level overrides, cross-verb (if present).
-6. `SRC rules/profile-<noun>.md` — user's pair-level overrides (most specific, wins all).
+4. `SRCH rules/profile.md` — user's verb-level overrides (if present).
+5. `SRCH rules/<noun>.md` — user's noun-level overrides, cross-verb (if present).
+6. `SRCH rules/profile-<noun>.md` — user's pair-level overrides (most specific, wins all).
 
-Layers 1-3 ship with the skill; 4-6 are user overrides loaded from [[SRC rules]] at `~/ob/kmr/Topic/Search/SRC rules/`.
+Layers 1-3 ship with the skill; 4-6 are user overrides loaded from [[SRCH rules]] at `~/ob/kmr/Topic/Search/SRCH rules/`.
 
 ## Runbook
 
@@ -74,5 +74,5 @@ Lands in `~/ob/kmr/Topic/Search/Profile/` as a markdown file. The [[Profile]] an
 - User reference: [[DAS Profile]]
 - Overview of composition: [[DAS Search Overview]]
 - Rules trait: [[skill-search-rules]]
-- User overrides: [[SRC rules]]
+- User overrides: [[SRCH rules]]
 - Legacy: this skill subsumes the per-entity actions of the legacy [[research/SKILL|/research]] family (`/research dig`, `/research person`, `/research book`).

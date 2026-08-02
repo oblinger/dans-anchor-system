@@ -1,9 +1,9 @@
 ---
-description: Default rules for surveying software in a category — ships with the skill. User overrides in SRC rules/.
+description: Default rules for surveying software in a category — ships with the skill. User overrides in SRCH rules/.
 ---
 # survey-software — default rules
 
-Default rules for `survey` on noun-type **software**. Ships with the skill; user overrides in `[[SRC rules/survey-software|SRC rules/]]`.
+Default rules for `survey` on noun-type **software**. Ships with the skill; user overrides in `[[SRCH rules/survey-software|SRCH rules/]]`.
 
 Software surveys are **like product surveys, with one structural difference**: the "purchasable link verification" requirement from [[survey-product]] is **NOT mandatory** — many strong candidates are free OSS where the actionable artifact is `brew install X` or a GitHub URL, not a Buy button. Replace the purchasable-link gate with an **install-vector-resolution** gate (every row resolves to an install path: command, signup URL, or download).
 
@@ -93,4 +93,4 @@ For a software category not surveyed before, **run meta-survey first** (per [[pr
 
 ## User rules
 
-(Empty — user adds in `SRC rules/survey-software.md` to override these defaults.)
+(Empty — user adds in `SRCH rules/survey-software.md` to override these defaults.)
