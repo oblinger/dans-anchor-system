@@ -47,10 +47,8 @@ exp build                          # ZIP experiments for deliverable bundle
 . __ .
 [[anchor-install]] - 
 [[Architect]] - 
-[[Atlas Design]] - 
 [[atlas/Atlas]] - 
 [[Audit]] - 
-[[backlog/Backlog]] - 
 [[brief-template]] - 
 [[cab-migrate]] - 
 [Cleanup](hook://Cleanup) - 
@@ -122,6 +120,8 @@ exp build                          # ZIP experiments for deliverable bundle
 [[google-slides]] - 
 [Groom](hook://Groom) - 
 [[io/SKILL]] - 
+[[io-calendar]] - 
+[[io-calendar-access]] - 
 [[io-email]] - 
 [[io-email-access]] - 
 [[io-excel]] - 

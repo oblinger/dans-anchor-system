@@ -17,4 +17,4 @@ description: system design for the rule system — PRD, architecture, rule langu
 | [[Warden Examples]]  |  |
 | ... | [[F237 — Golden corpus exists in two diverged copies — the drift oracle cannot be trusted]],  [[Warden Consumers]],  [[Warden Interface]],   |
 
-Warden spans more than the `/rule` skill — its rule-language format is [[Warden Rule]] (with `when::` in [[Warden Events]] and `where::` in [[DAS Ruleset]]), the decisions doctrine in [[DAS Decisions]], the catalog in [[DAS Rulesets]], and the runtime in [[Audit Architecture]]. [[Warden Architecture]] is the unified map that ties those together; the feature specs for the build live in [[Warden Features]].
+Warden spans more than the `/rule` skill — its rule-language format is [[Warden Rule]] (with `when::` in [[Warden Events]] and `where::` in [[DAS Ruleset]]), the decisions doctrine in [[DAS Decisions]], the catalog in [[DAS Rulesets]], and the runtime in ~~[[DAS Audit Architecture|Audit Architecture]]~~. [[Warden Architecture]] is the unified map that ties those together; the feature specs for the build live in [[Warden Features]].

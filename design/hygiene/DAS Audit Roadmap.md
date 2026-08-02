@@ -2,13 +2,14 @@
 description: "milestones"
 ---
 
-# Audit Roadmap
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [design](hook://design) → [DAS Audit Roadmap](hook://p/DAS%20Audit%20Roadmap)
+# DAS Audit Roadmap
 
 ## [x] M-Engine — Rule-driven engine
 
 **Status:** Shipped — resolve/run/judge deployed (single + batch); where:: hardening pending.
 
-**Reference:** [[Audit Architecture]] § Components + § Data flow
+**Reference:** [[DAS Audit Architecture|Audit Architecture]] § Components + § Data flow
 
 **Tests:** every R-anchor-page rule reports pass on the FEX examples; a deliberately-broken rule reports fail; second run reuses cached verdicts.
 
@@ -34,7 +35,7 @@ Backtick-wrap every `where::` expression; coordinated parser change gated by a g
 
 **Status:** Active — F002 first increment landed (resolution gap closed); fix stage + the four levels pending.
 
-**Reference:** [[Audit PRD]] § Automation scale; [[Audit Architecture]] § Automation level as a fix-stage parameter
+**Reference:** [[DAS Audit PRD|Audit PRD]] § Automation scale; [[DAS Audit Architecture|Audit Architecture]] § Automation level as a fix-stage parameter
 
 **Tests:** break a mechanical rule in a scratch [[HBR]] → `/audit` repairs + re-run green; `dry` writes nothing.
 
@@ -60,7 +61,7 @@ Annotate-don't-delete: a rule implying removal wraps content in a `Recommend del
 
 **Status:** Shipped (markdown slice, vault-wide) — distill generalization + test workflow pending.
 
-**Reference:** [[Audit Architecture]] § Data flow; [[Audit Stories]] US-AUDIT-1
+**Reference:** [[DAS Audit Architecture|Audit Architecture]] § Data flow; [[DAS Audit Stories|Audit Stories]] US-AUDIT-1
 
 **Tests:** the F003 on-write checklist workflow — mechanical catch, clean pass, judgment reminder, relevance gate, throttle, speed.
 
@@ -94,7 +95,7 @@ When and how the agent attends to surfaced rules at write-time.
 
 **Status:** Shipped — the q-family + architecture validation are in place; ask.md coverage in verify.
 
-**Reference:** [[Audit PRD]] § Scope
+**Reference:** [[DAS Audit PRD|Audit PRD]] § Scope
 
 ### [x] M-Q.1 — Q.md constraint validator  [F009]
 
@@ -116,7 +117,7 @@ When and how the agent attends to surfaced rules at write-time.
 
 **Status:** Later — sub-audits are preserved and working today; re-express them as rulesets the unified engine resolves and runs, retiring the bespoke scripts as each is covered.
 
-**Reference:** [[Audit PRD]] § Scope; [[Audit Architecture]] § Where the rule format lives
+**Reference:** [[DAS Audit PRD|Audit PRD]] § Scope; [[DAS Audit Architecture|Audit Architecture]] § Where the rule format lives
 
 ### [x] M-Migrate.1 — Retire `/lint` into `/audit`  [F016]
 

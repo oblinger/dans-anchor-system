@@ -2,7 +2,7 @@
 description: MUSE architecture + implementation plan — skill shape, ingest flow, do flow, action space, safety, config, build order.
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [SKL](hook://SKL) → [[MUSE]] → [MUSE Architecture](hook://p/MUSE%20Architecture)
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [design](hook://design) → [DAS MUSE Architecture](hook://p/DAS%20MUSE%20Architecture)
 # MUSE Architecture
 
 Full design and implementation plan for [[MUSE]]. Referenced from `MUSE.md`; not user-facing on its own.
@@ -14,13 +14,13 @@ MUSE turns spoken thought into acted-on knowledge via two sub-verbs on the same 
 - **`muse ingest`** — headless, launchd-triggered. Transcribes a `.m4a` recording, files an item under `~/ob/kmr/Log/MUSE/`, prepends a bullet to `Quick.md` + logs to `Log Muse.md`. No LLM tool-calls, no user interruption.
 - **`/muse do <path>`** — user-triggered inside Claude Code. Reads the item, consults the action space, proposes a single action, waits for approval.
 
-The split is the safety architecture: transcription is mechanical enough to be automatic; interpretation is not, so it goes through the normal Claude Code tool-approval flow with a human watching. Full flows in [[MUSE Architecture#Ingest flow — headless, mechanical|§ Ingest flow]] + [[MUSE Architecture#Do flow — user-triggered, LLM-mediated|§ Do flow]].
+The split is the safety architecture: transcription is mechanical enough to be automatic; interpretation is not, so it goes through the normal Claude Code tool-approval flow with a human watching. Full flows in ~~[[DAS MUSE Architecture|MUSE Architecture#Ingest flow — headless, mechanical|§ Ingest flow]]~~ + ~~[[DAS MUSE Architecture|MUSE Architecture#Do flow — user-triggered, LLM-mediated|§ Do flow]]~~.
 
 ## Architecture diagram
 
-![MUSE architecture — ingest + do pipelines](muse-architecture.png)
+![MUSE architecture — ingest + do pipelines](DAS%20MUSE%20Architecture.png)
 
-Source: `muse-architecture.d2` (same folder — regenerate the PNG with `d2 muse-architecture.d2 muse-architecture.png`).
+Source: `DAS MUSE Architecture.d2` (same folder — regenerate the PNG with `d2 "DAS MUSE Architecture.d2" "DAS MUSE Architecture.png"`).
 
 Two pipelines, both terminating at user-visible surfaces. The § Ingest flow and § Do flow step lists below are the authoritative textual sources for each pipeline; the diagram is the visual index.
 

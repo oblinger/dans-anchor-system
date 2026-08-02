@@ -6,7 +6,7 @@ description: "F211 — Rule compiler / installer"
 
 ## Summary
 
-The engine that makes active rules fire **implicitly** at runtime moments — a *compiler*, not an interpreter. It resolves the rules active for an anchor — a pure function of its `.anchor` **traits**, each trait pulling in its omnibus rulesets — indexes each onto its dispatch key (by `when::` moment, or by `where::` place), and **pre-compiles** all rules sharing a moment into one fast module (generalizing today's `/distill`). At fire time the hook subsystem ([[Audit Architecture]]) runs the compiled module for that moment, which checks the residual conjunction and emits steers/fixes. This is the hot path the millisecond budget rides on.
+The engine that makes active rules fire **implicitly** at runtime moments — a *compiler*, not an interpreter. It resolves the rules active for an anchor — a pure function of its `.anchor` **traits**, each trait pulling in its omnibus rulesets — indexes each onto its dispatch key (by `when::` moment, or by `where::` place), and **pre-compiles** all rules sharing a moment into one fast module (generalizing today's `/distill`). At fire time the hook subsystem ([[DAS Audit Architecture|Audit Architecture]]) runs the compiled module for that moment, which checks the residual conjunction and emits steers/fixes. This is the hot path the millisecond budget rides on.
 
 ## Success Criteria
 

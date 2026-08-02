@@ -3,11 +3,12 @@ description: "how the audit engine is built"
 ---
 
 
-# Audit System Design
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [design](hook://design) → [DAS Audit System Design](hook://p/DAS%20Audit%20System%20Design)
+# DAS Audit System Design
 
-The per-audit pipeline — how one audit executes against a target. [[Audit Architecture]] gives the system's structure (rule sets + components); this page is the flow inside the engine.
+The per-audit pipeline — how one audit executes against a target. [[DAS Audit Architecture|Audit Architecture]] gives the system's structure (rule sets + components); this page is the flow inside the engine.
 
-![[Audit System Design.svg|2400]]
+![[DAS Audit System Design.svg|2400]]
 
 ## The pipeline
 
@@ -22,7 +23,7 @@ The on-demand `/audit` surface runs all four stages; the online write-hook runs 
 
 ## Automation level is a parameter on the fix stage
 
-The four levels ([[Audit PRD]] § Automation scale) are not separate engines — they **mask the fixer set** the Fix stage may apply:
+The four levels ([[DAS Audit PRD|Audit PRD]] § Automation scale) are not separate engines — they **mask the fixer set** the Fix stage may apply:
 
 - **Informational** — fix stage disabled; emit findings only.
 - **Online** — only the corrupting-character fixers (whitespace, escapes, stray angle brackets, table blank lines); structural fixers withheld.

@@ -2,11 +2,12 @@
 description: "system-architecture story — modules, data flow"
 ---
 
-# Audit Architecture
+:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [design](hook://design) → [DAS Audit Architecture](hook://p/DAS%20Audit%20Architecture)
+# DAS Audit Architecture
 
 The audit system is two things: the **rule sets** it runs over, and the **components** — skills and scripts — that run over them. This page is the structural overview; the detailed per-audit pipeline is a subdocument.
 
-![[Audit Architecture.svg|2400]]
+![[DAS Audit Architecture.svg|2400]]
 
 | In the figure | Mirrors |
 |---|---|
@@ -42,8 +43,8 @@ The skills and scripts of the system — boxes, not a flow:
 
 ## Two consumers, one corpus
 
-The components run over the **same rule sets** through two triggers: the on-demand `/audit` pass (thorough backstop) and the distilled on-write hook (always-on guardrail). They share one `where::` selector vocabulary; they differ only in trigger and automation level ([[Audit PRD]] § Automation scale).
+The components run over the **same rule sets** through two triggers: the on-demand `/audit` pass (thorough backstop) and the distilled on-write hook (always-on guardrail). They share one `where::` selector vocabulary; they differ only in trigger and automation level ([[DAS Audit PRD|Audit PRD]] § Automation scale).
 
 ## The per-audit pipeline (subdocument)
 
-How a *single* audit executes — **resolve → run → judge → fix**, with the four automation levels as a parameter on the fix stage — is the detailed flow, not the system structure. It lives in [[Audit System Design]]. In one line: resolve the target's rules, run the mechanical ones by script (verdict-cached), judge the rest by agent, apply the level-appropriate fixers, re-run to convergence.
+How a *single* audit executes — **resolve → run → judge → fix**, with the four automation levels as a parameter on the fix stage — is the detailed flow, not the system structure. It lives in [[DAS Audit System Design|Audit System Design]]. In one line: resolve the target's rules, run the mechanical ones by script (verdict-cached), judge the rest by agent, apply the level-appropriate fixers, re-run to convergence.
