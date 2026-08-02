@@ -26,7 +26,9 @@ Generate an image from a prompt, or edit one you already have, into the anchor t
 
 ## The roll page is the interface
 
-Everything about a roll lives on its page, in this order under the H1:
+A roll page is a **regular file, not an anchor page** — so it heads with a `:>>` breadcrumb and never a dispatch table. Under that: the `# H1`, then **one line saying what this sitting is about** — who the subject is, what was being explored, which image became the keeper. That line is not for navigation meta: "newest first" is the anchor's standing convention, not this roll's news, and stating it here just costs a line. Set it with `new --about "…"`; it defaults to the bare title, which is worth replacing.
+
+Then, in this order:
 
 - **`## Pick`** — the chosen keeper, shown large (2000px). Optional; set by `pick`.
 - **`## Next render`** — the **one pending operation**: an `#### {command}` H4 followed by the prompt. This is the editable surface — change it and the next `render` does the new thing.
@@ -41,7 +43,7 @@ A command line names the verb, the model, and (for edits) the source image:
 
 ## Invocation
 
-    imgen new    {roll} {prompt}        open a new roll, seed its Next render
+    imgen new    {roll} {prompt} [--about "…"]   open a new roll, seed its Next render
     imgen get    {roll}                 print the Next render — command and prompt, separately
     imgen update {roll} [--command C] [--prompt P]    rewrite the Next render; renders nothing
     imgen render {roll} [prompt] [-n N] run the Next render N times (a prompt resets it to create)
@@ -51,6 +53,8 @@ A command line names the verb, the model, and (for edits) the source image:
 
 `{roll}` takes the number (`4`, `004`) **or** a substring of the title (`scout`). Spend verbs also take `-s/--size` (default `square_hd`), `--confirm-over` (default $1.00), `--yes`, and `--dry-run`.
 
+Put `--about` **after** the prompt — argparse cannot take an option between `new`'s two positionals and will reject the prompt as unrecognized.
+
 The spoken trigger is the two-word phrase **`really imgen`** — the dictation pipeline prefixes `/imgen`. `imgen` says "im-jen".
 
 ## Where output lands
@@ -58,8 +62,6 @@ The spoken trigger is the two-word phrase **`really imgen`** — the dictation p
 Everything goes to **[[IMGEN]]** at `~/ob/kmr/Log/IMGEN/`, alongside [[VOX]] — one anchor, no scratch tier. The naming and folder rules are the anchor's and live in that page's `# BRIEF`; read it before changing how this script writes.
 
 **A new roll writes in three places** and `new` does all three: the roll folder and its page, a member row in the [[IMGEN]] masthead, and an entry at the top of [[IMGEN Gallery]] (added on the roll's first successful render, using its first image as the cover). Rendering into an existing roll touches only that roll's page.
-
-A roll page is a **regular file, so its head is a `:>>` breadcrumb, not a dispatch table** — only anchor pages ([[IMGEN]] itself) get tables.
 
 ## Backends
 

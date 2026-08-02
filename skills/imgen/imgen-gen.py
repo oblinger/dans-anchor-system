@@ -156,10 +156,13 @@ def parse_command(cmd):
 # --------------------------------------------------------------------- the page
 
 def _quote(name):
-    return urllib.parse.quote(name)
+    """Percent-encode for a hook:// link, leaving the em-dash literal — that is what
+    every existing breadcrumb in the anchor uses. `quote(safe=…)` cannot express this:
+    it silently drops non-ASCII characters from `safe`, so the em-dash is restored after."""
+    return urllib.parse.quote(name).replace("%E2%80%94", "—")
 
 
-def new_roll(title, prompt):
+def new_roll(title, prompt, about=None):
     """Create the next roll folder + its page (breadcrumb head + a Next render). Returns (n, path)."""
     n = max((b[0] for b in rolls()), default=0) + 1
     path = ANCHOR / f"{SLUG}{n:03d} — {title}"
@@ -167,9 +170,13 @@ def new_roll(title, prompt):
     name = path.name
     # A roll page is a regular file, not an anchor page — so its head is a `:>>`
     # breadcrumb, not a dispatch table (only anchor pages get tables).
+    #
+    # The line under the H1 says what this sitting is ABOUT — who the subject is,
+    # what was being explored. It is not a place for navigation meta ("newest
+    # first"): the page's ordering is the anchor's convention, not this roll's news.
     head = (f":>> [[kmr]] → [[Log/Log]] → [[{SLUG}]] → [{name}](hook://p/{_quote(name)}) \n"
             f"# {name}\n"
-            f"{title}. Newest render on top.\n\n"
+            f"{about or (title + '.')}\n\n"
             f"## Next render\n\n#### {format_command('create')}\n{prompt}\n")
     roll_page(path).write_text(head, encoding="utf-8")
     return n, path
@@ -459,7 +466,7 @@ def _do_render(roll_dir, roll_n, count, size, confirm_over, yes, dry):
 # -------------------------------------------------------------------- the verbs
 
 def cmd_new(a):
-    n, path = new_roll(a.roll, " ".join(a.prompt).strip())
+    n, path = new_roll(a.roll, " ".join(a.prompt).strip(), a.about)
     add_member_row(path)
     print(f"created {path.name} — check its Next render, then `imgen render {n}`")
     return 0
@@ -541,6 +548,8 @@ def main():
 
     p = sub.add_parser("new", help="create a new roll")
     p.add_argument("roll"); p.add_argument("prompt", nargs="*")
+    p.add_argument("--about", default=None,
+                   help="the line under the H1: what this sitting is about (default '<title>.')")
     p.set_defaults(fn=cmd_new)
 
     p = sub.add_parser("get", help="print the Next render block")
