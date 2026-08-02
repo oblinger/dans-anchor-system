@@ -1206,7 +1206,13 @@ def chk_triggers_section_iff_declared(target, anchor_root, args):
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
-    text = _read(f)
+    # Boundaries on the fence-stripped copy (T099). This rule is scoped to
+    # `DAS *.md` — facet specs, the doc class whose whole job is to SHOW markup —
+    # so a fenced `## ` sample closing the section early is not a hypothetical
+    # here; twelve of the vault's `DAS *.md` docs carry a fenced H2 with a real H2
+    # opening above it. A truncated section reads as having no `### ` entries and
+    # the doc is failed for a Triggers block that is fully populated.
+    text = _strip_fenced(_read(f))
     m = re.search(r"^## Triggers\s*$", text, re.MULTILINE)
     if not m:
         return "pass", "no Triggers section (implies no triggers declared)"
@@ -3751,7 +3757,12 @@ def chk_facet_has_ruleset(target, anchor_root, args):
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
-    t = _read(f)
+    # Fence-stripped (T099): both tests here fail OPEN — a fenced `# RULESET R-x`
+    # or `[[R-x]]` shown as an EXAMPLE would satisfy the rule, and a facet spec
+    # illustrating what a ruleset looks like is the single most likely doc in the
+    # vault to carry one. The wrong direction to be blind in: a doc with no
+    # ruleset at all passes because it explains rulesets well.
+    t = _strip_fenced(_read(f))
     if re.search(r"^#+\s*RULESET\s+R-", t, re.MULTILINE):
         return "pass", "embedded ruleset"
     if re.search(r"\[\[R-[^\]|]+", t):
@@ -3791,7 +3802,14 @@ def chk_facet_tldr_if_substantial(target, anchor_root, args):
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
-    t = _read(f)
+    # Fence-stripped (T099) for the RULE count and for the TLDR probe. Fenced
+    # sample rules inflate the count, so a small spec that merely explains rules
+    # is judged substantial and failed; a fenced `**TLDR**` example does the
+    # reverse and passes a spec that has none. Only the RULE count actually moves:
+    # `_strip_fenced` blanks lines rather than removing them, so the `> 120`
+    # line-count arm reads the same either way. Two docs move on the count, both
+    # outside `R-facet-spec`'s `DAS *.md` scope; in scope this is preventive.
+    t = _strip_fenced(_read(f))
     substantial = len(re.findall(r"^#+\s+RULE\s+R-", t, re.MULTILINE)) >= 5 or len(t.splitlines()) > 120
     if not substantial:
         return "pass", "small spec — TLDR exempt"
