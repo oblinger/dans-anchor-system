@@ -89,11 +89,71 @@ def localname(elem):
     return elem.tag.split('}')[-1]
 
 
+_UNIT_NUM = re.compile(r'^\s*([+-]?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?)(px)?\s*$')
+
+
 def fnum(v):
+    """A number, tolerating an explicit `px` unit.
+
+    CSS declarations (`font-size:12.5px`) now reach here alongside presentation
+    attributes, and `float("12.5px")` raises. Relative units (`em`, `%`) return
+    None so the caller's default applies rather than a silently wrong absolute."""
+    if isinstance(v, str):
+        mt = _UNIT_NUM.match(v)
+        return float(mt.group(1)) if mt else None
     try:
         return float(v)
     except (TypeError, ValueError):
         return None
+
+
+# The properties the geometry model reads. Each may arrive three ways — inherited
+# from an ancestor, as a presentation attribute, or from a `<style>` rule — and
+# the CSS cascade puts a stylesheet rule above a presentation attribute.
+STYLED_PROPS = ('font-size', 'text-anchor', 'stroke', 'stroke-width',
+                'stroke-dasharray', 'marker-end', 'fill')
+
+
+def parse_stylesheet(root):
+    """`{selector: {prop: value}}` from the document's `<style>` blocks.
+
+    Class-styled documents are the common hand-authored shape — `<text
+    class="sub">` against `.sub{font-size:12.5px}` in `<defs><style>` — and until
+    this existed the parser saw none of it. Every label fell back to the 16px
+    default (a third too wide at 12px, enough to push a node label under the 70%
+    containment bar and report it as spilling the box next door) and every
+    `.arr{marker-end:url(#arr)}` edge looked headless, so its arrowhead could
+    never be weighed at all.
+
+    Simple selectors only — `.cls`, `tag`, `tag.cls`, comma-separated — which is
+    what these documents use. Anything beyond that wants a real CSS engine, and
+    an unmatched selector just leaves the old defaults in place."""
+    sheet = {}
+    for el in root.iter():
+        if localname(el) != 'style':
+            continue
+        css = re.sub(r'/\*.*?\*/', ' ', ''.join(el.itertext()), flags=re.S)
+        for sels, body in re.findall(r'([^{}]+)\{([^{}]*)\}', css):
+            decls = {}
+            for d in body.split(';'):
+                k, _, v = d.partition(':')
+                if _ and k.strip() in STYLED_PROPS:
+                    decls[k.strip()] = v.strip()
+            for sel in sels.split(',') if decls else ():
+                if sel.strip():
+                    sheet.setdefault(sel.strip(), {}).update(decls)
+    return sheet
+
+
+def css_declarations(sheet, elem):
+    """The declarations applying to `elem`, weakest selector applied first."""
+    if not sheet:
+        return {}
+    tag, out = localname(elem), dict(sheet.get(localname(elem), {}))
+    for c in (elem.get('class') or '').split():
+        out.update(sheet.get('.' + c, {}))
+        out.update(sheet.get(f'{tag}.{c}', {}))
+    return out
 
 
 # ---- bounding-box helpers -----------------------------------------------------
@@ -327,6 +387,13 @@ class Edge:
         self.marker_id = marker_id  # url(#id) target, or None
         self.marker_w0 = marker_w0  # original markerWidth (head scale)
         self.marker_scale = marker_w0
+        # User units per unit of markerWidth. `markerUnits="strokeWidth"` is the
+        # SVG default and scales the head by the line's stroke-width;
+        # `userSpaceOnUse` does not. Multiplying unconditionally reported a
+        # 12-unit head on a 3.5-wide stroke as 42 — a real head/segment ratio
+        # dressed in a number 3.5x too large, and under a thin stroke the same
+        # bug hides a genuinely oversized head.
+        self.head_unit = stroke_w
         self.srctag = None
         self.pins = []              # list of (point_index, Box)
 
@@ -346,7 +413,7 @@ class Edge:
     def head_len(self):
         if self.marker_id is None:
             return 0.0
-        return self.marker_scale * self.stroke_w
+        return self.marker_scale * self.head_unit
 
     def label(self):
         p = self.cur_pts()
@@ -414,59 +481,76 @@ def parse_svg(src):
 
     m = Model()
     m.canvas = m.canvas0 = canvas
+    sheet = parse_stylesheet(root)
 
     def walk(elem, inh, in_defs):
         name = localname(elem)
         if name in ('defs', 'marker'):
             in_defs = True
+        # inh2 is this element's RESOLVED style — inherited, then overridden by
+        # its presentation attributes, then by any `<style>` rule that matches
+        # it (the SVG cascade: a stylesheet rule outranks a presentation
+        # attribute). Read values below from inh2, never from elem directly, or
+        # a class-styled document silently keeps the inherited value.
         inh2 = dict(inh)
-        for k in ('font-size', 'text-anchor', 'stroke', 'stroke-width',
-                  'stroke-dasharray', 'marker-end', 'fill'):
-            if elem.get(k) is not None:
-                inh2[k] = elem.get(k)
+        css = css_declarations(sheet, elem)
+        for k in STYLED_PROPS:
+            v = css.get(k, elem.get(k))
+            if v is not None:
+                inh2[k] = v
 
         if in_defs and name == 'marker':
             mw = fnum(elem.get('markerWidth')) or 1.0
             mh = fnum(elem.get('markerHeight')) or 1.0
-            m.markers[elem.get('id')] = (mw, mh)
+            units = elem.get('markerUnits') or 'strokeWidth'
+            m.markers[elem.get('id')] = (mw, mh, units)
 
         if not in_defs:
             if name == 'rect':
-                stroke = elem.get('stroke')
+                stroke = inh2.get('stroke')
                 x, y = fnum(elem.get('x')) or 0.0, fnum(elem.get('y')) or 0.0
                 w, h = fnum(elem.get('width')) or 0.0, fnum(elem.get('height')) or 0.0
                 area = w * h
                 if stroke and stroke != 'none' and area < 0.6 * carea and w > 0 and h > 0:
                     m.boxes.append(Box(x, y, w, h))
             elif name in ('line', 'path'):
-                sw = fnum(elem.get('stroke-width') or inh2.get('stroke-width')) or 1.0
-                color = elem.get('stroke') or inh2.get('stroke')
-                dash = elem.get('stroke-dasharray') or inh2.get('stroke-dasharray')
-                mend = elem.get('marker-end') or inh2.get('marker-end')
+                sw = fnum(inh2.get('stroke-width')) or 1.0
+                color = inh2.get('stroke')
+                dash = inh2.get('stroke-dasharray')
+                mend = inh2.get('marker-end')
                 mid = None
                 if mend:
                     mm = re.search(r'url\(#([^)]+)\)', mend)
                     mid = mm.group(1) if mm else None
-                mw0 = m.markers.get(mid, (1.0, 1.0))[0] if mid else 1.0
+                mdef = m.markers.get(mid, (1.0, 1.0, 'strokeWidth')) if mid else None
+                mw0 = mdef[0] if mdef else 1.0
+                # userSpaceOnUse heads are already in user units; strokeWidth
+                # heads (the SVG default) scale with the line they terminate.
+                hunit = sw if (mdef is None or mdef[2] == 'strokeWidth') else 1.0
+                edge = None
                 if name == 'line':
                     x1, y1 = fnum(elem.get('x1')) or 0.0, fnum(elem.get('y1')) or 0.0
                     x2, y2 = fnum(elem.get('x2')) or 0.0, fnum(elem.get('y2')) or 0.0
-                    pts, simple = [(x1, y1), (x2, y2)], True
-                    m.edges.append(Edge('line', pts, simple, sw, color, bool(dash), mid, mw0))
+                    edge = Edge('line', [(x1, y1), (x2, y2)], True, sw, color,
+                                bool(dash), mid, mw0)
                 else:
                     d = elem.get('d')
                     if d:
                         pts, simple = parse_path(d)
                         if pts:
-                            m.edges.append(Edge('path', pts, simple, sw, color, bool(dash), mid, mw0))
+                            edge = Edge('path', pts, simple, sw, color,
+                                        bool(dash), mid, mw0)
+                if edge is not None:
+                    edge.head_unit = hunit
+                    m.edges.append(edge)
             elif name == 'text':
                 ax = fnum(elem.get('x'))
                 ay = fnum(elem.get('y'))
                 if ax is not None and ay is not None:
                     content = ''.join(elem.itertext()).strip()
-                    fs = fnum(elem.get('font-size') or inh2.get('font-size')) or 16.0
-                    anchor = elem.get('text-anchor') or inh2.get('text-anchor') or 'start'
-                    color = elem.get('fill') or inh2.get('fill')
+                    fs = fnum(inh2.get('font-size')) or 16.0
+                    anchor = inh2.get('text-anchor') or 'start'
+                    color = inh2.get('fill')
                     m.labels.append(Label(ax, ay, anchor, fs, content, color))
 
         for child in elem:
@@ -957,7 +1041,10 @@ def resolve_issue(issue, m, log):
     if t == 'overweighted-head':
         e = issue.objs[0]
         L = e.length()
-        target = HEAD_FRAC * L / max(e.stroke_w, 0.01)
+        # markerWidth that lands head_len() on the target — divide by the same
+        # unit head_len() multiplies by, or a userSpaceOnUse head is aimed
+        # stroke_w-times too small and the repair overshoots.
+        target = HEAD_FRAC * L / max(e.head_unit, 0.01)
         target = max(target, 0.5)
         if target >= e.marker_scale:
             return None
@@ -1153,6 +1240,31 @@ def rewrite(src, m):
 # `text_bbox` / `rect_overlap` / edge association — a 1,100-line duplicate of
 # exactly the kind T099's census found 129 of.
 
+# A figure's source sits beside its output under the same basename (the vault's
+# figure convention), so a sibling `.d2` / `.excalidraw` / … means this `.svg` is
+# a BUILD ARTIFACT, not an authored diagram.
+GENERATOR_SUFFIXES = (".d2", ".excalidraw", ".dot", ".mmd", ".drawio", ".py")
+
+
+def generator_source(f):
+    """The sibling source this `.svg` was exported from, or None if authored.
+
+    R-svg-jiggle owns the **SVG** track — the case where the agent controls every
+    coordinate, so a resolution rewrites geometry in place. On an exported file
+    that premise is false in both directions: the repair is overwritten by the
+    next export, and the layout is the generator's to decide (for `.d2` the
+    ruleset says so outright — those moves belong to the deferred D2 Jiggle, as
+    ELK directives). Reporting them here would be true and unactionable.
+
+    `with_name(stem + ext)` rather than `with_suffix` so a dotted basename
+    (`Foo.bar.svg`) looks for `Foo.bar.d2` and not `Foo.d2`."""
+    for ext in GENERATOR_SUFFIXES:
+        src = f.with_name(f.stem + ext)
+        if src.is_file():
+            return src
+    return None
+
+
 def _svg_model(target, anchor_root):
     """(model, None) or (None, error-verdict) — the shared adapter preamble."""
     f = Path(target)
@@ -1168,6 +1280,9 @@ def _svg_model(target, anchor_root):
 
 
 def _issue_verdict(detect, target, anchor_root, empty_msg):
+    src = generator_source(Path(target))
+    if src is not None:
+        return "pass", f"exported from {src.name} — layout belongs to the source"
     m, bad = _svg_model(target, anchor_root)
     if bad is not None:
         return bad
