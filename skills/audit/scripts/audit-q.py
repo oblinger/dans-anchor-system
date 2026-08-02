@@ -13,7 +13,8 @@ Checks applied to Q.md, each anchor's backlog, and each feature/Questions doc:
   C4:  stale `[Done]` rows in horizon H2s get moved to `## Done`.
   C6:  every `**Q<n> —` bullet ends with `^<container>-Q<n>` block-ID  (auto-fix).
   C7:  external Q references use block-ID link form `[[X#^X-Q<n>|...]]` (report).
-  C8:  no embedded prose alternatives (`"Either (a) X or (b) Y"`)      (report).
+  C8:  Q header carries no options inline — ≥2 distinct `(A)`..`(D)`
+       labels on the header line, ask-format or prose                   (report).
   C9:  every Q has a sibling **Recommendation** with Strong/Lean/None  (report).
   C10: **Recommendation** bullet at same indent as the Q header        (auto-fix).
   C12: every `[Verify-by YYYY-MM-DD]` row body includes
@@ -256,9 +257,30 @@ RECOMMENDATION_PARA_RE = re.compile(
     r"^Recommendation:\s*\*{0,2}(Strong|Lean|None)\b\*{0,2}",
     re.IGNORECASE,
 )
-# B16 (C8) — embedded prose alternatives heuristic: "(a) X or (b) Y" inline
-# Matches `(a)` or `(A)` followed within ~80 chars by `(b)` or `(B)`
-INLINE_ALTERNATIVES_RE = re.compile(r"\([aAbBcDdD]\)[^\n]{0,80}\([aAbBcDdD]\)")
+# B16 (C8) — embedded alternatives: two or more DISTINCT option labels on the
+# Q header line, meaning the options were written inline instead of hoisted to
+# their own labeled sub-bullets. The write path already refuses this shape
+# (`state._validate_ask_format_body` requires ≥2 own-line `- **(A)**` bullets),
+# so C8 is what catches pre-gate docs already on disk.
+#
+# Superseded a proximity regex `\([aAbBcDdD]\)[^\n]{0,80}\([aAbBcDdD]\)`, which
+# missed the common real shape two ways: the 80-char window is shorter than one
+# option's prose (the two HA Backlog cases sat 153 and 255 chars apart), and the
+# char class omitted `C` while repeating `D`, so `(A) … (C)` never matched.
+# Distinct-label counting has neither limit, and requiring the labels to *differ*
+# also drops the same-label repeat (`(A)` twice) the old regex counted as a hit.
+# Measured over 7,453 vault files: 62 → 85 flagged pending Q headers, every one
+# of the 23 additions a genuine inline-option list, 0 prior hits lost.
+OPTION_LABEL_INLINE_RE = re.compile(r"\(([A-Da-d])\)")
+
+
+def has_inline_alternatives(text: str) -> bool:
+    """True when `text` carries ≥2 distinct option labels — `(A)`/`(a)` … `(D)`.
+    Case-folded, so `(a)` and `(A)` are the same label. Callers strip inline
+    code spans first: `(A)/(B)` inside backticks is describing the ask-format,
+    not using it."""
+    labels = {m.group(1).upper() for m in OPTION_LABEL_INLINE_RE.finditer(text)}
+    return len(labels) >= 2
 # B16 (C7) — Q reference in display text: `\bQ\d+\b` outside the basename
 # Bare `Q<n>` in display text means the link should point to that Q via block-ID.
 # Whereas `F<n> Q<m>` (an F-number immediately preceding Q<m>) means Q<m>
@@ -1356,9 +1378,7 @@ def extract_q_entries(file_path: Path, container_id: str) -> list[QEntry]:
                     block_id_match = Q_BLOCK_ID_TRAILING_RE.search(line)
                     has_block_id = block_id_match is not None
                     block_id_value = block_id_match.group(1) if block_id_match else None
-                    inline_alt = INLINE_ALTERNATIVES_RE.search(
-                        _strip_code_spans(line)
-                    ) is not None
+                    inline_alt = has_inline_alternatives(_strip_code_spans(line))
                     pending_q = QEntry(
                         source_file=file_path,
                         source_line=line_num,
@@ -1391,9 +1411,7 @@ def extract_q_entries(file_path: Path, container_id: str) -> list[QEntry]:
             # `(A)/(B)/(C)` inside backticks is *describing* the format, not
             # an actual inline alternative — common in feature docs that
             # discuss the ask-format spec itself.
-            inline_alt = INLINE_ALTERNATIVES_RE.search(
-                _strip_code_spans(line)
-            ) is not None
+            inline_alt = has_inline_alternatives(_strip_code_spans(line))
             pending_q = QEntry(
                 source_file=file_path,
                 source_line=line_num,
@@ -1548,7 +1566,10 @@ def check_c7_link_form(
 
 
 def check_c8_inline_alternatives(q_entries: list[QEntry]) -> list[Finding]:
-    """C8: Q header should not embed prose alternatives like '(a) X or (b) Y'."""
+    """C8: Q header must not carry its options inline — every option belongs on
+    its own labeled sub-bullet. Fires when the header line holds ≥2 distinct
+    option labels (`(A)` … `(D)`, case-folded), whether written as ask-format
+    labels or as prose alternatives ('(a) X or (b) Y')."""
     findings: list[Finding] = []
     for q in q_entries:
         if q.inline_alternatives:
@@ -1558,8 +1579,8 @@ def check_c8_inline_alternatives(q_entries: list[QEntry]) -> list[Finding]:
                 surface_line=q.source_line,
                 code="C8",
                 message=(
-                    f"Q{q.q_num} has inline prose alternatives; hoist to labeled "
-                    f"sub-bullets (A) / (B) / (C) on their own lines"
+                    f"Q{q.q_num} has options inline on the header line; each option "
+                    f"belongs on its own labeled sub-bullet `- **(A)** ...`"
                 ),
                 mechanically_fixable=False,
             ))

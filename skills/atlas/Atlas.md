@@ -4,7 +4,7 @@ description: Atlas — SKA skill anchor; design tree + dispatch for `/atlas`.
 
 # Atlas
 
-| -[[Atlas]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [SKL](hook://SKL) → [Atlas](hook://p/Atlas)<br>: SKA skill anchor for `/atlas` |
+| -[[Atlas]]- | → [[kmr]] → [[SYS]] → [[symlinks]] → [SKL](hook://SKL) → [Atlas](hook://p/Atlas)<br>: SKA skill anchor for `/atlas` |
 | --- | --- |
 | Skill | [[atlas/SKILL\|SKILL.md]],  ~~[[DAS Atlas\|User Docs]]~~,   |
 | [[DAS Atlas Design\|Design]]  |  |
