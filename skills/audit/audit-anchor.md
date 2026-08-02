@@ -18,9 +18,9 @@ Takes one anchor (or folder) and checks it against the **anchor ruleset** — th
 ## The ruleset it checks
 
 ### A — `.anchor` is set *(the anchor convention)*
-- [ ] A `.anchor` file **exists** in the folder.
-- [ ] It declares a **`slug:`** — UNLESS the anchor is in the one deliberate bare-name zone (the `dans-anchor-system` pillars). An **empty `.anchor`** is a finding: breadcrumb inference skips the anchor and jumps to its grandparent (see the `DAS` incident).
-- [ ] It declares **`traits:`** identifying the kind (e.g. `[skill]`, `[Code]`, `collection`).
+- [ ] A **declaration exists** — a `.anchor` file, or a byte-exact `{Folder}.md`.
+- [ ] **No field is required.** An empty `.anchor` is a complete anchor ([[ANC Standard]] § Standard fields); `slug:` and `traits:` are both optional, and their absence is a default rather than a finding — 720 of the vault's 1,332 `.anchor` files are zero-byte. Check a field only where a *declared* value creates an obligation (e.g. `traits:` containing `code` obliges a `code:` path, [[R-code-repository]]-01).
+- [ ] **When `slug:` is absent**, the anchor is addressed by its basename, and anything needing a guaranteed handle uses the **implied slug** — explicit slug when declared, otherwise the basename verbatim (§ S2).
 
 ### B — anchor page conforms *([[DAS Anchor Page]] § Ruleset)*
 *Reference: read the [[DAS Anchor Page]] ruleset **`R-anchor-page`**, or diff the anchor against the matching kind in [[DAS Examples]] — [[HBR]] (project), [[HBR Components]] (grouped), [[HBR Ingest]] (sub-folder), [[FEX Snapshot]] (skill).*

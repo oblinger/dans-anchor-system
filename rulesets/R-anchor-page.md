@@ -7,16 +7,18 @@ What `/audit anchor` checks every `{slug}.md` against. All anchor-page kinds (sk
 
 ## Identity & frontmatter
 
-### RULE R-anchor-page-01 — `.anchor` declares traits; `slug` is optional and inferred (checked)
-check:: anchor_has traits
+### RULE R-anchor-page-01 — the declaration alone makes the anchor; every field is optional (stated)
 
-The anchor folder carries a non-empty `.anchor` file declaring `traits:`. **`slug:` is NOT required** — an anchor without one is addressed by its **basename**, and any consumer needing a guaranteed handle uses the **implied slug**: the explicit slug when declared, otherwise the basename verbatim ([[ANC Standard]] § S2).
+The anchor's **declaration** — a `.anchor` file, or a byte-exact `{Folder}.md` — is what makes the folder an anchor. **No field is required**, `slug:` and `traits:` included ([[ANC Standard]] § Standard fields: *"an empty `.anchor` … is already a complete anchor"*; `traits` defaults to `[simple]`). An anchor with no `slug:` is addressed by its **basename**, and any consumer needing a guaranteed handle uses the **implied slug** — the explicit slug when declared, otherwise the basename verbatim (§ S2).
 
-**Check pattern:** the folder has a `.anchor`; parse it and confirm a non-blank `traits:` key. Do not assert `slug:`.
+**This rule asserts nothing.** It is stated so the anchor-page set opens by naming what identity actually rests on; the fields it used to demand are described by [[R-anchor-page]]-04 (`traits:` names the kind) and enforced only where a *declared* field implies an obligation — e.g. [[R-code-repository]]-01 asserts `code:` **when** `traits:` contains `code`. That conditional shape is the correct one: absence of a field is a default, not a defect.
 
-**Why:** an empty `.anchor` makes breadcrumb inference skip the anchor and jump to its grandparent (the DAS incident) — that is what `traits:` guards against, and it stands.
+**History — both halves were wrong, and neither was ever DAS policy.** The rule ran as `check:: anchor_has slug traits` until 2026-08-02.
 
-The `slug:` half was dropped 2026-08-02 (T068 / T104) on the user's call, aligning DAS with [[ANC Standard]]. It was never a policy DAS enforced anywhere but here: **`_anchor_slug` has always fallen back to the folder name**, and `_entry_page`, `chk_h1_matches_slug`, `chk_entry_page_matches_slug` and `_ancestor_anchor_slugs` all resolve through it — so the inference this rule demanded be made explicit was already happening everywhere downstream. Measured against the live vault: **1,147 of 1,332 `.anchor` files (86%) declare no `slug`**, so the requirement was contradicted by the tooling that implements it and violated by six anchors in seven. Note this clears **125** of those failures, not all of them — the remaining **1,022** fail on the `traits:` half, which is a separate question and deliberately untouched.
+- **`slug:` (dropped T104).** Never enforced anywhere but here, and contradicted by DAS's own tooling: `_anchor_slug` has always fallen back to the folder name, and `_entry_page`, `chk_h1_matches_slug`, `chk_entry_page_matches_slug` and `_ancestor_anchor_slugs` all resolve through it. **1,147 of 1,332 `.anchor` files (86%) declare no slug** — a requirement violated by six anchors in seven, enforced by no consumer.
+- **`traits:` (dropped T105).** Same defect, larger: **1,085 of 1,332 (81%) declare no `traits:`**, and both [[ANC Standard]] and [[DAS Dot Anchor]] say plainly that no field is required. The justification written here on 2026-08-02 — *"an empty `.anchor` makes breadcrumb inference skip the anchor and jump to its grandparent (the DAS incident)"* — was **mis-transcribed** from the [[audit-anchor]] checklist, where that incident is attached to **`slug:`**, not `traits:`. It also fails to reproduce: **720 `.anchor` files in the live vault are zero-byte**, and of the 232 child docs beneath them that carry a breadcrumb, **182 name their empty anchor correctly**. The 50 that do not are hand-written short trails (`:>> [[SVAR]]`), not inference skipping a level.
+
+The lesson worth keeping is the shape of the error rather than either field: a rule that asserts a field **no consumer reads** produces findings the corpus can only satisfy by mass-editing 1,000 files toward no benefit. Assert a field where something breaks without it.
 
 ### RULE R-anchor-page-02 — Page filename equals the slug (checked)
 check:: entry_page_matches_slug

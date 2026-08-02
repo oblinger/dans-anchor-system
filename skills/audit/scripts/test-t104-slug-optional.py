@@ -1,18 +1,24 @@
 #!/usr/bin/env python3
-"""T104 — `slug` is optional and inferred from the basename, per ANC Standard.
+"""T104 / T105 — `R-anchor-page-01` asserts no `.anchor` field; both were wrong.
 
-T068 measured the contradiction and left it standing, because resolving it meant
-changing a LIVE anchor-page rule under a user hold. Dan called it 2026-08-02: make
-slug not required and inferrable as the standard indicates.
+T068 measured the `slug:` contradiction and left it standing, because resolving it
+meant changing a LIVE anchor-page rule under a user hold. Dan called it 2026-08-02
+(T104): slug not required, inferred as the standard indicates. Told that this cleared
+only 125 of ~1,210 failures because the rest were the `traits:` half, he made the
+second call in the same sitting (T105): traits was never meant to be required either.
 
-The inference itself needed no work — `_anchor_slug` has always fallen back to the
-folder name, and `_entry_page`, `chk_h1_matches_slug`, `chk_entry_page_matches_slug`
-and `_ancestor_anchor_slugs` all resolve through it. That is the point worth pinning:
-the requirement `R-anchor-page-01` enforced was already inferred everywhere
-downstream, so the rule was asserting a field nothing actually needed.
+He is right on the documents — [[ANC Standard]] § Standard fields says "none is
+required … an empty `.anchor` … is already a complete anchor" and gives `traits` the
+default `[simple]`; [[DAS Dot Anchor]] says "every key is optional". And the
+justification written into the rule for keeping `traits:` — that an empty `.anchor`
+makes breadcrumb inference skip to the grandparent — was mis-transcribed from the
+audit-anchor checklist, where the incident is attached to **`slug:`**. It also does
+not reproduce: 720 `.anchor` files in the live vault are zero-byte, and 182 of the
+232 child docs beneath them name their empty anchor in the breadcrumb correctly.
 
-Measured at the rule's own `where::`: **125 anchors newly pass, 1,085 still fail on
-the `traits:` half, 122 were already passing.**
+So the rule now asserts nothing. What survives is the CONDITIONAL shape, which was
+always the right one: `R-code-repository-01` asserts `code:` only when `traits:`
+already declares the code trait. Absence of a field is a default, not a defect.
 
     python3 test-t104-slug-optional.py
 """
@@ -46,32 +52,32 @@ def anchor(name, dotfile):
     return d
 
 
-print("The rule no longer asserts slug")
+print("The rule asserts neither field — it asserts nothing at all")
 
 RS = _S.parent.parent.parent.parent / "rulesets" / "R-anchor-page.md"
 block, _ = ap.extract_ruleset_block(RS.read_text(encoding="utf-8"))
 by_id = {r["id"]: r for r in ap.parse_ruleset_block(block, RS)["rules"]}
-check("R-anchor-page-01 checks traits only",
-      by_id["R-anchor-page-01"].get("check"), "anchor_has traits")
+check("R-anchor-page-01 carries no check:: at all",
+      by_id["R-anchor-page-01"].get("check"), None)
+# The checker itself stays — R-code-repository-01 uses it in the CONDITIONAL shape
+# that is correct: assert `code:` only when `traits:` already declares the code trait.
+check("...and is marked stated, not checked",
+      by_id["R-anchor-page-01"]["tier"], "stated")
 
 no_slug = anchor("Harbor", "traits: [code]\ndescription: x\n")
-check("an anchor with traits but no slug passes",
-      ap.chk_anchor_has(no_slug, no_slug, ["traits"]), ("pass", ""))
-check("...and would have failed under the old two-field form",
+check("the old two-field form would have failed this anchor on slug",
       ap.chk_anchor_has(no_slug, no_slug, ["slug", "traits"]),
       ("fail", "missing in .anchor: slug"))
-
-# The `traits:` half is deliberately untouched — it is what guards the DAS incident
-# (an empty `.anchor` makes breadcrumb inference skip to the grandparent), and it
-# is where 1,085 of the remaining failures live.
+# T105: `traits:` went the same way as `slug:`. Both ANC Standard and DAS Dot Anchor
+# say no field is required; 1,085 of 1,332 `.anchor` files declare no traits, and the
+# breadcrumb-inference incident cited to justify it was mis-transcribed from the
+# audit-anchor checklist, where it is attached to `slug:` — and does not reproduce.
 no_traits = anchor("Bare", "description: x\n")
-check("traits is still required — the other half stands",
+check("...and this one on traits — neither is asserted now",
       ap.chk_anchor_has(no_traits, no_traits, ["traits"]),
       ("fail", "missing in .anchor: traits"))
-missing = anchor("NoDot", "")
-(missing / ".anchor").unlink()
-check("a missing .anchor still fails outright",
-      ap.chk_anchor_has(missing, missing, ["traits"]), ("fail", "no .anchor file"))
+check("an empty .anchor is a complete anchor — ANC § Standard fields",
+      ap._anchor_slug(anchor("Hollow", "")), "Hollow")
 
 print("\nThe implied slug — explicit when declared, else the basename verbatim")
 
