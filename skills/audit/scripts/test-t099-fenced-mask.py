@@ -111,6 +111,79 @@ ap.fix_table_blank_lines(p, ROOT, "")
 check("...but still spaces a REAL glued table",
       "intro\n\n| a | b |" in p.read_text(), True)
 
+print("\nThe heading class")
+
+# Twelve heading scanners moved onto `_strip_fenced`. These assert the property
+# per RULE FAMILY rather than per def — what matters is that a doc SHOWING the
+# form it governs is not judged as USING it, which is the whole reason a facet
+# spec is the likeliest doc in the vault to trip its own rule.
+
+# R-testing — `* Testing.md`. A fenced sample table must not satisfy an H3, and a
+# fenced H3 must not be reported as a Proposed-Tests kind Strategy never declared.
+f = write("# T\nWhat this is.\n\n## Strategy\n\n### Test Kinds\n\n- **Unit** — the one\n"
+          "  declared kind.\n\n## Proposed Tests\n\n### Unit\n\n| a | b |\n"
+          "|---|---|\n| x | y |\n\n```markdown\n### Fabricated\n\n| p | q |\n"
+          "|---|---|\n```\n")
+check("testing: a fenced H3 is not a Proposed-Tests subsection",
+      ap.chk_proposed_tests_subset_of_strategy(f, ROOT, "")[0], "pass")
+check("...and an UNFENCED undeclared kind is still reported",
+      ap.chk_proposed_tests_subset_of_strategy(
+          write("# T\nWhat this is.\n\n## Strategy\n\n### Test Kinds\n\n"
+                "- **Unit** — the one declared kind.\n\n## Proposed Tests\n\n"
+                "### Fabricated\n\n| p | q |\n|---|---|\n"), ROOT, ""),
+      ("fail", "Proposed Tests kinds not in Strategy: Fabricated"))
+f = write("# T\nWhat this is.\n\n## Proposed Tests\n\n### Unit\n\n"
+          "```markdown\n| a | b |\n|---|---|\n```\n")
+check("...and a fenced table does not satisfy an H3 that has none",
+      ap.chk_proposed_tests_structure(f, ROOT, "")[0], "fail")
+
+# R-prd — `* PRD.md`. A PRD documenting the US-{slug}-N form by showing one.
+# The slug is derived from the anchor root, so build the well-formed id from it
+# rather than hard-coding one the temp dir will never match.
+_slug = ap._anchor_slug(ROOT)
+f = write(f"# T\nWhat this is.\n\n## User Stories\n\n### US-{_slug}-1: real\n\n"
+          "```markdown\n### US-EXAMPLE-1: shown, not filed\n```\n")
+check("prd: a fenced sample user story is not a malformed real one",
+      ap.chk_user_stories_use_rid_numbering(f, ROOT, "")[0], "pass")
+check("...and an UNFENCED malformed one is still reported",
+      ap.chk_user_stories_use_rid_numbering(
+          write("# T\nWhat this is.\n\n## User Stories\n\n"
+                "### US-EXAMPLE-1: really filed\n"), ROOT, "")[0], "fail")
+
+# R-architecture — `* Architecture.md`. The discriminator against its neighbour:
+# this scan matches only HEADING lines, so it steps over the fence opener.
+f = write("# d\nWhat this is.\n\n```markdown\n# Example Layout\n```\n", "d.md")
+check("architecture: the first heading is not one inside a fence",
+      ap.chk_architecture_h1_present(f, ROOT, "")[0], "pass")
+
+# The deliberate NON-conversion. `chk_h1_after_frontmatter` rejects every line it
+# does not recognise, so it trips on the fence OPENER — correctly, since a code
+# block above the H1 is what the rule forbids. Stripping would pass it.
+f = write("---\ndescription: x\n---\n```python\nx = 1\n```\n# Title\n")
+check("h1_after_frontmatter: a fence above the H1 still FAILS (not stripped)",
+      ap.chk_h1_after_frontmatter(f, ROOT, "")[0], "fail")
+
+# R-roadmap — two stacked defects on one line. Fence-blindness reported a sample
+# milestone; the regex's `\b` then let `M1.8a` backtrack to a top-level `M1`.
+f = write("# T\nWhat this is.\n\n## [x] M1 — Real\n\n**Status**: Done.\n\n"
+          "### [x] M1.8a — Sub, no Status of its own\n")
+check("roadmap: a LETTERED sub-milestone is not read as top-level M1",
+      ap.chk_milestone_status_line(f, ROOT, "")[0], "pass")
+f = write("# T\nWhat this is.\n\n```markdown\n## [x] M9 — Sample\n```\n")
+check("...and a fenced milestone demands no Status line",
+      ap.chk_milestone_status_line(f, ROOT, "")[0], "pass")
+f = write("# T\nWhat this is.\n\n## [x] M4 — Real, no Status\n\nprose\n")
+check("...but a REAL top-level milestone without one still fails",
+      ap.chk_milestone_status_line(f, ROOT, "")[0], "fail")
+
+# R-dated-entry-stream — a quoted older entry must not enter the sequence at the
+# point it is quoted.
+check("dated stream: a fenced quoted entry does not break the ordering",
+      ap.chk_dated_entries_reverse_chronological(
+          write("# T\nWhat this is.\n\n## 2026-08-01 — new\n\n"
+                "```markdown\n## 2020-01-01 — quoted\n```\n\n"
+                "## 2026-07-01 — old\n"), ROOT, "")[0], "pass")
+
 print("\nNo eighth toggle")
 
 # Whatever else changes, a NEW private fence toggle should not appear. Read off
