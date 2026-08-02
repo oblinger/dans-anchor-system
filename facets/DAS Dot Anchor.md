@@ -10,9 +10,9 @@ The `.anchor` file — the small YAML declaration at an anchor's root that carri
 |  | [[ANC Standard\|Anchor Standard]],   |
 | Rules | [[R-dot-anchor]],   |
 | Examples | [[DAS\|dans-anchor-system .anchor (traits form)]],  [[OBU\|ob-utils .anchor (code: form)]],   |
-| ... | [[anchor-page]],  [[DAS Agenda]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Page]],  [[DAS Anchor Tree]],  [[DAS API Design]],  [[DAS Architecture]],  [[DAS Aspects]],  [[DAS Backlog]],  [[DAS Brief]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Claude]],  [[DAS CLI]],  [[DAS Code]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[DAS Decisions]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Design Folder]],  [[DAS Dev Dispatch]],  [[DAS Discussion]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Facet]],  [[DAS Facets]],  [[DAS Features]],  [[DAS Files Architecture]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Interface]],  [[DAS Log]],  [[DAS Messages]],  [[DAS Module Doc]],  [[facets/DAS Move]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS PRD]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Roadmap]],  [[DAS Ruleset]],  [[facets/DAS Skill]],  [[DAS Specs]],  [[DAS Status]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS User Dispatch]],  [[DAS UX Design]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
+| ... | [[anchor-page]],  [[DAS Agenda]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Page]],  [[DAS Anchor Tree]],  [[DAS API Design]],  [[DAS Architecture]],  [[DAS Aspects]],  [[DAS Backlog]],  [[DAS Brief]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Claude]],  [[DAS CLI]],  [[DAS Code]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[DAS Decisions]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Design Folder]],  [[DAS Dev Dispatch]],  [[DAS Discussion]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Facet]],  [[DAS Facets]],  [[DAS Features]],  [[DAS Files Architecture]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Interface]],  [[DAS Log]],  [[DAS Messages]],  [[DAS Module Doc]],  [[facets/DAS Move]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS PRD]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Roadmap]],  [[DAS Ruleset]],  [[facets/DAS Skill]],  [[DAS Specs]],  [[DAS Status]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS User Dispatch]],  [[DAS UX Design]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-testing]],   |
 
-**TLDR** — `.anchor` is a YAML file at the anchor root. Its **presence makes the folder an anchor** ([[DAS Folder]]); its **fields** declare the anchor's metadata. `slug` is the only required field. This facet is the **field-set index** — each field's detailed rule lives in its owning facet (single source of truth). Managed with `cab-config`. **Cardinality: one per anchor.**
+**TLDR** — `.anchor` is a YAML file at the anchor root. Its **presence makes the folder an anchor** ([[DAS Folder]]); its **fields** declare the anchor's metadata. **No field is required** — presence alone is the declaration; `slug` in particular is optional, and an anchor without one is addressed by its basename. This facet is the **field-set index** — each field's detailed rule lives in its owning facet (single source of truth). Managed with `cab-config`. **Cardinality: one per anchor.**
 
 ## What it is
 
@@ -22,7 +22,7 @@ A YAML file named `.anchor` at the root of an anchor folder. Two jobs: (1) its m
 
 | Field | Meaning | Rule owner |
 |---|---|---|
-| `slug` | short canonical id (`DKT`, `MUX`) — **required** | [[DAS Naming]] |
+| `slug` | short canonical id (`DKT`, `MUX`) — **optional**; absent → addressed by basename | [[DAS Naming]] |
 | `traits` | the anchor's traits (`code`, `skill`, `paper`, `topic`, …) | [[DAS Traits]] |
 | `traits-` | traits the anchor opts OUT of, including the implicit ones every anchor carries | [[DAS Traits]] |
 | `description` | one-line description (mirrors the anchor page's) | this facet |
@@ -32,7 +32,16 @@ A YAML file named `.anchor` at the root of an anchor folder. Two jobs: (1) its m
 | `now` / `backlog` / `inbox` / `rules` | paths to work-surface files | [[DAS Track]] |
 | *(file presence)* | the folder is an anchor | [[DAS Folder]] |
 
-All keys except `slug` are optional, added only when the anchor needs them. Paths are relative to the anchor root unless absolute.
+**Every key is optional**, added only when the anchor needs it. Paths are relative to the anchor root unless absolute.
+
+### `slug` is optional — DAS follows [[ANC Standard]] here, and the reconciliation is deliberate
+
+This facet said `slug` was **required** while [[ANC Standard]] — the upstream spec DAS builds on — makes it optional, with the *basename* as the anchor's durable identity and an **implied slug** (explicit slug when declared, otherwise the basename verbatim) computed for consumers that need one. DAS could legitimately have been the stricter of the two. It is not, and the reason is that the stricter rule was never a policy DAS held — it was a false description of DAS's own behaviour (T068, measured 2026-08-02):
+
+- **DAS's own tooling already implements the implied-slug fallback.** `audit-plan.py`'s `_anchor_name` reads `slug:` from `.anchor` and *falls back to the folder name* when it is absent — which is ANC's implied slug, arrived at independently. Every `where:: {slug}` selector in the ruleset corpus resolves through it.
+- **The corpus never obeyed the strict rule.** Of **1,332 `.anchor` files in the vault, 1,147 — 86% — declare no `slug` at all.** A requirement violated by six anchors in seven, enforced by no checker, is not a stricter standard; it is drift with a confident sentence in front of it.
+
+So the two specs now agree, and they agree on ANC's reading. Where a consumer needs to tell a *declared* slug from a *defaulted* one it must read the `slug` field directly rather than the implied value — that distinction is the one thing this reconciliation does not erase.
 
 ## Getting to the code
 
