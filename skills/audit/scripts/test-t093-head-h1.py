@@ -88,16 +88,22 @@ f = write("## Contact\n\nphone\n\n# LOG\n\n- entry\n")
 check("slug rule: reports no-H1 rather than blaming the body marker",
       ap.chk_h1_matches_slug(f, ROOT, ""), ("fail", "no H1"))
 
-print("\nWhat this does NOT fix")
+print("\nWhat this does NOT fix — closed by T101, kept as the record")
 
-# Recorded as an assertion so the gap cannot be quietly forgotten: `chk_h1_present`
-# is wired only to R-decisions (`{anchor}/** Design/**/*.md` containing a
-# `## Decisions` H2), so it sees 0 of the 220. The predicate stops these docs being
-# blamed at a body marker; it does not make them visible as headless, because no
-# `where:: always` rule asserts a head H1 exists. That half is a RULE change.
+# This was the deliberate gap: `chk_h1_present` was wired only to R-decisions
+# (`{anchor}/** Design/**/*.md` containing a `## Decisions` H2), so it saw 0 of the
+# 220. The predicate stopped these docs being blamed at a body marker; it did not
+# make them visible as headless, because no rule in scope asserted a head H1 exists.
+# T101 closed the half that mattered by SCOPE rather than by widening the predicate:
+# `R-fct-features` now carries `check:: h1_present` and a `where::` that actually
+# reaches `{slug} Features/`, which is 684 docs and 26 findings. The 124 loose notes
+# below stay deliberately out of scope — see `test-t101-head-h1-scope.py`.
 f = write("## Contact\n\nphone\n\n# LOG\n\n- entry\n")
-check("chk_h1_present does now fail a headless doc when it runs at all",
-      ap.chk_h1_present(f, ROOT, ""), ("fail", "no H1"))
+check("chk_h1_present does fail a headless doc when it runs at all",
+      ap.chk_h1_present(f, ROOT, "")[0], "fail")
+check("...naming where the body marker sits, so nobody adds a second H1",
+      ap.chk_h1_present(f, ROOT, "")[1],
+      "no head H1 (an H1 sits at line 5, below an earlier heading)")
 
 print(f"\n{sum(results)}/{len(results)} passed")
 raise SystemExit(0 if all(results) else 1)
