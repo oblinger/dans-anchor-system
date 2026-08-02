@@ -17,4 +17,20 @@ description: Warden — the rule engine that powers /rule, /audit, and the rules
 
 Warden is **consumed by** the `/rule` and `/audit` skills and underpins the [[DAS Ruleset]] facet — those reference Warden as their engine rather than re-implementing it.
 
-The full design is [[Warden Design]]; the build sequence is [[Warden Roadmap]]. Warden currently lives inside the [[DAS]] (`dans-anchor-system`) repo; Phase 1 of the roadmap extracts it to its own repository, after which it is vendored back into DAS via `git subtree` (single source of truth upstream, one-clone-loadable downstream).
+The full design is [[Warden Design]]; the build sequence is [[Warden Roadmap]].
+
+## Which copy runs — `~/ob/proj/warden`, always
+
+Warden's engine exists at two paths, and **only one of them executes anything**. Measured 2026-08-02 (T097):
+
+| | path | what it is |
+|---|---|---|
+| **Live** | `~/ob/proj/warden/engine/` | `~/bin/warden` is a symlink to `engine/warden`, so every `warden compile` / `warden off` you run is this copy |
+| **Live** | `~/ob/proj/warden/rs/target/release/warden-rs` | the Rust engine the `settings.json` hooks invoke — this is what fires on every file write |
+| **Inert** | `dans-anchor-system/warden/engine/` | a vendored mirror; nothing loads it |
+
+**Edit the proj copy. A fix landed in the mirror runs nowhere.** The roadmap's Phase 1 extraction did happen ([[Tink Backlog#^T008|T008]]), but the intended `git subtree` vendor-back did not — the mirror is a plain copy that has since drifted, so the single-source-of-truth guarantee the subtree was meant to provide is not in force.
+
+**The drift is one-directional, which is the useful part.** Ten source files differ (`warden`, `warden_compile.py`, `warden_fire.py`, `warden_hook.py`, `warden_scan.py`, and five `test_warden_*.py`), plus `conftest.py` exists only in proj. That is **403 proj-only lines against 41 mirror-only**, and every one of the 41 was checked: none is content the mirror uniquely holds. They are refactors — proj split `read_anchor_traits` into `_read_trait_list` + `read_anchor_traits`, and the `py_kinds` line simply gained a `"mend"` key beside it. So proj is a strict superset in substance, and **the mirror can be replaced wholesale whenever someone decides to; nothing needs rescuing from it first.**
+
+**The trap this creates is diagnostic, not functional.** A directory copy carried `__pycache__` across, so during [[Tink Backlog#^T094|T094]] pytest ran from the proj repo while every traceback's `co_filename` pointed at the *mirror*. A debugging session that trusts those paths edits the copy that is not running — and the edit appears to do nothing, for reasons the traceback actively conceals.
