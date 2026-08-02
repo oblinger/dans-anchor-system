@@ -295,6 +295,56 @@ def _scope_text_to_block_id_region(text, block_id):
     return "\n".join(lines[start:end])
 
 
+# --------------------------------------------------------------------------
+# Row-scoped inline questions (R-backlog-05) — the pending/resolved boundary
+#
+# A backlog row may host its own numbered questions as `- **Q<n> — …**`
+# sub-bullets instead of linking a feature doc. F291 gave the DOC-hosted shape
+# a two-zone block — unresolved questions form a prefix, a `### Resolved`
+# heading ends it — so the open count is a prefix length rather than a scan. A
+# row has no headings to divide with (it is one bullet and its children), so
+# the zone head is a sub-bullet of its own.
+#
+# Three separate readers ask "how many of this row's questions are still
+# open": `state`'s resolve verb, audit-q's C24 bracket-count check, and the
+# Questions-promise gate below. Before T086 none of them had to, because
+# nothing could resolve a row-hosted Q at all — counting every `- **Q<n> —`
+# header was correct when no header could ever be answered. The moment a
+# resolve verb exists that stops being true everywhere at once, so the
+# boundary is defined here and imported, not re-expressed at each site.
+
+ROW_Q_RESOLVED_HEAD = "- **Resolved**"
+_ROW_Q_ZONE_HEAD_RE = re.compile(r"^\s*-\s+\*\*Resolved\*\*\s*$")
+_ROW_Q_HEADER_RE = re.compile(r"^(\s*)-\s+\*\*Q(\d+)\b")
+
+
+def row_pending_q_lines(sub_lines):
+    """The prefix of a row's sub-bullet lines that is still PENDING.
+
+    Everything from the `- **Resolved**` zone head onward is archive: answered
+    questions kept in place with their options and lean, as the doc-side
+    `### Resolved` zone keeps them. Callers that count or search for open
+    questions pass their lines through here first.
+
+    Returns lines rather than an index because the callers hold different
+    things — a list of sub-bullet lines, a whole row span, a joined string —
+    and a boundary expressed as a line number would need translating at each
+    site, which is exactly where three readers drift back apart.
+    """
+    out = []
+    for line in sub_lines:
+        if _ROW_Q_ZONE_HEAD_RE.match(line):
+            break
+        out.append(line)
+    return out
+
+
+def count_row_pending_qs(sub_lines):
+    """How many `- **Q<n> —` headers sit in the row's pending prefix."""
+    return sum(1 for l in row_pending_q_lines(sub_lines)
+               if _ROW_Q_HEADER_RE.match(l))
+
+
 def verify_questions_constraint(status, body, row_id=None):
     """Raise BacklogEditError if status asserts a Questions promise that the
     body's wiki-link target cannot honor.
@@ -325,7 +375,13 @@ def verify_questions_constraint(status, body, row_id=None):
     # B/T-row inline Qs (R-backlog-05): a row may carry its own numbered Qs as
     # `- **Q<n> — …**` sub-bullets instead of linking a feature doc — the row
     # itself is then the Q-bearing target and the promise is honored in place.
-    if re.search(r"\*\*Q\d+\s+—", body):
+    # Only the PENDING prefix counts (T086). An answered question archived in
+    # the row's `- **Resolved**` zone keeps its `**Q<n> —` header, so a plain
+    # search would let a row whose every question has been answered go on
+    # claiming [Questions] forever — the bracket would be honored by its own
+    # history.
+    if any(_ROW_Q_HEADER_RE.match(l) or re.search(r"\*\*Q\d+\s+—", l)
+           for l in row_pending_q_lines(body.splitlines())):
         return
     # Prefer the canonical "→ [[F<n> ...]]" feature-doc reference at the end of
     # the body. Fall back to the last wiki-link, then the first. Picking the FIRST

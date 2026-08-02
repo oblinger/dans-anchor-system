@@ -13,7 +13,9 @@ Verifications:
         doc   = Backlog (case-insensitive) | wiki-name | path to a .md file
         label = LETTERS+DIGITS, or LETTERS+'+' to auto-mint —
                 Q7 / V3 (any doc) / F157 / T8 (Backlog only) /
-                F+ / T+ / Q+ / V+ (mint the next unused number)
+                F+ / T+ / Q+ / V+ (mint the next unused number) /
+                T41.Q1 (a question hosted INSIDE Backlog row T41 —
+                resolve and show only; T086)
         verb  = define (create-or-replace) | set (Backlog-only partial
                 update — --status/--horizon/--title/--body/--next/--verify/
                 --why-user) |
@@ -1391,6 +1393,34 @@ def parse_label(label):
     return m.group(1), (num if num == "+" else int(num))
 
 
+# T086 — the row-scoped address. `Backlog T041.Q1` names question 1 hosted
+# INSIDE row T041, which is neither a doc-hosted Q (`<doc> Q<n>`) nor an F275
+# standalone Q-row (`Backlog Q<n>`) and so had no address at all: the only way
+# to touch one was to rewrite the whole row, the exact hand-edit the F247 stamp
+# exists to detect.
+#
+# Dotted rather than a fourth positional or a flag, because F293 settled the
+# grammar hours before this was built and the settlement is what makes the
+# choice cheap: the label slot is the third positional, `<row>.<Q<n>>` extends
+# what goes IN that slot, and every verb, anchor and doc argument stays where
+# it was. A `--q 1` flag would have put the same information outside the
+# address, where `show` and `resolve` would each have to opt into it.
+#
+# `.+` is greedy on purpose: an R-row's handle is a dotted name-path
+# (`R-Scaffolding.5.2`), so the row part must be allowed to contain dots and
+# the LAST `.Q<digits>` is the question. Anything else is not a row-scoped
+# address and falls through to the ordinary label parser untouched.
+_ROW_Q_LABEL_RE = re.compile(r"^(?P<row>.+)\.Q(?P<q>\d+)$")
+
+
+def parse_row_q_label(label):
+    """(row_label, q_num) for `T041.Q1`, or None when this is a plain label."""
+    m = _ROW_Q_LABEL_RE.match(label)
+    if not m:
+        return None
+    return m.group("row"), int(m.group("q"))
+
+
 def _find_doc_by_basename(root, target_lower):
     """Case-insensitive `.md` basename search under root, skipping noisy
     path fragments (mirrors be.SKIP_PATH_FRAGMENTS's spirit with the
@@ -1644,6 +1674,190 @@ def _row_define(slug, backlog_path, label, args, minted=False, raw_override=None
         user_text=user_text,
         why_user_action=getattr(args, "why_user_action", None),
     )
+
+
+_ROW_Q_HEADER_RE = re.compile(r"^(\s*)-\s+\*\*Q(\d+)\b")
+_ROW_SUB_RE = re.compile(r"^\s+-\s")
+
+
+def _row_q_spans(lines, row_start, row_end):
+    """[(q_num, start, end), …] for the PENDING questions hosted by a row.
+
+    A question's span runs to the next sub-bullet at its OWN indent — its
+    options and Recommendation are indented deeper and belong to it, while a
+    sibling `- **Next:**` at the same depth does not. Restricting to the
+    pending prefix is `be.row_pending_q_lines`'s job, applied first, so an
+    already-archived question is invisible here rather than resolvable twice.
+    """
+    sub = lines[row_start + 1:row_end]
+    pending = be.row_pending_q_lines(sub)
+    heads = []
+    for k, line in enumerate(pending):
+        m = _ROW_Q_HEADER_RE.match(line)
+        if m:
+            heads.append((int(m.group(2)), len(m.group(1)), k))
+    spans = []
+    for i, (num, indent, k) in enumerate(heads):
+        end = len(pending)
+        for j in range(k + 1, len(pending)):
+            m2 = _ROW_SUB_RE.match(pending[j])
+            if m2 and len(pending[j]) - len(pending[j].lstrip()) <= indent:
+                end = j
+                break
+        while end > k + 1 and not pending[end - 1].strip():
+            end -= 1
+        spans.append((num, row_start + 1 + k, row_start + 1 + end))
+    return spans
+
+
+def _format_row_resolved_q(q_num, parsed, outcome, note, today, indent):
+    """The archived row-Q, as nested bullets in the same order the doc-side
+    entry uses — question, then resolution, then the options, then the lean.
+
+    Deliberately the same reading order as `_format_resolved_entry`, and for
+    the same reason: leading with the answer buries what was asked, and the
+    lean is kept apart from the outcome because the delta between advice and
+    decision is the calibration signal a single conflated line destroys. Only
+    the markup differs, because a row cannot carry headings.
+    """
+    pad = " " * indent
+    head = f"{pad}- **Q{q_num} — {parsed['title']}** (resolved {today})"
+    if parsed["anchor"]:
+        head += f" {parsed['anchor']}"
+    out = [head]
+    if parsed["question"]:
+        out.append(f"{pad}  - {parsed['question']}")
+    out.append(f"{pad}  - **Resolved:** {outcome}")
+    if note.strip():
+        for ln in note.strip().splitlines():
+            out.append(f"{pad}  - {ln.strip()}" if ln.strip() else "")
+    for letter, text in parsed["options"]:
+        out.append(f"{pad}  - **({letter})** {text}".rstrip())
+    if parsed["lean"]:
+        out.append(f"{pad}  - **Lean:** {parsed['lean']}")
+    return out
+
+
+def _row_q_resolve(slug, backlog_path, row_label, q_num, args):
+    """`resolve <anchor> Backlog <row>.Q<n>` — answer a row-hosted question in
+    place (T086).
+
+    The question does not leave the row. It moves below a `- **Resolved**`
+    sub-bullet keeping its full option list, with the resolution written under
+    it — the row-scoped mirror of what F291 does to a doc's Open Questions
+    block, down to the zone being a boundary the open count reads as a prefix.
+
+    It differs from the doc side in one way, and the difference is forced: a
+    doc's block is deleted and migrated once the last question lands, because
+    the block is scaffolding around the questions. A row is not scaffolding —
+    it is the work item, and it outlives every question asked about it — so
+    there is nowhere to migrate TO and the archive stays where it is.
+
+    The `[N Questions]` bracket is recomputed here rather than left to the
+    audit that follows. audit-q would eventually reach the same number, but
+    "eventually" is a window in which the row's bracket contradicts its own
+    contents, and the bracket is what the queue counts.
+    """
+    choice = getattr(args, "choice", None)
+    note = read_body(args)
+    icebox_path = be.find_icebox(slug)
+    src_file = None
+    if be.row_in_file(backlog_path, row_label):
+        src_file = backlog_path
+    elif icebox_path and be.row_in_file(icebox_path, row_label):
+        src_file = icebox_path
+    if src_file is None:
+        raise be.BacklogEditError(
+            f"{row_label} not found in {backlog_path.name} or Icebox — "
+            f"nothing to resolve"
+        )
+    complaint = be.heal_backlog_if_stale(slug, src_file)
+    if complaint:
+        print(complaint, file=sys.stderr)
+
+    lines = src_file.read_text(encoding="utf-8").splitlines()
+    span = _row_span(lines, row_label)
+    if span is None:
+        raise be.BacklogEditError(f"{row_label} not found in {src_file.name}")
+    row_start, row_end = span
+    spans = _row_q_spans(lines, row_start, row_end)
+    match = [s for s in spans if s[0] == q_num]
+    if not match:
+        open_qs = ", ".join(f"Q{n}" for n, _, _ in spans) or "none"
+        raise be.BacklogEditError(
+            f"{row_label} has no pending Q{q_num} — open questions on this "
+            f"row: {open_qs}. (An already-resolved question stays in the "
+            f"row's `- **Resolved**` zone and cannot be resolved twice; "
+            f"`state show {slug} Backlog {row_label}` prints the whole row.)"
+        )
+    _, q_start, q_end = match[0]
+    q_lines = lines[q_start:q_end]
+    indent = len(q_lines[0]) - len(q_lines[0].lstrip())
+    # No de-indenting: every regex `_parse_q_block` uses is anchored `^\s*`,
+    # so the row's nesting depth reads the same as a doc block's zero depth.
+    parsed = _parse_q_block(_trim_blanks(q_lines))
+    outcome = _resolve_outcome(choice, parsed["options"], q_num)
+    entry = _format_row_resolved_q(q_num, parsed, outcome, note,
+                                   date.today().isoformat(), indent)
+
+    lines = lines[:q_start] + lines[q_end:]
+    row_start, row_end = _row_span(lines, row_label)
+    zone_at = None
+    for k in range(row_start + 1, row_end):
+        if be._ROW_Q_ZONE_HEAD_RE.match(lines[k]):
+            zone_at = k
+            break
+    if zone_at is None:
+        insert = row_end
+        while insert > row_start + 1 and not lines[insert - 1].strip():
+            insert -= 1
+        lines = (lines[:insert] + [f"{' ' * indent}{be.ROW_Q_RESOLVED_HEAD}"]
+                 + entry + lines[insert:])
+    else:
+        insert = row_end
+        while insert > zone_at + 1 and not lines[insert - 1].strip():
+            insert -= 1
+        lines = lines[:insert] + entry + lines[insert:]
+
+    row_start, row_end = _row_span(lines, row_label)
+    still_open = be.count_row_pending_qs(lines[row_start + 1:row_end])
+    lines = _rebracket_questions_row(lines, row_start, still_open)
+    keep = [l + "\n" for l in lines]
+    keep = be.restamp_backlog(keep)
+    be.write_backlog_lines(src_file, keep)
+    be._selffire(src_file)
+
+    summary = (f"resolved {row_label}.Q{q_num} ({outcome.split(' — ')[0]}) "
+               f"in {src_file.name} — {still_open} still open on the row")
+    _post_conditions_and_print(slug, src_file, summary)
+    return 0
+
+
+_QUESTIONS_BRACKET_RE = re.compile(r"^(-\s+\*\*.+?\*\*\s+\[)(\d+\s+)?Questions?(\])")
+
+
+def _rebracket_questions_row(lines, row_start, still_open):
+    """Recount a `[N Questions]` bracket after one of the row's questions lands.
+
+    Touches ONLY a Questions bracket. A row can legitimately host questions
+    while bracketed something else — T041 sat at `[Ready]` with three open Qs,
+    which is a separate defect and not this verb's to decide — and silently
+    rewriting such a row's status would make `resolve` a status-changing verb
+    behind the caller's back.
+
+    At zero the bracket is left alone rather than guessed at. What a
+    question-free row should say next is a real judgment ([Ready] needs a
+    `- **Next:**` per F171, [Done] needs the work to be finished), audit-q's
+    C24 already reports the staleness with that judgment attached, and a wrong
+    guess here would be a status transition nobody asked for.
+    """
+    m = _QUESTIONS_BRACKET_RE.match(lines[row_start])
+    if not m or still_open == 0:
+        return lines
+    bracket = "Questions" if still_open == 1 else f"{still_open} Questions"
+    lines[row_start] = _QUESTIONS_BRACKET_RE.sub(
+        lambda mm: f"{mm.group(1)}{bracket}{mm.group(3)}", lines[row_start], count=1)
+    return lines
 
 
 def _row_resolve(slug, backlog_path, label, args):
@@ -2289,6 +2503,21 @@ def _verify_verb(slug, doc_path, v_num, verb, args):
 
 def cmd_item(slug, anchor_path, args):
     doc_kind, doc_path = resolve_doc(args.doc, slug, anchor_path)
+    row_q = parse_row_q_label(args.label)
+    if row_q is not None:
+        row_label, q_num = row_q
+        if doc_kind != "backlog":
+            raise be.BacklogEditError(
+                f"{args.label} is a row-scoped address and rows live on the "
+                f"Backlog, not {doc_path.name}. A question hosted by a DOC is "
+                f"addressed as `{doc_path.stem} Q{q_num}` — no row prefix.")
+        if args.verb != "resolve":
+            raise be.BacklogEditError(
+                f"{args.verb} does not take a row-scoped question address. "
+                f"Only `resolve` does (T086): a row's inline Q is written by "
+                f"`define`/`set` on the row itself, so the address it needs is "
+                f"the one verb that answers a single question in place.")
+        return _row_q_resolve(slug, doc_path, row_label, q_num, args)
     letters, num = parse_label(args.label)
     if num == "+" and args.verb != "define":
         raise be.BacklogEditError(
@@ -2387,6 +2616,59 @@ def _doc_item_span(lines, letters, num):
     return None
 
 
+def _show_row_q(slug, doc_kind, doc_path, row_label, q_num):
+    """Print one row-hosted question — pending or already archived (T086).
+
+    Reads BOTH zones, for the same reason `_doc_item_span` is not restricted to
+    the pending one: a read verb answers "what does this say", and making the
+    caller know which zone an item currently sits in to look at it defeats the
+    verb. `resolve` is where the zones differ, and it says so when they do.
+    """
+    if doc_kind != "backlog":
+        raise be.BacklogEditError(
+            f"{row_label}.Q{q_num} is a row-scoped address and rows live on "
+            f"the Backlog, not {doc_path.name}.")
+    lines = doc_path.read_text(encoding="utf-8").splitlines()
+    span = _row_span(lines, row_label)
+    src = doc_path
+    if span is None:
+        icebox_path = be.find_icebox(slug)
+        if icebox_path is not None:
+            ice = icebox_path.read_text(encoding="utf-8").splitlines()
+            span = _row_span(ice, row_label)
+            if span is not None:
+                lines, src = ice, icebox_path
+    if span is None:
+        raise be.BacklogEditError(f"{row_label} not found in {doc_path.name}")
+    row_start, row_end = span
+    hit = next((s for s in _row_q_spans(lines, row_start, row_end)
+                if s[0] == q_num), None)
+    zone = "pending"
+    if hit is None:
+        # Not in the prefix — look through the whole row, so an archived
+        # question prints rather than reporting itself missing.
+        for k in range(row_start + 1, row_end):
+            m = _ROW_Q_HEADER_RE.match(lines[k])
+            if m and int(m.group(2)) == q_num:
+                indent = len(m.group(1))
+                end = row_end
+                for j in range(k + 1, row_end):
+                    if (_ROW_SUB_RE.match(lines[j])
+                            and len(lines[j]) - len(lines[j].lstrip()) <= indent):
+                        end = j
+                        break
+                hit, zone = (q_num, k, end), "resolved"
+                break
+    if hit is None:
+        raise be.BacklogEditError(
+            f"{row_label} has no Q{q_num} in {src.name}")
+    _, start, end = hit
+    print(f"{slug}: {row_label}.Q{q_num} in {src.name} "
+          f"(lines {start + 1}-{end}, {zone})", file=sys.stderr)
+    sys.stdout.write("\n".join(_trim_blanks(lines[start:end])) + "\n")
+    return 0
+
+
 def cmd_show(slug, anchor_path, args):
     """T064 — `state show <anchor> <doc> <label>`: print an item's full markdown,
     sub-bullet span included, and do nothing else.
@@ -2411,6 +2693,14 @@ def cmd_show(slug, anchor_path, args):
     to stderr.
     """
     doc_kind, doc_path = resolve_doc(args.doc, slug, anchor_path)
+    row_q = parse_row_q_label(args.label)
+    if row_q is not None:
+        # T086 — `show` takes the row-scoped address too, and not as a
+        # courtesy: T064 built this verb precisely so an item could be read
+        # before it is written, and `resolve` is a write. Without it the only
+        # way to see what `T041.Q1` says is to print the whole row and count
+        # sub-bullets by eye — which is how the wrong Q gets answered.
+        return _show_row_q(slug, doc_kind, doc_path, *row_q)
     letters, num = parse_label(args.label)
     if num == "+":
         raise be.BacklogEditError(
@@ -2805,7 +3095,9 @@ _ALL_VERBS = _ITEM_VERBS + ("show", "revalidate", "status", "roadmap",
                             "triage", "crank", "groom-list", "summary-line")
 
 _LABEL_HELP = ("item id — F<n>/T<n>/C<n>/Q<n> on Backlog, Q<n>/V<n> on any "
-               "other doc; LETTERS+'+' auto-mints (F+, T+, C+, Q+, V+)")
+               "other doc; LETTERS+'+' auto-mints (F+, T+, C+, Q+, V+); "
+               "<row>.Q<n> addresses a question hosted inside a Backlog row "
+               "(resolve/show only)")
 
 
 def _first_positional(argv):
