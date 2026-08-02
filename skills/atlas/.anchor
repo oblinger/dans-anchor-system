@@ -3,3 +3,4 @@ traits:
 - skill
 - track
 - commit
+description: SKA skill anchor for `/atlas`

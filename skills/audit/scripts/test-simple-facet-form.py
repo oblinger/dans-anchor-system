@@ -86,5 +86,80 @@ check("`# RULESET` head with valueless `include::` is exempt",
 check("`# Ruleset notes` (ordinary H1) still requires orientation",
       verdict("Ruleset notes.md", "# Ruleset notes\n\n- a\n- b\n"), "fail")
 
+# --------------------------------------------------------------------------
+# T092 — an indented H1 is still an H1
+#
+# CommonMark allows an ATX heading up to THREE leading spaces; four makes it an
+# indented code block. Obsidian renders ` # SRC` as an H1 accordingly. The head
+# scan used to require column 0, so an indented head was SKIPPED and the scan
+# walked on to the file's next `# ` — in practice the `# BRIEF` section every
+# anchor page carries — and blamed that line for the missing orientation line.
+#
+# The wrong LINE NUMBER is the damage, not the wrong verdict: the finding points
+# at a heading that is not the problem, so the obvious remediation is to add a
+# second H1 with an orientation line above BRIEF. That is exactly what happened
+# to `Topic/Search/SRC.md` on 2026-08-01 — a page whose real head was correct.
+# Hence the message assertions below, not just pass/fail.
+
+def message(filename, body):
+    d = pathlib.Path(tempfile.mkdtemp())
+    f = d / filename
+    f.write_text(body, encoding="utf-8")
+    return ap.chk_doc_head_orientation_line(f, f.parent, [])[1]
+
+
+print("Indented H1 (0-3 leading spaces) is recognized as the head (T092)")
+
+# 10-12. one, two and three leading spaces are all valid ATX heads
+for n in (1, 2, 3):
+    check(f"{n}-space-indented H1 + orientation line passes",
+          verdict("SRC.md", f"{' ' * n}# SRC\nWhat this file is.\n\n## Body\n"), "pass")
+
+# 13. THE REGRESSION: the SRC.md shape — indented head, correct orientation line,
+#     and a later column-0 `# BRIEF`. Pre-T092 this failed and named BRIEF's line.
+SRC_SHAPE = (":>> [[kmr]] → [[Topic]] → [[SRC]]\n"
+             " # SRC\n"
+             "The search anchor.\n"
+             "\n"
+             "# BRIEF\n"
+             "\n"
+             "- agent-facing note\n")
+check("indented head + correct orientation + later `# BRIEF` passes",
+      verdict("SRC.md", SRC_SHAPE), "pass")
+
+# 14. and when it DOES fail, it must blame the indented head's own line (2), never
+#     the later `# BRIEF` (line 5) — the misdirection T092 was filed for.
+BAD_SHAPE = (":>> [[kmr]] → [[Topic]] → [[SRC]]\n"
+             " # SRC\n"
+             "\n"
+             "- straight to a list, no orientation line\n"
+             "\n"
+             "# BRIEF\n"
+             "\n"
+             "- agent-facing note\n")
+check("failure names the indented head's line, not the later `# BRIEF`",
+      "line 2" in message("SRC.md", BAD_SHAPE), True)
+check("failure does NOT name the `# BRIEF` line",
+      "line 6" in message("SRC.md", BAD_SHAPE), False)
+
+print("The relaxation does not over-reach")
+
+# 15. FOUR spaces is an indented code block per CommonMark, not a heading — a doc
+#     whose only `# ` is 4-indented has no head at all and stays out of scope.
+check("4-space-indented `# ` is a code block, not an H1 (out of scope)",
+      verdict("Note.md", "Some prose.\n\n    # not a heading\n"), "pass")
+
+# 16. a `# ` inside a fence is still ignored, indented or not
+check("indented `# ` inside a fence is not read as the head",
+      verdict("Note.md", "# Note\nWhat this is.\n\n```python\n  # a comment\n```\n"), "pass")
+
+# 17-18. the two head-shape exemptions key off the DE-INDENTED H1 text, so an
+#     indented ruleset / simple-facet head stays exempt rather than being newly
+#     selected by the relaxed scan and then failing for want of an orientation line.
+check("indented `# RULESET` head is still exempt",
+      verdict("R-x.md", " # RULESET R-x\nwhere:: `always`\n\nProse body.\n"), "pass")
+check("indented simple-facet head is still exempt",
+      verdict("26OMNI Plan.md", "  # [[26OMNI]] Plan\n\n- [ ] x\n"), "pass")
+
 print(f"\n{sum(results)}/{len(results)} passed")
 raise SystemExit(0 if all(results) else 1)

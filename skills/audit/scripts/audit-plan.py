@@ -2580,23 +2580,36 @@ def chk_doc_head_orientation_line(target, anchor_root, args):
         if ln.lstrip().startswith("```"):
             in_fence = not in_fence
             continue
-        if not in_fence and re.match(r"^# \S", ln):
+        # CommonMark allows an ATX heading up to THREE leading spaces (four makes
+        # it an indented code block), and Obsidian renders ` # Title` as an H1. A
+        # column-0-only match SKIPS such a head and walks on to the file's next
+        # `# ` — in practice the `# BRIEF` section every anchor page carries — then
+        # blames THAT line for the missing orientation line (T092, confirmed by an
+        # A/B probe on `Topic/Search/SRC.md`). The wrong line number IS the damage:
+        # the obvious remediation is to add a second H1 above BRIEF, so the misread
+        # rewrites a page whose real head was correct all along.
+        if not in_fence and re.match(r"^ {0,3}# \S", ln):
             h1 = i
             break
     if h1 is None:
         return "pass", "no H1 — out of scope"
+    # Every downstream head test matches against the DE-INDENTED H1 rather than
+    # re-stating `^ {0,3}` three more times. Without this, relaxing the scan above
+    # would newly SELECT an indented `# RULESET` or simple-facet head and then fail
+    # to recognize it — turning one blindness into two false positives.
+    h1_text = lines[h1].lstrip(" ")
     # Ruleset spec heads are a distinct, machine-read doc class: `# RULESET <id>`
     # followed by `where::` / `include::` / `description::` fields (some valueless,
     # e.g. a bare `include::`), NOT the breadcrumb → H1 → orientation convention.
     # The orientation-line rule does not govern them — skip (T051).
-    if re.match(r"^# RULESET\b", lines[h1]):
+    if re.match(r"^# RULESET\b", h1_text):
         return "pass", "ruleset spec head (# RULESET) — orientation line N/A"
     # Simple facet form (DAS Doc Structure): a slug-prefixed facet page whose H1
     # fuses the breadcrumb into the title — `# [[{slug}]] {Facet}` where {slug} is
     # the filename's leading token. The wiki-link IS the breadcrumb and the head
     # is self-describing (slug ⊗ facet), so the orientation line is waived; the
     # file's essence (a list / table / figure) may follow the H1 directly.
-    m_sf = re.match(r"^# \[\[([^\]|#]+)(?:\|[^\]]+)?\]\]\s+\S", lines[h1])
+    m_sf = re.match(r"^# \[\[([^\]|#]+)(?:\|[^\]]+)?\]\]\s+\S", h1_text)
     if m_sf and m_sf.group(1).strip() == f.stem.split(" ")[0]:
         return "pass", "simple facet form — orientation line waived (fused-breadcrumb H1)"
     field = re.compile(r"^[\w-]+::\s")
@@ -3001,9 +3014,7 @@ def chk_md_angle_brackets_html_or_spaced(target, anchor_root, args):
         return "pass", "html file"
     text = _read(target)
     blank = lambda m: re.sub(r"[^\n]", " ", m.group(0))      # mask, keep line count
-    masked = re.sub(r"```[\s\S]*?```", blank, text)          # fenced code (backtick)
-    masked = re.sub(r"~~~[\s\S]*?~~~", blank, masked)        # fenced code (tilde)
-    masked = re.sub(r"(`+)[^\n]*?\1", blank, masked)         # inline code spans
+    masked = _mask_code(text)                                # fences + inline spans (F296)
     masked = re.sub(r"<!--[\s\S]*?-->", blank, masked)       # HTML comments (valid)
     masked = re.sub(                                         # curated valid inline HTML tags
         r"(?i)</?(?:br|hr|ins|del|sub|sup|kbd|mark|u|wbr|s|q|abbr|cite)(?:\s[^<>\n]*?)?/?>",
@@ -3091,11 +3102,15 @@ def chk_md_table_pipe_escape(target, anchor_root, args):
     """R-markdown-01: a wiki-link inside a table cell must escape its pipe (`[[A\\|B]]`)."""
     if not target.is_file():
         return "pass", "not a file"
+    # Test the MASKED line, report the real one (F296): a fenced literal example
+    # of a table row is not a table row. `_code_masked_lines` blanks code
+    # length-preservingly, so a fenced row's `|` is gone and the line numbers of
+    # everything else still line up.
     hits = []
-    for ln, raw in enumerate(_read(target).splitlines(), 1):
-        if not raw.lstrip().startswith("|"):
+    for ln, masked in enumerate(_code_masked_lines(_read(target)), 1):
+        if not masked.lstrip().startswith("|"):
             continue
-        for m in re.finditer(r"\[\[[^\]]*?\]\]", raw):
+        for m in re.finditer(r"\[\[[^\]]*?\]\]", masked):
             if re.search(r"(?<!\\)\|", m.group(0)):
                 hits.append(f"line {ln}")
                 break
@@ -3109,10 +3124,11 @@ def chk_md_em_dash(target, anchor_root, args):
     outside code should be `—`. Only the spaced form is flagged — never `--flag`, `---`."""
     if not target.is_file():
         return "pass", "not a file"
-    blank = lambda m: re.sub(r"[^\n]", " ", m.group(0))
-    masked = re.sub(r"```[\s\S]*?```", blank, _read(target))
-    masked = re.sub(r"~~~[\s\S]*?~~~", blank, masked)
-    masked = re.sub(r"(`+)[^\n]*?\1", blank, masked)
+    # `_mask_code`, not a local re-roll of it (F296): the hand-rolled trio here
+    # paired fence runs anywhere on a line, so a zero-width-space-escaped nested
+    # fence left the real inner block exposed — and `fix_md_em_dash` then rewrote
+    # the code it exposed.
+    masked = _mask_code(_read(target))
     hits = [f"line {ln}" for ln, raw in enumerate(masked.splitlines(), 1) if " -- " in raw][:5]
     if hits:
         return "fail", "spaced double-hyphen em-dash — " + ", ".join(hits)
@@ -3259,10 +3275,30 @@ def _mask_code(text: str) -> str:
       the prose checks and produced a phantom R-markdown-13 finding.
     """
     blank = lambda m: re.sub(r"[^\n]", " ", m.group(0))
-    fence = re.compile(
-        r"(?m)^[ \t]{0,3}(`{3,}|~{3,})[^\n]*(?:\n[\s\S]*?^[ \t]{0,3}\1[ \t]*$|\Z)")
-    masked = fence.sub(blank, text)
+    masked = _FENCE_RE.sub(blank, text)
     return re.sub(r"(`+)[^\n]*?\1", blank, masked)
+
+
+# The one fence pattern (F296). Lifted out of `_mask_code` because
+# `_repl_outside_code` needs the same pairing and had drifted onto the old
+# unanchored `` ```[\s\S]*?``` `` — which is how `fix_md_em_dash` came to rewrite
+# real code INSIDE a fence, on the on-write path, with the re-check then passing
+# and the driver reporting it "fixed". Masking and replacing are different
+# operations over the same structure; only the structure is shared, and it is
+# shared HERE so the next one cannot drift again.
+_FENCE_RE = re.compile(
+    r"(?m)^[ \t]{0,3}(`{3,}|~{3,})[^\n]*(?:\n[\s\S]*?^[ \t]{0,3}\1[ \t]*$|\Z)")
+
+
+def _code_masked_lines(text: str) -> list[str]:
+    """`text` split into lines with every code region blanked, length-preserved.
+
+    For the checkers AND fixers that decide line-by-line whether a line is prose:
+    zip these against the real lines, TEST the masked one, EDIT the real one. A
+    fixer that tests the real line cannot tell a literal example from the thing it
+    is an example of, and rewrites both — F296 finding 2, where a fenced
+    `| [[A|B]] | cell |` was silently escaped to `| [[A\\|B]] |`."""
+    return _mask_code(text).splitlines()
 
 
 def chk_md_inline_field_value(target, anchor_root, args):
@@ -4319,7 +4355,7 @@ def _alnum_subseq(orig: str, new: str) -> bool:
 def _repl_outside_code(text: str, repl):
     """Apply `repl` to the parts of `text` outside fenced blocks and inline code spans."""
     out, i = [], 0
-    for m in re.finditer(r"```[\s\S]*?```|~~~[\s\S]*?~~~", text):
+    for m in _FENCE_RE.finditer(text):
         out.append(_repl_outside_inline(text[i:m.start()], repl)); out.append(m.group(0)); i = m.end()
     out.append(_repl_outside_inline(text[i:], repl))
     return "".join(out)
@@ -4379,10 +4415,16 @@ def fix_md_terminal_link_pad(target, anchor_root, args):
 
 
 def fix_md_table_pipe_escape(target, anchor_root, args):
-    lines = _read(target).split("\n")
+    text = _read(target)
+    lines = text.split("\n")
+    # Decide on the masked line, edit the real one — the same pairing the check
+    # uses, so writer and reader cannot disagree about which lines are table rows.
+    # Before F296 this fixer tested `raw` and so escaped the pipe inside fenced
+    # EXAMPLES of the row form, on the on-write path, silently.
+    masked_lines = _code_masked_lines(text)
     changed = False
     for i, raw in enumerate(lines):
-        if not raw.lstrip().startswith("|"):
+        if i >= len(masked_lines) or not masked_lines[i].lstrip().startswith("|"):
             continue
         newline = re.sub(r"\[\[[^\]]*?\]\]",
                          lambda m: re.sub(r"(?<!\\)\|", r"\\|", m.group(0)), raw)
