@@ -1787,12 +1787,13 @@ def chk_no_ascii_diagram(target, anchor_root, args):
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
-    in_fence, hits, first_line = False, 0, None
-    for i, ln in enumerate(_read(f).splitlines(), 1):
-        if re.match(r"^\s*(```|~~~)", ln):
-            in_fence = not in_fence
-            continue
-        if in_fence:
+    text = _read(f)
+    fenced = _fenced_mask(text)
+    hits, first_line = 0, None
+    for i, ln in enumerate(text.splitlines(), 1):
+        # Marker lines carry no box-drawing glyphs, so counting them costs nothing
+        # and the whole toggle collapses to the shared mask (T099).
+        if fenced[i - 1]:
             n = sum(ln.count(c) for c in _BOX_DRAWING_CHARS)
             if n:
                 hits += n
@@ -2682,15 +2683,17 @@ def chk_progressive_disclosure_layout(target, anchor_root, args):
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
-    lines = _read(f).splitlines()
-    in_fence = False
-    fenced = [False] * len(lines)
-    for i, ln in enumerate(lines):
-        if ln.lstrip().startswith("```"):
-            in_fence = not in_fence
-            fenced[i] = True
-            continue
-        fenced[i] = in_fence
+    text = _read(f)
+    lines = text.splitlines()
+    # This is where the third copy of the private fence toggle was found, and the
+    # one that mattered most: `R-progressive` is `where:: always`, so it ran over
+    # every doc in the vault. `F113 — Decisions facet…md` opens a ```markdown
+    # fence at line 54 and never closes it; CommonMark runs that fence to
+    # end-of-document, but the toggle read the line-98 opener as a closer, so the
+    # `## md-formatting` heading on line 99 — plainly inside a code sample — was
+    # judged a live H2 glued to the prose above. Verdict diff over all 7366 vault
+    # docs: one move, that false positive, nothing else.
+    fenced = _fenced_mask(text)
     fails = []
     # (1) every H2 preceded by a blank line
     for i, ln in enumerate(lines):
@@ -3188,16 +3191,13 @@ def chk_md_table_blank_lines(target, anchor_root, args):
     """Markdown tables need blank lines before the header and after the table."""
     if not target.is_file():
         return "pass", "not a file"
-    lines = _read(target).splitlines()
+    text = _read(target)
+    lines = text.splitlines()
     issues = []
     i = 0
-    in_fence = False
+    fenced = _fenced_mask(text)
     while i < len(lines):
-        if re.match(r"^\s*(```|~~~)", lines[i]):
-            in_fence = not in_fence
-            i += 1
-            continue
-        if in_fence:
+        if fenced[i]:
             i += 1
             continue
         if re.match(r"^\s*\|", lines[i]) and i + 1 < len(lines) and re.match(r"^\s*\|[\s|:-]+$", lines[i + 1]):
@@ -3473,8 +3473,54 @@ _SPAN_RE = re.compile(r"(?<!`)(`+)(?!`)[^\n]*?(?<!`)\1(?!`)")
 # left the rest of the file exposed, its inline-span pass then chewed the opener
 # down to `` `python ``, and `fix_md_em_dash` rewrote the code below it. That is
 # F296 finding 1 verbatim, surviving inside finding 1's own fix.
+#
+# The indent bound is `[ \t]*`, not CommonMark's `{0,3}`, and that is deliberate.
+# CommonMark measures those three spaces from the containing BLOCK's content
+# column, not from column zero — so a fence nested in a list item legitimately
+# carries the list's indent, commonly four. Measuring from column zero instead
+# made such a fence invisible: `HA F008 — Electric Anchor.md` documents a table
+# inside a ```-fence indented four inside a list item, and with the strict bound
+# `chk_md_table_blank_lines` read those rows as a LIVE table and demanded a blank
+# line inside a code sample. Twelve vault docs carry a >=4-indented fence marker,
+# eight of them wrapping a table row, heading or wiki-link — small, but every one
+# of them is a doc that shows markup rather than uses it, which is the exact
+# population fence-awareness exists to protect. Tracking the containing block's
+# indent needs a block parser this file does not have and does not want; the cost
+# of the relaxation is that a fence sitting inside a 4-space INDENTED CODE BLOCK
+# is treated as a fence, and its contents were literal code either way.
 _FENCE_RE = re.compile(
-    r"(?m)^[ \t]{0,3}(`{3,}|~{3,})[^\n]*(?:\n[\s\S]*?^[ \t]{0,3}\1[ \t]*$|[\s\S]*\Z)")
+    r"(?m)^[ \t]*(`{3,}|~{3,})[^\n]*(?:\n[\s\S]*?^[ \t]*\1[ \t]*$|[\s\S]*\Z)")
+
+
+def _fenced_mask(text: str) -> list[bool]:
+    """Per-line "is this line inside a code fence" flags, marker lines included.
+
+    T099. Seven places in this file answered that question with a private
+    `in_fence` toggle, and every one of them was wrong in at least one of the
+    three ways `_FENCE_RE` exists to fix: blind to `~~~` entirely, invertible by a
+    ``` appearing inside a `~~~` block, and — the one that actually moved a
+    verdict — reading the NEXT opener as a closer when a fence is left unclosed,
+    which CommonMark runs to end-of-document instead.
+
+    Patching them one at a time is the loop this consolidation ends: F296 fixed
+    the toggle in `_strip_fenced`, then found the identical toggle still standing
+    in `chk_md_fence_no_markdown` — the one checker whose entire subject is
+    fences — and then found it a third time in `chk_progressive_disclosure_layout`,
+    on a rule scoped `where:: always`. Three finds, three presses, one defect.
+
+    Marker lines read True because every consumer here skips them: an opener is
+    not prose, and no caller wants to see it. `_strip_fenced` and `_mask_code`
+    stay separate — they BLANK text rather than classify lines, and
+    `_disclosure_units` hashes the blanked form, so they cannot be collapsed into
+    this without re-hashing the registry.
+    """
+    lines = text.splitlines()
+    inside = set()
+    for m in _FENCE_RE.finditer(text):
+        for i in range(text.count("\n", 0, m.start()),
+                       text.count("\n", 0, m.end()) + 1):
+            inside.add(i)
+    return [i in inside for i in range(len(lines))]
 
 
 def _code_masked_lines(text: str) -> list[str]:
@@ -3801,7 +3847,7 @@ def _backlog_rows(text):
     rows = []
     h2 = None
     cur = None
-    in_fence = False
+    fenced = _fenced_mask(text)
     for i, ln in enumerate(text.splitlines(), 1):
         # A fenced block inside a row is NEUTRAL — it neither closes the row nor
         # joins its sub-bullets (F296 finding 4). A row that documents a command
@@ -3812,10 +3858,7 @@ def _backlog_rows(text):
         # remediation is to add a second, duplicate Next. Keeping fenced content
         # out of `subs` also means a fenced `- **Q1 —` example is not counted as
         # one of the row's questions.
-        if re.match(r"^\s{0,3}(```|~~~)", ln):
-            in_fence = not in_fence
-            continue
-        if in_fence:
+        if fenced[i - 1]:
             continue
         m = re.match(r"^##\s+(.+?)\s*$", ln)
         if m:
@@ -4022,14 +4065,9 @@ def _agenda_is_instance(f: Path, anchor_root: Path) -> bool:
 
 def _agenda_h2s(text: str) -> list[str]:
     """H2 titles in file order, fences skipped."""
-    out, in_fence = [], False
-    for line in text.splitlines():
-        if line.lstrip().startswith("```"):
-            in_fence = not in_fence
-            continue
-        if not in_fence and line.startswith("## "):
-            out.append(line[3:].strip())
-    return out
+    fenced = _fenced_mask(text)
+    return [ln[3:].strip() for i, ln in enumerate(text.splitlines())
+            if not fenced[i] and ln.startswith("## ")]
 
 
 def chk_agenda_filename_valid(target, anchor_root, args):
@@ -4160,12 +4198,11 @@ def chk_agenda_no_work_rows(target, anchor_root, args):
         return "error", "no file"
     if not _agenda_is_instance(f, anchor_root):
         return "pass", "not an Agenda-facet instance (elective facet, not adopted here)"
-    hits, in_fence = [], False
-    for n, line in enumerate(_read(f).splitlines(), start=1):
-        if line.lstrip().startswith("```"):
-            in_fence = not in_fence
-            continue
-        if in_fence:
+    text = _read(f)
+    fenced = _fenced_mask(text)
+    hits = []
+    for n, line in enumerate(text.splitlines(), start=1):
+        if fenced[n - 1]:
             continue
         m = _AGENDA_BRACKET.search(line) or _AGENDA_BLOCKID.search(line)
         if m:
@@ -4518,17 +4555,22 @@ def fix_table_blank_lines(target, anchor_root, args):
     the `md_table_blank_lines` check. Deterministic and safe — only adds blanks."""
     if not target.is_file():
         return False, "not a file"
-    lines = _read(target).split("\n")
+    text = _read(target)
+    lines = text.split("\n")
     is_tbl = lambda l: l.lstrip().startswith("|")
-    is_fence = lambda l: re.match(r"^\s*(```|~~~)", l) is not None
     out, i, changed = [], 0, False
-    in_fence = False
     n = len(lines)
+    # `split("\n")` rather than `splitlines()` so the join round-trips a trailing
+    # newline; `_fenced_mask` counts `splitlines()`, so pad the tail. This fixer
+    # WRITES the file, and it shares its fence judgement with the check it is
+    # paired to (`chk_md_table_blank_lines`) — the two disagreeing is how a fixer
+    # ends up re-inserting a blank the check will flag again next run (T099).
+    fenced = _fenced_mask(text)
+    fenced += [False] * (n - len(fenced))
     while i < n:
-        if is_fence(lines[i]):
-            in_fence = not in_fence
+        if fenced[i]:
             out.append(lines[i]); i += 1
-        elif not in_fence and is_tbl(lines[i]):
+        elif is_tbl(lines[i]):
             if out and out[-1].strip() != "":
                 out.append(""); changed = True
             while i < n and is_tbl(lines[i]):
