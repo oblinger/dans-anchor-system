@@ -32,7 +32,7 @@ Under that sits **`**Spent so far:** $N.NNN`** — the roll's cumulative cost, m
 
 Then, in this order:
 
-- **`## Pick`** — the chosen keeper, shown large (2000px). Optional; set by `pick`.
+- **`## Pick — {image}`** — the chosen keeper, shown large (2000px), with the winning image named in the heading. Optional; set by `pick`.
 - **`## Next render`** — the **one pending operation**: an `#### {command}` H4 followed by the prompt. This is the editable surface — change it and the next `render` does the new thing.
 - **`## Batch {n}` …** — everything already rendered, newest first. Each is a heading, then the image grid, then the `####` command and prompt that produced it.
 
