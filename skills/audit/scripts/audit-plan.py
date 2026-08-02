@@ -1298,7 +1298,10 @@ def chk_breadcrumb_row(target, anchor_root, args):
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
-    for ln in _read(f).splitlines():
+    # Fence-stripped (T103a): a masthead shown as a fenced EXAMPLE is exactly what
+    # the docs teaching mastheads carry, and reading one as the doc's first table
+    # row fails the page for a malformed breadcrumb it does not have.
+    for ln in _strip_fenced(_read(f)).splitlines():
         if _is_table_row(ln):
             if re.search(r"\|\s*-\[\[.+?\]\]-\s*\|.*hook://", ln.strip()):
                 return "pass", ""
@@ -1312,7 +1315,7 @@ def chk_design_row_iff_folder(target, anchor_root, args):
         return "error", "no file"
     name = anchor_root.name
     has_folder = (anchor_root / f"{name} Design").is_dir()
-    text = _read(f)
+    text = _strip_fenced(_read(f))   # T103a — a fenced sample row is not a Design row
     # A *Design row*'s first cell is the design-folder link aliased exactly "Design"
     # (or a bare "Design" cell) — NOT a member doc like "UX Design"/"API Design".
     has_row = (bool(re.search(r"^ {0,3}\|\s*\[\[[^\]|]*\|Design\]\]", text, re.MULTILINE))
@@ -2236,7 +2239,9 @@ def chk_no_track_row_if_ecosystem_traits(target, anchor_root, args):
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file to inspect"
-    if re.search(r"\|\s*\[?\[?Track\]?\]?\s*\|", _read(f)):
+    # Fence-stripped (T103a): the docs that explain why these anchors carry no Track
+    # row are the ones most likely to SHOW a Track row in a fenced example.
+    if re.search(r"\|\s*\[?\[?Track\]?\]?\s*\|", _strip_fenced(_read(f))):
         return "fail", "Track row present on ecosystem anchor"
     return "pass", ""
 
@@ -2390,7 +2395,9 @@ def chk_queries_catchall_links(target, anchor_root, args):
     handle = re.compile(r"^(?:[FT]\d+|[MR]-[\w.-]+)(\s+Q\d+)?\b")
     in_q = False
     bad = []
-    for ln, raw in enumerate(_read(target).splitlines(), 1):
+    # Fence-stripped (T103a): a fenced `## Questions` sample opened the section and
+    # every fenced bullet under it was judged as a live catch-all entry.
+    for ln, raw in enumerate(_strip_fenced(_read(target)).splitlines(), 1):
         if raw.startswith("## "):
             in_q = raw.strip() == "## Questions"
             continue
@@ -2503,7 +2510,7 @@ def chk_dispatch_table_stories_row(target, anchor_root, args):
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
-    text = _read(f)
+    text = _strip_fenced(_read(f))   # T103a — a fenced table is not THE dispatch table
     # project slug from the PRD's own basename ("HBR PRD.md" -> "HBR"), not the
     # (possibly nested) anchor folder name.
     base = Path(f).stem
@@ -2535,8 +2542,12 @@ def chk_no_dispatch_table(target, anchor_root, args):
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
-    for i, ln in enumerate(_read(f).splitlines(), 1):
-        if re.search(r"^\|\s*-\[\[.+?\]\]-\s*\|", ln):
+    # Fence-stripped (T103a). This rule's remediation is "remove it", so a fenced
+    # masthead sample read as live tells the author to delete their own
+    # documentation — the most damaging shape a false finding can take here.
+    # `_strip_fenced` blanks lines in place, so the reported line number survives.
+    for i, ln in enumerate(_strip_fenced(_read(f)).splitlines(), 1):
+        if re.search(r"^ {0,3}\|\s*-\[\[.+?\]\]-\s*\|", ln):
             return "fail", (f"non-anchor doc has a dispatch-masthead table (line {i}); "
                             "remove it — back-links go in ## Related")
     return "pass", "no dispatch table"
@@ -3240,7 +3251,11 @@ def chk_log_dispatch_newest_first(target, anchor_root, args):
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file to inspect"
-    matches = re.findall(r"\[\[(\d{4}(?:-\d{2})?(?:-\d{2})?)\s+[^\]]*\]\]", _read(f))
+    # Fence-stripped (T103a): a fenced example of a log dispatch table carries dated
+    # links in whatever order reads best as an illustration, and interleaving them
+    # with the live rows made the ordering test report a reversal that is not there.
+    matches = re.findall(r"\[\[(\d{4}(?:-\d{2})?(?:-\d{2})?)\s+[^\]]*\]\]",
+                         _strip_fenced(_read(f)))
     if len(matches) < 2:
         return "pass", "fewer than 2 entries"
 
