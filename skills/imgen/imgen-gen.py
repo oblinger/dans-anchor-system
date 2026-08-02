@@ -288,12 +288,23 @@ def update_spend(roll_dir):
     # Count a dollar figure only on a provenance line — one that also names a model
     # or a seed. Older rolls wrote provenance as plain prose rather than the italic
     # line, so keying on `*…*` alone silently under-reports them as $0.000.
+    # Sum EXACTLY: per-batch figures are rounded to the penny for readability, and
+    # summing those rounded values drifts (a 1-image flux-dev batch is 2.5¢, which
+    # no whole-cent display can hold). So price each batch from its model and its
+    # image count, and fall back to the printed figure only when that is unknown.
     total = 0.0
-    for ln in text.split("\n"):
-        if re.search(r"\b(seed|seeds|flux|fal-ai|local-blend)\b", ln, re.I):
-            m = re.search(r"\$([0-9]+\.[0-9]+)", ln)
-            if m:
-                total += float(m.group(1))
+    for m in re.finditer(r"^## Batch \d+\b.*$", text, re.M):
+        nxt = re.search(r"^## ", text[m.end():], re.M)
+        block = text[m.start():m.end() + nxt.start()] if nxt else text[m.start():]
+        model = next((k for k in BACKENDS if k in block), None)
+        if model is None and "fal-ai/flux/dev" in block:
+            model = "flux-dev"
+        shots = len(re.findall(r"!\[\[[^\]]*?\.(?:png|jpg)", block, re.I))
+        if model and shots:
+            total += BACKENDS[model]["cost"] * shots
+        else:                                   # local blends, or a batch with no model
+            c, d = re.search(r"(\d+)¢", block), re.search(r"\$([0-9]+\.[0-9]+)", block)
+            total += int(c.group(1)) / 100 if c else float(d.group(1)) if d else 0.0
     line = f"**Spent so far:** ${total:.3f}"
     if SPEND_RE.search(text):
         text = SPEND_RE.sub(line, text, count=1)
@@ -320,10 +331,16 @@ def read_batch_meta(roll_dir, n):
     return (dm.group(1) if dm else None), seeds
 
 
+def cents(cost):
+    """Per-batch money reads in whole cents — a batch is pennies, and `$0.040`
+    is harder to scan than `4¢`. The roll total stays in dollars."""
+    return f"{int(cost * 100 + 0.5)}¢"      # half-up; round() would send 2.5¢ down to 2¢
+
+
 def format_meta(model, size, date, cost, n, seeds):
     """The italic provenance line that closes a batch block."""
     listed = ", ".join(f"{n}{v} {seeds[v]}" for v in sorted(seeds) if seeds[v])
-    parts = [model, size, date, f"${cost:.3f}"] + ([f"seeds {listed}"] if listed else [])
+    parts = [model, size, date, cents(cost)] + ([f"seeds {listed}"] if listed else [])
     return "*" + " · ".join(parts) + "*"
 
 
@@ -554,7 +571,7 @@ def _do_render(roll_dir, roll_n, count, size, confirm_over, yes, dry):
     if dry:
         where = "append to" if start else "new"
         print(f"dry-run: {command!r} × {count} → {where} Batch {batch} "
-              f"({SLUG}{roll_n:03d}-{batch}[{''.join(variants)}]) (${cost:.3f})")
+              f"({SLUG}{roll_n:03d}-{batch}[{''.join(variants)}]) ({cents(cost)})")
         return []
 
     def one(v):
@@ -593,7 +610,8 @@ def _do_render(roll_dir, roll_n, count, size, confirm_over, yes, dry):
     for f in failed:
         print(f"  FAILED: {f}", file=sys.stderr)
     print(f"{len(written)} image(s) → Batch {batch} of {roll_dir.name}, "
-          f"${BACKENDS[model]['cost']*len(written):.3f}")
+          f"{cents(BACKENDS[model]['cost']*len(written))} "
+          f"(roll total ${update_spend(roll_dir):.2f})")
     return written
 
 
