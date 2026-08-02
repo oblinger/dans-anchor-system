@@ -1588,6 +1588,7 @@ def _run_question_gates(q_num, body, why_ask, require_on_answer=False):
 
 
 _MINT_PLACEHOLDER_RE = re.compile(r"\*\*[FTCQ]\+(\s+—)")  # F250#8: C+ was omitted → `C+ define` never rewrote the placeholder; F275: Q+ for standalone question rows
+_REC_BULLET_RE = re.compile(r"^\s*-\s+\*\*Recommendation:\*\*")  # MUX T042 — the one bullet allowed to keep its trailing blank (audit-q C20)
 _ON_ANSWER_RE = re.compile(r"^\s*-\s+\*\*On answer:\*\*", re.MULTILINE)  # F275 M3 — the resumption clause, hard-required on standalone Q rows
 
 
@@ -1628,7 +1629,26 @@ def _row_define(slug, backlog_path, label, args, minted=False, raw_override=None
     title = (m.group("title") or "").strip()
     status = m.group("status").strip()
     row_body = (m.group("body") or "").strip()
-    sub_lines = [l for l in body_lines[1:] if l.strip()]
+    # Blank lines are dropped from a row body EXCEPT the one immediately after a
+    # `- **Recommendation:**` bullet, which audit-q C20 requires as the separator
+    # between a Q group and whatever follows it. Without this carve-out C20 is
+    # unsatisfiable for every row-hosted question: fixing C9 (add a Recommendation
+    # bullet) is what makes C20 reachable at all, and the blank it then demands
+    # used to be stripped right back out here — a permanent finding floor on every
+    # anchor. Safe because a row's extent is delimited by the next row start or H2,
+    # never by a blank line (`backlog-edit.py` scan_backlog / boundary_lines), so a
+    # blank inside a body does not split the row. See MUX T042.
+    sub_lines = []
+    for l in body_lines[1:]:
+        if l.strip():
+            sub_lines.append(l)
+        elif sub_lines and _REC_BULLET_RE.match(sub_lines[-1]):
+            sub_lines.append("")
+    # A Recommendation that ends the body needs the separator too, and a trailing
+    # blank can never arrive here — `raw.rstrip("\n")` above eats it — so add it
+    # unconditionally rather than relying on the caller to supply one.
+    if sub_lines and _REC_BULLET_RE.match(sub_lines[-1]):
+        sub_lines.append("")
 
     # A `- **Next:**` / `- **Verify:**` sub-bullet in the define body IS the
     # status promise — thread it through the guard (which otherwise refuses
