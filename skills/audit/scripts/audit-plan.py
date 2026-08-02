@@ -2126,17 +2126,26 @@ def chk_no_dispatch_table(target, anchor_root, args):
 # -- R-progressive (conditional, multi-check document-layout rules) ------------
 
 def _strip_fenced(text: str) -> str:
-    """Blank out lines inside ``` code fences — so a masthead/breadcrumb shown as
+    """Blank out lines inside code fences — so a masthead/breadcrumb shown as
     a fenced *example* (in discipline/facet docs, the `md` skill, etc.) is not mistaken for
-    a live one. Fence markers and their contents become empty lines."""
-    out, in_fence = [], False
-    for ln in text.splitlines():
-        if ln.lstrip().startswith("```"):
-            in_fence = not in_fence
-            out.append("")
-            continue
-        out.append("" if in_fence else ln)
-    return "\n".join(out)
+    a live one. Fence markers and their contents become empty lines.
+
+    Pairing is delegated to `_FENCE_RE` (F296). The hand-rolled toggle this
+    replaced knew only ``` — so a `~~~` example of a masthead was read as a LIVE
+    masthead, and worse, an opening ``` inside a `~~~` block inverted the toggle
+    for the rest of the file, hiding every real structure below it from six
+    consumers at once. `_strip_fenced` differs from `_mask_code` in exactly one
+    way that must be preserved: it blanks whole LINES to empty rather than to
+    spaces, and does not touch inline spans. `_disclosure_units` hashes this
+    output, so changing the blanking character would re-hash every fenced doc in
+    the registry and fire a false drift re-ask on each one."""
+    lines = text.splitlines()
+    fenced = set()
+    for m in _FENCE_RE.finditer(text):
+        for i in range(text.count("\n", 0, m.start()),
+                       text.count("\n", 0, m.end()) + 1):
+            fenced.add(i)
+    return "\n".join("" if i in fenced else ln for i, ln in enumerate(lines))
 
 
 def _has_self_masthead(text: str, stem: str) -> bool:
@@ -3293,7 +3302,18 @@ def _mask_code(text: str) -> str:
     """
     blank = lambda m: re.sub(r"[^\n]", " ", m.group(0))
     masked = _FENCE_RE.sub(blank, text)
-    return re.sub(r"(`+)[^\n]*?\1", blank, masked)
+    return _SPAN_RE.sub(blank, masked)
+
+
+# A code-span delimiter is a backtick run matched by a run of EXACTLY the same
+# length — CommonMark is explicit that a run "not preceded or followed by a
+# backtick" is what delimits. The plain `` (`+)[^\n]*?\1 `` this replaced let a
+# short opener close against a SUBSTRING of a longer run, which is how a doc
+# writing `` ` ``` ` `` (a one-backtick span whose content is a fence marker —
+# ordinary when documenting markdown) had its span parity shifted for the rest of
+# the line, exposing every later backticked `<tag>` to the prose checks.
+# `warden/Warden Design/Warden Semantics.md` carried two such false failures.
+_SPAN_RE = re.compile(r"(?<!`)(`+)(?!`)[^\n]*?(?<!`)\1(?!`)")
 
 
 # The one fence pattern (F296). Lifted out of `_mask_code` because
@@ -3303,8 +3323,16 @@ def _mask_code(text: str) -> str:
 # and the driver reporting it "fixed". Masking and replacing are different
 # operations over the same structure; only the structure is shared, and it is
 # shared HERE so the next one cannot drift again.
+#
+# The second branch is the UNCLOSED fence, and it must be `[\s\S]*\Z` rather than
+# a bare `\Z`: CommonMark runs an unclosed block to the end of the document, and a
+# bare `\Z` only fires when the opener happens to sit on the last line. With it,
+# a stray ``` in the middle of a file matched nothing at all — so `_mask_code`
+# left the rest of the file exposed, its inline-span pass then chewed the opener
+# down to `` `python ``, and `fix_md_em_dash` rewrote the code below it. That is
+# F296 finding 1 verbatim, surviving inside finding 1's own fix.
 _FENCE_RE = re.compile(
-    r"(?m)^[ \t]{0,3}(`{3,}|~{3,})[^\n]*(?:\n[\s\S]*?^[ \t]{0,3}\1[ \t]*$|\Z)")
+    r"(?m)^[ \t]{0,3}(`{3,}|~{3,})[^\n]*(?:\n[\s\S]*?^[ \t]{0,3}\1[ \t]*$|[\s\S]*\Z)")
 
 
 def _code_masked_lines(text: str) -> list[str]:

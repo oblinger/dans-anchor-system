@@ -42,7 +42,7 @@ Subsumes the broad-research phase of legacy `/product hunt`. Applies when compar
 3. **Identify key dimensions** — from review-site consensus; these become comparison-table columns.
 4. **Select top 10 products** based on review consensus.
 5. **Phase 4.5 — resolve a purchasable link for each product (REQUIRED)** — see below.
-6. **Write the report** — RRR shape (per [[survey/rules/survey|survey.md]]) plus `## Key Dimensions` (explain columns) and `## Review Sites Consulted` (full URLs) sections.
+6. **Write the report** — SRCH report shape (per [[survey/rules/survey|survey.md]]) plus `## Key Dimensions` (explain columns) and `## Review Sites Consulted` (full URLs) sections.
 7. **Surf everything** — open in browser: all review URLs + all top-10 purchase pages (`open "<url>"`).
 
 ## Phase 4.5 — Purchasable-link verification (REQUIRED)

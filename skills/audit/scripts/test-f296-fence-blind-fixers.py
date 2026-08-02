@@ -244,5 +244,114 @@ D = ("## Ready\n\n"
 rows = ap._backlog_rows(D)
 check("a real col-0 prose line still closes the row", len(rows[0][3]), 0)
 
+print("One fence pattern, part two: `_strip_fenced` and the unclosed fence")
+
+# The long tail's largest sub-family. `_strip_fenced` hand-rolled its own toggle
+# (`ln.lstrip().startswith("```")`) and six consumers inherited every gap in it:
+# `_has_self_masthead`, `_has_breadcrumb_line`, `chk_dispatch_table_iff_anchor`,
+# `chk_dispatch_area_row`, `chk_toc_table_iff_long` and the disclosure helpers.
+# Three distinct defects, in increasing order of blast radius:
+
+# 9. Tilde fences were not fences at all — a `~~~` example of a masthead read as
+#    a LIVE masthead on the doc that was illustrating one.
+TILDE = ("# Note\nWhat this is.\n\n"
+         "The masthead form:\n\n"
+         "~~~\n| -[[Note]]- | → [[kmr]] |\n~~~\n")
+check("a masthead inside a `~~~` fence is not the doc's own masthead",
+      ap._has_self_masthead(TILDE, "Note"), False)
+check("a `:>>` breadcrumb inside a `~~~` fence is not a live breadcrumb",
+      ap._has_breadcrumb_line("# N\nWhat this is.\n\n~~~\n:>> [[kmr]] → [[N]]\n~~~\n"), False)
+
+# 10. A ``` opener INSIDE a `~~~` block inverted the toggle for the whole rest of
+#     the file — every real structure below it went invisible to all six.
+INVERT = ("# Note\nWhat this is.\n\n"
+          "~~~\n```python\nx = 1\n```\n~~~\n\n"
+          "| -[[Note]]- | → [[kmr]] |\n")
+check("a ``` inside a `~~~` block does not invert parity for the rest of the file",
+      ap._has_self_masthead(INVERT, "Note"), True)
+
+# 11. THE BIG ONE. A closing fence may carry NO info string, so ```` ```markdown ````
+#     never closes an open block — but the toggle counted every ``` alike. Two
+#     consecutive `​```markdown` openers therefore read as open/close, and every
+#     line of the SECOND example was scanned as live structure. This is the shape
+#     in `F113 …Decisions facet….md`, whose only "descriptive summary" row is a
+#     fenced illustration; pre-fix `_disclosure_descriptive` returned True on it.
+#     The reproducing shape needs an info-string line INSIDE an open block — a
+#     markdown example that itself shows a fence, which is ordinary in this corpus
+#     and is exactly F113's layout. The bare ``` that follows closes the OUTER
+#     block; the toggle instead paired it as an opener and ran inverted from there.
+INFO = ("# Note\nWhat this is.\n\n"
+        "```markdown\n"
+        "here is how you fence something:\n"
+        "```python\n"
+        "x = 1\n"
+        "```\n"
+        "\n"
+        "| -[[Note]]- | → [[kmr]] |\n")
+#     Here the bare ``` genuinely closes the block, so the masthead below it is
+#     LIVE — and the toggle, having spent that closer early, hid it. Parity errors
+#     cut both ways: this direction hides real structure from all six consumers,
+#     while F113's direction exposed a fenced example as real.
+check("an info-string line inside a block does not close it, so parity holds",
+      ap._has_self_masthead(INFO, "Note"), True)
+
+# 12. An UNCLOSED fence runs to the end of the document (CommonMark). `_FENCE_RE`
+#     carried a bare `\Z` for this, which only fires when the opener sits on the
+#     last line — so a stray ``` mid-file matched nothing, `_mask_code` left the
+#     remainder exposed, its inline-span pass chewed the opener down to `` `python ``,
+#     and `fix_md_em_dash` rewrote the code below it. F296 finding 1, alive inside
+#     finding 1's own fix.
+UNCLOSED = "# T\nProse.\n\n```python\ncode = 1  -- not prose\nmore = 2\n"
+f = write(UNCLOSED)
+check("an unclosed fence masks to the end of the document",
+      ap.chk_md_em_dash(f, f.parent, [])[0], "pass")
+check("and the fixer leaves it byte-identical",
+      (ap.fix_md_em_dash(f, f.parent, [])[0], f.read_text(encoding="utf-8")),
+      (False, UNCLOSED))
+check("the unclosed fence's whole region is blanked, opener included",
+      [l.strip() for l in ap._mask_code(UNCLOSED).splitlines()[3:]], ["", "", ""])
+check("`_strip_fenced` also runs an unclosed fence to EOF",
+      ap._strip_fenced(UNCLOSED), "# T\nProse.\n\n\n\n")
+
+# Masking is not suppression, at every one of the three.
+check("a REAL masthead outside any fence is still found",
+      ap._has_self_masthead("# Note\nWhat this is.\n\n| -[[Note]]- | → [[kmr]] |\n", "Note"), True)
+check("a REAL `:>>` breadcrumb outside any fence is still found",
+      ap._has_breadcrumb_line(":>> [[kmr]] → [[N]]\n# N\nWhat this is.\n"), True)
+check("prose after a properly CLOSED fence is still checked",
+      ap.chk_md_em_dash(write("# T\nP.\n\n```\nx = 1\n```\n\nreal -- prose\n"),
+                        pathlib.Path("."), [])[0], "fail")
+
+# `_strip_fenced` blanks to EMPTY, not to spaces — `_disclosure_units` hashes this
+# output, so switching to `_mask_code`'s space-fill would re-hash every fenced doc
+# in `~/.warden/disclosure.json` and fire a false drift re-ask on each one.
+check("`_strip_fenced` blanks fenced lines to empty, preserving the line count",
+      ap._strip_fenced("a\n```\n  xx\n```\nb\n").split("\n"), ["a", "", "", "", "b"])
+
+print("Inline code spans: a delimiter run pairs with a run of the SAME length")
+
+# Found by warden's own on-write audit, firing on the F296 row that describes all
+# of the above. A one-backtick span whose CONTENT is a fence marker — ordinary
+# when a doc explains markdown — let the old `` (`+)[^\n]*?\1 `` close against a
+# substring of the three-run, shifting span parity for the rest of the line and
+# exposing every later backticked `<tag>` to the prose checks.
+SPANS = ("# W\nWhat this is.\n\n"
+         "an inline `` `expr` `` for one line, a bare ` ``` ` fence for several, "
+         "and `message:: <text>` is sugar for a fixed tell.\n")
+f = write(SPANS)
+check("a backticked `<text>` after a ` ``` ` span is still masked",
+      ap.chk_md_stray_angle_tag(f, f.parent, [])[0], "pass")
+check("and the spaced-angle check agrees",
+      ap.chk_md_angle_brackets_html_or_spaced(f, f.parent, [])[0], "pass")
+
+# Masking is not suppression: an UNbackticked tag on the same shape still fails.
+f = write("# W\nWhat this is.\n\na bare ` ``` ` fence, then a stray <text> in prose.\n")
+check("a REAL stray `<text>` in prose still fails",
+      ap.chk_md_stray_angle_tag(f, f.parent, [])[0], "fail")
+
+# The rule is symmetric — a long opener may not close against a short run either.
+check("a two-backtick opener does not close against two of a three-run",
+      ap._mask_code("x `` a ``` b `` y"), "x" + " " * 15 + "y")
+
 print(f"\n{sum(results)}/{len(results)} passed")
 raise SystemExit(0 if all(results) else 1)

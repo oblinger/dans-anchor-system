@@ -1,10 +1,10 @@
 ---
-description: "Structured research workflows — gather sources on a target (entity/topic/person/book/concept) and produce a synthesized dated report in the RR anchor"
+description: "Structured research workflows — gather sources on a target (entity/topic/person/book/concept) and produce a synthesized dated report in the matching SRCH output stream"
 ---
 # DAS Research
-Structured research workflows. You give it a target (entity / topic / person / book / skill concept), it gathers sources, synthesizes findings, and produces a report in the RRR (Research Reports) anchor at `~/ob/kmr/RR/RR Research Reports/`.
+Structured research workflows. You give it a target (entity / topic / person / book / skill concept), it gathers sources, synthesizes findings, and produces a dated report in the [[SRCH]] output stream matching the shape of what it produced, under `~/ob/kmr/Topic/Search/`.
 
-| -[[DAS Research]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [docs](hook://docs) → [DAS Research](hook://p/DAS%20Research)<br>: Structured research workflows — gather sources on a target (entity/topic/person/book/concept) and produce a synthesized dated report in the RR anchor |
+| -[[DAS Research]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [docs](hook://docs) → [DAS Research](hook://p/DAS%20Research)<br>: Structured research workflows — gather sources on a target (entity/topic/person/book/concept) and produce a synthesized dated report in the matching SRCH output stream |
 | --- | --- |
 | ... |  |
 

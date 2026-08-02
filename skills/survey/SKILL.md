@@ -15,7 +15,7 @@ Build a **multi-dimensional comparison table** over many entities, plus interpre
 ## What loads at invocation (per [[skill-search-rules]])
 
 1. **This SKILL.md** — methodology (the runbook below) + meta-survey sub-pattern.
-2. `survey/rules/survey.md` — default verb rules (ships with skill); includes RRR output convention and the skill-survey specialized variant.
+2. `survey/rules/survey.md` — default verb rules (ships with skill); includes the SRCH report shape and the skill-survey specialized variant.
 3. `survey/rules/survey-<noun>.md` — default pair rules with entity knowledge baked in (ships with skill).
 4. `SRCH rules/survey.md` — user's verb-level overrides (if present).
 5. `SRCH rules/<noun>.md` — user's noun-level overrides, cross-verb (if present).
@@ -69,12 +69,12 @@ Use the lightweight form when the standard `/survey` runbook just needs better d
 
 A markdown report with:
 
-- **Results table** (RRR convention): rows × dimensions. First column is the entity name as a markdown link to its source URL.
+- **Results table** (SRCH report shape): rows × dimensions. First column is the entity name as a markdown link to its source URL.
 - **Scope note** — population, bound, dimensions, when generated.
 - **Interpretive notes** — what's notable, gaps, outliers.
 - **Sources** — full URLs at end.
 
-Per the RRR convention, value is in the comparison, not the rows — interpretive notes are required.
+Per the SRCH report shape, value is in the comparison, not the rows — interpretive notes are required.
 
 ## Output
 

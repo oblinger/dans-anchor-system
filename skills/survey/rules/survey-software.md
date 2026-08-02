@@ -53,7 +53,7 @@ Applies to: "best Postgres clients", "compare LLM observability tools", "open-so
 3. **Identify dimensions** — from category-source consensus (e.g., what columns do awesome-feature-flags or G2's feature-flag category use?).
 4. **Select top 10** based on roster + community signal.
 5. **Phase 4.5 — install-vector resolution (REQUIRED)** — replaces [[survey-product]]'s purchasable-link gate; see below.
-6. **Write the report** — RRR shape (per [[survey/rules/survey|survey.md]]) plus `## Key Dimensions`, `## License + Pricing Overview`, `## Maintenance Signal` sections.
+6. **Write the report** — SRCH report shape (per [[survey/rules/survey|survey.md]]) plus `## Key Dimensions`, `## License + Pricing Overview`, `## Maintenance Signal` sections.
 7. **Surf everything** — open all candidate URLs in browser (`open "<url>"`).
 
 ## Phase 4.5 — Install-vector resolution (REQUIRED)
