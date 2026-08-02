@@ -816,6 +816,45 @@ def _frontmatter(text: str) -> str | None:
     return m.group(1) if m else None
 
 
+# An ATX H1 per CommonMark: up to THREE leading spaces (four makes it an indented
+# code block), then `#`, then AT LEAST ONE space or tab, then content. The three
+# spellings this replaced — `^# \S`, `^# `, `.startswith("# ")` — each demanded
+# column zero and exactly one space, and the single-space half is the one that bit
+# hardest: `SYS/Atlas/Atlas.md` opens `#  Atlas  — glossary …` with TWO spaces, so
+# every `^# \S` site walked past the real head and blamed the file's `# BRIEF` at
+# line 374. That is T092's damage signature exactly, and T092 read it as an
+# indentation problem — the `^ {0,3}` relaxation it shipped does not fix Atlas.md
+# and never did. The trailing group strips an ATX closing sequence (`# Title #`),
+# which is not part of the heading content and which `ln[2:].strip()` used to keep.
+_H1_RE = re.compile(r"^ {0,3}#[ \t]+(\S.*?)(?:[ \t]+#+)?[ \t]*$")
+
+
+def _first_h1(text: str) -> tuple[int | None, str | None]:
+    """The document's H1 as `(line index, heading text)`, or `(None, None)`.
+
+    Skips YAML frontmatter and fenced code, so neither a `# comment:` line inside
+    frontmatter nor a `# comment` inside a ```python block can impersonate the
+    head. Both were live vault-wide: `skills/bridge/templates/brief-template.md`
+    reported its frontmatter's `# status_doc:` comment as the H1, and fourteen
+    docs (research notes, `CLAUDE.md` files, `F035 — Tiered Runtime.md`) reported
+    a shell or Python comment from inside a fence. Fence pairing is delegated to
+    `_strip_fenced`/`_FENCE_RE` (F296) rather than re-hand-rolled — the two
+    toggles this replaced knew only ``` and flipped parity on an info-string line.
+
+    The returned index is in WHOLE-FILE coordinates (frontmatter re-added), because
+    every caller that reports a line number reports it to a human who will open the
+    file at that line.
+    """
+    m = re.match(r"\A---\n.*?\n---\n", text, re.DOTALL)
+    off = text[:m.end()].count("\n") if m else 0
+    body = text[m.end():] if m else text
+    for i, ln in enumerate(_strip_fenced(body).splitlines()):
+        hit = _H1_RE.match(ln)
+        if hit:
+            return off + i, hit.group(1)
+    return None, None
+
+
 def chk_anchor_has(target, anchor_root, args):
     dot = anchor_root / ".anchor"
     if not dot.is_file():
@@ -847,20 +886,23 @@ def chk_h1_present(target, anchor_root, args):
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
-    return ("pass", "") if re.search(r"^# \S", _read(f), re.MULTILINE) else ("fail", "no H1")
+    return ("pass", "") if _first_h1(_read(f))[0] is not None else ("fail", "no H1")
 
 
 def chk_no_blank_after_h1(target, anchor_root, args):
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
-    lines = _read(f).splitlines()
-    for i, ln in enumerate(lines):
-        if re.match(r"^# \S", ln):
-            if i + 1 >= len(lines) or lines[i + 1].strip() == "":
-                return "fail", "blank line directly after H1"
-            return "pass", ""
-    return "fail", "no H1"
+    text = _read(f)
+    lines = text.splitlines()
+    i, _ = _first_h1(text)
+    if i is None:
+        return "fail", "no H1"
+    # `lines` is the ORIGINAL text, so the line after an H1 that opens a fenced
+    # block is the fence marker (non-blank) rather than the blanked-out interior.
+    if i + 1 >= len(lines) or lines[i + 1].strip() == "":
+        return "fail", "blank line directly after H1"
+    return "pass", ""
 
 
 def chk_regex_present(target, anchor_root, args):
@@ -951,7 +993,7 @@ def chk_h1_after_frontmatter(target, anchor_root, args):
     for ln in body.splitlines():
         if not ln.strip():
             continue
-        if re.match(r"^# \S", ln):
+        if _H1_RE.match(ln):
             return "pass", ""
         if ln.lstrip().startswith(":>>"):
             in_questions = False
@@ -970,15 +1012,14 @@ def chk_h1_matches_slug(target, anchor_root, args):
     if f is None:
         return "error", "no file"
     slug = _anchor_slug(anchor_root)
-    for ln in _read(f).splitlines():
-        if ln.startswith("# "):
-            h1 = ln[2:].strip()
-            if re.match(rf"^{re.escape(slug)}\s*[-–—]\s+\S", h1):
-                return "pass", h1
-            if h1 == slug or h1 == anchor_root.name:
-                return "pass", f"bare-name: {h1}"
-            return "fail", f"H1 {h1!r} is not '{slug} - <name>'"
-    return "fail", "no H1"
+    _, h1 = _first_h1(_read(f))
+    if h1 is None:
+        return "fail", "no H1"
+    if re.match(rf"^{re.escape(slug)}\s*[-–—]\s+\S", h1):
+        return "pass", h1
+    if h1 == slug or h1 == anchor_root.name:
+        return "pass", f"bare-name: {h1}"
+    return "fail", f"H1 {h1!r} is not '{slug} - <name>'"
 
 
 def chk_breadcrumb_row(target, anchor_root, args):
@@ -1032,10 +1073,10 @@ def _header_block(lines, h1_idx):
 
 
 def _first_h1_idx(lines):
-    for i, ln in enumerate(lines):
-        if re.match(r"^# ", ln):
-            return i
-    return None
+    """Index-only view of `_first_h1`, for the callers that already hold `lines`.
+    Rejoining is cheap next to the `_read` these callers just did, and it keeps ONE
+    definition of what an H1 is — the whole point of the primitive."""
+    return _first_h1("\n".join(lines))[0]
 
 
 def chk_header_has_field(target, anchor_root, args):
@@ -1064,7 +1105,7 @@ def chk_description_field_line(target, anchor_root, args):
     nonblank = [ln for ln in _read(f).splitlines() if ln.strip()]
     if len(nonblank) < 2:
         return "fail", "fewer than 2 non-blank lines"
-    if not re.match(r"^# ", nonblank[0]):
+    if not _H1_RE.match(nonblank[0]):
         return "fail", "first non-blank line is not H1"
     for ln in nonblank[1:]:
         m = re.match(r"^description::\s*(.*)$", ln)
@@ -1877,7 +1918,7 @@ def chk_h1_no_frontmatter(target, anchor_root, args):
         return "fail", "YAML frontmatter present"
     for ln in text.splitlines():
         if ln.strip():
-            if re.match(r"^# \S", ln):
+            if _H1_RE.match(ln):
                 return "pass", ""
             return "fail", f"first non-blank line is not H1: {ln!r}"
     return "fail", "file is empty or all blank"
@@ -2193,21 +2234,18 @@ def chk_dispatch_table_by_context(target, anchor_root, args):
 
 def _breadcrumb_h1_positions(lines):
     """(breadcrumb_idx, h1_idx) of the first `:>>` line and first H1, fences
-    skipped; either may be None."""
-    bidx = hidx = None
-    in_fence = False
-    for i, ln in enumerate(lines):
-        if ln.lstrip().startswith("```"):
-            in_fence = not in_fence
-            continue
-        if in_fence:
-            continue
-        if bidx is None and ln.lstrip().startswith(":>>"):
+    skipped; either may be None.
+
+    The H1 half comes from `_first_h1`; only the breadcrumb scan is still local.
+    The hand-rolled `in_fence` toggle this replaced was the F296 finding-1 shape
+    verbatim — blind to `~~~`, and flipping parity on any ``` line, so an
+    info-string opener INSIDE a block re-exposed the rest of the file."""
+    bidx = None
+    for i, ln in enumerate(_strip_fenced("\n".join(lines)).splitlines()):
+        if ln.lstrip().startswith(":>>"):
             bidx = i
-        if hidx is None and re.match(r"^# \S", ln):
-            hidx = i
-        if bidx is not None and hidx is not None:
             break
+    hidx = _first_h1("\n".join(lines))[0]
     return bidx, hidx
 
 
@@ -2599,31 +2637,21 @@ def chk_doc_head_orientation_line(target, anchor_root, args):
     # R-query's shape, ruled by the user (no meta prose on Q.md / queries pages).
     if f.name == "Q.md" or f.name.endswith(" queries.md"):
         return "pass", "rendered query surface — head shape owned by R-query"
-    lines = _read(f).splitlines()
-    in_fence = False
-    h1 = None
-    for i, ln in enumerate(lines):
-        if ln.lstrip().startswith("```"):
-            in_fence = not in_fence
-            continue
-        # CommonMark allows an ATX heading up to THREE leading spaces (four makes
-        # it an indented code block), and Obsidian renders ` # Title` as an H1. A
-        # column-0-only match SKIPS such a head and walks on to the file's next
-        # `# ` — in practice the `# BRIEF` section every anchor page carries — then
-        # blames THAT line for the missing orientation line (T092, confirmed by an
-        # A/B probe on `Topic/Search/SRC.md`). The wrong line number IS the damage:
-        # the obvious remediation is to add a second H1 above BRIEF, so the misread
-        # rewrites a page whose real head was correct all along.
-        if not in_fence and re.match(r"^ {0,3}# \S", ln):
-            h1 = i
-            break
-    if h1 is None:
+    text = _read(f)
+    lines = text.splitlines()
+    # T092's scan is now `_first_h1`'s job. T092 diagnosed the miss as INDENTATION
+    # and relaxed to `^ {0,3}# \S`; the corpus says that was the wrong half. Its own
+    # damage signature — walk past the real head, blame the file's `# BRIEF` — is
+    # what `SYS/Atlas/Atlas.md` still did afterwards, because Atlas opens with TWO
+    # spaces after the `#` and every spelling in this file demanded exactly one.
+    h1, head = _first_h1(text)
+    if h1 is None or head is None:
         return "pass", "no H1 — out of scope"
-    # Every downstream head test matches against the DE-INDENTED H1 rather than
-    # re-stating `^ {0,3}` three more times. Without this, relaxing the scan above
-    # would newly SELECT an indented `# RULESET` or simple-facet head and then fail
-    # to recognize it — turning one blindness into two false positives.
-    h1_text = lines[h1].lstrip(" ")
+    # Downstream head tests match the PARSED heading text, so they never re-state
+    # the indent/space allowance. Without that, relaxing the scan would newly SELECT
+    # an indented `# RULESET` or simple-facet head and then fail to recognize it —
+    # turning one blindness into two false positives.
+    h1_text = "# " + head
     # Ruleset spec heads are a distinct, machine-read doc class: `# RULESET <id>`
     # followed by `where::` / `include::` / `description::` fields (some valueless,
     # e.g. a bare `include::`), NOT the breadcrumb → H1 → orientation convention.
@@ -2847,20 +2875,26 @@ def chk_brief_is_last_h1(target, anchor_root, args):
         return "error", "no file"
     text = _read(f)
     lines = text.splitlines()
-    brief_count = sum(1 for ln in lines if ln.strip() == "# BRIEF")
+    # Both scans run over the FENCE-STRIPPED copy (line-for-line with `lines`, so
+    # indices stay usable against the original). A Brief that shows a shell example
+    # — `# rebuild the index` inside a ```bash block, which is what a Brief is FOR —
+    # otherwise registers as an H1 below `# BRIEF` and the checker reports the
+    # heading is not last. The backward `^#\s+\S` scan made that worse than the
+    # forward ones: it starts at the file's END, where the examples live.
+    stripped = _strip_fenced(text).splitlines()
+    brief_count = sum(1 for ln in stripped if ln.strip() == "# BRIEF")
     if brief_count == 0:
         return "fail", "no '# BRIEF' heading"
     if brief_count > 1:
         return "fail", f"multiple '# BRIEF' headings ({brief_count})"
     last_h1 = None
-    for i in range(len(lines) - 1, -1, -1):
-        if re.match(r"^#\s+\S", lines[i]):
+    for i in range(len(stripped) - 1, -1, -1):
+        if _H1_RE.match(stripped[i]):
             last_h1 = i
             break
-    if last_h1 is None or lines[last_h1].strip() != "# BRIEF":
+    if last_h1 is None or stripped[last_h1].strip() != "# BRIEF":
         return "fail", "'# BRIEF' is not the last H1"
-    m = re.search(r"^# BRIEF\s*$", text, re.MULTILINE)
-    if m is None or not text[m.end():].strip():
+    if not "\n".join(lines[last_h1 + 1:]).strip():
         return "fail", "'# BRIEF' section is empty"
     return "pass", ""
 
@@ -2870,11 +2904,10 @@ def chk_brief_h1_matches_name(target, anchor_root, args):
     if not target.is_file() or not target.name.endswith(" Brief.md"):
         return "pass", "not a Brief.md file"
     expected = target.stem
-    for ln in _read(target).splitlines():
-        if ln.startswith("# "):
-            h1 = ln[2:].strip()
-            return ("pass", h1) if h1 == expected else ("fail", f"H1 {h1!r} != filename {expected!r}")
-    return "fail", "no H1 heading"
+    _, h1 = _first_h1(_read(target))
+    if h1 is None:
+        return "fail", "no H1 heading"
+    return ("pass", h1) if h1 == expected else ("fail", f"H1 {h1!r} != filename {expected!r}")
 
 
 def chk_brief_not_nested(target, anchor_root, args):
@@ -2974,15 +3007,14 @@ def chk_dated_entry_file_naming(target, anchor_root, args):
     if not m:
         return "pass", "not a dated-entry file"
     date_str, title = m.group(1), m.group(2)
-    for ln in _read(target).splitlines():
-        if ln.startswith("# "):
-            h1 = ln[2:].strip()
-            if h1.startswith(date_str):
-                return "fail", f"H1 contains date prefix ({date_str}); expected just {title!r}"
-            if h1 == title:
-                return "pass", ""
-            return "fail", f"H1 is {h1!r}, expected {title!r}"
-    return "fail", "no H1 found in entry file"
+    _, h1 = _first_h1(_read(target))
+    if h1 is None:
+        return "fail", "no H1 found in entry file"
+    if h1.startswith(date_str):
+        return "fail", f"H1 contains date prefix ({date_str}); expected just {title!r}"
+    if h1 == title:
+        return "pass", ""
+    return "fail", f"H1 is {h1!r}, expected {title!r}"
 
 
 # -- R-messages ----------------------------------------------------------------
@@ -2995,11 +3027,10 @@ def chk_h1_is_anchor_messages(target, anchor_root, args):
     if f is None:
         return "error", "no file"
     want = Path(f).stem  # the file's own name without .md ("HBR Messages")
-    for ln in _read(f).splitlines():
-        if ln.startswith("# "):
-            h1 = ln[2:].strip()
-            return ("pass", h1) if h1 == want else ("fail", f"H1 {h1!r} is not '{want}'")
-    return "fail", "no H1"
+    _, h1 = _first_h1(_read(f))
+    if h1 is None:
+        return "fail", "no H1"
+    return ("pass", h1) if h1 == want else ("fail", f"H1 {h1!r} is not '{want}'")
 
 
 # -- R-naming (extra) ----------------------------------------------------------
@@ -3577,10 +3608,10 @@ def chk_facet_h1_form(target, anchor_root, args):
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
-    for line in _read(f).splitlines():
-        if line.startswith("# "):
-            return ("pass", "") if re.match(r"^#\s+DAS\s+\S", line) else ("fail", f"H1 is not `# DAS <Name>`: {line!r}")
-    return "fail", "no H1"
+    _, h1 = _first_h1(_read(f))
+    if h1 is None:
+        return "fail", "no H1"
+    return ("pass", "") if re.match(r"^DAS\s+\S", h1) else ("fail", f"H1 is not `# DAS <Name>`: {('# ' + h1)!r}")
 
 
 def chk_facet_registered(target, anchor_root, args):
@@ -4049,11 +4080,11 @@ def chk_agenda_header_shape(target, anchor_root, args):
     elif not re.search(r"^description:\s*\S", fm, re.MULTILINE):
         problems.append("frontmatter has no non-empty `description:`")
     slug = _anchor_slug(_agenda_owner(anchor_root))
-    h1 = next((l for l in text.splitlines() if l.startswith("# ")), None)
+    _, h1 = _first_h1(text)
     if h1 is None:
         problems.append("no H1")
-    elif h1.strip() != f"# {slug} Agenda":
-        problems.append(f"H1 is {h1.strip()!r}, expected '# {slug} Agenda'")
+    elif h1 != f"{slug} Agenda":
+        problems.append(f"H1 is {('# ' + h1)!r}, expected '# {slug} Agenda'")
     return ("pass", "") if not problems else ("fail", "; ".join(problems))
 
 
