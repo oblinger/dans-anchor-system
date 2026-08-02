@@ -28,7 +28,7 @@ Generate an image from a prompt, or edit one you already have, into the anchor t
 
 A roll page is a **regular file, not an anchor page** — so it heads with a `:>>` breadcrumb and never a dispatch table. Under that: the `# H1`, then **one line saying what this sitting is about** — who the subject is, what was being explored, which image became the keeper. That line is not for navigation meta: "newest first" is the anchor's standing convention, not this roll's news, and stating it here just costs a line. Set it with `new --about "…"`; it defaults to the bare title, which is worth replacing.
 
-Under that sits **`**Spent so far:** $N.NNN`** — the roll's cumulative cost, maintained by the script, never by hand. It is re-summed from the batches' own provenance lines on every write, so a rewritten or deleted batch can't leave the total quietly wrong.
+Under that sits **`**Spent so far:** $N.NN`** — the roll's cumulative cost, maintained by the script, never by hand. It is re-priced on every write from each batch's model and image count — not by summing the displayed figures, which are rounded to the penny and would drift (a 1-image flux-dev batch is 2.5¢). A mask preview is embedded but free, and is never billed.
 
 Then, in this order:
 
@@ -73,6 +73,7 @@ Everything goes to **[[IMGEN]]** at `~/ob/kmr/Log/IMGEN/`, alongside [[VOX]] —
 |---|---|---|---|
 | `flux-dev` | `create` | $0.025/image | text → image. The quality default for a fresh picture. |
 | `flux-kontext` | `edit` | $0.040/image | image + instruction → image. Changes what you name and holds the rest — face, style, composition. |
+| `flux-fill` | `inpaint` | $0.050/image | image + mask + instruction → image. Repaints inside the mask only. |
 
 All run on fal.run. Images are sent **inline as base64 data URIs**, so nothing is uploaded and a file that never left the machine still works. Vector output (Recraft) and on-device generation (Draw Things) are declared seams, not implementations — adding one means a new entry in `BACKENDS`.
 
@@ -88,8 +89,8 @@ All run on fal.run. Images are sent **inline as base64 data URIs**, so nothing i
 
 `inpaint` (flux-fill) is a two-step loop, and the first step is free:
 
-1. `imgen mask {roll} {image} {region} --ellipse cx,cy,rx,ry` writes `{image}-{region}-mask.png` **and** `{image}-{region}-preview.png` — the original with a **pure-green outline** drawn on it. Show the *preview*, never the raw mask: a black-and-white mask cannot be mapped onto the picture by eye, which defeats the review it exists to enable. One image, not a before/after pair.
-2. `imgen inpaint {roll} {image} {region} "{instruction}"` repaints inside it.
+1. `imgen mask {roll} {image} {region} --ellipse cx,cy,rx,ry` writes `{SLUG}{nnn}-{batch}-{region}-mask.png` **and** its `-preview.png` — named for the batch they FEED, not the image traced, so they sort beside the work they produced — the original with a **pure-green outline** drawn on it. Show the *preview*, never the raw mask: a black-and-white mask cannot be mapped onto the picture by eye, which defeats the review it exists to enable. One image, not a before/after pair.
+2. `imgen inpaint {roll} {image} {region} "{instruction}"` repaints inside it, and the batch it writes **leads with the mask preview** so region and result are judgeable in one glance.
 
 Two implementation facts that are load-bearing, both learned the hard way:
 
