@@ -418,11 +418,22 @@ def _data_uri(path):
 
 # ------------------------------------------------------------------- masking
 
-def mask_path(roll_dir, image_stem, region):
-    return roll_dir / f"{image_stem}-{region}-mask.png"
+def mask_path(roll_dir, stem, region):
+    return roll_dir / f"{stem}-{region}-mask.png"
 
 
-def build_mask(src, region, ellipse, size):
+def find_mask(roll_dir, region):
+    """The newest `{SLUG}{nnn}-{batch}-{region}-mask.png` in the roll, or None.
+
+    A mask is named for the batch it FEEDS, not the image it was traced from, so
+    it sorts beside the work it produced rather than beside its source."""
+    pat = re.compile(rf"^{SLUG}\d{{3}}-(\d+)-{re.escape(region)}-mask\.png$")
+    found = [(int(m.group(1)), p) for p in roll_dir.iterdir()
+             if (m := pat.match(p.name))]
+    return max(found)[1] if found else None
+
+
+def build_mask(src, region, ellipse, size, stem):
     """Write `<image>-<region>-mask.png` at `size`², plus a review preview.
 
     The preview is the ORIGINAL image with a pure-green outline drawn on it —
@@ -437,7 +448,7 @@ def build_mask(src, region, ellipse, size):
 
     mask = Image.new("L", (size, size), 0)
     ImageDraw.Draw(mask).ellipse((cx - rx, cy - ry, cx + rx, cy + ry), fill=255)
-    mp = mask_path(src.parent, src.stem, region)
+    mp = mask_path(src.parent, stem, region)
     mask.convert("RGB").save(mp)
 
     edge = (mask.filter(ImageFilter.FIND_EDGES)
@@ -445,7 +456,7 @@ def build_mask(src, region, ellipse, size):
                 .filter(ImageFilter.MaxFilter(5)))          # thicken so it reads
     prev = im.resize((size, size), lanczos)
     prev.paste(Image.new("RGB", (size, size), (0, 255, 0)), mask=edge)
-    pp = src.parent / f"{src.stem}-{region}-preview.png"
+    pp = src.parent / f"{stem}-{region}-preview.png"
     prev.save(pp)
     return mp, pp
 
@@ -519,9 +530,9 @@ def _do_render(roll_dir, roll_n, count, size, confirm_over, yes, dry):
     source = resolve_image(roll_dir, image) if verb in ("edit", "inpaint") else None
     mask = None
     if verb == "inpaint":
-        mask = mask_path(roll_dir, source.stem, region)
-        if not mask.exists():
-            raise ImgenError(f"no mask {mask.name} — build it first with "
+        mask = find_mask(roll_dir, region)
+        if mask is None:
+            raise ImgenError(f"no '{region}' mask in {roll_dir.name} — build it first with "
                              f"`imgen mask {roll_n} {image} {region} --ellipse cx,cy,rx,ry`")
 
     cost = BACKENDS[model]["cost"] * count
@@ -643,7 +654,9 @@ def cmd_mask(a):
         cx, cy, rx, ry = (int(v) for v in a.ellipse.split(","))
     except ValueError:
         raise ImgenError("--ellipse wants cx,cy,rx,ry in the source image's own pixels")
-    mp, pp = build_mask(src, a.region, (cx, cy, rx, ry), a.size_px)
+    n, _, _ = find_roll(a.roll)
+    stem = f"{SLUG}{n:03d}-{next_batch_index(d)}"      # named for the batch it will feed
+    mp, pp = build_mask(src, a.region, (cx, cy, rx, ry), a.size_px, stem)
     print(f"  {mp.name}\n  {pp.name}   <- review this one (green outline on the image)")
     return 0
 
@@ -652,7 +665,8 @@ def cmd_inpaint(a):
     n, _, d = find_roll(a.roll)
     src = resolve_image(d, a.image)
     if a.ellipse:
-        build_mask(src, a.region, tuple(int(v) for v in a.ellipse.split(",")), a.size_px)
+        build_mask(src, a.region, tuple(int(v) for v in a.ellipse.split(",")),
+                   a.size_px, f"{SLUG}{n:03d}-{next_batch_index(d)}")
     write_next(d, format_command("inpaint", a.image, a.region), " ".join(a.instruction).strip())
     _do_render(d, n, a.count, a.size, a.confirm_over, a.yes, a.dry_run)
     return 0
