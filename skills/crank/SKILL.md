@@ -18,6 +18,8 @@ user_invocable: true
 # Crank — Autonomous-Progress Loop
 requires:: vault, anchor-cli, skill:ask, skill:groom, skill:mint, facet:backlog
 
+The runbook for the `/crank` skill — one press drives as much progress as possible through the current anchor's Ready work, stopping only when continuing would drop quality.
+
 | Table of Contents |  |
 |---|---|
 | **[[#When to Use]]** |  |
@@ -382,6 +384,16 @@ After the loop + branch resolves, print one line to chat for the mint summary. O
 | Ready == 0, Q > 0 | `/crank — minted N items; Ready queue dry, K Qs waiting. Ran /groom + /ask.` (then status banner) |
 | Zero-mint, Q == 0 | `/crank — no Ready work this turn. Ran /groom (M promoted).` (then status banner) |
 | Zero-mint, Q > 0 | `/crank — no Ready work this turn, K Qs waiting. Ran /groom + /ask.` (then status banner) |
+
+### The exit names ONLY this anchor's items
+
+Everything the agent writes at the close of a crank — the one-liner, the banner, and **all surrounding prose** — is scoped to the anchor the crank ran in. Another anchor's `[User]` / `[Questions]` rows are **never** listed, not even as a courtesy, and never characterized as the user's outstanding work with this anchor. `Q.md` already surfaces every anchor's asks under its own owner; repeating them here does not add reach, it removes attribution.
+
+[[Tink Backlog#^T052|T052]] scoped the hard-continuation directive to the agent's own anchor and `state summary-line` is anchor-scoped by construction, but neither governs the closing prose — which is where the boundary was breached twice on 2026-08-01, a Tink crank closing with *"still yours: F286 and the five DMP questions"* when all five belong to [[TAP]], sit under TAP's own Q.md section, and had never been on Tink's backlog. The user's correction: they *"should just be off your backlog and not visible to you anymore."* The general form is [[feedback_lumen_surfaces_not_runs_other_anchors]] — name the work and hand the pointer; the item stays its owner's.
+
+**The mechanical test, before writing the closing sentence:** the summary line already carries `User N` for this anchor. If the prose names more outstanding user items than `N`, or names any item whose row is not in this anchor's backlog, it is wrong. `User 0` and a sentence beginning *"still yours:"* cannot both be true in the same exit.
+
+This is not a rule against cross-anchor awareness. Naming another anchor's work is right when the agent is **routing** — filing a row there, or telling the user which anchor to press next. It is wrong when the exit presents that work as this anchor's outstanding ask.
 
 
 ## Runbook
