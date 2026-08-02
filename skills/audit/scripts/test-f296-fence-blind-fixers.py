@@ -123,5 +123,75 @@ check("tilde fences pair too",
           write("# N\nWhat this is.\n\n~~~\n| [[A|B]] |\n~~~\n"),
           pathlib.Path("."), [])[0], "pass")
 
+print("Ruleset extraction: a `#` comment in a fenced example does not end the block")
+
+# Finding 3. `extract_ruleset_block` ended the block at the first heading of
+# level <= its own, with no fence tracking. A shell `# comment` is level 1, which
+# is <= everything — so the block stopped at the fence and every RULE after it
+# left the engine entirely: never planned, never judged, never reported N/A.
+# This is the one failure mode with NO output at all, so nothing in a corpus
+# would ever indicate it. Fenced shell examples are ordinary in rule bodies.
+RS = ("# RULESET R-x\n"
+      "where:: `always`\n"
+      "description:: a ruleset with a fenced shell example\n"
+      "\n"
+      "### RULE R-x-01 — first (checked)\n"
+      "check:: first_checker\n"
+      "\n"
+      "Run it like this:\n"
+      "\n"
+      "```bash\n"
+      "# just a comment, not a heading\n"
+      "echo hi\n"
+      "```\n"
+      "\n"
+      "### RULE R-x-02 — second (checked)\n"
+      "check:: second_checker\n"
+      "\n"
+      "### RULE R-x-03 — third (checked)\n"
+      "check:: third_checker\n")
+blk = ap.extract_ruleset_block(RS, "R-x")
+check("the block spans past the fenced `# comment`", blk is not None and len(blk[0]) > 12, True)
+parsed = ap.parse_ruleset_block(blk[0], pathlib.Path(ap.REPO_ROOT) / "rulesets" / "R-x.md")
+check("all three rules survive extraction",
+      [r["id"] for r in parsed["rules"]], ["R-x-01", "R-x-02", "R-x-03"])
+check("their `check::` actions come through",
+      [r["check"] for r in parsed["rules"]],
+      ["first_checker", "second_checker", "third_checker"])
+
+# A REAL sibling heading must still end the block — masking is not suppression.
+RS2 = RS + "\n# Position in the catalog\n\nSits under R-doc.\n"
+blk2 = ap.extract_ruleset_block(RS2, "R-x")
+check("a real level-1 sibling heading still ends the block",
+      any("Position in the catalog" in l for l in blk2[0]), False)
+
+# A fenced EXAMPLE of a RULE heading is a picture of the form, not a rule.
+RS3 = ("# RULESET R-y\n"
+       "where:: `always`\n"
+       "\n"
+       "### RULE R-y-01 — real (checked)\n"
+       "check:: real_checker\n"
+       "\n"
+       "Authored like this:\n"
+       "\n"
+       "```\n"
+       "### RULE R-y-99 — illustration (checked)\n"
+       "check:: illustration_checker\n"
+       "```\n")
+p3 = ap.parse_ruleset_block(ap.extract_ruleset_block(RS3, "R-y")[0],
+                            pathlib.Path(ap.REPO_ROOT) / "rulesets" / "R-y.md")
+check("a fenced RULE example does not become a phantom rule",
+      [r["id"] for r in p3["rules"]], ["R-y-01"])
+check("and it does not overwrite the real rule's action",
+      p3["rules"][0]["check"], "real_checker")
+
+# Values are still read from the REAL line — `_mask_code` blanks inline spans,
+# and `where:: `file:…`` is authored with them (F172). Matching structure on the
+# masked line must not cost the value.
+check("a backticked `where::` value still parses",
+      ap.parse_ruleset_block(ap.extract_ruleset_block(RS, "R-x")[0],
+                             pathlib.Path(ap.REPO_ROOT) / "rulesets" / "R-x.md")["where"],
+      "always")
+
 print(f"\n{sum(results)}/{len(results)} passed")
 raise SystemExit(0 if all(results) else 1)
