@@ -18,7 +18,7 @@ and the corpus says the least-discussed one was the worst:
     `skills/bridge/templates/brief-template.md`, whose `# status_doc:` comment sat
     five lines above the real `# Brief — <task name>`.
 
-All three now resolve in `_H1_RE` / `_first_h1`, which every site routes through.
+All three now resolve in `_H1_RE` / `_head_h1`, which every site routes through.
 Run standalone; no test framework.
 """
 import importlib.util
@@ -45,7 +45,7 @@ def check(label, got, want):
 # -- the H1 predicate ---------------------------------------------------------
 
 def h1(text):
-    return ap._first_h1(text)
+    return ap._head_h1(text)
 
 
 check("one space is still an H1", h1("# Title\nbody\n"), (0, "Title"))
@@ -144,8 +144,8 @@ if (VAULT / f041).is_file():
 
 # -- shared definition --------------------------------------------------------
 
-check("_first_h1_idx agrees with _first_h1 (one definition, two views)",
-      ap._first_h1_idx(FM.splitlines()), h1(FM)[0])
+check("_head_h1_idx agrees with _head_h1 (one definition, two views)",
+      ap._head_h1_idx(FM.splitlines()), h1(FM)[0])
 check("_breadcrumb_h1_positions agrees too",
       ap._breadcrumb_h1_positions(FENCED.splitlines() + ["", "# Real Head"])[1],
       h1(FENCED + "\n# Real Head\n")[0])
@@ -161,7 +161,7 @@ check("a git conflict marker over `=======` is NOT an H1",
 
 # -- empty frontmatter: the two spellings agreed after `_split_frontmatter` ----
 
-check("empty frontmatter is frontmatter for `_first_h1`",
+check("empty frontmatter is frontmatter for `_head_h1`",
       h1("---\n---\n# SKA\nOrientation.\n"), (2, "SKA"))
 check("...and for chk_h1_after_frontmatter, which used to trip on the `---`",
       ap._split_frontmatter("---\n---\n# SKA\n")[1], "# SKA\n")
