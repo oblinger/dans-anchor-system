@@ -353,5 +353,44 @@ check("a REAL stray `<text>` in prose still fails",
 check("a two-backtick opener does not close against two of a three-run",
       ap._mask_code("x `` a ``` b `` y"), "x" + " " * 15 + "y")
 
+# -- 3. chk_md_fence_no_markdown: the checker whose whole subject is fences ----
+# It kept a hand-rolled `startswith("```")` toggle after `_strip_fenced` was cured
+# of the same defect. Four independent blindnesses, each with live vault instances.
+
+
+def fence(body):
+    return ap.chk_md_fence_no_markdown(write(body), S.parent, [])[0]
+
+
+check("a ~~~ fence is a fence — `2021-04 FindDayCare.md` runs one to EOF",
+      fence("# W\nWhat this is.\n\n~~~~\n# A Heading\n~~~~\n"), "fail")
+check("a language-tagged ~~~ fence is literal source, and exempt",
+      fence("# W\nWhat this is.\n\n~~~bash\n# a shell comment\n~~~\n"), "pass")
+check("a FOUR-backtick markdown fence is checked — the info string starts after "
+      "the whole run, not after three chars (`DAS CLI.md`, `F112 — Redline.md`)",
+      fence("# W\nWhat this is.\n\n````markdown\n# Shown Head\n````\n"), "fail")
+check("...and a four-backtick python fence is still exempt",
+      fence("# W\nWhat this is.\n\n````python\n# a comment\n````\n"), "pass")
+check("an UNCLOSED fence runs to end-of-document, per CommonMark (`SV Mgt.md`)",
+      fence("# W\nWhat this is.\n\n```\n### 2024-10-14 weekly\n"), "fail")
+check("a ``` inside a ~~~ block does not flip the toggle and exempt what follows",
+      fence("# W\nWhat this is.\n\n~~~\n```\n~~~\n\n```markdown\n# Shown\n```\n"), "fail")
+
+# The body is de-indented by the OPENER's indent before the heading probe, which
+# is the one place F296 does NOT relax to `^ {0,3}` — the two halves disagree and
+# the corpus settles it in opposite directions.
+check("a fence nested in a list item carries its body at the fence's indent — its "
+      "heading is column-zero RELATIVE to the fence (`survey-skill.md`, DMUX F026)",
+      fence("# W\nWhat this is.\n\n- step:\n\n   ```markdown\n   ## Choice points\n   ```\n"),
+      "fail")
+check("but a genuinely indented `#` in a column-zero fence is a comment or a "
+      "count symbol, never a heading (`MACAPP restic.md`, `TPM OKR Cards.md`)",
+      fence("# W\nWhat this is.\n\n```\n  # Stop the job\n  launchctl unload x\n```\n"),
+      "pass")
+check("a lone `#` on its own line is not a heading (`\\s` used to match the newline)",
+      fence("# W\nWhat this is.\n\n```\n#\nnot a heading\n```\n"), "pass")
+check("a wiki-link in an untagged fence still fails",
+      fence("# W\nWhat this is.\n\n```\nsee [[Some Page]]\n```\n"), "fail")
+
 print(f"\n{sum(results)}/{len(results)} passed")
 raise SystemExit(0 if all(results) else 1)
