@@ -237,7 +237,7 @@ def write_next(roll_dir, command, prompt):
         new = text[:span[0]] + block + ("\n" + text[span[1]:] if span[1] < len(text) else "")
     else:
         # Insert after a Pick block if present, else after the H1 header, before batches.
-        anchor = _section_span(text, r"^## Pick[ \t]*$")
+        anchor = _section_span(text, r"^## Pick\b.*$")
         first_h2 = re.search(r"^## ", text, re.M)
         pos = anchor[1] if anchor else (first_h2.start() if first_h2 else len(text))
         new = text[:pos].rstrip("\n") + "\n\n" + block + ("\n" + text[pos:] if pos < len(text) else "")
@@ -384,7 +384,11 @@ def set_pick(roll_dir, image_name, width=2000):
     page = roll_page(roll_dir)
     text = PICK_BLOCK_RE.sub("", page.read_text(encoding="utf-8"))
     text = re.sub(r"\n{3,}", "\n\n", text)
-    block = f"## Pick\n\n![[{image_name}|{width}]]\n\n"
+    # The heading names the pick, so the page says which image won without the
+    # reader having to decode the embed's filename.
+    m = IMAGE_RE.match(image_name)
+    block = (f"## Pick" + (f" — {m.group(1)}{m.group(2)}" if m else "")
+             + f"\n\n![[{image_name}|{width}]]\n\n")
     m = re.search(r"^## ", text, re.M)
     text = (text[:m.start()] + block + text[m.start():] if m
             else text.rstrip("\n") + "\n\n" + block)
