@@ -2023,6 +2023,39 @@ def _is_anchor_page(path: Path) -> bool:
     return path.stem == path.parent.name and (path.parent / ".anchor").is_file()
 
 
+def _anchor_root_for_backlog(backlog: Path) -> Path | None:
+    """The anchor tree a backlog belongs to — nearest enclosing `.anchor`, or None."""
+    for cand in (backlog.parent, *backlog.parent.parents):
+        if (cand / ".anchor").is_file():
+            return cand
+    return None
+
+
+def _scope_c53_to_anchor(findings: list[Finding], root: Path | None) -> list[Finding]:
+    """Keep only the collisions that live inside `root` (F292).
+
+    C53 is computed over the whole vault index, because a basename collision is
+    only visible vault-wide — that part is correct and stays. What was wrong is
+    that the findings were then reported to WHOEVER asked. `audit-q --scope
+    backlog --anchor SVP` returned 4 findings, none of them in SVP's tree, and
+    since the F258 worklist counts findings, `state groom-list` never emptied and
+    the F244 stop-gate fired forever — for SVP and for every other anchor at once.
+    An anchor could not reach a groomed frontier no matter what it did.
+
+    Filtering here rather than inside the check keeps the vault-wide computation
+    intact and matches what C53 already intends: it deliberately emits one finding
+    per colliding PAGE rather than one per group, `so QFix routing lands each half
+    on its own anchor` (F281 Q1 (D)). Ownership was already per-page; only the
+    delivery ignored it. Same principle as T052's own-anchor scoping of the
+    continuation directive — a vault-wide run must not hand an agent someone
+    else's work.
+    """
+    if root is None:
+        return findings
+    return [f for f in findings
+            if f.surface_file == root or root in f.surface_file.parents]
+
+
 def check_c53_anchor_name_collisions(
     vault_index: dict[str, list[Path]], vault_root: Path
 ) -> list[Finding]:
@@ -5339,7 +5372,13 @@ def main() -> int:
             c22_scope.append(queries_md)
     findings.extend(check_c22_link_existence_extended(c22_scope, vault_index))
     # C53 — vault-wide, index-driven; runs once per invocation, not per anchor.
-    findings.extend(check_c53_anchor_name_collisions(vault_index, VAULT_ROOT))
+    # Computed vault-wide, REPORTED per-anchor: an explicit --anchor means the
+    # caller asked about one tree, and another anchor's collision is not its work
+    # to do or its stop-gate to inherit (F292).
+    c53 = check_c53_anchor_name_collisions(vault_index, VAULT_ROOT)
+    if args.anchor and args.anchor in all_backlogs:
+        c53 = _scope_c53_to_anchor(c53, _anchor_root_for_backlog(all_backlogs[args.anchor]))
+    findings.extend(c53)
     # B16 — C7 walks the same ask-format files + backlogs + Q.md (when in scope)
     c7_scope: list[Path] = []
     if args.scope in ("q", "all"):
