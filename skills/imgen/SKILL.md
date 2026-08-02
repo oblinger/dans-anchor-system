@@ -99,22 +99,9 @@ Two implementation facts that are load-bearing, both learned the hard way:
 - **FLUX Fill is not pixel-preserving.** It re-renders the whole frame and may return a different resolution (480² from a 500² input). So the script composites its output back into the source through the feathered mask — outside the mask the result is byte-identical to the source. Without that step, a "masked" edit silently degrades the entire image.
 - **Fill is starved below ~1MP.** The source is upscaled to 1024² first (`FILL_SIZE`); a 500² original gives the model a quarter of the pixels it needs and the patch comes back mushy.
 
-**A text prompt does not control face, age, or affect.** One batch off a single prompt routinely spans ~30 years of apparent age and the full range from near-tears to drill-sergeant; the keeper is a lucky draw, not a specification. Two consequences: shoot **6+ per batch** when a face matters, and once a face is chosen, **never try to reproduce it by prompting** — start from the keeper and `edit`/`inpaint`, which hold identity.
+**Craft lives in [CRAFT.md](CRAFT.md)** — what these models reliably get wrong and what actually moves them: faces and age, composition, style transfer, masked editing, review. It is earned experience rather than mechanics, so it is kept out of this file and read when a render is not doing what was asked. **Read it before a shoot that matters.**
 
-### What the model reliably gets wrong
-
-Craft that transfers to any subject. Subject-specific findings belong in that subject's own doc, not here.
-
-- **Age undershoots, badly, and worst on women.** Asking for "mid forties" lands at late thirties. **Ask for a decade older than you want** and let it undershoot into range.
-- **Describe the feature, never negate it.** *"Crow's feet, hollows under the cheekbones, deep nasolabial creases"* moves a face; *"a few strands of grey"* is ignored. *"Mouth closed in a flat straight line, corners level"* removes a smile that *"no smile at all"* leaves untouched. The model renders nouns, not prohibitions.
-- **A style transfer imports the style's own priors, and words do not override them.** Converting a photo to anime resets age to young and affect to pleasant no matter how the prompt argues — the source face plus the style prior outvote the description every time. Pushing from "mid fifties" to "in her sixties" across two batches moved almost nothing; roughly one variant in six breaks through, so it is a lottery rather than a wall. When the restyled age or expression actually matters, **mask the face and `inpaint` it** (fill redraws what is inside the mask instead of politely declining), or generate fresh in the target style rather than converting into it.
-- **A secondary element loses to a dominant one** unless it is named **early** in the prompt and given a size word. A corkboard listed after a wall of monitors renders as almost nothing; the same board named first and called *large* fills a third of the frame.
-- **A dark scene comes out too dark to read.** Atmosphere words ("late at night", "lit by screens") are enough on their own; the face additionally needs to be called **well exposed and clearly readable** or every variant is silhouette.
-- **A gesture must agree with the gaze.** Pointing at something while looking at the camera reads as staged no matter how well it renders — nobody points at what they are not looking at. Either the eyes follow the hand, or there is no hand.
-- **Rendered text is always noise.** Screens, signage, documents and handwriting come back text-shaped and meaningless. Compose so that density rather than legibility carries the meaning, and never spend rolls trying to fix it.
-- **A big mask is the tool for re-posing.** To move a limb, mask it **entirely** — fingertip to shoulder — plus wherever it is going, and keep the face outside. Everything inside is regenerated, so props and screens caught in the mask will differ between variants; keep out of the mask whatever must survive.
-
-**When two passes miss in opposite directions, blend instead of re-rolling.** An inpaint result is a composite of its source, so the two are pixel-identical outside the mask — compositing between them through the same mask moves *only* that region, along exactly the axis that was overshot. It is free, deterministic, and dial-able, and it beats paying for another guess. [[IMGEN002 — Tink portrait studies]] Batch 15 is the worked example.
+The one line worth carrying without opening it: **the model renders nouns, not prohibitions** — describe the thing you want as a thing that is there, never as an absence.
 
 ## The disciplines
 
