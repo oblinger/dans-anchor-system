@@ -28,6 +28,8 @@ Generate an image from a prompt, or edit one you already have, into the anchor t
 
 A roll page is a **regular file, not an anchor page** — so it heads with a `:>>` breadcrumb and never a dispatch table. Under that: the `# H1`, then **one line saying what this sitting is about** — who the subject is, what was being explored, which image became the keeper. That line is not for navigation meta: "newest first" is the anchor's standing convention, not this roll's news, and stating it here just costs a line. Set it with `new --about "…"`; it defaults to the bare title, which is worth replacing.
 
+Every multi-image run also writes **`{SLUG}{nnn}-{batch}-sheet.png`** — the whole batch composited into one labelled grid, printed as `review → …`. That is the file to open; it is free, rebuilt on every append, and deliberately kept out of the roll page, which already carries the images themselves.
+
 Under that sits **`**Spent so far:** $N.NN`** — the roll's cumulative cost, maintained by the script, never by hand. It is re-priced on every write from each batch's model and image count — not by summing the displayed figures, which are rounded to the penny and would drift (a 1-image flux-dev batch is 2.5¢). A mask preview is embedded but free, and is never billed.
 
 Then, in this order:
@@ -57,7 +59,7 @@ A command line names the verb, the model, and (for edits) the source image:
 
 `{roll}` takes the number (`4`, `004`) **or** a substring of the title (`scout`). Spend verbs also take `-s/--size` (default `square_hd`), `--confirm-over` (default $1.00), `--yes`, and `--dry-run`.
 
-Put `--about` **after** the prompt — argparse cannot take an option between `new`'s two positionals and will reject the prompt as unrecognized.
+**Every flag goes after the prompt.** argparse cannot take an option between two positionals and rejects the *prompt* as unrecognized — so `new {roll} {prompt} --about …` and `render {roll} {prompt} -n 6`, never `render {roll} -n 6 {prompt}`. The error names the prompt rather than the flag, which reads as a quoting bug and is not one.
 
 The spoken trigger is the two-word phrase **`really imgen`** — the dictation pipeline prefixes `/imgen`. `imgen` says "im-jen".
 
@@ -126,7 +128,7 @@ On invocation:
 2. **Decide create vs edit.** A different picture of the same idea is `render` (re-roll the prompt). A change to *this specific image* — keeping the face, the style, the composition — is `edit {roll} {image} "{instruction}"`. When the user points at one image and asks for a change to it, that is `edit`.
 3. **Write the prompt as bullets** (§ The disciplines) unless the user asked otherwise.
 4. Run the script. `list` gets you the number if you do not have it; `--dry-run` confirms the destination. Neither costs anything.
-5. **Show the images**: `open "{path}"` on each one written. Never describe an image the user has not been shown.
+5. **Show the images** — `open` the **contact sheet** the run printed as `review → …`, not the individual files. A batch is judged by comparing its variants, and N separate `open` calls give N overlapping windows in arbitrary order with no way to see them side by side. Never describe an image the user has not been shown. Open a single file directly only when the batch produced exactly one (no sheet is written).
 6. Report the cost line as printed, and name the roll so the user can ask for more of the same.
 7. **When the user picks a keeper**, `pick {roll} {image}` — then, in the same pass and without being asked:
    - **copy the picked image over that character's staff photo** (`SYS/Staff/{Name}/{Name}.png`). The pick and the in-use copy must never disagree; the user should not have to ask for this.
