@@ -78,16 +78,21 @@ LEGACY_NUMBERED_RE = re.compile(r"^M\d")
 LEGACY_MARKER_RE = re.compile(r"<!--\s*legacy-numbered-milestones\s*-->")
 # `[F123]` marker on a roadmap sub-item (the pointer to its feature doc).
 F_MARKER_RE = re.compile(r"\[F(\d+)\]")
-# Feature-doc filename that encodes an M-position (R10 title format). Both
-# `F<n> — M-…` and (F298) `{slug} F<n> — M-…` are accepted; the slug prefix is
-# optional forever, since pre-2026-08-02 docs keep the bare form and are never
-# renamed. Canonical copy of the stem grammar: `backlog_edit.FEATURE_STEM_RE`.
-_SLUG_OPT = r"(?:[A-Za-z][A-Za-z0-9]*\s+)?"
+# Feature-doc filename that encodes an M-position (R10 title format). Three
+# stem forms are accepted, permanently — older docs are never renamed:
+#
+#   F<n> — M-…          legacy
+#   {slug} F<n> — M-…   F298
+#   {SLUG}<n> - M-…     F300, current (ASCII hyphen, no `F`)
+#
+# Canonical copy of the stem grammar: `backlog_edit.feature_number`;
+# audit-roadmap runs standalone and cannot import it.
+_STEM_HEAD = r"(?:(?:[A-Za-z][A-Za-z0-9]*\s+)?F\d+\s+—|[A-Za-z]+\d+\s+-)\s+"
 FEATURE_MPOS_FILENAME_RE = re.compile(
-    _SLUG_OPT + r"F\d+\s+—\s+M-[A-Za-z][A-Za-z0-9]+(\.\d+)*:\s+.+$"
+    _STEM_HEAD + r"M-[A-Za-z][A-Za-z0-9]+(\.\d+)*:\s+.+$"
 )
-# Any `F<NNN> — M-` filename prefix (used to detect the encode-attempt).
-FEATURE_MPOS_PREFIX_RE = re.compile(_SLUG_OPT + r"F\d+\s+—\s+M-")
+# Any `<stem-head> M-` filename prefix (used to detect the encode-attempt).
+FEATURE_MPOS_PREFIX_RE = re.compile(_STEM_HEAD + r"M-")
 
 
 # ============================================================

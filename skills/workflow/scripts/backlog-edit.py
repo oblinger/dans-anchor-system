@@ -1311,23 +1311,51 @@ def format_row_id(kind, rest_or_num):
 
 
 # --------------------------------------------------------------------------
-# Feature-doc filename grammar (F298)
+# Feature-doc filename grammar (F298, F300)
 
-# A feature doc's stem is `F<n> — Title` OR `{slug} F<n> — Title`, e.g. both
-# `F294 — URL validation` and `SKA F294 — URL validation`. The slug went into
-# the filename because an F-number is a PER-ANCHOR namespace that resets at F1
-# in every anchor, so `F26` alone names as many files as there are anchors and
-# cannot be found by search. Docs authored before 2026-08-02 keep the bare form
-# and are never renamed — hence optional, not required, permanently.
+# Three stem forms are first-class, permanently:
 #
-# The slug alternative is one bare alphanumeric token (`Tink`, `SKA`, `LUMEN`),
-# which is the anchor's file-prefix form. Deliberately NOT `[\w\s]+`: a greedy
+#   F294 — URL validation           legacy, every doc before 2026-08-02
+#   SKA F294 — URL validation       F298, the slug-prefixed morning
+#   SKA294 - URL validation         F300, current — authored form
+#
+# The slug is in the filename because an F-number is a PER-ANCHOR namespace
+# that resets at F1 in every anchor, so `F294` alone names as many files as
+# there are anchors and cannot be found by search. F300 then fused the slug to
+# the number and went ASCII: `SKA294` is one typeable token, and it is a
+# STRONGER discriminator than `F294` ever was — it names one anchor rather than
+# every anchor at once. Older docs are never renamed, so all three forms are
+# accepted forever; only the newest is authored.
+#
+# The slug alternative is one bare token. In the F298 form it may carry digits
+# (`[A-Za-z][A-Za-z0-9]*`); in the fused form it is letters only, because
+# `[A-Za-z0-9]*\d+` is ambiguous — greedy matching would split `TINK300` into
+# slug `TINK30` + number `0`. Deliberately NOT `[\w\s]+` in either: a greedy
 # multi-token prefix would match ordinary prose stems (`Notes on F12 — foo`).
 #
-# This is the canonical copy. `state` reads it as `be.FEATURE_STEM_RE`; the
-# rule bodies in R-pathguard / R-state-region are exec'd in isolation and
-# cannot import, so they carry the same pattern inline with a pointer here.
+# This is the canonical copy. `state` reads it as `be.feature_number`; the rule
+# bodies in R-pathguard / R-state-region and the audit scripts are exec'd or
+# run in isolation and cannot import, so they carry the same grammar inline
+# with a pointer here.
 FEATURE_STEM_RE = re.compile(r"^(?:[A-Za-z][A-Za-z0-9]*\s+)?(F\d+)\s+—")
+FEATURE_STEM_FUSED_RE = re.compile(r"^[A-Za-z]+(\d+)\s+-\s+")
+
+
+def feature_number(stem):
+    """Return the bare `F<n>` a feature-doc stem names, or None.
+
+    The fused F300 form has no `F` in it, so this RECONSTRUCTS the identifier
+    rather than matching it: `TINK300 - Title` → `F300`. Everything outside the
+    filename — backlog rows, block-IDs, `Q.md`, `queries.md`, chat — still says
+    `F300`, and this is the single seam where the two spellings meet.
+    """
+    m = FEATURE_STEM_RE.match(stem)
+    if m:
+        return m.group(1)
+    m = FEATURE_STEM_FUSED_RE.match(stem)
+    if m:
+        return "F" + m.group(1)
+    return None
 
 # --------------------------------------------------------------------------
 # Backlog scanning
@@ -2651,17 +2679,15 @@ def _ensure_bottom_resolved_h2(lines):
 def _container_id_for_feature(feature_path):
     """Return container ID for block-IDs (e.g., 'F128').
 
-    The F-number is pulled from wherever it sits in the stem, so a slug-named
-    doc (`Tink F298 — Title.md`, F298) yields the same `F298` as the legacy
-    `F298 — Title.md`. That equality is the whole point: block-IDs are
-    permanent deep-link targets and `queries.md` / `Q.md` address questions as
-    `^F<n>-Q<n>` — minting `^Tink-F298---Title-Q1` instead would strand every
-    link into the doc while looking like it worked.
+    All three filename forms yield the same bare `F298`: the legacy
+    `F298 — Title.md`, the F298 `Tink F298 — Title.md`, and the F300
+    `TINK298 - Title.md` (where the `F` is reconstructed, not matched). That
+    equality is the whole point: block-IDs are permanent deep-link targets and
+    `queries.md` / `Q.md` address questions as `^F<n>-Q<n>` — minting
+    `^TINK298---Title-Q1` instead would strand every link into the doc while
+    looking like it worked.
     """
-    m = FEATURE_STEM_RE.match(feature_path.stem)
-    if m:
-        return m.group(1)
-    return feature_path.stem
+    return feature_number(feature_path.stem) or feature_path.stem
 
 
 def _format_q_bullet(q_num, container_id, body):

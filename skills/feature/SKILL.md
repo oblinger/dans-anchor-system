@@ -82,13 +82,17 @@ If a feature is `[Questions]` or `[Blocked]` mid-flight, that's tracked via the 
 
 **Pick the highest applicable tier.** If you find yourself writing tier 4 with no Blocks-next, pause and reconsider: could a passive signal work? Could the user notice this in normal use? Often the answer is yes and the right tier is 3.
 
-Per `[[DAS Backlog]]` § Numbering policy, F-numbers are monotonic-forever, never recycled, **zero-padded to three digits** as `F001` … `F999`. The F-number is **minted by the workflow skill's `state define <anchor> Backlog F+`** in § 1.5 below — run § 1.5 first (after the collision check in § 1b), parse the assigned `F<NNN>` from its stdout, then create the feature doc in the anchor's Features folder. Per **F142** the canonical location is the **Design** folder (Features is a design artifact, D07): `{slug} Design/{slug} Features/{slug} F{NNN} — {Feature Name}.md`.
+Per `[[DAS Backlog]]` § Numbering policy, F-numbers are monotonic-forever, never recycled, **zero-padded to three digits** as `F001` … `F999`. The F-number is **minted by the workflow skill's `state define <anchor> Backlog F+`** in § 1.5 below — run § 1.5 first (after the collision check in § 1b), parse the assigned `F<NNN>` from its stdout, then create the feature doc in the anchor's Features folder. Per **F142** the canonical location is the **Design** folder (Features is a design artifact, D07): `{slug} Design/{slug} Features/{SLUG}{NNN} - {Feature Name}.md`.
 
-**The filename leads with the anchor slug (F298, 2026-08-02).** `{slug}` is the anchor's **file-prefix form** — `Tink`, `SKA`, `MUSE` — the same token already used by `{slug} Backlog.md` and `{slug} Features/`, *not* the uppercase `.anchor` slug (`TINK`), which would be inconsistent with every sibling file in the folder. The slug is there because F-numbers are a **per-anchor** namespace that resets at F1 in every anchor, so a bare `F26` names as many files as there are anchors and cannot be turned into a file search. Dan, 2026-08-02: *"if you tell me that you're working on F26 — the problem is, I can't actually find that document, because the slug is not part of it."*
+**The filename is the slug fused to a bare number, in ASCII (F300, 2026-08-02).** `{SLUG}` is the anchor's slug **read verbatim from `.anchor`'s `slug:` key** — never upcased, never downcased, never translated to the file-prefix form. Most are uppercase (`TINK`, `SKA`, `LUMEN`, `MUX`, `HA`, `OBU`) but `Warden` is mixed-case, so the rule is *the slug's own casing*, not "uppercase". The separator is a plain **ASCII hyphen** with a space each side. Dan, 2026-08-02: *"whatever the slug is with that case, without a space and then the number… the idea is really that I can quickly type it once you know the structure of it"* and *"make sure that it's not an M dash… We don't want to get fancy with the file name."*
 
-**Only the filename changes.** In chat, keep saying the bare `F298` — the session window already names the anchor, so the context that disambiguates is on screen; an F-number is ambiguous only *out of* context, and the filename is the one surface that has none. Backlog rows, `queries.md`, and `Q.md` also stay bare. Where a wiki-link must *target* a slug-named doc, use the pipe form so the displayed text stays bare: `[[Tink F298 — Title|F298]]` — which is what audit-q **C37** requires anyway.
+The slug is in the filename because F-numbers are a **per-anchor** namespace that resets at F1 in every anchor, so a bare `F26` names as many files as there are anchors and cannot be turned into a file search — Dan, 2026-08-02: *"if you tell me that you're working on F26 — the problem is, I can't actually find that document, because the slug is not part of it."* Fusing it to the number makes `TINK300` a **stronger** discriminator than `F300` ever was: it names one anchor rather than every anchor at once.
 
-**Pre-2026-08-02 docs keep the bare `F{NNN} — {Title}.md` form and are never renamed** (Dan's call). The corpus stays permanently mixed; every matcher accepts both forms rather than switching between them.
+**Feature titles avoid em-dashes.** The filename is a faithful ASCII transcription of the H1 title (R-fct-features-03 requires the two to match), so a title carrying an em-dash could not round-trip without leaving the filename typographic in one position and ASCII in the next. Prefer a colon, a comma, or a shorter title. `Hook fan-in - one computed entrypoint per hook moment`, not `Hook fan-in — one computed entrypoint per hook moment`.
+
+**Only the filename changes.** In chat, keep saying the bare `F300` — the session window already names the anchor, so the context that disambiguates is on screen; an F-number is ambiguous only *out of* context, and the filename is the one surface that has none. Backlog rows, block-IDs (`^F300-Q1`), `queries.md`, and `Q.md` also stay bare. Where a wiki-link must *target* a slug-named doc, use the pipe form so the displayed text stays bare: `[[TINK300 - Title|F300]]` — which is what audit-q **C37** requires anyway.
+
+**Older docs keep their form and are never renamed** (Dan's call). Two of them: the bare `F{NNN} — {Title}.md` carried by everything before 2026-08-02, and the slug-prefixed `{slug} F{NNN} — {Title}.md` (F298) from the single morning that convention lasted. The corpus stays permanently mixed; every matcher accepts all three forms rather than switching between them. The canonical grammar — including the `F` **reconstruction** the fused form requires — is `backlog_edit.feature_number`.
 
 If `{slug} Design/{slug} Features/` doesn't exist, create it. (Legacy anchors still hold features at `{slug} Track/{slug} Features/`; the workflow scripts read both during the F142 rollout — but **new** docs go in the Design location.) Filenames carry the F-number from the mint (zero-padded). **Do not read the backlog file directly to compute the next F-number** — `state define <anchor> Backlog F+` is the canonical mint.
 
@@ -96,7 +100,7 @@ If `{slug} Design/{slug} Features/` doesn't exist, create it. (Legacy anchors st
 
 **Before writing the file**, check the *current anchor's* Features folder for an existing feature doc with the same H1 title. Within-anchor titles must be unique.
 
-**The cross-anchor half of this check retired with F298.** It existed because the same `F<n> — <Title>` filename could appear in several anchors, making Obsidian's path-proximity wiki-link resolution ambiguous across anchors. With the slug in the filename that collision is **impossible by construction** — `[[SKA F294 — Title]]` and `[[Tink F294 — Title]]` are distinct filenames — so there is nothing left to warn about and no inline question to ask. Two anchors may now freely hold same-titled features.
+**The cross-anchor half of this check retired with F298.** It existed because the same `F<n> — <Title>` filename could appear in several anchors, making Obsidian's path-proximity wiki-link resolution ambiguous across anchors. With the slug in the filename that collision is **impossible by construction** — `[[SKA294 - Title]]` and `[[TINK294 - Title]]` are distinct filenames — so there is nothing left to warn about and no inline question to ask. Two anchors may now freely hold same-titled features.
 
 **Procedure:**
 
@@ -202,10 +206,10 @@ Output: `{slug}: added F<NNN> in Now [Designing]` — parse `F<NNN>` from the se
 After § 1 creates the feature doc, run a follow-up call to add the wiki-link body so the row links back to the new doc:
 
 ```bash
-~/.claude/skills/workflow/scripts/state set {slug} Backlog F<NNN> --body "→ [[{slug} F<NNN> — {Feature Name}|F<NNN> — {Feature Name}]]"
+~/.claude/skills/workflow/scripts/state set {slug} Backlog F<NNN> --body "→ [[{SLUG}<NNN> - {Feature Name}|F<NNN> — {Feature Name}]]"
 ```
 
-The link **targets** the slug-carrying filename (Obsidian resolves by filename, so it must) and **displays** the bare `F<NNN> — {Feature Name}`, so the backlog reads exactly as it did before F298. For a pre-2026-08-02 doc whose file has no slug, keep the plain `→ [[F<NNN> — {Feature Name}]]` — those are never renamed.
+The link **targets** the filename (Obsidian resolves by filename, so it must) and **displays** the bare `F<NNN> — {Feature Name}`, so the backlog reads exactly as it did before F298. For an older doc, target whichever form its file actually carries — `[[{slug} F<NNN> — {Feature Name}|…]]` or the plain `[[F<NNN> — {Feature Name}]]`; those are never renamed.
 
 Use `--horizon Later` for parking-mode stubs (`/feature` used to file something for later). Use `--status Questions` once the Open Questions block has been written and the row should surface (via the queries render) as user-actionable.
 
@@ -215,7 +219,7 @@ Use `--horizon Later` for parking-mode stubs (`/feature` used to file something 
 
 ### 1a. Surface the Doc — glance only when adding/modifying a pending question AND the user is engaging now
 
-Glance the doc *only when both conditions hold*: (1) the edit added or modified a pending question, AND (2) you're in **active mode** — the user is engaging with this feature right now. See [[Tink queries]] § Active vs Parking mode for the full rule. (Better still: invoke `/ask --doc <path>` and the skill handles the glance for you.)
+Glance the doc *only when both conditions hold*: (1) the edit added or modified a pending question, AND (2) you're in **active mode** — the user is engaging with this feature right now. See [[TINK queries]] § Active vs Parking mode for the full rule. (Better still: invoke `/ask --doc <path>` and the skill handles the glance for you.)
 
 ```bash
 open "<path to feature doc>"

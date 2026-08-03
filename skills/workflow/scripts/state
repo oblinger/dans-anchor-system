@@ -2274,16 +2274,16 @@ def _container_id_for_doc(doc_path):
     would otherwise land unsanitized inside an Obsidian block-id (`^Smoke
     Design-Q1` — invalid, contains a literal space). Sanitize here instead.
 
-    A slug-prefixed feature doc (`Tink F298 — Title.md`, F298) resolves to the
-    same bare `F298` as the legacy `F298 — Title.md`; the slug is redundant
-    inside a doc that already lives in that anchor's folder, and keeping the
-    container bare is what stops the fallback below from minting
-    `^Tink-F298---Title-Q1` and stranding every `^F<n>-Q<n>` deep link.
+    All three filename forms resolve to the same bare `F298` — the legacy
+    `F298 — Title.md`, the slug-prefixed `Tink F298 — Title.md` (F298), and the
+    fused `TINK298 - Title.md` (F300, where the `F` is reconstructed rather
+    than matched). The slug is redundant inside a doc that already lives in
+    that anchor's folder, and keeping the container bare is what stops the
+    fallback below from minting `^TINK298---Title-Q1` and stranding every
+    `^F<n>-Q<n>` deep link.
     """
-    m = be.FEATURE_STEM_RE.match(doc_path.stem)
-    if m:
-        return m.group(1)
-    return re.sub(r"[^\w\-]", "-", doc_path.stem)
+    return be.feature_number(doc_path.stem) or re.sub(
+        r"[^\w\-]", "-", doc_path.stem)
 
 
 def _v_format_bullet(v_num, container_id, body):
