@@ -38,7 +38,7 @@ Boundaries: **Tracking supplies the queue and takes the questions** — Ready ro
 
 ## Coordinated examples
 
-Drive is illustrated by any anchor's live backlog history — the [[Tink Backlog]] itself is a long record of crank/mint/land cycles over F- and T-rows.
+Drive is illustrated by any anchor's live backlog history — the [[TINK Backlog]] itself is a long record of crank/mint/land cycles over F- and T-rows.
 
 ## Design record
 

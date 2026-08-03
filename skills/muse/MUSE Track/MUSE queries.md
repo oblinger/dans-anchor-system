@@ -2,8 +2,9 @@
 description: MUSE queries — mechanically rendered from the backlog (Blockers / Ready+Next / Questions / Blocked / Verifications / Other), and copied verbatim into Q.md. Do not hand-edit; edit the backlog rows.
 ---
 
-# [A]  [[MUSE|MUSE]]  -  Runnable 2    User 0   |   Now 0    Next 2    Later 0    Verify 0    Icebox 0
+# [A]  [[MUSE|MUSE]]  -  Runnable 3    User 0   |   Now 1    Next 2    Later 0    Verify 0    Icebox 0
 
 ## Ready
+- [[MUSE Backlog#^T003|T003]] — **Next:** reproduce the failure under `_trust` rather than under a login shell — run `/Users/oblinger/bin/_trust muse-sweep` directly and capture the real per-file error, which the current log swallows behind the "repeatedly-failing" skip....
 - [[MUSE Backlog#^T001|T001]] — **Next:** At ingest, detect a leading spoken "Lumen" in the transcript (the user already opens such recordings with "I'm sending a message over to the agent" / "Lumen, …") and write `addressed: lumen` into the item's frontmatter....
 - [[MUSE Backlog#^T002|T002]] — **Next:** Fix three faults observed in the 2026-07-21 batch, all rooted in the same iCloud FileProvider behaviour: an iCloud drop does not raise an FSEvent, so a WatchPaths-only trigger misses it, and...

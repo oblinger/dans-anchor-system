@@ -19,7 +19,7 @@ Create and drive a **change** — the OpenSpec-conformant unit of work defined b
 
 - The user asks to "create a change" / "open a change" (vs. "new feature").
 - Working in an anchor that has a `changes/` folder (it has adopted the OpenSpec layout) and the unit of work should follow it.
-- **Not** for anchors without `changes/` unless the user explicitly adopts the layout — adoption is deliberate, never inferred (F230 Q1: no wholesale conversion; existing-project migration is [[Tink Backlog#^F238|F238]], per-project and user-reviewed).
+- **Not** for anchors without `changes/` unless the user explicitly adopts the layout — adoption is deliberate, never inferred (F230 Q1: no wholesale conversion; existing-project migration is [[TINK Backlog#^F238|F238]], per-project and user-reviewed).
 
 ## Runbook
 

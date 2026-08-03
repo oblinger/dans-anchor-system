@@ -26,7 +26,7 @@ The fix is to run inside a process the **Aqua login session** owns. Two mechanis
     ctrl screen --remote haorui grab /tmp/s.png     # then Read /tmp/s.png
     ctrl screen --remote haorui click 500 400
 
-This needs no pre-existing session on the remote — only that someone is logged in. (Verified end-to-end against haorui 2026-07-27; [[Tink Backlog#^T049|T049]].)
+This needs no pre-existing session on the remote — only that someone is logged in. (Verified end-to-end against haorui 2026-07-27; [[TINK Backlog#^T049|T049]].)
 
 **The bridge's tmux route (manual, still valid).** A Terminal-launched tmux session also inherits the GUI context and the launching Terminal's TCC, which is what the [[bridge]] control plane already maintains. Reach for it when you are *already* working in that session, or when you need the verb to share state with a running bridge job:
 
