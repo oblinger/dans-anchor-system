@@ -601,16 +601,20 @@ def _do_render(roll_dir, roll_n, count, size, confirm_over, yes, dry):
     nb = newest_batch(roll_dir)
     if nb and nb[1] == command and nb[2] == prompt:
         batch = nb[0]
-        start = len(batch_variants(roll_dir, batch))
+        used = set(batch_variants(roll_dir, batch))
     else:
         batch = next_batch_index(roll_dir)
-        start = 0
-    if start + count > len(string.ascii_uppercase):
+        used = set()
+    # Take the next FREE letters, not the next `len(used)` of them. A batch whose
+    # letters have gaps — some renders failed, one was deleted — is otherwise handed
+    # variants that already exist, and the re-run silently overwrites them.
+    free = [c for c in string.ascii_uppercase if c not in used]
+    if count > len(free):
         raise ImgenError(f"batch {batch} would exceed 26 images")
-    variants = [string.ascii_uppercase[start + i] for i in range(count)]
+    variants = free[:count]
 
     if dry:
-        where = "append to" if start else "new"
+        where = "append to" if used else "new"
         print(f"dry-run: {command!r} × {count} → {where} Batch {batch} "
               f"({SLUG}{roll_n:03d}-{batch}[{''.join(variants)}]) ({cents(cost)})")
         return []
