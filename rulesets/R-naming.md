@@ -5,14 +5,22 @@ description:: file-naming facet — `{slug} <X>.md` default + explicit exception
 
 Embedded ruleset for the Naming facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Adopted via `R-facet` umbrella. Vault-wide application — every anchor's files are subject to this set, no explicit `include::` needed.
 
-### RULE R-naming-01 — Default file name is `{slug} <X>.md` inside an anchor (checked)
+### RULE R-naming-01 — A file prefix, if present, is the anchor's slug (checked)
 check:: name_slug_prefixed
 
-A markdown file inside `{anchor}/` (or any sub-folder rooted at the anchor) is named `{slug} <X>.md` where `{slug}` is the anchor's **implied slug** — its explicit `slug:` when declared, otherwise its **basename** verbatim ([[ANC Standard]] § S2; `slug:` is optional per [[DAS Dot Anchor]]). `_ancestor_anchor_slugs` already accepts both forms, so an anchor that declares no slug prefixes its files with its folder name. Sub-folder marker files match their folder name: `{slug} Design/{slug} Design.md`, `{slug} Track/{slug} Track.md`.
+**The prefix is optional.** A file is a child of an anchor because it sits in the anchor's folder — never because of what it is called. A markdown file inside `{anchor}/` may be named anything; `Lumens.md`, `CLAUDE.md`, and `Notes on the redesign.md` are all perfectly well-named files.
 
-**Check pattern:** for each `.md` file under an anchor, assert the filename starts with `{slug} ` (with a trailing space) OR matches one of the sanctioned exception patterns from R-naming-03.
+**If a file does carry a prefix, that prefix is the anchor's slug** — the explicit `slug:` from `.anchor` when declared, otherwise its basename verbatim ([[ANC Standard]] § S2; `slug:` is optional per [[DAS Dot Anchor]]). One anchor, one slug. A nested anchor prefixes with the **root** anchor's slug, not its own folder name: `TINK Track/TINK Backlog.md`, not `TINK Track Backlog.md`. The anchor's own folder keeps the human-readable **name** — `SYS/Staff/Atticus/` holds `ATT.md`, `ATT Persona.md`, `ATT Track/` — because the folder is not a prefix and never participates in link resolution.
 
-**Why:** wiki-links from anywhere in the vault resolve correctly; search and dispatch surfaces don't suffer cross-anchor collisions; the file is globally unambiguous.
+**A prefix is required only where the basename would otherwise collide** vault-wide — which in practice means the repeated structural names, and only those. Measured 2026-08-02: `Design` appears 178 times, `Roadmap` 41, `Track` 39, `Messages` 39, `Backlog` 37, `queries` 35, `Features` 22 — and **zero** of them appear unprefixed. The prefix is doing exactly one job, and doing it universally already.
+
+**That third clause is enforced by [[F281 — Duplicate-basename rule — anchor-name collisions break wiki-link routing|F281]], not here** — deliberately, and this rule states no independent uniqueness test. Uniqueness is a *vault-global* property; a per-file checker cannot see it without a vault-wide index, and building a second index would be a second source of truth for the same fact. F281 already owns it, split by severity: **audit-q C53** raises colliding *anchor names* as an error (0 of 1,211 today), and `ha --dump --format=collisions` keeps the file-level warning as an on-demand report so the ~296 mostly-deliberate ordinary collisions stay something you consult rather than a stream you learn to ignore. R-naming-01 is the mechanism that keeps that property true going forward; C53 is the check that it *is* true.
+
+**Check pattern:** for each `.md` file under an anchor, if the stem leads with a token that is any ancestor anchor's folder **name** or a non-root ancestor's slug, and that token is not the root anchor's slug, fail. A stem with no prefix passes. A stem prefixed with the root slug passes. R-naming-03's sanctioned patterns pass.
+
+**Why:** the prefix exists to keep [[F281 — Duplicate-basename rule — anchor-name collisions break wiki-link routing|F281]]'s uniqueness property true for the names that repeat. Obsidian resolves `[[Some Name]]` by path proximity, so two files sharing a basename mean different things depending on where the link is written — silently. `Backlog.md` in 37 anchors would be unusable; `TINK Backlog.md` is globally unambiguous. This rule is the **mechanism**; audit-q **C53** is the enforcement of the property itself. Stating it any wider is a category error: it was previously written as "every file must carry the prefix," which put **3,047 of 7,799 files (39% of the vault) in violation** — a rule that condemns 39% of the corpus is a rule nobody can act on, and the R-naming-03 allowlist had grown into a workaround for it.
+
+**Why the prefix is the slug and not the folder name.** Both were accepted until 2026-08-02, which meant `Tink Backlog.md` and `TINK Backlog.md` were equally legal and nothing ever complained. That is how `{slug}` interpolation in a `where::` selector came to resolve to a token no file matched — see [[TINK Backlog#^T111|T111]], where the index-page term reached 0 of 22 pages. One spelling per anchor is what makes `{slug}` mean something.
 
 ### RULE R-naming-02 — Vault-global files exempt (stated)
 
@@ -26,7 +34,8 @@ Files at the vault root or in vault-meta folders (Atlas, MY, etc.) that are genu
 
 Files matching a facet-sanctioned alternative pattern are exempt from the slug-prefix default. The canonical allowlist:
 
-- `F<NNN> — <title>.md` (per [[DAS Features]])
+- `{SLUG}<NNN> - <title>.md` (per [[DAS Features]] — the current feature-doc form, F300)
+- `F<NNN> — <title>.md` (per [[DAS Features]] — the legacy form, never renamed)
 - `US-<slug>-<N> — <title>.md` (per [[DAS Stories]])
 - `YYYY-MM-DD <topic>.<ext>` (per [[DAS Log]])
 - `YYYY-MM <topic>.<ext>` (per [[DAS Log]] — year-month precision)
@@ -37,6 +46,8 @@ Files matching a facet-sanctioned alternative pattern are exempt from the slug-p
 **Check pattern:** R-naming-01's check accepts files matching any of the regex shapes above as a pass.
 
 **Why:** these patterns are unique enough on their own (F-numbers monotonic-forever, `US-<slug>-<N>` encodes the slug directly, ISO dates plus topic). Adding a slug prefix would be redundant. The parent folder (`{slug} Track/{slug} Features/`, `{slug} Design/{slug} PRD/`, `{slug}/{slug} Log/`) already encodes anchor scope.
+
+The F300 form is the one entry that *does* carry the slug and is still allowlisted rather than passing R-naming-01 directly: it fuses the slug to the number (`TINK300`) rather than following it with a space, which is deliberate — the whole point is a single typeable token — and so it cannot satisfy a `startswith("{slug} ")` test. The three-digit requirement is what keeps the shape narrow enough to sanction: measured 2026-08-02, **zero** existing vault files match it, so admitting it exempts nothing that was previously flagged.
 
 ### RULE R-naming-04 — Slug-prefix-sufficient-by-chance allowed sparingly (stated)
 

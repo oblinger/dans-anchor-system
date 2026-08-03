@@ -1426,7 +1426,8 @@ def chk_regex_absent(target, anchor_root, args):
 # Sanctioned non-slug-prefixed name patterns (R-naming-03 allowlist). Matched
 # against the file stem (basename without .md).
 _NAME_ALLOWLIST = (
-    r"^F\d+ [—-] ",              # F<NNN> — title  (Features)
+    r"^F\d+ [—-] ",              # F<NNN> — title  (Features, legacy + F298)
+    r"^[A-Za-z]+\d{3} - ",       # {SLUG}<NNN> - title  (Features, F300)
     r"^US-[A-Za-z]+-\d+ [—-] ",  # US-<SLUG>-<N> — title  (Stories)
     r"^\d{4}-\d{2}-\d{2}\b",     # YYYY-MM-DD topic  (Log)
     r"^\d{4}-\d{2}\b",           # YYYY-MM topic
@@ -1458,22 +1459,68 @@ def _ancestor_anchor_slugs(anchor_root: Path) -> list[str]:
 
 
 def chk_name_slug_prefixed(target, anchor_root, args):
-    """Per-file (R-naming-01): basename starts with `{slug} ` for this anchor OR
-    any ancestor anchor (nested anchors prefix with the root slug), equals an
-    anchor marker, or matches a sanctioned allowlist shape (R-naming-03).
-    By-chance exemptions (R-naming-04) are explicitly not mechanically audited."""
+    """Per-file (R-naming-01, recast 2026-08-02): a prefix is OPTIONAL, but if
+    one is present it must be the anchor's slug.
+
+    The rule used to REQUIRE a prefix, which put 3,047 of 7,799 vault files
+    (39%) in violation — folder membership is what makes a file a child of an
+    anchor, not its name, and `Lumens.md` / `Notes on X.md` are well-named. The
+    R-naming-03 allowlist had grown into a workaround for that over-reach.
+
+    What IS a defect is a file leading with the anchor's folder NAME where a
+    distinct slug exists (`Tink Backlog.md` under slug `TINK`), because then
+    `{slug}` interpolation in a `where::` selector resolves to a token no file
+    matches — silently. T111 is that failure: an index-page term reached 0 of
+    22 pages. Nested anchors legitimately carry the ROOT slug, so `MUX Track/
+    MUX Paths.md` is correct and only the folder-name form is refused.
+
+    The uniqueness property this protects is audit-q C53's (F281); this rule is
+    only the mechanism that keeps it true for the repeated structural names.
+    """
     if not target.is_file():
         return "pass", "not a file"
-    slugs = _ancestor_anchor_slugs(anchor_root)
     stem = target.stem
-    if any(stem == s for s in slugs):
-        return "pass", "anchor marker"
-    if any(stem.startswith(f"{s} ") for s in slugs):
+    # The refusal is tested FIRST and deliberately. `_ancestor_anchor_slugs`
+    # returns each ancestor's slug AND its folder name, so a pass-check run
+    # ahead of this would accept `Atticus Backlog.md` on the folder name and
+    # the rule would never fire at all — which is the exact defect T112 caught.
+    for wrong in _ancestor_folder_names(anchor_root):
+        if stem == wrong or stem.startswith(f"{wrong} "):
+            return ("fail", f"{target.name!r} leads with the folder name "
+                            f"{wrong!r}; the prefix must be the slug "
+                            f"({_anchor_slug(anchor_root)!r})")
+    if any(stem == s or stem.startswith(f"{s} ")
+           for s in _ancestor_anchor_slugs(anchor_root)):
         return "pass", ""
     for pat in _NAME_ALLOWLIST:
         if re.match(pat, stem):
             return "pass", "allowlisted pattern"
-    return "fail", f"{target.name!r} lacks a {slugs!r} prefix / allowlist match"
+    return "pass", "no prefix — legal (folder membership is what scopes a file)"
+
+
+def _ancestor_folder_names(anchor_root: Path) -> list[str]:
+    """Ancestor anchor FOLDER names that differ from their own declared slug —
+    the spellings R-naming-01 refuses as a prefix.
+
+    Uses `_anchor_name` (the slug exactly as `.anchor` declares it), NOT
+    `_anchor_slug` (which reduces a multi-token slug to its first token). An
+    anchor may legitimately declare `slug: SKA ctrl`, and there the folder name
+    IS the slug — reducing it to `SKA` would refuse `SKA ctrl/SKA ctrl.md`,
+    which is correctly named. That mistake falsely condemned 130 files.
+    """
+    out: list[str] = []
+    try:
+        cur, root = anchor_root.resolve(), REPO_ROOT.resolve()
+    except OSError:
+        return out
+    while True:
+        if (cur / ".anchor").is_file():
+            if cur.name != _anchor_name(cur):
+                out.append(cur.name)
+        if cur == root or cur.parent == cur:
+            break
+        cur = cur.parent
+    return out
 
 
 def chk_h1_after_frontmatter(target, anchor_root, args):
