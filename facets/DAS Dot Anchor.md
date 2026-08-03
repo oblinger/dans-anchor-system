@@ -22,7 +22,7 @@ A YAML file named `.anchor` at the root of an anchor folder. Two jobs: (1) its m
 
 | Field | Meaning | Rule owner |
 |---|---|---|
-| `slug` | short canonical id (`DKT`, `MUX`) — **optional**; absent → addressed by basename | [[DAS Naming]] |
+| `slug` | short canonical id (`DKT`, `MUX`) — **optional**; absent → addressed by basename. Matches `^[A-Z0-9]+$`, and is declared only when it is a genuine short handle (a prefix, a moniker, or both) — never a restatement of the basename | [[DAS Naming]] |
 | `traits` | the anchor's traits (`code`, `skill`, `paper`, `topic`, …) | [[DAS Traits]] |
 | `traits-` | traits the anchor opts OUT of, including the implicit ones every anchor carries | [[DAS Traits]] |
 | `description` | one-line description (mirrors the anchor page's) | this facet |

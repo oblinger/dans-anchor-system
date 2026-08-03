@@ -1458,6 +1458,53 @@ def _ancestor_anchor_slugs(anchor_root: Path) -> list[str]:
     return out or [_anchor_slug(anchor_root), anchor_root.name]
 
 
+_SLUG_GRAMMAR = re.compile(r"^[A-Z0-9]+$")
+
+
+def chk_slug_is_a_handle(target, anchor_root, args):
+    """R-dot-anchor-03: a declared slug is an uppercase token and never a
+    restatement of the basename (TINK F301).
+
+    Two independent failures. GRAMMAR: `^[A-Z0-9]+$` — one token, uppercase
+    alphanumeric. A leading digit is deliberate, because ANC Standard retires a
+    slug in place by prefixing its two-digit creation year (`SKD` -> `25SKD`);
+    `^[A-Z][A-Z0-9]*$` would condemn every retired slug. RESTATEMENT: a value
+    BYTE-IDENTICAL to the basename says nothing the basename did not already
+    say, and deleting it is provably safe — the implied slug computes to the
+    same handle with the declaration gone.
+
+    A slug differing from the basename only in CASE is NOT a restatement, and
+    the distinction is load-bearing. `MUSE` for folder `muse` supplies an
+    uppercase prefix form (`MUSE F018.md`) that the lowercase basename cannot;
+    deleting it would drop the implied slug to `muse` and put every prefixed
+    file in that anchor in violation. The Staff roster (`TINK`/`Tink`) is the
+    same shape, so it needs no exemption — it was never an exception, only a
+    case the first draft of this rule mis-classified.
+
+    Silent on an anchor that declares no slug — that is the common and correct
+    case (86% of the corpus), not a defect.
+    """
+    dot = anchor_root / ".anchor"
+    if not dot.is_file():
+        return "pass", "no .anchor"
+    try:
+        text = dot.read_text(encoding="utf-8")
+    except OSError:
+        return "error", "unreadable .anchor"
+    m = re.search(r"^\s*slug\s*:\s*(.+?)\s*$", text, re.M)
+    if not m:
+        return "pass", "no slug declared — the basename serves"
+    slug = m.group(1).strip().strip('"').strip("'")
+    if not _SLUG_GRAMMAR.match(slug):
+        return "fail", (f"slug {slug!r} is not one uppercase alphanumeric token "
+                        f"(^[A-Z0-9]+$) — a slug is a prefix and must be "
+                        f"visually separable from the name it sits in front of")
+    if slug == anchor_root.name:
+        return "fail", (f"slug {slug!r} restates the basename {anchor_root.name!r} "
+                        f"— delete it; the implied slug is already that value")
+    return "pass", ""
+
+
 def chk_name_slug_prefixed(target, anchor_root, args):
     """Per-file (R-naming-01, recast 2026-08-02): a prefix is OPTIONAL, but if
     one is present it must be the anchor's slug.
@@ -5015,6 +5062,7 @@ CHECKERS = {
     "h1_matches_slug": chk_h1_matches_slug,
     "h1_after_frontmatter": chk_h1_after_frontmatter,
     "name_slug_prefixed": chk_name_slug_prefixed,
+    "slug_is_a_handle": chk_slug_is_a_handle,
     "no_blank_after_h1": chk_no_blank_after_h1,
     "breadcrumb_row": chk_breadcrumb_row,
     "design_row_iff_folder": chk_design_row_iff_folder,
