@@ -292,11 +292,29 @@ F_REF_BEFORE_Q_RE = re.compile(r"\bF\d+\s+Q\d+\b")
 VERIFY_BY_BRACKET_RE = re.compile(r"\[Verify-by\s+(\d{4}-\d{2}-\d{2})\]")
 # B16 (C12) — "Naturally exercised by" rationale text
 NATURALLY_EXERCISED_RE = re.compile(r"[Nn]aturally exercised by\b")
-# B16 — F-number extraction from feature-doc stems: `F089 — Title` → `F089`,
-# and (F298) `SKA F089 — Title` → `F089`. The optional single-token slug prefix
-# is permanent: docs authored before 2026-08-02 keep the bare form and are
-# never renamed. Canonical copy: `backlog_edit.FEATURE_STEM_RE`.
+# B16 — F-number extraction from feature-doc stems. Three forms, all yielding
+# the same bare `F089`:
+#
+#   F089 — Title        legacy, every doc before 2026-08-02
+#   SKA F089 — Title    F298, slug-prefixed
+#   SKA089 - Title      F300, current — the `F` is RECONSTRUCTED, not matched
+#
+# Older docs are never renamed, so all three are accepted permanently.
+# Canonical copy of this grammar: `backlog_edit.feature_number`; audit-q runs
+# standalone and cannot import it, so it is repeated here.
 F_NUMBER_PREFIX_RE = re.compile(r"^(?:[A-Za-z][A-Za-z0-9]*\s+)?(F\d+)\s+—")
+F_NUMBER_FUSED_RE = re.compile(r"^[A-Za-z]+(\d+)\s+-\s+")
+
+
+def feature_number(stem):
+    """Return the bare `F<n>` a feature-doc stem names, or None."""
+    m = F_NUMBER_PREFIX_RE.match(stem)
+    if m:
+        return m.group(1)
+    m = F_NUMBER_FUSED_RE.match(stem)
+    if m:
+        return "F" + m.group(1)
+    return None
 # F089 (C18) — Verify-by bracket date extraction (parses the date for expiry check)
 VERIFY_BY_DATE_RE = re.compile(r"^Verify-by\s+(\d{4})-(\d{2})-(\d{2})\b")
 
@@ -1263,11 +1281,11 @@ def find_ask_format_files(
                     continue
                 stem = link.target_file_path.stem
                 # Feature doc: stem starts with `F<NNN> — `
-                m = F_NUMBER_PREFIX_RE.match(stem)
-                if m:
+                fnum = feature_number(stem)
+                if fnum:
                     if link.target_file_path not in seen_paths:
                         seen_paths.add(link.target_file_path)
-                        out.append((m.group(1), link.target_file_path))
+                        out.append((fnum, link.target_file_path))
                     continue
             # Always include `{slug} queries.md` if it exists — anchor-level Qs are
             # authored directly there (there is no `{slug} Questions.md`).
@@ -1296,9 +1314,9 @@ def find_ask_format_files(
                     if feature_file in seen_feat:
                         continue
                     seen_feat.add(feature_file)
-                    m = F_NUMBER_PREFIX_RE.match(feature_file.stem)
-                    if m:
-                        out.append((m.group(1), feature_file))
+                    fnum = feature_number(feature_file.stem)
+                    if fnum:
+                        out.append((fnum, feature_file))
             queries_file = backlog_file.parent / f"{name} queries.md"
             if queries_file.is_file():
                 out.append((name, queries_file))
@@ -2168,6 +2186,16 @@ def check_c53_anchor_name_collisions(
     One finding per colliding anchor page, not one per group, so QFix routing
     lands each half on its own anchor: the owning anchor of a colliding pair
     fixes it, never a central agent (F281 Q1 (D)).
+
+    This is the enforcement half of R-naming-01's third clause (recast
+    2026-08-02). That rule makes a file prefix OPTIONAL and requires one only
+    where the basename would otherwise collide; the slug prefix is the
+    mechanism, and this check is the property. The two were built independently
+    and neither knew it was half of the other — R-naming-01 demanded a prefix
+    on every file (39% of the vault in violation) while the uniqueness it was
+    protecting went unstated. Uniqueness is vault-global, so it is checked here,
+    where the index lives, and nowhere else: a per-file checker cannot see it,
+    and a second index would be a second source of truth for the same fact.
     """
     findings: list[Finding] = []
     for stem, paths in sorted(vault_index.items()):
@@ -2708,9 +2736,9 @@ def check_c23_designing_resolves(entries: list[BacklogEntry]) -> list[Finding]:
                 continue
             container_id = e.identifier
             # Container_id for feature-doc Qs is the F-number from the doc stem.
-            stem_m = F_NUMBER_PREFIX_RE.match(target_file.stem)
-            if stem_m:
-                container_id = stem_m.group(1)
+            fnum = feature_number(target_file.stem)
+            if fnum:
+                container_id = fnum
             # extract_q_entries returns all Q-headers below ## Open Questions H2
             # before the Resolved sub-section, which IS the pending set.
             pending = len(extract_q_entries(target_file, container_id))
@@ -2810,9 +2838,9 @@ def check_c24_questions_count_match(entries: list[BacklogEntry]) -> list[Finding
             if target_file is None or not target_file.is_file():
                 continue  # link-resolution issue belongs to C1/C22, not here
             container_id = e.identifier
-            stem_m = F_NUMBER_PREFIX_RE.match(target_file.stem)
-            if stem_m:
-                container_id = stem_m.group(1)
+            fnum = feature_number(target_file.stem)
+            if fnum:
+                container_id = fnum
             actual = len(extract_q_entries(target_file, container_id))
         elif re.search(r"→\s+\[\[", e.raw_body):
             continue  # arrow present but unparseable (placeholder/out-of-vault) — C1/C22's territory
@@ -3835,10 +3863,10 @@ def check_c35_ask_md_drift(
                 continue  # link resolution belongs to C1/C22
             # Only feature docs participate (skip non-F<n> targets like
             # `[[DAS ...]]` references inside descriptive text).
-            stem_m = F_NUMBER_PREFIX_RE.match(target_file.stem)
-            if not stem_m:
+            fnum = feature_number(target_file.stem)
+            if not fnum:
                 continue
-            container_id = stem_m.group(1)
+            container_id = fnum
             # Extract claimed Q-numbers from the bullet line (and any
             # immediately-following indented continuation lines).
             bullet_text = line
@@ -4384,9 +4412,9 @@ def apply_c23_fix(backlog_file: Path,
             if target_file is None or not target_file.is_file():
                 continue
             container_id = e.identifier
-            stem_m = F_NUMBER_PREFIX_RE.match(target_file.stem)
-            if stem_m:
-                container_id = stem_m.group(1)
+            fnum = feature_number(target_file.stem)
+            if fnum:
+                container_id = fnum
             pending = len(extract_q_entries(target_file, container_id))
         else:
             pending = _row_inline_q_count(e)
@@ -4470,9 +4498,9 @@ def apply_c24_fix(backlog_file: Path,
             if target_file is None or not target_file.is_file():
                 continue
             container_id = e.identifier
-            stem_m = F_NUMBER_PREFIX_RE.match(target_file.stem)
-            if stem_m:
-                container_id = stem_m.group(1)
+            fnum = feature_number(target_file.stem)
+            if fnum:
+                container_id = fnum
             actual = len(extract_q_entries(target_file, container_id))
         elif re.search(r"→\s+\[\[", e.raw_body):
             continue  # arrow present but unparseable — C1/C22's territory
@@ -5097,9 +5125,9 @@ def derive_anchor_banner(name: str, backlog_file: Path,
         # Q_MARKER_RE.findall over the whole doc counted resolved/fenced/prose
         # `Q<n> —` markers, over-reporting the banner Questions total.
         container_id = e.identifier
-        stem_m = F_NUMBER_PREFIX_RE.match(target_path.stem)
-        if stem_m:
-            container_id = stem_m.group(1)
+        fnum = feature_number(target_path.stem)
+        if fnum:
+            container_id = fnum
         q_count = len(extract_q_entries(target_path, container_id))
         if q_count == 0:
             # Bracket-claim but no pending Qs: count as 1 (don't lose the row)
@@ -5436,8 +5464,7 @@ def main() -> int:
         if not fd_path.is_file():
             print(f"error: feature doc not found: {fd_path}", file=sys.stderr)
             return 2
-        stem_m = F_NUMBER_PREFIX_RE.match(fd_path.stem)
-        cid = stem_m.group(1) if stem_m else fd_path.stem
+        cid = feature_number(fd_path.stem) or fd_path.stem
         ask_format_files = [(cid, fd_path)]
     else:
         reachable = args.scope != "all"
