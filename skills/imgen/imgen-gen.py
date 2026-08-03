@@ -43,10 +43,20 @@ BACKENDS = {
     "flux-dev":     {"endpoint": "https://fal.run/fal-ai/flux/dev",           "cost": 0.025},
     "flux-kontext": {"endpoint": "https://fal.run/fal-ai/flux-kontext/dev",   "cost": 0.040},
     "flux-fill":    {"endpoint": "https://fal.run/fal-ai/flux-pro/v1/fill",   "cost": 0.050},
+    # Deterministic image→image transforms. No prompt, no seed, re-derivable from
+    # their source — which is why they are booked as batches like anything else:
+    # the command line IS their provenance.
+    "clarity":      {"endpoint": "https://fal.run/fal-ai/clarity-upscaler",   "cost": 0.070},
+    "rembg":        {"endpoint": "https://fal.run/fal-ai/imageutils/rembg",   "cost": 0.006},
 }
 # The verb the user types → the model that runs it. The H4 command records both,
 # e.g. `create flux-dev` / `edit flux-kontext 6E` / `inpaint flux-fill 1A [nose]`.
-VERB_MODEL = {"create": "flux-dev", "edit": "flux-kontext", "inpaint": "flux-fill"}
+VERB_MODEL = {"create": "flux-dev", "edit": "flux-kontext", "inpaint": "flux-fill",
+              "upscale": "clarity", "cutout": "rembg"}
+# Verbs whose input is an existing image in the roll rather than text alone.
+SOURCE_VERBS = ("edit", "inpaint", "upscale", "cutout")
+# Verbs that transform deterministically — no prompt is meaningful.
+XFORM_VERBS = ("upscale", "cutout")
 # Fill works best near 1MP; a 500² source starves it. Masks scale with the image.
 FILL_SIZE = 1024
 KEYCHAIN = "FAL_KEY"
@@ -541,6 +551,40 @@ def inpaint(model, prompt, source, mask, out, size=FILL_SIZE):
         tmp.unlink(missing_ok=True)
 
 
+def _first_image_url(resp, model):
+    """fal returns `images: [...]` for generators and a single `image: {...}` for
+    the utility transforms. Accept either rather than assuming one shape."""
+    if resp.get("images"):
+        return resp["images"][0]["url"]
+    if isinstance(resp.get("image"), dict) and resp["image"].get("url"):
+        return resp["image"]["url"]
+    raise ImgenError(f"{model} returned no image: {str(resp)[:200]}")
+
+
+def transform(model, prompt, source, out):
+    """Deterministic image→image op — upscale, background removal. → (path, seed).
+
+    Unlike generate/inpaint there is nothing to re-roll: the same source gives the
+    same result, so these are cheap to redo and never worth picking. They exist to
+    feed something downstream (a profile crop, a print) and are recorded in the roll
+    so the derived file is never an orphan."""
+    cfg = BACKENDS[model]
+    payload = {"image_url": _data_uri(source)}
+    if model == "clarity":
+        payload.update({"prompt": prompt.strip() or "high quality, detailed",
+                        "upscale_factor": 2})
+    req = urllib.request.Request(cfg["endpoint"], data=json.dumps(payload).encode(),
+                                 headers={"Authorization": f"Key {keychain()}",
+                                          "Content-Type": "application/json"})
+    try:
+        resp = json.load(urllib.request.urlopen(req, timeout=300))
+    except urllib.error.HTTPError as e:
+        raise ImgenError(f"{model} HTTP {e.code}: {e.read().decode('utf-8', 'replace')[:200]}")
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_bytes(urllib.request.urlopen(_first_image_url(resp, model), timeout=180).read())
+    return out, resp.get("seed")
+
+
 def generate(model, prompt, size, source, out):
     """One image → (path, seed). `source` is a Path for edit models, else None (text→image)."""
     cfg = BACKENDS[model]
@@ -604,9 +648,9 @@ def _do_render(roll_dir, roll_n, count, size, confirm_over, yes, dry):
     """Shared by `render` and `edit`: execute the Next render `count` times."""
     command, prompt = read_next(roll_dir)
     verb, model, image, region = parse_command(command)
-    if not prompt.strip():
+    if not prompt.strip() and verb not in XFORM_VERBS:
         raise ImgenError("Next render has an empty prompt — set one with `update` or a prompt arg")
-    source = resolve_image(roll_dir, image) if verb in ("edit", "inpaint") else None
+    source = resolve_image(roll_dir, image) if verb in SOURCE_VERBS else None
     mask = None
     if verb == "inpaint":
         mask = find_mask(roll_dir, region)
@@ -644,6 +688,8 @@ def _do_render(roll_dir, roll_n, count, size, confirm_over, yes, dry):
         out = roll_dir / f"{SLUG}{roll_n:03d}-{batch}{v}.png"
         if verb == "inpaint":
             return inpaint(model, prompt, source, mask, out)
+        if verb in XFORM_VERBS:
+            return transform(model, prompt, source, out)
         return generate(model, prompt, size, source, out)
 
     specs = {v: (v,) for v in variants}
@@ -765,6 +811,15 @@ def cmd_inpaint(a):
     return 0
 
 
+def cmd_xform(a):
+    """upscale / cutout — a deterministic transform of an existing image."""
+    n, _, d = find_roll(a.roll)
+    resolve_image(d, a.image)                   # fail early if the image is missing
+    write_next(d, format_command(a.verb, a.image), a.note)
+    _do_render(d, n, a.count, a.size, a.confirm_over, a.yes, a.dry_run)
+    return 0
+
+
 def cmd_pick(a):
     _, _, d = find_roll(a.roll)
     img = resolve_image(d, a.image)
@@ -822,6 +877,18 @@ def main():
     p.add_argument("roll"); p.add_argument("image"); p.add_argument("instruction", nargs="+")
     spend_opts(p)
     p.set_defaults(fn=cmd_edit)
+
+    p = sub.add_parser("upscale", help="2x upscale an image → new batch (never picked)")
+    p.add_argument("roll"); p.add_argument("image")
+    p.add_argument("--note", default="2x upscale for print and downstream crops.")
+    spend_opts(p)
+    p.set_defaults(fn=cmd_xform, verb="upscale")
+
+    p = sub.add_parser("cutout", help="remove the background → transparent PNG, new batch")
+    p.add_argument("roll"); p.add_argument("image")
+    p.add_argument("--note", default="Background removed; transparent PNG for profile crops.")
+    spend_opts(p)
+    p.set_defaults(fn=cmd_xform, verb="cutout")
 
     p = sub.add_parser("mask", help="author a mask + green-outline preview (free)")
     p.add_argument("roll"); p.add_argument("image"); p.add_argument("region")
