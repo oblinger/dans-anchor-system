@@ -43,12 +43,13 @@ def body(ctx):
         return []
     import re
     from pathlib import Path
-    # `F<n> — Title.md` OR `{slug} F<n> — Title.md` (F298). The slug prefix is
-    # optional forever: docs authored before 2026-08-02 keep the bare form and
-    # are not renamed. Canonical copy of this pattern lives at
-    # `backlog_edit.FEATURE_STEM_RE`; rule bodies are exec'd in isolation and
-    # cannot import, so it is repeated here rather than shared.
-    if not re.match(r"(?:[A-Za-z][A-Za-z0-9]*\s+)?F\d+\s+—", Path(target).name):
+    # Three feature-doc filename forms, all permanent — older docs are never
+    # renamed: `F<n> — Title.md` (legacy), `{slug} F<n> — Title.md` (F298),
+    # `{SLUG}<n> - Title.md` (F300, current — no `F`, ASCII hyphen). Canonical
+    # copy of this grammar lives at `backlog_edit.feature_number`; rule bodies
+    # are exec'd in isolation and cannot import, so it is repeated here.
+    if not re.match(r"(?:(?:[A-Za-z][A-Za-z0-9]*\s+)?F\d+\s+—|[A-Za-z]+\d+\s+-\s)",
+                    Path(target).name):
         return []
     inp = getattr(ev, "input", None) or {}
     old = inp.get("old_string") or ""
@@ -83,7 +84,7 @@ def body(ctx):
 
 Matches an Edit that touches the heading LINE or whose `old_string` sits inside the heading's section (between it and the next H2). It does **not** fire on prose that merely quotes the heading string inline — the T045 false positive that refused a `## Recovery note` edit for containing the managed heading as literal text.
 
-The scope is the **open block alone**. `## Resolved` was covered here until F291 and now carries only [[R-state-region]]'s advisory, on the rule *deny where desync is possible, detect where it is not*. Three facts make uniform machine-ownership of the resolved section incoherent: half of it (F068 auto-decisions) is written straight in as un-numbered H3s that no `state <verb> <anchor> <doc> Q<n>` call can ever address, so a blanket deny forbids the mechanism that populates it; there is no live state left to desynchronize once an entry is archived (it is not rendered, not counted, gates nothing); and the vault is committed continuously, so tamper-evidence already exists at the commit layer. Denying there bought prevention where evidence already existed, at the cost of making legitimate edits illegal — superseded-stamps, link repairs, hindsight added years later. It also produced the [[Tink Backlog#^T066|T066]] deadlock: a lint demanding a fix inside a region every write path forbade.
+The scope is the **open block alone**. `## Resolved` was covered here until F291 and now carries only [[R-state-region]]'s advisory, on the rule *deny where desync is possible, detect where it is not*. Three facts make uniform machine-ownership of the resolved section incoherent: half of it (F068 auto-decisions) is written straight in as un-numbered H3s that no `state <verb> <anchor> <doc> Q<n>` call can ever address, so a blanket deny forbids the mechanism that populates it; there is no live state left to desynchronize once an entry is archived (it is not rendered, not counted, gates nothing); and the vault is committed continuously, so tamper-evidence already exists at the commit layer. Denying there bought prevention where evidence already existed, at the cost of making legitimate edits illegal — superseded-stamps, link repairs, hindsight added years later. It also produced the [[TINK Backlog#^T066|T066]] deadlock: a lint demanding a fix inside a region every write path forbade.
 
 **Why:** the F130 lesson — Q blocks edited by hand bypass the block-ID / numbering / lifecycle discipline `state q` enforces.
 
@@ -139,8 +140,9 @@ def body(ctx):
     import re
     from pathlib import Path
     p = Path(target)
-    # `F<n> — Title.md` OR `{slug} F<n> — Title.md` (F298) — see R-pathguard-02.
-    if not re.match(r"(?:[A-Za-z][A-Za-z0-9]*\s+)?F\d+\s+—", p.name):
+    # Legacy / F298 slug-prefixed / F300 fused — see R-pathguard-02.
+    if not re.match(r"(?:(?:[A-Za-z][A-Za-z0-9]*\s+)?F\d+\s+—|[A-Za-z]+\d+\s+-\s)",
+                    p.name):
         return []
     # Doc creation is exempt — the /feature flow Writes a NEW doc's initial
     # Open Questions block. Fire only when the doc already exists on disk.
