@@ -83,7 +83,7 @@ def notes(status, body, existing="Ready"):
 # The vault is the corpus these run against — the targets below are real docs,
 # picked for the property each assertion needs rather than invented, because
 # `find_file_by_basename` resolves against the live vault.
-PROSE_TARGET = "Tink Persona"          # a real doc with no `## Status` H2
+PROSE_TARGET = "TINK Persona"          # a real doc with no `## Status` H2
 
 print("1. A prose arrow is quoted back, so the agent can see what matched")
 r = refusal("Done", f"renamed `prj/Ask/` → [[{PROSE_TARGET}]] and moved the tests")
@@ -101,12 +101,12 @@ check("the refusal names both ways out — reword, or add a real pointer",
       r and "reword" in r and "leading `→ [[F<n> — …]]`" in r, repr(r))
 
 print("2. Multiple arrows are the strongest prose signal — say so")
-two = f"moved `a/` → [[Tink Persona Journal]] then `b/` → [[{PROSE_TARGET}]]"
+two = f"moved `a/` → [[TINK Persona Journal]] then `b/` → [[{PROSE_TARGET}]]"
 r = refusal("Done", two)
 check("the count is reported", r and "holds 2 `→ [[…]]` sequences" in r, repr(r))
 check("last-wins is stated explicitly", r and "LAST wins" in r, repr(r))
 check("the losing arrow is named too",
-      r and "Tink Persona Journal" in r, repr(r))
+      r and "TINK Persona Journal" in r, repr(r))
 check("the winner is still the last one",
       r and f"target [[{PROSE_TARGET}]]" in r, repr(r))
 
@@ -132,7 +132,7 @@ check("it is computed once, at the point the pointer is chosen",
 
 print("5. Quiet skips stay quiet — this adds no new refusals")
 check("a body with no arrow still skips",
-      refusal("Done", "plain prose with [[Tink Persona]] and no arrow") is None)
+      refusal("Done", "plain prose with [[TINK Persona]] and no arrow") is None)
 check("and says so on stderr",
       "no `→ [[…]]` doc reference" in notes("Done", "plain prose, no arrow"))
 check("an empty body still skips", refusal("Done", "") is None)
