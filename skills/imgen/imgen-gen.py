@@ -456,7 +456,26 @@ def find_mask(roll_dir, region):
     return max(found)[1] if found else None
 
 
-def build_mask(src, region, ellipse, size, stem):
+def parse_ellipses(spec):
+    """`cx,cy,rx,ry` or several of them separated by `;`.
+
+    One ellipse cannot always express the region you mean. Swapping a shirt is the
+    worked example: a face sits BETWEEN its own shoulders, so any single ellipse low
+    enough to clear the chin also misses the shoulder line, and one high enough to
+    take the shoulders eats the jaw. Two small side ellipses plus a body ellipse
+    solve it exactly, because neither side one ever reaches the face's column."""
+    out = []
+    for part in spec.split(";"):
+        try:
+            cx, cy, rx, ry = (int(v) for v in part.strip().split(","))
+        except ValueError:
+            raise ImgenError("--ellipse wants cx,cy,rx,ry in the source image's own "
+                             "pixels, or several such groups separated by ';'")
+        out.append((cx, cy, rx, ry))
+    return out
+
+
+def build_mask(src, region, ellipses, size, stem):
     """Write `<image>-<region>-mask.png` at `size`², plus a review preview.
 
     The preview is the ORIGINAL image with a pure-green outline drawn on it —
@@ -467,10 +486,12 @@ def build_mask(src, region, ellipse, size, stem):
     lanczos = Image.Resampling.LANCZOS
     im = Image.open(src).convert("RGB")
     k = size / im.width
-    cx, cy, rx, ry = (round(v * k) for v in ellipse)
 
     mask = Image.new("L", (size, size), 0)
-    ImageDraw.Draw(mask).ellipse((cx - rx, cy - ry, cx + rx, cy + ry), fill=255)
+    draw = ImageDraw.Draw(mask)
+    for e in ellipses:                       # union — overlaps are harmless
+        cx, cy, rx, ry = (round(v * k) for v in e)
+        draw.ellipse((cx - rx, cy - ry, cx + rx, cy + ry), fill=255)
     mp = mask_path(src.parent, stem, region)
     mask.convert("RGB").save(mp)
 
@@ -726,13 +747,9 @@ def cmd_mask(a):
     """Author a mask and render its green-outline preview. No API call, no cost."""
     _, _, d = find_roll(a.roll)
     src = resolve_image(d, a.image)
-    try:
-        cx, cy, rx, ry = (int(v) for v in a.ellipse.split(","))
-    except ValueError:
-        raise ImgenError("--ellipse wants cx,cy,rx,ry in the source image's own pixels")
     n, _, _ = find_roll(a.roll)
     stem = f"{SLUG}{n:03d}-{next_batch_index(d)}"      # named for the batch it will feed
-    mp, pp = build_mask(src, a.region, (cx, cy, rx, ry), a.size_px, stem)
+    mp, pp = build_mask(src, a.region, parse_ellipses(a.ellipse), a.size_px, stem)
     print(f"  {mp.name}\n  {pp.name}   <- review this one (green outline on the image)")
     return 0
 
@@ -741,7 +758,7 @@ def cmd_inpaint(a):
     n, _, d = find_roll(a.roll)
     src = resolve_image(d, a.image)
     if a.ellipse:
-        build_mask(src, a.region, tuple(int(v) for v in a.ellipse.split(",")),
+        build_mask(src, a.region, parse_ellipses(a.ellipse),
                    a.size_px, f"{SLUG}{n:03d}-{next_batch_index(d)}")
     write_next(d, format_command("inpaint", a.image, a.region), " ".join(a.instruction).strip())
     _do_render(d, n, a.count, a.size, a.confirm_over, a.yes, a.dry_run)
@@ -808,14 +825,15 @@ def main():
 
     p = sub.add_parser("mask", help="author a mask + green-outline preview (free)")
     p.add_argument("roll"); p.add_argument("image"); p.add_argument("region")
-    p.add_argument("--ellipse", required=True, metavar="cx,cy,rx,ry")
+    p.add_argument("--ellipse", required=True, metavar="cx,cy,rx,ry[;…]",
+               help="one ellipse, or several separated by ';' — their union is the mask")
     p.add_argument("--size-px", type=int, default=FILL_SIZE)
     p.set_defaults(fn=cmd_mask)
 
     p = sub.add_parser("inpaint", help="repaint inside a mask (flux-fill)")
     p.add_argument("roll"); p.add_argument("image"); p.add_argument("region")
     p.add_argument("instruction", nargs="+")
-    p.add_argument("--ellipse", default=None, metavar="cx,cy,rx,ry",
+    p.add_argument("--ellipse", default=None, metavar="cx,cy,rx,ry[;…]",
                    help="(re)build the mask first; omit to reuse the existing one")
     p.add_argument("--size-px", type=int, default=FILL_SIZE)
     spend_opts(p)
