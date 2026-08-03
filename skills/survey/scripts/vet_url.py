@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# warden-hook: Stop
 """vet_url — validate URLs before they reach Dan (F294, layers 0-4).
 
 An agent cannot tell an ID it *read* from an ID it *generated*; that information
@@ -684,9 +685,25 @@ def hook(event: dict, now: int) -> dict:
     return {"decision": "block", "reason": "\n".join(reason)}
 
 
+def warden_hook(event: dict) -> dict:
+    """The F299 fan-in entrypoint: `warden compile` reads the `# warden-hook:
+    Stop` declaration in this file's header and calls this from the generated
+    `Stop` entrypoint, so layer 5 shares one interpreter with the moment's
+    other Python hooks instead of starting its own.
+
+    The try/except is layer 5's own fail-open posture (§ layer 5), not the
+    fan-in's — the generated entrypoint would isolate a raise anyway, but it
+    would also *report* it, and a URL checker that could not run has nothing to
+    say about a turn it never examined."""
+    try:
+        return hook(event, int(time.time()))
+    except Exception:
+        return {}                       # fail open, always
+
+
 def hook_main(stdin_text: str) -> int:
     try:
-        out = hook(json.loads(stdin_text or "{}"), int(time.time()))
+        out = warden_hook(json.loads(stdin_text or "{}"))
     except Exception:
         return 0                        # fail open, always
     if out:
