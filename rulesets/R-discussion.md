@@ -11,7 +11,7 @@ Embedded ruleset for the Discussion facet, co-located with the facet spec above 
 
 Discussion attaches to a specific document, not to the whole anchor. There is no `{slug} Discussion.md` form in modern anchors — that filename is the legacy anchor-scoped form, deprecated 2026-06-11.
 
-**Check pattern:** for each `{slug} Discussion.md` found at an anchor's Plan / Design folder root, flag as legacy; auto-fix is migrate to per-doc inline or extracted form (per [[Tink Backlog]] F149 sweep).
+**Check pattern:** for each `{slug} Discussion.md` found at an anchor's Plan / Design folder root, flag as legacy; auto-fix is migrate to per-doc inline or extracted form (per [[TINK Backlog]] F149 sweep).
 
 **Why:** lumping all discussion in one anchor-level file loses provenance — the reader can't tell which spec the discussion is about without re-reading every entry.
 
