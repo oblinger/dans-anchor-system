@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# warden-hook: Stop
 """crank-stop-hook.py — the Stop-moment groom gate (F239 → generalized by F244).
 
 Registered as a Claude Code `Stop` hook; fires on every turn end. The gate
@@ -164,7 +165,7 @@ def _allow(crank_sp, gate_path):
     if crank_sp is not None:
         crank_sp.unlink(missing_ok=True)
     gate_path.unlink(missing_ok=True)
-    return 0
+    return None
 
 
 def _record_disarm(anchor, blocks, count):
@@ -194,14 +195,13 @@ def _block(gate_path, reason, anchor=None, count=None):
         _record_disarm(anchor or gate_path.stem, blocks, count)
         print(f"stop-gate: block cap ({BLOCK_CAP}) reached — disarmed, stop "
               "allowed", file=sys.stderr)
-        return 0
+        return None
     try:
         GATE_DIR.mkdir(parents=True, exist_ok=True)
         gate_path.write_text(json.dumps({"blocks": blocks}))
     except OSError:
         pass
-    print(json.dumps({"decision": "block", "reason": reason}))
-    return 0
+    return {"decision": "block", "reason": reason}
 
 
 def _llm_config():
@@ -406,11 +406,18 @@ def _llm_ask_check(payload, anchor, anchor_path):
         return None
 
 
-def main():
-    try:
-        payload = json.load(sys.stdin)
-    except Exception:
-        return 0
+def warden_hook(payload):
+    """The gate's decision for one turn: a Claude Code hook-output dict, or
+    None to allow the stop.
+
+    This is the F299 fan-in entrypoint — `warden compile` reads the
+    `# warden-hook: Stop` declaration in this file's header and calls this
+    function from the generated `Stop` entrypoint, so the gate shares one
+    interpreter with the other Python hooks on the moment instead of starting
+    its own. It returns the decision rather than printing it; `main()` below is
+    the same logic reached as a standalone process, and both paths run this
+    function, so there is only one gate.
+    """
     cwd = (payload.get("cwd") or os.getcwd()).rstrip("/")
 
     crank = _crank_sentinel_for(cwd)
@@ -424,13 +431,13 @@ def main():
     else:
         found = _anchor_from_cwd(cwd)
         if found is None:
-            return 0  # not inside an anchor — nothing to gate
+            return None  # not inside an anchor — nothing to gate
         slug, anchor_path = found
 
     # Arming: an explicit crank session, OR the ending turn used tools.
     armed = crank is not None or _turn_used_tools(payload.get("transcript_path", ""))
     if not armed:
-        return 0  # pure-chat / no-work turn — never gated
+        return None  # pure-chat / no-work turn — never gated
 
     gate_path = GATE_DIR / f"{slug or Path(anchor_path).name}.json"
 
@@ -442,8 +449,7 @@ def main():
         # enforce mode (asking + unsurfaced + budget left), else None.
         reason = _llm_ask_check(payload, slug or Path(anchor_path).name, anchor_path)
         if reason:
-            print(json.dumps({"decision": "block", "reason": reason}))
-            return 0
+            return {"decision": "block", "reason": reason}
         return _allow(crank_sp, gate_path)  # clean worklist → stage-1 allow
 
     reason = (
@@ -458,6 +464,20 @@ def main():
         "stop. (No context escape; emptying the list costs only a little.)"
     )
     return _block(gate_path, reason, slug or Path(anchor_path).name, count)
+
+
+def main():
+    """Standalone-process form — the same gate, reached through stdin/stdout.
+    Kept so the hook still runs as its own `settings.json` command and so the
+    F239/F244/F267 suites can drive it as a subprocess."""
+    try:
+        payload = json.load(sys.stdin)
+    except Exception:
+        return 0
+    out = warden_hook(payload)
+    if out:
+        print(json.dumps(out))
+    return 0
 
 
 if __name__ == "__main__":
