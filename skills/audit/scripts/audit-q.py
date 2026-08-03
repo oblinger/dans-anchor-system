@@ -987,15 +987,25 @@ def _scope_to_block_id_region(text: str, block_id: str) -> str:
     carries a `#^<block-id>` anchor.
 
     A row's region:
-      - starts at the line containing `^<block_id>` (case-sensitive)
+      - starts at the line DEFINING `^<block_id>` (case-sensitive)
       - includes any indented sub-bullets immediately after it
       - ends at the next top-level bullet, the next H2, or EOF
+
+    "Defining" is end-of-line, per Obsidian's block-id syntax. A bare
+    `marker in line` also matched *references* — a `[[Doc#^T041|T041]]`
+    wiki-link in some earlier row's prose — and since the scan takes the
+    first hit, the region became that unrelated row (MUX T041, 2026-08-02:
+    F250's body linked `#^T041`, so C46 scoped to F250's one-line Next and
+    reported the T041 row as carrying no questions). Anchoring to the
+    definition makes the reference inert.
     """
     lines = text.splitlines()
-    marker = f"^{block_id}"
+    # `^id` at end of line, not preceded by a word char (so `^T04` never
+    # matches a `^T041` definition) and not inside `[[…]]`.
+    define_re = re.compile(r"(?:^|(?<=\s))\^" + re.escape(block_id) + r"\s*$")
     start = None
     for i, line in enumerate(lines):
-        if marker in line:
+        if define_re.search(line):
             start = i
             break
     if start is None:
