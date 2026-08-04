@@ -1500,6 +1500,121 @@ def _extract_subbullet_text(span_lines, label):
     return None
 
 
+def verify_write_landed(lines, row_id, requested):
+    """Post-condition (T050): every field the caller ASKED to set now holds it.
+
+    Returns a list of human-readable failures; empty means the write landed.
+
+    A mutation tool that reports success while changing nothing makes every
+    "I recorded it" claim unfalsifiable, and the backlog is the project's
+    memory. T046 fixed one control-flow path that silently dropped `--next`
+    on a Verify-family row; this is the general guarantee, so the next such
+    path is caught by the tool rather than by someone noticing months later.
+
+    DELIBERATE DEVIATION from T050's proposed implementation, with the
+    measurement that forced it. The row said to compare whole-file bytes
+    before/after, and warned that the `<!-- state:backlog XX -->` stamp is
+    "rewritten on every call, so whole-file bytes are never actually
+    identical" — making a naive byte compare pass vacuously. **That premise
+    is false, measured 2026-08-03:** the stamp is a *content hash*
+    (`compute_backlog_stamp` sha1s the span with the stamp line excluded),
+    so a no-op leaves it unchanged; driving `perform_edit` twice with
+    identical arguments produced byte-identical files. A byte compare would
+    therefore have worked — and would still have been the wrong design, for
+    the row's OTHER reason: an intentional re-touch that sets a field to the
+    value it already holds is legitimate and produces zero bytes of change,
+    so bytes cannot separate "asked and failed" from "asked and it already
+    matched". Checking the post-condition separates them by construction —
+    it asks whether the file now says what the caller asked for, which is
+    true in the re-touch case and false in the dropped-mutation case.
+
+    Substring rather than equality on title/body/sub-bullets: the write path
+    legitimately annotates what it stores (e.g. the `· *why-user:…*` suffix),
+    and this guard exists to catch a write that VANISHED, not to police
+    normalization. A tighter comparison would hard-fail on benign rewriting,
+    and a false hard-error in a tool other agents depend on is worse than
+    the silent no-op it replaces.
+    """
+    failures = []
+    want_status = requested.get("status")
+
+    span = _row_span(lines, row_id)
+    if want_status == "delete":
+        if span is not None:
+            failures.append(f"status: asked to delete {row_id}, but the row is still present")
+        return failures
+    if span is None:
+        return [f"{row_id}: row is absent after the write — nothing landed"]
+
+    row_line = lines[span[0]]
+    m = ROW_FULL_RE.match(row_line)
+
+    if want_status and want_status != "same":
+        got = m.group("status") if m else None
+        # `[Verify-by 2026-09-01]`, `[Blocked foo]`, `[Done — note]` all carry
+        # the family as a prefix; the caller asked for the family.
+        if not got or not got.startswith(want_status.split()[0]):
+            failures.append(f"status: asked [{want_status}], row reads [{got}]")
+
+    for key, label in (("title", "title"), ("body", "body")):
+        want = requested.get(key)
+        if want is None or not str(want).strip():
+            continue
+        got = (m.group(label) or "") if m else ""
+        if str(want).strip() not in got:
+            failures.append(f"{label}: asked text is absent from the row line")
+
+    for key, label in (("next_text", "Next"), ("verify_text", "Verify"),
+                       ("user_text", "User")):
+        want = requested.get(key)
+        if want is None or not str(want).strip():
+            continue
+        got = _row_field(lines, row_id, label)
+        if got is None:
+            failures.append(f"{label}: asked to set it, but {row_id} has no "
+                            f"`- **{label}:**` sub-bullet after the write")
+        elif str(want).strip() not in got:
+            failures.append(f"{label}: asked {str(want).strip()[:40]!r}, "
+                            f"sub-bullet holds {got[:40]!r}")
+
+    return failures
+
+
+def _row_span(lines, row_id):
+    """(start, end) line indices of row_id's block, or None if absent."""
+    row_i = None
+    for i, line in enumerate(lines):
+        rm = ROW_HEADER_RE.match(line)
+        if rm and len(rm.group(1)) == 0 and rm.group(2) == row_id:
+            row_i = i
+            break
+    if row_i is None:
+        return None
+    end = len(lines)
+    for j in range(row_i + 1, len(lines)):
+        if H2_RE.match(lines[j].rstrip()):
+            end = j
+            break
+        rm = ROW_HEADER_RE.match(lines[j])
+        if rm and len(rm.group(1)) == 0:
+            end = j
+            break
+    return (row_i, end)
+
+
+def _row_field(lines, row_id, label):
+    """Text of row_id's `- **<label>:**` sub-bullet, or None if it has none."""
+    span = _row_span(lines, row_id)
+    if span is None:
+        return None
+    rx = re.compile(SUBBULLET_RE_TMPL.format(label=label))
+    for line in lines[span[0] + 1:span[1]]:
+        m = rx.match(line)
+        if m:
+            return m.group(1).strip()
+    return None
+
+
 def _subbullets_to_write(status, eff_verify, eff_next, eff_user, next_text):
     """Which companion sub-bullets this edit attaches, as `[(label, text), …]`.
 
@@ -1689,6 +1804,14 @@ def perform_edit(
         start, end, existing_h2, _ = existing
         del lines[start:end]
         write_backlog_lines(backlog_path, lines)
+        # T050 — same post-condition guarantee as the main write path below:
+        # a delete that reported success must have actually removed the row.
+        gone = verify_write_landed(
+            backlog_path.read_text().splitlines(keepends=True),
+            row_id, {"status": "delete"})
+        if gone:
+            raise BacklogEditError(
+                f"{row_id}: delete reported success but " + "; ".join(gone))
         _selffire(backlog_path)
         return {
             "summary": f"deleted {row_id}",
@@ -1920,6 +2043,29 @@ def perform_edit(
                 break
 
     write_backlog_lines(backlog_path, lines)
+
+    # T050 — the write must be provably on DISK before we report success.
+    # Re-read rather than re-inspect `lines`: the in-memory list is what we
+    # believe we wrote, and a guard that consults our own belief cannot catch
+    # a write that didn't land. Raises, so the caller exits non-zero.
+    landed = verify_write_landed(
+        backlog_path.read_text().splitlines(keepends=True),
+        row_id,
+        {
+            "status": status,
+            "title": title if title_provided else None,
+            "body": body if body_provided else None,
+            "next_text": next_text,
+            "verify_text": verify_text,
+            "user_text": user_text,
+        },
+    )
+    if landed:
+        raise BacklogEditError(
+            f"{row_id}: the edit reported success but the file does not "
+            f"reflect it — " + "; ".join(landed)
+        )
+
     _selffire(backlog_path)
 
     # Soft nudge — Verify/Watching usually belongs in Later.
