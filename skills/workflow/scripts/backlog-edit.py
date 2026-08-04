@@ -1500,6 +1500,58 @@ def _extract_subbullet_text(span_lines, label):
     return None
 
 
+def _subbullets_to_write(status, eff_verify, eff_next, eff_user, next_text):
+    """Which companion sub-bullets this edit attaches, as `[(label, text), …]`.
+
+    Pure, so the dispatch is pinned by tests instead of living inline in
+    `perform_edit` behind a file write (T046).
+
+    **T046 — an EXPLICIT `--next` is honoured whatever the bracket.** This used
+    to be one `elif` chain: on a Verify-family row the Verify branch matched and
+    the `--next` the caller passed fell off the end, so `state set … --next "…"`
+    printed `updated <row>` and changed nothing. Two live victims — F193's Next
+    applied only on a retry, after an intervening `--status` had moved the row
+    out of Verify; T011's stayed uncorrected, because [Verify] is the CORRECT
+    bracket for it and there was no legitimate way to move it just to make an
+    edit land. That made the reachable-but-uneditable set *every Verify-horizon
+    row*: precisely the rows carrying the user's open verifications. The [User]
+    branch had already been given this treatment for the same reason (it writes
+    User AND, separately, a queued Next, per F259); this generalises it rather
+    than adding a third special case.
+    """
+    out = []
+    wrote_next = False
+
+    # _verify_family (not _status_needs_verify) so a [Verify-by] row's
+    # question / F240 why-user annotation lands too instead of being
+    # silently dropped.
+    if _verify_family(status) and eff_verify:
+        out.append(("Verify", eff_verify.strip()))
+    elif _status_needs_next(status) and eff_next:
+        out.append(("Next", eff_next.strip()))
+        wrote_next = True
+    elif _status_needs_user(status):
+        if eff_user:
+            out.append(("User", eff_user.strip()))
+        # A [User] row MAY carry a queued `- **Next:**` — the agent's step
+        # once the user acts (documentary, not executable-now; F259).
+        if eff_next and eff_next.strip():
+            out.append(("Next", eff_next.strip()))
+            wrote_next = True
+
+    # T056 — a status that doesn't REQUIRE a Next ([Blocked], [Waiting],
+    # [Questions], …) may still be handed one explicitly, and a parked row is
+    # exactly where the note explaining how to restart it earns its keep.
+    # T046 widened this from the tail of the elif chain to an unconditional
+    # check, which is what lets it also cover the Verify family above.
+    # Gated on `next_text`, not `eff_next`, so an ordinary re-touch does not
+    # rewrite (and reorder) a sub-bullet nobody asked to change.
+    if not wrote_next and next_text is not None and next_text.strip():
+        out.append(("Next", next_text.strip()))
+
+    return out
+
+
 def _ensure_subbullet(lines, row_id, label, text):
     """Mutate `lines` in place: under row_id's line, drop any existing
     `- **<label>:**` sub-bullet and insert `  - **<label>:** <text>` directly
@@ -1847,30 +1899,10 @@ def perform_edit(
     # F171 — (re)attach the companion sub-bullet under the just-placed row, so it
     # survives horizon-moves (which delete the old span) and same-status re-touch.
     if status not in ("same", "delete"):
-        # _verify_family (not _status_needs_verify) so a [Verify-by] row's
-        # question / F240 why-user annotation lands too instead of being
-        # silently dropped.
-        if _verify_family(status) and eff_verify:
-            _ensure_subbullet(lines, row_id, "Verify", eff_verify.strip())
-        elif _status_needs_next(status) and eff_next:
-            _ensure_subbullet(lines, row_id, "Next", eff_next.strip())
-        elif _status_needs_user(status):
-            if eff_user:
-                _ensure_subbullet(lines, row_id, "User", eff_user.strip())
-            # A [User] row MAY carry a queued `- **Next:**` — the agent's step
-            # once the user acts (documentary, not executable-now; F259).
-            if eff_next and eff_next.strip():
-                _ensure_subbullet(lines, row_id, "Next", eff_next.strip())
-        elif next_text is not None and next_text.strip():
-            # T056 — a status that doesn't REQUIRE a Next ([Blocked], [Waiting],
-            # [Questions], …) may still be handed one explicitly, and a parked
-            # row is exactly where the note explaining how to restart it earns
-            # its keep. Before this branch the value was computed into eff_next
-            # and then dropped on the floor while the command still printed
-            # "updated" — a silent discard the caller had no way to notice.
-            # Gated on `next_text`, not `eff_next`, so an ordinary re-touch does
-            # not rewrite (and reorder) a sub-bullet nobody asked to change.
-            _ensure_subbullet(lines, row_id, "Next", next_text.strip())
+        for label, text in _subbullets_to_write(
+            status, eff_verify, eff_next, eff_user, next_text
+        ):
+            _ensure_subbullet(lines, row_id, label, text)
 
     # v2 `define` sub-bullets land in the SAME edit, before the post-edit
     # refresh_q_md — attaching them afterwards let audit-q's C24 --fix see a
