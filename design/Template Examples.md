@@ -76,7 +76,9 @@ These govern *this document*, not Stencil. Stencil's own rules are the two table
 
 Two accepted costs of verbatim-and-unfenced: specimen headings are real headings and show up in this document's outline, and specimen wiki-links are live — so this file needs excluding from link-resolution and doc-structure rules the way `_* Template` files already are.
 
-**Status.** Language cut to three constructs 2026-08-04 on Dan's objections; seven cases identified; T1–T3 worked through, T4–T7 carrying their real instances and awaiting proposals.
+**Confirmed live 2026-08-05, and the exclusion list is longer than expected.** Authoring T5 tripped `R-progressive-05` (summary-freshness): its specimen `## Identity` / `## Hardware` were counted as two new *document* sections, so every case authored here will report the summary stale by construction. That rule is `where:: always` and advisory-only, so it cannot be excluded by a `where::` glob the way the doc-structure rules can — whatever mechanism carries the exclusion has to reach it too. Recorded here rather than filed, because it is a property of this document's format that M1 has to live with until [[TINK303 - Template DSL - one pattern language for facets, templates, and sections|F303]] M6 decides how Stencil-bearing files declare themselves to Warden.
+
+**Status.** Language cut to three constructs 2026-08-04 on Dan's objections; seven cases identified. **T1–T3 and T5 worked through; T4, T6, T7 carry their real instances and await examples and proposals.** T5 added nothing to the language — it looked like it needed a filename anchor and turned out to be a T2 member — and it corrected a case that was citing a gallery exemplar rather than a vault instance, which the Format Rules above forbid. Both are the M1 gate doing its job.
 
 ---
 
@@ -266,15 +268,81 @@ Dan
 
 # T5 — Stencil Whose Anchor Is A Filename Pattern
 
+**Example T5.a** — `SYS/SYS Catalog/Computer/_Computer {{NICKNAME}} Template.md`, abridged
+
+<!-- begin example T5.a -->
+---
+kind: computer
+---
+# Computer {{NICKNAME}}
+
+> **{{One-line role}}.** What this machine is for in the fleet (primary working machine / disk station / VM host / etc.).
+
+## Identity
+
+- **Hostname (mDNS):** `{{HOSTNAME}}.local`
+- **Hostname (terminal):** `{{HOSTNAME}}`
+- **My nickname / short reference:** {{NICKNAME}}{{, phonetic hint if non-obvious — delete otherwise}}
+
+## Hardware
+
+- **Model:** {{Model Name + year, e.g. "MacBook Pro 16" 2019" or "Mac mini M2 Pro 2023"}}
+- **RAM:** {{GB}}
+
+✂ ──── template notes ──── ✂
+
+- **`{{NICKNAME}}`** — what you call the machine in conversation (e.g. `haorui`). Fills the **filename** (`Computer {{NICKNAME}}.md`), the **H1**, and the nickname line.
+- **`{{HOSTNAME}}`** — the machine's actual hostname (e.g. `haorui`). Fills both **Identity** hostname lines and the **SSH** command. Often equals the nickname; they diverge when the nickname is a phrase (e.g. "Daniel MacBook Pro").
+
+NOTES:
+- **Filename:** strip the leading `_` and trailing ` Template` → `Computer {{NICKNAME}}.md`, matching the existing instances.
+<!-- end example T5.a -->
+
+**Example T5.b** — the two live members of that folder, which is what makes the filename pattern load-bearing rather than decorative:
+
+- `SYS/SYS Catalog/Computer/Computer haorui.md` — binds `NICKNAME = haorui`
+- `SYS/SYS Catalog/Computer/Computer Daniel MacBook Pro.md` — binds `NICKNAME = Daniel MacBook Pro`
+
+The second is the one that earns its place. Its nickname is a **phrase containing spaces**, so a filename pattern has to bind a greedy variable between two literals rather than a single token — and it is the instance where `NICKNAME` and `HOSTNAME` genuinely diverge, which is exactly the divergence the template's own notes call out.
+
+**Proposal T5.A** — the folder, in T2's form
+
+```
+SYS/SYS Catalog/Computer/
+└── Computer {{NICKNAME}}.md
+```
+
+**Proposal T5.B** — `SYS/SYS Catalog/Computer/Computer {{NICKNAME}}.md`, the member
+
+<!-- begin proposal T5.B -->
+# Computer {{NICKNAME}}
+{{role — one line}}
+
+## Identity
+
+- **Hostname (mDNS):** `{{HOSTNAME}}.local`
+- **Hostname (terminal):** `{{HOSTNAME}}`
+- **My nickname / short reference:** {{NICKNAME}}
+
+## Hardware
+<!-- end proposal T5.B -->
+
 ## T5 Overview
 
-**Real instance.** `_{{PURCHASE_DATE}} {{HOSTNAME}} Template.md` — a file template whose *name* carries the variables, so the pattern governs which files are members of the folder as well as what is inside them.
+**Real instance corrected 2026-08-05.** This case previously cited `_{{PURCHASE_DATE}} {{HOSTNAME}} Template.md`, which lives in `examples/FEX Templates/` — a **constructed exemplar in the example gallery, not a vault instance**. That breaks this document's own rule (*"Never a hypothetical; a case with no instance in the vault is not yet a case"*), and it is worth recording rather than quietly swapping, because the exemplar is the weaker specimen in the way that matters: its `{{HOSTNAME}}` appears in the filename *and* the H1, so it cannot show a variable that is bound from the name but used only in the body. The real corpus has **27** filename-pattern templates; `Computer` was chosen because it is the one whose own notes already state the filename rule in prose.
 
 **Direction: generate first** (clone → rename → fill is its documented primary use), but match is what makes it a template rather than a snippet.
 
-**What the case demands.** That an anchor can be a **filename** pattern, and that variables bound from the filename are in scope for the body. This is the case that proves the two directions are one pattern: the same `{{PURCHASE_DATE}}` is *read from* the name when matching and *written into* it when generating. It is also where the many-by-variable default gets its second test — those variables are free, so the pattern names a set of files, which is exactly right.
+**What the case demands.**
 
-*(Examples and proposals — to be written.)*
+1. **Nothing at the filename level — and that is the finding.** The first draft of T5.A invented a `file::` anchor, a fourth construct beside the two heading anchors. It is not needed: [[#T2 — Folder Template With A Repeating Member|T2]] already expresses member filenames as *the member's name in the folder tree*, so `Computer {{NICKNAME}}.md` is a T2 member, not a new kind of thing. **The language does not grow here.** Recorded rather than silently corrected, because M1's whole job is deciding whether Stencil is small, and a case that looked like it demanded a construct and then did not is evidence for the same conclusion as a case that never did.
+2. **Variables bound from the name are in scope for the body — this is what T5 actually demands.** `{{NICKNAME}}` binds from the filename in T5.a and is then *used* in the H1 and the nickname line. This is the case that proves the two directions are one pattern: the same variable is **read from** the name when matching and **written into** it when generating. It is also a **scope** claim T2 never had to make — T2's `{{YYYY-MM-DD}}` binds in the filename and is used again in the member's H1, but nothing there distinguishes "the same variable" from "two variables that happen to share a name." T5.a settles it: its template documents `{{NICKNAME}}` as filling the filename *and* the H1 *and* the nickname line, so a binding is per-member and shared across the member's artifacts.
+3. **A variable that appears only in the body.** `{{HOSTNAME}}` is free — the pattern says nothing about it at the name level. So a filename pattern does not have to bind every variable, and T5.b shows why: the two live members disagree about whether hostname and nickname are the same string.
+4. **Greedy binding between literals.** `Computer Daniel MacBook Pro.md` binds `NICKNAME` to a phrase with spaces. A tokenizing match would bind `Daniel` and fail; a filename pattern must bind maximally between its literal parts.
+
+**What it does NOT demand, and this is the useful negative.** The `_` prefix and the ` Template` suffix are **not** part of the notation. T5.a's own notes describe the transform in prose — *"strip the leading `_` and trailing ` Template`"* — but that is a fact about where the template FILE is parked so it does not itself look like a member, not a fact about the pattern. Under T5.A the pattern is stated directly and positively as `Computer {{NICKNAME}}.md`, and the parking convention stays where it belongs, in [[DAS Template Files]]. **Resist folding it in:** a notation that derives the member name by string-surgery on the template's own name cannot express a template parked anywhere else, and there are already 27 of these to be wrong about.
+
+**Second test of the many-by-variable default.** `NICKNAME` is free, so `Computer {{NICKNAME}}.md` names a *set* of files — every member of the folder — rather than one. That is the right reading, and it is the same default T1 established for repeated headings, arriving here at a different scope. Examples taken 2026-08-05.
 
 ---
 
