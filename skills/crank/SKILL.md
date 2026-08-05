@@ -119,6 +119,12 @@ Per user direction 2026-05-26 (reinforced 2026-05-26 after a second lazy-stop in
    - A cross-reference sweep, doc inconsistency, or unfinished thread the agent has seen in this session is still open.
 2. **Context-window usage is < 60%** (≥ 40% remaining).
 
+> **🚨 A Runnable row you find is NOT runnable must be REBRACKETED, not skipped.** Skipping is half an action. The bracket is a *claim* — it is what put the row in `Runnable N` — so leaving it standing while you privately conclude "nothing here is agent-runnable" means the next crank re-derives the same conclusion from scratch, and the banner keeps overstating what the agent can do. Rebracket it honestly before you move on: `[Questions]` when it waits on a named user answer, `[Blocked]`/`[Waiting]` when it waits on an event. **Do this on the crank that discovers it**, not later.
+>
+> Live case, MUX `F216` (2026-08-05): the row sat `[Implementing]` — counted as Runnable — while its own `- **Next:**` opened with *"NOTHING HERE IS AGENT-RUNNABLE — every open sub-item is gated on a named user answer"*, and went on to record that **two consecutive cranks had each re-derived that from scratch**. The row documented the loop it was stuck in and three agents still left the bracket alone, because each read the Next, agreed, and skipped. Dan caught it by eye: *"you have 216 as ready, but then there's nothing agent runnable — so it's not correctly categorized."*
+>
+> The mechanical gate cannot save you here, and knowing why matters: F242's `next_answer_gate` only refuses a Next that *matches a known sentinel* (`none`, `tbd`, `n/a`, `no next action`, …). A Next written in prose can declare the row dead in its first four words and still sail through, because "nothing here is agent-runnable" is not on any list and no list can be complete. **The agent that just read the Next is the only reliable detector.** That is the whole reason this rule lives in the skill rather than in the script.
+
 → When both hold, **the agent MUST continue.** Every soft-pressure section below is **suspended** — "fatigue," "quality drop," "fresh-session needed," "I should check in," "delegated to other agents," "this is owned by someone else," "this is a natural stopping point," and the entire valid/disqualifying stop-reason taxonomy **DO NOT APPLY** here. They resume only when context ≥ 60% used.
 
 ### Mandatory stopping-justification — print the risk-of-continuing argument
