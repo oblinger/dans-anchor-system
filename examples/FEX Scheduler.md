@@ -5,7 +5,7 @@ description: "priority queue engine + worker dispatch. Source: `src/execution/sc
 # FEX Scheduler
 Orchestrates timed task execution with priority queuing and retry semantics. The Scheduler is the central dispatch engine for deferred work. It accepts tasks with deadlines, assigns them to worker threads from a managed pool, and handles retry logic when tasks fail. All scheduling decisions flow through a single priority queue to prevent starvation (the project's *one queue, one clock* rule).
 
-![[FEX Scheduler.svg|1200]]
+![[FEX Scheduler.svg|2400]]
 
 *Priority and starvation* is the topic that governs the queue's ordering rule (deadline + aging promotion).
 
