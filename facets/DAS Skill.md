@@ -14,7 +14,7 @@ An omnibus Claude Code skill that groups related actions, reference data, and sc
 
 **TLDR** — Every skill anchor ships a `SKILL.md` with fixed frontmatter (`name`, `description`, `tools`, `user_invocable`) and a fixed section order (Title → Brief → dispatch tables → Actions → Reference → Dispatch protocol). Disciplines (`user_invocable: false`) additionally require a parallel user-facing doc at `docs/<domain>/DAS <Name>.md`. **Cardinality: one per anchor** — each skill folder has exactly one `SKILL.md` entry point.
 
-**Working example:** `~/.claude/skills/CAE/SKILL.md` — SKILL.md (CAE is a skill folder).
+**Working example:** [[FEX Skill]] — a complete SKILL.md.
 
 Below is a reference example for a hypothetical skill "ops" (Operations).
 
