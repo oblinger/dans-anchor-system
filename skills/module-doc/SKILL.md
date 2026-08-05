@@ -187,9 +187,9 @@ open -a ExcalidrawZ "<path to {slug} {ModuleName}.excalidraw>"
 ```
 
 
-## Worked example — `CAE Scheduler`
+## Worked example — [[FEX Scheduler]]
 
-Reference example showing the full flow. Source: `CAE/src/execution/scheduler.py` (hypothetical). Target module doc: `~/ob/kmr/SYS/Bespoke/Skill Agent/CAE/CAE Docs/CAE Dev/CAE Scheduler.md`.
+How the repo's canonical module doc was built, start to finish. Source: `src/execution/scheduler.py` in a hypothetical project. Target module doc: `examples/FEX Scheduler.md` — the same file [[DAS Module Doc]] names as its working example, so the output of this walkthrough is something you can open and compare against.
 
 **Pre-flight:**
 ```bash
@@ -200,7 +200,7 @@ ls ~/.claude/skills/audit/scripts/audit-module-doc.py  # auditor present ✓
 
 **Step 1-3 — Read facet, resolve location, read source:**
 - Facet: `DAS Module Doc.md` loaded.
-- Location: `CAE Docs/CAE Dev/CAE Scheduler.md` (mirrors `src/execution/scheduler.py`).
+- Location: `examples/FEX Scheduler.md` (mirrors `src/execution/scheduler.py`).
 - Source: identified `TaskScheduler` (class), `TaskHandle` (class), `TaskState` (enum), `SchedulerStatus` (class), plus a `Priority and starvation` topic (the queue's aging-promotion rule, justified as a top-level section because it's a load-bearing scheduling invariant).
 
 **Step 4 — Skeleton.** Author the four section H2s + SECTIONS table + class tables. Class table headers:
@@ -217,18 +217,18 @@ ls ~/.claude/skills/audit/scripts/audit-module-doc.py  # auditor present ✓
 
 Note: bold-name-only fields, methods bold-wrap-link with no backticks in alias, code-tail outside link.
 
-**Step 5 — Figure.** Author `CAE Scheduler.excalidraw` with 7 nodes (Caller, TaskScheduler, PriorityQueue, Worker pool, TaskHandle, TaskState, SchedulerStatus), arrows showing the data flow (submit → enqueue → next due → on done/fail → carries; status() returns; await/cancel curve). Apply layout: Worker pool to right of TaskScheduler (clears TS→TaskHandle path), legend bottom, PriorityQueue styled as topic-governed (yellow fill). Convert:
+**Step 5 — Figure.** Author `FEX Scheduler.excalidraw` with 7 nodes (Caller, TaskScheduler, PriorityQueue, Worker pool, TaskHandle, TaskState, SchedulerStatus), arrows showing the data flow (submit → enqueue → next due → on done/fail → carries; status() returns; await/cancel curve). Apply layout: Worker pool to right of TaskScheduler (clears TS→TaskHandle path), legend bottom, PriorityQueue styled as topic-governed (yellow fill). Convert:
 
 ```bash
-python3 ~/.claude/skills/viz/excalidraw_to_svg.py "CAE Scheduler.excalidraw"
-# → CAE Scheduler.svg + CAE Scheduler.png
+python3 ~/.claude/skills/viz/excalidraw_to_svg.py "FEX Scheduler.excalidraw"
+# → FEX Scheduler.svg + FEX Scheduler.png
 ```
 
 Embed in the markdown with a page-fill width hint: `![[FEX Scheduler.svg|2400]]` (Obsidian caps to the pane; never a bare embed — it renders tiny).
 
 **Step 6 — Audit:**
 ```bash
-/audit module-doc "CAE/CAE Docs/CAE Dev/CAE Scheduler.md"
+/audit module-doc "examples/FEX Scheduler.md"
 # Sample output:
 # [C22] line 39: expected 2 blank lines before H2, found 3
 #       fix: Remove 1 blank line before this H2 to match the 2-blank-line separator rule.
@@ -239,26 +239,26 @@ Embed in the markdown with a page-fill width hint: `![[FEX Scheduler.svg|2400]]`
 
 **Step 7 — Fix:**
 ```bash
-/audit module-doc "CAE/CAE Docs/CAE Dev/CAE Scheduler.md" --fix
+/audit module-doc "examples/FEX Scheduler.md" --fix
 # 5 of 6 fixed automatically; re-run to see the 1 remaining.
 ```
-The remaining C30 (SVG older than excalidraw) means a manual re-convert: `python3 ~/.claude/skills/viz/excalidraw_to_svg.py "CAE Scheduler.excalidraw"`. Re-run audit: zero findings.
+The remaining C30 (SVG older than excalidraw) means a manual re-convert: `python3 ~/.claude/skills/viz/excalidraw_to_svg.py "FEX Scheduler.excalidraw"`. Re-run audit: zero findings.
 
-**Step 8 — Subjective re-read.** Walk the 14-item checklist above against `CAE Scheduler.md`. The figure passes (clean layout, all sections represented), prose orients cold, method descriptions are non-trivial, the topic carries weight (anchors `[[FEX Decisions#D07 — One Queue, One Clock (checked)]]`).
+**Step 8 — Subjective re-read.** Walk the 14-item checklist above against `FEX Scheduler.md`. The figure passes (clean layout, all sections represented), prose orients cold, method descriptions are non-trivial, the topic carries weight (anchors `[[FEX Decisions#D07 — One Queue, One Clock (checked)]]`).
 
-**Step 9 — Link in dispatch tables.** Add a row to `CAE Docs/CAE Dev/CAE Dev.md`:
+**Step 9 — Link in dispatch tables.** Add a row to [[DAS Examples]]:
 ```markdown
 
 | [[FEX Scheduler]] | Priority queue engine + worker pool for deferred task execution |
 
 ```
-Add the file to `CAE Docs/CAE Dev/CAE Files.md` tree at the appropriate node.
+Add the file to the [[FEX Files]] tree at the appropriate node.
 
 **Step 10 — Commit + glance:**
 ```bash
-git add "CAE Docs/CAE Dev/CAE Scheduler.md" "CAE Docs/CAE Dev/CAE Scheduler.excalidraw" "CAE Docs/CAE Dev/CAE Scheduler.svg" "CAE Docs/CAE Dev/CAE Scheduler.png" "CAE Docs/CAE Dev/CAE Dev.md" "CAE Docs/CAE Dev/CAE Files.md"
-git commit -m "CAE Scheduler: module doc shipped (per F119)"
-open "CAE Docs/CAE Dev/CAE Scheduler.md"
+git add "examples/FEX Scheduler.md" "examples/FEX Scheduler.excalidraw" "examples/FEX Scheduler.svg" "examples/FEX Scheduler.png" "examples/DAS Examples.md" "examples/FEX Files.md"
+git commit -m "FEX Scheduler: module doc shipped (per F119)"
+open "examples/FEX Scheduler.md"
 ```
 
 Done.
