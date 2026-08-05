@@ -1969,6 +1969,52 @@ def chk_status_in_track_folder(target, anchor_root, args):
     return "fail", f"not in {expected_parent.name}/ folder; found in {target.parent.name}/"
 
 
+def chk_doc_in_design_folder(target, anchor_root, args):
+    """R-fct-system-design-01: the doc sits in a `* Design/` folder.
+
+    Matched on the folder SUFFIX rather than on `{slug} Design` exactly, because a
+    sub-anchor's design folder is named for the sub-anchor and the slug lookup at
+    the anchor root would reject perfectly well-placed files. The rule being
+    enforced is "filed with the design docs", not "filed under this precise slug".
+
+    Walks ANCESTORS rather than testing the immediate parent only: a subsystem's
+    design doc nests one level deeper (`MUX Design/DMUX Subsystem/DMUX System
+    Design.md`) and is correctly filed — the parent-only form failed it, which was
+    the rule inventing a defect rather than finding one.
+    """
+    for part in reversed(target.parent.parts):
+        if part.endswith(" Design") or part == "Design":
+            return "pass", ""
+    return "fail", (f"not under a `* Design/` folder; found in `{target.parent.name}/` "
+                    f"— a System Design is a design artifact and files with its "
+                    f"siblings (PRD, Roadmap, Architecture)")
+
+
+def chk_no_decisions_section(target, anchor_root, args):
+    """R-fct-system-design-05: no `## Decisions` H2 — decisions live in their own file.
+
+    Ruled by Dan 2026-08-05 (Q004) as the general model: specialized content like
+    decisions goes in its own file rather than becoming a section of a design doc.
+    A decision inlined here is invisible to anything reading `{slug} Decisions.md`,
+    and it makes the design doc a second place a reader has to check.
+
+    Routed through `_h2_titles` rather than a local `^##\\s+Decisions$` regex — the
+    primitive already strips fences (so a doc quoting the heading as an EXAMPLE of
+    what not to do does not fail on its own advice) and already allows the six
+    genuinely indented H2s in the vault. Re-spelling "what an H2 is" inside a checker
+    is the T099 defect class, and structure-lint catches it.
+    """
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    for idx, title in _h2_titles(_read(f).splitlines()):
+        if title.rstrip(":").strip().lower() == "decisions":
+            return "fail", (f"`## {title}` at line {idx + 1} — durable rulings belong "
+                            f"in the anchor's own Decisions doc, not inlined here "
+                            f"(R-fct-system-design-05)")
+    return "pass", ""
+
+
 def _status_facet_lines(text):
     """`name:: value` lines excluding description::."""
     out = []
@@ -5136,6 +5182,9 @@ CHECKERS = {
     "description_field_line": chk_description_field_line,
     # R-facet-spec
     "facet_dispatch_top": chk_facet_dispatch_top,
+    # R-fct-system-design (Q004 re-derivation, 2026-08-05)
+    "doc_in_design_folder": chk_doc_in_design_folder,
+    "no_decisions_section": chk_no_decisions_section,
     "triggers_section_iff_declared": chk_triggers_section_iff_declared,
     "no_retired_location": chk_no_retired_location,
     # R-ruleset
