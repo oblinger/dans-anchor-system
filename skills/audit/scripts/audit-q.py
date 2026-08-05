@@ -240,8 +240,11 @@ QMD_BANNER_RE = re.compile(
 Q_HEADER_RE = re.compile(r"^(\s*)- \*\*Q(\d+)\b")
 # F123 — Q-header H3 form: `### Q<n> — ...` (used by DKT and possibly others)
 Q_HEADER_H3_RE = re.compile(r"^### Q(\d+)\b")
-# B16 — block-ID at end of Q header line: `^F089-Q3`
-Q_BLOCK_ID_TRAILING_RE = re.compile(r"\^([A-Za-z][A-Za-z0-9_\-]*-Q\d+)\s*$")
+# B16 — block-ID at end of Q header line: `^F089-Q3`. The `|Q\d+` alternative is
+# the bare form a standalone Q ROW carries (`^Q004`, F275) — a row anchor rather
+# than a container-scoped one, but a Q block-ID all the same. Without it the row's
+# existing anchor read as absent and C6 demanded a second one on the same line.
+Q_BLOCK_ID_TRAILING_RE = re.compile(r"\^([A-Za-z][A-Za-z0-9_\-]*-Q\d+|Q\d+)\s*$")
 # F251 #9 — ANY trailing `^block-id` (used to detect a FOREIGN, non-`-Q<n>`
 # id that apply_c6_fix must not strand mid-line by appending after it).
 ANY_BLOCK_ID_TRAILING_RE = re.compile(r"\^([A-Za-z][A-Za-z0-9_\-]*)\s*$")
@@ -1505,11 +1508,46 @@ def extract_q_entries(file_path: Path, container_id: str) -> list[QEntry]:
     return out
 
 
+def _q_entry_is_row(q: QEntry) -> bool:
+    """Is this Q header itself a backlog ROW, rather than a Q inside a container?
+
+    The F275 feature-less question: `state define <anchor> Backlog Q+` mints a row
+    that IS the question, sibling to `F`/`T`. Top-level indent in a `* Backlog.md`,
+    with a container that is the anchor rather than an `F`/`T`/`B` handle — that
+    combination occurs for nothing else.
+
+    The QEntry-shaped twin of `_is_standalone_q_row`, which answers the same question
+    from a `BacklogEntry.identifier`. Two functions because the views carry different
+    evidence: a BacklogEntry knows its identifier is literally `Q004`, while a QEntry
+    knows only its indent and container and must infer the rest. Deliberately NOT
+    named alike — the first draft was, and the later definition shadowed the earlier
+    one at import, so both call sites resolved to the wrong arity.
+    """
+    return (q.indent == ""
+            and q.source_file.name.endswith("Backlog.md")
+            and not re.match(r"^[FTB]\d", q.container_id or ""))
+
+
+def _expected_block_id(q: QEntry) -> str:
+    """The block-ID a Q header should carry — `^<container>-Q<n>`, except for a
+    standalone Q ROW, which takes the backlog ROW convention `^Q<nnn>`.
+
+    A standalone Q row is not a question *inside* a container — it IS a backlog row,
+    and every backlog row anchors on its bare identifier (`^T116`, `^F275`). The
+    queries render emits `#^Q004` accordingly, so the container form `^TINK-Q4`
+    points at nothing: the reader clicks through to the top of the file, and C46
+    then reports the row as carrying no questions.
+    """
+    if _q_entry_is_row(q):
+        return f"Q{q.q_num:03d}"
+    return f"{q.container_id}-Q{q.q_num}"
+
+
 def check_c6_block_id_present(q_entries: list[QEntry]) -> list[Finding]:
-    """C6: every Q has block-ID ^<container>-Q<n>."""
+    """C6: every Q has block-ID ^<container>-Q<n> (or `^Q<nnn>` for a Q row)."""
     findings: list[Finding] = []
     for q in q_entries:
-        expected = f"{q.container_id}-Q{q.q_num}"
+        expected = _expected_block_id(q)
         if not q.has_block_id:
             findings.append(Finding(
                 severity="warning",
@@ -1536,7 +1574,7 @@ def apply_c6_fix(q_entries: list[QEntry]) -> list[str]:
     log: list[str] = []
     by_file: dict[Path, list[QEntry]] = {}
     for q in q_entries:
-        expected = f"{q.container_id}-Q{q.q_num}"
+        expected = _expected_block_id(q)
         if q.has_block_id and q.block_id_value == expected:
             continue
         by_file.setdefault(q.source_file, []).append(q)
@@ -1551,7 +1589,7 @@ def apply_c6_fix(q_entries: list[QEntry]) -> list[str]:
             if idx >= len(lines):
                 continue
             line = lines[idx]
-            expected = f"{q.container_id}-Q{q.q_num}"
+            expected = _expected_block_id(q)
             # F251 #9 — a FOREIGN trailing block-id (a `^…` that is NOT the
             # `-Q<n>` form, e.g. `^F077-note`) is a live anchor with its own
             # inbound links. Stripping it would break those links; appending
@@ -1688,6 +1726,15 @@ def check_c10_recommendation_outdent(q_entries: list[QEntry]) -> list[Finding]:
         if q.shape == "h3":
             continue
         if q.recommendation_line == 0 or q.recommendation_indent is None:
+            continue
+        # N/A for a standalone Q ROW, where C10 and R-backlog-03 collide head-on: a
+        # Q row's header sits at indent 0 *because it is a backlog row*, so "same
+        # indent as the header" puts the Recommendation at indent 0 too — where the
+        # backlog parser reads it as its own top-level row and R-backlog-03 fails it
+        # as ungroomed. Obeying either breaks the other; the construct is
+        # unrepresentable until one yields, and it is this one, because nesting is
+        # what makes the bullet belong to the row (T120).
+        if _q_entry_is_row(q):
             continue
         if len(q.recommendation_indent) > len(q.indent):
             findings.append(Finding(
@@ -2010,7 +2057,11 @@ def check_c20_blank_after_recommendation(q_entries: list[QEntry]) -> list[Findin
                 # sits at the SAME indent right after the Recommendation; it is
                 # part of the group, not the next content. Skip it; the required
                 # blank separator falls after Damage, not between Rec and Damage.
-                if re.match(r"^\s*-\s+\*\*Damage:\*\*", nxt):
+                # F275 adds `- **On answer:**` as piece 7 on the same footing:
+                # `state define … Q+` hard-refuses a standalone Q row without it,
+                # so every row the mint produces carries one — and flagging it here
+                # meant the tool rejected its own output.
+                if re.match(r"^\s*-\s+\*\*(Damage|On answer):\*\*", nxt):
                     j += 1
                     continue
                 # A non-blank, non-continuation line at same-or-less indent
@@ -3288,6 +3339,12 @@ def check_c44_questions_row_has_target(entries: list[BacklogEntry]) -> list[Find
             continue
         if e.horizon in ("Done", "Icebox"):
             continue
+        # A standalone Q row is self-backing: its number is in the header and its
+        # body IS the question, so there is no doc to link and no sub-bullet to
+        # find. C34 took this alignment under T079; C44 never did, so the construct
+        # `state` mints was accepted by one sibling check and rejected by the other.
+        if _is_standalone_q_row(e.identifier):
+            continue
         if _arrow_target(e) is not None or re.search(r"→\s+\[\[", e.raw_body):
             continue  # has an arrow target — resolvable, or C1/C22's broken-link territory
         if re.match(r"[TB]", e.identifier or ""):
@@ -3696,6 +3753,12 @@ def check_c46_queries_q_link_lands_on_qs(
                 # region opener; the row-opener form can't false-match Q\d+.
                 has_inline = any(inline_q_re.match(rl)
                                  for rl in region.splitlines())
+                # A standalone Q row IS the question, so a reader following the link
+                # lands exactly on it; demanding sub-bullets asks the row to nest a
+                # copy of itself. Third surface carrying the F233-era assumption
+                # that only F-rows can host questions (T120).
+                if re.match(r"^- \*\*Q\d+\b", region.lstrip("\n")):
+                    has_inline = True
                 if not has_inline:
                     findings.append(Finding(
                         severity="error",
