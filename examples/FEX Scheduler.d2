@@ -1,0 +1,54 @@
+# Figure source for [[FEX Scheduler]] — the canonical module-doc example.
+# Render:  d2 --layout elk "FEX Scheduler.d2" "FEX Scheduler.svg"
+
+vars: {
+  d2-config: {
+    layout-engine: elk
+  }
+}
+
+classes: {
+  actor: {
+    style: { fill: "#eef2f7"; stroke: "#4a5568"; stroke-width: 2; font-size: 34; bold: true }
+    width: 320; height: 110
+  }
+  core: {
+    style: { fill: "#dbe7f6"; stroke: "#2c5282"; stroke-width: 3; font-size: 34; bold: true }
+    width: 340; height: 110
+  }
+  governed: {
+    style: { fill: "#fdf3c7"; stroke: "#b7791f"; stroke-width: 3; font-size: 34; bold: true }
+    width: 340; height: 110
+  }
+  value: {
+    style: { fill: "#e8f3ec"; stroke: "#2f6f4e"; stroke-width: 2; font-size: 34; bold: true }
+    width: 320; height: 110
+  }
+}
+
+caller:    "Caller"           { class: actor }
+scheduler: "TaskScheduler"    { class: core }
+queue:     "PriorityQueue"    { class: governed }
+workers:   "Worker pool"      { class: core }
+handle:    "TaskHandle"       { class: value }
+state:     "TaskState"        { class: value }
+status:    "SchedulerStatus"  { class: value }
+
+caller -> scheduler: "submit(task, deadline)" { style.font-size: 26 }
+scheduler -> queue: "enqueue" { style.font-size: 26 }
+queue -> workers: "next due" { style.font-size: 26 }
+workers -> handle: "on done / fail" { style.font-size: 26 }
+handle -> state: "carries" { style.font-size: 26 }
+scheduler -> status: "status()" { style.font-size: 26 }
+scheduler -> handle: "returns" { style.font-size: 26 }
+caller -> handle: "await_result() / cancel()" { style.font-size: 26 }
+
+legend: |md
+  **Yellow** — governed by a topic rule
+
+  (*Priority and starvation*: deadline
+  order plus aging promotion)
+| {
+  near: bottom-center
+  style: { font-size: 24; fill: transparent; stroke: transparent }
+}
