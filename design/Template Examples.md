@@ -5,6 +5,19 @@ description: "The case corpus Stencil is derived from — a real example first, 
 # Template Examples
 The working corpus for [[TINK303 - Template DSL - one pattern language for facets, templates, and sections|F303]] M1 — every template-shaped case that actually exists, and how **Stencil** would express it.
 
+| Table of Contents | what the case is for |
+|---|---|
+| **[[#The format]]** | how a case is laid out, and why the example comes first |
+| **[[#Constructs proposed so far]]** | the whole proposed language in one table — the size check |
+| **[[#T1 — Whole Document Template]]** | a document with a required section skeleton; introduces open-world `…` |
+| **[[#T2 — Folder Template With A Repeating Member]]** | a directory with one-of-this and many-of-that; introduces cardinality |
+| **[[#T3 — Floating-Depth Section]]** | a heading-anchored shape whose depth varies by file |
+| **[[#T4 — One Shape, Four Incompatible Spellings]]** | reconciling records that must never be rewritten |
+| **[[#T5 — Stencil Whose Anchor Is A Filename Pattern]]** | variables in the name; proves match and generate are one pattern |
+| **[[#T6 — Table With Fixed Head And Variable Rows]]** | structure below the heading level — the case most likely to be cut |
+| **[[#T7 — A Facet Spec's Own Shape]]** | the reflexive case, and the acceptance test |
+| **[[#Cases still to be identified]]** | what has not been examined yet |
+
 ## The format
 
 Each case is an H1 and reads top to bottom as **example → proposal(s) → discussion**. The example is ground truth and comes first; the proposal is the thing under test; everything anyone wants to *say* about either lives in the `## {case} Overview` H2 at the bottom of the case, so the artifacts stay clean and the argument stays out of them.
@@ -24,6 +37,20 @@ Examples are lettered lowercase (`T3.a`), proposals uppercase (`T3.A`).
 **Two consequences of verbatim-and-unfenced, both accepted deliberately.** Specimen headings are real headings, so they appear in this document's outline — the price of specimens that can be copied, in a notation where heading depth is semantic. And specimen wiki-links are live, so this file must be excluded from link-resolution and doc-structure rules the way `_* Template` files already are. If the outline noise ever becomes intolerable, the escape is graduating specimens to sibling files and leaving the markers as links; the block boundaries are already file-shaped, so that migration is mechanical.
 
 **Status.** Format settled 2026-08-04 to Dan's shape; seven cases identified; T1–T3 worked through, T4–T7 carrying their real instances and awaiting proposals. When Dan reads this and says the cases are covered, M1 is done and Stencil is written *from* it.
+
+## Constructs proposed so far
+
+Stencil does not exist yet, so every proposal below invents notation as it goes. This table is the running total — **the whole language, as currently proposed, in one glance** — and it exists so the "does it stay small?" question is answerable without reading every case. Nothing enters this table without a case that demanded it, and the case is named.
+
+| construct | reads as | first demanded by |
+|---|---|---|
+| `{{NAME}}` | a variable: binds when matching, is filled when generating | inherited — the shipped template convention |
+| `…` on its own line | open-world: *ignore* when matching, *omit* when generating | T1 — sections that must exist but whose contents other rules govern |
+| `[1]` · `[0+]` · `[1+]` | cardinality: exactly one · zero or more · one or more | T2 — a folder holding one dispatch page and any number of entries |
+| `…#` prefixing a heading | anchor at *this depth or deeper* | T3 — `# LOG` sits at different depths in different files |
+| `=#` prefixing a heading | anchor at *exactly this depth* | T3 — the contrast case for the above |
+
+Five constructs across three cases. Two observations already: `[0+]` was introduced for a folder's members and reused unchanged for a section's repeated headings, which is evidence the two want **one** construct rather than two; and every construct so far is a *quantifier or a wildcard*, none is a predicate — which is the line [[TINK303 - Template DSL - one pattern language for facets, templates, and sections|F303]] draws between Stencil and the rules that constrain what it binds.
 
 ---
 
@@ -141,20 +168,41 @@ templates/log/
 ## Outstanding
 <!-- end proposal T2.B -->
 
+**Proposal T2.C** — `templates/log/{{YYYY-MM-DD}} — {{short topic}}.md`
+
+<!-- begin proposal T2.C -->
+[0+]
+# {{YYYY-MM-DD}} — {{short topic}}
+
+## What happened
+
+{{per-session plan + outcome, in narrative form}}
+
+## Decisions
+
+- {{decision made this session, with links to the docs it landed in}}
+- ...
+
+## Outstanding
+<!-- end proposal T2.C -->
+
 ## T2 Overview
 
 **Direction: both.** Generate — instantiate a Log folder for a new anchor. Match — check an existing one.
 
-**What the case demands.** This is the **cardinality** case, and the cleanest in the vault: one member is exactly-one and the other zero-or-more, in the same folder, distinguished today only by the fact that one filename is a literal-with-a-variable and the other a pure pattern. Dan, 2026-08-04: *"I want to have multiple, 0 or more of these or one or more of these, those kinds of things in there."* The notation must **say** which is which rather than leaving it inferred from whether a name looks pattern-ish — that inference is exactly what breaks on `{slug} Log.md`, which contains a variable and is nevertheless exactly-one.
+**What the case demands, in one sentence:** a folder template must be able to say **how many of each member** a conforming folder holds, and today it cannot.
 
-**The two proposals differ in where cardinality lives, and the difference is real.**
+Instantiating `templates/log/` for TINK should produce `TINK Log/` containing exactly one `TINK Log.md` and any number of dated entry files — including none. The directory listing states neither count. A reader infers them from the fact that one filename carries a date-shaped placeholder and the other does not, and **that inference is what must not be relied on**: `{slug} Log.md` also contains a variable and is nevertheless exactly-one, so "looks pattern-ish" is not the distinction. Dan, 2026-08-04: *"I want to have multiple, 0 or more of these or one or more of these, those kinds of things in there."*
 
-- **T2.A puts it in a manifest file.** One extra file per folder template; the members stay ordinary files; the manifest is the only place that knows about multiplicity. Costs a file and introduces a second authority over what the directory contains — the listing and the manifest can disagree.
-- **T2.B puts it in the member's own filename**, so the directory listing *is* the complete manifest and nothing can disagree with it. This is the same instinct that made granularity the artifact's own shape: the thing declares itself. The cost is genuinely ugly filenames, and a `[0+]` prefix has to be stripped when the member is instantiated — a rule that does not exist anywhere else in the naming convention.
+**Why not derive it instead of marking it?** A tempting rule: a member whose filename varies *per member* (`{{YYYY-MM-DD}}`) is many, while one whose variables are all fixed by the anchor (`{slug}`) is exactly one. That is a genuine semantic distinction rather than a heuristic, and it would need no marker at all — but it breaks on any case wanting exactly one file whose name varies, and it makes cardinality a consequence of variable scoping rather than something an author can state. Rejected as too clever, and recorded here so it is not re-proposed.
 
-T2.B is shown as the full member file rather than as a manifest line, because under T2.B there is no manifest — which is the point of it.
+**Three proposals, differing only in where the count lives.**
 
-**Open in T2.** A folder template's members are governed by their own stencils, so a folder stencil is a **manifest of anchors** rather than a container of specimens — the same disjoint-composition rule sections use, applied to a directory. That holds under both proposals; only the manifest's *home* is at issue.
+- **T2.A — a manifest file.** `_manifest.md` lists each member with its count. Members stay ordinary files and the folder's shape is readable in one place. The cost is a **third representation** of the same folder — the real listing, the manifest, and the member files — and the listing and manifest can drift apart.
+- **T2.B — in the member's filename.** The directory listing *is* the manifest, so nothing can disagree with it; this is the same instinct that made granularity the artifact's own shape. The cost is genuinely ugly filenames plus a strip-the-prefix step at instantiation, a rule that exists nowhere else in the naming convention. Shown as a full member file rather than a manifest line, because under T2.B there is no manifest — which is the point of it.
+- **T2.C — on the member's own first line.** The member is itself a stencil, so it can declare its multiplicity in its own body, above its anchor line. No extra file, no drift, clean filenames, no strip step. The cost is that the folder's shape is no longer visible from `ls` — you must open each member to learn the counts, which is exactly what T2.B was buying.
+
+**Open in T2.** A folder template's members are governed by their own stencils, so a folder stencil is a **manifest of anchors** rather than a container of specimens — the disjoint-composition rule sections use, applied to a directory. That holds under all three; only the count's *home* is at issue.
 
 ---
 
