@@ -873,6 +873,15 @@ _NONANSWER_WHOLE = frozenset({"?", "-", "—", "(none)"})
 _NONANSWER_LEADING = (
     "there is no next action", "no next action", "no next step", "none declared",
     "n/a", "na", "tbd", "todo", "none", "pending", "unknown",
+    # A row that declares itself unrunnable in its own Next is the same defect
+    # as a sentinel, just written in prose. MUX F216 sat [Implementing] — and
+    # so inside `Runnable N` — for three cranks while its Next opened
+    # "NOTHING HERE IS AGENT-RUNNABLE — every open sub-item is gated on a named
+    # user answer". This list can never be complete (that is why the crank
+    # skill now makes rebracketing the agent's job), but the phrasings a row
+    # actually reaches for when it gives up are worth catching for free.
+    "nothing here", "nothing is", "nothing to do", "nothing agent",
+    "not agent-runnable", "not runnable", "not actionable", "blocked on",
 )
 
 
