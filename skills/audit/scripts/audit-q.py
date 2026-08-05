@@ -1761,6 +1761,13 @@ def apply_c10_fix(q_entries: list[QEntry]) -> list[str]:
             continue  # F123: C10 N/A for H3-form Qs
         if q.recommendation_line == 0 or q.recommendation_indent is None:
             continue
+        # The fixer carried its own copy of C10's predicate, so teaching only the
+        # CHECKER about standalone Q rows left this actively outdenting them back to
+        # column 0 on every write — where R-backlog-03 fails the Recommendation as an
+        # ungroomed row. The checker merely complained; the fixer rewrote the file
+        # into the rejected shape and did it again after each repair (T120).
+        if _q_entry_is_row(q):
+            continue
         if len(q.recommendation_indent) > len(q.indent):
             by_file.setdefault(q.source_file, []).append(q)
     for file_path, qs in by_file.items():
