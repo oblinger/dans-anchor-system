@@ -5,18 +5,18 @@ description: "The case corpus Stencil is derived from — a real example first, 
 # Template Examples
 The working corpus for [[TINK303 - Template DSL - one pattern language for facets, templates, and sections|F303]] M1 — every template-shaped case that actually exists, and how **Stencil** would express it.
 
-| Table of Contents | what the case is for |
-|---|---|
-| **[[#Stencil, entire]]** | the whole language in one table — the size check |
-| **[[#The format]]** | how a case is laid out, and why the example comes first |
-| **[[#T1 — Whole Document Template]]** | a document with a required section skeleton |
-| **[[#T2 — Folder Template With A Repeating Member]]** | a directory with one-of-this and many-of-that |
-| **[[#T3 — Floating-Depth Section]]** | a heading-anchored shape whose depth varies by file |
-| **[[#T4 — One Shape, Four Incompatible Spellings]]** | reconciling records that must never be rewritten |
-| **[[#T5 — Stencil Whose Anchor Is A Filename Pattern]]** | variables in the name; proves match and generate are one pattern |
-| **[[#T6 — Table With Fixed Head And Variable Rows]]** | structure below the heading level — the case most likely to be cut |
-| **[[#T7 — A Facet Spec's Own Shape]]** | the reflexive case, and the acceptance test |
-| **[[#Cases still to be identified]]** | what has not been examined yet |
+| Table of Contents                                        | what the case is for                                               |
+| -------------------------------------------------------- | ------------------------------------------------------------------ |
+| **[[#Stencil, entire]]**                                 | the whole language in one table — the size check                   |
+| **[[#The format]]**                                      | how a case is laid out, and why the example comes first            |
+| **[[#T1 — Whole Document Template]]**                    | a document with a required section skeleton                        |
+| **[[#T2 — Folder Template With A Repeating Member]]**    | a directory with one-of-this and many-of-that                      |
+| **[[#T3 — Floating-Depth Section]]**                     | a heading-anchored shape whose depth varies by file                |
+| **[[#T4 — One Shape, Four Incompatible Spellings]]**     | reconciling records that must never be rewritten                   |
+| **[[#T5 — Stencil Whose Anchor Is A Filename Pattern]]** | variables in the name; proves match and generate are one pattern   |
+| **[[#T6 — Table With Fixed Head And Variable Rows]]**    | structure below the heading level — the case most likely to be cut |
+| **[[#T7 — A Facet Spec's Own Shape]]**                   | the reflexive case, and the acceptance test                        |
+| **[[#Cases still to be identified]]**                    | what has not been examined yet                                     |
 
 ## Stencil, entire
 
@@ -36,6 +36,21 @@ Three constructs. Everything else is a **default**, and the defaults are the rea
 | whole document | a stencil with no anchor marker governs the whole file | a "this is a file template" marker |
 
 *(Provenance, since the table above deliberately omits it: `{{NAME}}` is inherited from the shipped template convention; the two anchor forms were demanded by T3, where `# LOG` sits at different depths in different files; the four defaults each replaced a construct that T1 or T2 proposed and that Dan cut on 2026-08-04.)*
+
+### Not yet decided — how far a variable reaches
+
+Dan, 2026-08-04: *"whether or not we need something special for a variable that is in line versus a variable that is multi-line… if it's a multi-line variable, it has to be on a line by itself."* The distinction is real — a matcher has to know whether `{{one-line description}}` binds part of one line or swallows the next forty — but **position alone does not draw it**, and T1.A is the counterexample: `{{one-line description}}` sits alone on its line and is a one-liner, while `{{dispatch table}}` sits alone on its line and is genuinely several.
+
+| option | rule | cost |
+| --- | --- | --- |
+| **(A)** no construct | a variable reaches until the next **literal** the stencil names — `# ` and ` Backlog` bound `{{slug}}` to part of a line; a blank line bounds `{{one-line description}}` to what precedes it; nothing after a variable means it reaches to the end of its section | cannot *require* one-line-ness; two adjacent unbounded variables are ambiguous |
+| **(B)** position declares it | alone on a line ⇒ multi-line; anything before or after ⇒ inline | disagrees with (A) almost nowhere, and where it does it gives the same answer; buys a declared property at the cost of a rule to remember |
+
+**Lean (A)**, for the same reason cardinality became a default: extent is a *consequence* of what surrounds the variable, exactly as multiplicity is a consequence of whether it is free. It also keeps the escape hatch where Dan put it — if a stencil must insist a value is exactly one line, that is a **constraint on a bound variable** and belongs in the rules layer, not in the grammar.
+
+**The one shape ambiguous under both** is two unbounded variables adjacent with no literal between them. No case in the corpus does this; when one appears, the answer is likely *"that stencil is malformed"* — a checkable defect, like two stencils claiming one anchor — rather than a new construct.
+
+**A separate thing this question surfaced.** `{{dispatch table}}` is not really a variable awaiting a value; it is a placeholder for **a sub-shape governed by another stencil**. That is a different construct from `{{NAME}}` — a nested reference rather than a hole — and it is the question [[#T6 — Table With Fixed Head And Variable Rows|T6]] has to answer. Naming it here so it is not silently absorbed into the variable construct.
 
 ## The format
 
