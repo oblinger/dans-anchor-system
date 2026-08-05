@@ -18,7 +18,7 @@ description:: Geometry-aware layout-repair ("jiggle") for hand-authored SVG diag
 ## Governing rule
 
 ### RULE R-svg-jiggle-01 — Severity order governs resolution selection (governing)
-A `<text>` **≥ 70 % contained in a single box** is that box's **node label** — EXEMPT, never moved. A `<text>` fully outside all boxes (title, legend) is exempt. Every issue and every resolution is weighted by three tiers: **hard** (`label ∩ box`, `box ∩ box`) ≫ **soft** (`label ∩ wrong-line`, `overweighted-head`, `crowded-band`) ≫ **free** (whitespace). A resolution that trades a hard issue for a soft one is a **win**; the reverse is forbidden; a resolution that opens a *new* hard issue is rejected.
+A `<text>` **≥ 70 % contained in a single box** is that box's **node label** — EXEMPT, never moved. A `<text>` fully outside all boxes (title, legend) is exempt. Every issue and every resolution is weighted by three tiers: **hard** (`label ∩ node-box`, `box ∩ box`) ≫ **soft** (`label ∩ panel`, `label ∩ wrong-line`, `overweighted-head`, `crowded-band`) ≫ **free** (whitespace). A resolution that trades a hard issue for a soft one is a **win**; the reverse is forbidden; a resolution that opens a *new* hard issue is rejected.
 **Check pattern:** parse geometry — `<text>` (x/y + resolved `font-size`/`text-anchor` → bbox `width ≈ len·font_size·0.58`, `top ≈ y−0.8·font_size`), `<rect>` boxes (stroked, not the canvas background), edges (`<line>`/`<path>` polyline; `<defs>`/`<marker>` skipped). Coverage ≥ 0.70 → node (exempt). **Every style property resolves through the full SVG cascade** — a `<defs><style>` rule, then a presentation attribute, then the inherited value — because these documents style themselves by class (`.sub{font-size:12.5px}`, `.core{stroke:…}`, `.arr{marker-end:url(#a)}`). Reading only presentation attributes silently substitutes a 16 px default (a 12 px label 33 % too wide drops under the 0.70 bar and stops being exempt), skips every class-stroked `<rect>` (one Viz Bench diagram parsed to 1 box of 15 — nothing to collide, nothing to repair), and leaves class-markered edges headless so their heads can never be weighed. An arrowhead's length is `markerWidth` scaled by stroke-width **only** under `markerUnits="strokeWidth"` (the SVG default); `userSpaceOnUse` is already in user units.
 **Why:** the severity order *is* the cost function — without it, the repair has no principled basis to choose a resolution and could "fix" a hard issue by opening another.
 
@@ -26,7 +26,7 @@ A `<text>` **≥ 70 % contained in a single box** is that box's **node label** �
 
 ### RULE R-svg-jiggle-02 — issue: label-over-box (hard) (checked)
 check:: svg_label_over_box
-**Check pattern:** an edge-label intersects a box with ≥ 5 px overlap in **both** axes while < 70 % contained. Resolutions: `slide-label` → `flip-label` → `nudge-box`.
+**Check pattern:** an edge-label intersects a **node** box with ≥ 5 px overlap in **both** axes while < 70 % contained. A box that fully encloses another box is a *panel*, not a node — that case is R-svg-jiggle-11. Resolutions: `slide-label` → `flip-label` → `nudge-box`.
 **Why:** a label printed across a box is the primary readability killer; it must reach zero.
 
 ### RULE R-svg-jiggle-03 — issue: label-over-wrong-line (soft) (checked)
@@ -43,6 +43,11 @@ check:: svg_overweighted_head
 check:: svg_crowded_band
 **Check pattern:** a row/column of arrow segments whose lengths fall below the visibility threshold (~24 px) — boxes too close to show their arrows. Resolutions: `widen` → `shrink-arrowhead`. Often **residual** (widen is gated; see R-svg-jiggle-10).
 **Why:** when a whole band is cramped, no per-label move helps — the band itself must gain length.
+
+### RULE R-svg-jiggle-11 — issue: label-over-panel (soft) (checked)
+check:: svg_label_over_panel
+**Check pattern:** the same geometry as R-svg-jiggle-02 — ≥ 5 px overlap in both axes, < 70 % contained — but the box it lands on **fully encloses at least one other box**, making it a grouping panel rather than a node. Resolutions: `slide-label` → `flip-label`. **`nudge-box` is deliberately withheld**, so an unclearable straddle stays in the issue list as an honest residual (the bargain R-svg-jiggle-10 strikes for an un-widened band).
+**Why:** the words stay legible — a panel border is a region boundary, not a surface printed over — so this is a discomfort rather than a readability failure. Dan, 2026-08-04: *"a minor discomfort. If one can move elements around to avoid having that line overlap… then we should refactor the image. But if it's a problem to refactor the image, then it is acceptable… it really is discouraged."* The tier encodes exactly that: cheap moves are tried, an expensive restructure is never forced, and the residual is still reported so the discouragement is visible. Graded soft rather than exempted because all six of the vault's audit-scoped hard findings are this shape — exempting would have taken the hard tier to zero by deleting its only signal instead of re-grading it ([[F297 — Route non-markdown document rules — audit sweeps and the write moment|F297]] Q2).
 
 ## Resolution catalog (fixes — each a `fix::` tagged to its issue type)
 

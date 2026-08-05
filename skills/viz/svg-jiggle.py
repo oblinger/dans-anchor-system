@@ -72,16 +72,17 @@ TOL_PIN = 8.0           # endpoint within this of a box boundary is pinned to it
 
 # severity / cost weights — Wh >> Ws >> Wa
 W_HARD = 1000.0         # label-over-box, box-over-box, label-over-label
-W_SOFT = 30.0           # label-over-wrong-line
+W_SOFT = 30.0           # label-over-wrong-line, label-over-panel
 W_ATTN = 1.0            # overweighted-head, crowded-band
 
 SEV = {
     'box-over-box': 0,
     'label-over-box': 1,
     'label-over-label': 2,
-    'label-over-wrong-line': 3,
-    'overweighted-head': 4,
-    'crowded-band': 5,
+    'label-over-panel': 3,
+    'label-over-wrong-line': 4,
+    'overweighted-head': 5,
+    'crowded-band': 6,
 }
 
 
@@ -696,9 +697,27 @@ class Issue:
 
 
 
+def panel_ids(m):
+    """Boxes that fully enclose another box — grouping panels, not nodes.
+
+    A panel's border is a *region* boundary, so a label straddling it is a
+    different defect from a label printed across a node (R-svg-jiggle-11 vs -02):
+    the words stay legible, they just sit half-in and half-out of a grouping.
+    Containment is the whole test — nothing else distinguishes a panel from a
+    large node, and nothing else needs to."""
+    bb = m.box_bboxes()
+    return {id(m.boxes[i]) for i in range(len(bb))
+            if any(j != i and contained(bb[j], bb[i]) for j in range(len(bb)))}
+
+
 def detect_label_over_box(m):
+    """Both label-over-box (hard, a node) and label-over-panel (soft, a grouping).
+
+    One detector because it is one geometric search; the severity split happens
+    on the box it landed on."""
     out = []
     bboxes = m.box_bboxes()
+    panels = panel_ids(m)
     for l in m.labels:
         if l.is_node:
             continue
@@ -711,8 +730,10 @@ def detect_label_over_box(m):
                 if worst is None or sev > worst[1]:
                     worst = (box, sev)
         if worst is not None:
-            out.append(Issue('label-over-box', (l, worst[0]),
-                             f"{l.content!r} spills box @({worst[0].bbox()[0]:g},{worst[0].bbox()[1]:g})"))
+            kind = 'label-over-panel' if id(worst[0]) in panels else 'label-over-box'
+            verb = 'straddles panel' if kind == 'label-over-panel' else 'spills box'
+            out.append(Issue(kind, (l, worst[0]),
+                             f"{l.content!r} {verb} @({worst[0].bbox()[0]:g},{worst[0].bbox()[1]:g})"))
     return out
 
 
@@ -808,7 +829,7 @@ def cost(issues):
     for i in issues:
         if i.type in ('label-over-box', 'box-over-box', 'label-over-label'):
             c += W_HARD
-        elif i.type == 'label-over-wrong-line':
+        elif i.type in ('label-over-wrong-line', 'label-over-panel'):
             c += W_SOFT
         else:
             c += W_ATTN
@@ -1028,6 +1049,17 @@ def resolve_issue(issue, m, log):
         if nudge_intruder(box, label, m, base, log):
             return 'nudge-box'
         # nudge unsafe -> fall back to a label move
+        return try_label_moves(label, ('slide-label', 'flip-label'))
+
+    if t == 'label-over-panel':
+        # Discouraged, not forbidden (F297 Q2, 2026-08-04). The free moves get
+        # their try — a straddle a cheap slide or flip can clear should be
+        # cleared — but `nudge-box` is deliberately withheld: restructuring a
+        # grouping panel and reconnecting its edges to un-straddle one label
+        # costs more than the straddle does. Unclearable ones stay in the issue
+        # list as an honest residual, the same bargain R-svg-jiggle-10 strikes
+        # for an un-widened crowded band.
+        label = issue.objs[0]
         return try_label_moves(label, ('slide-label', 'flip-label'))
 
     if t == 'label-over-wrong-line':
@@ -1318,10 +1350,22 @@ def _issue_verdict(detect, target, anchor_root, empty_msg):
         f" (+{len(issues) - 6} more)" if len(issues) > 6 else "")
 
 
+def _only(kind):
+    def detect(m):
+        return [i for i in detect_label_over_box(m) if i.type == kind]
+    return detect
+
+
 def chk_svg_label_over_box(target, anchor_root, args):
-    """R-svg-jiggle-02 — an edge label printed across a box (hard)."""
-    return _issue_verdict(detect_label_over_box, target, anchor_root,
+    """R-svg-jiggle-02 — an edge label printed across a NODE box (hard)."""
+    return _issue_verdict(_only('label-over-box'), target, anchor_root,
                           "no label spills a box")
+
+
+def chk_svg_label_over_panel(target, anchor_root, args):
+    """R-svg-jiggle-11 — a label straddling a grouping panel's border (soft)."""
+    return _issue_verdict(_only('label-over-panel'), target, anchor_root,
+                          "no label straddles a panel border")
 
 
 def chk_svg_label_over_wrong_line(target, anchor_root, args):
@@ -1354,6 +1398,7 @@ def chk_svg_crowded_band(target, anchor_root, args):
 # remains the way to apply them.
 CHECKERS = {
     "svg_label_over_box": chk_svg_label_over_box,
+    "svg_label_over_panel": chk_svg_label_over_panel,
     "svg_label_over_wrong_line": chk_svg_label_over_wrong_line,
     "svg_overweighted_head": chk_svg_overweighted_head,
     "svg_crowded_band": chk_svg_crowded_band,
