@@ -16,7 +16,7 @@ The All Files facet — a fixed-width file-tree page linking every source file t
 
 **Cardinality: one per anchor** — each code anchor has exactly one Files page.
 
-**Location:** `{slug} Docs/{slug} Dev/{slug} Files.md`
+**Location:** `{slug} Dev Docs/{slug} Files.md`
 
 **Working example (copy this, not the snippet below):** [[FEX Files]]
 
