@@ -78,7 +78,7 @@ Two accepted costs of verbatim-and-unfenced: specimen headings are real headings
 
 **Confirmed live 2026-08-05, and the exclusion list is longer than expected.** Authoring T5 tripped `R-progressive-05` (summary-freshness): its specimen `## Identity` / `## Hardware` were counted as two new *document* sections, so every case authored here will report the summary stale by construction. That rule is `where:: always` and advisory-only, so it cannot be excluded by a `where::` glob the way the doc-structure rules can — whatever mechanism carries the exclusion has to reach it too. Recorded here rather than filed, because it is a property of this document's format that M1 has to live with until [[TINK303 - Template DSL - one pattern language for facets, templates, and sections|F303]] M6 decides how Stencil-bearing files declare themselves to Warden.
 
-**Status.** Language cut to three constructs 2026-08-04 on Dan's objections; seven cases identified. **T1–T3 and T5 worked through; T4, T6, T7 carry their real instances and await examples and proposals.** T5 added nothing to the language — it looked like it needed a filename anchor and turned out to be a T2 member — and it corrected a case that was citing a gallery exemplar rather than a vault instance, which the Format Rules above forbid. Both are the M1 gate doing its job.
+**Status.** Language cut to three constructs 2026-08-04 on Dan's objections; seven cases identified. **T1–T3, T5 and T7 worked through; T4 and T6 carry their real instances and await examples and proposals.** Three findings so far, all of them the M1 gate doing its job rather than incidental: T5 added nothing to the language (it looked like it needed a filename anchor and turned out to be a T2 member); T5 was citing a gallery exemplar rather than a vault instance, which the Format Rules above forbid; and **T7, the acceptance test, passes** — a facet spec restates in one construct and three defaults, and the closed-world marker it was predicted to demand is refuted by the corpus instead.
 
 ---
 
@@ -362,15 +362,68 @@ SYS/SYS Catalog/Computer/
 
 # T7 — A Facet Spec's Own Shape
 
+**Example T7.a** — `facets/DAS Facet.md`, its `# Facet Document Structure` section verbatim
+
+<!-- begin example T7.a -->
+- **H1** — `# DAS <Name>`: the slug-name and the full name.
+- **One-line summary** — a single sentence on the line directly under the H1 (no blank line between).
+- **Dispatch table** — the breadcrumb row, then `Related` (lateral links only) and `Examples`.
+- **Document structure** — this dense outline, placed first so a reader sees the doc's shape before any prose.
+- **Overview** — a short paragraph: what the facet is and what it's for. *(Optional.)*
+- **The Aspect contract** — content the body usefully conveys, mostly via the ruleset (section shapes vary; **not** fixed H2s; all optional).
+- **`# RULESET R-<facet>`** — **REQUIRED.** The embedded ruleset.
+- **`# BRIEF`** — **REQUIRED.** Agent-facing documentation.
+<!-- end example T7.a -->
+
+**Example T7.b** — the shape those bullets describe, as it actually appears in `facets/DAS Facet.md` itself
+
+<!-- begin example T7.b -->
+# DAS Facet
+A facet is a named, recurring document/folder kind — this page is the spec for the spec docs that define them.
+
+| -[[DAS Facet]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets\|FCT]] → [DAS Facet](hook://p/DAS%20Facet)  |
+| --- | --- |
+| Related | [[DAS Facets]],   |
+
+# Facet Document Structure
+
+# Facet Overview
+
+# RULESET R-facet-spec
+
+# BRIEF
+<!-- end example T7.b -->
+
+**Proposal T7.A** — `facets/{{FACET_NAME}}.md`
+
+<!-- begin proposal T7.A -->
+# DAS {{FACET_NAME}}
+{{one-line summary}}
+
+{{dispatch table}}
+
+# {{FACET_NAME}} Document Structure
+
+# RULESET R-{{facet-slug}}
+
+# BRIEF
+<!-- end proposal T7.A -->
+
 ## T7 Overview
 
-**Real instance.** `facets/DAS Facet.md` states the shape every facet spec doc takes — H1, one-line summary, dispatch table, document-structure outline, the `# RULESET R-<facet>` block, the `# BRIEF` block. That prose *is* a stencil, written as a bullet list because there was no notation for it.
+**Real instance.** `facets/DAS Facet.md` states the shape every facet spec doc takes, as a bullet list, because there was no notation for it. That prose *is* a stencil. T7.a is the prose; T7.b is the shape it describes, present in the same file — which is what makes this the reflexive case rather than merely a self-referential joke.
 
-**Direction: both**, and it is the reflexive case — Stencil describing the documents that define Stencil's own vocabulary.
+**Direction: both**, and it is Stencil describing the documents that define Stencil's own vocabulary.
 
-**What the case demands.** Nothing new, if T1–T3 land. Its value is as the **acceptance test** — if Stencil cannot restate `DAS Facet`'s document-structure list without loss, it is not yet expressive enough for the corpus it governs. It is also the first case likely to want the closed-world marker T1 cut, since a facet spec's section list reads as exhaustive.
+**What the case demands: nothing new — and T1–T3 already carry it.** T7.A uses one construct (`{{NAME}}`) and three defaults (open world, exactly one, whole document). No anchor marker: a facet spec is a whole file, which is T1's case at a different scope. **This is the acceptance test passing.** Had T7.A needed a construct T1–T3 did not supply, Stencil would not yet be expressive enough for the corpus that defines it.
 
-*(Examples and proposals — to be written.)*
+**But it does NOT restate T7.a without loss, and the loss is the interesting part.** Three things the bullet list says that T7.A cannot:
+
+1. **Which members are REQUIRED.** T7.a marks `# RULESET` and `# BRIEF` **REQUIRED** and `Overview` *(Optional.)*. Under the open-world default a stencil states what is present and never claims completeness, so T7.A asserts *these appear* and cannot assert *these must*. **That is correct and should stay correct** — required-ness is a constraint on a conforming document, which is the rules layer's job, and `R-facet-spec` already carries it. The bullet list is doing two jobs at once; Stencil should only take the shape half.
+2. **The no-blank-line rule** between H1 and summary. A byte-level adjacency constraint, not a shape. Also rules-layer, and `R-progressive-03` already owns it.
+3. **The dispatch table's internal shape.** `{{dispatch table}}` is opaque here for the same reason it is opaque in T1.A — that is [[#T6 — Table With Fixed Head And Variable Rows|T6]]'s question, and T7 inherits whatever T6 answers rather than re-asking.
+
+**The closed-world marker, predicted here and NOT demanded after all.** The overview written before this pass expected T7 to be *"the first case likely to want the closed-world marker T1 cut, since a facet spec's section list reads as exhaustive."* Reading T7.a against the corpus refutes it: `DAS Facet.md` itself carries `# Examples of a facet — project instances vs standalone FEX artifacts`, an H1 the list never mentions. The list is **not** exhaustive even of the file that states it, so the open-world default is not merely tolerable here — it is the accurate reading, and the prediction was wrong. Recorded because a construct nearly earned its way in on an intuition the corpus then contradicted. Examples taken 2026-08-05.
 
 ---
 
