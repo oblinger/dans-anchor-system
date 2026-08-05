@@ -1567,9 +1567,19 @@ def verify_write_landed(lines, row_id, requested):
     for key, label in (("next_text", "Next"), ("verify_text", "Verify"),
                        ("user_text", "User")):
         want = requested.get(key)
-        if want is None or not str(want).strip():
+        if want is None:
             continue
         got = _row_field(lines, row_id, label)
+        # T122 — the landing check must be able to assert an ABSENCE. It only
+        # ever asserted that requested text IS present, and skipped anything
+        # falsy — so a removal the write path silently declined to perform
+        # still passed here and the CLI still printed `updated`. A guard that
+        # cannot see a negative cannot catch a discarded one.
+        if not str(want).strip():
+            if got is not None:
+                failures.append(f"{label}: asked to REMOVE it, but {row_id} "
+                                f"still carries `- **{label}:** {got[:40]}`")
+            continue
         if got is None:
             failures.append(f"{label}: asked to set it, but {row_id} has no "
                             f"`- **{label}:**` sub-bullet after the write")
@@ -1664,13 +1674,48 @@ def _subbullets_to_write(status, eff_verify, eff_next, eff_user, next_text):
     if not wrote_next and next_text is not None and next_text.strip():
         out.append(("Next", next_text.strip()))
 
+    # T122 — an explicitly EMPTY flag REMOVES the sub-bullet (text `None`).
+    #
+    # `perform_edit` already distinguishes the three states — `eff_x = x if x is
+    # not None else existing_x` — so `""` reaches here only when the caller
+    # passed an empty flag, and its comment already promised "the provided flag
+    # wins". It did not: every branch above gates on `and eff_x`, so an empty
+    # string fell through, the line on disk stayed, and the CLI printed
+    # `updated`. That is T056's defect class (an accepted argument reported as
+    # applied and discarded) in the one direction T056 did not cover.
+    #
+    # Unconditional rather than another arm of the chain, because the case that
+    # needs it is a Verify on a bracket that does NOT require one — a WITHDRAWN
+    # check, not a deferred one (F275, whose user-facing question Dan cancelled
+    # while the row sat [Waiting]). `_verify_family("Waiting")` is False, so no
+    # status branch would ever reach it.
+    #
+    # Removing a sub-bullet the bracket REQUIRES needs no guard here: the F171
+    # gates in `perform_edit` raise on a falsy `eff_verify`/`eff_next`/
+    # `eff_user` before this function is reached, so a removal can only ever
+    # land on a bracket that does not demand the line.
+    # No "don't remove what an arm just wrote" guard, deliberately: an arm
+    # writes a label only when its `eff` is truthy, and a removal fires only
+    # when that same `eff` is exactly `""`, so the two can never name the same
+    # label. The [User] arm is the case worth checking — it writes User AND
+    # Next from two different values, and `--user "step" --next ""` correctly
+    # writes the one and removes the other.
+    for label, eff in (("Verify", eff_verify), ("Next", eff_next),
+                       ("User", eff_user)):
+        if eff == "":
+            out.append((label, None))
+
     return out
 
 
 def _ensure_subbullet(lines, row_id, label, text):
     """Mutate `lines` in place: under row_id's line, drop any existing
     `- **<label>:**` sub-bullet and insert `  - **<label>:** <text>` directly
-    after the row line (so it survives horizon-moves, which drop the span)."""
+    after the row line (so it survives horizon-moves, which drop the span).
+
+    **`text=None` removes it** (T122) — the drop already happened on the way to
+    the re-insert, so removal is this function minus its last step rather than a
+    second traversal."""
     rx = re.compile(SUBBULLET_RE_TMPL.format(label=label))
     row_i = None
     for i, line in enumerate(lines):
@@ -1691,7 +1736,8 @@ def _ensure_subbullet(lines, row_id, label, text):
             break
     keep = [lines[row_i]]
     keep.extend(l for l in lines[row_i + 1:end] if not rx.match(l))
-    keep.insert(1, f"  - **{label}:** {text}\n")
+    if text is not None:
+        keep.insert(1, f"  - **{label}:** {text}\n")
     lines[row_i:end] = keep
 
 
@@ -1980,6 +2026,19 @@ def perform_edit(
             # create-or-REPLACE — drop the old sub-bullet span so the new subs
             # replace it instead of duplicating (F250 #7). The F171 companion +
             # pending_subs blocks below re-attach the fresh subs by row-id.
+            #
+            # T122 — read "create-or-REPLACE" narrowly: it is keyed on
+            # `pending_subs`, which `state define` fills with the LEFTOVER subs
+            # only. It lifts `- **Next:**` / `- **Verify:**` / `- **User:**` out
+            # into their own arguments first, so a row whose only sub-bullets
+            # are the companion trio arrives here with `pending_subs == []` and
+            # takes the preserve branch. A companion the body OMITS is therefore
+            # kept, not dropped — `define` does not remove one. That is
+            # deliberate, not an oversight to "fix": making omission mean
+            # deletion would silently discard a Next whenever an agent
+            # re-defines a row to reword its body. The sanctioned removal is
+            # explicit — `state set <row> --verify ""` — which is the direction
+            # `_subbullets_to_write` was taught.
             if pending_subs:
                 del lines[start:end]
                 lines.insert(start, new_line)
