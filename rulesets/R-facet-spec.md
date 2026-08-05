@@ -126,6 +126,17 @@ The spec defines the facet *kind*; it does not paste a project's concrete instan
 
 ## Authority & maintenance
 
+### RULE R-facet-spec-28 — No retired location stated as live (checked)
+check:: no_retired_location
+
+A facet spec must not state a **retired** anchor location as though it were current. The one retired token today is **`{slug} Docs/`**, withdrawn 2026-08-05 ([[TINK Backlog#^T118|T118]]). Its replacements are not a rename: `Docs/{slug} Plan/` and `Docs/{slug} Design/` both collapse into **`{slug} Design/`**, `Docs/{slug} Dev/` becomes **`{slug} Dev Docs/`**, and `{slug} Outputs/` moves under **`{slug} Track/`**.
+
+**Provenance is explicitly allowed.** A note telling a reader who finds a legacy tree that the path is superseded is what makes the retirement legible, and four such notes stand in the corpus by design ([[DAS PRD]], [[DAS Features]], [[DAS Roadmap]], [[DAS Discussion]]). The unit of judgement is therefore the **containing paragraph**, not the line: a mention accompanied by a history word (*previously*, *legacy*, *superseded*, *deprecated*, *retired*, *formerly*, *used to*, *no longer*, *migrat…*) passes; a bare location claim fails.
+
+**Check pattern:** for each paragraph containing `{slug} Docs`, the paragraph also carries one of the provenance words. Paragraph rather than line because a provenance sentence often leads into a bulleted path, and a line-scoped check would push authors toward repeating the history in every bullet.
+
+**Why:** the three subfolders landed in three different places, so a corpus that half-remembers the old tree files documents in three different wrong places at once — a *worse* failure than the original inconsistency. [[DAS]] is published to be read by someone with none of this vault's history; "the spec says one thing, every example does another" is the fastest way to lose that reader.
+
 ### RULE R-facet-spec-21 — The umbrella model lives in CAB Aspects (stated)
 The spec does not duplicate the Aspect / Trait / Facet vocabulary, the six-section rationale, or the composability matrix — it links [[DAS Aspects]].
 **Check pattern:** shared-model content is referenced, not restated.

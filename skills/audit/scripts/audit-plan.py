@@ -1781,6 +1781,61 @@ def chk_triggers_section_iff_declared(target, anchor_root, args):
     return "fail", "Triggers section present but has no typed H3 entries"
 
 
+# A retired location token and the words that turn a mention of it into history.
+# `\{slug\}` is the placeholder as facet specs write it; the trailing `\b` catches
+# `{slug} Docs`, `{slug} Docs/`, and `{slug} Docs/{slug} Plan/` alike.
+_RETIRED_LOCATION_RE = re.compile(r"\{slug\}\s+Docs\b")
+_PROVENANCE_WORDS = (
+    "previously", "legacy", "superseded", "deprecated", "retired",
+    "pre-f094", "no longer", "used to", "formerly", "migrat",
+)
+
+
+def chk_no_retired_location(target, anchor_root, args):
+    """R-facet-spec-28: a facet spec must not state `{slug} Docs/` as a LIVE location.
+
+    The `{slug} Docs/` tree was retired 2026-08-05 (T118). Its three subfolders did
+    not land in one place — `Docs/{slug} Plan/` and `Docs/{slug} Design/` collapsed
+    into `{slug} Design/`, `Docs/{slug} Dev/` became `{slug} Dev Docs/`, and Outputs
+    moved to `{slug} Track/` — so a corpus that half-remembers the old tree files
+    documents in three different wrong places, which is exactly the split this rule
+    exists to prevent recurring.
+
+    Provenance survives. A note telling a reader who finds a legacy tree that the
+    path is superseded is the *reason* the retirement is legible; four such notes
+    stand in the corpus by design. So the unit of judgement is the containing
+    PARAGRAPH, not the line: a mention accompanied by a history word passes, a bare
+    location claim fails. Paragraph rather than line because a provenance sentence
+    is often the lead-in to a bulleted path, and failing that shape would push
+    authors toward cramming history into every bullet."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    lines = _read(f).splitlines()
+    # Paragraph = a run of consecutive non-blank lines. Cheap, and it is the unit a
+    # reader actually judges "is this history or an instruction?" against.
+    para_start, offenders = 0, []
+    for i in range(len(lines) + 1):
+        if i < len(lines) and lines[i].strip():
+            continue
+        para = lines[para_start:i]
+        if para and any(_RETIRED_LOCATION_RE.search(ln) for ln in para):
+            blob = " ".join(para).lower()
+            if not any(w in blob for w in _PROVENANCE_WORDS):
+                hit = next(j for j, ln in enumerate(para)
+                           if _RETIRED_LOCATION_RE.search(ln))
+                offenders.append(para_start + hit + 1)
+        para_start = i + 1
+    if offenders:
+        where = ", ".join(f"line {n}" for n in offenders[:3])
+        return "fail", (f"`{{slug}} Docs/` stated as a live location ({where}) — "
+                        f"retired 2026-08-05; use `{{slug}} Design/`, "
+                        f"`{{slug}} Dev Docs/`, or `{{slug}} Track/`. A historical "
+                        f"note is fine if the paragraph says so (previously / "
+                        f"legacy / superseded)")
+    return "pass", ""
+
+
 # -- R-ruleset -----------------------------------------------------------------
 
 def chk_all_rules_have_id(target, anchor_root, args):
@@ -5082,6 +5137,7 @@ CHECKERS = {
     # R-facet-spec
     "facet_dispatch_top": chk_facet_dispatch_top,
     "triggers_section_iff_declared": chk_triggers_section_iff_declared,
+    "no_retired_location": chk_no_retired_location,
     # R-ruleset
     "all_rules_have_id": chk_all_rules_have_id,
     "rule_numbers_unique": chk_rule_numbers_unique,
