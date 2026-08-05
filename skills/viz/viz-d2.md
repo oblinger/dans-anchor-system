@@ -58,7 +58,7 @@ SCRATCH_ROOT=$(~/.claude/skills/anchor-system/scripts/anchor-system config scrat
 mkdir -p "$SCRATCH_ROOT/viz"
 ```
 
-Currently resolves to `~/ob/kmr/_/URL/SCR/Scratch/viz/`. After writing the wrapper, surface a one-line hint to the user: *"Pass `--into <doc>` next time to land directly in a real doc."*
+Currently resolves to `~/ob/kmr/SYS/Bureau/Scratch/viz/` (the [[SCR]] anchor). After writing the wrapper, surface a one-line hint to the user: *"Pass `--into <doc>` next time to land directly in a real doc."*
 
 ## Action subcommands
 
