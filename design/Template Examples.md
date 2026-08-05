@@ -7,10 +7,10 @@ The working corpus for [[TINK303 - Template DSL - one pattern language for facet
 
 | Table of Contents | what the case is for |
 |---|---|
+| **[[#Stencil, entire]]** | the whole language in one table — the size check |
 | **[[#The format]]** | how a case is laid out, and why the example comes first |
-| **[[#Constructs proposed so far]]** | the whole proposed language in one table — the size check |
-| **[[#T1 — Whole Document Template]]** | a document with a required section skeleton; introduces open-world `…` |
-| **[[#T2 — Folder Template With A Repeating Member]]** | a directory with one-of-this and many-of-that; introduces cardinality |
+| **[[#T1 — Whole Document Template]]** | a document with a required section skeleton |
+| **[[#T2 — Folder Template With A Repeating Member]]** | a directory with one-of-this and many-of-that |
 | **[[#T3 — Floating-Depth Section]]** | a heading-anchored shape whose depth varies by file |
 | **[[#T4 — One Shape, Four Incompatible Spellings]]** | reconciling records that must never be rewritten |
 | **[[#T5 — Stencil Whose Anchor Is A Filename Pattern]]** | variables in the name; proves match and generate are one pattern |
@@ -18,39 +18,50 @@ The working corpus for [[TINK303 - Template DSL - one pattern language for facet
 | **[[#T7 — A Facet Spec's Own Shape]]** | the reflexive case, and the acceptance test |
 | **[[#Cases still to be identified]]** | what has not been examined yet |
 
+## Stencil, entire
+
+| construct | reads as |
+| --- | --- |
+| `{{NAME}}` | a variable — binds when matching, is filled when generating |
+| `# ... LOG` | anchor: a heading matching `LOG` at **this depth or deeper** |
+| `# == LOG` | anchor: a heading matching `LOG` at **exactly this depth** |
+
+Three constructs. Everything else is a **default**, and the defaults are the reason the table is this short:
+
+| default | means | so there is no marker for |
+| --- | --- | --- |
+| open world | a stencil says what is present, never what is absent | "and anything else" — it was `…` and is now silence |
+| exactly one | an unmarked member appears once | `[1]` |
+| many-by-variable | a pattern holding a **free** variable matches once per binding | `[0+]` |
+| whole document | a stencil with no anchor marker governs the whole file | a "this is a file template" marker |
+
+*(Provenance, since the table above deliberately omits it: `{{NAME}}` is inherited from the shipped template convention; the two anchor forms were demanded by T3, where `# LOG` sits at different depths in different files; the four defaults each replaced a construct that T1 or T2 proposed and that Dan cut on 2026-08-04.)*
+
 ## The format
 
-Each case is an H1 and reads top to bottom as **example → proposal(s) → discussion**. The example is ground truth and comes first; the proposal is the thing under test; everything anyone wants to *say* about either lives in the `## {case} Overview` H2 at the bottom of the case, so the artifacts stay clean and the argument stays out of them.
+### Format Examples
 
-**Every block is delimited and byte-exact.** A block opens with a bold label and an HTML begin-marker, closes with an end-marker, and contains **nothing but the file's own bytes** — real heading depths, no shifting, no annotation, no dates. The markers are invisible when rendered and unambiguous in source, which is where you copy from.
+| line | what it is |
+| --- | --- |
+| `# T3 — Floating-Depth Section` | a **case** — H1, named; `T3` is only a handle so proposals can be cited |
+| `**Example T3.a** — ``AT/Corp/@Omnifold/@Burke Schrauth.md`` | an **example label** — lowercase letter, path of the real file it came from |
+| `<!-- begin example T3.a -->` | opens a **block**; everything to the matching end marker is byte-exact |
+| `**Proposal T3.A** — ``AT/_LOG Template.md`` | a **proposal label** — uppercase letter, path the stencil file would have |
+| `## T3 Overview` | the **discussion** — always last in the case, never between the artifacts |
 
-**Every label names a path.** An example's label gives the path of the real file it was taken from; a proposal's label gives the path of the stencil file it would *be*. The path sits on the label line rather than inside the block, so the block stays byte-exact.
+### Format Rules
 
-**A path is literal, curly braces included.** `templates/log/{{YYYY-MM-DD}} — {{short topic}}.md` is a real file whose real name on disk contains those braces. These are not sketches of a stencil; they are the stencil.
+These govern *this document*, not Stencil. Stencil's own rules are the two tables above.
 
-Examples are lettered lowercase (`T3.a`), proposals uppercase (`T3.A`).
+- **Ground truth first** — a case reads example → proposal(s) → discussion. The example is fixed and comes first; the proposal is the thing under test; nothing anyone wants to *say* sits between them.
+- **Blocks are byte-exact** — between the markers is the file's own bytes: real heading depths, no shifting, no annotation, no dates.
+- **Labels carry paths** — outside the block, so the block stays byte-exact. A path is literal, curly braces included: `templates/log/{{YYYY-MM-DD}} — {{short topic}}.md` is a real file whose real name on disk contains those braces.
+- **Every case cites a real file** — a shape with no vault instance is not admitted, so a hypothetical can never justify a construct.
+- **Each case names its direction** — *match*, *generate*, or *both* — in its Overview.
 
-**Every case cites a real file.** A shape with no instance in the vault is not admitted — Stencil is defined from demonstrated need, so a plausible hypothetical must never justify a construct.
+Two accepted costs of verbatim-and-unfenced: specimen headings are real headings and show up in this document's outline, and specimen wiki-links are live — so this file needs excluding from link-resolution and doc-structure rules the way `_* Template` files already are.
 
-**Each case declares the direction it needs** — *match*, *generate*, or *both* — in its Overview. This is what will expose where the two directions genuinely diverge rather than merely look different.
-
-**Two consequences of verbatim-and-unfenced, both accepted deliberately.** Specimen headings are real headings, so they appear in this document's outline — the price of specimens that can be copied, in a notation where heading depth is semantic. And specimen wiki-links are live, so this file must be excluded from link-resolution and doc-structure rules the way `_* Template` files already are. If the outline noise ever becomes intolerable, the escape is graduating specimens to sibling files and leaving the markers as links; the block boundaries are already file-shaped, so that migration is mechanical.
-
-**Status.** Format settled 2026-08-04 to Dan's shape; seven cases identified; T1–T3 worked through, T4–T7 carrying their real instances and awaiting proposals. When Dan reads this and says the cases are covered, M1 is done and Stencil is written *from* it.
-
-## Constructs proposed so far
-
-Stencil does not exist yet, so every proposal below invents notation as it goes. This table is the running total — **the whole language, as currently proposed, in one glance** — and it exists so the "does it stay small?" question is answerable without reading every case. Nothing enters this table without a case that demanded it, and the case is named.
-
-| construct | reads as | first demanded by |
-|---|---|---|
-| `{{NAME}}` | a variable: binds when matching, is filled when generating | inherited — the shipped template convention |
-| `…` on its own line | open-world: *ignore* when matching, *omit* when generating | T1 — sections that must exist but whose contents other rules govern |
-| `[1]` · `[0+]` · `[1+]` | cardinality: exactly one · zero or more · one or more | T2 — a folder holding one dispatch page and any number of entries |
-| `…#` prefixing a heading | anchor at *this depth or deeper* | T3 — `# LOG` sits at different depths in different files |
-| `=#` prefixing a heading | anchor at *exactly this depth* | T3 — the contrast case for the above |
-
-Five constructs across three cases. Two observations already: `[0+]` was introduced for a folder's members and reused unchanged for a section's repeated headings, which is evidence the two want **one** construct rather than two; and every construct so far is a *quantifier or a wildcard*, none is a predicate — which is the line [[TINK303 - Template DSL - one pattern language for facets, templates, and sections|F303]] draws between Stencil and the rules that constrain what it binds.
+**Status.** Language cut to three constructs 2026-08-04 on Dan's objections; seven cases identified; T1–T3 worked through, T4–T7 carrying their real instances and awaiting proposals.
 
 ---
 
@@ -90,19 +101,14 @@ The work queue for [[HERMES|Hermes]], the purchasing agent — content curated i
 {{dispatch table}}
 
 ## Ready
-…
 
 ## Notes
-…
 
 ## Next
-…
 
 ## Later
-…
 
 ## Now
-…
 <!-- end proposal T1.A -->
 
 ## T1 Overview
@@ -111,9 +117,11 @@ The most common case: a facet whose instance is one document with a required sec
 
 **Direction: both.** Generate — a new anchor's Backlog is instantiated from it. Match — `R-backlog` checks every existing Backlog against it.
 
-**What the case demands.** A whole-document anchor; a variable in the title; a required sequence of H2 sections; and the interesting part — those sections must *exist* while their contents are governed by other rules entirely. T1.a shows why: its `## Now` holds a row no template should attempt to describe. So the notation needs to say **"this heading, and I say nothing about what is beneath it"** — the `…` line, read as *ignore* when matching and *omit* when generating.
+**What the case demands.** A whole-document anchor; a variable in the title; a required sequence of H2 sections whose *contents* other rules govern entirely. T1.a shows why the last part matters: its `## Now` holds a row no template should attempt to describe.
 
-**Open in T1.A.** `{{dispatch table}}` is a placeholder standing in for a whole sub-shape — that is [[#T6 — Table With Fixed Head And Variable Rows|T6]], and whether it resolves as a nested stencil reference or stays an opaque variable is T6's question. Section *order* is also unstated: T1.a carries `Ready / Notes / Next / Later / Now` while `templates/backlog.md` lists a different order, so either order is not load-bearing or the corpus is already non-conforming — a real finding either way, and one this case surfaced only because the example is verbatim. Example taken 2026-08-04.
+**The `…` marker is gone, and this proposal is the argument for cutting it.** An earlier draft put a `…` under every heading to mean "and I say nothing about what is beneath." Dan, 2026-08-04: *"It feels like you're gonna have to put dot dot dot everywhere… I just wonder if that isn't like the default of what a template is."* It is. A stencil states what is present and never claims completeness, so open-world is the default and the marker was noise on every line. What is now lost is the ability to say **"only these and nothing else"** — a genuinely stronger claim, no case has yet needed it, and it gets a marker when one does.
+
+**Open in T1.A.** `{{dispatch table}}` stands in for a whole sub-shape — that is [[#T6 — Table With Fixed Head And Variable Rows|T6]], and whether it resolves to a nested stencil reference or stays an opaque variable is T6's question. Section *order* is also unstated: T1.a carries `Ready / Notes / Next / Later / Now` while `templates/backlog.md` lists a different order, so either order is not load-bearing or the corpus is already non-conforming — a real finding either way, surfaced only because the example is verbatim. Example taken 2026-08-04.
 
 ---
 
@@ -144,65 +152,27 @@ templates/log/
 ## Outstanding
 <!-- end example T2.b -->
 
-**Proposal T2.A** — `templates/log/_manifest.md`
+**Proposal T2.A** — `templates/log/` *(unchanged — the shipped folder is already a valid stencil)*
 
-<!-- begin proposal T2.A -->
-[1]  {{slug}} Log.md
-[0+] {{YYYY-MM-DD}} — {{short topic}}.md
-<!-- end proposal T2.A -->
-
-**Proposal T2.B** — `templates/log/[0+] {{YYYY-MM-DD}} — {{short topic}}.md`
-
-<!-- begin proposal T2.B -->
-# {{YYYY-MM-DD}} — {{short topic}}
-
-## What happened
-
-{{per-session plan + outcome, in narrative form}}
-
-## Decisions
-
-- {{decision made this session, with links to the docs it landed in}}
-- ...
-
-## Outstanding
-<!-- end proposal T2.B -->
-
-**Proposal T2.C** — `templates/log/{{YYYY-MM-DD}} — {{short topic}}.md`
-
-<!-- begin proposal T2.C -->
-[0+]
-# {{YYYY-MM-DD}} — {{short topic}}
-
-## What happened
-
-{{per-session plan + outcome, in narrative form}}
-
-## Decisions
-
-- {{decision made this session, with links to the docs it landed in}}
-- ...
-
-## Outstanding
-<!-- end proposal T2.C -->
+```
+templates/log/
+├── {slug} Log.md
+└── {{YYYY-MM-DD}} — {{short topic}}.md
+```
 
 ## T2 Overview
 
 **Direction: both.** Generate — instantiate a Log folder for a new anchor. Match — check an existing one.
 
-**What the case demands, in one sentence:** a folder template must be able to say **how many of each member** a conforming folder holds, and today it cannot.
+**What the case demands: how many of each member a conforming folder holds.** Instantiating `templates/log/` for TINK should produce exactly one `TINK Log.md` and any number of dated entry files, including none.
 
-Instantiating `templates/log/` for TINK should produce `TINK Log/` containing exactly one `TINK Log.md` and any number of dated entry files — including none. The directory listing states neither count. A reader infers them from the fact that one filename carries a date-shaped placeholder and the other does not, and **that inference is what must not be relied on**: `{slug} Log.md` also contains a variable and is nevertheless exactly-one, so "looks pattern-ish" is not the distinction. Dan, 2026-08-04: *"I want to have multiple, 0 or more of these or one or more of these, those kinds of things in there."*
+**The answer turned out to be "nothing" — and T2.A is the shipped folder, untouched.** Three earlier proposals put a count somewhere: a `_manifest.md` file, a `[0+]` prefix in the member's filename, and a `[0+]` line inside the member. Dan cut all three on two objections, 2026-08-04. First: *"I wonder about the need for cardinality exactly one. Isn't that the expected if you don't say anything?"* — yes, so `[1]` was never needed. Second, on the filename form: *"you would just use curly braces, and then in the constraints on the system, it would indicate an arbitrary constraint… I don't think we're going to have enough to be able to constrain strings using 0 or more."*
 
-**Why not derive it instead of marking it?** A tempting rule: a member whose filename varies *per member* (`{{YYYY-MM-DD}}`) is many, while one whose variables are all fixed by the anchor (`{slug}`) is exactly one. That is a genuine semantic distinction rather than a heuristic, and it would need no marker at all — but it breaks on any case wanting exactly one file whose name varies, and it makes cardinality a consequence of variable scoping rather than something an author can state. Rejected as too clever, and recorded here so it is not re-proposed.
+Following that through gives the **many-by-variable** default. `{slug} Log.md` holds a variable the anchor binds once, so it names exactly one file. `{{YYYY-MM-DD}} — {{short topic}}.md` holds variables nothing binds, so it matches once per binding — any number, including none. Multiplicity is a consequence of whether a variable is **free**, which is ordinary unification rather than a bolted-on quantifier.
 
-**Three proposals, differing only in where the count lives.**
+**An earlier draft rejected a version of this as "too clever"; that was wrong and the record should say so.** The rejected form was a heuristic — *filenames that look pattern-ish are many*. This is not that: free-versus-bound is a real semantic property that a matcher computes rather than guesses.
 
-- **T2.A — a manifest file.** `_manifest.md` lists each member with its count. Members stay ordinary files and the folder's shape is readable in one place. The cost is a **third representation** of the same folder — the real listing, the manifest, and the member files — and the listing and manifest can drift apart.
-- **T2.B — in the member's filename.** The directory listing *is* the manifest, so nothing can disagree with it; this is the same instinct that made granularity the artifact's own shape. The cost is genuinely ugly filenames plus a strip-the-prefix step at instantiation, a rule that exists nowhere else in the naming convention. Shown as a full member file rather than a manifest line, because under T2.B there is no manifest — which is the point of it.
-- **T2.C — on the member's own first line.** The member is itself a stencil, so it can declare its multiplicity in its own body, above its anchor line. No extra file, no drift, clean filenames, no strip step. The cost is that the folder's shape is no longer visible from `ls` — you must open each member to learn the counts, which is exactly what T2.B was buying.
-
-**Open in T2.** A folder template's members are governed by their own stencils, so a folder stencil is a **manifest of anchors** rather than a container of specimens — the disjoint-composition rule sections use, applied to a directory. That holds under all three; only the count's *home* is at issue.
+**What is lost, stated plainly.** There is now no way to say *"exactly one file whose name varies"* or *"at least one entry."* Neither has an instance in the vault. If one appears, that is the case that earns a cardinality marker — and Dan's spelling for it is already chosen: a `+`, kept distinct inside brackets.
 
 ---
 
@@ -230,34 +200,38 @@ Dan
 **Proposal T3.A** — `AT/_LOG Template.md`
 
 <!-- begin proposal T3.A -->
-…# LOG
+# ... LOG
 {{one-line description}}
 
-[0+] ## {{YYYY-MM-DD}} {{DAY}}  {{DIRECTION}} — {{KIND}}
-…
+## {{YYYY-MM-DD}} {{DAY}}  {{DIRECTION}} — {{KIND}}
+{{entry body}}
 <!-- end proposal T3.A -->
 
 **Proposal T3.B** — `AT/_LOG Template.md`
 
 <!-- begin proposal T3.B -->
-=# LOG
+# == LOG
 {{one-line description}}
 
-[0+] ## {{YYYY-MM-DD}} {{DAY}}  {{DIRECTION}} — {{KIND}}
-…
+## {{YYYY-MM-DD}} {{DAY}}  {{DIRECTION}} — {{KIND}}
+{{entry body}}
 <!-- end proposal T3.B -->
 
 ## T3 Overview
 
-**Direction: match first.** These files exist and are not being regenerated; the immediate value is locating and checking the section. Generate matters later, for appending a new entry in the right shape.
+**Direction: match first.** These files exist and are not being regenerated; the value now is locating and checking the section. Generate matters later, for appending an entry in the right shape.
 
-**What the case demands.** The **anchor** construct — a stencil attaching to a heading rather than to a document — with two depth modes, heading text as a literal, and relative depths inside the specimen. The depth genuinely floats: LOG sits at H1 in T3.a and at other depths elsewhere.
+**What the case demands.** An **anchor** — a stencil attaching to a heading rather than to a document — with two depth modes, because `LOG` sits at H1 here and at other depths elsewhere.
 
-**The two proposals are the two depth markers, side by side.** `…#` reads *this deep or deeper*; `=#` reads *exactly this deep*. Both are shown against the same case so the markers can be compared rather than described. Everything after the first line is relative to the anchor, so `## {{YYYY-MM-DD}}…` means *one deeper than the anchor*, not literally H2.
+**The marker follows the hashes, and that is Dan's correction.** An earlier draft wrote `…# LOG`, which is not a heading at all once rendered — just a line beginning with a dot. `# ... LOG` is a **real H1** whose text happens to start with `...`, so the stencil still renders as the thing it describes, which is the entire point of a specimen. Dan, 2026-08-04: *"if you do it the way you're showing it, it won't actually be a heading at all."*
 
-**The path is the same for both**, which is the point: the anchor lives in the stencil's first line, not in its name. The name reverts to plain `_{Name} Template.md` under [[TINK302 - Section templates and the scope ladder|F302]] Q4's lean; if Q4 lands the other way the file would be `AT/_LOG Section Template.md` and nothing else about T3 changes.
+**Why the marker cannot be defaulted away, even though every other default was.** The marker is not only a depth mode — its **presence is what makes the stencil a section anchor at all**. An unmarked `# LOG` first line would be indistinguishable from a whole-document stencil whose title happens to be LOG. So `...` and `==` both survive, and there is no third, unmarked form.
 
-**Open in T3.** The entry heading in T3.a is `2026-08-03 Mon  SENT — reply` — a date, a weekday, a direction, and a kind, separated by a double space and an em-dash. Whether Stencil should decompose that into four variables (as proposed) or treat the line as one opaque `{{HEADING}}` is the first place the language could over-reach: four variables is more expressive and four times more to get wrong, and only a rule ever needs the pieces. Note also that `[0+]` here is the T2 marker reused — the first evidence that these two cases want one construct rather than two.
+**Both proposals are the two modes side by side**, same path, same body — because the path being identical is the point: the anchor lives in the first line, not in the name. Depths after the first line are relative to the anchor, so `## {{YYYY-MM-DD}}…` means *one deeper than wherever LOG matched*. The path assumes [[TINK302 - Section templates and the scope ladder|F302]] Q4's lean; if Q4 lands the other way the file is `AT/_LOG Section Template.md` and nothing else changes.
+
+**The entry heading needs no cardinality marker** — `{{YYYY-MM-DD}}` and friends are free, so many-by-variable already says "any number of entries." That is the same default doing the same work in T2, which is the evidence the two cases wanted one rule rather than two constructs.
+
+**Open in T3.** The entry heading is `2026-08-03 Mon  SENT — reply` — date, weekday, direction, kind, separated by a double space and an em-dash. Whether Stencil should decompose that into four variables (as proposed) or treat the line as one opaque `{{HEADING}}` is the first place the language could over-reach: four variables is more expressive and four times more to get wrong, and only a rule ever needs the pieces.
 
 ---
 
@@ -269,7 +243,7 @@ Dan
 
 **Direction: match and reconcile only.** [[TINK302 - Section templates and the scope ladder|F302]] resolved that existing log entries are **never rewritten** — a log entry records a message actually sent, and normalizing one edits the record rather than the format. So Stencil must express the agreed shape and then answer *"is this old entry reconcilable with it?"*, which is weaker than *"does this match?"*.
 
-**What the case demands.** Possibly nothing new, and that is what makes it worth testing: if Stencil expresses the target shape and the matcher reports **which parts bound and which did not**, reconcilability is a predicate over that result and stays out of the grammar. If it cannot be kept out, this is the case that proves the language needs a partial-match notion — a large addition, and one to resist.
+**What the case demands.** Possibly nothing new, and that is worth testing: if Stencil expresses the target shape and the matcher reports **which parts bound and which did not**, reconcilability is a predicate over that result and stays out of the grammar. If it cannot be kept out, this is the case that proves the language needs a partial-match notion — a large addition, and one to resist.
 
 *(Examples and proposals — to be written.)*
 
@@ -283,7 +257,7 @@ Dan
 
 **Direction: generate first** (clone → rename → fill is its documented primary use), but match is what makes it a template rather than a snippet.
 
-**What the case demands.** That an anchor can be a **filename** pattern, and that variables bound from the filename are in scope for the body. This is the case that proves the two directions are one pattern: the same `{{PURCHASE_DATE}}` is *read from* the name when matching and *written into* it when generating. It is also the case that makes the format's literal-path rule matter most — the stencil's own filename is the pattern.
+**What the case demands.** That an anchor can be a **filename** pattern, and that variables bound from the filename are in scope for the body. This is the case that proves the two directions are one pattern: the same `{{PURCHASE_DATE}}` is *read from* the name when matching and *written into* it when generating. It is also where the many-by-variable default gets its second test — those variables are free, so the pattern names a set of files, which is exactly right.
 
 *(Examples and proposals — to be written.)*
 
@@ -297,7 +271,7 @@ Dan
 
 **Direction: both.**
 
-**What the case demands.** Structure *below* the heading level — rows within a table — and cardinality applied to something that is neither a heading nor a file. This is the case most likely to push Stencil further than it should go, and therefore the one to design last and cut first. `/audit dispatch` already generates these from a spec; if Stencil cannot express it cleanly, **that is an acceptable answer** and T1.A's opaque `{{dispatch table}}` stands.
+**What the case demands.** Structure *below* the heading level — rows within a table — where the anchor construct does not reach. This is the case most likely to push Stencil further than it should go, and therefore the one to design last and cut first. `/audit dispatch` already generates these from a spec; if Stencil cannot express it cleanly, **that is an acceptable answer** and T1.A's opaque `{{dispatch table}}` stands.
 
 *(Examples and proposals — to be written.)*
 
@@ -311,7 +285,7 @@ Dan
 
 **Direction: both**, and it is the reflexive case — Stencil describing the documents that define Stencil's own vocabulary.
 
-**What the case demands.** Nothing new, if T1–T3 land: required sections, an optional one, open-world content beneath each. Its value is as the **acceptance test** — if Stencil cannot restate `DAS Facet`'s document-structure list without loss, it is not yet expressive enough for the corpus it governs.
+**What the case demands.** Nothing new, if T1–T3 land. Its value is as the **acceptance test** — if Stencil cannot restate `DAS Facet`'s document-structure list without loss, it is not yet expressive enough for the corpus it governs. It is also the first case likely to want the closed-world marker T1 cut, since a facet spec's section list reads as exhaustive.
 
 *(Examples and proposals — to be written.)*
 
