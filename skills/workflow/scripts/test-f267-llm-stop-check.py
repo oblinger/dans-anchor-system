@@ -155,6 +155,21 @@ def main():
     check(isinstance(r, str) and "define <anchor> Backlog Q+" in r and spent == 1,
           "ENFORCE budget=1 + asking + empty queue → block, fire spent")
 
+    # 7b — the block text must offer BOTH exits, not just the mint.
+    #
+    # Measured 2026-08-05 over 563 post-normalisation stops: 36% would block.
+    # A spread read of those verdicts is mostly genuine unfiled asks, but a
+    # large share carry a lean — ordering, batching, "shall I do X or Y first" —
+    # and for those the mint the text prescribes is REFUSED by F257's Tier-2
+    # gate ("carries a Lean recommendation but no --why-ask"). An agent that
+    # follows the block text literally therefore hits a second wall it was
+    # never told about: stop blocked, mint refused, no exit named from where it
+    # stands. The escape was always there (F068 — decide and announce); nothing
+    # pointed at it. Both exits must survive in the text, so pin both.
+    check("DECIDE IT YOURSELF" in r and "--why-ask" in r
+          and "define <anchor> Backlog Q+" in r,
+          "block text names BOTH exits (decide-yourself + mint w/ --why-ask)")
+
     # 8 — budget now spent → no block (still logs)
     r = m._llm_ask_check({"transcript_path": str(tx)}, "MUX", empty_anchor)
     check(r is None, "ENFORCE budget spent (fired>=budget) → no block")
