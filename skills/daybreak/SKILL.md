@@ -41,10 +41,11 @@ MUSE items live at `~/ob/kmr/Log/MUSE/MUSE <date> <letter> <title>.md`, indexed 
 
 **Nothing ever flips `state: unreviewed`** — MUSE writes it once at ingest and no consumer clears it. Do NOT filter on that field; every item would surface every morning forever.
 
-Use the watermark at `LUM Track/Daybreak Watermark.md` (a single ISO timestamp). Surface items whose `captured:` is newer than it. Skip items whose `state:` starts with `suppressed-` — MUSE already judged those noise.
+Use the watermark at `LUMEN Track/Daybreak Watermark.md` (a single ISO timestamp). Surface items whose `captured:` is newer than it. Skip items whose `state:` starts with `suppressed-` — MUSE already judged those noise.
 
 ```bash
-WM=$(grep -o '[0-9-]\{10\} [0-9:]\{8\}' "$HOME/ob/kmr/SYS/Staff/Lumen/LUM Track/Daybreak Watermark.md" | head -1)
+WM=$(grep -o '[0-9-]\{10\} [0-9:]\{8\}' "$HOME/ob/kmr/SYS/Staff/Lumen/LUMEN Track/Daybreak Watermark.md" | head -1)
+[ -z "$WM" ] && { echo "daybreak: watermark missing or unparseable — refusing to surface (would dump the whole corpus)" >&2; exit 1; }
 cd "$HOME/ob/kmr/Log/MUSE" && for f in MUSE*.md; do
   cap=$(grep -m1 '^captured:' "$f" | sed 's/^captured: //')
   st=$(grep -m1 '^state:' "$f" | sed 's/^state: //')

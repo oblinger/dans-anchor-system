@@ -104,7 +104,7 @@ The top of Atlas.md carries a per-letter jump table (one row per letter of the a
 ## When NOT to use this skill
 
 - **Editing per-anchor docs** — those live in the anchor's own folder. Atlas only points; it doesn't carry anchor-specific content.
-- **Bulk migration / structural reshape of Atlas itself** — file an `[[ATL Backlog]]` row instead. Atlas restructure is project work tracked in `~/ob/kmr/SYS/Atlas/ATL Plan/`.
+- **Bulk migration / structural reshape of Atlas itself** — file an `[[ATL Backlog]]` row instead. Atlas restructure is project work tracked in `~/ob/kmr/SYS/Atlas/ATL Track/`.
 - **Creating "SYS Atlas" / "Project Atlas" parallels** — Atlas is the *single, vault-wide* router. Per-anchor routing belongs in the anchor's own dispatch table, not a parallel Atlas file. (This failure mode happened once already — `SYS/Atlas.md` was created and deleted 2026-06-01.)
 
 ## Anti-patterns

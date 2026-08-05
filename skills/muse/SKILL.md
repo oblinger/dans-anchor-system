@@ -46,7 +46,7 @@ The item file gets written to the archive folder in both cases; only whether Qui
 
 ## Do — user-triggered, LLM-mediated
 
-**Slash command `/muse do <path>`.** Invoked by typing it into the SYS Claude session with the item-file path as the argument. (A GUI hotkey binding via `~/bin/_muse_do` + an Obsidian Shell commands plugin is designed but deferred — see `~/ob/kmr/SYS/WIRE/MUSE/MUSE Design/MUSE Architecture.md` § Do flow; not wired in v1.)
+**Slash command `/muse do <path>`.** Invoked by typing it into the SYS Claude session with the item-file path as the argument. (A GUI hotkey binding via `~/bin/_muse_do` + an Obsidian Shell commands plugin is designed but deferred — see `~/ob/kmr/SYS/Bespoke/Skill Agent/dans-anchor-system/design/utility/DAS MUSE Architecture.md` § Do flow; not wired in v1.)
 
 **What Claude does when `/muse do <path>` arrives:**
 
@@ -113,4 +113,4 @@ state: unreviewed
 
 ## Reference
 
-Full design + implementation history: `~/ob/kmr/SYS/WIRE/MUSE/MUSE Design/MUSE Architecture.md`.
+Full design + implementation history: `~/ob/kmr/SYS/Bespoke/Skill Agent/dans-anchor-system/design/utility/DAS MUSE Architecture.md`.
