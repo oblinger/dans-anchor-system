@@ -111,6 +111,21 @@ dead_rows = [e for e in aq.backlog_entries(dead, INDEX) if e.identifier == "T001
 check("...but a T-row with no target at all still fails",
       [f.code for f in aq.check_c44_questions_row_has_target(dead_rows)], ["C44"])
 
+print("\nC10's FIXER — the half that actually corrupted the file")
+
+# The checker only complained; `apply_c10_fix` carried its own copy of the predicate
+# and rewrote the Recommendation back to column 0 on every write, where the backlog
+# parser reads it as an ungroomed top-level row. Teaching the checker alone left the
+# construct un-writable: each repair was undone by the next `state` mutation.
+bl2 = backlog(Q_ROW)
+before = bl2.read_text(encoding="utf-8")
+aq.apply_c10_fix(aq.extract_q_entries(bl2, "TINK Backlog"))
+check("the fixer leaves a Q row's nested Recommendation alone",
+      bl2.read_text(encoding="utf-8"), before)
+check("...and the Recommendation is still nested, not at column 0",
+      any(l.startswith("  - **Recommendation:**")
+          for l in bl2.read_text(encoding="utf-8").splitlines()), True)
+
 print("\nThe regex change is narrow — it adds one form, it does not loosen the others")
 
 check("the container form still matches",
