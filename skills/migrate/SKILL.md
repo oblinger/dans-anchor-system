@@ -81,7 +81,7 @@ If a full anchor relocation is genuinely wanted (rare — usually a restructure,
 
 ### Self-migration — this skill can't do it
 
-If the migrating agent = the target agent, the running process can't safely rewrite its own session file mid-conversation, and `exec claude --continue` from within the same session doesn't work as an in-place move. Use the launcher-script pattern instead — a bash script that runs from Terminal, copies the current session's `.jsonl` + `tool-results/` from `-<old-cwd>` to `-<new-cwd>`, then `cd new-cwd && exec claude --continue`. Working reference: `~/ob/kmr/SYS/Staff/Atticus/migrate-me-to-atticus.sh`. The prerequisite is that the source claude session be CLOSED first so its `.jsonl` is fully flushed.
+If the migrating agent = the target agent, the running process can't safely rewrite its own session file mid-conversation, and `exec claude --continue` from within the same session doesn't work as an in-place move. Use the launcher-script pattern instead — a bash script that runs from Terminal, copies the current session's `.jsonl` + `tool-results/` from `-<old-cwd>` to `-<new-cwd>`, then `cd new-cwd && exec claude --continue`. The prerequisite is that the source claude session be CLOSED first so its `.jsonl` is fully flushed.
 
 Memory backing this rule: [[launch-migration-copies-jsonl]] — the incident that made this necessary.
 

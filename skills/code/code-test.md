@@ -10,7 +10,6 @@ Build the right tests for the project. Autonomous test developer — identifies 
 | [[code-test-quality]] | When reviewing tests or self-checking while writing (step 5, `/code test review`) |
 | [[code-test-external]] | When testing code that interfaces with OS, network, or external services |
 
-Full design rationale: `~/ob/kmr/SYS/Bespoke/Skill Agent/DEV/DEV Docs/DEV Plan/DEV Test PRD.md`
 
 
 ## What This Is
