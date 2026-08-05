@@ -48,7 +48,7 @@ The Architecture facet is the **system-level overview** — how the codebase is 
 
 **Bidirectional cross-linking**: every module doc carries an `Arch` row in its top-of-doc dispatch table (see [[DAS Module Doc]]) pointing at the most-specific architecture destination. `/architect` maintains both directions.
 
-**Working example:** [[FEX Architecture]] (`~/ob/kmr/SYS/Bespoke/Skill Agent/CAE/CAE Architecture/`).
+**Working example:** [[FEX Architecture]].
 
 ## Standard section order (entry-point doc)
 
