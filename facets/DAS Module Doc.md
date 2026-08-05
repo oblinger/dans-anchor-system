@@ -14,7 +14,7 @@ Facet spec for per-module documentation — the auto-generatable, source-code-gr
 
 **TLDR** — Each source module gets a `{slug} {ModuleName}.md` doc under `{slug} Dev/` mirroring the repo's folder structure. Docs have two zones: an Overview zone (SECTIONS table + per-class overview + figure) and a Class Method Details zone. SVG figures only (via `[[viz-excalidraw]]`); bold-identifier-outside-code-span for all table links; block-ID format `^ClassName-methodname`. **Cardinality: many** — one doc per source module.
 
-**Location:** `{slug} Docs/{slug} Dev/{slug} {ModuleName}.md` (one per module).
+**Location:** `{slug} Dev Docs/{slug} {ModuleName}.md` (one per module).
 
 module docs describe the classes and interfaces in a software project's source code. Each source module (a file or logical grouping of files) gets its own markdown document. The docs mirror the source tree structure under `{slug} Dev/`.
 
@@ -33,7 +33,7 @@ module docs live under `{slug} Dev/` in a subfolder structure that **mirrors the
 ```
 Repository (source)                    Documentation (vault)
 ─────────────────                      ────────────────────
-src/                                   {slug} Docs/{slug} Dev/
+src/                                   {slug} Dev Docs/
 ├── execution/                         ├── {slug} execution/
 │   ├── scheduler.py                   │   ├── {slug} Scheduler.md
 │   └── worker.py                      │   └── {slug} Worker.md

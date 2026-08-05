@@ -5,14 +5,14 @@ description: "the current technical-architecture document for a software project
 # DAS System Design
 Facet spec for `{slug} System Design.md` — the current technical-architecture document (components, data model, decisions) for a software project anchor.
 
-| -[[DAS System Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets\|FCT]] → [DAS System Design](hook://p/DAS%20System%20Design) |
+| -[[DAS System Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets\|FCT]] → [DAS System Design](hook://p/DAS%20System%20Design)  |
 | --- | --- |
 | Related | [[DAS PRD]],  [[DAS Decisions]],  [[DAS Discussion]],  [[DAS UX Design]],   |
 | Examples | [[SKA System Design\|real anchor example]],   |
 | Rules | [[R-fct-system-design]],   |
-| ... | [[anchor-page]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Page]],  [[DAS Anchor Tree]],  [[DAS API Design]],  [[DAS Architecture]],  [[DAS Aspects]],  [[DAS Backlog]],  [[DAS Brief]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Claude]],  [[DAS CLI]],  [[DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Design Folder]],  [[DAS Dev Dispatch]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facet]],  [[DAS Facets]],  [[DAS Features]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Interface]],  [[DAS Log]],  [[DAS Messages]],  [[DAS Module Doc]],  [[facets/DAS Move]],  [[DAS Naming]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Roadmap]],  [[DAS Ruleset]],  [[facets/DAS Skill]],  [[DAS Specs]],  [[DAS Status]],  [[DAS Stories]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS Track]],  [[DAS User Dispatch]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
+| ... | [[anchor-page]],  [[DAS Agenda]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Page]],  [[DAS Anchor Tree]],  [[DAS API Design]],  [[DAS Architecture]],  [[DAS Aspects]],  [[DAS Backlog]],  [[DAS Brief]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Claude]],  [[DAS CLI]],  [[DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Design Folder]],  [[DAS Dev Dispatch]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facet]],  [[DAS Facets]],  [[DAS Features]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Interface]],  [[DAS Log]],  [[DAS Messages]],  [[DAS Module Doc]],  [[facets/DAS Move]],  [[DAS Naming]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Roadmap]],  [[DAS Ruleset]],  [[facets/DAS Skill]],  [[DAS Specs]],  [[DAS Status]],  [[DAS Stories]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS Track]],  [[DAS User Dispatch]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
 
-**TLDR** One per anchor. `{slug} System Design.md` lives in `{slug} Docs/{slug} Plan/` and records the *current* technical architecture — components, data model, APIs, and architectural decisions. Not a history log; rationale and alternatives belong in [[DAS Discussion]].
+**TLDR** One per anchor. `{slug} System Design.md` lives in `{slug} Design/` and records the *current* technical architecture — components, data model, APIs, and architectural decisions. Not a history log; rationale and alternatives belong in [[DAS Discussion]].
 
 **Cardinality: one per anchor** — a software project anchor has exactly one System Design document at any given time.
 
@@ -97,7 +97,7 @@ class TaskResult:
 
 ## Location
 
-`{slug} System Design.md` lives in `{slug} Docs/{slug} Plan/`.
+`{slug} System Design.md` lives in `{slug} Design/`.
 
 ## Top of doc (canonical, per F060)
 
@@ -132,6 +132,6 @@ A numbered table recording architectural decisions with rationale. Each decision
 *(Maintainer note — cautions for whoever edits this facet spec. The normative shape is the body + `RULESET R-fct-system-design` above; the inline reference example is illustrative scaffolding only.)*
 
 - **Spec, not an instance** — don't pile real architecture, decisions, or component tables here; those live in per-anchor `{slug} System Design.md` files (e.g. the CAE working example). Inclusion test: content belongs here only if it specifies *how System Design docs are shaped vault-wide* — section names, ordering, table formats, lifecycle, top-of-doc conventions. Anchor-local rules go in `{slug} Rules.md` / `{slug} Decisions.md`; rationale-and-alternatives narrative goes in [[DAS Discussion]] (cite, don't inline).
-- **The load-bearing constraints are read by auditors and tooling** — the `{slug} Docs/{slug} Plan/` location, the four canonical H2s (Architecture Overview / Components / Data Model / Decisions), the F060 top-of-doc rule, and the current-spec-only discipline — so don't reorder, rename, or merge them without a coordinated update to CAE and any tooling that scans for these sections.
+- **The load-bearing constraints are read by auditors and tooling** — the `{slug} Design/` location, the four canonical H2s (Architecture Overview / Components / Data Model / Decisions), the F060 top-of-doc rule, and the current-spec-only discipline — so don't reorder, rename, or merge them without a coordinated update to CAE and any tooling that scans for these sections.
 - **Sibling boundaries:** PRD → [[DAS PRD]]; cross-cutting decisions and rationale → [[DAS Decisions]] / [[DAS Discussion]]; user-facing UX → [[DAS UX Design]]. Link sideways, don't restate.
 - **Working example is the ground truth for shape disputes** — when the inline reference example and `~/.claude/skills/CAE/CAE Docs/CAE Plan/CAE System Design.md` drift, update both in the same edit; CAE is the live exemplar this spec points readers at.

@@ -5,33 +5,32 @@ description: dated agent-generated outputs — audit reports, analysis
 # DAS Outputs
 Dated agent-generated outputs (audit reports, code analysis, automated assessments) parked under `{slug} Outputs/` and auto-managed by the `stat` command.
 
-| -[[DAS Outputs]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets\|FCT]] → [DAS Outputs](hook://p/DAS%20Outputs) |
+| -[[DAS Outputs]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets\|FCT]] → [DAS Outputs](hook://p/DAS%20Outputs)  |
 | --- | --- |
 | Related | [[DAS WP]],  [[DAS Status]],  [[DAS Backlog]],  [[DAS Facet]],   |
 | Examples | [[MUX Outputs\|example dispatch page]],   |
 | Rules | [[R-fct-outputs]],   |
-| ... | [[anchor-page]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Page]],  [[DAS Anchor Tree]],  [[DAS API Design]],  [[DAS Architecture]],  [[DAS Aspects]],  [[DAS Brief]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Claude]],  [[DAS CLI]],  [[DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[DAS Decisions]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Design Folder]],  [[DAS Dev Dispatch]],  [[DAS Discussion]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facets]],  [[DAS Features]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Interface]],  [[DAS Log]],  [[DAS Messages]],  [[DAS Module Doc]],  [[facets/DAS Move]],  [[DAS Naming]],  [[DAS Output]],  [[DAS PRD]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Roadmap]],  [[DAS Ruleset]],  [[facets/DAS Skill]],  [[DAS Specs]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS Track]],  [[DAS User Dispatch]],  [[DAS UX Design]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
+| ... | [[anchor-page]],  [[DAS Agenda]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Page]],  [[DAS Anchor Tree]],  [[DAS API Design]],  [[DAS Architecture]],  [[DAS Aspects]],  [[DAS Brief]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Claude]],  [[DAS CLI]],  [[DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[DAS Decisions]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Design Folder]],  [[DAS Dev Dispatch]],  [[DAS Discussion]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facets]],  [[DAS Features]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Interface]],  [[DAS Log]],  [[DAS Messages]],  [[DAS Module Doc]],  [[facets/DAS Move]],  [[DAS Naming]],  [[DAS Output]],  [[DAS PRD]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Roadmap]],  [[DAS Ruleset]],  [[facets/DAS Skill]],  [[DAS Specs]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS Track]],  [[DAS User Dispatch]],  [[DAS UX Design]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
 
 **TLDR** — A folder of dated `{date} {name}.md` files auto-created by `stat add`; cardinality **many** (any number of output files per anchor). The dispatch page (`{slug} Outputs.md`) is **one per anchor**; individual output files are **many**. Never list specific files here — instances live in per-anchor dispatch pages.
 
-The DAS facet that specifies the Outputs zone — dated agent-generated reports (audit findings, code analysis, automated assessments) parked under `{slug} Docs/{slug} Plan/{slug} Outputs/` and auto-managed by the `stat` command.
+The DAS facet that specifies the Outputs zone — dated agent-generated reports (audit findings, code analysis, automated assessments) parked under `{slug} Track/{slug} Outputs/` and auto-managed by the `stat` command.
 
 Agent-generated dated outputs — audit reports, code analysis results, automated assessments. Created automatically by `stat add` when an output name is provided. **Cardinality: many** — any number of dated output files may exist per anchor.
 
 ## Location
 
-`{slug} Docs/{slug} Plan/{slug} Outputs/` — inside the planning documentation tree. Created automatically by the stat command on first use.
+`{slug} Track/{slug} Outputs/` — alongside the anchor's other activity records. Created automatically by the stat command on first use.
 
 ## Structure
 
 ```
 {Anchor}/
-├── {slug} Docs/
-│   └── {slug} Plan/
-│       └── {slug} Outputs/
-│           ├── {slug} Outputs.md              dispatch page
-│           ├── 2026-03-28 Fallbacks Audit.md
-│           └── 2026-04-01 Test Coverage.md
+└── {slug} Track/
+    └── {slug} Outputs/
+        ├── {slug} Outputs.md              dispatch page
+        ├── 2026-03-28 Fallbacks Audit.md
+        └── 2026-04-01 Test Coverage.md
 ```
 
 ## Naming
@@ -85,4 +84,4 @@ The stat command:
 
 # BRIEF
 
-*(Maintainer note — additions belong here only if they apply to ALL Outputs folders across ALL anchors; per-anchor or per-output specifics do not. The path `{slug} Docs/{slug} Plan/{slug} Outputs/` and the `{date} {name}.md` naming (no slug prefix, date provides uniqueness) are encoded in the `stat` command and `/cab wp`'s distinction logic — renaming the zone or changing the date format breaks `stat add` and orphans every existing dispatch entry, so sweep callers before touching them. Hold the Outputs-vs-WP boundary (§ Distinction from WP) — blurring it cascades into ambiguous tooling behavior. Sibling facets [[DAS WP]], [[DAS Backlog]], [[DAS Status]] back-cite this spec, so update them in the same pass on any terminology or structure change.)*
+*(Maintainer note — additions belong here only if they apply to ALL Outputs folders across ALL anchors; per-anchor or per-output specifics do not. The path `{slug} Track/{slug} Outputs/` and the `{date} {name}.md` naming (no slug prefix, date provides uniqueness) are encoded in the `stat` command and `/cab wp`'s distinction logic — renaming the zone or changing the date format breaks `stat add` and orphans every existing dispatch entry, so sweep callers before touching them. Hold the Outputs-vs-WP boundary (§ Distinction from WP) — blurring it cascades into ambiguous tooling behavior. Sibling facets [[DAS WP]], [[DAS Backlog]], [[DAS Status]] back-cite this spec, so update them in the same pass on any terminology or structure change.)*

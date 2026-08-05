@@ -63,7 +63,7 @@ Any document in any anchor MAY have a Discussion attached. Common attachment poi
 - Architecture sub-pages — `{slug} Architecture/{Subsystem}.md`. Per-subsystem discussion.
 - Long-lived spec docs — anything where decisions accumulate over time.
 
-Documents that typically do NOT carry discussion: the anchor page (`{slug}.md`, navigation only), dispatch pages (`{slug} Docs.md`, `{slug} Design.md`), the Backlog (`{slug} Backlog.md` — discussion belongs on the feature doc the row points at), the Roadmap (`{slug} Roadmap.md` — discussion belongs on the milestone's feature doc, not on the sequencing artifact itself).
+Documents that typically do NOT carry discussion: the anchor page (`{slug}.md`, navigation only), dispatch pages (`{slug} Design.md`), the Backlog (`{slug} Backlog.md` — discussion belongs on the feature doc the row points at), the Roadmap (`{slug} Roadmap.md` — discussion belongs on the milestone's feature doc, not on the sequencing artifact itself).
 
 ## Audit posture
 

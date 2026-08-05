@@ -12,7 +12,7 @@ Facet spec for the **Work Products** zone of an anchor — dated, polished outpu
 | Rules | [[R-wp]],   |
 | ... |  |
 
-**Location:** `{slug} Docs/Work Products/YYYY-MM-DD {Title}.md   (dated work product)`
+**Location:** `{slug} WP/{slug} {Title}/` at the anchor root — one folder per work product, per § Location below.
 
 Work Products — polished, dated outputs of human+agent collaboration. Papers, reports, analyses, presentations.
 
