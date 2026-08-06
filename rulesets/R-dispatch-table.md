@@ -32,7 +32,7 @@ When the anchor has a Design sub-area, the masthead carries a **Design** row who
 **Check pattern:** a row whose left cell links to `{X} Design` and whose right cell holds ≥1 design-part link, whenever a `{X} Design` folder exists.
 **Why:** the design row is the entry into the design flow; surfacing its parts gives one-click reach to the architecture and the rest without opening the sub-page first.
 
-### RULE R-dispatch-table-10 — Track row links the sub-anchor and enumerates the tracking items (checked)
+### RULE R-dispatch-table-13 — Track row links the sub-anchor and enumerates the tracking items (checked)
 check:: dispatch_area_row Track
 mend:: dispatch-rebuild
 When the anchor **owns its tracking**, the masthead carries a **Track** row: **left cell `[[{X} Track\|Track]]`**, **right cell the key tracking items** that exist — Backlog, Features, Roadmap, Now. Absent when tracking is unified at a parent (per [[DAS Track]] § Who owns a Track folder).
@@ -81,6 +81,12 @@ mend:: dispatch-rebuild
 Every dispatch table **ends with a catch-all auto-enumeration zone**, so no document sitting in the folder can be hidden from the table: **`...`** (compact — the default; one cell that surfaces anything uncovered) or **`| --- | |`** (full auto-list — each uncovered/new doc as its own row, for list containers). The other HA v2 electric separators also satisfy the rule where their ordering fits the content: **`^^^`** (reverse-alpha auto-list — dated/newest-first containers like Features folders) and **`+++`** (alpha with grandchildren). Applies to **every** dispatch table, not just list containers — a masthead gets `...` too, so a stray doc dropped in the anchor's folder still shows.
 **Check pattern:** the table's final row is `...`, `| --- | |`, a trailing `+`-group row, or an electric separator (`---`/`^^^`/`+++`) followed only by its auto-emitted member rows.
 **Why:** the dispatch table must be an honest index of its folder — a catch-all guarantees stray or newly-added docs surface instead of silently disappearing.
+**Scope of "uncovered" — the whole page, prose included.** The catch-all surfaces children not linked **anywhere on the page**, not merely those absent from the rows above. A child named in the page's intro paragraph is already surfaced by that sentence, so the catch-all omits it and the rule's purpose is still met. Its absence from `...` is **correct**, not a defect — see R-dispatch-table-13.
+
+### RULE R-dispatch-table-13 — Electric zones are machine-owned; hand edits are discarded (stated)
+mend:: dispatch-rebuild
+Everything **below** a separator marker (`...`, `| --- | |`, `+++`, `^^^`, `!!!`) is an **electric zone**: recomputed from the command store on every rebuild, ~30 s after the page stops changing. Rows **above** the separator belong to the author; rows **below** belong to the machine. **Anything typed into an electric zone is discarded** — not merged, not flagged, silently overwritten. This covers hand-***repair*** as much as hand-***authoring***: re-adding a link you believe is missing is the same violation as writing a row from scratch. To change what a zone shows, change the *source* — the file's location, its command, or a row above the separator.
+**Why:** the failure this prevents is not cosmetic. A hand-added link appears to work, then vanishes ~30 s later with nothing running and no explanation, which reads exactly like corruption — it produced **three separate wrong bug reports from three different agents** (a Warden bug, an Obsidian stale-buffer bug, a daemon-cache bug) before anyone read the filter. Confirmed correct behaviour by the user, 2026-08-05. Duplicated at `~/ob/kmr/CLAUDE.md` so every vault agent loads it. Implementation: HookAnchor F081 body-mention suppression, which logs each omission (`DISPATCH catchall on '<anchor>': N child(ren) omitted`) so an absent child is explainable.
 
 ## Mend
 
