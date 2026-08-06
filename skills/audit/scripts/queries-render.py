@@ -385,31 +385,77 @@ def _read_q_marker_count(target_path: Path) -> int:
     return count
 
 
-def _read_open_questions(target_path: Path) -> list[tuple[str, str, str]]:
-    """Pending open questions as (qid, question_text, recommendation) — mirrors
-    _read_q_marker_count's pending gate but captures the human-facing text so the
-    queue file can LIST the actual questions inline (user 2026-07-18: a bare
-    `(NQ)` badge is unreadable — the questions themselves must be visible in
-    Q.md, exactly like the Verifications section shows each verify's text)."""
+def _option_gloss(rest: str, cap: int = 58) -> str:
+    """The shortest phrase that says what an option IS.
+
+    An ask-format option reads `- **(A)** **Bracket becomes DERIVED** — computed
+    from the open items…`: a bolded short name, then the argument. The bolded
+    name is the gloss when it exists — it was written to be the option's handle.
+    Otherwise take the head of the prose up to the first sentence or clause
+    break, so the gloss ends on a word rather than mid-thought. The cap applies
+    to both, on a word boundary: three options plus the question stem share one
+    line, and an option nobody finishes reading is no better than one that was
+    never printed."""
+    m = re.match(r"\s*\*\*(.+?)\*\*", rest)
+    head = (m.group(1) if m else
+            re.split(r"\s+—\s+|(?<=[.;])\s+", rest.strip(), maxsplit=1)[0])
+    head = head.strip()
+    if len(head) > cap:
+        head = head[:cap].rsplit(" ", 1)[0] + "…"
+    return head.rstrip(".").strip()
+
+
+def _read_open_questions(target_path: Path) -> list[tuple[str, str, str, list]]:
+    """Pending open questions as (qid, question_text, recommendation, options) —
+    mirrors _read_q_marker_count's pending gate but captures the human-facing
+    text so the queue file can LIST the actual questions inline (user
+    2026-07-18: a bare `(NQ)` badge is unreadable — the questions themselves
+    must be visible in Q.md, exactly like the Verifications section shows each
+    verify's text).
+
+    `options` is [(label, gloss)] read from the Q's `- **(A)**` sub-bullets.
+    T130: the render used to carry the question stem and the Recommendation and
+    drop the options entirely, so a question whose content IS its options came
+    out as a stem, an ellipsis, and a bare `Lean **(B)**` naming a choice the
+    reader could not see. Showing a lean for an invisible option is worse than
+    showing neither — it reads as a decision already made, about nothing."""
     try:
         lines = target_path.read_text(encoding="utf-8").splitlines()
     except (OSError, UnicodeDecodeError):
         return []
-    out: list[tuple[str, str, str]] = []
+    out: list[tuple[str, str, str, list]] = []
     in_resolved = False
     cur_id = cur_text = cur_rec = ""
+    cur_opts: list[tuple[str, str]] = []
 
     def flush():
-        nonlocal cur_id, cur_text, cur_rec
+        nonlocal cur_id, cur_text, cur_rec, cur_opts
         if cur_id:
-            out.append((cur_id, cur_text.strip(), cur_rec.strip()))
+            out.append((cur_id, cur_text.strip(), cur_rec.strip(), cur_opts))
         cur_id = cur_text = cur_rec = ""
+        cur_opts = []
 
     for line in lines:
+        # The resolved zone is `### Resolved` INSIDE the block (F241's two-zone
+        # shape) as often as it is a bottom `## Resolved` H2, and only the H2
+        # form was recognized — so on a doc using the in-block form the scanner
+        # never left the pending zone and kept accreting onto the last pending
+        # Q. Latent until T130 started reading option bullets: F303's Q1 came
+        # out carrying its own (A)(B)(C) plus resolved Q2's (A)(B)(C)(D).
         if line.startswith("## "):
             flush()
             in_resolved = line[3:].strip().lower().startswith(("resolved", "removed"))
             continue
+        if line.startswith("### "):
+            # Only an H2 leaves a resolved zone. An H3 inside one is a resolved
+            # question's own heading, not an exit — treating it as an exit would
+            # re-admit every archived Q whose heading lacks a `(resolved …)`
+            # marker, which is a worse failure than the one being fixed.
+            if not in_resolved:
+                flush()
+                if line[4:].strip().lower().startswith(("resolved", "removed")):
+                    in_resolved = True
+                    continue
         if in_resolved:
             continue
         # bullet-form pending Q: `- **Q10 — Title** — question text ^anchor`
@@ -445,14 +491,26 @@ def _read_open_questions(target_path: Path) -> list[tuple[str, str, str]]:
             rm = re.match(r"\s*-\s+\*\*Recommendation:\*\*\s*(.*)$", line)
             if rm:
                 cur_rec = re.split(r"\s*·\s*\*why-ask", rm.group(1).strip())[0].strip()
+                continue
+            # Option bullets (C19 shape): `- **(A)** **Short name** — argument`.
+            # Captured only between a Q header and the next one, so the
+            # Recommendation's own `(B)` reference cannot be mistaken for one.
+            om = re.match(r"\s*-\s+\*\*\(([A-Z])\)\*\*\s*(.*)$", line)
+            if om:
+                cur_opts.append((om.group(1), _option_gloss(om.group(2))))
     flush()
     return out
 
 
-def _read_row_inline_questions(backlog_file: Path, r: "Row") -> list[tuple[str, str, str]]:
+def _read_row_inline_questions(backlog_file: Path, r: "Row") -> list[tuple[str, str, str, list]]:
     """Pending Qs hosted INLINE in a backlog row's own sub-bullets, as
-    (qid, question_text, recommendation) — the same shape `_read_open_questions`
-    returns for doc-backed rows.
+    (qid, question_text, recommendation, options) — the same shape
+    `_read_open_questions` returns for doc-backed rows.
+
+    `options` is always empty here: an inline Q packs its `**(A)**`/`**(B)**`
+    onto the same line as the question, so they are already inside the text this
+    returns and get the wider 420-char budget. A separate option line would
+    print them twice.
 
     T-/B-rows may carry their questions inline (F233) instead of in a feature
     doc. The Questions section used to skip those on the reasoning that such a
@@ -466,7 +524,7 @@ def _read_row_inline_questions(backlog_file: Path, r: "Row") -> list[tuple[str, 
         lines = backlog_file.read_text(encoding="utf-8").splitlines()
     except (OSError, UnicodeDecodeError):
         return []
-    out: list[tuple[str, str, str]] = []
+    out: list[tuple[str, str, str, list]] = []
     # Scan the row's sub-bullets: everything indented under the opener, stopping
     # at the next H2, H3, or top-level bullet (the next row).
     for line in lines[r.line_num:]:
@@ -496,7 +554,7 @@ def _read_row_inline_questions(backlog_file: Path, r: "Row") -> list[tuple[str, 
         # title IS the question ("land the bundle-relative fix?").
         if rest and title and not text.startswith(title):
             text = f"{title} — {text}"
-        out.append((qid, text.strip(), rec))
+        out.append((qid, text.strip(), rec, []))
     return out
 
 
@@ -1192,10 +1250,22 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
             # (North Star 2 — everything needed to answer is in the entry).
             qlimit = 200 if qdoc else 420
             if q_entries:
-                for qid, qtext, qrec in q_entries:
+                for qid, qtext, qrec, qopts in q_entries:
                     if not qtext:
                         continue
-                    rec_txt = f" · *{_truncate_body(qrec, 90)}*" if qrec else ""
+                    # T130 — the options come BEFORE the recommendation, and the
+                    # recommendation is suppressed without them. A lean names an
+                    # option; printing the name of a choice the reader cannot see
+                    # reads as a verdict about nothing (Dan, 2026-08-05 on F305
+                    # Q1: *"you're telling me you lean B on what?"*). Labels only
+                    # — the full argument is one click away in the feature doc,
+                    # which is what the (NQ) link is for.
+                    opt_txt = ""
+                    if qopts:
+                        opt_txt = " · " + " · ".join(
+                            f"**({lab})** {gloss}" for lab, gloss in qopts)
+                    rec_txt = (f" · *{_truncate_body(qrec, 90)}*"
+                               if qrec and (qopts or not qdoc) else "")
                     # DISPLAY PREVIEW, not a formal ask-format Q entry. The
                     # answerable Qs (block-IDs, Recommendations, option bullets)
                     # live in the source feature doc's `## Open Questions`, which
@@ -1204,7 +1274,8 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
                     # `- **Q<n>` — that shape is parsed by audit-q's Q_HEADER_RE
                     # as a formal Q and would trip C6 (block-id)/C9 (recommendation)
                     # on every render of this generated file.
-                    body.append(f"    - {qid} — {_truncate_body(qtext, qlimit)}{rec_txt}")
+                    body.append(f"    - {qid} — {_truncate_body(qtext, qlimit)}"
+                                f"{opt_txt}{rec_txt}")
     # F283 — the visibility ledger. Scanned, not worked: "if it's legitimately
     # blocked on something else, then I don't really want to see it, I just wanna
     # work on the thing that it's blocked by." It renders anyway so that nothing
