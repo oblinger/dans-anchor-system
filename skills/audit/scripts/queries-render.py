@@ -1088,13 +1088,22 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
                and (r.bracket.startswith("Blocked") or r.bracket.startswith("Waiting"))]
     verifs = [r for r in eligible if id(r) not in promoted
               and (r.bracket.startswith("Verify") or r.bracket.startswith("Watching"))]
+    # F259 minted `[User]` for an action only the human can perform (log in,
+    # click a permission dialog, run an experiment on a display the agent
+    # cannot see), and the banner has counted them since — but no section ever
+    # claimed them, so every one fell into `## Other` beside unbracketed
+    # leftovers and went unread. Dan, 2026-08-05: *"I don't even see a T21. I
+    # don't even see it there."* A pile the user is the ONLY possible actor for
+    # is the last thing that should be in the catch-all.
+    users = [r for r in eligible if id(r) not in promoted and r.bracket == "User"]
     # F284 — the catch-all. Anything eligible that the named sections did not
     # claim renders here rather than falling off the end of the function.
     # `suppressed` is the ONE deliberate omission (the empty B-QFix row above);
     # it is tracked so the coverage assertion can account for it instead of
     # reading it as a leak.
     claimed = (promoted | {id(r) for r in ready} | {id(r) for r in qs}
-               | {id(r) for r in blocked} | {id(r) for r in verifs})
+               | {id(r) for r in blocked} | {id(r) for r in verifs}
+               | {id(r) for r in users})
     suppressed = [r for r in eligible
                   if r.identifier == "B-QFix" and qfix_empty and id(r) not in claimed]
     accounted = claimed | {id(r) for r in suppressed}
@@ -1228,6 +1237,23 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
                 body.append(f"- **V{i}** {doclink} ({rowlink}) — {qtxt} · **yes / no**")
             else:
                 body.append(f"- **V{i}** {link} — {qtxt} · **yes / no**")
+    # The `[User]` pile — emitted right after Questions, because it is the
+    # other set of rows that go nowhere until the human personally acts. Each
+    # shows its `- **User:**` action, which F259 already requires the row to
+    # carry, so the entry states what to DO rather than merely naming a row.
+    if users:
+        _h2("## User")
+        # Same shape as Verifications: show the row's own `- **User:**` action
+        # verbatim (F259 requires the row to carry one), so the entry says what
+        # to DO. A row missing it gets a ⚠ rather than quietly showing prose.
+        user_actions = _extract_labeled_subbullets(backlog_file, "User")
+        for i, r in enumerate(users, 1):
+            link = _bullet_link(r, name, vault_index, block_ids, h3_headings)
+            a = user_actions.get(r.identifier)
+            atxt = (_truncate_body(a, 240) if a
+                    else "⚠ no action stated — add a `- **User:** <what you must do>` sub-bullet to the row")
+            body.append(f"- **U{i}** {link} — {atxt}")
+
     # F284 — the catch-all, emitted last so it never displaces the classified
     # work. Each row shows its bracket VERBATIM: a state the render doesn't know
     # (`[Designing]`), a state gated on the user (`[User]`), the bracket field
@@ -1241,7 +1267,7 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
             txt = _truncate_body(r.body, 200)
             body.append(f"- {link} — {btxt}" + (f" {txt}" if txt else ""))
     body.extend(_coverage_warning(
-        eligible, [blockers, ready, qs, blocked, verifs, other], suppressed))
+        eligible, [blockers, ready, qs, blocked, verifs, users, other], suppressed))
     if not body:
         body.append("_Nothing pending._")
     return body
