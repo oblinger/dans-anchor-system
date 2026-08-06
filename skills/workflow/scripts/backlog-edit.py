@@ -1593,8 +1593,26 @@ def verify_write_landed(lines, row_id, requested):
         if want is None or not str(want).strip():
             continue
         got = (m.group(label) or "") if m else ""
-        if str(want).strip() not in got:
-            failures.append(f"{label}: asked text is absent from the row line")
+        # Compare against what `render_row` WRITES, not against what the caller
+        # asked for. It normalizes on the way in — `_strip_trailing_anchors`
+        # (T140) removes a trailing `^T+`/`^T007` run — so a raw substring test
+        # sees its own writer's output as a non-match, calls a correct write a
+        # failure, and reverts the file. That fires on exactly the body T140
+        # exists to clean: a caller piping in a row that still carries the mint
+        # placeholder gets a hard revert with no hint of why.
+        if _strip_trailing_anchors(str(want).strip()) not in got:
+            if "\n" in str(want).strip():
+                # A genuine rejection, but the old message named the wrong
+                # thing. A row is ONE line; a body carrying a blank line lands
+                # its tail below the bullet where the row grammar can't reach
+                # it. Say so, rather than "absent from the row line".
+                failures.append(
+                    f"{label}: multi-line text cannot live on a row line — "
+                    f"the text after the first line break lands outside the "
+                    f"row. Join it into one paragraph, or put the detail in a "
+                    f"`- **Next:**` sub-bullet or a linked doc")
+            else:
+                failures.append(f"{label}: asked text is absent from the row line")
 
     for key, label in (("next_text", "Next"), ("verify_text", "Verify"),
                        ("user_text", "User")):
