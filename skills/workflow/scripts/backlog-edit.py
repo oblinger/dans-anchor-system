@@ -1448,6 +1448,29 @@ def next_id_for_kind(row_index, kind):
 # --------------------------------------------------------------------------
 # Row formatting
 
+# T140 — the `+` is load-bearing. Every other block-ID pattern in this file is
+# `\^[\w-]+` (`_q_header_line`, `_append_why_ask_annotation`, `ROW_FULL_RE`),
+# and `+` falls outside `[\w-]` — so the mint placeholder `^T+` matched no
+# cleanup path that existed, `ROW_FULL_RE` absorbed it into `body`, and it
+# became permanent. `.` is admitted for the dotted R-handles (`^R-Sc.5.2`),
+# which are sanitized to dashes on write but can arrive dotted. The run is
+# repeatable (`(?:…)+`) so a row that already carries several — MED T002 held
+# `^T+ ^T002 ^T002` — collapses to one on its next edit rather than shedding a
+# single anchor per pass.
+_TRAILING_ANCHORS_RE = re.compile(r"(?:\s+\^[\w.+-]+)+\s*$")
+
+
+def _strip_trailing_anchors(text):
+    """`text` minus any run of trailing `^block-id` anchors.
+
+    Guards the one invariant both writers below need: the anchor is appended
+    unconditionally, so whatever arrives must not already carry one. A body
+    legitimately ending in a block *reference* (`… [[X#^T056]]`, `… X#^T056`)
+    is untouched — the pattern requires whitespace before the caret.
+    """
+    return _TRAILING_ANCHORS_RE.sub("", text or "").rstrip()
+
+
 def render_row(row_id, status, title, body):
     """Format a backlog row line.
 
@@ -1467,7 +1490,7 @@ def render_row(row_id, status, title, body):
             f"before rendering (refusing to write '[same]')."
         )
     title = (title or "").strip()
-    body = (body or "").strip()
+    body = _strip_trailing_anchors((body or "").strip())
     title_block = f"**{row_id} — {title}**" if title else f"**{row_id}**"
     bracket = f"[{status}]"
     suffix = f" — {body}" if body else ""
@@ -2998,19 +3021,36 @@ def _format_q_bullet(q_num, container_id, body):
     block_id = f" ^{container_id}-Q{q_num}"
     # If body already starts with `**Q<n> —`, accept as pre-formatted; just
     # ensure block-ID at end.
-    if re.match(rf"^\s*\*\*Q\d+\s+—", body):
-        # Normalize the leading Q-number to the canonical bullet form
-        body = re.sub(r"^\s*\*\*Q\d+", f"**Q{q_num}", body, count=1)
+    #
+    # T140 — this test used to be `^\s*\*\*Q\d+\s+—`, which recognized neither
+    # of the two shapes agents actually pipe in: a body already carrying its
+    # `- ` bullet (the form every skill template shows), and `Q+`, the mint
+    # placeholder. Either fell through to the plain-body branch and was wrapped
+    # a SECOND time, yielding `**Q1 — Untitled** — - **Q1 — <the real title>**`
+    # — so the header line, which is what `_q_header_line` and queries-render
+    # read, said *Untitled* while the question itself sat stranded behind a
+    # stray `— - `. Live on SKA F234 Q1/Q2 and HA F112 Q6. `_q_header_line`
+    # already admitted both shapes (`^\s*-?\s*\*\*Q(?:\d+|\+)\s+—`); the two
+    # patterns simply disagreed, and this one was the stricter.
+    if re.match(rf"^\s*-?\s*\*\*Q(?:\d+|\+)\s+—", body):
+        # Normalize the leading Q-number to the canonical bullet form. The
+        # leading `- ` goes with it and is restored just below, so a bulleted
+        # and an unbulleted body converge on the same output.
+        body = re.sub(r"^\s*-?\s*\*\*Q(?:\d+|\+)", f"**Q{q_num}", body, count=1)
         # Ensure leading "- " bullet
         if not body.startswith("- "):
             body = "- " + body
     else:
         # Plain body — wrap as bullet
         body = f"- **Q{q_num} — Untitled** — {body}"
-    # Append block-ID if not already present at end of first line
+    # T140 — the old guard was `if f"^{container_id}-Q{q_num}" not in first_line`,
+    # which asked only whether the CORRECT anchor was present and never removed a
+    # wrong one. A Q minted while its host row was still `T+` kept `^T+-Q1` and
+    # gained `^T017-Q1` beside it — and since the stale anchor sits FIRST,
+    # queries-render read that one, putting `^T+-Q1` (a handle resolving to no
+    # row) onto the vault-root Q.md. Strip, then append unconditionally.
     first_line, sep, rest = body.partition("\n")
-    if f"^{container_id}-Q{q_num}" not in first_line:
-        first_line = first_line.rstrip() + block_id
+    first_line = _strip_trailing_anchors(first_line) + block_id
     return first_line + (sep + rest if sep else "")
 
 

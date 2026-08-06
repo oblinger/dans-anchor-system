@@ -45,10 +45,10 @@ check:: frontmatter_has description
 
 **Check pattern:** YAML frontmatter present with a non-empty `description:`; the first body line is the status banner `# [<TAG>]  [[{slug}|{slug}]]  -  Runnable N …` (per § The banner), not a plain `# {slug} Queries` title.
 
-### RULE R-query-03 — Six sections, fixed order, no others (checked)
+### RULE R-query-03 — Seven sections, fixed order, no others (checked)
 check:: queries_sections_subsequence
 
-Sections, when present, appear in this order and no foreign H2s interleave: `## Blockers` → `## Ready` → `## Questions` → `## Blocked` → `## Verifications` → `## Other`. Empty sections are omitted.
+Sections, when present, appear in this order and no foreign H2s interleave: `## Blockers` → `## Ready` → `## Questions` → `## Blocked` → `## Verifications` → `## User` → `## Other`. Empty sections are omitted.
 
 The order is F283's (2026-07-30), and each position is argued:
 
@@ -57,11 +57,12 @@ The order is F283's (2026-07-30), and each position is argued:
 - `## Questions` is the one pile the user personally unsticks, so it stays its own section rather than merging into the ledger below it. The axis that earns a section break is *can the user act on it*, not *is it stopped*.
 - `## Blocked` is the visibility ledger: `[Blocked <handle>]` and `[Waiting]` rows together. Scanned, not worked — but rendered, because a bracket recording "not moving" was previously the one bracket that hid the row entirely.
 - `## Verifications` is last, deliberately below the fold: an unverified check is only a problem when something depends on it, and when something does, `## Blockers` has already promoted it to the top.
+- `## User` (F259) holds the rows waiting on an action only Dan can take. It sits below `## Verifications` because both are user-facing but a verification is a judgement he can give in a sentence, where a `[User]` row asks him to go *do* something — and above `## Other`, which is not a state at all. This entry was missing until T141 (2026-08-05): `queries-render.py` had emitted the section since F259, so the rule was failing six live anchors for carrying a section the renderer is required to write.
 - `## Other` is the F284 catch-all — every frontier row the named sections did not claim, with its bracket shown verbatim. It is what makes the render total: before it existed, an unrecognised bracket meant the row was dropped in silence (47 of 99 frontier rows vault-wide on 2026-07-29, the largest class being rows carrying no bracket at all). It sits last because it holds the work whose state is unclear, which must never displace the work whose state is clear.
 
 `[Verify-by <date>]` rows render in no section at all: the bracket promises nothing happens until the date, and the stale-bracket sweep auto-Dones the row when the date arrives, so showing it only crowds the checks that still want a look.
 
-**Check pattern:** the H2 sequence is a subsequence of `[Blockers, Ready, Questions, Blocked, Verifications, Other]`; no H2 outside that set.
+**Check pattern:** the H2 sequence is a subsequence of `[Blockers, Ready, Questions, Blocked, Verifications, User, Other]`; no H2 outside that set.
 
 **Why:** admitting `Other` is load-bearing, not permissive — a rule that forbade the catch-all would forbid the coverage guarantee itself.
 

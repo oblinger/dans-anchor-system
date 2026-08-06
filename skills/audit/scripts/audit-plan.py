@@ -2886,12 +2886,20 @@ def chk_queries_sections_subsequence(target, anchor_root, args):
     `Immediate Questions` are gone — neither had been rendered since F231, so the
     rule was describing a file that no longer existed. `Blockers` (computed —
     rows some other row is blocked on) and `Blocked` (the ledger of
-    `[Blocked <handle>]` + `[Waiting]`) replace them."""
+    `[Blocked <handle>]` + `[Waiting]`) replace them.
+
+    `User` (F259) sits between `Verifications` and `Other` because that is where
+    `queries-render.py` has emitted it since F259 landed — this rule simply never
+    caught up, so every render of an anchor holding `[User]` rows fired a warden
+    R-query-03 warning against a section the renderer is required to write. Six
+    anchors were in that state when it was noticed (T141). The placement is not a
+    judgment call being made here: the renderer already made it, and a rule that
+    contradicts the file's only writer is the side that is wrong."""
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
     allowed = args if args else ["Blockers", "Ready", "Questions", "Blocked",
-                                 "Verifications", "Other"]
+                                 "Verifications", "User", "Other"]
     h2s = _h2_headings(_read(f))
     foreign = [h for h in h2s if h not in allowed]
     if foreign:
