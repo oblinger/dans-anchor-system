@@ -38,6 +38,12 @@ from pathlib import Path
 
 CRANK_DIR = Path.home() / ".config" / "anchor-system" / "crank"
 GATE_DIR = Path.home() / ".config" / "anchor-system" / "stopgate"
+# F306 — `state triage` writes `{slug}.json` here carrying the canonical line it
+# printed AND the backlog sha it was computed over. Both halves of the check
+# already exist; the gate only has to read them.
+TRIAGE_DIR = Path.home() / ".config" / "anchor-system" / "triage"
+TRIAGE_LOG = GATE_DIR / "triage-line.jsonl"
+TRIAGE_CONF = GATE_DIR / "triage-line.conf"  # {mode} — absent → warn
 STATE_CLI = Path.home() / ".claude" / "skills" / "workflow" / "scripts" / "state"
 TTL_SECONDS = 24 * 3600
 BLOCK_CAP = 3
@@ -227,6 +233,104 @@ def _llm_spend_fire(cfg):
         cfg["fired"] = int(cfg.get("fired", 0)) + 1
         GATE_DIR.mkdir(parents=True, exist_ok=True)
         LLM_CONF.write_text(json.dumps(cfg), encoding="utf-8")
+    except OSError:
+        pass
+
+
+def _triage_line_check(slug, msg):
+    """F306 — did this crank stop carry the FRESH canonical TRIAGE line?
+
+    Returns `(verdict, reason)`. `verdict` is one of `ok` / `missing` / `stale` /
+    `no-stamp` / `unreadable`; `reason` is the block text, or None when there is
+    nothing to say.
+
+    **The gate never carries its own idea of the line's shape.** `state triage`
+    is the producer and writes the exact string it printed into its stamp, so
+    the check is `stamp["line"] in msg` — a comparison against the producer's
+    own output, not a regex over its format. T120 is the named prior failure:
+    `apply_c10_fix` carried its own copy of C10's predicate, the checker learned
+    a new rule and the fixer did not, and every repair the checker asked for was
+    silently undone. A gate whose idea of the line drifts from the producer's
+    would fail in the same direction — rejecting correct output, which is worse
+    than the defect it replaces.
+
+    **Freshness, not just presence** (D2). The stamp records the backlog sha it
+    was computed over; any mutation after the stamp stales it. A presence-only
+    check is satisfiable by pasting an old line, and an agent that mutated the
+    backlog after running triage would report numbers that are no longer true —
+    a *wrong* summary, which is worse than a missing one.
+
+    Fail-open on everything unreadable, like the rest of this file.
+    """
+    stamp_path = TRIAGE_DIR / f"{slug}.json"
+    if not stamp_path.is_file():
+        return "no-stamp", (
+            f"stop-gate (F306): this crank stop carries no TRIAGE line, and "
+            f"`state triage` has never stamped {slug}. Run `state triage "
+            f"{slug}` and end your final message with the line it prints.")
+    try:
+        stamp = json.loads(stamp_path.read_text(encoding="utf-8"))
+        line = stamp.get("line") or ""
+        stamped_sha = stamp.get("backlog_sha256") or ""
+        backlog = Path(stamp.get("backlog_path") or "")
+    except (OSError, ValueError, TypeError):
+        return "unreadable", None
+    if not line:
+        return "unreadable", None
+
+    fresh = True
+    if stamped_sha and backlog.is_file():
+        try:
+            import hashlib
+            fresh = (hashlib.sha256(backlog.read_bytes()).hexdigest()
+                     == stamped_sha)
+        except OSError:
+            fresh = True  # unreadable backlog → don't manufacture a block
+
+    if line in (msg or ""):
+        if fresh:
+            return "ok", None
+        # The line is present but the backlog moved under it. "Paste the line"
+        # is the WRONG instruction here, which is exactly why D2 exists — say
+        # re-run, and say why the number on screen is not the number on disk.
+        return "stale", (
+            f"stop-gate (F306): your final message carries a TRIAGE line, but "
+            f"the backlog changed after it was computed — the counts in it are "
+            f"no longer true. Re-run `state triage {slug}` and end with the "
+            f"line it prints now.")
+    return "missing", (
+        f"stop-gate (F306): a crank stop must end with the canonical TRIAGE "
+        f"line, and this message does not carry it. The line is crank's exit "
+        f"contract — it is the one thing the reader needs and the first thing "
+        f"that falls off the end of a long good report.\n"
+        f"  Re-run `state triage {slug}` (the counts may have moved while you "
+        f"worked) and make the line it prints the LAST line of your message."
+        + ("" if fresh else "\n  The existing stamp is already stale, so the "
+                            "re-run is required, not optional."))
+
+
+def _triage_mode():
+    """`'warn'` (default) or `'enforce'`. Absent/unreadable → warn.
+
+    D4, and the same staging F275 used for the same reason: the honest unknown
+    is not whether the check is correct but how often a legitimately non-crank
+    stop trips it. Log the verdict on every crank stop, read the rate after a
+    week of real use, promote to blocking once it is a known number.
+    """
+    try:
+        return json.loads(TRIAGE_CONF.read_text(encoding="utf-8")).get(
+            "mode", "warn")
+    except (OSError, ValueError, TypeError):
+        return "warn"
+
+
+def _triage_log(slug, verdict, mode):
+    try:
+        GATE_DIR.mkdir(parents=True, exist_ok=True)
+        with TRIAGE_LOG.open("a", encoding="utf-8") as fh:
+            fh.write(json.dumps({
+                "ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                "anchor": slug, "verdict": verdict, "mode": mode}) + "\n")
     except OSError:
         pass
 
@@ -456,9 +560,25 @@ def warden_hook(payload):
     if count is None:
         return _allow(crank_sp, gate_path)  # unreadable worklist → fail open
     if count == 0:
+        name = slug or Path(anchor_path).name
+        # F306 — the TRIAGE line is crank's exit contract, so it is checked only
+        # on a crank stop (D3). `/land`, a plain conversational turn, and a
+        # mid-task pause do not owe it; a gate that fired on every anchor-scoped
+        # stop would train agents to route around it, which is the F270 failure.
+        # Deliberately BEFORE the LLM check: this is a string comparison over
+        # text already in hand, so it costs nothing and its remediation is the
+        # more specific of the two.
+        if crank is not None:
+            verdict, reason = _triage_line_check(
+                name, _last_assistant_text(
+                    payload.get("transcript_path", "")))
+            mode = _triage_mode()
+            _triage_log(name, verdict, mode)
+            if reason and mode == "enforce":
+                return _block(gate_path, reason, name, count)
         # F267 stage 2: always logs a verdict; returns a block-reason only in
         # enforce mode (asking + unsurfaced + budget left), else None.
-        reason = _llm_ask_check(payload, slug or Path(anchor_path).name, anchor_path)
+        reason = _llm_ask_check(payload, name, anchor_path)
         if reason:
             return {"decision": "block", "reason": reason}
         return _allow(crank_sp, gate_path)  # clean worklist → stage-1 allow
