@@ -1,5 +1,5 @@
 ---
-description: agent inbox — system messages for this anchor; cleared on every pause. See [[DAS Messages]].
+description: agent inbox — background-process messages for this anchor; append-only. See [[DAS Messages]].
 ---
 
 # Warden Messages
