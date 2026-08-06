@@ -39,7 +39,9 @@ A markdown table placed immediately under the H1 of a page. The first row carrie
 
 Every row after the breadcrumb has the **same shape**: its **left cell is a link *down* to a sub-area** (the row's name) and its **right cell enumerates that sub-area's key parts**. There is **no generic `Anchor` row** — superseded ("everything is an anchor", so the label conveyed nothing). A skill / discipline / facet leaf anchor uses the **type row** (and a Design row) and carries **no** Track / User Docs / Dev Docs rows; a project (Code) anchor uses **Design / Track / User Docs / Dev Docs**. **List only members that exist** — never pre-populate phantom/empty links (they render as strikethrough cruft, and a mis-click mints a blank doc); a stray/new doc is caught by the trailing catch-all marker (R-07), not by dead links.
 
-**Ending — the `...` catch-all.** The masthead's **last row is `| ... |  |`** (R-07): after the standard rows — and after any anchor-specific extra rows that don't fit the standard set — this catch-all auto-surfaces any file in the anchor's folder not already captured above, so a stray or newly-dropped doc never silently disappears. (The optional anchor-specific rows sit *between* the standard rows and this final `...`.)
+**Ending — the `...` catch-all.** The masthead's **last row is `| ... |  |`** (R-07): after the standard rows — and after any anchor-specific extra rows that don't fit the standard set — this catch-all auto-surfaces any file in the anchor's folder **not already linked anywhere on the page**, so a stray or newly-dropped doc never silently disappears. (The optional anchor-specific rows sit *between* the standard rows and this final `...`.)
+
+**"Not already linked" means the whole page, prose included** — not just the rows above. A child named in the intro paragraph is *already* surfaced by that sentence, so the catch-all deliberately omits it; the rule's purpose (nothing disappears silently) is satisfied by the prose link. Example: [[WIRE]]'s intro reads *"…whose wire-side plumbing remains here as [[WIRE Muse]]"*, so `WIRE Muse` is correctly **absent** from its `...` row. This is not damage and must not be "repaired" — see § Electric zones. Measured 2026-08-05: **147 children across 35 pages** are correctly absent for this reason. Mechanism: HookAnchor F081 body-mention suppression, which logs every omission (`DISPATCH catchall on '<anchor>': N child(ren) omitted`) so an absent child is explainable rather than mysterious.
 
 **Tracking can be unified at a parent** ([[DAS Track]] § Who owns a Track folder). A `track` group-row appears **only on an anchor that owns its own tracking**; sub-anchors whose tracking is unified at a parent (skills / facets / disciplines → the SKA-level backlog) carry **no Track row** — just the type-specific row + a `Design` row. **Coupled facet+discipline share one design folder, dual-linked:** a Track facet + its Workflow discipline (and a Design facet + its Architect skill) each carry a `Design` row pointing at the **same** single design folder (hosted on the behavioral core — `workflow` / `architect`); the folder is reached from either page, never duplicated.
 
@@ -104,6 +106,17 @@ The two axes combine freely: a member list or member groups can each be manual, 
 | `+` (suffix on a row label — e.g. a group row written `Group+`) | the row is an **expandable group** (member groups layout) |
 
 Dated members (a [[DAS dated-entry-stream]] Collection like a Log) list newest-first with ISO-prefixed names.
+
+### Electric zones — machine-owned; never edit them, never "repair" them
+
+A marker row (`...`, `| --- | |`, and the `+++` / `^^^` / `!!!` variants) is a **separator**: everything **below** it is an *electric zone*, recomputed from the command store on every rebuild — about 30 s after the page stops changing. Rows **above** the separator are the author's; rows **below** belong to the machine.
+
+- **Anything typed into an electric zone is discarded** — not merged, not flagged, silently overwritten on the next rebuild.
+- **A link missing from the `...` catch-all is not damage** — per R-07 above, the catch-all omits any child the page already links in its text, prose included.
+- **So do not put the link back.** The hand-added link appears to work, then vanishes ~30 s later with nothing running and no explanation. That reads exactly like corruption, and it has already produced **three separate wrong bug reports from three different agents** (a Warden bug, an Obsidian stale-buffer bug, a daemon-cache bug). It was none of those — it was the zone doing its job. Confirmed correct behaviour by the user, 2026-08-05.
+- **To change what appears, change the source** — the file's location, its command, or a row *above* the separator. Never the zone itself.
+
+The rule is duplicated at `~/ob/kmr/CLAUDE.md` so every agent working in the vault loads it whether or not they read this facet.
 
 **The member zone *is* the [[Collection]] anchor's face** — and `/audit dispatch` ([[audit-dispatch]]) builds/repairs exactly this structure.
 
