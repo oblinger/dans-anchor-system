@@ -1787,6 +1787,37 @@ def ensure_h2_exists(lines, h2_index, h2_name):
     return lines, new_h2_index
 
 
+def _refuse_multiline_subbullets(verify_text, next_text, user_text):
+    """T128 — a sub-bullet is ONE line; refuse a value that cannot be one.
+
+    `_ensure_subbullet` writes `f"  - **{label}:** {text}\\n"` with no check that
+    `text` is single-line. A value carrying a newline — trivially easy, since
+    `--next "$(cat file)"` preserves internal newlines and any appended-to file
+    has one — put its tail on an **orphan line** that belongs to no sub-bullet,
+    sits inside the row's span, and is invisible to `_row_field`. audit-q
+    reported 0 findings over the corrupted row, so nothing downstream caught it
+    either.
+
+    Refuse rather than repair. Silently joining would be a fallback: a caller
+    who passed two paragraphs meant two paragraphs, and should be told the field
+    cannot hold them rather than handed a mangled single line they did not ask
+    for. The message names the fix, since the caller's next move is to collapse
+    the value or put the long form in the row body.
+    """
+    for flag, text in (("--verify", verify_text), ("--next", next_text),
+                       ("--user", user_text)):
+        if text is None or "\n" not in str(text):
+            continue
+        head = str(text).split("\n", 1)[0].strip()
+        raise BacklogEditError(
+            f"{flag}: the value spans {str(text).count(chr(10)) + 1} lines, and "
+            f"a sub-bullet is one line by construction — the tail would land as "
+            f"an orphan line inside the row that no reader can see.\n"
+            f"  First line: {head[:80]}{'…' if len(head) > 80 else ''}\n"
+            f"  Collapse it to a single line, or put the long form in the row "
+            f"body (`--body`) and leave the sub-bullet a pointer.")
+
+
 def perform_edit(
     backlog_path,
     horizon,
@@ -1804,6 +1835,8 @@ def perform_edit(
     why_user_action=None,
 ):
     """Apply the edit, return a one-line summary for the Messages entry."""
+    _refuse_multiline_subbullets(verify_text, next_text, user_text)
+
     raw = backlog_path.read_text()
     lines, h2_index, row_index = scan_backlog(raw)
 
@@ -1865,8 +1898,12 @@ def perform_edit(
             backlog_path.read_text().splitlines(keepends=True),
             row_id, {"status": "delete"})
         if gone:
+            # T128 — roll back, same as the main write path. A half-applied
+            # delete is the worst failure this file can hold.
+            backlog_path.write_text(raw, encoding="utf-8")
             raise BacklogEditError(
-                f"{row_id}: delete reported success but " + "; ".join(gone))
+                f"{row_id}: delete reported success but " + "; ".join(gone)
+                + ". The file was restored to its pre-edit contents.")
         _selffire(backlog_path)
         return {
             "summary": f"deleted {row_id}",
@@ -2110,6 +2147,10 @@ def perform_edit(
                     lines.insert(j + k, sl if sl.endswith("\n") else sl + "\n")
                 break
 
+    # T128 — hold the pre-edit bytes so a failed post-condition can be UNDONE.
+    # `raw` is what `perform_edit` read at entry, before any mutation.
+    before = raw
+
     write_backlog_lines(backlog_path, lines)
 
     # T050 — the write must be provably on DISK before we report success.
@@ -2129,9 +2170,24 @@ def perform_edit(
         },
     )
     if landed:
+        # T128 — roll back before raising. The guard ran AFTER an unconditional
+        # write with no undo, so `state` correctly reported failure over a file
+        # it had already corrupted; the operator read "the write did not land"
+        # and committed the damage. A guard that can report but not protect is
+        # half a guard. The disk re-read above is kept deliberately (T050's
+        # reason stands — a guard consulting our own belief cannot catch a write
+        # that didn't land), so the rollback is what makes failure clean rather
+        # than moving the check in-memory.
+        restored = ""
+        try:
+            backlog_path.write_text(before, encoding="utf-8")
+            restored = " The file was restored to its pre-edit contents."
+        except OSError as exc:
+            restored = (f" WARNING: the rollback ALSO failed ({exc}) — the file "
+                        f"is left mid-edit and needs manual repair.")
         raise BacklogEditError(
             f"{row_id}: the edit reported success but the file does not "
-            f"reflect it — " + "; ".join(landed)
+            f"reflect it — " + "; ".join(landed) + "." + restored
         )
 
     _selffire(backlog_path)
