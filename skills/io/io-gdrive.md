@@ -1,4 +1,5 @@
 # /io gdrive — Google Drive
+Access card for Google Drive — ranked methods for search, upload, and download, plus the conventions (WEBSHARE naming, multi-account `/u/N/` selection) that govern them.
 
 ## WEBSHARE upload convention (date-prefix — REQUIRED)
 
@@ -10,6 +11,10 @@ The WEBSHARE public folder is id `1asHv4t89nzMF0nCyz0uL6sneQ4mR2d5z` (link-viewa
 2. **Upload date otherwise** — if the source has no date, use today's date (the day it goes into WEBSHARE).
 
 Strip any redundant trailing date from the title once it's been moved to the front (e.g. `Foo Survey (2026-06-17)` → `2026-06-17 Foo Survey`). This applies to uploads *and* to renaming anything already in the folder that predates this convention.
+
+## Selecting which Google account (`/u/N/` in the URL)
+
+When a browser or session is signed into more than one Google account, the account used is chosen by the **`/u/N/` index in the URL path** — `https://drive.google.com/drive/u/0/…`, `…/u/1/…`, and so on (the same `/u/N/` segment also works for Docs, Sheets, and Slides URLs). `N` is the account's **position in that browser's sign-in list, 0-based**, assigned by login order. It is **per-browser, not global** — the same account can be `/u/0` in one browser and `/u/2` in another — and it can **shift** when accounts are added or removed. So to act as a specific account reliably, **put its index in the URL** rather than trusting whichever account the page opens with, and **detect the right index** by loading `/drive/u/0/`, `/u/1/`, … and reading back the signed-in email before you rely on it.
 
 ## Method 1: gsa CLI (preferred)
 

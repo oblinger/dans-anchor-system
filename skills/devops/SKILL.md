@@ -111,7 +111,7 @@ These are almost always WAITING ON USER and are the highest-value thing to banne
 
 ## Related
 
-- [[bridge]] — the control / sync / claude mechanisms DevOps work runs over.
+- [[DAS Bridge|bridge]] — the control / sync / claude mechanisms DevOps work runs over.
 - [[crank]] — autonomous-progress loop; DevOps is its operational sibling (crank drives the backlog; DevOps drives the machines).
 - [[DAS verification]] — tier discipline for what "done" means on a verify item.
 
