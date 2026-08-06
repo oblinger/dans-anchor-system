@@ -1,8 +1,8 @@
-# Email — Read and Search Email
+# imail — Apple Mail (read & search)
 
-Read, search, and access email through Apple Mail using AppleScript. No OAuth tokens, no API keys — Mail.app handles all authentication natively.
+Read, search, and access email through Apple Mail using AppleScript. No OAuth tokens, no API keys — Mail.app handles all authentication natively. (`imail` = the local Apple-Mail surface; the future server-side Gmail-API surface is `/io gmail`.)
 
-**Access methods comparison:** See [[io-email-access]] for trade-offs between Apple Mail, IMAP, Gmail API, and other approaches.
+**Access methods comparison:** See [[io-imail-access]] for trade-offs between Apple Mail, IMAP, Gmail API, and other approaches.
 
 **Drafting an email?** The user's required draft format lives in [[DAS formats]] § Email draft — live markdown (never fenced) so the rendered view pastes into Mail as rich text; `To:`/`CC:`/`Subject:` lines always; bold/italic/lists/plain-URLs allowed; no blockquotes, wiki-links, or em-dashes.
 

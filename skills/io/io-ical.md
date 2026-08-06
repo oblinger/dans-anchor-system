@@ -1,8 +1,8 @@
-# Calendar — Read Today's Events
+# ical — macOS Calendar (today's events)
 
-Read the local macOS Calendar via Apple's **EventKit**, run through the `swift` interpreter. No OAuth tokens, no API keys — the local Calendar already carries every synced account (iCloud + the Google accounts that sync into it), so it is a superset with no expiring permission to renew.
+Read the local macOS Calendar via Apple's **EventKit**, run through the `swift` interpreter. No OAuth tokens, no API keys — the local Calendar already carries every synced account (iCloud + the Google accounts that sync into it), so it is a superset with no expiring permission to renew. (`ical` = the local Apple/EventKit surface; a future server-side Google Calendar API surface would be `/io gcal`.)
 
-**Access methods comparison:** See [[io-calendar-access]] for the trade-offs between local EventKit, the Google Calendar API, and the (rejected) AppleScript route.
+**Access methods comparison:** See [[io-ical-access]] for the trade-offs between local EventKit, the Google Calendar API, and the (rejected) AppleScript route.
 
 ## Today's events
 

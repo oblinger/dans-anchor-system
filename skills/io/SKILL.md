@@ -2,11 +2,12 @@
 name: io
 description: >
   External system I/O — read from and write to external applications and services.
-  Google Workspace: Sheets, Slides, Drive, Docs. Apple: Mail, Calendar.
+  Google Workspace: Sheets, Slides, Drive, Docs. Apple: Mail, Calendar, Health.
   Use when the user says: "put this in sheets", "read the spreadsheet", "update the slides",
   "upload to drive", "read my email", "search mail for", "find that email from",
-  "what's on my calendar", "read my calendar", "what do I have today".
-  Subcommands: /io gsheet, /io gslide, /io gdoc, /io gdrive, /io email, /io calendar, /io notion.
+  "what's on my calendar", "read my calendar", "what do I have today",
+  "pull my health data", "what's my sleep/heart rate", "check my apple health".
+  Subcommands: /io gsheet, /io gslide, /io gdoc, /io gdrive, /io imail, /io ical, /io ihealth, /io notion.
 tools: Read, Write, Edit, Bash, Glob, Grep, WebFetch, WebSearch
 user_invocable: true
 ---
@@ -17,12 +18,15 @@ subsystem:: [[DAS Doc Design]] — the Doc group's subsystem profile
 
 Read from and write to external services. Each sub-skill is an access card with ranked methods.
 
+**Command naming — a single-letter provider/surface prefix** so capabilities don't collide across providers. `g*` = Google cloud API (server-side, one account, expiring token): `gsheet`, `gslide`, `gdoc`, `gdrive`, and the future `gmail`/`gcal`. `i*` = Apple/local macOS frameworks (aggregate every account on this Mac): `imail`, `ical`, `ihealth`. The prefix marks *which access surface*, not which account — `imail` (local Apple Mail) already reads your Gmail if it syncs into Mail.app; `gmail` (once wired) hits Gmail's API directly. Same local-vs-cloud split the `*-access` cards document.
+
 ## Actions
 
 | Group | Usage | File | Description |
 |-------|-------|------|-------------|
-| **Apple** | `/io email` | [[io-email]] · [[io-email-access]] | Email — **local Apple Mail** (working) or **Google Gmail API** (via existing Google auth; not yet wired). See [[io-email-access]] for the two access methods. |
-| **Apple** | `/io calendar` | [[io-calendar]] · [[io-calendar-access]] | Calendar — **local macOS Calendar** (EventKit, working): today's events, optional `+N` days ahead. Superset of the synced Google calendars. See [[io-calendar-access]] for the access methods. |
+| **Apple** | `/io imail` | [[io-imail]] · [[io-imail-access]] | Email via **local Apple Mail** (working). Server-side **Google Gmail API** surface is `/io gmail` (not yet wired). See [[io-imail-access]] for the access methods. |
+| **Apple** | `/io ical` | [[io-ical]] · [[io-ical-access]] | Calendar via **local macOS Calendar** (EventKit, working): today's events, optional `+N` days ahead. Superset of the synced Google calendars. Server-side Google Calendar surface would be `/io gcal`. See [[io-ical-access]]. |
+| **Apple** | `/io ihealth` | [[io-ihealth]] | Apple Health / HealthKit — **local daily JSON drop** (working, no auth): sleep, heart rate, HRV, activity, overnight vitals, gait. One file per day off the Watch/iPhone. Pipe + traps: [[WIRE Health Auto Export]], [[LUMEN Data Sources]]. |
 | **Google** | `/io gsheet` | [[io-gsheet]] | Google Sheets |
 | **Google** | `/io gslide` | [[io-gslide]] | Google Slides |
 | **Google** | `/io gdoc` | [[io-gdoc]] | Google Docs |

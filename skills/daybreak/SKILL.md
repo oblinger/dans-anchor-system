@@ -72,7 +72,7 @@ Confirmation is **conversational, in the morning**: *"You asked me to email Sean
 
 ## Calendar
 
-Today's events come from the **local macOS Calendar** via the shared `/io calendar` capability ([[io-calendar]], EventKit) — not from Google OAuth, and no longer a Daybreak-private script (SKA T047 moved it into `/io`). The local Calendar already carries the Google events (the `{user}@gmail` and `dan@sportsvisio.com` accounts sync into it), so it is a superset with no expiring permission to renew. Run it:
+Today's events come from the **local macOS Calendar** via the shared `/io ical` capability ([[io-ical]], EventKit) — not from Google OAuth, and no longer a Daybreak-private script (SKA T047 moved it into `/io`). The local Calendar already carries the Google events (the `{user}@gmail` and `dan@sportsvisio.com` accounts sync into it), so it is a superset with no expiring permission to renew. Run it:
 
 ```bash
 swift "$HOME/.claude/skills/io/scripts/calendar-today.swift"
@@ -80,7 +80,7 @@ swift "$HOME/.claude/skills/io/scripts/calendar-today.swift"
 
 It prints today's events one per line (`HH:MM    Title`, or `all-day  Title`), sorted. Per Lumen F004 this replaced the AppleScript route, which took ~18s regardless of calendar narrowing; EventKit returns in ~1s.
 
-**If it exits 2 / prints `CALENDAR_ACCESS_DENIED`**, the calling context lacks Calendar permission — **say so in the briefing and continue** (never silently omit the channel; a briefing that admits the calendar was unreachable beats one that quietly dropped it). The one-time fix is a GUI grant: tell the user to double-click `$HOME/.claude/skills/io/scripts/grant-calendar.command` and click Allow. After that it runs granted every morning. Full capability docs: [[io-calendar]]. Interim (until SKA T047 lands the responsible-process binding): the grant is currently bound to **Terminal.app**, so a headless session routes the shim through Terminal (`osascript -e 'tell app "Terminal" to do script "…calendar-today.swift > /tmp/cal.out; exit"'`) and reads the output file. Do **not** fall back to the AppleScript `whose` query — 2026-07-22 it silently returned empty on a 3-event day.
+**If it exits 2 / prints `CALENDAR_ACCESS_DENIED`**, the calling context lacks Calendar permission — **say so in the briefing and continue** (never silently omit the channel; a briefing that admits the calendar was unreachable beats one that quietly dropped it). The one-time fix is a GUI grant: tell the user to double-click `$HOME/.claude/skills/io/scripts/grant-calendar.command` and click Allow. After that it runs granted every morning. Full capability docs: [[io-ical]]. Interim (until SKA T047 lands the responsible-process binding): the grant is currently bound to **Terminal.app**, so a headless session routes the shim through Terminal (`osascript -e 'tell app "Terminal" to do script "…calendar-today.swift > /tmp/cal.out; exit"'`) and reads the output file. Do **not** fall back to the AppleScript `whose` query — 2026-07-22 it silently returned empty on a 3-event day.
 
 **Filter through [[LUMEN Background]] § Standing rhythm.** Standing meetings recorded there (e.g. the daily 14:00 CV ML standup) are suppressed from the briefing's calendar block — the user already knows their own rhythm; surface a standing meeting only when it moved, changed, or was cancelled. Everything else on the day gets listed.
 
@@ -139,6 +139,12 @@ Today's plan gets written into the two lists the user actually works against, **
 **Lumen owns the week file — create it whenever it's missing** (user delegated 2026-07-27, see [[feedback_lumen_owns_week_calendar]]). Reproduce the `[[WEEKLY template]]` output by hand: `# W{NN}   {Mon YYYY-MM-DD}   [[{prev}|<<]] [[{next}|>>]]`, a one-line description, week-rock `- [ ]` bullets, then `### Mon-D` … `### Fri-D` (Mon–Fri, day-of-month no leading zero). Populate the rocks + carry-forwards, then review it with the user daily. (The old rule was "never hand-author, let the user stamp it" — superseded.)
 
 **On Monday, plan the week first.** Before staging the day, walk last week's file for unfinished `- [ ]` items and propose the week's rocks into the top block. Per [[Weekly]] § BRIEF, a Friday item left unresolved is carry-forward — it gets checked, dropped, or migrated, never silently abandoned.
+
+**On Monday, the planning is a session, not a delivery.** Per [[LUMEN Mandate]] the week is the layer Lumen owns outright, and the work is **decomposition**: read [[Rocks]] — which Dan settles with [[Vector]], and which Lumen never writes — and break the big undated things into parts that fit an actual day. Dan's own pronouns are load-bearing here: *"we'll figure out what things we're going to put on my list for the week and for the days."* Propose, do not hand down. Carrying a rock forward untouched week after week is the failure mode; breaking off the piece that fits Tuesday is the value. **Respect the focus cut** — a blank line inside the live Rocks block marks what is parked, and re-widening it every Monday is the same failure as ignoring it.
+
+**On Friday, close the week — and ask whether the time actually went there.** The mirror of the Monday step, and the answer to [[LUMEN005 - Opportunistic time-slotting against a declared priority board|F005]]-Q3, which resolved that **Lumen asks rather than instruments**: the answer is a memory, not a measurement, and a weekly question that gets an honest answer beats an instrumented signal nobody built. So at Friday's close, alongside the carry-forward sweep, ask plainly whether the week's hours went against the rocks they were planned against. **Keep it an ask.** Let [[TEMPO]] replace it later once the shape is known, not before.
+
+Two things this step must not become. It is **not** an accountability review — [[VEC Mandate]] gives that register to [[Vector]] deliberately, and Lumen mentions a slip once, lightly, then re-plans around it. And if the pattern of weeks contradicts what [[MY North Star]] declares, **the declaration may be the stale half**; that is a finding for Vector and Dan, not a verdict Lumen delivers.
 
 ## Where the briefing goes — [[LUMEN Day]] 
 

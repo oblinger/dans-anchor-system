@@ -1,6 +1,6 @@
-# Calendar Access Methods
+# ical — Access Methods
 
-The calendar can be reached more than one way. This page is the dispatch over **how** `/io calendar` gets at your events — the trade-offs, and which is wired today. Per [[DAS granularity]], these are *surfaces within* the calendar capability, not separate skills.
+The calendar can be reached more than one way. This page is the dispatch over **how** `/io ical` gets at your events — the trade-offs, and which is wired today. Per [[DAS granularity]], these are *surfaces within* the calendar capability, not separate skills. (Naming: the local Apple/EventKit surface is `/io ical`; the server-side Google Calendar API surface, once wired, is `/io gcal`.)
 
 | Method | Reaches | Auth | Status |
 |---|---|---|---|
@@ -10,7 +10,7 @@ The calendar can be reached more than one way. This page is the dispatch over **
 
 ## Local — EventKit (default, working)
 
-Queries the local Calendar store's indexed predicate directly via `scripts/calendar-today.swift` (run through the `swift` interpreter). **No tokens, no API keys** — the local Calendar already aggregates every synced account, so it is a superset of the Google calendars with no expiring permission to renew. Best for: "what's on my calendar today", morning briefings, "what do I have tomorrow". Recipes live in [[io-calendar]]. Limits: read-only; one-time Calendar TCC grant required (see [[io-calendar]] § Permission); whole-day offsets only.
+Queries the local Calendar store's indexed predicate directly via `scripts/calendar-today.swift` (run through the `swift` interpreter). **No tokens, no API keys** — the local Calendar already aggregates every synced account, so it is a superset of the Google calendars with no expiring permission to renew. Best for: "what's on my calendar today", morning briefings, "what do I have tomorrow". Recipes live in [[io-ical]]. Limits: read-only; one-time Calendar TCC grant required (see [[io-ical]] § Permission); whole-day offsets only.
 
 ## Cloud — Google Calendar API (available via existing Google auth)
 
@@ -18,7 +18,7 @@ Goes to Google's servers directly — reaches a single Google account's calendar
 
 ## Which to use
 
-- **Reading your calendar on this Mac** → local EventKit (`/io calendar`). It's working now and spans every account that syncs into the local Calendar.
+- **Reading your calendar on this Mac** → local EventKit (`/io ical`). It's working now and spans every account that syncs into the local Calendar.
 - **A Google calendar that isn't mirrored locally** → Google Calendar API, once wired.
 
 Default to **local** — it aggregates every account and needs no renewable permission.
