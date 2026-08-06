@@ -103,5 +103,19 @@ check("the summary is built before any post-edit pass",
       res["h2_name"], "Now")
 
 
+print("\nA terminal row moving to `## Done` is not a surprise")
+
+# The note exists to catch a row that went somewhere the caller did not ask for.
+# `## Done` is where a Done row belongs, so reporting that move would cry wolf on
+# the commonest write there is — and a note that fires when nothing is wrong is
+# how a true one gets ignored.
+src = (_HERE / "state").read_text(encoding="utf-8")
+blk = src.split("summary = result[\"summary\"]", 1)[1].split("print(f\"{slug}: {summary}\")", 1)[0]
+check("the note is suppressed for a terminal row",
+      'startswith("Done")' in blk and "not terminal" in blk, True)
+check("...and still fires for every non-terminal status",
+      'status != "delete" and not terminal' in blk, True)
+
+
 print(f"\n{sum(results)}/{len(results)} passed")
 raise SystemExit(0 if all(results) else 1)

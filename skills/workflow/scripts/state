@@ -350,7 +350,12 @@ def _delegate_row_edit(slug, horizon, row_id_arg, status, title, body,
     # is not a blocker, it is a note"). What was missing is that nothing told
     # the author their row had just gone silent.
     summary = result["summary"]
-    if status != "delete":
+    # A terminal row moves to `## Done` by design, not by the C15/C16 park, so
+    # reporting that move as a surprise would cry wolf on the commonest write
+    # there is — and a note that fires when nothing is wrong is how a true one
+    # gets ignored.
+    terminal = str(result.get("status") or "").startswith("Done")
+    if status != "delete" and not terminal:
         landed = _row_horizon_on_disk(backlog_path, result["row_id"])
         asked = result.get("h2_name")
         if landed and asked and landed != asked:
@@ -1646,6 +1651,12 @@ def _run_question_gates(q_num, body, why_ask, require_on_answer=False):
 
 _MINT_PLACEHOLDER_RE = re.compile(r"\*\*[FTCQ]\+(\s+—)")  # F250#8: C+ was omitted → `C+ define` never rewrote the placeholder; F275: Q+ for standalone question rows
 _REC_BULLET_RE = re.compile(r"^\s*-\s+\*\*Recommendation:\*\*")  # MUX T042 — the one bullet allowed to keep its trailing blank (audit-q C20)
+# T137 — the bullets that may legally follow a Recommendation and still count as
+# part of it for C20's separator: F270's Damage and F275 M3's On-answer. Both
+# post-date the C20 rule, which is why the separator logic only knew about the
+# Recommendation line itself. Extend this set whenever a new continuation is
+# minted, or that Q shape becomes unauthorable through `state` again.
+_REC_CONTINUATION_RE = re.compile(r"^\s*-\s+\*\*(?:Damage|On answer):\*\*")
 _ON_ANSWER_RE = re.compile(r"^\s*-\s+\*\*On answer:\*\*", re.MULTILINE)  # F275 M3 — the resumption clause, hard-required on standalone Q rows
 
 
@@ -1704,7 +1715,19 @@ def _row_define(slug, backlog_path, label, args, minted=False, raw_override=None
     # A Recommendation that ends the body needs the separator too, and a trailing
     # blank can never arrive here — `raw.rstrip("\n")` above eats it — so add it
     # unconditionally rather than relying on the caller to supply one.
-    if sub_lines and _REC_BULLET_RE.match(sub_lines[-1]):
+    #
+    # T137 — the separator belongs after the last CONTINUATION of the
+    # Recommendation, not after the Recommendation line. This test was written
+    # when `- **Recommendation:**` was the last thing a Q could carry; F270 then
+    # added `- **Damage:**` and F275 M3 `- **On answer:**`, both of which sit
+    # after it. An inline row-Q ending in `On answer:` therefore got no blank,
+    # C20 fired on every one, and the finding was unfixable through the
+    # sanctioned path — the caller could supply the blank and `raw.rstrip("\n")`
+    # would eat it. Same shape as T120: a writer and a checker holding different
+    # beliefs, with the writer winning on disk.
+    if sub_lines and (_REC_BULLET_RE.match(sub_lines[-1])
+                      or (_REC_CONTINUATION_RE.match(sub_lines[-1])
+                          and any(_REC_BULLET_RE.match(l) for l in sub_lines))):
         sub_lines.append("")
 
     # A `- **Next:**` / `- **Verify:**` sub-bullet in the define body IS the

@@ -162,6 +162,63 @@ def main():
             check("content after a mid-body Recommendation survives",
                   "a later item that must survive" in t, t)
 
+        # --- T137: the separator follows the last CONTINUATION -------------
+        # C20 wants the blank before the next non-continuation content. When a Q
+        # ends in F270's `- **Damage:**` or F275 M3's `- **On answer:**` — both
+        # minted after the C20 rule — the blank has to land after THOSE, not
+        # after the Recommendation line. It did not, so every inline row-Q of
+        # that shape carried an unfixable C20: the caller could supply the blank
+        # and `raw.rstrip("\n")` ate it.
+        r = define(anchor, "T4", (
+            "- **T4 — a Q ending in On-answer** [Questions] — body text.\n"
+            "  - **Q1 — a question?** ^T4-Q1\n"
+            "    - **(A)** first option.\n"
+            "    - **(B)** second option.\n"
+            "  - **Recommendation:** Lean (A) — because.\n"
+            "  - **Damage:** locking — callers hard-code it.\n"
+            "  - **On answer:** (A) → do the thing.\n"
+        ))
+        ok = r.returncode == 0
+        check("define with a Q ending in On-answer succeeds", ok,
+              (r.stdout or "") + (r.stderr or ""))
+        if ok:
+            t = text(anchor)
+            check("the separator lands after On-answer, not after Recommendation",
+                  "  - **On answer:** (A) → do the thing.\n\n" in t, t)
+            # ...and it must not ALSO appear mid-block, which would split the
+            # Recommendation from its own continuations.
+            check("no blank is inserted between Recommendation and Damage",
+                  "because.\n  - **Damage:**" in t, t)
+
+        r = define(anchor, "T5", (
+            "- **T5 — a Q ending in Damage** [Questions] — body text.\n"
+            "  - **Q1 — a question?** ^T5-Q1\n"
+            "    - **(A)** first option.\n"
+            "  - **Recommendation:** None.\n"
+            "  - **Damage:** reversible.\n"
+        ))
+        if r.returncode == 0:
+            t = text(anchor)
+            check("a Q ending in Damage also gets the separator",
+                  "  - **Damage:** reversible.\n\n" in t, t)
+
+        # A continuation with NO Recommendation above it earns nothing — the
+        # separator exists for the Recommendation, not for the bullet's name.
+        # Asserted on an interior bullet: the last row in a section is followed
+        # by a blank whatever the guard does, so a trailing-position check would
+        # pass for the wrong reason.
+        r = define(anchor, "T6", (
+            "- **T6 — a bare Damage bullet** [Ready] — body text.\n"
+            "  - **Next:** do the thing.\n"
+            "  - **Damage:** orphaned, with no Recommendation above it.\n"
+            "  - a plain sub-bullet after it.\n"
+        ))
+        if r.returncode == 0:
+            t = text(anchor)
+            check("a continuation with no Recommendation gets no separator",
+                  "  - **Damage:** orphaned, with no Recommendation above it.\n"
+                  "  - a plain sub-bullet after it." in t, t)
+
         # --- the carve-out stays narrow ------------------------------------
         r = define(anchor, "T3", (
             "- **T3 — ordinary sub-bullets** [Ready] — body text.\n"
