@@ -19,7 +19,7 @@ The first optional row is **Related**. It carries links to genuinely-related anc
 **Check pattern:** no masthead row is labeled `External`; if a `Related` row exists it precedes every sub-area row.
 **Why:** "what else is near this?" is answered once, up top, before the reader descends into the anchor's own contents; one row for all not-in-breadcrumb links keeps the switchboard small.
 
-### RULE R-dispatch-table-13 — Code anchors carry a `[code]` link in Related (checked)
+### RULE R-dispatch-table-14 — Code anchors carry a `[code]` link in Related (checked)
 mend:: dispatch-rebuild
 Every anchor whose `.anchor` declares a `code:` key (equivalently, carries the `code` trait) includes, in its **Related** row, a markdown link **`[code](hook://f/{slug}?facet=code)`** where `{slug}` is the anchor's slug. The `f/` (finder) hook verb opens the anchor's code folder; one-click reach from the masthead to the code, with no hardcoded path. The link text is exactly `code`.
 **Check pattern:** for every dispatch-table page whose anchor has a `code:` key, the Related row contains a `[code](hook://f/<slug>?facet=code)` link.
@@ -32,7 +32,7 @@ When the anchor has a Design sub-area, the masthead carries a **Design** row who
 **Check pattern:** a row whose left cell links to `{X} Design` and whose right cell holds ≥1 design-part link, whenever a `{X} Design` folder exists.
 **Why:** the design row is the entry into the design flow; surfacing its parts gives one-click reach to the architecture and the rest without opening the sub-page first.
 
-### RULE R-dispatch-table-13 — Track row links the sub-anchor and enumerates the tracking items (checked)
+### RULE R-dispatch-table-10 — Track row links the sub-anchor and enumerates the tracking items (checked)
 check:: dispatch_area_row Track
 mend:: dispatch-rebuild
 When the anchor **owns its tracking**, the masthead carries a **Track** row: **left cell `[[{X} Track\|Track]]`**, **right cell the key tracking items** that exist — Backlog, Features, Roadmap, Now. Absent when tracking is unified at a parent (per [[DAS Track]] § Who owns a Track folder).

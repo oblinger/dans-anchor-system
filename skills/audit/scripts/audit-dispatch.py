@@ -306,11 +306,65 @@ def resolve_anchor_folder(arg: str) -> Path:
     raise SystemExit(f"audit-dispatch: cannot resolve anchor: {arg!r}")
 
 
+def named_on_disk(folder: Path, name: str) -> Path | None:
+    """The real directory entry matching `name`, case-insensitively — or None.
+
+    T136 — macOS is case-insensitive, so `(folder / "Scout.md").exists()` is
+    True when the file is really `SCOUT.md`, and the Path that answered reports
+    the *asked-for* casing in `.stem`. That aliasing is the whole defect: the
+    title cell was rebuilt as `-[[Scout]]-` from a stem no file has ever had,
+    and `R-doc-structure-02` — whose `_has_self_masthead` reads the stem from a
+    real directory walk, and matches case-sensitively — then failed the same
+    page for carrying no masthead. Run the tool, fail the gate; satisfy the
+    gate, the tool reports the page dirty.
+
+    So the invariant is not "match exactly" — it is **never fabricate a stem**.
+    The match stays case-insensitive, because a folder legitimately differs in
+    case from its own page (`Log/NOTE/` holds `Note.md`) and demanding an exact
+    match there would skip the real page for an unrelated file. What changes is
+    that the *returned* path is the one `iterdir()` reported, so `.stem` is
+    always what is actually on disk.
+    """
+    want = name.lower()
+    for entry in folder.iterdir():
+        if entry.name.lower() == want and entry.is_file():
+            return entry
+    return None
+
+
+def anchor_slug(folder: Path) -> str | None:
+    """The slug `.anchor` declares — the anchor's name of record."""
+    dot = folder / ".anchor"
+    if not dot.is_file():
+        return None
+    try:
+        m = re.search(r"^slug:\s*(\S+)", dot.read_text(errors="replace"),
+                      re.MULTILINE)
+    except OSError:
+        return None
+    return m.group(1) if m else None
+
+
 def find_anchor_page(folder: Path) -> Path:
-    """The anchor's page: `<FolderName>.md`, else the first .md with a
-    breadcrumb row, else the first .md."""
-    primary = folder / f"{folder.name}.md"
-    if primary.exists():
+    """The anchor's page: the `.anchor` slug's page, else `<FolderName>.md`,
+    else the first .md with a breadcrumb row, else the first .md.
+
+    The slug leads because `.anchor` is the declaration of record, and because
+    it is what the on-write gate already keys on (`_anchorness` accepts a page
+    as an anchor on `.anchor slug` evidence). Deriving the anchor's name from
+    its folder instead put this tool in direct contradiction with that gate on
+    every anchor whose folder name is not its slug — which under `SYS/Staff/` is
+    every single one. It also resolved `Staff/Boone/` to the persona marker stub
+    `Boone.md` rather than the identity page `PROS.md`; reading the slug fixes
+    both with one lookup.
+    """
+    slug = anchor_slug(folder)
+    if slug:
+        page = named_on_disk(folder, f"{slug}.md")
+        if page is not None:
+            return page
+    primary = named_on_disk(folder, f"{folder.name}.md")
+    if primary is not None:
         return primary
     mds = sorted(folder.glob("*.md"))
     for m in mds:
@@ -628,6 +682,13 @@ def main(argv):
 
     folder = resolve_anchor_folder(args.anchor)
     page = find_anchor_page(folder)
+    # The title cell is SELF-referential — `-[[<page stem>]]-`, the page linking
+    # to itself — which is exactly what the on-write gate matches
+    # (`_has_self_masthead(text, f.stem)`, case-sensitively). Not the slug: a
+    # vault sweep found 8 anchors whose page is deliberately the long human name
+    # behind a short slug (`Espresso.md`/ESP, `Warden.md`/WARDEN, `Vector.md`/VEC),
+    # all correctly titled for the page. So the stem is authoritative here, and
+    # the T136 defect was never this line — it was `page` being the wrong file.
     name = page.stem
     text = page.read_text(errors="replace")
     lines = text.splitlines()

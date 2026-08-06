@@ -3190,12 +3190,26 @@ def chk_dispatch_area_row(target, anchor_root, args):
         return "pass", "no self-masthead"
     stripped = _strip_fenced(text)
     sub = f"{f.stem} {area}"
-    # bare text label in the left cell → always wrong (row leads with the link)
-    if re.search(r"^\|\s*" + re.escape(area) + r"\s*\|", stripped, re.MULTILINE):
-        return "fail", f"masthead row '{area}' is a bare text label — the left cell is the sub-anchor link `[[{sub}\\|{area}]]`"
+    # bare text label in the left cell → always wrong (row leads with the link).
+    # The label is commonly bolded (`| **Track** |`), which the original pattern
+    # did not admit, so that row fell through to the has_row test and was
+    # reported as a MISSING link — see the T136 message note below.
+    if re.search(r"^\|\s*(?:\*\*|__|\*|_)?\s*" + re.escape(area)
+                 + r"\s*(?:\*\*|__|\*|_)?\s*\|", stripped, re.MULTILINE):
+        return "fail", (f"masthead row '{area}' leads with a text label — the LEFT cell is "
+                        f"the sub-anchor link itself, `[[{sub}\\|{area}]]`, not a label with "
+                        f"the link in the right-hand cell")
     has_row = bool(re.search(r"^\|\s*\[\[" + re.escape(sub) + r"\s*(\\\||\|)?[^\]]*\]\]", stripped, re.MULTILINE))
     folder = (f.parent / sub).is_dir() or any(p.is_dir() for p in f.parent.glob(f"*/{sub}"))
     if folder and not has_row:
+        # T136 — the message used to say the link was absent. When it is in fact
+        # present in a right-hand cell, that sends the reader hunting for a
+        # broken link that was never broken (three edit cycles, SCOUT 2026-08-05).
+        # The requirement is about the CELL POSITION, so the message must be too.
+        if re.search(r"\[\[" + re.escape(sub) + r"(\s*(\\\||\|)[^\]]*)?\]\]", stripped):
+            return "fail", (f"masthead links `[[{sub}]]`, but not from the LEFT cell of its own "
+                            f"row — the {area} row leads with `[[{sub}\\|{area}]]` and enumerates "
+                            f"the parts on the right")
         return "fail", f"{sub}/ exists but the masthead has no `[[{sub}\\|{area}]]` row"
     return "pass", "row links the sub-anchor" if has_row else f"no {area} facet"
 
