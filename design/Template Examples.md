@@ -35,6 +35,8 @@ Three constructs. Everything else is a **default**, and the defaults are the rea
 | many-by-variable | a pattern holding a **free** variable matches once per binding | `[0+]` |
 | whole document | a stencil with no anchor marker governs the whole file | a "this is a file template" marker |
 
+**Anchors nest, and depths are relative to the nearest enclosing anchor** (added 2026-08-06 from [[#T4 — One Shape, Four Incompatible Spellings|T4]]). An anchor marker may appear on a heading *inside* a stencil, not only on its first line, and every depth below it is read against that heading rather than against the file or the outer anchor. T4 is what forced it: `# LOG` sits at H1 in both `@Robin Calder.md` and `@Alex Trenton.md`, but the entries under it are H2 in the first and **H3** in the second — so `## {{YYYY-MM-DD}}…`, read as "one deeper than wherever LOG matched", is correct for one file and wrong for the other, while `## ... {{YYYY-MM-DD}}…` is correct for both. This buys no construct; it reuses `...` in a position the T3 write-up did not consider.
+
 *(Provenance, since the table above deliberately omits it: `{{NAME}}` is inherited from the shipped template convention; the two anchor forms were demanded by T3, where `# LOG` sits at different depths in different files; the four defaults each replaced a construct that T1 or T2 proposed and that Dan cut on 2026-08-04.)*
 
 ### Not yet decided — how far a variable reaches
@@ -78,7 +80,9 @@ Two accepted costs of verbatim-and-unfenced: specimen headings are real headings
 
 **Confirmed live 2026-08-05, and the exclusion list is longer than expected.** Authoring T5 tripped `R-progressive-05` (summary-freshness): its specimen `## Identity` / `## Hardware` were counted as two new *document* sections, so every case authored here will report the summary stale by construction. That rule is `where:: always` and advisory-only, so it cannot be excluded by a `where::` glob the way the doc-structure rules can — whatever mechanism carries the exclusion has to reach it too. Recorded here rather than filed, because it is a property of this document's format that M1 has to live with until [[TINK303 - Template DSL - one pattern language for facets, templates, and sections|F303]] M6 decides how Stencil-bearing files declare themselves to Warden.
 
-**Status.** Language cut to three constructs 2026-08-04 on Dan's objections; seven cases identified. **T1–T3, T5 and T7 worked through; T4 and T6 carry their real instances and await examples and proposals.** Three findings so far, all of them the M1 gate doing its job rather than incidental: T5 added nothing to the language (it looked like it needed a filename anchor and turned out to be a T2 member); T5 was citing a gallery exemplar rather than a vault instance, which the Format Rules above forbid; and **T7, the acceptance test, passes** — a facet spec restates in one construct and three defaults, and the closed-world marker it was predicted to demand is refuted by the corpus instead.
+**The list is now measured rather than predicted (2026-08-06).** Before T4 and T6 were authored this document passed **19 of 19** mechanical rules; authoring them broke three, and every break is inside a byte-exact block. `R-markdown-02` (blank line before and after a table) fires on T6.a and T6.b, which are dispatch tables sitting flush against their markers. `R-markdown-14` (no trailing whitespace) fires on T4.a lines 264–266, where the trailing double-space is a markdown **hard break** carried verbatim out of Apple Mail — stripping it would change the specimen's meaning, which is exactly what byte-exact is for. `R-progressive-02` (blank line before an H2) fires on T4.c, whose first line is `## 2026-07-31 Fri  Received — Northwind declines`; T3.a has the same shape at H1 and passes, so this is a rule asymmetry rather than something the block could avoid. **All four rules are shape rules about the document, applied to bytes that belong to another document** — which is the general form of the exclusion M6 has to grant, and the concrete list to grant it over: `R-markdown-02`, `R-markdown-14`, `R-progressive-02`, `R-progressive-05`. The three `R-markdown`/`R-progressive-0[25]` ones are `where::`-scoped and can take a glob; `R-progressive-05` is `where:: always` and cannot, so it remains the one that decides what the mechanism has to be.
+
+**Status.** Language cut to three constructs 2026-08-04 on Dan's objections; seven cases identified. **All seven are now worked through** — T4 and T6 authored 2026-08-06, which completes the corpus M1 gates on. **The language did not grow.** Three constructs and four defaults expressed every case, and the two constructs that were expected to be forced — a partial-match notion (T4) and a nested-stencil reference (T6) — were each refused by the case that was supposed to demand them. Findings, all of them the M1 gate working rather than incidental: T5 added nothing (it looked like it needed a filename anchor and turned out to be a T2 member) and was citing a gallery exemplar rather than a vault instance, which the Format Rules above forbid; **T7, the acceptance test, passes**, and the closed-world marker it was predicted to demand is refuted by the corpus; **T4 shrank on contact with its instances** — two of its four spellings are not entry headers at all but pasted correspondence inside an entry body, which open world already covers; and **T6 is expressible with existing constructs and still cut**, because what distinguishes a curated dispatch row from a machine-owned one is ownership, not shape. The one substantive addition is a semantic clarification rather than a construct: **anchors nest**, which T4 forced by finding `# LOG` at H1 with entries at H3 in one file and H2 in another.
 
 ---
 
@@ -254,6 +258,46 @@ Dan
 
 # T4 — One Shape, Four Incompatible Spellings
 
+**Example T4.a** — `AT/@Alex Trenton.md` — bold field labels
+
+<!-- begin example T4.a -->
+EMAILS:
+
+**From:** Dan Oblinger <[dan@brightfield.example](mailto:dan@brightfield.example)>  
+**Date:** Tuesday, December 13, 2022 at 1:13 AM  
+**To:** Alex Trenton <[alex.trenton@meridian.example](mailto:alex.trenton@meridian.example)>  
+**Subject:** Great chatting today
+<!-- end example T4.a -->
+
+**Example T4.b** — `AT/@Alex Trenton.md` — tilde separator, bare direction lines, no field names
+
+<!-- begin example T4.b -->
+~
+
+From Alex
+To Dan and Morgan
+<!-- end example T4.b -->
+
+**Example T4.c** — `AT/Corp/@Northwind/@Robin Calder.md` — one combined header line, middot-separated
+
+<!-- begin example T4.c -->
+## 2026-07-31 Fri  Received — Northwind declines
+
+From: Robin Calder, robin@northwind.example · To: {user}@gmail.com · Fri 2026-07-31 4:23pm
+Subject: Re: I am in the test right now and burning hours... Where is the specification?
+<!-- end example T4.c -->
+
+The fourth spelling is **Example T3.a** above — bare `To:` / `Subject:`, one field per line, no `From:` at all — and it is the house form, so it is not repeated here.
+
+**Proposal T4.A** — `AT/_LOG Entry Header Template.md`
+
+<!-- begin proposal T4.A -->
+## {{YYYY-MM-DD}} {{DAY}}  {{DIRECTION}} — {{KIND}}
+
+To: {{TO}}
+Subject: {{SUBJECT}}
+<!-- end proposal T4.A -->
+
 ## T4 Overview
 
 **Real instances.** The email block inside [[AT]] log entries, in four mutually-incompatible forms across two files — bold field labels (`EMAILS:` then `**From:**` / `**Date:**` / `**To:**` / `**Subject:**`) in `@Alex Trenton.md`; a dashed header line and a dashed draft line in `@Robin Calder.md`; and a tilde fence with bare `From Alex` / `To Dan and Morgan` in `@Alex Trenton.md`. They share **no** common marker. Example T3.a above is a *fifth* spelling — bare `To:` / `Subject:` under a dated heading.
@@ -262,7 +306,13 @@ Dan
 
 **What the case demands.** Possibly nothing new, and that is worth testing: if Stencil expresses the target shape and the matcher reports **which parts bound and which did not**, reconcilability is a predicate over that result and stays out of the grammar. If it cannot be kept out, this is the case that proves the language needs a partial-match notion — a large addition, and one to resist.
 
-*(Examples and proposals — to be written.)*
+**Authored 2026-08-06, and the case is smaller than its title claims — it is two cases wearing one name.** Only **T4.c** and **T3.a** are competing spellings of the same slot: the header of a log entry, one combined middot-separated line versus one field per line. **T4.a and T4.b are not entry headers at all.** `@Alex Trenton.md` has three entries (`### 2022-12-19`, `### 2022-12-12`, `### 2022-12-07`) and both the `EMAILS:` block at line 39 and the two `~` blocks at 54 and 69 sit **inside the body of the first one**, which runs from line 6 to line 107. They are ways of quoting pasted correspondence *within* an entry, not ways of opening one. So the four-way incompatibility that named this case is really a two-way one, and the other two are a different shape entirely — quoted source material inside a body — which **Stencil already covers for free**: T3.A's `{{entry body}}` is a variable, the open-world default says a stencil states what is present rather than what is absent, and nothing about a pasted thread needs to be expressible. This is the second time a case has shrunk on contact with its own instances (T5 was the first), and it is the same mechanism: the shape was named from memory and the files disagreed.
+
+**The two real spellings differ in a way no visible markup shows, which is the finding worth keeping.** T4.a's field labels are followed by **U+00A0**, a non-breaking space — `'**From:**\xa0Dan Oblinger'` — pasted out of Apple Mail rather than typed. `# LOG ` in the same file carries a **trailing space** where `@Robin Calder.md`'s does not. A matcher written against what these look like on screen matches neither. That is not an argument for a construct; it is an argument that the matcher normalizes Unicode whitespace before comparing literals, which is an implementation property of M3 and belongs in its spec rather than in the grammar.
+
+**And the depth floats twice, not once.** `@Robin Calder.md` puts `# LOG` at H1 with entries at H2; `@Alex Trenton.md` puts `# LOG` at H1 with entries at **H3**. T3 already established that the LOG heading itself floats, which is what `...` exists for. What this case adds is that the entry heading's depth is not fixed *relative to the anchor* either — so T3.A's `## {{YYYY-MM-DD}}…`, read as "one deeper than wherever LOG matched", is **wrong for this file**. The honest reading is that the entry heading is itself an anchor (`## ... {{YYYY-MM-DD}}…`), nested inside the LOG anchor, which costs no new construct — it reuses the one T3 already bought — but it does mean **anchors nest**, and T3's Overview does not say so. That is the one genuine addition this case makes to the language, and it is a semantic clarification rather than a construct.
+
+**Verdict: no partial-match notion, and the reason is structural rather than a preference.** With the case reduced to two header spellings, reconciliation is *"did `TO` and `SUBJECT` bind, from anywhere in this entry?"* — a question about the **result** of a match, answerable from a matcher that reports bindings instead of a boolean. Putting it in the grammar would mean each stencil declaring how much of itself is allowed to fail, and then a stencil's meaning depends on the tolerance it was read with rather than on what it says. That is precisely the second-rules-engine failure the scope discipline exists to prevent, and T4 — the case that was expected to force it — turns out not to.
 
 ---
 
@@ -348,6 +398,42 @@ SYS/SYS Catalog/Computer/
 
 # T6 — Table With Fixed Head And Variable Rows
 
+**Example T6.a** — `SYS/Staff/Scout/Scout Track/Scout Track.md` — identity row, two curated rows, catch-all
+
+<!-- begin example T6.a -->
+| -[[SCOUT Track]]- | → [[kmr]] → [[SYS]] → [[Staff]] → [[SCOUT]] → [Scout Track](hook://p/Scout%20Track)  |
+| --- | --- |
+| [[Scout Backlog\|Backlog]]  |  |
+| [[Scout Messages\|Messages]]  |  |
+| ... | [[SCOUT queries]],   |
+<!-- end example T6.a -->
+
+**Example T6.b** — `prj/ClaudiMux/Docket/DKT Track/DKT Track.md` — the same table with a member zone below a second separator
+
+<!-- begin example T6.b -->
+| -[[DKT Track]]- | → [[kmr]] → [[prj]] → [[ClaudiMux]] → [[DKT]] → [DKT Track](hook://p/DKT%20Track)<br>: work tracking + planning |
+| --- | --- |
+| [[DKT Backlog\|Backlog]]  | workflow-state backlog |
+| [[DKT Features\|Features]]  | dated feature specs (F-numbered) |
+| --- | |
+| [[DKT Icebox]]  | Items deferred indefinitely; not on the active backlog. Reactivate by moving back to the appropriate backlog section. |
+| [[DKT Open Questions]]  | open architectural questions to resolve before continuing the roadmap |
+<!-- end example T6.b -->
+
+**Proposal T6.A** — `templates/dispatch-table.md` — existing constructs only
+
+<!-- begin proposal T6.A -->
+| -[[{{TITLE}}]]- | {{IDENTITY}} |
+| --- | --- |
+| {{LEFT}}  | {{RIGHT}} |
+<!-- end proposal T6.A -->
+
+**Proposal T6.B** — `templates/backlog.md`, the line T1.A leaves opaque
+
+<!-- begin proposal T6.B -->
+{{dispatch table}}
+<!-- end proposal T6.B -->
+
 ## T6 Overview
 
 **Real instances.** The dispatch table at the top of every anchor page — see [[DAS Dispatch Table]]; Example T1.a contains a live one. A fixed identity row, then a variable number of labelled rows drawn from a known vocabulary.
@@ -356,7 +442,13 @@ SYS/SYS Catalog/Computer/
 
 **What the case demands.** Structure *below* the heading level — rows within a table — where the anchor construct does not reach. This is the case most likely to push Stencil further than it should go, and therefore the one to design last and cut first. `/audit dispatch` already generates these from a spec; if Stencil cannot express it cleanly, **that is an acceptable answer** and T1.A's opaque `{{dispatch table}}` stands.
 
-*(Examples and proposals — to be written.)*
+**Authored 2026-08-06. T6.A is expressible with the three constructs and nothing else — and it is still the wrong answer.** The surprise is the first half: a table is a sequence of lines, `{{LEFT}}` and `{{RIGHT}}` are free, and many-by-variable already means *once per binding*, so `| {{LEFT}}  | {{RIGHT}} |` matches any number of rows with no new construct and no cardinality marker. That is exactly the default doing the work it does for LOG entries in T3 and folder members in T2. **What it cannot do is stop.** Nothing in T6.A distinguishes a curated row from `| --- | |`, from `| ... | [[SCOUT queries]],   |`, or from a row of an unrelated table further down the same file — every one of them is two cells with text in them. In T6.b that is not academic: the same pattern spans the separator and swallows the electric zone, and a stencil that matches the machine-owned rows is a stencil that would let a generator write them.
+
+**And what actually separates those rows is not shape at all.** `| --- | |` marks the boundary between what a human may write and what HookAnchor recomputes ~30 s after the page settles; `| ... |` is the catch-all whose contents are derived from the child set *minus whatever the prose already links*. Those are facts about **ownership and derivation**, and no arrangement of `{{NAME}}` states them. This is the same line T3 drew when it kept constraints out of the grammar and the same line the Stencil-entire table draws with open world: shape is what the notation says; truth is what a rule says. **So the cut is not a concession — the table's structure genuinely is not the interesting thing about it.**
+
+**Verdict: T1.A's `{{dispatch table}}` stands, and the nested-stencil reference is not bought.** The construct floated in *Not yet decided — how far a variable reaches* — a placeholder for a sub-shape governed by another stencil, distinct from a hole awaiting a value — has exactly one candidate case, this one, and this one does not need it: the sub-shape it would reference is a shape nobody should be matching against. Under the scope discipline a construct with one demanding case is already marginal; a construct whose one case turns out not to demand it is refused. **The default that carries the weight is open world**: `{{dispatch table}}` is not an admission of defeat but the accurate statement that a Backlog has a dispatch table here and this stencil says nothing further about it — which is true, and is what `/audit dispatch` and `R-dispatch-table` are for.
+
+**One thing to carry forward to M2 rather than settle here.** A free variable spanning a *line* is bounded by the literals around it; a free variable spanning *rows* has no such bound, because rows are delimited by nothing. T2 and T3 never hit this — folder members are delimited by the filesystem, LOG entries by headings. If a later case genuinely needs a repeating row group, the missing notion is a **terminator**, not a nesting construct, and the honest first question will be whether a table can be given one (`| --- |` is already a literal the stencil could name) before any construct is added.
 
 ---
 
