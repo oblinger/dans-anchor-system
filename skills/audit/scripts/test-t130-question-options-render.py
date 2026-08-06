@@ -243,5 +243,44 @@ check("the scan stops at the next row",
       any("T901" in e[1] for e in inline), False)
 
 
+# ...and the NESTED form, which is what C8 requires and therefore what any
+# row-Q authored to pass the checker looks like. This shape rendered as a bare
+# stem with no options and no lean until the reader learned it — the exact
+# defect T130 exists to fix, surviving in the sibling function.
+NESTED = write("TINK Backlog.md", """# Tink Backlog
+
+## Now
+
+- **T910 — a row whose Q nests its options** [Questions] — context. ^T910
+  - **Q1 — Where does the drop CLI live?** — the surface is the open part. ^T910-Q1
+    - **(A)** **A `drop` verb on `state`** — reuses the plumbing already there.
+    - **(B)** **A standalone `drop` executable** — one tool, one job.
+  - **Recommendation:** Lean **(A)**, weakly. · *why-ask: durable interface*
+  - **Damage:** locking — every sender hard-codes the invocation.
+- **T911 — the next row** [Ready] — unrelated. ^T911
+""")
+
+
+class _R2:
+    line_num = 5
+
+
+nested = qr._read_row_inline_questions(NESTED, _R2())
+check("the nested row-Q is read", [e[0] for e in nested], ["Q1"])
+check("...and its nested options are collected",
+      [lab for lab, _ in nested[0][3]], ["A", "B"])
+check("...with their authored names",
+      [g for _, g in nested[0][3]],
+      ["A `drop` verb on `state`", "A standalone `drop` executable"])
+check("...and the nested Recommendation is picked up, without its why-ask",
+      nested[0][2].startswith("Lean **(A)**") and "why-ask" not in nested[0][2],
+      True)
+# `- **Damage:**` is a sibling of the Recommendation, not an option.
+check("...and Damage is not mistaken for an option",
+      any(g.startswith("locking") for _, g in nested[0][3]), False)
+check("...and the scan still stops at the next row",
+      any("T911" in e[1] for e in nested), False)
+
+
 print(f"\n{sum(results)}/{len(results)} passed")
 raise SystemExit(0 if all(results) else 1)

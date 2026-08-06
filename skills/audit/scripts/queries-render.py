@@ -507,10 +507,13 @@ def _read_row_inline_questions(backlog_file: Path, r: "Row") -> list[tuple[str, 
     (qid, question_text, recommendation, options) — the same shape
     `_read_open_questions` returns for doc-backed rows.
 
-    `options` is always empty here: an inline Q packs its `**(A)**`/`**(B)**`
-    onto the same line as the question, so they are already inside the text this
-    returns and get the wider 420-char budget. A separate option line would
-    print them twice.
+    A row-hosted Q comes in two shapes and both are read. The **packed** form
+    puts `**(A)**`/`**(B)**` on the question's own line, so the options are
+    already inside the returned text and `options` stays empty — a separate
+    option line would print them twice. The **nested** form gives each option
+    its own sub-bullet, which is what audit-q C8 requires and therefore what any
+    Q authored to pass the checker looks like; those are collected into
+    `options` exactly as the doc-hosted reader does.
 
     T-/B-rows may carry their questions inline (F233) instead of in a feature
     doc. The Questions section used to skip those on the reasoning that such a
@@ -531,6 +534,25 @@ def _read_row_inline_questions(backlog_file: Path, r: "Row") -> list[tuple[str, 
         if H2_HEADING_RE.match(line) or line.startswith("### ") or line.startswith("- **"):
             break
         if not line.strip():
+            continue
+        # A row-hosted Q may carry its options as NESTED sub-bullets rather than
+        # packed onto the header line — which is what audit-q C8 requires, so it
+        # is the shape any Q authored to pass the checker will have. T130 taught
+        # the doc-hosted reader to collect these and left this one believing
+        # every inline Q packs its options into the text; the result was that a
+        # C8-conforming row-Q rendered as a bare stem with no options and no
+        # lean, the exact defect T130 existed to fix. Found by using the fix.
+        om = re.match(r"\s+-\s+\*\*\(([A-Z])\)\*\*\s*(.*)$", line)
+        if om and out:
+            out[-1][3].append((om.group(1), _option_gloss(om.group(2))))
+            continue
+        # A nested `- **Recommendation:**` belongs to the Q above it, same as in
+        # the doc-hosted form.
+        rm_sub = re.match(r"\s+-\s+\*\*Recommendation:\*\*\s*(.*)$", line)
+        if rm_sub and out and not out[-1][2]:
+            rec_txt = re.split(r"\s*·\s*\*why-ask", rm_sub.group(1).strip())[0].strip()
+            qid_, txt_, _, opts_ = out[-1]
+            out[-1] = (qid_, txt_, rec_txt, opts_)
             continue
         # `  - **Q1 — title?** rest…` — the rest may follow directly with no
         # em-dash separator (the inline form packs context + options + the
