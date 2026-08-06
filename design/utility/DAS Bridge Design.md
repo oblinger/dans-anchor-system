@@ -6,12 +6,12 @@ System design for the bridge skill — PRD and design docs.
 
 | -[[DAS Bridge Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [design](hook://design) → [DAS Bridge Design](hook://p/DAS%20Bridge%20Design)<br>: system design — PRD, UX Design, Testing |
 | --- | --- |
-| [[DAS Bridge PRD\|PRD]] | what bridge produces; the three kinds of bridging (control / sync / claude); mechanism-vs-goal; config-is-the-recipe |
-| [[DAS Bridge UX Design\|UX Design]] | the subskill command surface — every verb, its arguments, output shape, confirmation gates |
-| [[DAS Bridge Testing\|Testing]] | testing strategy + proposed integration tests, grouped by bridge kind |
+| [[DAS Bridge PRD\|PRD]]  | what bridge produces; the three kinds of bridging (control / sync / claude); mechanism-vs-goal; config-is-the-recipe |
+| [[DAS Bridge UX Design\|UX Design]]  | the subskill command surface — every verb, its arguments, output shape, confirmation gates |
+| [[DAS Bridge Testing\|Testing]]  | testing strategy + proposed integration tests, grouped by bridge kind |
 | --- | |
 
-See ~~[[DAS Design Dispatch]]~~ for the canonical Design-dispatch shape. The live runbook is `~/.claude/skills/bridge/SKILL.md` (~~[[bridge]]~~); this design hierarchy is the *what/why*, the SKILL.md is the *how*.
+See ~~[[DAS Design Dispatch]]~~ for the canonical Design-dispatch shape. The live runbook is `~/.claude/skills/bridge/SKILL.md` (~~[[DAS Bridge|bridge]]~~); this design hierarchy is the *what/why*, the SKILL.md is the *how*.
 
 ## Provenance
 

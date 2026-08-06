@@ -7,7 +7,7 @@ description: See and drive a Mac's screen — screen grab plus click / move / ty
 requires:: vault, skill:bridge, external:cliclick
 subsystem:: [[DAS Utility Design]] — the Utility group's subsystem profile
 
-The agent can both **see** a Mac's screen and **act** on it — capture the display, then click, move, type, and press keys. This closes the GUI verification-and-control loop: instead of asking the user to dismiss a dialog or click Continue, the agent does it. Pairs with the [[devops]] heartbeat discipline (screencap is the visual half of the watcher loop) and the [[bridge]] control plane (it carries the capability to a remote Mac for free).
+The agent can both **see** a Mac's screen and **act** on it — capture the display, then click, move, type, and press keys. This closes the GUI verification-and-control loop: instead of asking the user to dismiss a dialog or click Continue, the agent does it. Pairs with the [[devops]] heartbeat discipline (screencap is the visual half of the watcher loop) and the [[DAS Bridge|bridge]] control plane (it carries the capability to a remote Mac for free).
 
 Helper: `~/.claude/skills/screen/screen.py` (bridged to remotes via `bridge claude`).
 
@@ -28,7 +28,7 @@ The fix is to run inside a process the **Aqua login session** owns. Two mechanis
 
 This needs no pre-existing session on the remote — only that someone is logged in. (Verified end-to-end against haorui 2026-07-27; [[TINK Backlog#^T049|T049]].)
 
-**The bridge's tmux route (manual, still valid).** A Terminal-launched tmux session also inherits the GUI context and the launching Terminal's TCC, which is what the [[bridge]] control plane already maintains. Reach for it when you are *already* working in that session, or when you need the verb to share state with a running bridge job:
+**The bridge's tmux route (manual, still valid).** A Terminal-launched tmux session also inherits the GUI context and the launching Terminal's TCC, which is what the [[DAS Bridge|bridge]] control plane already maintains. Reach for it when you are *already* working in that session, or when you need the verb to share state with a running bridge job:
 
     ssh host '/usr/local/bin/tmux new-window -t work -d -n cap \
         "~/.claude/skills/screen/screen.py grab /tmp/s.png"'
@@ -76,7 +76,7 @@ For precise targeting, prefer fraction-of-screen reasoning over guessing absolut
 ## Related
 
 - [[devops]] — heartbeat + watcher discipline; screen grab is the visual half of observation.
-- [[bridge]] — carries screen.py to a remote Mac and provides the GUI-session tmux context.
+- [[DAS Bridge|bridge]] — carries screen.py to a remote Mac and provides the GUI-session tmux context.
 - [[io]] — sibling IO capabilities.
 
 ---
