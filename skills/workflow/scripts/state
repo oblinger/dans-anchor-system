@@ -334,8 +334,65 @@ def _delegate_row_edit(slug, horizon, row_id_arg, status, title, body,
         sync_msg = _sync_roadmap_on_done(slug, backlog_path, row_id_arg)
         if sync_msg:
             print(f"{slug}: {sync_msg}")
-    print(f"{slug}: {result['summary']}")
+    # T124 — report the horizon the row ACTUALLY sits under, not the one asked
+    # for. `refresh_q_md` above runs audit-q --fix, and C15 moves a `[Waiting]`
+    # row back to `## Later` regardless of what was requested — so `state set
+    # <row> --horizon Now` printed `updated <row> in Now [Waiting]` over a row
+    # that never left Later. The summary is built inside `perform_edit`, before
+    # any of that, so it could only ever report the request.
+    #
+    # That is what turned a placement policy into an invisible failure: two live
+    # ATT rows were believed promoted and were in fact parked, where
+    # `_row_should_render` admits only Questions/Verify* — so they rendered in
+    # no section of queries.md at all. The policy itself is deliberate and
+    # stays: 109 Later Waiting/Blocked rows vault-wide are correctly quiet, and
+    # Dan already ruled on this axis ("a blocker for something parked in Later
+    # is not a blocker, it is a note"). What was missing is that nothing told
+    # the author their row had just gone silent.
+    summary = result["summary"]
+    if status != "delete":
+        landed = _row_horizon_on_disk(backlog_path, result["row_id"])
+        asked = result.get("h2_name")
+        if landed and asked and landed != asked:
+            summary = summary.replace(f" in {asked} ", f" in {landed} ", 1)
+            print(f"{slug}: note — asked for `## {asked}`, the row landed in "
+                  f"`## {landed}` (audit-q C15/C16 park "
+                  f"[Waiting]/[Blocked]/[Watching] rows there).")
+            if landed == "Later" and not _renders_under_later(result["status"]):
+                print(f"{slug}: ⚠ a [{result['status']}] row in `## Later` "
+                      f"renders in NO section of queries.md — if it needs the "
+                      f"user, bracket it [User] or [Questions]; if it needs an "
+                      f"agent, it belongs on an active horizon under a bracket "
+                      f"that survives there.")
+    print(f"{slug}: {summary}")
     return 0
+
+
+def _row_horizon_on_disk(backlog_path, row_id):
+    """The `## ` section a row physically sits under right now, or None.
+
+    Read from disk deliberately, and only after every post-edit pass has run —
+    the point is to report what the file says rather than what the writer
+    intended, which is the same reason `verify_write_landed` re-reads (T050).
+    """
+    try:
+        _lines, _h2, row_index = be.scan_backlog(backlog_path.read_text())
+    except (OSError, be.BacklogEditError):
+        return None
+    entry = row_index.get(row_id)
+    return entry[2] if entry else None
+
+
+def _renders_under_later(status):
+    """Whether a bracket is visible in queries.md while parked in `## Later`.
+
+    Mirrors `_row_should_render`'s Later arm in queries-render.py. Duplicated
+    rather than imported because that is a hyphenated script this module does
+    not load — but the pairing is exactly the T120 shape (a checker and its
+    fixer drifting apart), so a third bracket admitted on either side must be
+    added to the other.
+    """
+    return bool(status) and ("Questions" in status or status.startswith("Verify"))
 
 
 def _sync_roadmap_on_done(slug, backlog_path, row_id):
