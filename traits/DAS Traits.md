@@ -1,14 +1,14 @@
 ---
-description: "the anchor traits — declarable specializations of an anchor"
+description: "The anchor traits — declarable specializations of an anchor"
 ---
 
-# Traits
-The declarable properties an anchor carries in its `.anchor` `traits:` key — each specializes the [[Common Anchor Blueprint]].
-
-| -[[DAS Traits]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[traits]] → [DAS Traits](hook://p/DAS%20Traits)<br>: the anchor traits — declarable specializations of an anchor |
+| -[[DAS Traits]]- | : The anchor traits — declarable specializations of an anchor<br>→ [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[traits]] → [DAS Traits](hook://p/DAS%20Traits)  |
 | --- | --- |
 | Related | [[DAS Skills\|Skills]],  [[DAS Facets\|Facets]],  [[DAS Disciplines\|Disciplines]],  [[DAS Examples\|Examples]],  [[DAS Rulesets\|Rulesets]],  [[DAS\|dans-anchor-system]],   |
 | ... | [[anchor-base]],  [[pr]],  [[push]],   |
+
+# Traits
+The declarable properties an anchor carries in its `.anchor` `traits:` key — each specializes the [[Common Anchor Blueprint]].
 
 All anchor types follow the [[Common Anchor Blueprint]]. Each type adds specializations:
 

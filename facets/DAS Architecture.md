@@ -117,6 +117,8 @@ The figure in § 3 must:
 
 Same rules for `## Thread layout` and any other in-architecture diagrams.
 
+These are the mechanical floor. The judgment half — whether the figure should exist, what it should leave out, and the mistakes that keep recurring — is [[Drawing Wisdom]], the companion beside the the `viz` skill skill.
+
 ## What does NOT belong on the entry-point Architecture page
 
 The main `{slug} Architecture.md` is a **conceptual map**. Detail belongs elsewhere:

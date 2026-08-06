@@ -52,6 +52,9 @@ Trade-off discussions (round-trip experiments, design questions): [[SKA viz disc
 | `/viz docx`       | [[viz-docx]]       | Convert markdown to editable .docx via pandoc + reference template |
 | `/viz pdf`        | [[viz-pdf]]        | Convert markdown to PDF via pandoc + tectonic |
 
+## Companion — judgment, not procedure
+
+[[Drawing Wisdom]] sits beside these action files and is deliberately not one of them. The `viz-*.md` files say how to operate a tool; [[R-diagram]] says what a figure must satisfy mechanically. Neither says whether a figure should exist at all, what it should leave out, or which mistakes keep recurring — that is what the companion carries. Read it before authoring a figure that matters; the actions alone will produce a correct diagram nobody opens.
 
 ## Scripts
 
