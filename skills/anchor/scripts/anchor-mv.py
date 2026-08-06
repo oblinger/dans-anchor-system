@@ -2,9 +2,9 @@
 """anchor-mv — Move/rename markdown files and folders, updating all wiki-links.
 
 Usage:
-  anchor-mv [--dry-run] [moves-file]
-  echo "old.md → new.md" | anchor-mv [--dry-run]
-  anchor-mv [--dry-run] "old.md" "new.md"
+  anchor-mv [--dry-run] [--force] [moves-file]
+  echo "old.md → new.md" | anchor-mv [--dry-run] [--force]
+  anchor-mv [--dry-run] [--force] "old.md" "new.md"
 
 Moves file format (one per line):
   CAB-create.md → cab-create.md
@@ -12,14 +12,28 @@ Moves file format (one per line):
   MUX Files.md → MUX Docs/MUX Dev/MUX Files.md
 
 All paths are relative to the vault root (configured in ~/.config/skl/config.yaml).
-The script scans the entire vault ONCE and applies all link replacements in one pass.
 
 Arrow separator: → (U+2192) or -> (ASCII)
 Lines starting with # are comments. Blank lines are ignored.
+
+This is a THIN FRONT-END. Every move is executed by `anchor update`, the
+sanctioned path-to-path renamer in the `anchorage` crate — this script parses
+the move list and shells out, and owns no rename or link-rewriting logic of its
+own (HA T044, 2026-08-04, Q1 = B).
+
+Why it was retired: this script used to hand-roll both halves. Its mover was a
+bare `os.rename()` that checked only that the *source* existed, so a move onto
+an existing path silently squashed it — on 2026-08-03 that destroyed the
+24-line `[[ATT]]` anchor page during a Staff-prefix sweep, exit 0 and no
+warning. `anchor update` refuses a collision by default (`RenameCollision`,
+non-zero exit, both files intact) and overwrites only under `--force`. Its
+link rewriting is also strictly broader than the regex pass this replaced:
+wiki-links, `hook://` URLs, and relative markdown links, in one mechanism.
 """
 
 import os
-import re
+import shutil
+import subprocess
 import sys
 
 import yaml
@@ -48,160 +62,71 @@ def parse_moves(lines):
             parts = line.split("->", 1)
         else:
             continue
-        if len(parts) == 2:
-            old = parts[0].strip()
-            new = parts[1].strip()
-            if old and new:
-                moves.append((old, new))
+        old, new = parts[0].strip(), parts[1].strip()
+        if old and new:
+            moves.append((old.rstrip("/"), new.rstrip("/")))
     return moves
 
 
-def basename_no_ext(path):
-    """Get the base filename without extension."""
-    return os.path.splitext(os.path.basename(path))[0]
+def resolve(vault_root, path):
+    """Vault-relative paths win; fall back to cwd-relative for a loose invocation."""
+    if os.path.isabs(path):
+        return path
+    in_vault = os.path.join(vault_root, path)
+    if os.path.exists(in_vault):
+        return in_vault
+    return os.path.abspath(path)
 
 
-def collect_all_md_files(vault_root):
-    """Collect all .md files in the vault."""
-    md_files = []
-    for root, dirs, files in os.walk(vault_root):
-        # Skip hidden dirs, build artifacts
-        dirs[:] = [d for d in dirs if not d.startswith(".")
-                   and d not in ("node_modules", "__pycache__", "target",
-                                 "build", ".build", "dist", "vendor")]
-        for f in files:
-            if f.endswith(".md"):
-                md_files.append(os.path.join(root, f))
-    return md_files
+def execute_moves(vault_root, moves, dry_run=False, force=False):
+    """Delegate every move to `anchor update`. Returns the number that failed."""
+    anchor = shutil.which("anchor")
+    if not anchor:
+        # No fallback: a silent regex-only pass would move nothing and report
+        # success, which is exactly the failure mode this rewrite removed.
+        print(
+            "anchor-mv: `anchor` not found on PATH — cannot move anything.\n"
+            "           Build it: cargo build --release in docket/anchorage,\n"
+            "           and symlink target/release/anchor into ~/bin.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
-
-def build_replacements(moves):
-    """Build a list of (old_name, new_name) for wiki-link replacements.
-
-    For file moves: replace the basename (without extension).
-    For folder moves: replace the folder name in any path-based links.
-    """
-    replacements = []
+    failures = 0
     for old_path, new_path in moves:
-        old_base = basename_no_ext(old_path)
-        new_base = basename_no_ext(new_path)
+        src = resolve(vault_root, old_path)
+        dst = new_path if os.path.isabs(new_path) else os.path.join(vault_root, new_path)
 
-        if old_path.endswith("/"):
-            # Folder rename — strip trailing slash
-            old_folder = old_path.rstrip("/")
-            new_folder = new_path.rstrip("/")
-            replacements.append(("folder", old_folder, new_folder))
-        else:
-            # File rename
-            if old_base != new_base:
-                replacements.append(("file", old_base, new_base))
-    return replacements
-
-
-def apply_replacements(content, replacements):
-    """Apply all replacements to markdown content. Returns (new_content, changes)."""
-    changes = []
-    new_content = content
-
-    for rtype, old, new in replacements:
-        if rtype == "file":
-            # Replace [[old_name]] with [[new_name]]
-            # Also handle [[old_name|alias]] → [[new_name|alias]]
-            # And [[path/old_name]] → [[path/new_name]]
-
-            # Pattern: [[...old_name...]] where old_name is the link target
-            # Must handle: [[old_name]], [[old_name|alias]], [[folder/old_name]],
-            # [[folder/old_name|alias]]
-            def replace_link(m):
-                full = m.group(0)
-                inner = m.group(1)
-
-                # Split on | to separate target from alias
-                if "|" in inner:
-                    target, alias = inner.split("|", 1)
-                else:
-                    target = inner
-                    alias = None
-
-                # Check if the target's basename matches old
-                target_base = target.split("/")[-1] if "/" in target else target
-                if target_base == old:
-                    # Replace the basename in the target
-                    if "/" in target:
-                        new_target = "/".join(target.split("/")[:-1]) + "/" + new
-                    else:
-                        new_target = new
-
-                    if alias:
-                        replacement = f"[[{new_target}|{alias}]]"
-                    else:
-                        replacement = f"[[{new_target}]]"
-
-                    if replacement != full:
-                        changes.append((old, new, full, replacement))
-                    return replacement
-                return full
-
-            new_content = re.sub(r"\[\[([^\]]+)\]\]", replace_link, new_content)
-
-        elif rtype == "folder":
-            # Replace folder name in path-based links
-            # [[old_folder/file]] → [[new_folder/file]]
-            def replace_folder_link(m):
-                full = m.group(0)
-                inner = m.group(1)
-
-                # Split on | for alias
-                if "|" in inner:
-                    target, alias = inner.split("|", 1)
-                else:
-                    target = inner
-                    alias = None
-
-                if old in target:
-                    new_target = target.replace(old, new)
-                    if alias:
-                        replacement = f"[[{new_target}|{alias}]]"
-                    else:
-                        replacement = f"[[{new_target}]]"
-
-                    if replacement != full:
-                        changes.append((old, new, full, replacement))
-                    return replacement
-                return full
-
-            new_content = re.sub(r"\[\[([^\]]+)\]\]", replace_folder_link, new_content)
-
-    return new_content, changes
-
-
-def execute_moves(vault_root, moves, dry_run=False):
-    """Execute file/folder moves."""
-    for old_path, new_path in moves:
-        old_abs = os.path.join(vault_root, old_path) if not os.path.isabs(old_path) else old_path
-        new_abs = os.path.join(vault_root, new_path) if not os.path.isabs(new_path) else new_path
-
-        if not os.path.exists(old_abs):
-            # Try relative to cwd
-            old_abs = os.path.abspath(old_path)
-            new_abs = os.path.abspath(new_path)
-
-        if not os.path.exists(old_abs):
+        if not os.path.exists(src):
             print(f"  SKIP: {old_path} — not found", file=sys.stderr)
             continue
 
+        cmd = [anchor, "update", src, dst, "--root", vault_root, "--mkpath"]
         if dry_run:
-            print(f"  WOULD MOVE: {old_path} → {new_path}")
-        else:
-            os.makedirs(os.path.dirname(new_abs), exist_ok=True)
-            os.rename(old_abs, new_abs)
-            print(f"  MOVED: {old_path} → {new_path}")
+            cmd.append("--dry-run")
+        if force:
+            cmd.append("--force")
+
+        proc = subprocess.run(cmd, capture_output=True, text=True)
+        if proc.returncode != 0:
+            failures += 1
+            detail = (proc.stderr or proc.stdout).strip()
+            print(f"  FAILED: {old_path} → {new_path}\n    {detail}", file=sys.stderr)
+            continue
+
+        print(f"  {'WOULD MOVE' if dry_run else 'MOVED'}: {old_path} → {new_path}")
+        for line in (proc.stdout or "").splitlines():
+            if "rewrote" in line or "would rewrite" in line:
+                print(f"    {line.strip()}")
+
+    return failures
 
 
 def main():
     args = sys.argv[1:]
     dry_run = "--dry-run" in args
-    args = [a for a in args if a != "--dry-run"]
+    force = "--force" in args
+    args = [a for a in args if a not in ("--dry-run", "--force")]
 
     vault_root = load_vault_root()
 
@@ -223,11 +148,11 @@ def main():
     elif len(args) == 0:
         # Read from stdin
         if sys.stdin.isatty():
-            print(__doc__.strip())
+            print((__doc__ or "").strip())
             sys.exit(1)
         moves = parse_moves(sys.stdin.readlines())
     else:
-        print(__doc__.strip())
+        print((__doc__ or "").strip())
         sys.exit(1)
 
     if not moves:
@@ -237,51 +162,25 @@ def main():
     print(f"Vault root: {vault_root}")
     print(f"Moves: {len(moves)}")
     if dry_run:
-        print("DRY RUN — no changes will be made\n")
+        print("DRY RUN — no changes will be made")
+    if force:
+        print("FORCE — an existing destination will be OVERWRITTEN")
+    print("\nFile moves:")
 
-    # Build replacements
-    replacements = build_replacements(moves)
-    print(f"Link replacements: {len(replacements)}")
+    failures = execute_moves(vault_root, moves, dry_run, force)
 
-    # Scan all md files
-    md_files = collect_all_md_files(vault_root)
-    print(f"Markdown files to scan: {len(md_files)}\n")
-
-    # Apply replacements
-    total_changes = 0
-    files_changed = 0
-    for md_path in md_files:
-        try:
-            with open(md_path, encoding="utf-8", errors="ignore") as f:
-                content = f.read()
-        except (OSError, IOError):
-            continue
-
-        new_content, changes = apply_replacements(content, replacements)
-
-        if changes:
-            files_changed += 1
-            total_changes += len(changes)
-            rel = os.path.relpath(md_path, vault_root)
-            if dry_run:
-                print(f"  {rel}: {len(changes)} links to update")
-                for _, _, before, after in changes[:3]:
-                    print(f"    {before} → {after}")
-                if len(changes) > 3:
-                    print(f"    ... +{len(changes) - 3} more")
-            else:
-                with open(md_path, "w", encoding="utf-8") as f:
-                    f.write(new_content)
-
-    # Execute file/folder moves
-    print(f"\nLink changes: {total_changes} across {files_changed} files")
-    print(f"\nFile moves:")
-    execute_moves(vault_root, moves, dry_run)
+    if failures:
+        print(
+            f"\n{failures} of {len(moves)} move(s) failed — nothing was forced.\n"
+            "Re-run with --force only if overwriting the destination is intended.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
     if dry_run:
-        print(f"\nDry run complete. Run without --dry-run to apply.")
+        print("\nDry run complete. Run without --dry-run to apply.")
     else:
-        print(f"\nDone. {total_changes} links updated, {len(moves)} files moved.")
+        print(f"\nDone. {len(moves)} path(s) moved, links rewritten by `anchor update`.")
 
 
 if __name__ == "__main__":
