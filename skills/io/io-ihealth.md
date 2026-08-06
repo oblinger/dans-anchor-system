@@ -17,6 +17,8 @@ Read the user's Apple Health / HealthKit data — sleep, heart rate, HRV, activi
 
 Top-level shape: `data.metrics[]` — each entry a group with `name`, `units`, and a `data[]` array of points. **`data` holds only `metrics`** — there is no sibling `workouts` key (verified across 25 files, 2026-08-05).
 
+**Durable archive (prefer this for history).** The container above is a rolling **~26-day** window — older days age off and are gone. They are now mirrored into a permanent, git-versioned vault archive at `~/ob/kmr/Topic/MED/MED Data/Apple/`: `raw/` holds the daily JSON verbatim (the full window and everything already captured before it rolled), and `series/daily-long.csv` + `daily.csv` give one aggregated row per day for trends. For anything beyond the last ~26 days, or for a ready-made time series, read the archive — not the container. Refresh it with `MED Data/bin/sync-apple-health.sh` then `build-series.py`. Full design: [[MED Data]].
+
 ## How to read it
 
 Load the file, walk `data.metrics[]` matching on `name`, then read `data[]` inside the matched group:
