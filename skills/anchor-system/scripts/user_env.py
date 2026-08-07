@@ -9,7 +9,7 @@ block (optionally fenced ```yaml) followed by prose. Non-secret facts only.
 Path resolution (first hit wins):
     1. env  ANCHOR_SYSTEM_USER_ENV_DOC
     2. global.yaml  user_env_doc
-    3. computed default  {vault_root}/MY/User Environment.md
+    3. computed default  {vault_root}/MY/MY User Environment.md
        (vault_root: env ANCHOR_SYSTEM_VAULT_ROOT → global.yaml vault_root → ~/ob/kmr)
 
 Usage (called by the `anchor-system env` subcommand):
@@ -61,7 +61,7 @@ def resolve_doc() -> str:
         or _yaml_global("vault_root")
         or "~/ob/kmr"
     )
-    return os.path.join(_expand(vault), "MY", "User Environment.md")
+    return os.path.join(_expand(vault), "MY", "MY User Environment.md")
 
 
 def _section_bounds(lines: list[str], section: str) -> tuple[int, int] | None:
@@ -163,7 +163,7 @@ def cmd_set(doc: str, section: str, key: str, value: str) -> int:
             "(per F182). Non-secret only.",
             "---",
             "",
-            "# User Environment",
+            "# MY User Environment",
             "",
         ]
     b = _section_bounds(lines, section)
