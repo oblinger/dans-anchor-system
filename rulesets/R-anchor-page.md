@@ -220,7 +220,7 @@ A [[Collection]] anchor whose body enumerates **homogeneous members** (a feature
 - **Member zone required** — the generic member rules R-anchor-page-17…20 apply. The layout split is **structural — rows-per-member — not a count** (one axis, three values):
   - **list** — **one row per member** (each row is a single entry). A `| --- | |` separator auto-generates exactly this: HookAnchor emits one row per child. Count is irrelevant — a 30-entry auto-list is still a list. Examples: [[SV]], [[RR]], [[Roots]], [[SKA Access]].
   - **grouped** — **each row is a group holding many members** (a category row, often `+`-expandable, carrying several links). Typically chosen once a flat list grows past ~15 ([[DAS granularity]], R-anchor-page-18), but the defining mark is **many-members-per-row**. Examples: [[Log]], [[DAS Facets]], [[DAS Skills]].
-  - **chronological (reverse-dated)** — a [[DAS dated-entry-stream]]; newest-first, ISO-prefixed member names. Example: [[HBR Log]].
+  - **chronological (reverse-dated)** — a [[DAS stream]]; newest-first, ISO-prefixed member names. Example: [[HBR Log]].
 - Member zone ends with an electric marker (R-anchor-page-20) so new children have a place to land.
 
 ### R-anchor-page-topic — Topic (stated)

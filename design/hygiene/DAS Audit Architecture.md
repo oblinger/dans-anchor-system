@@ -13,7 +13,7 @@ The audit system is two things: the **rule sets** it runs over, and the **compon
 |---|---|
 | **Rule sets — the base** | The `# RULESET` corpus `/audit` runs over; each rule binds to its targets via `where::`. Three families: |
 | · Facets | per-artifact specs, each embedding its ruleset — [[DAS Anchor Page\|R-anchor-page]], [[DAS PRD\|R-prd]], [[DAS Stories\|R-stories]], [[DAS Architecture\|R-architecture]], [[DAS Design Folder\|R-design]], [[DAS Testing\|R-testing]], [[DAS Dispatch Table\|R-dispatch-table]], [[DAS Decisions\|R-decisions]] … |
-| · Disciplines | vault-wide text practices — [[DAS markdown\|R-markdown]], [[DAS dated-entry-stream\|R-dated-entry-stream]], [[DAS file-association\|R-file-association]] |
+| · Disciplines | vault-wide text practices — [[DAS markdown\|R-markdown]], [[DAS stream\|R-stream]], [[DAS file-association\|R-file-association]] |
 | · Skills | skill-anchor specs — [[DAS Skill\|skill-spec]], skill-doc, skill-script, skill-config |
 | **Components — skills + scripts** | The `/audit` orchestrator + the scripts that run over the rule sets: |
 | · Audit skills | `/audit` + its actions (structure · doc · q · architecture · dispatch · …) |
@@ -25,7 +25,7 @@ The audit system is two things: the **rule sets** it runs over, and the **compon
 Everything audit does is defined by rule sets, so the organization of the rules *is* the architecture. A rule set is a `# RULESET R-<name>` block whose rules each carry `check::` (detect), optional `fix::` (repair), `where::` (which targets it applies to), and a tier (`checked` / `sampled` / `stated` / `tracked`). See [[DAS Ruleset]]. Rules live with the specs that own them, in three families:
 
 - **Facets** — one structural spec per artifact kind (anchor page, PRD, architecture, dispatch table, …), each embedding its ruleset (`R-anchor-page`, `R-prd`, …). This is the bulk of the corpus.
-- **Disciplines** — vault-wide text practices that cut across artifact kinds (`R-markdown`, `R-dated-entry-stream`, `R-file-association`).
+- **Disciplines** — vault-wide text practices that cut across artifact kinds (`R-markdown`, `R-stream`, `R-file-association`).
 - **Skills** — the skill-anchor specs (`skill-spec`, `skill-doc`, `skill-script`, `skill-config`).
 
 Rule sets **contain** other rule sets via `include::` (an umbrella like `R-doc` or `R-anchor` pulls in the per-facet sets), and each rule **binds** to its targets via `where::`. Resolving a target to its applicable rules is just walking these two relations.

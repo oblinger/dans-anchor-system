@@ -13,9 +13,10 @@ The catalog of disciplines — cross-cutting concepts the agent reads — organi
 | [[DAS Anchor Design\|Anchor]]+ | [[DAS anchor-dag\|anchor-dag]],  [[DAS Linked Mode\|Linked Mode]],  [[DAS progressive-disclosure\|progressive-disclosure]],   |
 | [[DAS Tracking Design\|Tracking]]+ | [[DAS workflow\|workflow]],  [[DAS ask-format\|ask-format]],  [[DAS verification\|verification]],  [[DAS granularity\|granularity]],   |
 | [[DAS Code Design\|Code]]+ | [[DAS code-repo\|code-repo]],  [[DAS rust\|rust]],   |
-| [[DAS Doc Design\|Doc]]+ | [[DAS markdown\|markdown]],  [[DAS formats\|formats]],  [[DAS dated-entry-stream\|dated-entry-stream]],  [[DAS file-association\|file-association]],  [[DAS technical-answer\|technical-answer]],   |
+| [[DAS Doc Design\|Doc]]+ | [[DAS markdown\|markdown]],  [[DAS formats\|formats]],  [[DAS stream\|stream]],  [[DAS file-association\|file-association]],  [[DAS technical-answer\|technical-answer]],   |
 | [[DAS Drive Design\|Drive]]+ | [[DAS mode\|mode]],  [[DAS role\|role]],   |
 | --- | |
+| [[DAS rider]]  | Discipline. A RIDER is typed content that rides on a parent — Discussion, Log, Brief, Decisions and their kin. Owns the three placement methods (inline H1 / sibling file / sibling folder), the cardinality→placement rule, the suffix-naming convention, one-way migration, the one-form-per-parent invariant, and parent linkage. The parent may be a document OR an anchor. Two dimensions ride on top: dated? and cardinality. The dated case is the specialization [[DAS stream]] (Discussion, Log); undated riders (Brief, Decisions) cite this umbrella directly. Renamed from `file-association` 2026-08-06. NOT progressive-disclosure (reader layering) or markdown (text rules). |
 | [Mode](hook://Mode)  |  |
 | [Role](hook://Role)  |  |
 

@@ -10,7 +10,7 @@ The **disciplines** — cross-cutting behaviors the agent reads — grouped by *
 
 Four horizontal cluster bands, left → right:
 
-- **Writing form**: markdown · ask-format · technical-answer · dated-entry-stream — how the agent writes.
+- **Writing form**: markdown · ask-format · technical-answer · stream — how the agent writes.
 - **Workflow & verification**: verification · progressive-disclosure — how work is validated and revealed.
 - **Anchor organization**: anchor-dag · file-association · granularity · Linked Mode — how the folder graph is structured.
 - **Operation**: role · mode — how the agent operates (role-pilot, drive modes).

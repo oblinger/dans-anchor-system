@@ -8,7 +8,7 @@ The work-surface facet group — the `{slug} Track/` folder that houses an ancho
 | -[[DAS Track]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets\|FCT]] → [DAS Track](hook://p/DAS%20Track)  |
 | --- | --- |
 | [[Workflow Design\|Design]]  |  |
-| Facets | [[DAS Backlog]],  [[DAS Inbox\|Inbox]],  [[DAS Icebox\|Icebox]],  [[DAS Messages\|Messages]],  [[DAS Log\|Log]],  [[DAS Query\|Query]],  [[DAS Status\|Status]],  [[DAS Agenda\|Agenda]],   |
+| Facets | [[DAS Backlog]],  [[DAS Inbox\|Inbox]],  [[DAS Icebox\|Icebox]],  [[DAS Messages\|Messages]],  [[DAS Log\|Log]],  [[DAS Query\|Query]],  [[DAS Status\|Status]],  [[DAS Agenda\|Agenda]],  [[DAS Rocks\|Rocks]],   |
 | Related | [[templates/track/{slug} Track.md\|track template]],   |
 | Examples | [[Tink Track\|real instance (SKA anchor)]],   |
 | Rules | [[R-track-group]],  [[R-track-dispatch]],   |
@@ -47,6 +47,7 @@ Work is *transient and owned by whoever is doing it*, so it belongs to the agent
 | `{slug} Backlog.md` | [[DAS Backlog]] — **required** for the Track trait (the only mandatory child) |
 | `{slug} Status.md` | [[DAS Status]] — per-facet design-phase completeness |
 | `{slug} Agenda.md` | [[DAS Agenda]] — strategic frame / theory-of-victory for the activity (optional, elective) |
+| `{slug} Rocks/` | [[DAS Rocks]] — the anchor's big chunks of work, ranked; one short-named file per rock (optional, elective) |
 | `{slug} Discussion.md` | tracking-level discussion (planning trade-offs only — design discussions live in `{slug} Design/`) |
 | `{slug} Icebox.md` | [[DAS Icebox]] — cold-storage / someday-maybe (optional) |
 | `{slug} Inbox.md` | [[DAS Inbox]] — raw input to process (optional) |

@@ -2,7 +2,7 @@
 description: "deferred work — roadmap milestones M0–M5"
 ---
 # Warden Backlog
-<!-- state:backlog iq -->
+<!-- state:backlog tq -->
 
 ## Active
 
@@ -40,6 +40,9 @@ _None._
 
 - **T018 — Enforcement rollout — fire-once, then rate-limit the re-fires** [Ready] ^T018
   - **Next:** Implement the graduated rollout the user described in a 2026-07-18 voice capture (routed here by [[LUMEN]] T001). **(a) Ship at fire-once.** Do not flip full enforcement on: allow a rule to fire exactly once, then go quiet. Blast radius is one nudge per agent, and it buys the evidence needed to judge whether the firing was correct at all — user: *"the worst that happens is it just bugged the agent one time before it gave up."* **(b) Rate-limit by progress, not by count alone.** When a rule fires at an agent that stopped early, check whether the agent then made real progress — a state change, something reportable. If it did, stop. If it did not, escalate once more with a sharper message; after 3–4 unproductive fires, give up and let the agent stop. **(c) Why the cap is load-bearing:** without it, an agent that genuinely *cannot* proceed gets told to proceed forever — an infinite loop — and worse, user: *"it also might cause the agent to become chaotic and just try to do something crazy at that point."* A stuck agent being nagged is a hazard, not a fix. **(d)** Raise the fire limit only as confidence in a given rule grows; make the cap per-rule configurable rather than global.
+
+- **T021 — Move `/Users/oblinger/ob/proj/warden` into `~/ob/proj/bespoke-repos/`** [Ready] — Estate convention adopted 2026-08-06 ([[Conventions]] § DAS Code Repository): every repository a vault anchor points at lives one level down inside a `<group>-repos/` folder under `~/ob/proj/`, so the code tree reads at a glance and a bare name there always means a repository rather than a container. This is one of 15 repos still outside. The target folder already exists and is empty. Routed to Warden because Warden's `.anchor` `code:` key is what points at this repo, which makes Warden its owner. **`code:` stays authoritative** — the convention only says where a repo goes absent a reason otherwise, and exceptions need no justification. ^T021
+  - **Next:** check `git -C "/Users/oblinger/ob/proj/warden" status` is clean **and** `git -C "/Users/oblinger/ob/proj/warden" log @{u}..HEAD` is empty (a clean tree is not the same as no unique work — that mistake nearly cost 20 commits elsewhere in this sweep); then `mv "/Users/oblinger/ob/proj/warden" ~/ob/proj/bespoke-repos/`; update `code:` in `SYS/Bespoke/Skill Agent/dans-anchor-system/warden/.anchor`; grep `~/.config/`, this repo's own justfile, and `~/.claude/skills/` for the old absolute path; re-run this project's build or smoke test; commit. One repo, one verified move.
 
 ## Later
 

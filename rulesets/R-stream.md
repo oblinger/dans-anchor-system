@@ -1,13 +1,13 @@
-# RULESET R-dated-entry-stream
+# RULESET R-stream
 
 include:: [[R-file-association]]
 import:: skills/audit/scripts/audit-plan.py
 where:: `sentinel: ^## \d{4}-\d{2}-\d{2} —`
 description:: Rules ADDED by the dated specialization on top of [[R-file-association]] — newest-first ordering + prepend immutability, the parallel-entry-skeleton invariant, and ISO-date entry-file naming.
 
-Ruleset for the dated-entry-stream specialization ([[DAS dated-entry-stream]]). The **general** association rules (three methods, cardinality→placement, naming, migration, one-form, linkage, folder shape, method declaration) live in [[R-file-association]] and are inherited via the `include::` above (promoted there per F154); only the **dated extras** are stated here. Sits under [[R-doc]] in the catalog.
+Ruleset for the stream specialization ([[DAS stream]]). The **general** association rules (three methods, cardinality→placement, naming, migration, one-form, linkage, folder shape, method declaration) live in [[R-file-association]] and are inherited via the `include::` above (promoted there per F154); only the **dated extras** are stated here. Sits under [[R-doc]] in the catalog.
 
-### RULE R-dated-entry-stream-01 — Reverse chronological, newest-first, prepend-immutable (checked)
+### RULE R-stream-01 — Reverse chronological, newest-first, prepend-immutable (checked)
 check:: dated_entries_reverse_chronological
 
 Entries are ordered newest-first by date; new entries **prepend**, never append; recorded entries are not edited after their decision/outcome lands (the stream is a ledger).
@@ -16,7 +16,7 @@ Entries are ordered newest-first by date; new entries **prepend**, never append;
 
 **Why:** a reader's first encounter is "what's the latest thinking / latest event?" — newest-first puts the answer first; prepend-immutability preserves the audit trail.
 
-### RULE R-dated-entry-stream-02 — Parallel entry skeleton declared by the citing facet (sampled)
+### RULE R-stream-02 — Parallel entry skeleton declared by the citing facet (sampled)
 
 Every entry within one facet's stream follows the same H3 sub-structure. The skeleton is declared by the citing facet (Discussion → Problem / Options Considered / Decision; Log → its own shape). The discipline mandates uniformity; the facet defines the shape.
 
@@ -24,7 +24,7 @@ Every entry within one facet's stream follows the same H3 sub-structure. The ske
 
 **Why:** uniform skeletons make the stream scannable. Reading a third entry should not be a fresh navigation problem.
 
-### RULE R-dated-entry-stream-03 — Dated entry-file naming (method 3) (checked)
+### RULE R-stream-03 — Dated entry-file naming (method 3) (checked)
 check:: dated_entry_file_naming
 
 When method 3 is used for a dated stream, each per-entry file uses an ISO date prefix + em-dash + title: `YYYY-MM-DD — <Title>.md`. The H1 inside matches the title *without* the date (clean H1s; the date lives in the filename for sort order). This is the dated specialization of file-association's general sibling-folder shape ([[R-file-association]]-07).
@@ -43,7 +43,7 @@ This ruleset is cited explicitly by each facet that uses it (in their `R-<facet>
 
 ## See also
 
-- [[DAS dated-entry-stream]] — sub-discipline spec this ruleset enforces.
+- [[DAS stream]] — sub-discipline spec this ruleset enforces.
 - [[DAS file-association]] — parent umbrella discipline.
 - [[R-doc]] — documentation-conventions catalog row this set sits under.
 - [[DAS Discussion]] — citing facet (doc-scoped, methods 1 + 2).

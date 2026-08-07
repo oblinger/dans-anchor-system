@@ -45,7 +45,7 @@ The fixed top block — always present:
 If the anchor has the `collection` trait (or is clearly an enumeration of homogeneous children), render its **members** below the Masthead:
 - **member list vs member groups** — flat list if ≤ 15 members; **grouped** if > 15 (per [[DAS progressive-disclosure]]'s size rule + [[DAS granularity]]). For groups, derive categories from the members (sub-folder, name-prefix, date-bucket) — *this categorization is the low-confidence part; surface it.*
 - **manual / auto / hybrid** — if members are uniform and order doesn't matter, emit an **auto** form (`---` separator → children auto-list, or `...` compact). If the user has pinned/ordered rows, keep them **manual** above a `---` auto-fill line (**hybrid**). Mark expandable groups with `+`.
-- **dated members** — if members are dated ([[DAS dated-entry-stream]]), list newest-first with the ISO-prefixed names.
+- **dated members** — if members are dated ([[DAS stream]]), list newest-first with the ISO-prefixed names.
 
 ### 4. Diff and apply (fix-by-default)
 - Diff the **ideal** table (Masthead + Member zone) against the **current** table.
