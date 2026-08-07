@@ -23,7 +23,7 @@ The principle: **discussion belongs to the thing being discussed**. A discussion
 
 ## Placement — Discussion is a stream
 
-Discussion is a [[DAS stream]] attached to a parent doc. **Methods supported: 1 (inline, default) and 2 (sibling file).** Method 3 (sibling folder) is out of scope for Discussion — entries are rarely large or numerous enough to deserve their own files; if Discussion ever grows to method-3 size, the right move is usually to split the parent doc, not the discussion.
+Discussion is a [[DAS stream]] attached to a parent doc. **Methods supported: 1 (inline, default) and 2 (sibling file).** Method 3 (sibling folder) is out of scope for Discussion — entries are rarely large or numerous enough to deserve their own files; if Discussion ever grows to method-3 size, the right move is usually to split the parent doc, not the discussion. Where the parent genuinely cannot be split — a [[DAS Rocks|rock]] file is the case that tested this, 2026-08-06 — method 2 still fits, because the parent's own folder is already the folder method 3 would have to invent. Full rationale at `R-discussion-02`.
 
 - **Method 1 — inline `# Discussion` H1** at the end of the parent doc. Default for any new discussion.
 - **Method 2 — sibling file `{Parent} Discussions.md`** (plural). Migrate when the inline form has grown past ~1–2 screens of body content. Parent doc links to it from its dispatch table; the inline `# Discussion` H1 is removed.
