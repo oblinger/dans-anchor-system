@@ -30,7 +30,7 @@ Every row is one thing Lumen does in the morning, in order. Detail follows below
 | **Stage** | Lift today's quick hits to the top of [[Quick]], above a blank line. Propose the set; add to it. |
 | **Week** | Put the ≥30-min items into today's `### <Day>` in this week's [[Weekly]] file, as checkboxes. |
 | **Runnable** | Name the Ready work that needs no user, offered as a single `'` (crank). |
-| **Ahead** | Read [[LUMEN Nudge]] (in Lumen's own folder); pull anything now due into the briefing's **Watching** section. |
+| **Ahead** | Read [[LUMEN Nudge]] (in Lumen's own folder); surface every row whose **Tempo** falls due today into the briefing's **Watching** section. |
 | **Write** | Put the briefing at the top of `~/ob/kmr/SYS/Staff/Lumen/LUMEN Day.md` — the user reads it there, not in chat. |
 | **Close** | Write down anything deferred, then advance the watermark. In that order. |
 
@@ -165,7 +165,21 @@ Shape: today's block goes directly under the H1 as `## <Day> YYYY-MM-DD · W<nn>
 
 ## What Lumen is holding — [[LUMEN Nudge]] 
 
-[[LUMEN Nudge]] (in Lumen's own folder) is the forward-looking commitment surface: a **table**, soonest-first, of things Lumen owes the user a nudge about. Read it every run; surface anything now due in the briefing's **Watching** section.
+[[LUMEN Nudge]] (in Lumen's own folder) is the forward-looking commitment surface: a **table** of things Lumen owes the user a nudge about. Read it every run; surface anything now due in the briefing's **Watching** section.
+
+**Each row declares its own `Tempo`, and that is what decides whether it appears today.** Added 2026-08-06 at the user's request, replacing a plain `Due` date. His framing: *"each thing has its own kind of tempo… it's just telling you when is the time that you should bother me again and how often should you bother me?"* The full grammar lives in that file's `# BRIEF`; what Daybreak does with it:
+
+| Tempo | Daybreak behaviour |
+|---|---|
+| a date / timestamp | surface on that day, then the row leaves |
+| `daily` | surface **every** morning until it moves |
+| `weekly` | surface once midweek, and again at Friday's close |
+| `<date> → daily` / `→ weekly` | dormant until the date, then at that cadence |
+| `waiting` | never surfaced on a clock — raise only when the blocking fact arrives |
+
+**A `daily` row is a standing promise to raise something every single morning**, so treat a briefing that omits one as a defect rather than an editorial choice. Conversely, do **not** promote a row to `daily` because it feels urgent — that is the fastest way to train the user to skim the Watching block, and `weekly` is the honest default for *"soon, but not today."* The user sets tempo; Lumen proposes it.
+
+**Rows whose tempo carries a real hour also reach the user when Lumen is closed**, via the launchd daemon (`nudge-check.py`, tier 2 below). Day-only and bare-cadence rows are Daybreak's job alone — which is why a row that genuinely must land at a specific hour wants a time in its tempo, not just a date.
 
 **Do not put these on the backlog.** The backlog holds work the agent does to *build things* — horizons, next-actions, features. LUMEN Nudge holds things about the *user's life* that the agent is carrying for them. Different kind of item, different reader, different shape. The user does not read the backlog, and making them would defeat the point.
 
@@ -173,7 +187,7 @@ Shape: today's block goes directly under the H1 as `## <Day> YYYY-MM-DD · W<nn>
 
 **Rows leave when they fire.** Raised and settled, or raised and declined → delete the row. Declined items do not return with escalating urgency.
 
-**Keep it a table.** Three columns, one line per row. It exists to be glanced at; the moment it needs scrolling it has stopped working.
+**Keep it a table.** Four columns — Tempo, Alert, What, Why — one line per row. It exists to be glanced at; the moment it needs scrolling it has stopped working.
 
 ## Selection rule for Today
 
