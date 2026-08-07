@@ -23,6 +23,8 @@ Per [[DAS stream]] § R-stream-09, every citing facet declares its supported met
 
 **Why:** if Discussion would benefit from method 3, the symptom is usually that the parent doc has accumulated too many distinct concerns — splitting the parent (and its discussion) is the right fix, not folder-extracting one document's stream.
 
+**Tested against the hardest case, 2026-08-06** ([[TINK310 - Stream: one reverse-chronological facet at three volumes|TINK F310]] Gap 2). The obvious hole in the reasoning above is a parent that *cannot* be split, and [[DAS Rocks|Rocks]] supplies one: a rock file is a single chunk of work whose deliberation accumulates for a quarter, and the rock is the unit. It still does not want method 3. Method 2 puts `{slug} {ABBR} Discussions.md` in the `{slug} Rocks/` folder beside its rock — the folder method 3 would have to invent already exists. Worse, a method-3 `{slug} {ABBR} Discussions/` would become a *member* of the Rocks folder: it lands in the `...` catch-all and `R-rocks-05` warns on it forever, because a discussion folder is not a rock and can never be ranked. So the rule survives its strongest counter-case, and this is why — a demonstration, where the paragraph above it was a guess.
+
 ### RULE R-discussion-03 — Entry skeleton: Problem / Options Considered / Decision (sampled)
 
 Each dated H2 entry has, in order, three H3 sub-sections: `### The Problem`, `### Options Considered`, `### Decision`. An optional `### Why This Works` may follow.
