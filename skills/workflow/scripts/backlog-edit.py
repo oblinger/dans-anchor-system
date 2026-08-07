@@ -2619,24 +2619,6 @@ def _find_h2(lines, h2_name):
     return (start, end)
 
 
-def _find_h3_in_h2(lines, h2_start, h2_end, h3_name):
-    """Return (start_line, end_line) of `### {h3_name}` H3 inside the H2
-    block lines[h2_start:h2_end]. End is the next H3 or H2."""
-    start = None
-    for i in range(h2_start + 1, h2_end):
-        if lines[i].strip() == f"### {h3_name}":
-            start = i
-            break
-    if start is None:
-        return None
-    end = h2_end
-    for j in range(start + 1, h2_end):
-        if lines[j].startswith("## ") or lines[j].startswith("### "):
-            end = j
-            break
-    return (start, end)
-
-
 def _find_q_bullet(lines, q_num):
     """Locate Q<n> bullet in the doc. Returns (start_line, end_line, indent)
     where the bullet's body runs from start_line through end_line-1 (exclusive
@@ -3256,6 +3238,7 @@ def main_q(argv):
         h3_lines = [
             "",
             f"### Q{args.q_num} — {title} (removed {today} — {reason})",
+            f"**Removed:** {reason}",
             "",
             "> Original Q context (preserved for audit trail):",
         ]
@@ -3264,27 +3247,31 @@ def main_q(argv):
         h3_lines.append("")
         # Remove pending bullet
         lines = lines[:start] + lines[end:]
-        # Ensure ## Open Questions still exists; if not (no longer pending),
-        # we need to re-create it because ### Removed sits inside it (audit trail).
-        oq = _find_h2(lines, "Open Questions")
-        if oq is None:
-            lines, (oq_start, oq_end) = _ensure_open_questions_h2(lines)
-        else:
-            oq_start, oq_end = oq
-        # Find or create ### Removed under ## Open Questions
-        removed = _find_h3_in_h2(lines, oq_start, oq_end, "Removed")
-        if removed is None:
-            insert_at = oq_end
-            # Insert at end of ## Open Questions
-            while insert_at > oq_start + 1 and not lines[insert_at - 1].strip():
-                insert_at -= 1
-            lines = lines[:insert_at] + ["", "### Removed", ""] + h3_lines[1:] + lines[insert_at:]
-        else:
-            r_start, r_end = removed
-            insert_at = r_end
-            while insert_at > r_start + 1 and not lines[insert_at - 1].strip():
-                insert_at -= 1
-            lines = lines[:insert_at] + h3_lines + lines[insert_at:]
+        # Archive to the BOTTOM `## Resolved` H2, exactly as `resolve` does, then
+        # fire phase 2 (T146).
+        #
+        # This used to write the entry to a `### Removed` H3 *inside* ## Open
+        # Questions, and re-create that H2 if the removal had emptied it. That
+        # left a block nothing could ever clear: `open_questions_is_empty`
+        # counts any `### ` as content (correctly — a holding pen may carry
+        # unmigrated decisions), `remove` never called `drop_open_questions_if_empty`,
+        # and so a doc whose LAST pending Q was removed kept an Open Questions
+        # H2 with zero pending questions. audit-q C21/C35/C46 then fired on it
+        # with no sanctioned verb able to fix it — the same unclearable-state
+        # shape T042 fixed for placeholder prose.
+        #
+        # The audit trail is not weakened by the move, it is strengthened: the
+        # bottom ## Resolved is the doc's permanent decision record, whereas
+        # ## Open Questions is by construction transient. It also makes remove
+        # symmetric with resolve, which F127/F128 already ruled must archive to
+        # the bottom H2 ("the in-block ### Resolved staging is a historical
+        # artifact").
+        lines, (rh2_start, rh2_end) = _ensure_bottom_resolved_h2(lines)
+        insert_at = rh2_end
+        while insert_at > rh2_start + 1 and not lines[insert_at - 1].strip():
+            insert_at -= 1
+        lines = lines[:insert_at] + h3_lines + lines[insert_at:]
+        lines, _dropped = drop_open_questions_if_empty(lines)
         lines = restamp_open_questions(lines)
         _write_feature_lines(feature_path, lines)
         _selffire(feature_path)
