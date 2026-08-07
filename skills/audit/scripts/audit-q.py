@@ -4863,6 +4863,44 @@ def route_findings_to_qfix(
     return log
 
 
+def report_stale_qfix_rows(
+    findings: list[Finding], anchor_backlogs: dict[str, Path]
+) -> list[str]:
+    """Read-only counterpart to `route_findings_to_qfix` (TINK T144).
+
+    `--fix` reconciles the B-QFix row correctly: an anchor whose residuals drop
+    to zero takes the `clear_qfix_row` branch. The gap was never the reconcile,
+    it was the TRIGGER — most findings are fixed by editing the offending docs,
+    which runs nothing, so the row survives `[Ready]` until the anchor's next
+    `state` mutation. In between, the banner reports Runnable work that does not
+    exist, which is exactly what the crank hard-continuation rule keys on.
+
+    A read-only pass must not mutate a backlog, so this reports rather than
+    clears. Naming the stale row is enough: `--fix` is one command away and the
+    agent now knows to run it.
+    """
+    residual = [f for f in findings if not f.mechanically_fixable]
+    owners = {
+        _resolve_owning_anchor(f.surface_file, anchor_backlogs) for f in residual
+    }
+    log: list[str] = []
+    for anchor in sorted(anchor_backlogs):
+        if anchor in owners:
+            continue
+        backlog_file = anchor_backlogs[anchor]
+        try:
+            lines = backlog_file.read_text(encoding="utf-8").splitlines()
+        except OSError:
+            continue
+        if any(ln.lstrip().startswith("- **B-QFix") for ln in lines):
+            log.append(
+                f"  {anchor}: stale B-QFix row — 0 residuals reproduce, but the "
+                f"row is still [Ready] and inflating the banner. Re-run with "
+                f"--fix to clear it."
+            )
+    return log
+
+
 def _find_or_create_h2(lines: list[str], h2_name: str) -> int:
     """Return index of `## <h2_name>` line; append (and return new index) if absent.
     Skips fenced example headings (F251 #3) so a placement move never targets a
@@ -5673,6 +5711,8 @@ def main() -> int:
     qfix_routing_log: list[str] = []
     if args.fix:
         qfix_routing_log = route_findings_to_qfix(findings, anchor_backlogs)
+    else:
+        qfix_routing_log = report_stale_qfix_rows(findings, anchor_backlogs)
     # Print findings + summary
     errors = [f for f in findings if f.severity == "error"]
     warnings = [f for f in findings if f.severity == "warning"]
@@ -5702,8 +5742,12 @@ def main() -> int:
         for line in f089_fixes_applied:
             print(line)
     if qfix_routing_log:
-        print(f"\naudit-q: QFix routing — non-mechanically-fixable residuals "
-              f"filed on owning anchors' B-QFix rows (per 100%-fix discipline):")
+        if args.fix:
+            print(f"\naudit-q: QFix routing — non-mechanically-fixable residuals "
+                  f"filed on owning anchors' B-QFix rows (per 100%-fix discipline):")
+        else:
+            print(f"\naudit-q: QFix staleness — a read-only pass reports, it does "
+                  f"not clear (T144):")
         for line in qfix_routing_log:
             print(line)
     print(f"\naudit-q: derived banners for {len(derived_banners)} anchors")

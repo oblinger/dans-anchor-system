@@ -114,6 +114,28 @@ try:
     else:
         no("the clear removed a real row")
 
+    # ---- E: the read-only path REPORTS staleness without mutating ----------
+    # The trigger fix: `--dry` must name a B-QFix row carrying zero reproducing
+    # residuals, because a read-only pass may not clear one itself.
+    print("== E: read-only pass reports a stale row and does not touch it ==")
+    aq.route_findings_to_qfix([make_finding(bl)], backlogs)   # re-mint a row
+    before = bl.read_text(encoding="utf-8")
+    log = aq.report_stale_qfix_rows([make_finding(bl)], backlogs)
+    if not log:
+        ok("silent while the residual still reproduces")
+    else:
+        no(f"reported staleness on a row with a live residual: {log}")
+    log = aq.report_stale_qfix_rows([], backlogs)
+    if log and "stale B-QFix" in log[0]:
+        ok("reports the stale row once residuals stop reproducing")
+    else:
+        no(f"failed to report a stale row: {log}")
+    if bl.read_text(encoding="utf-8") == before:
+        ok("read-only pass left the backlog byte-identical")
+    else:
+        no("read-only pass mutated the backlog")
+    aq.route_findings_to_qfix([], backlogs)   # tidy up for D
+
     # ---- D: nothing to clear is a no-op ------------------------------------
     print("== D: zero residuals with no existing row creates nothing ==")
     before = bl.read_text(encoding="utf-8")
