@@ -13,9 +13,9 @@ description: "Dan's Anchor System (DAS) — the dans-anchor-system repository: s
 | External | [Repo](https://github.com/oblinger/dans-anchor-system/)  |
 | Guide | [[ASG\|User Guide]] — how to *use* the skills & facets (no design internals) |
 | Subsystems | [[DAS Anchor Design\|Anchor]],  [[DAS Hygiene Design\|Hygiene]],  [[DAS Tracking Design\|Tracking]],  [[DAS Design Design\|Design]],  [[DAS Code Design\|Code]],  [[DAS Doc Design\|Doc]],  [[DAS Search Design\|Search]],  [[DAS Drive Design\|Drive]],  [[DAS Utility Design\|Utility]],   |
-| Sections | ~~[[DAS Skills\|Skills]]~~,  [[DAS Facets\|Facets]],  [[DAS Disciplines\|Disciplines]],  [[DAS Traits\|Traits]],  [[DAS Rulesets\|Rulesets]],  [[LBR\|Library]],  [[DAS Examples\|Facet Examples]],   |
+| Sections | [[DAS Skills\|Skills]],  [[DAS Facets\|Facets]],  [[DAS Disciplines\|Disciplines]],  [[DAS Traits\|Traits]],  [[DAS Rulesets\|Rulesets]],  [[LBR\|Library]],  [[DAS Examples\|Facet Examples]],   |
 | Surfaces | [[DAS Docs\|Docs]] — user reading surface,  [[DAS Design\|Design]] — design pipeline |
-| ... | [dans-anchor-system design](hook://dans-anchor-system%20design),  [dans-anchor-system docs](hook://dans-anchor-system%20docs),  [[dans-anchor-system/README]],  [dans-anchor-system rulesets](hook://dans-anchor-system%20rulesets),  [dans-anchor-system templates](hook://dans-anchor-system%20templates),  [[disciplines]],  [[examples]],  [[facets]],  [[library]],  [Rulesets](hook://Rulesets),  [[skill-docs]],  [[traits]],  [[trust/README]],  [[Warden]],   |
+| ... | [cleanup](hook://cleanup),  [crank](hook://crank),  [create](hook://create),  [dans-anchor-system design](hook://dans-anchor-system%20design),  [dans-anchor-system docs](hook://dans-anchor-system%20docs),  [[dans-anchor-system/README]],  [dans-anchor-system rulesets](hook://dans-anchor-system%20rulesets),  [dans-anchor-system templates](hook://dans-anchor-system%20templates),  [design](hook://design),  [[disciplines]],  [[examples]],  [[facets]],  [feature](hook://feature),  [finalize](hook://finalize),  [fortify](hook://fortify),  [groom](hook://groom),  [land](hook://land),  [[library]],  [mint](hook://mint),  [rule](hook://rule),  [Rulesets](hook://Rulesets),  [[skill-docs]],  [[traits]],  [[trust/README]],  [[Warden]],  [workflow](hook://workflow),   |
 
 
 

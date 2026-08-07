@@ -1,0 +1,29 @@
+---
+description: "historical retrospective — reconstruct what the library has actually done since launch"
+---
+# HBR HR
+Historical retrospective — reconstruct what Harbor's library has actually done since launch, so the next year's decisions rest on measurement instead of impressions.
+
+## What
+
+Harbor has been ingesting, transcoding and serving for two years and nobody can say how much of that work was useful. HR is the chunk that answers it: a reconstruction of ingest volume, transcode cost, and playback behaviour over the full history, ending in a written retrospective that names what to keep, what to cut, and what to rebuild.
+
+Done looks like a document a reader outside the project can act on: three or four claims about how the system is actually used, each backed by a number nobody has to re-derive.
+
+## Why now
+
+Two decisions are queued behind it. The codec matrix ([[HBR TX]]) is being argued from anecdote, and the checkpoint cadence in [[F003 — Scheduled Catalog Checkpoint|F003]] was set by guess. Both get cheap once the history is measured, and both get made wrong if it is not.
+
+It is a rock rather than a backlog row because the gathering, the analysis and the writing are each multi-day, and because the shape of the retrospective is not knowable until the first numbers land.
+
+## Shape
+
+- **Gather stats** — extract ingest, transcode and playback counts from the existing logs. In flight.
+- **Reconcile against the catalog** — the logs and [[HBR Deduper]]'s records disagree on duplicate counts; find out which is right.
+- **Write it up** — the retrospective itself.
+
+Feeds [[HBR TX]] and the checkpoint cadence. Nothing here is a promise: when a piece becomes executable it lands on [[HBR Backlog]] and this section links to it.
+
+## Status
+
+**2026-08-06** — gathering stats. Log extraction runs; the deduper reconciliation has not started.

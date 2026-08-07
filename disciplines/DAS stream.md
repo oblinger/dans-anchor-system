@@ -1,5 +1,5 @@
 ---
-name: dated-entry-stream
+name: stream
 description: >
   Discipline. The DATED specialization of [[DAS file-association]] — streams of
   **dated, typed, reverse-chronological entries** attached to a parent doc or
@@ -13,9 +13,15 @@ tools: Read
 user_invocable: false
 ---
 
-# Dated Entry Stream
+# Stream
 
-A *dated entry stream* is content of the form:
+A **stream** is an expansion space you can attach to anything — a place where material always has a defined home, kept in order automatically, growing from a section to a file to a folder as it earns the room.
+
+**That is what the facet is for, and it is worth stating before the mechanics.** Without a stream, content with no obvious home gets jammed wherever there is space, and a knowledge base loses its shape one improvisation at a time. A stream removes the improvisation: there is never a moment when the answer to *"where does this note go?"* is *"nowhere yet."* Datedness and reverse-chronological ordering are how it stays legible at volume; the relief-valve property is why it matters.
+
+**Say it either way.** *"Log is a stream."* *"Discussion is a streaming facet."* The noun and the adjective both work, which is most of why this is the name that carries the vocabulary — [[DAS file-association]] underneath is machinery, cited by link and never spoken.
+
+A stream is content of the form:
 
 - **Dated** — every entry's heading carries a date (`YYYY-MM-DD`).
 - **Typed** — every entry follows a parallel skeleton appropriate to its facet (Discussion entries have Problem / Options / Decision; Log entries have a different shape; the skeleton is per-facet but uniform *within* a facet).
@@ -44,7 +50,7 @@ Uses [[DAS file-association]]'s three methods — inline H1 (1) / sibling file (
 ## Dated extras (what this specialization adds)
 
 - **Dated entry-file naming (method 3).** Each per-entry file uses an ISO date prefix + em-dash + title: `2026-06-11 — <Title>.md`. The H1 inside matches the title *without* the date prefix (clean H1s; the date lives in the filename for sort order). *(This is the dated specialization of file-association's "per-item naming"; non-dated collections name by title alone.)*
-- **Reverse-chronological, prepend.** Entries are ordered newest-first; new entries **prepend**, never append. (See R-dated-entry-stream-05.)
+- **Reverse-chronological, prepend.** Entries are ordered newest-first; new entries **prepend**, never append. (See R-stream-05.)
 - **Append-style immutability.** Old entries are not edited after their decision/outcome is recorded — the stream is a ledger.
 
 ## Parallel entry skeleton
@@ -62,7 +68,7 @@ Each facet citing this discipline declares:
 
 Example citation in a facet spec:
 
-> Discussion is a [[DAS dated-entry-stream]] attached to a parent doc. Methods supported: 1 (inline, default) and 2 (sibling file). Method 3 (sibling folder) is out of scope — Discussion entries are rarely large enough to deserve their own files.
+> Discussion is a [[DAS stream]] attached to a parent doc. Methods supported: 1 (inline, default) and 2 (sibling file). Method 3 (sibling folder) is out of scope — Discussion entries are rarely large enough to deserve their own files.
 
 The facet does NOT re-explain the three methods. The discipline is canonical for that.
 
@@ -71,7 +77,7 @@ The facet does NOT re-explain the three methods. The discipline is canonical for
 - [[DAS file-association]] — parent umbrella discipline.
 - [[DAS Discussion]] — first citing facet (doc-scoped, methods 1 + 2).
 - [[DAS Log]] — citing facet at the anchor scope (forthcoming refactor).
-- [[DAS Stories]] — sibling pattern (inline-bullet → folder-form) — same migration direction but not a dated stream; its inline form is bullets, not a dated H1 section. The pattern is related but Stories is not a dated-entry-stream.
+- [[DAS Stories]] — sibling pattern (inline-bullet → folder-form) — same migration direction but not a dated stream; its inline form is bullets, not a dated H1 section. The pattern is related but Stories is not a stream.
 - [[DAS markdown]] — markdown authoring discipline (cited alongside this one for entry body conventions).
 
-The companion ruleset lives at [[R-dated-entry-stream]].
+The companion ruleset lives at [[R-stream]].

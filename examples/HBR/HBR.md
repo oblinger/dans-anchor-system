@@ -7,7 +7,7 @@ traits: [Code]
 | --- | --- |
 | Related | [[Clarifier]],  [[Devtools]],  [[DAS Examples]],  [Repo](https://github.com/example/harbor),  [Docs site](https://example.github.io/harbor/)  |
 | [[HBR Design\|Design]]+ | [[HBR PRD\|PRD]],  [[HBR Architecture\|Architecture]],  [[HBR Decisions\|Decisions]],  [[HBR UX Design\|UX Design]],  [[HBR CLI\|CLI]],  [[HBR API Design\|API]],  [[HBR Roadmap\|Roadmap]],  [[HBR Testing\|Testing]],  [[HBR Features\|Features]],  [[HBR CLI Help.txt\|CLI Help.txt]],  [[HBR Design/HBR Decisions\|Design/HBR Decisions]],  [[HBR Architecture/HBR Architecture\|HARBOR ARCHITECTURE]],  [[HBR Features\|HARBOR FEATURES]],  [[HBR CLI Help.txt\|CLI Help.txt]],   |
-| [[HBR Track\|Track]]+ | [[HBR Backlog\|Backlog]],  [[HBR Messages\|Messages]],  [[HBR Status\|Status]],  [[HBR queries\|queries]],   |
+| [[HBR Track\|Track]]+ | [[HBR Backlog\|Backlog]],  [[HBR Messages\|Messages]],  [[HBR Status\|Status]],  [[HBR queries\|queries]],  [[HBR Rocks\|Rocks]],   |
 | [[HBR User Docs\|User Docs]]+ | [[HBR Guide\|Guide]],   |
 | [[HBR Dev Docs\|Dev Docs]]+ | [[HBR Files\|Files]],  [[HBR Versions\|Versions]],   |
 | [[HBR Components\|Components]]+ | [[HBR Ingest\|Ingest]],  [[HBR Serve\|Serve]],  [[HBR Operate\|Operate]],   |

@@ -8,6 +8,7 @@ description: "The anchor traits — declarable specializations of an anchor"
 | ... | [[anchor-base]],  [[pr]],  [[push]],   |
 
 # Traits
+
 The declarable properties an anchor carries in its `.anchor` `traits:` key — each specializes the [[Common Anchor Blueprint]].
 
 All anchor types follow the [[Common Anchor Blueprint]]. Each type adds specializations:
@@ -21,7 +22,7 @@ All anchor types follow the [[Common Anchor Blueprint]]. Each type adds speciali
 The five above are **identity traits** — single-valued ("at most one of {Simple, Topic, Code, Paper}"; Skill composes). **Capability traits** layer on top of an identity trait (cardinality many):
 
 - **[[Track]]** — the anchor is driven through a planning + backlog lifecycle (the "drive loop"). Co-requires the Backlog facet; composes with Topic / Code / Paper / Skill; excludes Simple. Its tree is the `{slug} Plan/` folder (rename to `{slug} Track/` deferred).
-- **[[Collection]]** (`collection`) — the anchor *enumerates a collection of members of a like kind* — an expected, usually-one member type (a **union** is fine; the trivial "they're all markdown pages" does **not** count). Declared by `collection` in `.anchor`'s `traits:`. **Semantic, not layout** — it asserts the members share a kind; the dispatch-table *shape* (compact `...` / auto-list `| --- | |` / grouped `+`) is **read off the table, never declared**, and auto-graduates by size. Composes freely with any identity — commonly [[Topic Anchor]] (a topic that is *also* a like-kind set, e.g. `RR Papers`) or [[Simple Anchor]]; no exclusions, per [[DAS Aspects]] § Governing principle. Datedness is orthogonal ([[file-association]]). Examples: [[Espresso]], [[HBR Log]], every `* Features` / `* Log` / `* Roadmap`. Contrast a heterogeneous routing-hub Topic (`RR`, `MY`, bare `Log`) which is *not* a collection. Per [[SKA Decisions]] D11 + [[F152 — Set Anchor trait — homogeneous-collection anchor kind; dispatch-organization via existing disciplines|F152]].
+- **[[Collection]]** (`collection`) — the anchor *enumerates a collection of members of a like kind* — an expected, usually-one member type (a **union** is fine; the trivial "they're all markdown pages" does **not** count). Declared by `collection` in `.anchor`'s `traits:`. **Semantic, not layout** — it asserts the members share a kind; the dispatch-table *shape* (compact `...` / auto-list `| --- | |` / grouped `+`) is **read off the table, never declared**, and auto-graduates by size. Composes freely with any identity — commonly [[Topic Anchor]] (a topic that is *also* a like-kind set, e.g. `RR Papers`) or [[Simple Anchor]]; no exclusions, per [[DAS Aspects]] § Governing principle. Datedness is orthogonal ([[DAS file-association|rider]]). Examples: [[Espresso]], [[HBR Log]], every `* Features` / `* Log` / `* Roadmap`. Contrast a heterogeneous routing-hub Topic (`RR`, `MY`, bare `Log`) which is *not* a collection. Per [[SKA Decisions]] D11 + [[F152 — Set Anchor trait — homogeneous-collection anchor kind; dispatch-organization via existing disciplines|F152]].
 
 **Git-aspect traits** (mutually exclusive — exactly one per anchor, per [[DAS Aspects]] composability matrix) shape how the agent handles git boundaries (per [[F077 — PR mode — mode-as-trait architecture with per-anchor opt-in|F077]] v2 architecture, Q12 resolved 2026-06-01):
 

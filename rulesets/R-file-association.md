@@ -4,7 +4,7 @@ import:: skills/audit/scripts/audit-plan.py
 where:: `anchor`
 description:: Rules for the general typed-association pattern — three placement methods, cardinality→placement, parent + plural-suffix naming, one-way migration, one-form-per-parent, parent linkage, sibling-folder shape, and the citing-facet method declaration.
 
-Embedded ruleset for the file-association discipline, co-located with the spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. These are the **general** association rules (promoted up from the dated specialization per F154); the dated-only rules live in [[R-dated-entry-stream]]. Catalog stub at [[R-file-association]] under [[R-doc]].
+Embedded ruleset for the file-association discipline, co-located with the spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. These are the **general** association rules (promoted up from the dated specialization per F154); the dated-only rules live in [[R-stream]]. Catalog stub at [[R-file-association]] under [[R-doc]].
 
 ### RULE R-file-association-01 — Three named placement methods (stated)
 
@@ -55,7 +55,7 @@ When extracted to method 2 or 3, the parent links to it from its dispatch table 
 ### RULE R-file-association-07 — Sibling-folder shape (checked)
 check:: file_association_folder_structure
 
-Method 3: the folder `{Parent} {Facet}s/` contains an anchor file `{Parent} {Facet}s.md` (H1 = filename) whose **dispatch area** lists all items, PLUS one file per item. (Per-item file naming is dimension-specific — dated streams add an ISO prefix per [[R-dated-entry-stream]].)
+Method 3: the folder `{Parent} {Facet}s/` contains an anchor file `{Parent} {Facet}s.md` (H1 = filename) whose **dispatch area** lists all items, PLUS one file per item. (Per-item file naming is dimension-specific — dated streams add an ISO prefix per [[R-stream]].)
 
 The dispatch area is the masthead **table rows plus the list items below them** — both forms count. The reference instance [[HBR Features]] carries its three feature docs as a bullet list under a `^^^` auto-management separator, and four other vault folders use that shape; this rule read "dispatch table" literally until 2026-08-02 (T103a), which would have failed all five. What is NOT the dispatch area: a prose paragraph mentioning an item, and a fenced example listing one.
 
@@ -65,16 +65,16 @@ The dispatch area is the masthead **table rows plus the list items below them** 
 
 ## Position in the catalog
 
-Sits under [[R-doc]] (documentation conventions umbrella) and applies to every document (`always`). It is the **general** typed-association pattern; its dated specialization [[R-dated-entry-stream]] inherits these rules and adds reverse-chronological + ISO-naming extras.
+Sits under [[R-doc]] (documentation conventions umbrella) and applies to every document (`always`). It is the **general** typed-association pattern; its dated specialization [[R-stream]] inherits these rules and adds reverse-chronological + ISO-naming extras.
 
 ## Adoption
 
-A convention set on the `R-doc` umbrella — pulled into **`/audit doc`** via `R-doc`'s `include::` line. Citing disciplines/facets reference it explicitly where they constrain attachment (e.g. [[DAS dated-entry-stream]] delegates its general placement rules here).
+A convention set on the `R-doc` umbrella — pulled into **`/audit doc`** via `R-doc`'s `include::` line. Citing disciplines/facets reference it explicitly where they constrain attachment (e.g. [[DAS stream]] delegates its general placement rules here).
 
 ## See also
 
 - [[DAS file-association]] — discipline spec this ruleset enforces.
-- [[DAS dated-entry-stream]] — dated specialization that inherits this ruleset.
+- [[DAS stream]] — dated specialization that inherits this ruleset.
 - [[R-doc]] — documentation-conventions catalog row this stub sits under.
-- [[R-dated-entry-stream]] — the dated sub-discipline's stub.
+- [[R-stream]] — the dated sub-discipline's stub.
 - [[DAS Rulesets]] — top-level catalog.
