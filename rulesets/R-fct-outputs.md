@@ -1,5 +1,5 @@
 # RULESET R-fct-outputs
-include::
+include:: [[R-stream]]
 where:: `file:{anchor}/**/* Outputs.md, !**/DAS *.md`
 where-note:: **Deliberately location-independent** (repaired 2026-08-05, [[TINK Backlog#^T116|T116]]). The selector previously encoded the retired location and so matched **0** files vault-wide — including the one live instance it was written to govern. See the same note on [[R-fct-system-design]]: the selector finds the doc, R-01 judges its location.
 description:: The rules every Outputs folder and its dispatch page must satisfy — location, naming, dispatch-page shape, and individual output-file format.

@@ -49,8 +49,8 @@ Uses [[DAS file-association]]'s three methods — inline H1 (1) / sibling file (
 
 ## Dated extras (what this specialization adds)
 
-- **Dated entry-file naming (method 3).** Each per-entry file uses an ISO date prefix + em-dash + title: `2026-06-11 — <Title>.md`. The H1 inside matches the title *without* the date prefix (clean H1s; the date lives in the filename for sort order). *(This is the dated specialization of file-association's "per-item naming"; non-dated collections name by title alone.)*
-- **Reverse-chronological, prepend.** Entries are ordered newest-first; new entries **prepend**, never append. (See R-stream-05.)
+- **Dated entry-file naming (method 3).** Each per-entry file leads with an ISO date prefix, then a separator, then the title. The **date prefix is the invariant**; the separator is not. Both `2026-06-11 — <Title>.md` (em-dash, recommended for new streams) and `2026-06-11 <Title>.md` (plain space, what the corpus actually uses — 126 files to 0, measured 2026-08-08) are admitted. Under the em-dash form the H1 omits the date; where a citing facet specifies its own top-of-doc header, that facet's rule governs. *(This is the dated specialization of file-association's "per-item naming"; non-dated collections name by title alone.)* (See R-stream-03.)
+- **Reverse-chronological, prepend.** Entries are ordered newest-first; new entries **prepend**, never append. (See R-stream-01.)
 - **Append-style immutability.** Old entries are not edited after their decision/outcome is recorded — the stream is a ledger.
 
 ## Parallel entry skeleton

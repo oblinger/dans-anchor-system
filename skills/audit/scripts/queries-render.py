@@ -847,12 +847,17 @@ def derive_banner(name: str, rows: list[Row], backlog_file: Path,
     # `Runnable` reverted to `Ready` (F260's word, kept three rounds, reverted
     # on brevity); the class name now collides with the `[Ready]` bracket and
     # that is deliberate — see [[DAS Backlog]] § The state table.
+    # `Inbox N` (T131 leg 2) — zone 1, emitted only when N > 0. The count is
+    # `audit_q.count_pending_inbox`, shared with `derive_anchor_banner` rather
+    # than reimplemented here, so the banner this module renders and the banner
+    # audit-q derives cannot disagree about how many entries are pending.
     return audit_q.format_status_banner(
         tag, slug_label,
         ready_n, user_n,
         horizon_counts["Now"], horizon_counts["Next"], horizon_counts["Later"],
         parked_n, waiting_n, horizon_counts["Icebox"],
         qfix_suffix,
+        inbox=audit_q.count_pending_inbox(name, backlog_file),
     )
 
 

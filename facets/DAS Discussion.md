@@ -5,7 +5,7 @@ description: "per-document discussion log — dated trade-off threads attached t
 # DAS Discussion
 Per-document discussion log — dated trade-off threads attached to the doc they're about.
 
-| -[[DAS Discussion]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets\|FCT]] → [DAS Discussion](hook://p/DAS%20Discussion)  |
+| -[[DAS Discussion]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT]] → [DAS Discussion](hook://p/DAS%20Discussion)  |
 | --- | --- |
 | Related | [[DAS Decisions]],  [[DAS Log]],  [[DAS PRD]],  [[DAS stream]],   |
 | Examples | [[HA Frontmatter\|inline method-1]],  [[HA Design Discussions\|sibling-file method-2]],   |
@@ -32,7 +32,7 @@ Naming, migration direction, dispatch linkage, one-form-per-parent invariant, an
 
 ## Entry shape
 
-Each dated H2 entry follows a four-section skeleton (the last is optional). This is Discussion's facet-specific entry shape (the *parallel-entry-skeleton invariant* from [[DAS stream]] § R-stream-06 requires *some* skeleton; this is the one Discussion uses):
+Each dated H2 entry follows a four-section skeleton (the last is optional). This is Discussion's facet-specific entry shape (the *parallel-entry-skeleton invariant* from [[DAS stream]] § R-stream-02 requires *some* skeleton; this is the one Discussion uses):
 
 ```markdown
 ## 2026-06-11 — Thread Pool vs Async for Task Execution

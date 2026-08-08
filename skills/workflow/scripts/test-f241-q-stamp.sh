@@ -9,30 +9,34 @@
 #   (d) a stampless legacy block warns nothing (grandfathered) — audit-q clean;
 #   (e) a legacy above-the-H1 block is relocated below the H1 by revalidate.
 #
-# Uses a throwaway fixture anchor under ~/ob/kmr/Topic/Misc/Test/ (per the
-# smoke-tests-live-in-the-vault convention); snapshots + restores Q.md and
-# removes every fixture artifact on exit.
+# F269 — the fixture anchor lives in a THROWAWAY VAULT under $TMP, not in the
+# real one. `ANCHOR_VAULT_ROOT` points `state` / `backlog-edit.py` /
+# `queries-render.py` at it, so the render splices its section into $TMP/Q.md
+# and cannot reach the live file. The old shape rendered F241FIX into the REAL
+# ~/ob/kmr/Q.md and `cp`-restored a snapshot on exit, which left an orphan
+# section on any path that skipped the trap and could revert a concurrent
+# agent's Q.md writes.
 set -u
 
 STATE=~/.claude/skills/workflow/scripts/state
 AUDIT=~/.claude/skills/audit/scripts/audit-q.py
 BE=~/.claude/skills/workflow/scripts/backlog-edit.py
-FIX_ROOT=~/ob/kmr/Topic/Misc/Test/"F241 Fixture"
+TMP=$(mktemp -d)
+export ANCHOR_VAULT_ROOT="$TMP/vault"
+mkdir -p "$ANCHOR_VAULT_ROOT/Topic/Misc/Test"
+printf '# Q\n' > "$ANCHOR_VAULT_ROOT/Q.md"
+FIX_ROOT="$ANCHOR_VAULT_ROOT/Topic/Misc/Test/F241 Fixture"
 TRACK="$FIX_ROOT/F241FIX Track"
 BACKLOG="$TRACK/F241FIX Backlog.md"
 DOC="$FIX_ROOT/Fixture Doc.md"
-QMD=~/ob/kmr/Q.md
-TMP=$(mktemp -d)
+QMD="$ANCHOR_VAULT_ROOT/Q.md"
 PASS=0; FAIL=0
 
 cleanup() {
-    rm -rf "$FIX_ROOT"
     rm -f ~/.config/anchor-system/triage/F241FIX.json
-    [ -f "$TMP/Q.md.bak" ] && cp "$TMP/Q.md.bak" "$QMD"
     rm -rf "$TMP"
 }
 trap cleanup EXIT
-cp "$QMD" "$TMP/Q.md.bak"
 
 mkdir -p "$TRACK"
 printf 'slug: F241FIX\ntitle: F241 Fixture\n' > "$FIX_ROOT/.anchor"

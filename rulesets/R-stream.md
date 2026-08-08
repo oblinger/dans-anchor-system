@@ -1,6 +1,6 @@
 # RULESET R-stream
 
-include:: [[R-file-association]]
+include:: [[R-file-association]] 
 import:: skills/audit/scripts/audit-plan.py
 where:: `sentinel: ^## \d{4}-\d{2}-\d{2} —`
 description:: Rules ADDED by the dated specialization on top of [[R-file-association]] — newest-first ordering + prepend immutability, the parallel-entry-skeleton invariant, and ISO-date entry-file naming.
@@ -27,11 +27,16 @@ Every entry within one facet's stream follows the same H3 sub-structure. The ske
 ### RULE R-stream-03 — Dated entry-file naming (method 3) (checked)
 check:: dated_entry_file_naming
 
-When method 3 is used for a dated stream, each per-entry file uses an ISO date prefix + em-dash + title: `YYYY-MM-DD — <Title>.md`. The H1 inside matches the title *without* the date (clean H1s; the date lives in the filename for sort order). This is the dated specialization of file-association's general sibling-folder shape ([[R-file-association]]-07).
+When method 3 is used for a dated stream, each per-entry file opens with an ISO date prefix, then a separator, then the title. **The date prefix is the invariant; the separator is not.** Two separator forms are admitted:
 
-**Check pattern:** for each method-3 dated stream, assert every entry file matches `^\d{4}-\d{2}-\d{2} — .+\.md$` and its H1 omits the date prefix.
+- `YYYY-MM-DD — <Title>.md` — em-dash, **recommended** for new streams.
+- `YYYY-MM-DD <Title>.md` — plain space, **accepted**; this is what the corpus actually uses.
 
-**Why:** the ISO prefix gives correct chronological sort in any file listing while keeping the visible H1 clean.
+**The H1 clause belongs to the citing facet, not to this rule.** Under the em-dash form the H1 matches the title *without* the date. Where a citing facet specifies its own top-of-doc header — [[R-fct-outputs]]-04 and [[R-wp]]-02 both require a `# {date} {name}` H1 — **the facet's rule governs and this rule does not contradict it.** This is the dated specialization of file-association's general sibling-folder shape ([[R-file-association]]-07).
+
+**Check pattern:** for each method-3 dated stream, assert every entry file matches `^\d{4}-\d{2}-\d{2}( —)? .+\.md$`. The H1 sub-check applies only to the em-dash form.
+
+**Why:** the ISO prefix is what buys correct chronological sort in any file listing — that is the whole functional payload, and both separators deliver it. The em-dash was specified as the sole form on 2026-07-17 and **the corpus never adopted it**: measured 2026-08-08 across every method-3 dated stream in the vault (Log, Outputs, WP), **126 entry files use the space form and 0 use the em-dash form.** Narrowing to the em-dash would have required 126 renames — breaking every wiki-link and dispatch row pointing at them — to change a separator that no check ever enforced, while putting this rule in direct contradiction with `R-fct-outputs-02`, `R-wp-02` and `R-log-03`, all three of which already mandate the space form in their own text. A parent rule that 100% of instances and three child rules violate is the rule that is wrong.
 
 ## Position in the catalog
 

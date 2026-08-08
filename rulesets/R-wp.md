@@ -1,5 +1,5 @@
 # RULESET R-wp
-include::
+include:: [[R-stream]]
 where:: `file:{anchor}/{slug} WP/**/*`
 description:: the `{slug} WP/` work-products zone — dated polished outputs
 

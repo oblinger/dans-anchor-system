@@ -1,5 +1,5 @@
 # RULESET R-discussion
-include::
+include:: [[R-stream]] 
 where:: `sentinel: ^#+ Discussion`
 description:: planning trade-offs
 
@@ -17,7 +17,7 @@ Discussion attaches to a specific document, not to the whole anchor. There is no
 
 ### RULE R-discussion-02 — Discussion declares methods 1 and 2; method 3 out of scope (stated)
 
-Per [[DAS stream]] § R-stream-09, every citing facet declares its supported methods and default. Discussion's declaration: **methods 1 (inline, default) and 2 (sibling file)**. Method 3 (sibling folder of dated entry files) is out of scope — Discussion entries are not the right granularity for per-entry files.
+Per [[R-file-association]]-01, every citing facet declares its supported methods and default. Discussion's declaration: **methods 1 (inline, default) and 2 (sibling file)**. Method 3 (sibling folder of dated entry files) is out of scope — Discussion entries are not the right granularity for per-entry files.
 
 **Check pattern:** for each Discussion instance, assert it is method 1 or method 2; method 3 instances fail with "Discussion uses methods 1+2 only; consider splitting the parent doc instead."
 
@@ -31,7 +31,7 @@ Each dated H2 entry has, in order, three H3 sub-sections: `### The Problem`, `##
 
 **Check pattern:** sample entries; assert the three H3s are present in order; assert no other H3s precede them.
 
-**Why:** the skeleton makes entries skimmable, comparable, and link-targetable. Free-form prose makes the log un-greppable for "what did we decide about X." This is Discussion's per-facet declaration of the [[DAS stream]] § R-stream-06 parallel-entry invariant.
+**Why:** the skeleton makes entries skimmable, comparable, and link-targetable. Free-form prose makes the log un-greppable for "what did we decide about X." This is Discussion's per-facet declaration of the [[DAS stream]] § R-stream-02 parallel-entry-skeleton invariant.
 
 ### RULE R-discussion-04 — Append-only after Decision (stated)
 

@@ -2796,7 +2796,8 @@ def chk_queries_location(target, anchor_root, args):
 _QUERIES_BANNER_RE = re.compile(
     r"^# \[(?:U\+A|U|A|G|\?|-)\]  "                    # tag + two spaces
     r"(?:\[\[[^\]]+\]\]|[^\[\]|]+?)  -  "              # wiki-linked or plain label
-    r"Ready \d+    User \d+   \|   "                    # zone 1 — classes
+    r"Ready \d+    User \d+(?:    Inbox \d+)?   \|   "  # zone 1 — classes
+                                                       # (Inbox only when N>0)
     r"Now \d+    Next \d+    Later \d+   \|   "         # zone 2 — horizons
     r"Parked \d+    Waiting \d+    Icebox \d+"          # zone 3 — the quiet group
     r"(?:    \{\d+\})?\s*$"                            # optional QFix residual count
@@ -2826,7 +2827,15 @@ def chk_queries_banner_form(target, anchor_root, args):
     again, on the same grounds as last time — no legacy accumulation — but the
     resolution differs: rather than let pages self-correct whenever they next
     render, every anchor was re-rendered in the same pass, so no page sits in
-    the failing interval at all."""
+    the failing interval at all.
+
+    T131 leg 2 (2026-08-08) added an OPTIONAL `    Inbox N` to zone 1, after
+    `User`. Optional is not legacy accumulation here and the distinction is
+    load-bearing: the renderer emits the field only when N > 0, so `Inbox` is
+    absent and present in exactly the cases the format function makes it absent
+    and present. There is one form, with a conditional field — not two forms
+    kept alive side by side. That is also why this edit needed no re-render:
+    with nothing pending vault-wide, every live banner was already correct."""
     if not target.is_file():
         return "pass", "not a file"
     if not target.name.endswith(" queries.md"):
@@ -3257,10 +3266,10 @@ def _masthead_rows(text, stem):
     if at is None:
         return []
     lo = at
-    while lo > 0 and lines[lo - 1].lstrip().startswith("|"):
+    while lo > 0 and _is_table_row(lines[lo - 1]):
         lo -= 1
     hi = at + 1
-    while hi < len(lines) and lines[hi].lstrip().startswith("|"):
+    while hi < len(lines) and _is_table_row(lines[hi]):
         hi += 1
     return lines[lo:hi]
 
@@ -3301,11 +3310,14 @@ def chk_dispatch_link_case_drift(target, anchor_root, args):
                           p.stem if p.is_file() else p.name)
     drift = []
     for ln in rows:
-        # Stop the name at the first `\|`, `|`, `#`, or `]]`. In a table cell the
-        # alias pipe is BACKSLASH-escaped, so a class that admits `\` lets the
-        # non-greedy name give up after one character and match the rest as alias.
-        for m in re.finditer(r"\[\[\s*([^\[\]|#\\]+?)\s*(?:\\\||\||#|\]\])", ln):
-            name = m.group(1).strip()
+        # What a wiki-link IS comes from `_WIKILINK_RE`, the one definition —
+        # re-spelling it here is the T099 defect, and this checker committed it
+        # (caught by structure-lint 2026-08-08, after the T138 commit shipped).
+        # Only the split of the link's INNER text is local business: the name is
+        # whatever precedes the first alias pipe or heading anchor, and inside a
+        # table cell that pipe is BACKSLASH-escaped, so `\|` must be tried first.
+        for m in _WIKILINK_RE.finditer(ln):
+            name = re.split(r"\\\||\||#", m.group(1), maxsplit=1)[0].strip()
             real = nearby.get(name.casefold())
             if real and real != name:
                 drift.append(f"`[[{name}]]` → `{real}`")

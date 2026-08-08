@@ -3,29 +3,36 @@
 # (per F239 § Success Criteria): (A) dirty-gate refusal, (B) clean stamp +
 # legal stop, (C) CRANK READY rejected on an empty Ready queue.
 #
-# Uses a throwaway fixture anchor under ~/ob/kmr/Topic/Misc/Test/ (per the
-# smoke-tests-live-in-the-vault convention); snapshots + restores Q.md, and
-# removes every fixture artifact on exit.
+# F269 — the fixture anchor lives in a THROWAWAY VAULT under $TMP, not in the
+# real one. `ANCHOR_VAULT_ROOT` points `state` / `backlog-edit.py` /
+# `queries-render.py` at it, so the render splices its section into $TMP/Q.md
+# and cannot reach the live file. The old shape rendered F239FIX into the REAL
+# ~/ob/kmr/Q.md and `cp`-restored a snapshot on exit, which left an orphan
+# section on any path that skipped the trap and could revert a concurrent
+# agent's Q.md writes.
 set -u
 
 STATE=~/.claude/skills/workflow/scripts/state
 HOOK=~/.claude/skills/workflow/scripts/crank-stop-hook.py
-FIX_ROOT=~/ob/kmr/Topic/Misc/Test/"F239 Fixture"
+TMP=$(mktemp -d)
+export ANCHOR_VAULT_ROOT="$TMP/vault"
+mkdir -p "$ANCHOR_VAULT_ROOT/Topic/Misc/Test"
+printf '# Q\n' > "$ANCHOR_VAULT_ROOT/Q.md"
+FIX_ROOT="$ANCHOR_VAULT_ROOT/Topic/Misc/Test/F239 Fixture"
 TRACK="$FIX_ROOT/F239FIX Track"
 BACKLOG="$TRACK/F239FIX Backlog.md"
-QMD=~/ob/kmr/Q.md
-TMP=$(mktemp -d)
+QMD="$ANCHOR_VAULT_ROOT/Q.md"
 PASS=0; FAIL=0
 
 cleanup() {
     rm -rf "$FIX_ROOT"
     rm -f ~/.config/anchor-system/triage/F239FIX.json \
           ~/.config/anchor-system/crank/F239FIX.json
-    [ -f "$TMP/Q.md.bak" ] && cp "$TMP/Q.md.bak" "$QMD"
+    # F269 — nothing to restore: the Q.md this test renders into
+    # is inside $TMP and goes away with it.
     rm -rf "$TMP"
 }
 trap cleanup EXIT
-cp "$QMD" "$TMP/Q.md.bak"
 
 mkdir -p "$TRACK"
 printf 'slug: F239FIX\ntitle: F239 Fixture\n' > "$FIX_ROOT/.anchor"

@@ -99,6 +99,7 @@ from datetime import date
 from pathlib import Path
 from typing import Optional
 import argparse
+import os
 import re
 import sys
 
@@ -171,7 +172,28 @@ row_pending_q_lines = _be_mod.row_pending_q_lines
 
 def _resolve_vault_root() -> Path:
     """Read vault_root from F080 config (~/.config/anchor-system/global.yaml),
-    falling back to ~/ob/kmr if the config file or key is missing."""
+    falling back to ~/ob/kmr if the config file or key is missing.
+
+    `ANCHOR_VAULT_ROOT` overrides both (F269). Without it there was NO way to
+    point this engine at anything but the live vault, and the consequence was
+    not theoretical: `test-f244-stop-gate.sh` and `test-f241-q-stamp.sh` build
+    fixture anchors in a temp dir, render them — and the render, resolving the
+    real vault root, spliced their sections into the REAL `Q.md`. Teardown
+    `rm -rf`s the fixture directory but cannot reach into Q.md, so every run
+    left an orphan section behind (`F244FIX`, `F244FIXP`, `F241FIX`, `CTEST`
+    were the four still sitting there on 2026-07-18).
+
+    This is the actual bug. The orphan-section audit check (C56) is the net
+    under it, not the fix: shipping only the net leaves a checker permanently
+    cleaning up after a defect nobody closed.
+
+    Deliberately FIRST in the chain and deliberately not validated for
+    existence — an override that silently fell back to the live vault when
+    mistyped would reintroduce exactly the failure it exists to prevent.
+    """
+    override = os.environ.get("ANCHOR_VAULT_ROOT")
+    if override:
+        return Path(override).expanduser()
     config_path = Path.home() / ".config" / "anchor-system" / "global.yaml"
     if config_path.is_file():
         try:
@@ -1122,6 +1144,104 @@ def _scope_to_block_id_region(text: str, block_id: str) -> str:
 # ============================================================
 # Check C2 — Q-marker existence at target (for `[Questions]` brackets)
 # ============================================================
+
+
+# ============================================================
+# C56 (F269) — a Q.md section whose anchor resolves to nothing.
+#
+# Q.md is a stack of per-anchor sections, each opened by an H1 banner and each
+# a copy of that anchor's rendered `{slug} queries.md`. A section is only ever
+# WRITTEN by `queries-render.py {name}`; nothing ever removed one, and the
+# reaper that would has a hole by construction — it needs the backlog to know
+# the anchor is gone, and the anchor being gone is exactly when there is no
+# backlog to read.
+#
+# Four such sections (`F244FIX`, `F244FIXP`, `F241FIX`, `CTEST`) were sitting
+# in the live file on 2026-07-18, every one of them a fixture anchor from a
+# test run whose teardown deleted the fixture directory but could not reach
+# into Q.md. THAT LEAK IS CLOSED AT ITS SOURCE by `ANCHOR_VAULT_ROOT` — a
+# fixture render now resolves a throwaway vault and cannot see this file. C56
+# is the net under it, not the fix. Shipping the net alone would have left a
+# checker permanently sweeping up after a bug nobody closed.
+#
+# Which is also why the check is written against the BACKLOG UNIVERSE rather
+# than the scoped set: a section survives if some anchor still renders it, and
+# `--scope backlog --anchor X` must not conclude that the other 34 sections
+# are orphans. Getting that backwards would delete the whole file on the first
+# per-anchor `--fix`.
+# ============================================================
+
+_C56_H1_RE = re.compile(
+    r"^# \[[^\]]*\]\s+(?:\[\[[^|\]]*\|([^\]]+)\]\]|([A-Za-z][^\s]*(?:\s+[A-Z][^\s]*)*))\s+-\s")
+
+
+def _qmd_sections(qmd_text: str) -> list[tuple[str, int, int]]:
+    """(anchor label, first line index, end line index) per H1 section.
+
+    End is exclusive and runs to the next H1 or EOF, so a section carries
+    everything the render put under it. Lines above the first H1 are the file's
+    own preamble and belong to no section.
+    """
+    lines = qmd_text.splitlines()
+    starts: list[tuple[str, int]] = []
+    for i, line in enumerate(lines):
+        m = _C56_H1_RE.match(line)
+        if m:
+            starts.append(((m.group(1) or m.group(2) or "").strip(), i))
+    out = []
+    for k, (label, i) in enumerate(starts):
+        end = starts[k + 1][1] if k + 1 < len(starts) else len(lines)
+        out.append((label, i, end))
+    return out
+
+
+def check_c56_qmd_orphan_section(qmd_text: str,
+                                 all_backlogs: dict[str, Path]) -> list[Finding]:
+    """C56 (F269): every Q.md H1 section must belong to a live anchor."""
+    findings: list[Finding] = []
+    known = {n.casefold() for n in all_backlogs}
+    for label, start, _end in _qmd_sections(qmd_text):
+        if not label or label.casefold() in known:
+            continue
+        findings.append(Finding(
+            severity="error", surface_file=Q_MD, surface_line=start + 1,
+            code="C56",
+            message=(
+                f"Q.md section '{label}' belongs to no anchor — no "
+                f"`{label} Backlog.md` renders in the vault, so nothing will "
+                f"ever refresh or remove this section and its counts are "
+                f"frozen at whatever the last render left. Usually a fixture "
+                f"anchor whose directory was deleted while its spliced section "
+                f"stayed behind. `--fix` prunes the section."),
+            mechanically_fixable=True))
+    return findings
+
+
+def apply_c56_fix(qmd_file: Path, all_backlogs: dict[str, Path]) -> list[str]:
+    """Delete every orphan section from Q.md. Returns one log line per prune.
+
+    Deletes bottom-up so each span stays valid as earlier ones are removed,
+    and rewrites only if something actually changed — a no-op write would
+    bump the mtime and re-fire the watchers for nothing.
+    """
+    try:
+        text = qmd_file.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return []
+    lines = text.splitlines()
+    known = {n.casefold() for n in all_backlogs}
+    spans = [(label, s, e) for label, s, e in _qmd_sections(text)
+             if label and label.casefold() not in known]
+    if not spans:
+        return []
+    log = []
+    for label, s, e in sorted(spans, key=lambda t: t[1], reverse=True):
+        del lines[s:e]
+        log.append(f"  C56 — pruned orphan Q.md section '{label}' "
+                   f"({e - s} lines)")
+    qmd_file.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    _selffire(qmd_file)
+    return list(reversed(log))
 
 
 def check_c2_q_marker_existence(qmd_links: list[LinkEntry],
@@ -2590,6 +2710,171 @@ def check_c16_blocked_in_later(entries: list[BacklogEntry]) -> list[Finding]:
             ),
             mechanically_fixable=True,
         ))
+    return findings
+
+
+# ============================================================
+# C55 (T159) — a `[Blocked X]` edge must point at a LIVE, VISIBLE row.
+#
+# Dan, 2026-08-08, reading his own queue: *"everything is blocked on feature 41,
+# and feature 41 is not showing up in my list. That's completely illegal."*
+# He had found one instance of two distinct defects, and a vault-wide scan of
+# the 24 `[Blocked …]` rows found more of each:
+#
+#   MISSING / INVISIBLE — the blocker exists but sits where the render will not
+#     surface it (`## Later`, Icebox, a `[Verify-by]` bracket). Nine ATT disk
+#     rows displayed as blocked while the single user action releasing all nine
+#     was hidden under Later.
+#   DONE — the blocker completed and the dependants never learned. Those rows
+#     read as parked when they are runnable right now, which is the more
+#     expensive failure: defect 1 hides an action, defect 2 freezes work.
+#
+# This is a check rather than a batch of edits because the edge is written once
+# and never re-examined: any hand-fix rots the next time a blocker closes.
+#
+# Two resolution traps, both of which made earlier attempts silently inert:
+#   1. Handles are anchor-qualified (`ATT-F041`); row identifiers are bare
+#      (`F041`). A raw lookup never matches, which is exactly what kept
+#      `## Blockers` empty vault-wide until T161. The qualified prefix is
+#      stripped ONLY when it names a real anchor, so `B-QFix` and
+#      `R-Scaffolding.5.2` — identifiers that legitimately contain a dash —
+#      are never mistaken for qualified handles.
+#   2. A FOREIGN handle (`MUX-T068` seen from DKT) must resolve against THAT
+#      anchor's backlog. Resolving it locally would report a false error on a
+#      perfectly good cross-anchor edge. That is why the checker takes the full
+#      backlog universe and not just the scoped set.
+#
+# Visibility is asked of `renders_in_body`, the same predicate the renderer and
+# the banner use, rather than a fourth horizon list that agrees with the other
+# three today.
+# ============================================================
+
+_C55_BLOCKED_RE = re.compile(r"^Blocked\s+(\S.*?)\s*$", re.I)
+
+# THE ARGUMENT OF `[Blocked …]` HAS TWO LEGAL FORMS, and only one is in scope.
+# `blocked_grammar_gate` (backlog-edit.py) admits both, deliberately:
+#   HANDLE form  `Blocked F210` / `Blocked HA-T045` / `Blocked B-QFix`
+#                — a typed edge naming another ROW.
+#   WHAT form    `Blocked upstream API` / `Blocked haorui-reboot`
+#                — a change in the universe, in 1–3 words. Names no row and is
+#                not supposed to.
+# Only the handle form can be resolved, so only it can be wrong. A first cut of
+# this checker skipped the distinction and reported 67 findings vault-wide, of
+# which ~50 were legal WHAT-form brackets — the checker firing on conforming
+# input, which is how a guard gets disabled and then protects nothing.
+#
+# Identifier shapes, taken from the ones the vault actually mints:
+#   `F041`, `T045`, `DMUX034`   letters + digits, no separator
+#   `B-QFix`                    the B- family
+#   `R-Scaffolding.5.2`         dotted roadmap-task handles
+_C55_ROW_ID_RE = re.compile(
+    r"^(?:[A-Za-z]{1,8}\d{1,4}"
+    r"|B-[A-Za-z][A-Za-z0-9]*"
+    r"|R-[A-Za-z][A-Za-z0-9_\-]*(?:\.[A-Za-z0-9_\-]+)*)$")
+
+
+def _c55_split_handle(arg: str, own_anchor: str,
+                      all_backlogs: dict[str, Path]
+                      ) -> Optional[tuple[str, str]]:
+    """(anchor, identifier) for a `[Blocked <arg>]` argument, or None when the
+    argument is the WHAT form and names no row.
+
+    An anchor qualifier is stripped ONLY when what remains is itself
+    identifier-shaped. Both halves of that test matter and each has its own
+    live counter-example:
+      - without the strip, `[Blocked ATT-F041]` looks up `ATT-F041` against a
+        row called `F041` and never matches — the bug that kept `## Blockers`
+        empty vault-wide until T161;
+      - without the shape test on the remainder, `[Blocked mux-queue-empty]`
+        and `[Blocked sv-team-inputs]` — both plain WHAT forms — get split into
+        a MUX/SV anchor plus a nonexistent row and reported as broken edges.
+    """
+    if _C55_ROW_ID_RE.match(arg):
+        return own_anchor, arg
+    if "-" in arg:
+        prefix, rest = arg.split("-", 1)
+        if _C55_ROW_ID_RE.match(rest):
+            for name in all_backlogs:
+                if name.casefold() == prefix.casefold():
+                    return name, rest
+    return None
+
+
+def check_c55_blocker_live_and_visible(
+        anchor_backlogs: dict[str, Path],
+        all_backlogs: dict[str, Path],
+        vault_index: dict[str, list[Path]]) -> list[Finding]:
+    """C55 (T159): every `[Blocked <handle>]` row's blocker must exist, be
+    unfinished, and render somewhere the reader can find it."""
+    findings: list[Finding] = []
+    # One parse per backlog, shared across every edge that resolves into it.
+    parsed: dict[str, list[BacklogEntry]] = {}
+
+    def rows_of(name: str) -> list[BacklogEntry]:
+        if name not in parsed:
+            path = all_backlogs.get(name)
+            parsed[name] = backlog_entries(path, vault_index) if path else []
+        return parsed[name]
+
+    for own, backlog_file in sorted(anchor_backlogs.items()):
+        for e in backlog_entries(backlog_file, vault_index):
+            for member in bracket_members(e.status):
+                m = _C55_BLOCKED_RE.match(member.strip())
+                if not m:
+                    continue
+                split = _c55_split_handle(m.group(1), own, all_backlogs)
+                if split is None:
+                    continue  # WHAT form — names no row, so nothing to resolve
+                target_anchor, target_id = split
+                target = next(
+                    (t for t in rows_of(target_anchor)
+                     if t.identifier == target_id), None)
+                if target is None:
+                    target = next(
+                        (t for t in rows_of(target_anchor)
+                         if t.identifier.casefold() == target_id.casefold()),
+                        None)
+                where = ("" if target_anchor == own
+                         else f" in {target_anchor}")
+                if target is None:
+                    findings.append(Finding(
+                        severity="error", surface_file=e.source_file,
+                        surface_line=e.source_line, code="C55",
+                        message=(
+                            f"row '{e.identifier}' is [{e.status}] but no row "
+                            f"'{target_id}'{where} exists — the blocker was "
+                            f"renamed, archived, or never written, so nothing "
+                            f"will ever unblock this row. Repoint the handle at "
+                            f"the live blocker, or rebracket the row."),
+                        mechanically_fixable=False))
+                    continue
+                if has_member(target.status, "Done") or \
+                        target.status.strip().startswith("Done"):
+                    findings.append(Finding(
+                        severity="error", surface_file=e.source_file,
+                        surface_line=e.source_line, code="C55",
+                        message=(
+                            f"row '{e.identifier}' waits on '{target_id}'{where}, "
+                            f"which is already [{target.status}] "
+                            f"({target.source_file.name}:{target.source_line}) — "
+                            f"this row is runnable NOW and only its bracket says "
+                            f"otherwise. Rebracket it; the fix belongs to this "
+                            f"row's owner, not the blocker's."),
+                        mechanically_fixable=False))
+                    continue
+                if not renders_in_body(target.horizon, target.status):
+                    findings.append(Finding(
+                        severity="error", surface_file=e.source_file,
+                        surface_line=e.source_line, code="C55",
+                        message=(
+                            f"row '{e.identifier}' waits on '{target_id}'{where} "
+                            f"[{target.status}] under ## {target.horizon} "
+                            f"({target.source_file.name}:{target.source_line}), "
+                            f"which renders in no queue — the reader is told the "
+                            f"work is blocked and given no way to reach what "
+                            f"blocks it. Move the blocker onto a rendering "
+                            f"horizon, or rebracket this row."),
+                        mechanically_fixable=False))
     return findings
 
 
@@ -4142,6 +4427,95 @@ _Q_SLUGDOC_RE = re.compile(r"\b[A-Z][A-Za-z0-9]*(?:\s+[A-Z][A-Za-z0-9]+)+\b")
 _Q_ARTIFACT_EXT_RE = re.compile(
     r"\.(md|py|svg|png|d2|sh|yaml|yml|json|txt|rs|ts|js)$", re.IGNORECASE)
 
+# ---- T163: the renderer's own bullet-label fallback is not prose ----------
+# `{slug} queries.md` is machine-rendered ("Do not hand-edit; edit the backlog
+# rows"). Its bullets have two halves with two different authors:
+#   LABEL  — written by queries-render.py `_bullet_link`, whose resolve-before-
+#            emit chain ends at a PLAIN-TEXT last resort (step 5) when nothing
+#            resolves: no `→ [[…]]` arrow link, no feature-doc basename, no
+#            `^{id}` block anchor in the backlog. It emits the bare identifier
+#            deliberately — "better a non-link than a dead link".
+#   BODY   — carried verbatim from the backlog row, i.e. authored prose.
+# C37 is a prose check. Firing it on the label makes the audit report its own
+# writer's output as a defect (the T137 / T120 shape), and the "fix" it names —
+# hand-write a wiki-link into a rendered file — is one the next render erases.
+# So the label position is exempt, but ONLY when the fallback condition still
+# holds. If a target has since appeared, the bare label is a STALE RENDER, not
+# a last resort, and C37 keeps speaking up.
+#
+# Label position, matching every `_bullet_link` call site in queries-render.py:
+#   `- {ID} — …`            (Blockers / Ready / Blocked / Verifications / Other)
+#   `- **U{n}** {ID} — …`   (User)
+#   `- {ID} **(3Q)** …`     (Questions)
+_Q_RENDER_LABEL_RE = re.compile(
+    r"^-\s+(?:\*\*U\d+\*\*\s+)?(F\d{1,4})\b(?=\s*(?:—|\*\*|$))")
+# The row's own bold run, read exactly as `_bullet_link` step 2 reads it:
+# `^- \*\*([^*]+)\*\*`. On a well-formed row that is `F020 — Title`; on the
+# malformed LRN TPM shape it is `F020 [Ready]`, which resolves to nothing —
+# which is precisely why the renderer fell through to plain text there.
+_Q_ROW_BOLD_RE = re.compile(r"^- \*\*([^*]+)\*\*")
+_Q_ARROW_RE = re.compile(r"→\s*\[\[([^\]]+)\]\]")
+
+
+def _render_fallback_rows(backlog_file: Path) -> dict[str, str]:
+    """identifier → raw backlog line, for every top-level bullet whose bold run
+    opens with an `F<n>` token. Deliberately permissive about the rest of the
+    header: the rows this matters for are the ones the canonical parser
+    REFUSES (T163's malformed headers), so keying off the canonical parse
+    would skip exactly the population being measured. Read once per anchor.
+    """
+    rows: dict[str, str] = {}
+    try:
+        lines = backlog_file.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeDecodeError):
+        return rows
+    for line in lines:
+        m = _Q_ROW_BOLD_RE.match(line)
+        if not m:
+            continue
+        head = re.match(r"(F\d{1,4})\b", m.group(1).strip())
+        if head:
+            rows.setdefault(head.group(1), line)
+    return rows
+
+
+def _render_label_fallback(identifier: str, rows: dict[str, str],
+                           backlog_block_ids: dict[str, int],
+                           vault_index: dict[str, list[Path]]) -> bool:
+    """True when `_bullet_link` would legitimately emit `identifier` bare.
+
+    Replays the resolve-before-emit chain of `queries-render.py _bullet_link`
+    against the same three inputs it uses — the row's `→ [[…]]` arrow link,
+    the row's bold-run title as a doc basename, and the `^{id}` block anchor
+    in the anchor's own Backlog. If ANY of them resolves, the renderer had a
+    link available and a bare label is stale output, not the last resort — so
+    C37 keeps reporting it. Only a chain that falls all the way through earns
+    the exemption.
+
+    This mirrors logic that lives in the renderer; `test-t163-c37-render-
+    fallback.py` pins the two together, exercising both a resolving row (C37
+    fires) and a fall-through row (C37 silent).
+    """
+    raw = rows.get(identifier)
+    if raw is None:
+        # No such row in this backlog — the label did not come from a row here,
+        # so it is not this renderer's fallback. Let C37 speak.
+        return False
+    # Step 1 — the row's own arrow link.
+    arrow = _Q_ARROW_RE.search(raw)
+    if arrow:
+        bn = arrow.group(1).split("#")[0].split("|")[0].strip()
+        if vault_index.get(bn.lower()):
+            return False
+    # Step 2 — the row's bold run as a doc basename.
+    bold = _Q_ROW_BOLD_RE.match(raw)
+    if bold and vault_index.get(bold.group(1).strip().lower()):
+        return False
+    # Step 3 — the backlog block anchor.
+    if identifier in backlog_block_ids:
+        return False
+    return True
+
 
 def check_c37_queries_item_format(
         anchor_backlogs: dict[str, Path],
@@ -4171,6 +4545,9 @@ def check_c37_queries_item_format(
         section: Optional[str] = None
         toplevel = re.compile(r"^-\s+")
         reco_bullet = re.compile(r"^-\s+\*\*Recommendation\b")
+        # Read once per anchor (T163) — the label exemption needs both per bullet.
+        backlog_block_ids = block_ids_in(backlog_file)
+        backlog_rows = _render_fallback_rows(backlog_file)
         for i, line in enumerate(lines):
             h = re.match(r"^##\s+(.+?)\s*$", line)
             if h:
@@ -4207,9 +4584,20 @@ def check_c37_queries_item_format(
             # code-spans blanked first). Without the _strip_code_spans compose,
             # bare F-numbers inside filenames like `~/F006-status.md` false-fire
             # (SKA F227 fix, 2026-07-05).
+            # T163: blank the renderer's own plain-text bullet label first —
+            # it is `_bullet_link`'s step-5 last resort, not authored prose.
+            # Only the label token is blanked; the body it introduces is still
+            # scanned, which is how the one genuine prose reference in the
+            # vault (LRN TPM's `per SKA F062`) keeps being reported.
+            scanned = item
+            lab = _Q_RENDER_LABEL_RE.match(scanned)
+            if lab and _render_label_fallback(
+                    lab.group(1), backlog_rows, backlog_block_ids, vault_index):
+                scanned = (scanned[:lab.start(1)] + " " * len(lab.group(1))
+                           + scanned[lab.end(1):])
             bare = sorted(set(_Q_FNUM_RE.findall(
                 _strip_code_spans(_Q_STATUS_RE.sub("",
-                    _Q_WIKILINK_RE.sub("", item)))
+                    _Q_WIKILINK_RE.sub("", scanned)))
             )))
             for fn in bare:
                 findings.append(Finding(
@@ -5470,10 +5858,82 @@ def renders_in_body(horizon: str, bracket: str) -> bool:
     return horizon in ("Active", "Ready", "Now", "Next", "Verify")
 
 
+# ============================================================
+# T131 leg 2 — the Inbox awareness signal.
+#
+# WHY THIS DOES NOT READ `R-fct-inbox-02`, and is therefore not blocked on it.
+#
+# `-02` says every Inbox H2 carries a backtick-wrapped status tag. `state drop`
+# writes PENDING entries with no tag — absence of a tag IS the pending signal —
+# so on its face every pending entry violates `-02`, and a counter written as
+# "H2s lacking a tag" would be built on the exact sentence in dispute.
+#
+# It is worth saying that `-02` is also already in tension with its own
+# ruleset: `R-fct-inbox-04` says processed entries "only gain a status tag",
+# which presupposes the untagged pending state `-02`'s check pattern forbids.
+# That inconsistency is SKA's to resolve — this module does not touch it, and
+# does not need it resolved.
+#
+# The counter instead reads `R-fct-inbox-03`, which is NOT in dispute and which
+# ATT F045 correctly said needs no vocabulary change: the sanctioned tags are
+# `DONE` and `MOVED → {destination}`, and no others may be used without
+# updating the spec. So PROCESSED is defined positively, against the
+# vocabulary, and PENDING is everything else:
+#
+#     an entry is PROCESSED iff its section carries a sanctioned tag
+#     Inbox N = the dated entries that do not
+#
+# That test is indifferent to WHERE the tag sits — H2 line, attribution line,
+# sub-bullet — so however SKA settles `-02`'s placement-and-presence question,
+# this count stays correct without an edit here. It asserts neither that an H2
+# must carry a tag nor that it must not.
+# ============================================================
+
+_INBOX_ENTRY_RE = re.compile(r"^## \d{4}-\d{2}-\d{2} — .+")
+# R-fct-inbox-03's two sanctioned values, backtick-wrapped as the rule spells
+# them. Backticks are required: without them the word `DONE` in an entry's
+# prose would mark it processed.
+_INBOX_DONE_RE = re.compile(r"`(?:DONE|MOVED\s*→[^`]*)`")
+
+
+def count_pending_inbox(name: str, backlog_file: Path) -> int:
+    """Pending (untagged) entries in `{name} Inbox.md`, or 0 if there is none.
+
+    The file prefix comes off the BACKLOG FILENAME, not the `.anchor` slug —
+    the same decision `state drop` made in leg 1, because `Scout Backlog.md`
+    beside `slug: SCOUT` would otherwise put the count and the file in two
+    different Track folders and the banner would read 0 forever.
+    """
+    inbox = backlog_file.parent / f"{name} Inbox.md"
+    if not inbox.is_file():
+        return 0
+    try:
+        lines = inbox.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeDecodeError):
+        return 0
+    pending = 0
+    open_entry = False
+    for line in lines:
+        if line.startswith("## "):
+            # A new H2 closes the previous entry; if nothing in it carried a
+            # sanctioned tag, that entry was pending.
+            if open_entry:
+                pending += 1
+            open_entry = bool(_INBOX_ENTRY_RE.match(line))
+            if open_entry and _INBOX_DONE_RE.search(line):
+                open_entry = False
+            continue
+        if open_entry and _INBOX_DONE_RE.search(line):
+            open_entry = False
+    if open_entry:
+        pending += 1
+    return pending
+
+
 def format_status_banner(tag: str, slug_label: str, ready: int, user: int,
                          now: int, nxt: int, later: int,
                          parked: int, waiting: int, icebox: int,
-                         suffix: str = "") -> str:
+                         suffix: str = "", inbox: int = 0) -> str:
     """THE status-banner format string. `R-query-16` locks this exact spacing
     and must move in the same pass as any edit here — it has lagged once
     already (F260), failing on 26 of 32 live pages while the renderer was
@@ -5481,10 +5941,24 @@ def format_status_banner(tag: str, slug_label: str, ready: int, user: int,
 
     Three zones ordered by ATTENTION, not by kind: what do I act on | what is
     coming | what am I not looking at. Zone 3 deliberately mixes a horizon
-    (Icebox) in with two classes; regularizing that destroys the design."""
+    (Icebox) in with two classes; regularizing that destroys the design.
+
+    `Inbox N` (T131 leg 2) joins ZONE 1, beside Ready and User, because an
+    undrained inbox entry is something to act on and the zone is chosen by
+    attention rather than by kind. It is emitted ONLY WHEN N > 0 — the same
+    show-only-when-nonzero discipline Dan set for the trailing `{N}` residual
+    count on 2026-06-04: *the signal is noise-only-when-there's-noise.* That
+    is not merely tidiness here. It keeps all 35 live banners byte-identical
+    on a vault with nothing pending, so nothing re-renders, no page sits in a
+    failing interval, and `R-query-16` does not have to catch up to a form
+    that changed under every file at once — which is exactly how that lock
+    lagged for the whole F260 interval and failed on 26 of 32 correct pages.
+    `R-query-16` and [[DAS Query]] § Spacing move WITH this string, in the
+    same pass, and admit the field as optional."""
+    inbox_txt = f"    Inbox {inbox}" if inbox else ""
     return (
         f"# [{tag}]  {slug_label}  -  "
-        f"Ready {ready}    User {user}   |   "
+        f"Ready {ready}    User {user}{inbox_txt}   |   "
         f"Now {now}    Next {nxt}    Later {later}   |   "
         f"Parked {parked}    Waiting {waiting}    Icebox {icebox}"
         f"{suffix}"
@@ -5572,6 +6046,7 @@ def derive_anchor_banner(name: str, backlog_file: Path,
         ready_n, user_n,
         horizon_counts["Now"], horizon_counts["Next"], horizon_counts["Later"],
         parked_n, waiting_n, horizon_counts["Icebox"],
+        inbox=count_pending_inbox(name, backlog_file),
     )
 
 
@@ -5835,6 +6310,9 @@ def main() -> int:
         qmd_text = Q_MD.read_text(encoding="utf-8")
         findings.extend(check_c1_link_existence(qmd_links))
         findings.extend(check_c54_banner_label_matches_target(qmd_text))
+        # C56 (F269) — against `all_backlogs`, never the scoped set: a section
+        # is an orphan only if NO anchor renders it.
+        findings.extend(check_c56_qmd_orphan_section(qmd_text, all_backlogs))
         findings.extend(check_c2_q_marker_existence(qmd_links, qmd_text))
         # C52 (F287) — vault-wide, so it runs with Q.md rather than per anchor:
         # an anchor that renders nowhere has no per-anchor pass to be found by.
@@ -5939,6 +6417,11 @@ def main() -> int:
     # `{slug} queries.md` (per F176). Runs once after the per-anchor loop (not
     # per anchor), since each queries file is keyed by its sibling backlog's name.
     findings.extend(check_c35_ask_md_drift(anchor_backlogs, vault_index))
+    # C55 (T159) — after the per-anchor loop, because a `[Blocked MUX-T068]`
+    # edge written in DKT resolves against MUX's backlog: the checker needs the
+    # whole universe (`all_backlogs`), not the scoped surface it reports on.
+    findings.extend(check_c55_blocker_live_and_visible(
+        anchor_backlogs, all_backlogs, vault_index))
     findings.extend(check_c37_queries_item_format(anchor_backlogs, vault_index))
     findings.extend(check_c46_queries_q_link_lands_on_qs(anchor_backlogs, vault_index))
     # F126 — C36 backtick-filepath check. Runs on Q.md (when in scope),
@@ -6046,6 +6529,13 @@ def main() -> int:
         d1_changes = apply_d1_banner_write(Q_MD, derived_banners)
         if d1_changes:
             print(f"\naudit-q: D1 — {d1_changes} per-anchor section(s) regenerated in Q.md (via queries-render.py)")
+        # C56 (F269) — prune orphan sections AFTER D1, so a section that D1
+        # just refreshed is judged on what it is now, not what it was.
+        # Q.md-scoped runs only: `--scope backlog` sees one anchor and must
+        # never be the pass that decides the other 34 sections are dead.
+        if args.scope in ("q", "all"):
+            for _line in apply_c56_fix(Q_MD, all_backlogs):
+                print(_line)
         # F247 — this run may have rewritten the backlog (C4/C23/C24 fixes) and
         # re-derived the banner; re-stamp each scoped backlog so its
         # state:backlog integrity stamp reflects the final content. Without this,

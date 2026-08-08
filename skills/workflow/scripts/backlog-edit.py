@@ -81,7 +81,18 @@ def _selffire(path):
 # Config
 
 HOME = Path.home()
-VAULT_ROOT = HOME / "ob" / "kmr"
+# `ANCHOR_VAULT_ROOT` (F269) points the whole toolchain at a fixture vault.
+# `audit-q.py _resolve_vault_root` reads the same variable and is the contract;
+# this module cannot import it (audit-q imports THIS one, so the dependency
+# runs the other way), which is why the read is repeated rather than shared.
+#
+# The variable exists because a fixture render had no way NOT to reach the real
+# vault: `test-f244-stop-gate.sh` and `test-f241-q-stamp.sh` spliced their
+# fixture sections into the live `Q.md`, and their teardown — which `rm -rf`s
+# the fixture but only `cp`-restores a Q.md snapshot — both left orphan
+# sections behind AND could revert a concurrent agent's Q.md writes.
+VAULT_ROOT = Path(os.environ["ANCHOR_VAULT_ROOT"]).expanduser() \
+    if os.environ.get("ANCHOR_VAULT_ROOT") else HOME / "ob" / "kmr"
 SENTINEL = HOME / ".claude" / "state" / "agent-messages"
 STATE_FILE = HOME / ".config" / "anchor-system" / "backlog-edit" / "state.json"
 

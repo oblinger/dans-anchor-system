@@ -13,7 +13,7 @@ Contrast with [[Topic Anchor]]: a Topic is a **heterogeneous routing hub** *abou
 ## Deltas from Base
 
 - **Member zone in the dispatch table.** A Collection's [[DAS Dispatch Table]] carries a **Member zone** below the Masthead — the members rendered as a **member list** (flat) or **member groups** (categorized), and **manual / auto / hybrid** (auto-listed below `---` / `...`, or hand-ordered, or pinned-plus-auto). Which layout is the [[progressive-disclosure]] List / Grouped choice; the compact→grouped graduation by member count is [[granularity]]. *(Full structure: [[F155 — Dispatch-table structure spec + CAE worked examples|F155]].)*
-- **Datedness is orthogonal.** Members may be dated (Log — a dated-entry stream) or not (Bespoke — undated projects). This is the `dated?` dimension of [[DAS file-association|rider]] riding on top of the trait; the Collection trait itself doesn't care.
+- **Datedness is orthogonal.** Members may be dated (Log — a dated-entry stream) or not (Bespoke — undated projects). This is the `dated?` dimension of [[DAS file-association]] riding on top of the trait; the Collection trait itself doesn't care.
 - **Members carry an expected member type.** The anchor's children conform to a known shape (all projects, all entities, all `Disk <name>.md` pages). Adding a member = creating one more file/sub-anchor of that shape.
 
 ## Composability
@@ -37,7 +37,7 @@ Disks/
 └── Disk COPPER.md           member
 ```
 
-The anchor page's Member zone enumerates `Disk *.md`; the singular `Disk` prefix is the member-type signature (the [[DAS file-association|rider]] naming convention).
+The anchor page's Member zone enumerates `Disk *.md`; the singular `Disk` prefix is the member-type signature (the [[DAS file-association]] naming convention).
 
 ## Audit
 
@@ -56,6 +56,6 @@ This trait underlies the three Container shapes in the [[DAS Anchor Page]] kinds
 
 - [[DAS Dispatch Table]] — the Masthead + Member-zone structure a Collection's page uses.
 - [[progressive-disclosure]] — member list vs member groups (List / Grouped).
-- [[DAS file-association|rider]] — dated-or-not + member placement/naming.
+- [[DAS file-association]] — dated-or-not + member placement/naming.
 - [[granularity]] — when a member list graduates compact → grouped.
 - [[F152 — Set Anchor trait — homogeneous-collection anchor kind; dispatch-organization via existing disciplines|F152]] — the design feature; "Set Anchor" was the working name, renamed **Collection** 2026-06-11 (set is too math-technical; list collides with the dispatch List pattern). **Re-confirmed 2026-06-26:** D11's `container` trait was found to be an accidental re-invention of this trait and collapsed back into `collection`; `set` was reconsidered and rejected again for the same math-technical reason. The vault sweep was re-run under the *semantic* (like-kind members) test — not the layout test that had over-tagged structural folders (Design/Track/Docs) — leaving 45 genuine collections tagged.

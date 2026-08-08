@@ -5,7 +5,7 @@ description: Query facet — the format of an anchor's `{slug} queries.md`, the 
 # DAS Query
 The asking surface: one `{slug} queries.md` per anchor, in `{slug} Track/`, that `/ask` builds and trims.
 
-| -[[DAS Query]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets\|FCT]] → [DAS Query](hook://p/DAS%20Query)  |
+| -[[DAS Query]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT]] → [DAS Query](hook://p/DAS%20Query)  |
 | --- | --- |
 | Related | [[templates/query.md\|query template]],  [[DAS Ask]] (the skill that builds it),  [[DAS Status]],  [[DAS Messages]], |
 | Examples | [[Tink queries\|real instance (SKA anchor)]],   |
@@ -37,7 +37,7 @@ Ruled by Dan 2026-08-07 and recorded here because it is the **only** thing the l
 
 | zone | question it answers | contents |
 |---|---|---|
-| **1** | what do I act on? | `Ready`, `User` — visibility classes |
+| **1** | what do I act on? | `Ready`, `User` — visibility classes; `Inbox` when non-zero |
 | **2** | what is coming? | `Now`, `Next`, `Later` — horizons |
 | **3** | what am I not looking at? | `Parked`, `Waiting`, `Icebox` — two classes **and** one horizon |
 
@@ -50,7 +50,8 @@ Ruled by Dan 2026-08-07 and recorded here because it is the **only** thing the l
 - **Zone 1 is scoped to the active horizons** (`## Now`, `## Next`), and this scoping is **stated rather than implicit** — zone 2 already reports the horizons, so a hidden filter in zone 1 produces a number no reader can reconcile.
 - **Zone 2 — horizon group.** `Now`/`Next`/`Later`, raw per-H2 bullet counts: placement, not state. `Verify` **left this group** when it became a class; it is now inside `Parked`.
 - **Zone 3 — the quiet group, rows.** `Parked` = `[Verify]` + `[Blocked …]`, unscoped by horizon; `Waiting` = `[Waiting …]` + `[Watching …]`, unscoped; `Icebox` = the Icebox file's row count. Parked and Waiting are counted here **precisely because they are omitted from the body** — a class that appears in no list and no count is invisible everywhere but the raw backlog.
-- **Spacing** — two spaces after `[<TAG>]`; three spaces around the `-`; four spaces between counts within a group; `   |   ` (three-space-pipe-three-space) between groups. A trailing `{N}` appears only when the anchor's `B-QFix` carries N > 0 residuals. `R-query-16` locks this form and moves with it.
+- **Spacing** — two spaces after `[<TAG>]`; three spaces around the `-`; four spaces between counts within a group; `   |   ` (three-space-pipe-three-space) between groups. Two fields are conditional and both follow the same rule — *show only when non-zero*: `Inbox N`, immediately after `User N` in zone 1, and the trailing `{N}` residual count. `R-query-16` locks this form and moves with it.
+- **`Inbox N` — pending entries in `{slug} Inbox.md`** (T131 leg 2). An undrained entry is something to act on, so it sits in zone 1 by the attention rule above rather than with the quiet counts. PENDING is defined *negatively against the tag vocabulary*: an entry is processed iff its section carries a sanctioned `R-fct-inbox-03` tag (`DONE` or `MOVED → …`), and `Inbox N` counts the dated entries that do not. Deliberately no dependence on `R-fct-inbox-02`'s claim about *where* a tag sits or whether every H2 must have one — that sentence is contested (it forbids the untagged pending state `R-fct-inbox-04` presupposes) and it belongs to SKA. Reading only the vocabulary keeps this count correct however that is settled.
 
 **Zone 1 is scoped and zone 3 is not, so the three zones do not reconcile — by design.** Zone 1 counts only rows the body lists (the active horizons, plus the `[Questions]`/`[Verify]` rows that render under `## Later`); zone 3 counts its two classes across every live horizon. The asymmetry follows from what each zone is *for*: zone 1 answers *what do I act on*, which is meaningless outside the active horizons, while zone 3 answers *what am I not looking at*, which is meaningless if it is scoped to what you are looking at.
 

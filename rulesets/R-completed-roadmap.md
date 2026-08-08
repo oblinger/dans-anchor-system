@@ -1,5 +1,5 @@
 # RULESET R-completed-roadmap
-include::
+include:: [[R-stream]]
 import:: skills/audit/scripts/audit-plan.py
 where:: `file:{anchor}/**/* Completed Roadmap.md`
 description:: completed-roadmap facet — migrated milestones in newest-on-top order, sibling of the forward-looking Roadmap

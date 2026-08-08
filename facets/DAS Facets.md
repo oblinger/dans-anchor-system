@@ -5,7 +5,7 @@ description: "the per-doc structural specs"
 # DAS Facets
 The catalog of facets — per-document structural specs — organized by the nine subsystems in [[DAS]] order (groups owning no facets are omitted; *Meta* is a proposed tenth group for the system's own vocabulary).
 
-| -[[DAS Facets]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets\|FCT]] → [DAS Facets](hook://p/DAS%20Facets)  |
+| -[[DAS Facets]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT]] → [DAS Facets](hook://p/DAS%20Facets)  |
 | --- | --- |
 | Related | [[DAS Skills\|Skills]],  [[DAS Disciplines\|Disciplines]],  [[DAS Traits\|Traits]],  [[DAS Examples\|Examples]],  [[DAS Rulesets\|Rulesets]],  [[DAS\|dans-anchor-system]],   |
 |  |  |
@@ -18,7 +18,8 @@ The catalog of facets — per-document structural specs — organized by the nin
 | [[DAS Doc Design\|Doc]]+ | [[DAS Doc\|Doc]],  [[DAS Doc Structure\|Doc Structure]],  [[DAS Brief\|Brief]],  [[DAS Cards\|Cards]],  [[DAS Documentation Site\|Documentation Site]],  [[DAS Output\|Output]],  [[DAS Outputs\|Outputs]],  [[DAS WP\|WP]],   |
 | *Meta (proposed)* | [[DAS Facet\|Facet]],  [[DAS Skill\|Skill]],  [[DAS Primitives\|Primitives]],  [[DAS Aspects\|Aspects]],  [[DAS Template\|Template]],  [[DAS Template Files\|Template Files]],  [[DAS Template Folders\|Template Folders]],  [[DAS Template Variables\|Template Variables]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],  [[FEX Facet]],  [[FEX Minimal Facet]],  [[FEX Skill]],  [[FEX Minimal Skill]],  [[FEX Rules]],   |
 | **STREAMS** — cross-cutting: facets whose content is a [[DAS stream\|stream]]. Not a group; these live in their subsystem groups above. |  |
-| [[DAS stream\|Streams]]  | [[DAS Discussion\|Discussion]] (doc parent),  [[DAS Log\|Log]] (anchor parent), |
+| [[DAS stream\|Streams]]  | [[DAS Discussion\|Discussion]] (doc parent, methods 1+2),  [[DAS Log\|Log]] (anchor parent, methods 2+3),  [[DAS Inbox\|Inbox]] (anchor parent, method 2),  [[DAS Outputs\|Outputs]] (anchor parent, method 3),  [[DAS WP\|WP]] (anchor parent, method 3),  [[DAS Completed Roadmap\|Completed Roadmap]] (anchor parent, method 2 — spec-only, no vault instances), |
+| Derived, not hand-kept | this row is the include DAG: a facet is a stream iff its ruleset carries `include:: [[R-stream]]`. Six today, armed 2026-08-08, |
 | Attaches, not a stream | [[DAS Brief\|Brief]] — undated, two forms; cites [[DAS file-association]] directly, |
 |  |  |
 |  |  |

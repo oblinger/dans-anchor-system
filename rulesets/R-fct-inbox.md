@@ -1,5 +1,5 @@
 # RULESET R-fct-inbox
-include::
+include:: [[R-stream]]
 where:: `file: **/{slug} Inbox.md`
 description:: Rules every `{slug} Inbox.md` instance must satisfy — location, heading format, and status-tag vocabulary.
 

@@ -1,5 +1,5 @@
 # RULESET R-log
-include::
+include:: [[R-stream]]
 import:: skills/audit/scripts/audit-plan.py
 where:: `{anchor}/**/* Log.md, !**/DAS *.md`
 exclusion-note:: `!**/DAS *.md` exempts the facet-spec catalog (a `DAS <Name>.md` is the SPEC for the facet, not an instance; specs are governed by [[R-facet-spec]]) — added 2026-07-13, T014 follow-on.

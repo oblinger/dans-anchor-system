@@ -108,10 +108,29 @@ def _sentinel_fresh(sentinel):
         return False
 
 
+def _realpath(p):
+    """`p` with symlinks resolved, or `p` unchanged if it cannot be resolved.
+
+    `state` stores `anchor_path` RESOLVED while the Stop payload carries the
+    cwd exactly as the shell spelled it, so the two sides of the containment
+    test below are not comparable as raw strings. Under `~/ob/kmr` they happen
+    to coincide and the bug is invisible; anywhere reached through a symlink
+    they never match, the sentinel is never found, and `_allow` therefore never
+    unlinks it — the crank gate goes on counting blocks against an anchor it
+    believes it has never seen. Surfaced 2026-08-08 when F269 moved the fixture
+    vault into `$TMPDIR`, where macOS makes `/var` a symlink to `/private/var`.
+    """
+    try:
+        return str(Path(p).resolve()).rstrip("/")
+    except (OSError, ValueError):
+        return str(p).rstrip("/")
+
+
 def _crank_sentinel_for(cwd):
     """(path, sentinel) of a fresh crank sentinel covering cwd, or None."""
     if not CRANK_DIR.is_dir():
         return None
+    cwd = _realpath(cwd)
     for sp in sorted(CRANK_DIR.glob("*.json")):
         try:
             s = json.loads(sp.read_text())
@@ -121,7 +140,7 @@ def _crank_sentinel_for(cwd):
         if not _sentinel_fresh(s):
             sp.unlink(missing_ok=True)
             continue
-        anchor = (s.get("anchor_path") or "").rstrip("/")
+        anchor = _realpath(s.get("anchor_path") or "") if s.get("anchor_path") else ""
         if anchor and (cwd == anchor or cwd.startswith(anchor + "/")):
             return sp, s
     return None
