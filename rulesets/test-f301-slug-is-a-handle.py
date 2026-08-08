@@ -66,7 +66,7 @@ check("'A2X' passes", verdict("alg2-experimental", "slug: A2X\n"), "pass")
 
 print("\nA leading digit is LEGAL — retirement prefixes the creation year")
 check("'25SKD' passes (retired slug)", verdict("2025 SKD Files", "slug: 25SKD\n"), "pass")
-check("'26OMNI' passes", verdict("Omnifold Head of Product Eng", "slug: 26OMNI\n"), "pass")
+check("'26NORT' passes", verdict("Northwind Head of Product Eng", "slug: 26NORT\n"), "pass")
 
 print("\nNon-conforming spellings fail")
 check("multi-token 'A2X Agents' fails", verdict("A2X Agents2", "slug: A2X Agents\n"), "fail")

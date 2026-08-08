@@ -35,7 +35,7 @@ Three constructs. Everything else is a **default**, and the defaults are the rea
 | many-by-variable | a pattern holding a **free** variable matches once per binding | `[0+]` |
 | whole document | a stencil with no anchor marker governs the whole file | a "this is a file template" marker |
 
-**Anchors nest, and depths are relative to the nearest enclosing anchor** (added 2026-08-06 from [[#T4 — One Shape, Four Incompatible Spellings|T4]]). An anchor marker may appear on a heading *inside* a stencil, not only on its first line, and every depth below it is read against that heading rather than against the file or the outer anchor. T4 is what forced it: `# LOG` sits at H1 in both `@Burke Schrauth.md` and `@Jake Wachman.md`, but the entries under it are H2 in the first and **H3** in the second — so `## {{YYYY-MM-DD}}…`, read as "one deeper than wherever LOG matched", is correct for one file and wrong for the other, while `## ... {{YYYY-MM-DD}}…` is correct for both. This buys no construct; it reuses `...` in a position the T3 write-up did not consider.
+**Anchors nest, and depths are relative to the nearest enclosing anchor** (added 2026-08-06 from [[#T4 — One Shape, Four Incompatible Spellings|T4]]). An anchor marker may appear on a heading *inside* a stencil, not only on its first line, and every depth below it is read against that heading rather than against the file or the outer anchor. T4 is what forced it: `# LOG` sits at H1 in both `@Robin Calder.md` and `@Alex Trenton.md`, but the entries under it are H2 in the first and **H3** in the second — so `## {{YYYY-MM-DD}}…`, read as "one deeper than wherever LOG matched", is correct for one file and wrong for the other, while `## ... {{YYYY-MM-DD}}…` is correct for both. This buys no construct; it reuses `...` in a position the T3 write-up did not consider.
 
 *(Provenance, since the table above deliberately omits it: `{{NAME}}` is inherited from the shipped template convention; the two anchor forms were demanded by T3, where `# LOG` sits at different depths in different files; the four defaults each replaced a construct that T1 or T2 proposed and that Dan cut on 2026-08-04.)*
 
@@ -61,7 +61,7 @@ Dan, 2026-08-04: *"whether or not we need something special for a variable that 
 | line | what it is |
 | --- | --- |
 | `# T3 — Floating-Depth Section` | a **case** — H1, named; `T3` is only a handle so proposals can be cited |
-| `**Example T3.a** — ``AT/Corp/@Omnifold/@Burke Schrauth.md`` | an **example label** — lowercase letter, path of the real file it came from |
+| `**Example T3.a** — ``AT/Corp/@Northwind/@Robin Calder.md`` | an **example label** — lowercase letter, path of the real file it came from |
 | `<!-- begin example T3.a -->` | opens a **block**; everything to the matching end marker is byte-exact |
 | `**Proposal T3.A** — ``AT/_LOG Template.md`` | a **proposal label** — uppercase letter, path the stencil file would have |
 | `## T3 Overview` | the **discussion** — always last in the case, never between the artifacts |
@@ -80,7 +80,7 @@ Two accepted costs of verbatim-and-unfenced: specimen headings are real headings
 
 **Confirmed live 2026-08-05, and the exclusion list is longer than expected.** Authoring T5 tripped `R-progressive-05` (summary-freshness): its specimen `## Identity` / `## Hardware` were counted as two new *document* sections, so every case authored here will report the summary stale by construction. That rule is `where:: always` and advisory-only, so it cannot be excluded by a `where::` glob the way the doc-structure rules can — whatever mechanism carries the exclusion has to reach it too. Recorded here rather than filed, because it is a property of this document's format that M1 has to live with until [[TINK303 - Template DSL - one pattern language for facets, templates, and sections|F303]] M6 decides how Stencil-bearing files declare themselves to Warden.
 
-**The list is now measured rather than predicted (2026-08-06).** Before T4 and T6 were authored this document passed **19 of 19** mechanical rules; authoring them broke three, and every break is inside a byte-exact block. `R-markdown-02` (blank line before and after a table) fires on T6.a and T6.b, which are dispatch tables sitting flush against their markers. `R-markdown-14` (no trailing whitespace) fires on T4.a lines 264–266, where the trailing double-space is a markdown **hard break** carried verbatim out of Apple Mail — stripping it would change the specimen's meaning, which is exactly what byte-exact is for. `R-progressive-02` (blank line before an H2) fires on T4.c, whose first line is `## 2026-07-31 Fri  Received — Omnifold declines`; T3.a has the same shape at H1 and passes, so this is a rule asymmetry rather than something the block could avoid. **All four rules are shape rules about the document, applied to bytes that belong to another document** — which is the general form of the exclusion M6 has to grant, and the concrete list to grant it over: `R-markdown-02`, `R-markdown-14`, `R-progressive-02`, `R-progressive-05`. The three `R-markdown`/`R-progressive-0[25]` ones are `where::`-scoped and can take a glob; `R-progressive-05` is `where:: always` and cannot, so it remains the one that decides what the mechanism has to be.
+**The list is now measured rather than predicted (2026-08-06).** Before T4 and T6 were authored this document passed **19 of 19** mechanical rules; authoring them broke three, and every break is inside a byte-exact block. `R-markdown-02` (blank line before and after a table) fires on T6.a and T6.b, which are dispatch tables sitting flush against their markers. `R-markdown-14` (no trailing whitespace) fires on T4.a lines 264–266, where the trailing double-space is a markdown **hard break** carried verbatim out of Apple Mail — stripping it would change the specimen's meaning, which is exactly what byte-exact is for. `R-progressive-02` (blank line before an H2) fires on T4.c, whose first line is `## 2026-07-31 Fri  Received — Northwind declines`; T3.a has the same shape at H1 and passes, so this is a rule asymmetry rather than something the block could avoid. **All four rules are shape rules about the document, applied to bytes that belong to another document** — which is the general form of the exclusion M6 has to grant, and the concrete list to grant it over: `R-markdown-02`, `R-markdown-14`, `R-progressive-02`, `R-progressive-05`. The three `R-markdown`/`R-progressive-0[25]` ones are `where::`-scoped and can take a glob; `R-progressive-05` is `where:: always` and cannot, so it remains the one that decides what the mechanism has to be.
 
 **The cut line is the answer to the exclusion problem, and it already exists (2026-08-06).** The list above excludes whole *files* from four rules, which is blunt: a specimen-bearing file has real prose in it too, and that prose should still be governed. The vault already carries a finer instrument — **`✂ ──── template notes ──── ✂`**, live in **20** `_{{…}} Template.md` files, marking the point where a template's content stops and commentary about it begins. Dan proposed generalizing it to facets and examples on 2026-08-06 and the reach is wider than that: **it is the marker that says where a file's governed region ends**, which is exactly the question [[TINK303 - Template DSL - one pattern language for facets, templates, and sections|F303]] M6 has to answer about how a Stencil-bearing file declares itself. With a cut line, the exclusion becomes *"rules do not apply below the cut"* rather than *"rules do not apply to this file"* — a template's own body stays checkable, and only the notes are exempt. The construct is `✂ ──── {label} ──── ✂`, the label naming what the file is (`template notes`, `example notes`); [[HBR]] is the first non-template instance. **Note it is a convention of files that *carry* stencils, not a Stencil construct itself** — a stencil never matches across it, because the region below is not content.
 
@@ -201,15 +201,15 @@ Following that through gives the **many-by-variable** default. `{slug} Log.md` h
 
 # T3 — Floating-Depth Section
 
-**Example T3.a** — `AT/Corp/@Omnifold/@Burke Schrauth.md`
+**Example T3.a** — `AT/Corp/@Northwind/@Robin Calder.md`
 
 <!-- begin example T3.a -->
 # LOG
-Reverse-chronological correspondence and notes with Burke Schrauth (Omnifold champion), newest first.
+Reverse-chronological correspondence and notes with Robin Calder (Northwind champion), newest first.
 
 ## 2026-08-03 Mon  SENT — reply
 
-To: burke@omnifold.ai
+To: robin@northwind.example
 Subject: Thanks, Burke
 
 Burke,
@@ -260,18 +260,18 @@ Dan
 
 # T4 — One Shape, Four Incompatible Spellings
 
-**Example T4.a** — `AT/@Jake Wachman.md` — bold field labels
+**Example T4.a** — `AT/@Alex Trenton.md` — bold field labels
 
 <!-- begin example T4.a -->
 EMAILS:
 
-**From:** Dan Oblinger <[dan@analyticsfire.com](mailto:dan@analyticsfire.com)>  
+**From:** Dan Oblinger <[dan@brightfield.example](mailto:dan@brightfield.example)>  
 **Date:** Tuesday, December 13, 2022 at 1:13 AM  
-**To:** Jake Wachman <[jacob.wachman@sunnova.com](mailto:jacob.wachman@sunnova.com)>  
+**To:** Alex Trenton <[alex.trenton@meridian.example](mailto:alex.trenton@meridian.example)>  
 **Subject:** Great chatting today
 <!-- end example T4.a -->
 
-**Example T4.b** — `AT/@Jake Wachman.md` — tilde separator, bare direction lines, no field names
+**Example T4.b** — `AT/@Alex Trenton.md` — tilde separator, bare direction lines, no field names
 
 <!-- begin example T4.b -->
 ~
@@ -280,12 +280,12 @@ From Jake
 To Dan and Chris
 <!-- end example T4.b -->
 
-**Example T4.c** — `AT/Corp/@Omnifold/@Burke Schrauth.md` — one combined header line, middot-separated
+**Example T4.c** — `AT/Corp/@Northwind/@Robin Calder.md` — one combined header line, middot-separated
 
 <!-- begin example T4.c -->
-## 2026-07-31 Fri  Received — Omnifold declines
+## 2026-07-31 Fri  Received — Northwind declines
 
-From: Burke Schrauth, burke@omnifold.ai · To: oblinger@gmail.com · Fri 2026-07-31 4:23pm
+From: Robin Calder, robin@northwind.example · To: dan@brightfield.example · Fri 2026-07-31 4:23pm
 Subject: Re: I am in the test right now and burning hours... Where is the specification?
 <!-- end example T4.c -->
 
@@ -302,17 +302,17 @@ Subject: {{SUBJECT}}
 
 ## T4 Overview
 
-**Real instances.** The email block inside [[AT]] log entries, in four mutually-incompatible forms across two files — bold field labels (`EMAILS:` then `**From:**` / `**Date:**` / `**To:**` / `**Subject:**`) in `@Jake Wachman.md`; a dashed header line and a dashed draft line in `@Burke Schrauth.md`; and a tilde fence with bare `From Jake` / `To Dan and Chris` in `@Jake Wachman.md`. They share **no** common marker. Example T3.a above is a *fifth* spelling — bare `To:` / `Subject:` under a dated heading.
+**Real instances.** The email block inside [[AT]] log entries, in four mutually-incompatible forms across two files — bold field labels (`EMAILS:` then `**From:**` / `**Date:**` / `**To:**` / `**Subject:**`) in `@Alex Trenton.md`; a dashed header line and a dashed draft line in `@Robin Calder.md`; and a tilde fence with bare `From Jake` / `To Dan and Chris` in `@Alex Trenton.md`. They share **no** common marker. Example T3.a above is a *fifth* spelling — bare `To:` / `Subject:` under a dated heading.
 
 **Direction: match and reconcile only.** [[TINK302 - Section templates and the scope ladder|F302]] resolved that existing log entries are **never rewritten** — a log entry records a message actually sent, and normalizing one edits the record rather than the format. So Stencil must express the agreed shape and then answer *"is this old entry reconcilable with it?"*, which is weaker than *"does this match?"*.
 
 **What the case demands.** Possibly nothing new, and that is worth testing: if Stencil expresses the target shape and the matcher reports **which parts bound and which did not**, reconcilability is a predicate over that result and stays out of the grammar. If it cannot be kept out, this is the case that proves the language needs a partial-match notion — a large addition, and one to resist.
 
-**Authored 2026-08-06, and the case is smaller than its title claims — it is two cases wearing one name.** Only **T4.c** and **T3.a** are competing spellings of the same slot: the header of a log entry, one combined middot-separated line versus one field per line. **T4.a and T4.b are not entry headers at all.** `@Jake Wachman.md` has three entries (`### 2022-12-19`, `### 2022-12-12`, `### 2022-12-07`) and both the `EMAILS:` block at line 39 and the two `~` blocks at 54 and 69 sit **inside the body of the first one**, which runs from line 6 to line 107. They are ways of quoting pasted correspondence *within* an entry, not ways of opening one. So the four-way incompatibility that named this case is really a two-way one, and the other two are a different shape entirely — quoted source material inside a body — which **Stencil already covers for free**: T3.A's `{{entry body}}` is a variable, the open-world default says a stencil states what is present rather than what is absent, and nothing about a pasted thread needs to be expressible. This is the second time a case has shrunk on contact with its own instances (T5 was the first), and it is the same mechanism: the shape was named from memory and the files disagreed.
+**Authored 2026-08-06, and the case is smaller than its title claims — it is two cases wearing one name.** Only **T4.c** and **T3.a** are competing spellings of the same slot: the header of a log entry, one combined middot-separated line versus one field per line. **T4.a and T4.b are not entry headers at all.** `@Alex Trenton.md` has three entries (`### 2022-12-19`, `### 2022-12-12`, `### 2022-12-07`) and both the `EMAILS:` block at line 39 and the two `~` blocks at 54 and 69 sit **inside the body of the first one**, which runs from line 6 to line 107. They are ways of quoting pasted correspondence *within* an entry, not ways of opening one. So the four-way incompatibility that named this case is really a two-way one, and the other two are a different shape entirely — quoted source material inside a body — which **Stencil already covers for free**: T3.A's `{{entry body}}` is a variable, the open-world default says a stencil states what is present rather than what is absent, and nothing about a pasted thread needs to be expressible. This is the second time a case has shrunk on contact with its own instances (T5 was the first), and it is the same mechanism: the shape was named from memory and the files disagreed.
 
-**The two real spellings differ in a way no visible markup shows, which is the finding worth keeping.** T4.a's field labels are followed by **U+00A0**, a non-breaking space — `'**From:**\xa0Dan Oblinger'` — pasted out of Apple Mail rather than typed. `# LOG ` in the same file carries a **trailing space** where `@Burke Schrauth.md`'s does not. A matcher written against what these look like on screen matches neither. That is not an argument for a construct; it is an argument that the matcher normalizes Unicode whitespace before comparing literals, which is an implementation property of M3 and belongs in its spec rather than in the grammar.
+**The two real spellings differ in a way no visible markup shows, which is the finding worth keeping.** T4.a's field labels are followed by **U+00A0**, a non-breaking space — `'**From:**\xa0Dan Oblinger'` — pasted out of Apple Mail rather than typed. `# LOG ` in the same file carries a **trailing space** where `@Robin Calder.md`'s does not. A matcher written against what these look like on screen matches neither. That is not an argument for a construct; it is an argument that the matcher normalizes Unicode whitespace before comparing literals, which is an implementation property of M3 and belongs in its spec rather than in the grammar.
 
-**And the depth floats twice, not once.** `@Burke Schrauth.md` puts `# LOG` at H1 with entries at H2; `@Jake Wachman.md` puts `# LOG` at H1 with entries at **H3**. T3 already established that the LOG heading itself floats, which is what `...` exists for. What this case adds is that the entry heading's depth is not fixed *relative to the anchor* either — so T3.A's `## {{YYYY-MM-DD}}…`, read as "one deeper than wherever LOG matched", is **wrong for this file**. The honest reading is that the entry heading is itself an anchor (`## ... {{YYYY-MM-DD}}…`), nested inside the LOG anchor, which costs no new construct — it reuses the one T3 already bought — but it does mean **anchors nest**, and T3's Overview does not say so. That is the one genuine addition this case makes to the language, and it is a semantic clarification rather than a construct.
+**And the depth floats twice, not once.** `@Robin Calder.md` puts `# LOG` at H1 with entries at H2; `@Alex Trenton.md` puts `# LOG` at H1 with entries at **H3**. T3 already established that the LOG heading itself floats, which is what `...` exists for. What this case adds is that the entry heading's depth is not fixed *relative to the anchor* either — so T3.A's `## {{YYYY-MM-DD}}…`, read as "one deeper than wherever LOG matched", is **wrong for this file**. The honest reading is that the entry heading is itself an anchor (`## ... {{YYYY-MM-DD}}…`), nested inside the LOG anchor, which costs no new construct — it reuses the one T3 already bought — but it does mean **anchors nest**, and T3's Overview does not say so. That is the one genuine addition this case makes to the language, and it is a semantic clarification rather than a construct.
 
 **Verdict: no partial-match notion, and the reason is structural rather than a preference.** With the case reduced to two header spellings, reconciliation is *"did `TO` and `SUBJECT` bind, from anywhere in this entry?"* — a question about the **result** of a match, answerable from a matcher that reports bindings instead of a boolean. Putting it in the grammar would mean each stencil declaring how much of itself is allowed to fail, and then a stencil's meaning depends on the tolerance it was read with rather than on what it says. That is precisely the second-rules-engine failure the scope discipline exists to prevent, and T4 — the case that was expected to force it — turns out not to.
 
