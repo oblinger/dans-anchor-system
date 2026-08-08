@@ -38,6 +38,9 @@ Progressive disclosure is *layered information presentation — each layer deliv
 This is a discipline, not a user-invocable skill — other DAS facets and skills cite it via `[[DAS progressive-disclosure]]` and Claude Code loads it into context before they run.
 
 
+
+**Site-specific extensions.** A vault may specialize this facet for its own user in that vault's agent-conventions page, in a section keyed to this facet's exact name. Nothing here assumes one exists; when it does, it refines this spec and never overrides a declared pointer. In this vault that page is [[Agent Conventions]] § DAS progressive-disclosure.
+
 ## Why this exists — the problem it solves
 
 Today the discipline is implicit in [[DAS Anchor Page]] and the `md` skill's dispatch-table sub-command. Many anchors invented their own variations. Without naming the patterns and codifying when each applies, every author makes the same micro-decisions from scratch, and the same drift accumulates anchor-by-anchor.
