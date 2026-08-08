@@ -4080,6 +4080,11 @@ def check_c35_ask_md_drift(
 
 _Q_WIKILINK_RE = re.compile(r"\[\[[^\]]*\]\]")
 _Q_FNUM_RE = re.compile(r"\bF\d{1,4}\b")
+# Status brackets are machine syntax written and parsed by `state` — the blocker
+# token in `[Blocked ATT-F041]` can never be a wiki-link, so C37 must not see it.
+# Without this, `[Blocked DKT-T001]` passes while `[Blocked DKT-F098]` errors:
+# same grammar, opposite verdict, decided only by task-vs-feature (ATT 2026-08-08).
+_Q_STATUS_RE = re.compile(r"\[(?:Blocked|Waiting)[^\]]*\]")
 _Q_VHANDLE_RE = re.compile(r"^\s*-\s+\*\*V\d+\b")
 _Q_QHANDLE_RE = re.compile(r"^\s*-\s+\*\*Q\d+\b")
 _Q_YESNO_RE = re.compile(r"\*\*[^*]*yes\s*/\s*no[^*]*\*\*", re.IGNORECASE)
@@ -4160,7 +4165,8 @@ def check_c37_queries_item_format(
             # bare F-numbers inside filenames like `~/F006-status.md` false-fire
             # (SKA F227 fix, 2026-07-05).
             bare = sorted(set(_Q_FNUM_RE.findall(
-                _strip_code_spans(_Q_WIKILINK_RE.sub("", item))
+                _strip_code_spans(_Q_STATUS_RE.sub("",
+                    _Q_WIKILINK_RE.sub("", item)))
             )))
             for fn in bare:
                 findings.append(Finding(
