@@ -108,8 +108,17 @@ VALID_STATUS_BASE = frozenset({
 VALID_STATUS_PATTERNS = (
     re.compile(r"^\d+\s+Questions?$", re.IGNORECASE),                        # "3 Questions"
     re.compile(r"^\d+\s+Ready$", re.IGNORECASE),                             # "5 Ready" (milestone)
-    re.compile(r"^Waiting\s+\d+[dhmy]$", re.IGNORECASE),                     # "Waiting 7d"
-    re.compile(r"^Watching\s+\d+[dhmy]$", re.IGNORECASE),                    # "Watching 14d"
+    # F305 — the ABSOLUTE date is the intended form: a relative duration ages
+    # into a lie (a thirty-day-old `[Watching 7d]` still reads *7d*, because the
+    # bracket shows the original DURATION and a reader takes it for REMAINING),
+    # while a date never needs renumbering. The relative forms are retired but
+    # still accepted, because 5 live rows carry them and refusing a shape before
+    # its replacement can be written would make those rows unwritable — the
+    # migration has to be able to run through this gate.
+    re.compile(r"^Waiting\s+\d{4}-\d{2}-\d{2}$", re.IGNORECASE),             # "Waiting 2026-09-01"
+    re.compile(r"^Watching\s+\d{4}-\d{2}-\d{2}$", re.IGNORECASE),            # "Watching 2026-09-01"
+    re.compile(r"^Waiting\s+\d+[dhmy]$", re.IGNORECASE),                     # "Waiting 7d" (retired)
+    re.compile(r"^Watching\s+\d+[dhmy]$", re.IGNORECASE),                    # "Watching 14d" (retired)
     re.compile(r"^Verify(-by\s+\d{4}-\d{2}-\d{2})?$", re.IGNORECASE),        # "Verify-by 2026-06-02"
     re.compile(r"^Done(\s+\d{4}-\d{2}-\d{2})?$", re.IGNORECASE),             # "Done 2026-06-04"
     # F283 — the handle is ANY row identifier, not only a feature: "a Verify can
@@ -132,27 +141,53 @@ VERIFY_WATCHING_FAMILY = ("Verify", "Watching")
 NUDGE_BUCKETS = {"Now", "Next", "Active", "Ready"}
 
 
+def _validate_status_member(member):
+    """True if ONE member of a bracket set is a canonical state."""
+    if member in VALID_STATUS_BASE:
+        return True
+    return any(pat.match(member) for pat in VALID_STATUS_PATTERNS)
+
+
 def validate_status(status):
     """Reject non-canonical brackets at write time.
 
     Accepts 'same' / 'delete' (control tokens used by state's row-edit
-    delegation). Otherwise the status must match either VALID_STATUS_BASE
-    (case-sensitive) or one of VALID_STATUS_PATTERNS (case-insensitive for
-    the keyword, exact for the numeric suffix).
+    delegation). Otherwise EVERY MEMBER of the bracket must match either
+    VALID_STATUS_BASE (case-sensitive) or one of VALID_STATUS_PATTERNS
+    (case-insensitive for the keyword, exact for the numeric suffix).
+
+    F305 — THE BRACKET IS A SET. `[Ready, Questions]` and `[Ready, 3
+    Questions, Verify]` are legal, and any combination is legal: there are no
+    blessed pairs, because an exception is a rule to remember with no benefit
+    and an audit cannot explain a refusal that rests on no principle. A row in
+    two classes counts in both, so class counts may sum to more than the row
+    count — intended, not a defect.
+
+    The bracket STAYS THE SOURCE OF TRUTH; this was the alternative Dan
+    rejected outright when the proposal was to derive it from other fields:
+    *"I don't like the idea that the brackets stop being the source of truth.
+    I don't want to lose that… this is the thing that has really gotten us in
+    trouble, agent says one thing but then everything says another thing."*
+    Nothing about a row's state is computed behind the user's back — the row
+    says what it is, and a row that disagrees with reality can be pointed at.
     """
     if status in ("same", "delete"):
         return
     stripped = status.strip().strip("[]").strip()
-    if stripped in VALID_STATUS_BASE:
+    members = [m.strip() for m in stripped.split(",") if m.strip()]
+    if not members:
+        raise BacklogEditError(f"invalid status {status!r}: empty bracket")
+    bad = [m for m in members if not _validate_status_member(m)]
+    if not bad:
         return
-    for pat in VALID_STATUS_PATTERNS:
-        if pat.match(stripped):
-            return
+    plural = "members" if len(bad) > 1 else "member"
     raise BacklogEditError(
-        f"invalid status {status!r}; expected one of "
+        f"invalid status {status!r}; unrecognized {plural}: "
+        f"{', '.join(repr(b) for b in bad)}. Expected one of "
         f"{sorted(VALID_STATUS_BASE)} or a compound form "
-        f"(N Questions, N Ready, Waiting Nd, Watching Nd, "
-        f"Verify-by YYYY-MM-DD, Done YYYY-MM-DD, Blocked FNNN)"
+        f"(N Questions, N Ready, Waiting YYYY-MM-DD, Watching YYYY-MM-DD, "
+        f"Verify-by YYYY-MM-DD, Done YYYY-MM-DD, Blocked <handle>). "
+        f"A bracket may be a comma-separated SET of these."
     )
 
 

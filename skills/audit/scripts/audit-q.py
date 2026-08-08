@@ -2352,7 +2352,8 @@ def check_c13_ready_h2_purity(entries: list[BacklogEntry]) -> list[Finding]:
     for e in entries:
         if e.horizon != "Ready":
             continue
-        if e.status == "Ready":
+        # Member-aware: a `[Ready, Questions]` row is legitimately under ## Ready.
+        if has_member(e.status, "Ready"):
             continue
         # Don't double-report [Done] (C4 owns it)
         if e.status.startswith("Done"):
@@ -2383,7 +2384,7 @@ def check_c14_active_h2_purity(entries: list[BacklogEntry]) -> list[Finding]:
     for e in entries:
         if e.horizon != "Active":
             continue
-        if e.status == "Active":
+        if has_member(e.status, "Active"):
             continue
         if e.status.startswith("Done"):
             continue  # C4 owns
@@ -2659,7 +2660,7 @@ def check_c51_user_action_present(
     findings: list[Finding] = []
     user_texts = _rows_with_subbullet_text(backlog_file, "User")
     for e in entries:
-        if e.status.strip() != "User":
+        if not has_member(e.status, "User"):
             continue
         if not user_texts.get(e.identifier):
             findings.append(Finding(
@@ -2751,7 +2752,7 @@ def check_c23_designing_resolves(entries: list[BacklogEntry]) -> list[Finding]:
     """
     findings: list[Finding] = []
     for e in entries:
-        if e.status != "Designing":
+        if not has_member(e.status, "Designing"):
             continue
         # F275 (T079) — a standalone Q-row backs itself: it IS one pending
         # question, so the honest bracket is [Questions]. Counting it the
@@ -2869,9 +2870,9 @@ def check_c24_questions_count_match(entries: list[BacklogEntry]) -> list[Finding
     """
     findings: list[Finding] = []
     for e in entries:
-        # Match brackets of the form "Questions" (bare) or "N Questions"
-        m = re.match(r"^\s*(\d+)\s+Questions?\s*$|^\s*Questions?\s*$", e.status or "")
-        if not m:
+        # The `[Questions]` / `[N Questions]` MEMBER of the bracket set.
+        qm = questions_member(e.status)
+        if not qm:
             continue
         # F275 — a standalone Q-row IS its own single pending question
         # (self-backing): no arrow link, and its sub-bullets are the ask-format
@@ -2879,7 +2880,7 @@ def check_c24_questions_count_match(entries: list[BacklogEntry]) -> list[Finding
         # against a linked doc.
         if re.match(r"^Q\d+$", e.identifier or ""):
             continue
-        claimed = int(m.group(1)) if m.group(1) else 1
+        claimed = qm[1] if qm[1] is not None else 1
         # Resolve the Q-bearing target. The row's OWN doc is the arrow-form
         # `→ [[…]]` reference only — an in-prose link is a mention, not the
         # doc. Rows without an arrow link (T-/B-rows) carry their Qs as
@@ -3217,7 +3218,7 @@ def check_c33_designing_needs_link(entries: list[BacklogEntry]) -> list[Finding]
     """
     findings: list[Finding] = []
     for e in entries:
-        if e.status != "Designing":
+        if not has_member(e.status, "Designing"):
             continue
         if e.link is not None:
             continue
@@ -3290,7 +3291,7 @@ def check_c43_row_links_existing_doc(entries: list[BacklogEntry]) -> list[Findin
     for e in entries:
         if not re.fullmatch(r"F\d+", e.identifier or ""):
             continue
-        if e.horizon in ("Done", "Icebox") or e.status == "Done":
+        if e.horizon in ("Done", "Icebox") or has_member(e.status, "Done"):
             continue
         if e.link is not None or f"[[{e.identifier} — " in e.raw_body:
             continue
@@ -3341,8 +3342,7 @@ def check_c44_questions_row_has_target(entries: list[BacklogEntry]) -> list[Find
     file_lines_cache: dict[Path, list[str]] = {}
     inline_q_re = re.compile(r"^\s*- \*\*Q\d+\s+[—-]")
     for e in entries:
-        m = re.match(r"^\s*(\d+)\s+Questions?\s*$|^\s*Questions?\s*$", e.status or "")
-        if not m:
+        if not questions_member(e.status):
             continue
         if e.horizon in ("Done", "Icebox"):
             continue
@@ -3407,8 +3407,7 @@ def check_c45_open_questions_above_h1(entries: list[BacklogEntry]) -> list[Findi
     h1_re = re.compile(r"^# ")
     oq_re = re.compile(r"^## Open Questions\s*$")
     for e in entries:
-        m = re.match(r"^\s*(\d+)\s+Questions?\s*$|^\s*Questions?\s*$", e.status or "")
-        if not m:
+        if not questions_member(e.status):
             continue
         if e.horizon in ("Done", "Icebox"):
             continue
@@ -3571,7 +3570,7 @@ def check_c50_question_why_ask(entries: list[BacklogEntry]) -> list[Finding]:
     findings: list[Finding] = []
     seen: set[Path] = set()
     for e in entries:
-        if not re.match(r"^\s*(\d+\s+)?Questions?\s*$", e.status or ""):
+        if not questions_member(e.status):
             continue
         if e.horizon in ("Done", "Icebox"):
             continue
@@ -3673,7 +3672,7 @@ def check_c49_next_nonanswer(
                     mechanically_fixable=False,
                 ))
     for e in entries:
-        if e.status.strip() != "Questions":
+        if not has_member(e.status, "Questions"):
             continue
         for qtext in _inline_q_question_texts(backlog_file, e):
             if is_nonanswer(qtext):
@@ -4445,7 +4444,7 @@ def apply_c23_fix(backlog_file: Path,
     """Rewrite [Designing] brackets to [N Questions] or [Ready] based on
     pending Q-count in linked feature docs. Returns (changed, log)."""
     fix_log: list[str] = []
-    designing = [e for e in entries if e.status == "Designing"]
+    designing = [e for e in entries if has_member(e.status, "Designing")]
     if not designing:
         return False, []
     try:
@@ -4540,8 +4539,7 @@ def apply_c24_fix(backlog_file: Path,
     for e in entries:
         if not e.status:
             continue
-        m = re.match(r"^\s*(\d+)\s+Questions?\s*$|^\s*Questions?\s*$", e.status)
-        if m:
+        if questions_member(e.status):
             questions_rows.append((e, e.status))
     if not questions_rows:
         return False, []
@@ -4576,8 +4574,8 @@ def apply_c24_fix(backlog_file: Path,
             continue  # arrow present but unparseable — C1/C22's territory
         else:
             actual = _row_inline_q_count(e)
-        m = re.match(r"^\s*(\d+)\s+Questions?\s*$", old_status)
-        claimed = int(m.group(1)) if m else 1
+        qm = questions_member(old_status)
+        claimed = (qm[1] if qm and qm[1] is not None else 1)
         if actual == claimed:
             continue
         if actual == 0:
@@ -5210,6 +5208,47 @@ def check_c52_unclassified_backlog(vault_root: Path) -> list[Finding]:
 def bracket_members(bracket: str) -> list[str]:
     """Split a bracket into its member states. `Ready, 3 Questions` -> both."""
     return [m.strip() for m in bracket.split(",") if m.strip()]
+
+
+def has_member(bracket: str, *names: str) -> bool:
+    """True if the bracket SET contains any of `names` as a member.
+
+    Use this anywhere the old code wrote `e.status == "Designing"` or
+    `e.status.startswith("Verify")`. A whole-string compare is correct only
+    while every bracket is a single state; the moment a row is written
+    `[Ready, Questions]` the compare silently returns False and the check
+    SKIPS the row rather than failing loudly. That is the worst shape a guard
+    can take — it reports success by saying nothing.
+
+    Matching is exact per member, except that a member may carry an argument
+    (`Blocked F237`, `Waiting 2026-09-01`, `3 Questions`), so the member's
+    KEYWORD is compared: leading count, then the first word.
+    """
+    for m in bracket_members(bracket):
+        # `3 Questions` -> `Questions`; `Blocked F237` -> `Blocked`;
+        # `Verify-by 2026-09-01` -> `Verify-by`.
+        w = m.split(None, 1)
+        kw = w[1] if len(w) == 2 and w[0].isdigit() else m.split(None, 1)[0]
+        if kw in names or m in names:
+            return True
+    return False
+
+
+_QUESTIONS_MEMBER_RE = re.compile(r"^\s*(\d+)?\s*Questions?\s*$", re.IGNORECASE)
+
+
+def questions_member(bracket: str):
+    """The `[Questions]` / `[N Questions]` member of a bracket set, as
+    `(member_text, claimed_count_or_None)` — or None when absent.
+
+    Replaces five copies of `re.match(r"^\\s*(\\d+)\\s+Questions?\\s*$", status)`,
+    each of which anchored on the WHOLE bracket and so would stop seeing the
+    row the moment it became a set."""
+    for m in bracket_members(bracket or ""):
+        hit = _QUESTIONS_MEMBER_RE.match(m)
+        if hit:
+            return m, (int(hit.group(1)) if hit.group(1) else None)
+    return None
 
 
 def in_class_ready(bracket: str) -> bool:

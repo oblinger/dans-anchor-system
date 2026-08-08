@@ -213,6 +213,56 @@ try:
         ok("Verify left zone 2 — it is a class now, inside Parked")
     else:
         no(f"Verify is still a zone-2 horizon count: {bz!r}")
+
+    # ---- F. the checks SEE a set member ------------------------------------
+    # The conversion from `e.status == "Designing"` to `has_member(...)` was
+    # verified against the live corpus by diffing all 251 findings before and
+    # after — bit-identical, because the vault holds no set brackets yet. That
+    # proves the change is safe; it proves NOTHING about whether it works, as a
+    # no-op would produce the same diff. These assert the behaviour that
+    # bit-identity cannot: a set member is found where a whole-string compare
+    # would silently skip the row and report success by saying nothing.
+    print("== F: a set member is seen where whole-string matching would skip ==")
+    CASES = [
+        ("Designing",         "Ready, Designing",        "Designing"),
+        ("User",              "Ready, User",             "User"),
+        ("Questions",         "Ready, 3 Questions",      "Questions"),
+        ("Done",              "Done, Verify",            "Done"),
+        ("Active",            "Active, Questions",       "Active"),
+    ]
+    misses = []
+    for name, bracket, member in CASES:
+        # the old behaviour, reconstructed exactly
+        old_would_match = (bracket.strip() == member)
+        new_matches = aq.has_member(bracket, member)
+        if not new_matches or old_would_match:
+            misses.append(f"[{bracket}] ~ {member}: old={old_would_match} new={new_matches}")
+    if misses:
+        no("member matching wrong:\n    " + "\n    ".join(misses))
+    else:
+        ok(f"all {len(CASES)} set brackets are seen now and were missed before")
+
+    # The counted form must yield its NUMBER out of a set, since C24 compares
+    # the claim against the doc's real pending count.
+    qm = aq.questions_member("Ready, 4 Questions, Verify")
+    if qm and qm[1] == 4:
+        ok("questions_member pulls the claimed count (4) out of a set")
+    else:
+        no(f"questions_member lost the count in a set: {qm!r}")
+    if aq.questions_member("Ready, Questions")[1] is None:
+        ok("a bare Questions member reports no explicit count")
+    else:
+        no("bare Questions should report count None")
+    if aq.questions_member("Ready, Verify") is None:
+        ok("a set with no Questions member reports None")
+    else:
+        no("questions_member matched a set with no Questions")
+
+    # An ARGUMENT must never be mistaken for a member keyword.
+    if not aq.has_member("Blocked Questions-doc", "Questions"):
+        ok("`[Blocked Questions-doc]` is not read as a Questions row")
+    else:
+        no("a Blocked ARGUMENT was read as a member keyword")
 finally:
     shutil.rmtree(TMP, ignore_errors=True)
 
