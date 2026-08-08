@@ -901,6 +901,26 @@ def _row_should_render(row: Row) -> bool:
     return audit_q.renders_in_body(row.horizon, row.bracket)
 
 
+def _wikilink_spans(text: str) -> list:
+    """(start, end) for every `[[…]]` in `text`, so a cut can avoid landing
+    inside one."""
+    return [(m.start(), m.end()) for m in re.finditer(r"\[\[[^\]]*\]\]", text)]
+
+
+def _safe_cut(text: str, cut: int) -> int:
+    """Move `cut` back to before any `[[wiki-link]]` it would land inside.
+
+    Cutting mid-link produces `[[F237 — Golden corpus exists in two...`, which
+    is broken markup AND a bare F-number, so it trips C37 while looking like a
+    link. Observed on TINK T150 the moment F305 made `[Blocked …]` rows render
+    — the row had a perfectly good `[[F237 — …]]` link and truncation sawed it
+    in half. Silent until then only because the row rendered nowhere."""
+    for start, end in _wikilink_spans(text):
+        if start < cut < end:
+            return start
+    return cut
+
+
 def _truncate_body(text: str, soft_cap: int = 250) -> str:
     """Truncate body text at a sentence boundary near soft_cap; append '...' if cut."""
     text = text.strip()
@@ -921,7 +941,7 @@ def _truncate_body(text: str, soft_cap: int = 250) -> str:
     for offset in range(len(window) - 1, -1, -1):
         ch = window[offset]
         if ch in ".!?" and offset + 1 < len(window) and window[offset + 1] == " ":
-            cut = window_start + offset + 1
+            cut = _safe_cut(text, window_start + offset + 1)
             return text[:cut].rstrip() + "..."
     # Fall back to word boundary near soft_cap
     cut = soft_cap
@@ -929,11 +949,30 @@ def _truncate_body(text: str, soft_cap: int = 250) -> str:
         cut -= 1
     if cut <= 0:
         cut = soft_cap
+    cut = _safe_cut(text, cut)
     return text[:cut].rstrip() + "..."
 
 
-def _bullet_bracket_display(bracket: str) -> str:
-    """Return the bracket text as it should appear in the Q.md bullet."""
+def _bullet_bracket_display(bracket: str, name: str = "",
+                            block_ids: Optional[set] = None) -> str:
+    """Return the bracket text as it should appear in the Q.md bullet, with a
+    `[Blocked <handle>]` handle turned into a link to the blocker's row.
+
+    F283's design says the chained handle IS the description and *"the user
+    clicks `F<NNN>` to learn the actual current state of the blocker"* — so it
+    has to be clickable, and a bare F-number in a rendered queries file also
+    trips C37. The `## Blockers` bullet already links its waiters for exactly
+    this reason; the bracket itself was missed, and the gap stayed invisible
+    because the rows carrying these brackets rendered nowhere. Making them
+    visible surfaced 13 real C37 errors that had been latent, which is the
+    point of a visibility ledger.
+
+    Resolve-before-emit, as everywhere else: no block-id, no link — a link to
+    a row that does not exist is worse than the bare handle."""
+    m = _BLOCKED_HANDLE_RE.match(bracket)
+    if m and name and block_ids and m.group(1) in block_ids:
+        handle = m.group(1)
+        return f"**[Blocked [[{name} Backlog#^{handle}|{handle}]]]**"
     return f"**[{bracket}]**"
 
 
@@ -1233,7 +1272,7 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
         _h2("## Blockers")
         for r in blockers:
             link = _bullet_link(r, name, vault_index, block_ids, h3_headings)
-            btxt = _bullet_bracket_display(r.bracket) if r.bracket else "**[no state]**"
+            btxt = _bullet_bracket_display(r.bracket, name, block_ids) if r.bracket else "**[no state]**"
             # Link each waiter to its backlog row so the reader can jump to the
             # work being held up — and so the bare handle does not trip C37
             # (bare F-numbers in a rendered queries file must be wiki-links).
@@ -1332,7 +1371,7 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
         _h2("## Blocked")
         for r in blocked:
             link = _bullet_link(r, name, vault_index, block_ids, h3_headings)
-            btxt = _bullet_bracket_display(r.bracket)
+            btxt = _bullet_bracket_display(r.bracket, name, block_ids)
             txt = _truncate_body(r.body, 160)
             body.append(f"- {link} — {btxt}" + (f" {txt}" if txt else ""))
     # Verifications last, deliberately below the fold: "it's not actually a
@@ -1382,7 +1421,7 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
         _h2("## Other")
         for r in other:
             link = _bullet_link(r, name, vault_index, block_ids, h3_headings)
-            btxt = _bullet_bracket_display(r.bracket) if r.bracket else "**[no state]**"
+            btxt = _bullet_bracket_display(r.bracket, name, block_ids) if r.bracket else "**[no state]**"
             txt = _truncate_body(r.body, 200)
             body.append(f"- {link} — {btxt}" + (f" {txt}" if txt else ""))
     body.extend(_coverage_warning(

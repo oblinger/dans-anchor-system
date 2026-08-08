@@ -41,7 +41,11 @@ def check(name, got, want):
         FAILURES.append(name)
 
 
-BANNER = "# [T]  [[X|X]]  -  Runnable 1    User 1   |   Now 1    Next 0    Later 0    Verify 0    Icebox 0"
+# Real banner form (F305 three zones) — a fixture that does not resemble
+# production hides defects; see the F248 summary-line fixture for the case
+# where an invented shape passed for months against unanchored regexes.
+BANNER = ("# [T]  [[X|X]]  -  Ready 1    User 1   |   "
+          "Now 1    Next 0    Later 0   |   Parked 0    Waiting 0    Icebox 0")
 
 
 def render(backlog_text, next_actions=None, verify_questions=None):
@@ -101,8 +105,24 @@ def main():
     blocked = [ln for ln in body[blocked_i + 1:] if ln.startswith("- ")][:2]
     check("Blocked holds the [Blocked F001] row", any("F002" in ln for ln in blocked), True)
     check("Blocked holds the [Waiting] row", any("F005" in ln for ln in blocked), True)
-    check("Blocked shows the bracket verbatim",
-          any("**[Blocked F001]**" in ln for ln in blocked), True)
+    # The bracket stays legible as the state it claims — F284's no-laundering
+    # rule — but the HANDLE is a link. F283's own design says the chained
+    # number is the description and "the user clicks `F<NNN>` to learn the
+    # actual current state of the blocker", and a bare F-number in a rendered
+    # queries file trips C37. Obsidian displays the piped link as `F001`, so
+    # what the reader SEES is still exactly `[Blocked F001]`.
+    check("Blocked shows the bracket, with the handle linked",
+          any("**[Blocked [[X Backlog#^F001|F001]]]**" in ln for ln in blocked), True)
+    # Resolve-before-emit: an unknown handle stays bare rather than becoming a
+    # link to a row that does not exist.
+    body_unres, _ = render("""# X Backlog
+
+## Now
+
+- **F002 — Waits on a ghost** [Blocked F999] — the handle names no row. ^F002
+""")
+    check("an unresolvable handle is left bare, not linked",
+          any("**[Blocked F999]**" in ln for ln in body_unres), True)
 
     # --- Questions is NOT merged into Blocked (Q2 answered (A)) -----------
     check("Questions is its own section", "## Questions" in h2s, True)
@@ -227,8 +247,25 @@ def main():
     check("a mixed blocker still surfaces", h2s7[0], "## Blockers")
     check("the frontier waiter is named",
           any("gates [[X Backlog#^F008|F008]]" in ln for ln in body7), True)
-    check("the parked waiter is not named",
-          any("F009" in ln for ln in body7 if ln.startswith("- ")), False)
+    # Scoped to the BLOCKERS bullet, which is what this rule is about. It used
+    # to read "no bullet anywhere mentions F009", and that was the same
+    # assertion only because a `[Blocked …]` row in `## Later` rendered
+    # NOWHERE — so "not named as a waiter" and "absent from the document" were
+    # indistinguishable. F305 separated them: the parked row now appears in the
+    # `## Blocked` ledger (37 vault-wide rows were vanishing from the very
+    # section built to stop rows vanishing), while still being wrong to name at
+    # the top of the file. Both halves are asserted below.
+    _blockers_bullets = []
+    _in = False
+    for ln in body7:
+        if ln.startswith("## "):
+            _in = ln.strip() == "## Blockers"
+        elif ln.startswith("- ") and _in:
+            _blockers_bullets.append(ln)
+    check("the parked waiter is not named in the Blockers bullet",
+          any("F009" in ln for ln in _blockers_bullets), False)
+    check("...but the parked row still appears in the Blocked ledger",
+          any("F009" in ln for ln in body7 if ln.startswith("- ")), True)
 
     # --- the case that decided the design: the BLOCKER itself is off-frontier
     # Measured 2026-07-30: all four named `[Blocked <handle>]` edges vault-wide
