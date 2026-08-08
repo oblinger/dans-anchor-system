@@ -285,7 +285,7 @@ To Dan and Morgan
 <!-- begin example T4.c -->
 ## 2026-07-31 Fri  Received — Northwind declines
 
-From: Robin Calder, robin@northwind.example · To: {user}@gmail.com · Fri 2026-07-31 4:23pm
+From: Robin Calder, robin@northwind.example · To: dan@brightfield.example · Fri 2026-07-31 4:23pm
 Subject: Re: I am in the test right now and burning hours... Where is the specification?
 <!-- end example T4.c -->
 
