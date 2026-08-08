@@ -1234,6 +1234,49 @@ def check_c4_stale_done(entries: list[BacklogEntry]) -> list[Finding]:
     return findings
 
 
+def _row_block_span(lines: list[str], idx: int) -> tuple[int, int]:
+    """(content_end, delete_end) for the backlog row whose header is lines[idx].
+
+    A row runs to the next indent-0 non-blank line or the next `## ` H2 — the
+    same boundary `state`'s `_row_span` and `backlog-edit.py`'s `scan_backlog`
+    use. It does NOT end at the first blank line.
+
+    T080 (MUX, 2026-08-08). Both movers here used to stop at the first
+    non-indented line and swallow it if it was blank. A blank line is legal
+    INSIDE a row — audit-q's own **C20 requires** one between consecutive Q
+    groups — so the scan split exactly the rows that were correctly formatted:
+    a two-Q T073 moved to `## Later` carrying only its header and Q1, while
+    Q2's five lines stayed behind under `## Now`, orphaned from any row. The
+    move reported success. Nothing here noticed; C34 caught the orphan only
+    because it happened to land in a horizon C34 inspects, and `--fix` would
+    have re-inserted the blank if anyone deleted it to work around this.
+
+    `content_end` is exclusive and stops after the row's last non-blank line,
+    so interior blanks travel with the row and trailing ones do not.
+    `delete_end` additionally swallows ONE blank so the seam left behind in the
+    source section does not double up.
+    """
+    last = idx
+    j = idx + 1
+    while j < len(lines):
+        line = lines[j]
+        if line.startswith("## "):
+            break
+        if not line.strip():          # blank — legal inside a row; keep scanning
+            j += 1
+            continue
+        if line.startswith("  ") or line.startswith("\t"):
+            last = j
+            j += 1
+            continue
+        break                          # indent-0 content — the next row starts here
+    content_end = last + 1
+    delete_end = content_end
+    if delete_end < len(lines) and not lines[delete_end].strip():
+        delete_end += 1
+    return content_end, delete_end
+
+
 def apply_c4_fix(backlog_file: Path,
                  entries: list[BacklogEntry]) -> tuple[bool, list[str]]:
     """Move stale [Done] rows to top of ## Done. Returns (changed, log)."""
@@ -1253,18 +1296,11 @@ def apply_c4_fix(backlog_file: Path,
         idx = entry.source_line - 1
         if idx >= len(lines):
             continue
-        row_lines: list[str] = [lines[idx]]
-        # Pull subsequent indented lines (sub-bullets)
-        j = idx + 1
-        while j < len(lines) and (lines[j].startswith("  ") or lines[j].startswith("\t")):
-            row_lines.append(lines[j])
-            j += 1
-        # If next line is blank, include it (preserves row separation)
-        if j < len(lines) and lines[j] == "":
-            row_lines.append(lines[j])
-            j += 1
-        # Remove the extracted lines
-        del lines[idx:j]
+        # The row is everything through its last indented sub-bullet — interior
+        # blanks included (T080); one trailing blank is deleted for separation.
+        content_end, delete_end = _row_block_span(lines, idx)
+        row_lines: list[str] = lines[idx:content_end]
+        del lines[idx:delete_end]
         extracted_rows.insert(0, "\n".join(row_lines).rstrip("\n"))
     # Find ## Done H2 line (skip fenced example headings — F251 #3)
     fenced = _fenced_line_indices(lines)
@@ -5037,15 +5073,11 @@ def apply_placement_fixes(
         idx = entry.source_line - 1
         if idx >= len(lines):
             continue
-        row_lines: list[str] = [lines[idx]]
-        j = idx + 1
-        while j < len(lines) and (lines[j].startswith("  ") or lines[j].startswith("\t")):
-            row_lines.append(lines[j])
-            j += 1
-        if j < len(lines) and lines[j] == "":
-            row_lines.append(lines[j])
-            j += 1
-        del lines[idx:j]
+        # Same span rule as apply_c4_fix — a blank line does NOT end a row
+        # (T080: C15/C16 parking a two-Q row left Q2 behind under its old H2).
+        content_end, delete_end = _row_block_span(lines, idx)
+        row_lines: list[str] = lines[idx:content_end]
+        del lines[idx:delete_end]
         extracted.append((target, "\n".join(row_lines).rstrip("\n"), entry.identifier))
     # Group by target H2
     by_target: dict[str, list[tuple[str, str]]] = {}
