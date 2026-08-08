@@ -5391,17 +5391,34 @@ def renders_in_body(horizon: str, bracket: str) -> bool:
         # nowhere, every one a `[Blocked …]` row parked in `## Later`. The
         # feature built to stop rows disappearing was disappearing them.
         #
-        # `Ready`, `User` and `Designing` are NOT admitted here, and the reason
-        # is a standing ruling this branch must not quietly overturn: F284
+        # `Ready` and `Designing` are NOT admitted here, and the reason is a
+        # standing ruling this branch must not quietly overturn: F284
         # § Scope note keeps `## Later` off the render because it is
         # deferred-by-choice and rendering all of it would bury the frontier.
         # `Blocked` earns its place against that rule on specific evidence —
         # 37 rows were vanishing from the very ledger built to prevent
-        # vanishing. No comparable evidence exists for the other three, and
-        # `Ready` in particular would be actively harmful: zone 1's count is
-        # what `/crank`'s hard continuation rule reads to decide the agent MUST
-        # keep working, so admitting it would push 30 vault-wide deliberately-
-        # deferred rows onto the agent's runway.
+        # vanishing. `Ready` in particular would be actively harmful: zone 1's
+        # count is what `/crank`'s hard continuation rule reads to decide the
+        # agent MUST keep working, so admitting it would push 30 vault-wide
+        # deliberately-deferred rows onto the agent's runway.
+        #
+        # `User` is grouped with them, and that is CONTESTED — see TINK T157.
+        # Tried and reverted 2026-08-08: this function's own opening comment
+        # quotes Dan (2026-08-07) as *"Ready, User and Parked are all shown"*,
+        # `Questions` (the other user-blocking member of this same class) is
+        # already admitted from Later, and seven rows vault-wide sat `[User]`
+        # under Later rendering in NO section of any page — hidden from the one
+        # person their bracket says is the only possible actor.
+        #
+        # What killed it: `[User]` + `## Later` is the vault's ONLY way to say
+        # *"the user owns this AND the user has deferred it."* SKA F271 is the
+        # live proof — its `## Status` reads *"what remains is two Dan actions
+        # and his judgment call"* (genuinely user-gated) while its row reads
+        # *"do not surface it until he opens it"* (deliberately hidden).
+        # Admitting `User` here silently overrides that instruction for every
+        # such row. The gap is real and so is the suppression; which one wins
+        # needs a vocabulary that can hold both, which is Dan's call, not a
+        # predicate edit.
         return any("Questions" in m or m.startswith("Verify")
                    or m.startswith("Blocked")
                    for m in bracket_members(bracket))
