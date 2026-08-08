@@ -233,3 +233,6 @@ description: agent inbox — background-process messages for this anchor; append
 [2026-08-08 07:07:58] [INFO] Warden: updated T002 in Later [Blocked v1-soak] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
 [2026-08-08 07:08:00] [INFO] Warden: updated T016 in Later [Blocked T013-soak] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
 [2026-08-08 07:08:01] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-08-08 11:14:31] [INFO] Warden: updated F230 in Later [Blocked user-go] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-08-08 11:14:31] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-08-08 11:14:33] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited

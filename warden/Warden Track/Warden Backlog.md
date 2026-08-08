@@ -2,7 +2,7 @@
 description: "deferred work — roadmap milestones M0–M5"
 ---
 # Warden Backlog
-<!-- state:backlog yn -->
+<!-- state:backlog wi -->
 
 ## Active
 
@@ -48,7 +48,7 @@ _None._
 
 ## Later
 
-- **F230 — Anchors over the coding tree (~/ob/proj)** [Blocked user-go] — future work, parked by the user 2026-07-06 at the F229 review: extending Warden governance to the code repos would mean an anchor at the top of `~/ob/proj` — but the scan range would have to widen to trees that are much larger and churn heavily under build scripts, so the cost model needs thought first. Alternative also named: **explicitly-registered anchors outside the scan range** — they'd get anchor benefits (traits, base behavior) without auto-discovery. Blocker: the user's go, after the scan-range/churn design question is worked. ^F230
+- **F230 — Anchors over the coding tree (~/ob/proj)** [Blocked user-go] — future work, parked by the user 2026-07-06 at the [[F229 — Retire bespoke vault-wide hooks — M4 completion|F229]] review: extending Warden governance to the code repos would mean an anchor at the top of `~/ob/proj` — but the scan range would have to widen to trees that are much larger and churn heavily under build scripts, so the cost model needs thought first. Alternative also named: **explicitly-registered anchors outside the scan range** — they'd get anchor benefits (traits, base behavior) without auto-discovery. Blocker: the user's go, after the scan-range/churn design question is worked. ^F230
 
 - **T002 — V2/V3 parks — skill:post ladder, elapsed-time when::, semantic diff levels, turn.prior(n), async oracle** [Blocked v1-soak] — Queue-visible pointer to the deliberately-parked later-version scope — canonical list at [[Warden Roadmap]] § Beyond v1 (skill:post approximation ladder; elapsed-time `when::` via daemon timers; semantic-update levels / `file.diff.level`; `turn.prior(n)`; async live oracle). Parked past the v1 landing by user direction 2026-07-02. Blocker: the user's go, after v1 has soaked in real use. ^T002
 
