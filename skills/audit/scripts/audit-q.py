@@ -2175,7 +2175,14 @@ def check_c20_blank_after_recommendation(q_entries: list[QEntry]) -> list[Findin
                 # `state define … Q+` hard-refuses a standalone Q row without it,
                 # so every row the mint produces carries one — and flagging it here
                 # meant the tool rejected its own output.
-                if re.match(r"^\s*-\s+\*\*(Damage|On answer):\*\*", nxt):
+                # T160 adds `- **Risk of (X):**` as piece 8, on exactly the same
+                # footing and for exactly the same reason: `state define` now
+                # hard-refuses a Lean/Strong Q without one, so every Q the mint
+                # produces carries it, and a C20 that did not know about it would
+                # fire on the tool's own output — the T137 / T120 shape, a writer
+                # and a checker holding different beliefs about one construct.
+                if re.match(r"^\s*-\s+\*\*(Damage|On answer"
+                            r"|Risk of \([A-Za-z]\w*\)):\*\*", nxt):
                     j += 1
                     continue
                 # A non-blank, non-continuation line at same-or-less indent

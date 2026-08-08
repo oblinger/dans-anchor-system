@@ -39,13 +39,33 @@ def ok(m): globals().__setitem__("PASS", PASS + 1); print(f"  PASS: {m}")
 def no(m): globals().__setitem__("FAIL", FAIL + 1); print(f"  FAIL: {m}")
 
 
-def body(rec, damage, header="Should the daemon run in-process or as a service?"):
+import re as _re
+
+
+def _lean_letter(rec, first="A"):
+    """The option letter a Lean/Strong recommendation names, else the first
+    listed option; None when the recommendation is `None` (never gated)."""
+    if not _re.search(r"\b(Lean|Strong)\b", rec, _re.IGNORECASE):
+        return None
+    m = _re.search(r"\(([A-Za-z]\w*)\)", rec)
+    return m.group(1) if m else first
+
+
+def body(rec, damage, header="Should the daemon run in-process or as a service?",
+         risk="file — the daemon rewrites `commands.txt` in place"):
     """A minimal ask-format Q body: header + two options + Recommendation +
-    (optional) Damage line. Pass damage=None to omit the Damage line."""
+    (optional) Damage line. Pass damage=None to omit the Damage line.
+
+    T160 — a Lean/Strong recommendation must also state the risk OF ITS LEAN,
+    so the fixture carries that line whenever the recommendation has a lean.
+    What this test asserts (the F270 Damage route) is unchanged by it."""
     lines = [f"- **Q1 — {header}**",
              "  - **(A)** first option.",
              "  - **(B)** second option.",
              f"- **Recommendation:** {rec}"]
+    letter = _lean_letter(rec)
+    if letter and risk is not None:
+        lines.append(f"- **Risk of ({letter}):** {risk}")
     if damage is not None:
         lines.append(f"- **Damage:** {damage}")
     return "\n".join(lines)

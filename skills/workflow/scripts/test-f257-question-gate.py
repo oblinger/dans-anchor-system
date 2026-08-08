@@ -42,12 +42,35 @@ def ok(m): globals().__setitem__("PASS", PASS + 1); print(f"  PASS: {m}")
 def no(m): globals().__setitem__("FAIL", FAIL + 1); print(f"  FAIL: {m}")
 
 
-def body(header, rec):
-    """A minimal ask-format Q body: header line + two options + Recommendation."""
-    return (f"- **Q1 — {header}**\n"
-            f"  - **(A)** first option.\n"
-            f"  - **(B)** second option.\n"
-            f"- **Recommendation:** {rec}")
+import re as _re
+
+
+def _lean_letter(rec, first="A"):
+    """T160 — the option letter a Lean/Strong recommendation names, else the
+    first listed option; None when the recommendation is `None`, which T160
+    never gates."""
+    if not _re.search(r"\b(Lean|Strong)\b", rec, _re.IGNORECASE):
+        return None
+    m = _re.search(r"\(([A-Za-z]\w*)\)", rec)
+    return m.group(1) if m else first
+
+
+def body(header, rec, risk="interface — the daemon topology is hard-coded by "
+                          "every caller"):
+    """A minimal ask-format Q body: header line + two options + Recommendation.
+
+    T160 — a Lean/Strong recommendation must also state the risk OF ITS LEAN,
+    so the fixture carries that line. It is inert for everything this test
+    asserts: `question_mint_gate` never reads it, and the end-to-end `define`
+    below would otherwise be refused by a gate that is not the one under test."""
+    lines = [f"- **Q1 — {header}**",
+             "  - **(A)** first option.",
+             "  - **(B)** second option.",
+             f"- **Recommendation:** {rec}"]
+    letter = _lean_letter(rec)
+    if letter and risk is not None:
+        lines.append(f"  - **Risk of ({letter}):** {risk}")
+    return "\n".join(lines)
 
 
 REAL_FORK = "Should the daemon run in-process or as a separate service?"

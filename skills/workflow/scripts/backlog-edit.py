@@ -883,6 +883,147 @@ def leaned_choice(body):
     return "—"
 
 
+def option_labels(body):
+    """Every labeled option letter a Q body lists, in order: ['A', 'B', …]."""
+    return re.findall(r"^\s*-\s+\*\*\(([A-Za-z]\w*)\)\*\*", body or "",
+                      re.MULTILINE)
+
+
+# --- T160 the risk OF THE LEAN — the fourth gate, built as a route ----------
+#
+# Three gates already sit on question-minting and all three ask about the
+# QUESTION. F257's `--why-ask` asks why you are surfacing it — free text, and
+# measured: **9 of 10 Leans passed it while the ladder said ask none**, because
+# a free-text gate checks that a sentence EXISTS, not that it FITS
+# ([[project_justification_gate_checks_existence_not_fit]]). F270's Damage asks
+# how big the blast radius is if the question is got WRONG. `/crank`'s Gate 3
+# has the best phrasing — *name the specific bad outcome of continuing* — but
+# governs stopping only.
+#
+# What Dan's rule adds is the SUBJECT of the risk (2026-08-08): *"if there's no
+# downside to one of the choices, and that's the one you lean towards, do it…
+# if all agents when they have a lean must specify a downside, then as they
+# write it down they'll realize this is not enough of a risk."* None of the
+# three makes the writer put down *"here is what breaks if I simply do (A)"* —
+# the one sentence that deflates itself as it is written.
+#
+# Built as a ROUTE, not a fourth prose field, for the reason the prose one
+# already failed. The first word after the option letter is a closed CASUALTY
+# CLASS, and the class decides the outcome — the same shape as F270's Damage,
+# which is the gate that worked. `interpretation` (the only thing at stake is
+# the agent's own reading of what the user asked for, not anything in the
+# vault) auto-resolves to the lean and never surfaces, which is exactly the
+# F217 Q4 case Dan was reading when he stated the rule.
+#
+#     - **Risk of (A):** file — the pass rewrites 1350 anchor pages and their
+#       prose has no backup.
+RISK_CASUALTIES = {
+    "file": "a file, a document, or prose that would be damaged or lost",
+    "interface": "a name, schema, path or CLI that other code hard-codes",
+    "commitment": "a promise already made to a person or a downstream dependant",
+    "time": "a named person's time — say WHOSE, and roughly how much",
+    "interpretation": "nothing in the vault — only my own reading of what you "
+                      "asked for is at stake",
+}
+# `interpretation` never reaches the user, by the same logic F270 applies to
+# waste/priority: a risk that lives entirely inside the agent's head is a
+# question the agent is asking itself.
+RISK_AUTO_RESOLVE = ("interpretation",)
+
+_RISK_LINE_RE = re.compile(
+    r"^\s*-\s+\*\*Risk of \(([A-Za-z]\w*)\):\*\*\s*([A-Za-z]+)\b(.*)$",
+    re.MULTILINE)   # `^\s*-`: an F275 Q-row indents its fields as sub-bullets
+
+
+def parse_risk_of_lean(body):
+    """(option, casualty, narrative) from a `- **Risk of (X):** <class> — <…>`
+    line, or (None, None, "") when absent. Raises when the class is not one of
+    RISK_CASUALTIES — a typo must not pass as a stated risk."""
+    m = _RISK_LINE_RE.search(body or "")
+    if not m:
+        return None, None, ""
+    option, casualty = m.group(1), m.group(2).lower()
+    narrative = m.group(3).strip(" —–-.:")
+    if casualty not in RISK_CASUALTIES:
+        raise BacklogEditError(
+            f"refused: risk casualty {casualty!r} is not one of "
+            f"{{{', '.join(RISK_CASUALTIES)}}} — the first word after the "
+            f"option letter is the class of thing that gets hurt (a single "
+            f"word so it parses), then one sentence saying which one and how:\n"
+            + "\n".join(f"    • {k:<15}{v}" for k, v in RISK_CASUALTIES.items())
+        )
+    return option, casualty, narrative
+
+
+def _risk_instruction(q_num, lean):
+    label = f"Q{q_num}" if q_num is not None else "Q+"
+    letter = lean.strip("()") if lean and lean != "—" else "X"
+    return (
+        f"[{label}] refused: it carries a lean but does not state the risk OF "
+        f"THAT LEAN.\n"
+        f"  Add one line naming the option you lean toward and what it would "
+        f"cost to just DO it:\n"
+        f"    - **Risk of ({letter}):** <class> — <one sentence: which thing, "
+        f"and how it gets hurt>\n"
+        f"  The class is one word, and it is the route — it decides whether "
+        f"this reaches the user:\n"
+        + "\n".join(f"    • {k:<15}{v}" for k, v in RISK_CASUALTIES.items())
+        + "\n  Write the sentence before you decide whether to ask. If the "
+          "only casualty you can name\n"
+          "  is `interpretation`, the machine will resolve this to your own "
+          "lean and never surface it —\n"
+          "  which is the answer, not a rejection."
+    )
+
+
+def risk_of_lean_gate(q_num, body, strength):
+    """T160 — a Lean/Strong question must state the risk of ITS OWN LEAN.
+
+    Returns (casualty, narrative) — `casualty` is None when no risk line is
+    required (a `Recommendation: None` is the honest ask and is never gated,
+    mirroring F257). Raises BacklogEditError on every refusal.
+    """
+    if strength not in ("Lean", "Strong"):
+        return None, ""
+    # The EXPLICIT letter on the Recommendation line, not `leaned_choice` —
+    # which falls back to the first listed option when the Recommendation names
+    # none. That fallback is right for auto-resolving (something must be
+    # picked) and wrong here: refusing `Risk of (C)` because a GUESSED lean was
+    # (A) would refuse the writer over the machine's own guess.
+    rm = _RECOMMENDATION_STRENGTH_RE.search(body or "")
+    cm = re.search(r"\(([A-Za-z]\w*)\)", rm.group(1)) if rm else None
+    lean = f"({cm.group(1)})" if cm else None
+    option, casualty, narrative = parse_risk_of_lean(body)
+    if casualty is None:
+        raise BacklogEditError(_risk_instruction(q_num, lean))
+    label = f"Q{q_num}" if q_num is not None else "Q+"
+    # The SUBJECT check — the whole point of the gate. A risk stated about some
+    # OTHER option is the risk of the road not taken, and it is the one thing
+    # that never deflates: of course the option you rejected is worse.
+    options = option_labels(body)
+    if lean:
+        if f"({option})" != lean:
+            raise BacklogEditError(
+                f"[{label}] refused: the Recommendation leans {lean} but the "
+                f"risk is stated of ({option}).\n"
+                f"  The gate exists to make you write the downside of the "
+                f"option you are ABOUT TO TAKE — the\n"
+                f"  risk of an option you already rejected argues for the lean "
+                f"instead of testing it.\n"
+                f"  Restate it as `- **Risk of {lean}:** …`.")
+    elif options and option not in options:
+        raise BacklogEditError(
+            f"[{label}] refused: `Risk of ({option})` names no option this "
+            f"question lists ({', '.join('(' + o + ')' for o in options)}).")
+    if not narrative:
+        raise BacklogEditError(
+            f"[{label}] refused: `Risk of ({option}):` names the class "
+            f"`{casualty}` and then stops.\n"
+            f"  The sentence is the gate — {RISK_CASUALTIES[casualty]}. Say "
+            f"WHICH one and HOW it gets hurt.")
+    return casualty, narrative
+
+
 # --- F259 user-action ownership gate (the F240 sibling for [User]) -----------
 # [User] parks work on a genuinely user-only ACTION (a credential only the user
 # holds, a GUI permission dialog, a 2FA device, a session-gated login). The

@@ -104,8 +104,22 @@ def run(a):
     return rc, out.getvalue(), err.getvalue()
 
 
+import re as _re
+
+
+def _lean_letter(rec, first="A"):
+    """T160 — the option letter a Lean/Strong recommendation names, else the
+    first listed option; None when the recommendation is `None`, which T160
+    never gates."""
+    if not _re.search(r"\b(Lean|Strong)\b", rec, _re.IGNORECASE):
+        return None
+    m = _re.search(r"\(([A-Za-z]\w*)\)", rec)
+    return m.group(1) if m else first
+
+
 def q_body(damage="locking — parsers commit to the shape", on_answer=True,
-           rec="Lean (A). the swap is low-risk", options=2, status="Questions"):
+           rec="Lean (A). the swap is low-risk", options=2, status="Questions",
+           risk="commitment — the word list is a habit Dan already uses daily"):
     lines = [f"- **Q+ — Swap the 3 straggler vocab words, or leave them?** "
              f"[{status}] — spoken-vocabulary word list, not any feature"]
     if options >= 1:
@@ -113,6 +127,11 @@ def q_body(damage="locking — parsers commit to the shape", on_answer=True,
     if options >= 2:
         lines.append("  - **(B)** leave the daily habits alone.")
     lines.append(f"  - **Recommendation:** {rec}")
+    # T160 — a Lean/Strong Q must state the risk OF ITS LEAN; the fixture
+    # carries it so this test keeps asserting what it was written to assert.
+    letter = _lean_letter(rec)
+    if letter and risk is not None:
+        lines.append(f"  - **Risk of ({letter}):** {risk}")
     if damage is not None:
         lines.append(f"  - **Damage:** {damage}")
     if on_answer:

@@ -22,6 +22,23 @@ Verifications:
                 resolve (move to Done/Resolved) | remove (soft-delete, audit
                 trail preserved)
 
+Plus the agent-inbox sender (T131, design [[ATT045 - Agent inbox pattern]]):
+    state drop <anchor> "<message>" [--source S] [--tag T] [--topic H]
+        Appends ONE pending entry to the target anchor's [[DAS Inbox]] file
+        (`{prefix} Track/{prefix} Inbox.md`), creating it from the standard
+        template on first drop. The entry carries NO status tag — that absence
+        is what marks it pending; the drain writes `DONE` / `MOVED →`. Nothing
+        is executed by dropping.
+
+Plus one repair verb for the row that has no address at all (T162):
+    state mint-id <anchor> Backlog <T+|F+|T042> --match "<title substring>"
+        Gives an EXISTING id-less Backlog row a row-id and a matching
+        `^block-anchor`. Every other verb addresses a row by its bolded label,
+        so a row whose bold span is prose is unbracketable, uncloseable and
+        uncountable, and hand-typing an id is the backlog hand-edit every gate
+        here forbids. This is that one operation, done through the sanctioned
+        path.
+
 Plus two standalone domains for planning state that lives outside the
 Backlog/label model:
     state status set   [--anchor A] FACET CELL [--note TEXT]    # F130
@@ -1641,8 +1658,10 @@ def _run_question_gates(q_num, body, why_ask, require_on_answer=False):
     row (F275 M2). In order: ask-format (≥2 options + Recommendation);
     optionally the F275 `On answer:` clause (hard-required on standalone Q
     rows, M3); the F270 Damage field; and — for a surfacing category — the
-    F257 who-should-decide gate. Returns (body, auto_resolve, damage_cat,
-    damage_why); `body` may gain a `· *why-ask:*` annotation. Raises
+    F257 who-should-decide gate followed by the T160 risk-of-the-lean gate.
+    Returns (body, auto_resolve, reason_cat, reason_why); `reason_cat` names
+    whichever route auto-resolved the question (a F270 Damage class, or T160's
+    `interpretation`), and `body` may gain a `· *why-ask:*` annotation. Raises
     BacklogEditError on any refusal. `q_num` is the display number for
     messages (the row/Q number)."""
     _validate_ask_format_body(body)
@@ -1670,11 +1689,48 @@ def _run_question_gates(q_num, body, why_ask, require_on_answer=False):
             "  See [[DAS ask-format]] § The Damage field.\n"
         )
     auto_resolve = damage_cat in be.DAMAGE_AUTO_RESOLVE
+    reason_cat, reason_why = damage_cat, damage_why
     if not auto_resolve:
         # Surface: the Damage line IS the justification (subsumes --why-ask).
         gate_why = why_ask or (f"{damage_cat}: {damage_why}" if damage_cat else None)
         body = be.question_mint_gate(q_num, body, gate_why)  # F257 who-should-decide gate
-    return body, auto_resolve, damage_cat, damage_why
+        # T160 — last, and only on the surfacing path, because it is the gate
+        # about the ANSWER rather than about the question: a Q that F270 has
+        # already routed away from the user has no lean left to defend. Its own
+        # `interpretation` class is a second auto-resolve door, and it takes
+        # over the reason slot when it fires, so the banner and the recorded
+        # note say which of the two routes actually closed the question.
+        risk_cat, risk_why = be.risk_of_lean_gate(
+            q_num, body, be.recommendation_strength(body))
+        if risk_cat in be.RISK_AUTO_RESOLVE:
+            auto_resolve = True
+            reason_cat, reason_why = risk_cat, risk_why
+    return body, auto_resolve, reason_cat, reason_why
+
+
+def _auto_resolve_note(cat, why):
+    """The note recorded on a question that closed itself."""
+    return f"auto-resolved ({cat})" + (f" — {why}" if why else "")
+
+
+def _auto_resolve_banner(label, cat, choice):
+    """The one line the agent is told when a Q never reaches the user.
+
+    Names WHICH of the two routes closed it. They are different rules with
+    different arguments, and an agent that reads "waste/priority never reach the
+    user" over a question closed by T160 will look for a Damage line it never
+    wrote — the same mis-attribution that would let it re-file to get past the
+    gate, which is exactly what happened to F217 Q4 under F270 alone.
+    """
+    if cat in be.RISK_AUTO_RESOLVE:
+        field, rule = "the stated risk of the lean", (
+            "the only casualty you could name was your own reading of the "
+            "request, and a risk that lives inside your head is a question you "
+            "are asking yourself (T160)")
+    else:
+        field, rule = "damage", "waste/priority never reach the user (F270)"
+    return (f"⚑ {label} auto-resolved — {field} was **{cat}**, picked "
+            f"{choice}; not surfaced — {rule}. Proceed with that choice.")
 
 
 # ------------------------------------------------------------------
@@ -1688,7 +1744,8 @@ _REC_BULLET_RE = re.compile(r"^\s*-\s+\*\*Recommendation:\*\*")  # MUX T042 — 
 # post-date the C20 rule, which is why the separator logic only knew about the
 # Recommendation line itself. Extend this set whenever a new continuation is
 # minted, or that Q shape becomes unauthorable through `state` again.
-_REC_CONTINUATION_RE = re.compile(r"^\s*-\s+\*\*(?:Damage|On answer):\*\*")
+_REC_CONTINUATION_RE = re.compile(
+    r"^\s*-\s+\*\*(?:Damage|On answer|Risk of \([A-Za-z]\w*\)):\*\*")
 _ON_ANSWER_RE = re.compile(r"^\s*-\s+\*\*On answer:\*\*", re.MULTILINE)  # F275 M3 — the resumption clause, hard-required on standalone Q rows
 
 
@@ -2087,6 +2144,206 @@ def _row_verb(slug, backlog_path, label, verb, args, minted=False):
     raise be.BacklogEditError(f"unknown verb {verb!r} for a Backlog row")
 
 
+# ------------------------------------------------------------------
+# T162 — `mint-id`: give an existing id-less row an address
+#
+# A Backlog row's identity is the bolded prefix `ROW_HEADER_RE` reads, and every
+# verb in this file addresses a row by that label and nothing else. A row whose
+# bold span is prose — `- **Session name unification across HA and MuxUX**
+# [Blocked F052] — …` — therefore has no address at all: `set`, `resolve`,
+# `remove` and `show` can none of them name it, no count sees it, and the only
+# way to give it one was to type the id into the backlog by hand, which is the
+# write every gate here exists to prevent. That is a closed loop, and this verb
+# is the one operation that opens it.
+#
+# The id is written in BOTH places, and they must be the same string: the bolded
+# `**T042 — …**` is what `state` resolves, the trailing `^T042` is what an
+# inbound `[[HA Backlog#^T042|T042]]` resolves, and a row whose two handles
+# disagree is addressable by exactly one of its readers.
+#
+# The row is named by a substring of its title because that is the only handle
+# an id-less row has. Ambiguity refuses rather than picks — minting onto the
+# wrong row would hand a real id to the wrong body and leave the intended row
+# still unreachable, and neither half of that is visible afterwards.
+
+_IDLESS_ROW_RE = re.compile(
+    r"^- \*\*(?P<label>.+?)\*\*\s+\[(?P<status>[^\]]*)\](?P<rest>.*?)\s*$")
+
+_MINTABLE_KINDS = ("F", "T", "C", "B", "Q")
+
+# A row's block anchor sits in one of exactly two places: at end of line (the
+# authored form, `… body. ^F135`) or immediately after the status bracket (the
+# older form still live on HA's `Rename \`patch\` → \`anchor\`` row,
+# `[Blocked] ^patch-anchor-rename — parked …`). Both are searched, and NOTHING
+# else is: a bare `\s\^\w+` scan would also hit a `^`-anchored regex quoted in a
+# row body, and a false positive here refuses a repair that was legitimate.
+_ANCHOR_AFTER_BRACKET_RE = re.compile(r"\]\s+(\^[\w.+\-]+)(?=\s|$)")
+
+
+def _row_block_anchor(line):
+    """The `^block-anchor` token a row line already carries, or None."""
+    m = be._TRAILING_ANCHORS_RE.search(line)
+    if m:
+        return m.group(0).strip().split()[-1]
+    m = _ANCHOR_AFTER_BRACKET_RE.search(line)
+    return m.group(1) if m else None
+
+
+def _idless_rows(lines):
+    """[(idx, title, status)] for every top-level row carrying no row-id.
+
+    "Row-shaped" is the bold-label + `[Status]` bracket shape the backlog's own
+    grammar uses; "id-less" is that shape MINUS a `ROW_HEADER_RE` match, which
+    is precisely the set no verb can address. Read from the same `ROW_HEADER_RE`
+    the editors use rather than a private idea of what an id looks like, so the
+    census cannot drift from the addressing it is a census of.
+
+    One false-positive class is known and deliberately not filtered: a prose
+    definition-list bullet that QUOTES a row shape (ATT Backlog's `- **Row
+    shape** — \\`**F<NNN> — …** [<State>] — …\\``) is row-shaped by this test and
+    is not a row. No structural signal separates the two, so the protection is
+    the caller's, not the scanner's: `--match` is an explicit substring the
+    operator supplies, and an ambiguous one refuses rather than picking. Read
+    the listing before minting onto anything you did not put there.
+    """
+    out = []
+    for i, line in enumerate(lines):
+        if be.ROW_HEADER_RE.match(line):
+            continue
+        m = _IDLESS_ROW_RE.match(line.rstrip("\n"))
+        if not m:
+            continue
+        out.append((i, m.group("label").strip(), m.group("status")))
+    return out
+
+
+def _row_mint_id(slug, backlog_path, label_arg, args):
+    """`state mint-id <anchor> Backlog <T+|T042> --match "<title text>"`."""
+    letters, num = parse_label(label_arg)
+    if letters not in _MINTABLE_KINDS:
+        raise be.BacklogEditError(
+            f"mint-id: {letters!r} is not a row namespace — valid kinds are "
+            f"{'/'.join(_MINTABLE_KINDS)} (e.g. T+, F+, T042)")
+    match = (args.match or "").strip()
+    if not match:
+        raise be.BacklogEditError(
+            "mint-id requires --match \"<substring of the row's title>\" — an "
+            "id-less row has no other handle")
+
+    # F247 — heal any prior raw hand-edit BEFORE this write, exactly as
+    # `_delegate_row_edit` does, so the stamp this call leaves is honest.
+    complaint = be.heal_backlog_if_stale(slug, backlog_path)
+    if complaint:
+        print(complaint, file=sys.stderr)
+
+    raw = backlog_path.read_text(encoding="utf-8")
+    lines = raw.splitlines(keepends=True)
+    census = _idless_rows(lines)
+    hits = [c for c in census if match.lower() in c[1].lower()]
+    if not hits:
+        listing = "\n".join(f"    line {i + 1}: {t}" for i, t, _s in census)
+        raise be.BacklogEditError(
+            f"mint-id: no id-less row in {backlog_path.name} whose title "
+            f"contains {match!r}.\n"
+            f"  Id-less rows in this file:\n{listing or '    (none)'}")
+    if len(hits) > 1:
+        listing = "\n".join(f"    line {i + 1}: {t}" for i, t, _s in hits)
+        raise be.BacklogEditError(
+            f"mint-id: --match {match!r} names {len(hits)} id-less rows, and an "
+            f"id belongs to exactly one row — narrow the match:\n{listing}")
+
+    idx, title, _status = hits[0]
+    line = lines[idx].rstrip("\n")
+
+    held = _row_block_anchor(line)
+    if held:
+        raise be.BacklogEditError(
+            f"mint-id refused: that row already carries the block anchor "
+            f"`{held}`, and every inbound `[[{backlog_path.stem}#{held}|…]]` "
+            f"wiki-link in the vault resolves through it. Minting would have to "
+            f"replace it, breaking each of those links silently — the one "
+            f"failure mode a link cannot report. Give the row the id its anchor "
+            f"already names, or leave it as it is.")
+
+    icebox_path = be.find_icebox(slug)
+    if num == "+":
+        new_id = be.format_row_id(
+            letters, be.mint_cross_file_id(backlog_path, icebox_path, letters))
+    else:
+        new_id = be.format_row_id(letters, num)
+        _l, _h, row_index = be.scan_backlog(raw)
+        if new_id in row_index:
+            raise be.BacklogEditError(
+                f"mint-id: {new_id} already names a row in "
+                f"{backlog_path.name} — pick another number, or pass "
+                f"{letters}+ to mint the next free one")
+        if icebox_path is not None and be.row_in_file(icebox_path, new_id):
+            raise be.BacklogEditError(
+                f"mint-id: {new_id} already names a row in "
+                f"{icebox_path.name} — the backlog and icebox share one "
+                f"namespace, so that id is taken")
+
+    # Splice rather than rebuild. Everything after the bold span — the bracket,
+    # the em-dash, the body, its internal `**bold**` runs — is content this verb
+    # has no opinion about, and a reconstruction is a chance to lose some of it.
+    new_line = line.replace("- **", f"- **{new_id} — ", 1) + f" ^{new_id}\n"
+    lines[idx] = new_line
+
+    be.write_backlog_lines(backlog_path, lines)
+
+    # T050 — prove it landed by re-reading the DISK, and prove the specific
+    # thing this verb promises: that the row is now ADDRESSABLE. Parsing the
+    # written line back through `ROW_FULL_RE` and finding it in `scan_backlog`'s
+    # index is the same pair of reads every other verb goes through to reach a
+    # row, so a pass here means `set`/`resolve`/`show` can reach it too.
+    disk = backlog_path.read_text(encoding="utf-8").splitlines(keepends=True)
+    _l2, _h2, disk_index = be.scan_backlog("".join(disk))
+    landed = disk_index.get(new_id)
+    parsed = None
+    if landed is not None:
+        parsed = be.ROW_FULL_RE.match(disk[landed[0]].rstrip("\n"))
+    if landed is None or parsed is None or parsed.group("rid") != new_id:
+        backlog_path.write_text(raw, encoding="utf-8")   # T128 — undo, then raise
+        raise be.BacklogEditError(
+            f"mint-id: {new_id} did not become addressable on disk "
+            f"({'row not indexed' if landed is None else 'row line does not parse'})"
+            f" — the backlog has been restored to its pre-call bytes.")
+    if f"^{new_id}" not in disk[landed[0]]:
+        backlog_path.write_text(raw, encoding="utf-8")
+        raise be.BacklogEditError(
+            f"mint-id: {new_id} landed as a row-id but its `^{new_id}` block "
+            f"anchor is missing, so inbound wiki-links would not resolve — "
+            f"the backlog has been restored to its pre-call bytes.")
+
+    _selffire(backlog_path)
+    horizon = _row_horizon_on_disk(backlog_path, new_id) or "?"
+    short = title if len(title) <= 60 else title[:57] + "…"
+    summary = f"minted {new_id} onto the id-less row '{short}' in {horizon}"
+    be.append_messages(slug, summary, backlog_path)
+    be.write_state(slug, {"row_id": new_id, "verb": "mint-id",
+                          "h2_name": horizon,
+                          "status": (parsed.group("status") or "").strip()})
+    be.refresh_q_md(slug)
+    try:
+        _bl = backlog_path.read_text(encoding="utf-8").splitlines(keepends=True)
+        _st = be.restamp_backlog(_bl)
+        if _st != _bl:
+            be.write_backlog_lines(backlog_path, _st)
+    except OSError:
+        pass
+    print(f"{slug}: {summary}")
+    return 0
+
+
+def cmd_mint_id(slug, anchor_path, args):
+    doc_kind, doc_path = resolve_doc(args.doc, slug, anchor_path)
+    if doc_kind != "backlog":
+        raise be.BacklogEditError(
+            "mint-id is Backlog-only — an id-less ROW is the only thing that "
+            "has no address; a doc's Q/V items are numbered by construction")
+    return _row_mint_id(slug, doc_path, args.label, args)
+
+
 def _q_row_to_done(body, resolved_note):
     """F275 — rewrite a standalone Q-row's first line so an auto-resolved
     (waste/priority) row lands `[Done]` with the resolution appended to its
@@ -2113,7 +2370,9 @@ def _backlog_q_define(slug, backlog_path, label, args, minted=False):
             "define requires a body via stdin or --body — the complete Q-row "
             f"markdown (`- **{label} — <question>?** [Questions] — <context>`) "
             "followed by indented `- **(A)**`/`- **(B)**` options, a "
-            "`- **Recommendation:**`, a `- **Damage:**`, and a `- **On answer:**`."
+            "`- **Recommendation:**`, a `- **Damage:**`, a `- **On answer:**`, "
+            "and — when the Recommendation carries a Lean/Strong — a "
+            "`- **Risk of (X):**` naming the leaned option (T160)."
         )
     # Swap the `Q+` placeholder to the minted id up front so the gates and the
     # row parser both see the real label (matches _row_define's minted swap).
@@ -2125,19 +2384,14 @@ def _backlog_q_define(slug, backlog_path, label, args, minted=False):
     choice = None
     if auto_resolve:
         choice = be.leaned_choice(gated)
-        note = f"auto-resolved ({damage_cat})" + (f" — {damage_why}" if damage_why else "")
-        gated = _q_row_to_done(gated, note)
+        gated = _q_row_to_done(gated, _auto_resolve_note(damage_cat, damage_why))
         args.horizon = "Done"
     # minted=False: the placeholder swap already happened above; pass the gated
     # body straight through (stdin was already consumed by read_body).
     result = _row_define(slug, backlog_path, label, args, minted=False,
                             raw_override=gated)
     if auto_resolve:
-        print(
-            f"⚑ {label} auto-resolved — damage was **{damage_cat}**, picked "
-            f"{choice}; not surfaced (waste/priority never reach the user). "
-            "Proceed with that choice."
-        )
+        print(_auto_resolve_banner(label, damage_cat, choice))
     return result
 
 
@@ -2211,14 +2465,9 @@ def _q_define_core(slug, feature_path, q_num, body, why_ask=None):
         # ## Open Questions; immediately resolve it in place to the agent's lean
         # and tell the agent it was handled (no refusal to work around, per F270).
         choice = be.leaned_choice(body)
-        note = f"auto-resolved ({damage_cat})"
-        if damage_why:
-            note += f" — {damage_why}"
-        _q_answer_core(slug, feature_path, q_num, None, choice, note)
-        print(
-            f"⚑ Q{q_num} auto-resolved — damage was **{damage_cat}**, picked {choice}; "
-            "not surfaced (waste/priority never reach the user). Proceed with that choice."
-        )
+        _q_answer_core(slug, feature_path, q_num, None, choice,
+                       _auto_resolve_note(damage_cat, damage_why))
+        print(_auto_resolve_banner(f"Q{q_num}", damage_cat, choice))
         return 0
     summary = f"{verb_done} Q{q_num} in {feature_path.name}"
     _post_conditions_and_print(slug, feature_path, summary)
@@ -2877,6 +3126,215 @@ def cmd_show(slug, anchor_path, args):
     return 0
 
 
+# ============================================================
+# T131 — the agent-inbox drop API (design: [[ATT045 - Agent inbox pattern]])
+# ============================================================
+#
+# `drop` is the sender half of the inbox pattern: anyone — the user, another
+# agent, a background process — appends one pending item to a target anchor's
+# [[DAS Inbox]] file, and nothing executes it. It lives on `state` beside
+# `define`/`set` (T131 Q1 → A) because every piece of plumbing it needs is
+# already here: anchor resolution, the Track-folder path, the Warden self-fire,
+# and the Messages log. A standalone binary would reimplement all four.
+#
+# Two things the format makes load-bearing, both from ATT F045:
+#
+#   * **An entry with NO status tag is PENDING.** Drain is what writes `DONE` or
+#     `MOVED → {destination}` (R-fct-inbox-03). Absence of a tag is not a new
+#     tag, which is why this needed no vocabulary change — so `drop` must never
+#     write a backtick-wrapped token onto the H2 line, and it strips backticks
+#     out of a derived topic for exactly that reason.
+#   * **`--tag` is a message TYPE, not a status.** `fact` / `handoff` / `note` /
+#     `nudge` describe what the message IS; `DONE` / `MOVED →` describe what has
+#     happened to it. They are different vocabularies with different owners, so
+#     the type rides an attribution line under the heading and never the
+#     heading itself, where a reader (or R-fct-inbox-03) would read it as a
+#     status.
+
+_INBOX_TOPIC_MAX = 60
+
+
+def _inbox_path(slug, anchor_path):
+    """`{prefix} Track/{prefix} Inbox.md` for the target anchor.
+
+    The file PREFIX is read off the anchor's own Backlog filename, not off the
+    slug — those differ for every anchor whose display name is not already
+    all-caps (`Scout Backlog.md` vs `slug: SCOUT`), the same trap
+    `find_backlog`'s docstring names. Deriving from the slug would drop into a
+    SECOND Track folder beside the real one, and nothing downstream would say
+    which of the two an agent is supposed to read.
+    """
+    try:
+        backlog = be.find_backlog(slug)
+    except be.BacklogEditError:
+        backlog = None
+    if backlog is not None:
+        prefix = backlog.name[: -len(" Backlog.md")]
+        return be.anchor_track_dir(backlog) / f"{prefix} Inbox.md", backlog
+    # No backlog — a Topic or Paper anchor can still receive drops. Fall back to
+    # the Track folder itself, and refuse rather than guess when it is ambiguous.
+    tracks = sorted(p for p in anchor_path.glob("* Track") if p.is_dir())
+    if len(tracks) == 1:
+        prefix = tracks[0].name[: -len(" Track")]
+        return tracks[0] / f"{prefix} Inbox.md", None
+    if not tracks:
+        raise be.BacklogEditError(
+            f"drop: {slug} has neither a '{slug} Backlog.md' nor a '* Track/' "
+            f"folder, so an Inbox created here would sit where no reader looks. "
+            f"Give the anchor its Track folder first (`/rewire the track`).")
+    raise be.BacklogEditError(
+        f"drop: {slug} has {len(tracks)} Track folders "
+        f"({', '.join(t.name for t in tracks)}) and no Backlog to say which is "
+        f"canonical — refusing to guess which one gets the Inbox.")
+
+
+def _inbox_template(prefix):
+    """The standard top-of-doc for a fresh Inbox, per [[DAS Inbox]] § Top of doc
+    → `[[skills/rewire/SKILL]]` § Default doc top-of-file: frontmatter, H1, and
+    the dispatch-table PLACEHOLDER. The placeholder's `| --- | |` row is the
+    electric-zone separator — HookAnchor recomputes the table's rows below it,
+    which is why the table is emitted empty rather than filled in here.
+
+    The orientation sentence sits DIRECTLY under the H1, above the table, not
+    below it: R-progressive-03 reads the head as breadcrumb → H1 → orientation,
+    and Warden's audit-on-write fires on a fresh Inbox that puts the sentence
+    after the table (observed on the first live drop).
+    """
+    return (
+        "---\n"
+        f"description: {prefix} inbox — raw input dropped for later processing.\n"
+        "---\n"
+        f"\n# {prefix} Inbox\n"
+        "Drop zone for raw input; an entry with no status tag is pending, and "
+        "draining writes `DONE` or `MOVED → {destination}` per [[DAS Inbox]].\n"
+        f"\n| -[[{prefix} Inbox]]- | |\n"
+        "| --- | --- |\n"
+        "| --- | |\n"
+    )
+
+
+def _inbox_topic(message, explicit=None):
+    """The `## YYYY-MM-DD — <Topic>` topic: `--topic` when given, else the
+    message's opening sentence.
+
+    Derived rather than required because the agreed signature is
+    `drop(target, message, source, tag)` — there is no topic parameter, and a
+    sender that has to invent a headline for a one-line note will invent a bad
+    one. Cut at the first sentence end rather than at a character count: a
+    message routinely opens with a complete short sentence, and a blind
+    truncation would slice it mid-clause.
+
+    Backticks are stripped. The one thing a topic must not do is look like a
+    status: `## … — Topic  \\`DONE\\`` is how a drained entry is spelled, and a
+    topic carrying a backtick-wrapped word would read as one to every reader
+    and to R-fct-inbox-03.
+    """
+    if explicit and explicit.strip():
+        topic = " ".join(explicit.split())
+    else:
+        first = next((l for l in message.splitlines() if l.strip()), "")
+        first = re.sub(r"^[\s>#*\-]+", "", first).strip()
+        m = re.search(r"[.!?](?:\s|$)", first)
+        topic = " ".join((first[:m.start()] if m else first).split())
+    topic = topic.replace("`", "").strip()
+    if len(topic) > _INBOX_TOPIC_MAX:
+        topic = topic[:_INBOX_TOPIC_MAX - 1].rstrip(" ,;:—-") + "…"
+    if not topic:
+        raise be.BacklogEditError(
+            "drop: could not derive a topic from the message (it is empty once "
+            "markers are stripped) — pass --topic \"<short headline>\"")
+    return topic
+
+
+def _format_inbox_entry(topic, message, source, tag, today):
+    """One [[DAS Inbox]] entry: dated H2, optional attribution, blockquote.
+
+    NO status tag on the H2 — that absence is the whole pending signal.
+    """
+    out = [f"## {today} — {topic}", ""]
+    bits = []
+    if source and source.strip():
+        bits.append(f"from: {source.strip()}")
+    if tag and tag.strip():
+        bits.append(f"tag: {tag.strip()}")
+    if bits:
+        out.append("*" + " · ".join(bits) + "*")
+        out.append("")
+    for line in message.rstrip("\n").splitlines():
+        out.append(f"> {line}" if line.strip() else ">")
+    return "\n".join(out) + "\n"
+
+
+def _insert_inbox_entry(text, entry):
+    """Splice one entry in newest-first, above every existing dated section.
+
+    "Above the first H2" is the whole placement rule: everything before it is
+    the file's head — frontmatter, breadcrumb, H1, dispatch table, intro prose —
+    and everything from it down is the reverse-chronological log this entry now
+    leads.
+    """
+    lines = text.splitlines()
+    idx = next((i for i, l in enumerate(lines) if l.startswith("## ")), None)
+    body = entry.rstrip("\n") + "\n"
+    if idx is None:
+        head = text.rstrip("\n")
+        return (head + "\n\n" + body) if head else body
+    head = "\n".join(lines[:idx]).rstrip("\n")
+    tail = "\n".join(lines[idx:]).rstrip("\n")
+    return head + "\n\n" + body + "\n" + tail + "\n"
+
+
+def cmd_drop(slug, anchor_path, args):
+    """`state drop <anchor> "<message>" [--source S] [--tag T] [--topic H]`."""
+    message = args.message
+    if message is None:
+        args.inline = None
+        message = read_body(args)
+    if not message or not message.strip():
+        raise be.BacklogEditError(
+            "drop requires a message — as the positional argument, via "
+            "--from-file, or on stdin")
+
+    inbox_path, backlog_path = _inbox_path(slug, anchor_path)
+    prefix = inbox_path.name[: -len(" Inbox.md")]
+    created = not inbox_path.is_file()
+    before = None if created else inbox_path.read_text(encoding="utf-8")
+    text = _inbox_template(prefix) if created else before
+
+    topic = _inbox_topic(message, getattr(args, "topic", None))
+    today = date.today().isoformat()
+    entry = _format_inbox_entry(topic, message, args.source, args.tag, today)
+    heading = f"## {today} — {topic}"
+
+    inbox_path.parent.mkdir(parents=True, exist_ok=True)
+    inbox_path.write_text(_insert_inbox_entry(text, entry), encoding="utf-8")
+
+    # T050 — prove it landed by re-reading the DISK, and undo cleanly if not.
+    # A drop is fire-and-forget by design (no reply, no ack), so the sender
+    # never comes back to check: an unreported half-write here is a message
+    # that was silently never delivered.
+    landed = inbox_path.read_text(encoding="utf-8")
+    first_line = next((l for l in message.splitlines() if l.strip()), "")
+    if heading not in landed or f"> {first_line}" not in landed:
+        if created:
+            inbox_path.unlink(missing_ok=True)
+        else:
+            inbox_path.write_text(before, encoding="utf-8")
+        raise be.BacklogEditError(
+            f"drop: the entry did not land in {inbox_path.name} — "
+            f"{'the file was removed' if created else 'the file has been restored'} "
+            f"to its pre-call state.")
+
+    _selffire(inbox_path)
+    summary = (f"inbox drop → {prefix} Inbox '{topic}'"
+               + (f" (from {args.source.strip()})" if args.source else "")
+               + (" — inbox created" if created else ""))
+    if backlog_path is not None:
+        be.append_messages(slug, summary, backlog_path)
+    print(f"{slug}: {summary}")
+    return 0
+
+
 def cmd_revalidate(slug, anchor_path, args):
     """F241 — the doc verb: `state revalidate <anchor> <doc>`.
 
@@ -3238,8 +3696,9 @@ _ITEM_VERBS = ("define", "set", "resolve", "remove")
 # Every top-level verb — item verbs, the doc verb, and the domain verbs. Only
 # the tombstones read this, to tell a retired v2-form invocation (which leads
 # with the address) from a plain typo.
-_ALL_VERBS = _ITEM_VERBS + ("show", "revalidate", "status", "roadmap",
-                            "triage", "crank", "groom-list", "summary-line")
+_ALL_VERBS = _ITEM_VERBS + ("show", "mint-id", "drop", "revalidate", "status",
+                            "roadmap", "triage", "crank", "groom-list",
+                            "summary-line")
 
 _LABEL_HELP = ("item id — F<n>/T<n>/C<n>/Q<n> on Backlog, Q<n>/V<n> on any "
                "other doc; LETTERS+'+' auto-mints (F+, T+, C+, Q+, V+); "
@@ -3368,6 +3827,46 @@ def build_parser():
         "show",
         help="print an item's full markdown, sub-bullet span included (T064)")
     _add_address(sh, _LABEL_HELP)
+
+    mi = subs.add_parser(
+        "mint-id",
+        help="T162 — give an EXISTING id-less Backlog row a row-id and a "
+             "matching `^block-anchor`, so every other verb can address it")
+    _add_address(mi, "the id to mint — T+/F+/C+ for the next free number in "
+                     "that namespace, or an explicit id (T042) that must be "
+                     "unused in both Backlog and Icebox")
+    mi.add_argument("--match", required=True,
+                    help="substring of the id-less row's title, "
+                         "case-insensitive — the only handle such a row has. "
+                         "Must name exactly ONE id-less row; zero or several "
+                         "refuse and list the candidates")
+
+    # ---- inbox verb -------------------------------------------------------
+
+    dr = subs.add_parser(
+        "drop",
+        help="T131 — append one PENDING entry to a target anchor's "
+             "[[DAS Inbox]]; creates the file on first drop. Nothing executes "
+             "until that agent drains it")
+    dr.add_argument("anchor",
+                    help="TARGET anchor SLUG (whose inbox receives this), or a "
+                         "path to a directory holding .anchor")
+    dr.add_argument("message", nargs="?", default=None,
+                    help="the message body — omit to read it from --from-file "
+                         "or stdin")
+    dr.add_argument("--source", default=None,
+                    help="who is sending (user / atticus / muse) — rendered on "
+                         "the entry's attribution line")
+    dr.add_argument("--tag", default=None,
+                    help="message TYPE (fact / handoff / note / nudge). NOT a "
+                         "status: DONE / MOVED → are written by the drain, and "
+                         "an entry with no status tag is what 'pending' means")
+    dr.add_argument("--topic", default=None,
+                    help="the dated H2's topic; derived from the message's "
+                         "opening sentence when omitted")
+    dr.add_argument("--from-file", dest="from_file", default=None,
+                    help="read the message from a file (alternative to the "
+                         "positional / stdin)")
 
     # ---- doc verb ---------------------------------------------------------
 
@@ -3511,6 +4010,10 @@ def main(argv):
             return cmd_item(slug, anchor_path, args)
         if args.verb == "show":
             return cmd_show(slug, anchor_path, args)
+        if args.verb == "mint-id":
+            return cmd_mint_id(slug, anchor_path, args)
+        if args.verb == "drop":
+            return cmd_drop(slug, anchor_path, args)
         if args.verb == "revalidate":
             return cmd_revalidate(slug, anchor_path, args)
         if args.verb == "triage":

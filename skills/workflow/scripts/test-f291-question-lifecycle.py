@@ -79,11 +79,30 @@ Body prose.
 """
 
 
-def q_body(n, title, opts, lean, damage="taste — no mechanical check settles it"):
+import re as _re
+
+
+def _lean_letter(rec, first="A"):
+    """T160 — the option letter a Lean/Strong recommendation names, else the
+    first listed option; None when the recommendation is `None`, which T160
+    never gates."""
+    if not _re.search(r"\b(Lean|Strong)\b", rec, _re.IGNORECASE):
+        return None
+    m = _re.search(r"\(([A-Za-z]\w*)\)", rec)
+    return m.group(1) if m else first
+
+
+def q_body(n, title, opts, lean, damage="taste — no mechanical check settles it",
+           risk="file — the fixture doc is rewritten in place"):
     lines = [f"- **Q{n} — {title}** — context for {title}."]
     for letter, text in opts:
         lines.append(f"    - **({letter})** {text}")
     lines.append(f"    - **Recommendation:** {lean}")
+    # T160 — a Lean/Strong Q must state the risk OF ITS LEAN; carried here so
+    # this test keeps exercising the lifecycle rather than that gate.
+    letter = _lean_letter(lean, first=(opts[0][0] if opts else "A"))
+    if letter and risk is not None:
+        lines.append(f"    - **Risk of ({letter}):** {risk}")
     lines.append(f"    - **Damage:** {damage}")
     return "\n".join(lines)
 
