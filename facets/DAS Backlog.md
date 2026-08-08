@@ -9,7 +9,7 @@ The work queue — one `{slug} Backlog.md` per anchor, every unit of work as a r
 | Related | [[templates/backlog.md\|backlog template]],  [[DAS Roadmap]],  [[DAS Icebox]],  [[DAS Query]],  [[workflow]],   |
 | Examples | [[Tink Backlog\|real instance (SKA anchor)]],   |
 | Rules | [[R-backlog]],   |
-| ... | [[anchor-page]],  [[DAS Agenda]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Page]],  [[DAS Anchor Tree]],  [[DAS API Design]],  [[DAS Architecture]],  [[DAS Aspects]],  [[DAS Brief]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Claude]],  [[DAS CLI]],  [[DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[DAS Decisions]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Design Folder]],  [[DAS Dev Dispatch]],  [[DAS Discussion]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facet]],  [[DAS Facets]],  [[DAS Features]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Inbox]],  [[DAS Interface]],  [[DAS Log]],  [[DAS Messages]],  [[DAS Module Doc]],  [[facets/DAS Move]],  [[DAS Naming]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS PRD]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Ruleset]],  [[facets/DAS Skill]],  [[DAS Specs]],  [[DAS Status]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS Track]],  [[DAS User Dispatch]],  [[DAS UX Design]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
+| ... | [[anchor-page]],  [[DAS Agenda]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Page]],  [[DAS Anchor Tree]],  [[DAS API Design]],  [[DAS Architecture]],  [[DAS Aspects]],  [[DAS Brief]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Claude]],  [[DAS CLI]],  [[DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[DAS Decisions]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Design Folder]],  [[DAS Dev Dispatch]],  [[DAS Discussion]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facet]],  [[DAS Facets]],  [[DAS Features]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Inbox]],  [[DAS Interface]],  [[DAS Log]],  [[DAS Messages]],  [[DAS Module Doc]],  [[facets/DAS Move]],  [[DAS Naming]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS PRD]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Rocks]],  [[DAS Ruleset]],  [[facets/DAS Skill]],  [[DAS Specs]],  [[DAS Status]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS Track]],  [[DAS User Dispatch]],  [[DAS UX Design]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
 
 **TLDR** — `{slug} Track/{slug} Backlog.md` is the anchor's workflow-state core: one bullet row per unit of work (`- **F<n> — Title** [Status] — body ^F<n>`) under horizon H2s (`## Now` / `## Next` / `## Later`) plus workflow H2s (`## Ready` / `## Active` / `## Verify` / `## Done`). Row ids are monotonic, zero-padded, never reused (F = feature, T = task, C = OpenSpec change); brackets carry the groomed state ([Ready] rows must name a `- **Next:**` step). Mutations go through `state`, never hand-edits; the render propagates each anchor's section into the vault-wide `Q.md`. **Cardinality: one per anchor.**
 |  |  |
@@ -141,6 +141,47 @@ Each F-row may carry a workflow-state bracket per the `[[SKA workflow]]` discipl
 **`[Partial — …]` is NOT a valid bracket form.** Only the standard brackets enumerated above are permitted. A row carrying `[Partial — N of M done]` (or any `[Partial …]` variant) is malformed and must be rewritten to one of the standard brackets per the state of the *remaining* sub-bullets. `/groom` rewrites these on encounter (per `[[SKA groom]]` § Bracket reassessment).
 
 **Aggregate-row treatment.** When an item has heterogeneous sub-bullets (e.g., an `/audit` finding row with some mechanical-ready and some user-gated sub-bullets), the spec is **pre-split on creation**: produce ≥1 backlog row per state-cluster — one `[Ready]` row containing mechanical sub-bullets, one or more `[Questions]` rows for sub-bullets needing user input (each linking to a feature doc where the Qs are parked per `[[SKA ask]]`). Done sub-bullets are excluded entirely. See `[[SKA audit]]` § Backlog entry format for the canonical producer.
+
+### The state table — every bracket, and the visibility class it renders to
+
+Ruled by Dan 2026-08-07 ([[TINK305 - Three answer shapes, one lifecycle|TINK F305]]). Two separate things: the **bracket** is what a row declares about itself, and the **class** is where that declaration renders for the user. Counts are the live vault as of that date.
+
+| Bracket | Class | Argument | live |
+|---|---|---|---|
+| `[Ready]` | **Runnable** | — | 101 |
+| `[Active]` | **Runnable** | — | 11 |
+| `[Questions]` / `[N Questions]` | **Owed** | — | 32 |
+| `[User]` | **Owed** | — | 28 |
+| `[Designing]` | **Owed** | — | 3 |
+| `[Verify]` | **Parked** | — | 33 |
+| `[Blocked {handle}]` | **Parked** | **required** — a row id | ⊂ 39 |
+| `[Blocked {what}]` | **Parked** | **required** — 1–3 words naming the universe change | ⊂ 39 |
+| `[Waiting {date}]` | **Hidden** | **required** — an absolute date | 95 |
+| `[Watching {date}]` | **Hidden** | **required** — an absolute date | 6 |
+| `[Done]` / `[Done {date}]` | **Closed** | optional | 804 |
+
+**The bracket is a SET, and it stays the source of truth.** `[Ready, Questions]` and `[Ready, 3 Questions, Verify]` are legal. Any combination is legal — there are no blessed pairs, because an exception is a rule to remember with no benefit and an audit cannot explain a refusal that rests on no principle. **Display order is fixed** so the bracket scans: class order, most urgent first — `[Ready, Questions]`, never `[Questions, Ready]`. Nothing about a row's state is computed behind the user's back; the row says what it is, and a row that disagrees with reality can be pointed at.
+
+**The consequence, accepted:** class counts sum to **more than the row count**. A banner reads *"8 runnable, 3 owed"* and never *"11 rows."*
+
+**The four classes, and the one test that assigns them.**
+
+- **Runnable** — the agent acts next.
+- **Owed** — the **user** is blocking the activity.
+- **Parked** — nothing is blocked, but **nothing undoes it either**. Growth here is a bad smell.
+- **Hidden** — parked *and self-unwinding*. Omitted from the rendered page.
+
+The assignment test is **does the state undo itself?** A `[Waiting 2026-09-01]` row leaves its own state when the date passes with nobody acting, so a hundred of them is not a smell and omitting them costs nothing. A `[Verify]` or `[Blocked]` row sits forever until a person acts, so both stay visible — quietly — and their *growth* is the signal. This is the one criterion in the scheme that can be checked rather than argued.
+
+**Hidden means hidden from `{slug} queries.md`, never from the backlog.** The queries page is a render; this file is the store. `/crank` and `/groom` read the store, so a Hidden row is fully visible to the agent and to any user who opens the backlog — it is simply not pushed at the user. Every class, including Hidden, still carries a **count** in the banner.
+
+**Designing means designing *with the user*** — *"I know I need user input to finish this, even if it is just to confirm that it is okay"* — which is why it is Owed rather than Runnable. Its counterpart is the definition of execution: once every user input is cleared, building roadmaps and pre-planning artifacts is `[Active]`, not `[Designing]`.
+
+**A row may not block on a later horizon than its own.** `## Now` may not block on `## Next`; nothing in a horizon may block on the Icebox. Two Icebox rows blocking each other is fine. Otherwise the blocked row is invisible *and* its blocker is invisible, and the pair disappears together. Violation is an **error, not an auto-fix** — the agent decides whether to demote itself or promote the blocker. **Cross-anchor blocking is allowed** under the same horizon constraint, and a cross-anchor row is always **Parked, never Hidden**, because nobody may be looking at the other anchor.
+
+**Retired by this table:** `[Verify-by {date}]` (a `[Waiting]` whose outcome happens to be a Verify — what a wait becomes is deliberately not encoded); bare `[Waiting]` and bare `[Blocked]` (both now illegal without an argument); the relative forms `[Waiting Nd]` / `[Waiting Nh]` / `[Watching Nd]` / `[Watching Nh]`, because a relative duration ages into a lie — a thirty-day-old `[Watching 7d]` still reads *7d* — while an absolute date never needs renumbering; `[Implementing]` (already an alias for `[Active]`); and `[Iced]`, which was never a state — the Icebox is a horizon, and a separate file.
+
+**There is no bracket for an agent-owned deferred check.** Under F240 a check the agent can run now is simply run, so such a check is bracket-worthy only while it *cannot* run — at which point the row is `[Waiting {date}]` or `[Watching {date}]` like any other clock-parked row. What the check *is* belongs in a sub-bullet field beside `- **Next:**`, `- **Verify:**` and `- **User:**`, not in the bracket.
 
 `[Blocked F<NNN>]` is the **chained** form of `[Blocked]` — used when the blocker is another feature's progression. The chained F-number is the description; the user clicks `F<NNN>` to learn the actual current state of the blocker. Generic `[Blocked]` (without an F-number) is for non-feature blockers — diagnostic capture, external review, a missing API — and the row body must describe what's blocking.
 

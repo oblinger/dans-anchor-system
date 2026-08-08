@@ -9,4 +9,4 @@ Stencil Track is the dispatch page for the Stencil anchor's tracking artifacts.
 | --- | --- |
 | [[STEN Backlog\|Backlog]]  |  |
 | [[STEN Messages\|Messages]]  |  |
-| ... |  |
+| ... | [[STEN queries]],   |

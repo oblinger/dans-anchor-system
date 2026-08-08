@@ -2,9 +2,10 @@
 description: Warden queries — mechanically rendered from the backlog (Blockers / Ready+Next / Questions / Blocked / Verifications / Other), and copied verbatim into Q.md. Do not hand-edit; edit the backlog rows.
 ---
 
-# [U+A]  [[Warden|Warden]]  -  Runnable 4    User 2   |   Now 4    Next 2    Later 5    Verify 0    Icebox 0
+# [U+A]  [[Warden|Warden]]  -  Runnable 5    User 2   |   Now 4    Next 2    Later 5    Verify 0    Icebox 0    {2}
 
 ## Ready
+- [[Warden Backlog#^B-QFix|B-QFix]] — **Next:** Fix the next residual below at its source (repoint a renamed link, de-link a retired one, correct the flagged doc), then re-run `/audit q` to clear it — per the 100%-fix discipline.
 - [[Warden Backlog#^F236|F236]] — **Next:** Two parts. (1) **Enforcement gap:** R-cards-04 (≤69-char card lines) does NOT fire on markdown save — a live edit to `RR/STAT/stat/stat distributions.md` created an 80-char card TITLE and the Warden...
 - [[Warden Backlog#^T019|T019]] — **Next:** teach `_repl_outside_code` to mask 4-space indented code blocks; repoint `chk_md_em_dash` at it so one predicate serves both; make the fixer skip lines with odd backtick parity and warn instead; add...
 - [[Warden Backlog#^T020|T020]] — **Next:** Backtick the placeholder tokens at `Warden Backlog.md` lines 132, 135, 136 (two on 136) — route through `state set Warden Backlog <row> --next/--body`, never a hand edit....
@@ -12,6 +13,6 @@ description: Warden queries — mechanically rendered from the backlog (Blockers
 
 ## Questions
 - [[F237 — Golden corpus exists in two diverged copies — the drift oracle cannot be trusted|F237]] **(1Q)** ([[F237 — Golden corpus exists in two diverged copies — the drift oracle cannot be trusted]]) — the golden corpus exists at two paths and they have drifted; a run against the stale copy reported five false regressions during [[TINK Backlog#^F278|F278]]....
-    - Q1 — Which copy of `Warden Corpus/` is canonical, and how does the other stop existing? The corpus lives at both `~/ob/proj/warden/Warden Corpus/` and `dans-anchor-system/warden/Warden Corpus/`.... · **(A)** Vault copy canonical; · **(B)** `~/ob/proj/warden` canonical; · **(C)** Keep both, add a sync step to `warden compile` (or a… · *Lean (A) — the corpus's whole job is to lock the verdicts of a specific ruleset revision,...*
+    - Q1 — Which copy of `Warden Corpus/` is canonical, and how does the other stop existing? The corpus lives at both `~/ob/grove/warden/Warden Corpus/` and `dans-anchor-system/warden/Warden Corpus/`.... · **(A)** Vault copy canonical; · **(B)** `~/ob/grove/warden` canonical; · **(C)** Keep both, add a sync step to `warden compile` (or a… · *Lean (A) — the corpus's whole job is to lock the verdicts of a specific ruleset revision,...*
 - [[Warden Backlog#^T009|T009]] **(1Q)** — Follow-on from T008: adding [[R-naming]] to the R-doc umbrella (= naming checked on every anchored md write) was attempted and reverted — a sweep measured 376...
     - Q1 — how do catalog-prefix files become R-naming-conformant? — [[DAS Naming]] R-naming-01 requires the anchor-slug prefix, but the catalog trees (`disciplines/`, `facets/`, `skill-docs/`, `traits/`) use their CATALOG prefix instead — which is why adding [[R-naming]] to the R-doc umbrella had to be reverted (376 fails). · **(A)** Declare slugs on the catalog anchors (`facets/.anchor`… · **(B)** Sanction a generic caps-token prefix (`^[A-Z]{2,4} `) in… · **(C)** Leave R-naming audit-only permanently · *Lean **(A)** — it also fixes the garbage slug lists in steer text....*

@@ -2,14 +2,14 @@
 description: "work queue"
 ---
 # HBR Backlog
-<!-- state:backlog 9v -->
+<!-- state:backlog qt -->
 Harbor's work queue — horizon H2s, one row per item, status in brackets.
 
-| -[[HBR Backlog]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [[HBR]] → [[HBR Track]] → [HBR Backlog](hook://p/HBR%20Backlog)<br>: work queue |
+| -[[HBR Backlog]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [[HBR\|HARBOR]] → [[HBR Track\|HARBOR TRACK]] → [HBR Backlog](hook://p/HBR%20Backlog)<br>: work queue |
 | --- | --- |
 | Anchor | [[HBR Track]] (parent) |
 | Related | [[HBR Features]],  [[HBR Roadmap]],   |
-| ... | [[HBR Messages]],  [[HBR queries]],  [[HBR Status]],   |
+| ... | [[HBR Messages]],  [[HBR queries]],  [[HBR Rocks]],  [[HBR Status]],   |
 
 ## Active
 
