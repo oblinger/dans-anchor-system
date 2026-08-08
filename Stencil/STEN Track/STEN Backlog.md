@@ -1,8 +1,8 @@
 # Stencil Backlog
 
-| -[[Stencil Backlog]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [Stencil](hook://Stencil) → [[Stencil Track]] → [Stencil Backlog](hook://p/Stencil%20Backlog)  |
+| -[[STEN Backlog]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[STEN]] → [[STEN Track]] → [STEN Backlog](hook://p/STEN%20Backlog)  |
 | --- | --- |
-| ... | [[Stencil Messages]],   |
+| ... | [[STEN Messages]],   |
 
 ## Active
 - **F{{NNN}} — {{title}}** — {{one-line description of the in-flight item}}
