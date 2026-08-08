@@ -61,13 +61,21 @@ def render(backlog_text, next_actions=None, verify_questions=None):
 
 
 # A backlog carrying one row for every section at once. F001 is named by F002's
-# bracket, so F001 must leave Ready and lead the file; V-ROW is a Verify that
-# nothing depends on, so it stays put at the bottom.
+# bracket, so F001 must leave its section and lead the file; V-ROW is a Verify
+# that nothing depends on, so it stays put at the bottom.
+#
+# F001 was `[Ready]` until 2026-08-08 and is now `[Verify]`. Dan's rule: *"if
+# something is truly Ready it's not actually a blocker — it's a TEMPORARY
+# blocker; as soon as you go through the ready queue it becomes unblocked."* A
+# self-clearing row is no longer elevated, so a `[Ready]` blocker would make
+# this fixture render five sections, not six. The bracket had to become one
+# that working the queue does NOT clear for the section to have a customer.
 FULL = """# X Backlog
 
 ## Now
 
-- **F001 — The blocker** [Ready] — a row others wait on. ^F001
+- **F001 — The blocker** [Verify] — a row others wait on. ^F001
+  - **Verify:** did the thing hold? *why-user: taste*
 - **F002 — Waits on F001** [Blocked F001] — cannot start. ^F002
 - **F003 — Needs an answer** [Questions] — user-gated. ^F003
 - **F004 — Plain ready** [Ready] — nothing waits on this. ^F004
@@ -78,7 +86,7 @@ FULL = """# X Backlog
 
 
 def main():
-    body, h2s = render(FULL, next_actions={"F001": "do it", "F004": "do it"})
+    body, h2s = render(FULL, next_actions={"F004": "do it"})
 
     # --- the order itself ------------------------------------------------
     check("all six sections render",
@@ -97,7 +105,8 @@ def main():
           "gates [[X Backlog#^F002|F002]]" in blockers[0], True)
     ready_i = body.index("## Ready")
     ready = [ln for ln in body[ready_i + 1:] if ln.startswith("- ")][:2]
-    check("F001 left Ready (promoted)", any("F001" in ln for ln in ready), False)
+    check("F001 is not in Ready (it never was, and is promoted)",
+          any("F001" in ln for ln in ready), False)
     check("F004 stayed in Ready", any("F004" in ln for ln in ready), True)
 
     # --- Blocked is the ledger: handle-rows AND waiting-rows --------------
@@ -188,7 +197,7 @@ def main():
 
 ## Now
 
-- **F001 — Named by parked but VISIBLE work** [Ready] — a rendered row waits. ^F001
+- **F001 — Named by parked but VISIBLE work** [Questions] — a rendered row waits. ^F001
 
 ## Later
 
@@ -205,7 +214,7 @@ def main():
 
 ## Now
 
-- **F001 — Named only by an invisible row** [Ready] — nothing visible waits. ^F001
+- **F001 — Named only by an invisible row** [Questions] — nothing visible waits. ^F001
 
 ## Later
 
@@ -221,7 +230,7 @@ def main():
 
 ## Now
 
-- **F001 — Named by live work** [Ready] — something live waits. ^F001
+- **F001 — Named by live work** [Questions] — something live waits. ^F001
 
 ## Next
 
@@ -262,7 +271,7 @@ def main():
 
 ## Now
 
-- **F001 — The blocker** [Ready] — gates one parked row and one live one. ^F001
+- **F001 — The blocker** [Questions] — gates one parked row and one live one. ^F001
 
 ## Next
 

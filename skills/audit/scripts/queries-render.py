@@ -1268,8 +1268,31 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
             gated_by.setdefault(handle, []).append(r.identifier)
     # `[Done]` is the one further exclusion: a resolved blocker means the WAITING
     # row is stale, which is a different finding and already /groom's.
+    # Dan, 2026-08-08, on the first render that actually populated this section:
+    # *"I don't think if something is truly Ready it's actually a blocker. It is
+    # a blocker, but it's just a TEMPORARY blocker — as soon as you go through
+    # the ready queue, it becomes unblocked. So blockers should only be things
+    # which are blocking other things and are not themselves ready."*
+    #
+    # The test is therefore not "does this gate something" but "would working
+    # the Ready queue clear it". A row every member of which is agent-runnable
+    # clears itself by being worked, so it belongs in `## Ready` where it will
+    # be, not at the position of highest attention where it displaces rows that
+    # nothing an agent does will move. TINK's first populated render made the
+    # point: three of six entries were `[Ready]` (F303, F312, F305) and would
+    # have resolved themselves that same session.
+    #
+    # `all(...)`, not `any(...)`, and the difference is a real case: `[Ready,
+    # User]` has an agent phase AND a gate only Dan can lift, so working the
+    # Ready queue does NOT clear it and it stays elevated. Suppression requires
+    # the row to be agent-runnable and nothing else.
+    def _self_clearing(bracket):
+        members = audit_q.bracket_members(bracket)
+        return bool(members) and all(m in READY_ACTIVE_BRACKETS for m in members)
+
     blockers = [r for r in rows
-                if r.identifier in gated_by and not r.bracket.startswith("Done")]
+                if r.identifier in gated_by and not r.bracket.startswith("Done")
+                and not _self_clearing(r.bracket)]
     promoted = {id(r) for r in blockers}
     # Promotion happens FIRST, so a blocker leaves whatever section would
     # otherwise hold it — including Verifications — and a promoted off-frontier

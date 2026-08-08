@@ -90,6 +90,12 @@ FIXTURE = """# ATT Backlog
   - **Next:** do it
 - **F061 — waits on F060, and renders nowhere** [Waiting] — body ^F061
 - **F070 — names another anchor's row** [Blocked MUX-F999] — body ^F070
+- **F090 — gated on Dan, but also runnable** [Ready, User] — body ^F090
+  - **Next:** run the agent phase
+  - **User:** then decide
+- **F092 — waits on the half-gated one** [Blocked F090] — body ^F092
+- **F091 — a stuck blocker** [Blocked upstream] — body ^F091
+- **F093 — waits on the stuck one** [Blocked F091] — body ^F093
 
 ## Done
 
@@ -153,9 +159,27 @@ try:
     else:
         no("a finished blocker was elevated")
 
-    print("G: the bare-handle form still works (F283's original case)")
-    if "F050" in blockers:
-        ok("a bare `[Blocked F050]` on a frontier row still promotes F050")
+    print("G: a self-clearing blocker is NOT elevated (Dan, 2026-08-08)")
+    # A [Ready] row that gates something is not stuck — working the Ready queue
+    # clears it. Elevating it displaces rows nothing an agent does will move.
+    if "F050" not in blockers:
+        ok("a [Ready] blocker stays in ## Ready and out of ## Blockers")
+    else:
+        no("a self-clearing [Ready] blocker occupied the top of the page")
+    if "F050" in section(text, "Ready"):
+        ok("...and is still shown as Ready, where it will be worked")
+    else:
+        no("the un-elevated blocker vanished instead of rendering in Ready")
+    # `[Ready, User]` is the case that makes the test `all` and not `any`:
+    # the agent phase runs, and the row is STILL gated on Dan afterwards.
+    if "F090" in blockers:
+        ok("[Ready, User] stays elevated — the Ready queue does not clear it")
+    else:
+        no("a row gated on Dan was suppressed because it also had a Ready member")
+
+    print("H: the bare-handle form still works (F283's original case)")
+    if "F091" in blockers:
+        ok("a bare `[Blocked F091]` handle still resolves and promotes")
     else:
         no("the un-prefixed handle regressed")
 finally:
