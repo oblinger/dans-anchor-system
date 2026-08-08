@@ -15,11 +15,24 @@ def body(ctx):
     if not target:
         return []
     from pathlib import Path
-    name = Path(target).name
+    p = Path(target)
+    name = p.name
     if name.endswith(" Backlog.md"):
-        return ["DENY: " + name + " is owned by `state <define|set|resolve|remove> "
-                "<anchor> Backlog <label>` — never Edit backlog rows directly "
-                "(~/.claude/skills/workflow/scripts/state)."]
+        # A backlog STORE, not merely a file whose name ends in " Backlog.md".
+        # Two independent signals, either one sufficient: the `state:backlog`
+        # stamp `state` writes into every store it manages, and the canonical
+        # `{slug} Track/` home. They agree on all 42 vault instances; the OR
+        # keeps a store guarded when one signal is missing.
+        in_track = p.parent.name.endswith(" Track")
+        stamped = False
+        try:
+            stamped = "state:backlog" in p.read_text(errors="replace")[:800]
+        except OSError:
+            stamped = True   # unreadable — guard rather than wave through
+        if in_track or stamped:
+            return ["DENY: " + name + " is owned by `state <define|set|resolve|remove> "
+                    "<anchor> Backlog <label>` — never Edit backlog rows directly "
+                    "(~/.claude/skills/workflow/scripts/state)."]
     if name.endswith(" queries.md") or name == "Q.md":
         return ["DENY: " + name + " is mechanically rendered by queries-render.py — "
                 "edit the backlog rows / feature-doc Open Questions it renders from, not the page."]
@@ -29,6 +42,12 @@ def body(ctx):
 The backlog and queries pages are projections of `state`-managed rows; a direct Edit silently diverges them from the state the scripts maintain (and the next render clobbers it).
 
 `Q.md` is matched by exact name, not by the `" queries.md"` suffix — the cross-anchor dashboard is called `Q.md` and matched neither suffix, so the one page the user actually reads was the only projection an agent could edit freely. Closed 2026-07-29.
+
+**A backlog STORE is matched, not every file whose name ends in `" Backlog.md"`** *(narrowed 2026-08-07)*. The suffix alone caught six namesakes, and one of them was [[DAS Backlog]] — **the facet that defines the backlog format**, a prose document with no rows, unreachable through the very tool the DENY redirects to. `state` has no verb for editing a facet, so the guard made its own specification unmaintainable: the only way to correct the state table was to route around the rule entirely, which is the outcome a guard exists to prevent. The other five are the `exp` docs checklist and four Warden Corpus fixtures — specimens whose whole purpose is to be hand-authored.
+
+Two signals decide it, and **either one is sufficient**: the `state:backlog` stamp that `state` writes into every store it manages, and the canonical `{slug} Track/` home. Measured across all 42 vault instances the two partition identically — 36 stores carry both, 6 namesakes carry neither — so the `or` is not a widening of the accept set but insurance: a store that loses its stamp is still guarded by its location, and a store living outside a Track folder is still guarded by its stamp. An unreadable file is guarded on the Edit path (the safe branch), and on the Write path the stamp is additionally sought in the content being written, since the file may not exist yet.
+
+Both rules moved together. Narrowing `-01` alone would have taught the failure mode a new verb — the `-03` lesson, recorded below.
 
 **Why:** per [[SKA workflow]] mutation discipline and the standing feedback rule — never hand-edit backlog/Q surfaces; `state` refreshes Q.md as part of the write.
 
@@ -98,10 +117,27 @@ def body(ctx):
     if not target:
         return []
     from pathlib import Path
-    name = Path(target).name
-    if name.endswith(" Backlog.md") or name.endswith(" queries.md") or name == "Q.md":
+    p = Path(target)
+    name = p.name
+    if name.endswith(" queries.md") or name == "Q.md":
         return ["DENY: " + name + " is script-owned (`state <verb> <anchor> Backlog ...` / queries-render.py) — "
                 "a wholesale Write bypasses the same discipline Edit is denied for."]
+    if name.endswith(" Backlog.md"):
+        # Same store-vs-namesake test as R-pathguard-01, with the third signal a
+        # Write needs: the file may not exist yet, so the stamp is also looked
+        # for in the content being written.
+        in_track = p.parent.name.endswith(" Track")
+        stamped = False
+        try:
+            stamped = "state:backlog" in p.read_text(errors="replace")[:800]
+        except OSError:
+            pass
+        if not stamped:
+            inp = getattr(ev, "input", None) or {}
+            stamped = "state:backlog" in (inp.get("content") or "")[:800]
+        if in_track or stamped:
+            return ["DENY: " + name + " is script-owned (`state <verb> <anchor> Backlog ...`) — "
+                    "a wholesale Write bypasses the same discipline Edit is denied for."]
     return []
 ```
 

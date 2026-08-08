@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """test-t052-own-anchor-scope.py — T052: the hard-continuation directive is
 scoped to the agent's OWN anchor. A vault-wide audit-q run must never tell the
-running agent to continue on another anchor's Runnable work (the failure that
+running agent to continue on another anchor's Ready work (the failure that
 pushed Lumen (LUM) onto MUX). Asserts:
 
   1. `_owning_slug_for_cwd` resolves the deepest anchor root containing cwd,
@@ -66,8 +66,8 @@ def run():
             "MUX": _mk_anchor(mux_root, "MUX"),
         }
         banners = {
-            "LUM": "# [P] LUM - Runnable 2    User 1   |   ...",
-            "MUX": "# [P] MUX - Runnable 9    User 3   |   ...",
+            "LUM": "# [A]  LUM  -  Ready 2    User 1   |   ...",
+            "MUX": "# [A]  MUX  -  Ready 9    User 3   |   ...",
         }
 
         # 1. cwd resolution — deepest containing anchor
@@ -93,16 +93,16 @@ def run():
 
         # 2. directive scoping — own anchor only, sibling never leaks
         txt = _directive_text(banners, "LUM")
-        if "Runnable 2" in txt and "MUX" not in txt and "Runnable 9" not in txt:
+        if "Ready 2" in txt and "MUX" not in txt and "Ready 9" not in txt:
             ok("directive from LUM lists LUM only, no MUX")
         else:
             no(f"directive leaked cross-anchor:\n{txt}")
 
-        # own anchor at Runnable 0 → silent even though MUX is hot
-        cold = {"LUM": "# [P] LUM - Runnable 0    User 0   |   ...",
+        # own anchor at Ready 0 → silent even though MUX is hot
+        cold = {"LUM": "# [A]  LUM  -  Ready 0    User 0   |   ...",
                 "MUX": banners["MUX"]}
         txt = _directive_text(cold, "LUM")
-        ok("own anchor Runnable 0 → silent") if txt.strip() == "" else no(f"expected silence, got:\n{txt}")
+        ok("own anchor Ready 0 → silent") if txt.strip() == "" else no(f"expected silence, got:\n{txt}")
 
         # own_slug None → suppressed entirely
         txt = _directive_text(banners, None)
@@ -110,7 +110,7 @@ def run():
 
         # explicit own anchor = MUX (MUX agent) → MUX shown, LUM not
         txt = _directive_text(banners, "MUX")
-        if "Runnable 9" in txt and "Runnable 2" not in txt:
+        if "Ready 9" in txt and "Ready 2" not in txt:
             ok("MUX agent sees MUX only")
         else:
             no(f"MUX-scoped directive wrong:\n{txt}")
