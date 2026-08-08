@@ -3066,9 +3066,16 @@ def _has_self_masthead(text: str, stem: str) -> bool:
     [[DAS Dispatch Table]]. An example masthead shown in the body that links to a
     DIFFERENT page (`-[[Some Other Page]]-`) is not the doc's own masthead, so it
     does not count — this is what keeps facet/discipline docs that *illustrate*
-    mastheads from false-positiving."""
+    mastheads from false-positiving.
+
+    Matched case-insensitively (T138 Q1 → A, 2026-08-08). Obsidian resolves a
+    wiki-link's FILENAME case-insensitively through its own index, so `-[[Tink]]-`
+    on `TINK.md` routes the reader correctly. A case-sensitive match here reads
+    the masthead as ABSENT, which does not merely mis-report: every masthead rule
+    that opens with `if not _has_self_masthead(...): return "pass"` then passes
+    the doc vacuously."""
     pat = r"^\|\s*-\[\[\s*" + re.escape(stem) + r"\s*(\|[^\]]*)?\]\]-\s*\|"
-    return bool(re.search(pat, _strip_fenced(text), re.MULTILINE))
+    return bool(re.search(pat, _strip_fenced(text), re.MULTILINE | re.IGNORECASE))
 
 
 def _has_breadcrumb_line(text: str) -> bool:
@@ -3218,19 +3225,96 @@ def chk_dispatch_area_row(target, anchor_root, args):
         return "fail", (f"masthead row '{area}' leads with a text label — the LEFT cell is "
                         f"the sub-anchor link itself, `[[{sub}\\|{area}]]`, not a label with "
                         f"the link in the right-hand cell")
-    has_row = bool(re.search(r"^\|\s*\[\[" + re.escape(sub) + r"\s*(\\\||\|)?[^\]]*\]\]", stripped, re.MULTILINE))
+    # Case-insensitive per T138 Q1 → (A): the link resolves the way Obsidian
+    # resolves it, so `[[Tink Track|Track]]` on `TINK.md` is a found row, not a
+    # missing one. 98 masthead links vault-wide differ from their target's
+    # on-disk case; every one of them routes a reader correctly, and reporting
+    # them as absent is the phantom "row is missing" finding T136 half-fixed.
+    has_row = bool(re.search(r"^\|\s*\[\[" + re.escape(sub) + r"\s*(\\\||\|)?[^\]]*\]\]",
+                             stripped, re.MULTILINE | re.IGNORECASE))
     folder = (f.parent / sub).is_dir() or any(p.is_dir() for p in f.parent.glob(f"*/{sub}"))
     if folder and not has_row:
         # T136 — the message used to say the link was absent. When it is in fact
         # present in a right-hand cell, that sends the reader hunting for a
         # broken link that was never broken (three edit cycles, SCOUT 2026-08-05).
         # The requirement is about the CELL POSITION, so the message must be too.
-        if re.search(r"\[\[" + re.escape(sub) + r"(\s*(\\\||\|)[^\]]*)?\]\]", stripped):
+        if re.search(r"\[\[" + re.escape(sub) + r"(\s*(\\\||\|)[^\]]*)?\]\]",
+                     stripped, re.IGNORECASE):
             return "fail", (f"masthead links `[[{sub}]]`, but not from the LEFT cell of its own "
                             f"row — the {area} row leads with `[[{sub}\\|{area}]]` and enumerates "
                             f"the parts on the right")
         return "fail", f"{sub}/ exists but the masthead has no `[[{sub}\\|{area}]]` row"
     return "pass", "row links the sub-anchor" if has_row else f"no {area} facet"
+
+
+def _masthead_rows(text, stem):
+    """The contiguous run of table rows containing the doc's own `-[[stem]]-`
+    breadcrumb cell — the masthead table, and nothing else in the doc."""
+    lines = _strip_fenced(text).splitlines()
+    pat = re.compile(r"^\|\s*-\[\[\s*" + re.escape(stem) + r"\s*(\|[^\]]*)?\]\]-\s*\|",
+                     re.IGNORECASE)
+    at = next((i for i, ln in enumerate(lines) if pat.match(ln)), None)
+    if at is None:
+        return []
+    lo = at
+    while lo > 0 and lines[lo - 1].lstrip().startswith("|"):
+        lo -= 1
+    hi = at + 1
+    while hi < len(lines) and lines[hi].lstrip().startswith("|"):
+        hi += 1
+    return lines[lo:hi]
+
+
+def chk_dispatch_link_case_drift(target, anchor_root, args):
+    """R-dispatch-table-15 — a masthead link whose target exists beside the doc
+    under a DIFFERENT case. Cosmetic, by ruling (T138 Q1 → A, 2026-08-08).
+
+    98 of these exist vault-wide across ~40 anchors — [[SLUG]] 22, [[TINK]] 9,
+    [[ASG]] 7 — and most have no rename anywhere in their history: `[[pp]]`→`PP`,
+    `[[SCRatch]]`→`Scratch`, `[[Dir]]`→`DIR` are plain hand-authoring drift.
+    **Every one of them resolves**, because Obsidian matches a link's filename
+    case-insensitively through its own index, so nothing a reader does is
+    broken and this must never be an error.
+
+    It is worth listing rather than dropping because the case-insensitive
+    matching that stopped the phantom findings also made the drift invisible,
+    and the canonical-spelling argument still has one live constituency: every
+    NON-Obsidian consumer — GitHub's renderer, this vault's own checkers, any
+    external tool — resolves case-sensitively. Keeping the population
+    enumerated is what keeps that sweep available if it is ever wanted.
+
+    Scoped to siblings and children of the doc, which is where a masthead
+    points; a vault-wide resolve would cost an index for a cosmetic list.
+    """
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    text = _read(f)
+    rows = _masthead_rows(text, f.stem)
+    if not rows:
+        return "pass", "no self-masthead"
+    nearby = {}
+    for p in list(f.parent.iterdir()) + [q for d in f.parent.iterdir()
+                                         if d.is_dir()
+                                         for q in list(d.iterdir())[:200]]:
+        nearby.setdefault((p.stem if p.is_file() else p.name).casefold(),
+                          p.stem if p.is_file() else p.name)
+    drift = []
+    for ln in rows:
+        # Stop the name at the first `\|`, `|`, `#`, or `]]`. In a table cell the
+        # alias pipe is BACKSLASH-escaped, so a class that admits `\` lets the
+        # non-greedy name give up after one character and match the rest as alias.
+        for m in re.finditer(r"\[\[\s*([^\[\]|#\\]+?)\s*(?:\\\||\||#|\]\])", ln):
+            name = m.group(1).strip()
+            real = nearby.get(name.casefold())
+            if real and real != name:
+                drift.append(f"`[[{name}]]` → `{real}`")
+    if drift:
+        uniq = sorted(set(drift))
+        return "warn", ("masthead link case differs from the target on disk: "
+                        + ", ".join(uniq)
+                        + " — resolves fine in Obsidian, cosmetic only (T138)")
+    return "pass", "masthead link case matches disk"
 
 
 def chk_toc_table_iff_long(target, anchor_root, args):
@@ -5204,6 +5288,7 @@ CHECKERS = {
     "doc_top_order": chk_doc_top_order,
     "dispatch_table_iff_anchor": chk_dispatch_table_iff_anchor,
     "dispatch_area_row": chk_dispatch_area_row,
+    "dispatch_link_case_drift": chk_dispatch_link_case_drift,
     "toc_table_iff_long": chk_toc_table_iff_long,
     # R-progressive-04/05 — summary presence + freshness (SKA F277)
     "summary_present_iff_complex": chk_summary_present_iff_complex,
@@ -5384,7 +5469,10 @@ def execute_plan(plan: dict, cdir: Path | None) -> dict:
     (rule-id, rule-body-hash, target-content-hash). Returns a verdicts report."""
     anchor_root = Path(plan["anchor_root"])
     results = []
-    counts = {"pass": 0, "fail": 0, "error": 0, "cached": 0}
+    # `warn` (T138) is a fourth verdict, not a soft fail: a rule that reports a
+    # cosmetic condition must not land in the failure list, or the report treats
+    # 98 links that route readers correctly as 98 things to repair.
+    counts = {"pass": 0, "fail": 0, "warn": 0, "error": 0, "cached": 0}
     for g in plan["groupings"]:
         for r in g["rules"]:
             if not r.get("check"):
@@ -5410,9 +5498,10 @@ def execute_plan(plan: dict, cdir: Path | None) -> dict:
 def render_verdicts(report: dict) -> str:
     c = report["counts"]
     out = [f"# mechanical verdicts — pass {c['pass']}  fail {c['fail']}  "
-           f"error {c['error']}  (cache hits {c['cached']})", ""]
+           f"warn {c.get('warn', 0)}  error {c['error']}  "
+           f"(cache hits {c['cached']})", ""]
     for v in report["results"]:
-        mark = {"pass": "✓", "fail": "✗", "error": "!"}.get(v["status"], "?")
+        mark = {"pass": "✓", "fail": "✗", "warn": "~", "error": "!"}.get(v["status"], "?")
         line = f"{mark} {v['rule']} — {v['target']}"
         if v["detail"]:
             line += f"  ({v['detail']})"
@@ -5785,17 +5874,27 @@ def render_report(plan: dict, mech: dict, man: dict) -> str:
     out = [f"# audit report — {plan['umbrella']} on {Path(plan['target']).name}", ""]
     out.append(f"- scope files: {plan['scope_file_count']}  ·  "
                f"rulesets: {len(plan['groupings'])}")
-    out.append(f"- mechanical: **{c['pass']} pass · {c['fail']} fail · {c['error']} error** "
+    out.append(f"- mechanical: **{c['pass']} pass · {c['fail']} fail · "
+               f"{c.get('warn', 0)} warn · {c['error']} error** "
                f"(cache hits {c['cached']})")
     out.append(f"- to judge: **{man['task_count']}**  ·  judged-cached: {man['cached_count']}")
     out.append("")
-    fails = [v for v in mech["results"] if v["status"] != "pass"]
+    fails = [v for v in mech["results"] if v["status"] not in ("pass", "warn")]
     out.append("## mechanical failures" if fails else "## mechanical — all clean")
     for v in fails:
         mark = {"fail": "✗", "error": "!"}.get(v["status"], "?")
         out.append(f"- {mark} {v['rule']} — {v['target']}"
                    + (f"  ({v['detail']})" if v["detail"] else ""))
     out.append("")
+    # Cosmetic findings get their own section, below the failures and clearly
+    # not among them (T138): they name nothing a reader experiences as broken.
+    warns = [v for v in mech["results"] if v["status"] == "warn"]
+    if warns:
+        out.append(f"## cosmetic ({len(warns)} — nothing here is broken)")
+        for v in warns:
+            out.append(f"- ~ {v['rule']} — {v['target']}"
+                       + (f"  ({v['detail']})" if v["detail"] else ""))
+        out.append("")
     out.append(f"## judgment residue ({man['task_count']} tasks)")
     if not man["tasks"]:
         out.append("_none — every applicable rule was mechanical or cached._")

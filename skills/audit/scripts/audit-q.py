@@ -66,6 +66,11 @@ Checks applied to Q.md, each anchor's backlog, and each feature/Questions doc:
        clean stay clean. Ordinary-file collisions stay a WARNING on
        `ha --dump --format=collisions` — different in kind, not just count.
        Filenames mandated by an external format are exempt.            (report).
+  C54: T154 — a Q.md banner whose label and link target are different
+       anchors: `[[SONAR queries|SEEK]]` reports SONAR's counts under a name
+       that owns none of them. C1 tests only that the target RESOLVES, so it
+       passes this silently; Daybreak and LUMEN's starvation rule both read
+       these counts. Case drift is not a mismatch (T138).              (report).
   D1:  Q.md per-anchor banners derived from each anchor's backlog
        (not validated — overwritten on every run).
 
@@ -998,6 +1003,72 @@ def check_c1_link_existence(qmd_links: list[LinkEntry]) -> list[Finding]:
                         f"'{anchor_val}' missing in target",
                 mechanically_fixable=False,
             ))
+    return findings
+
+
+# ============================================================
+# Check C54 — a Q.md banner's label and its link target are the same anchor
+# ============================================================
+
+# The three shapes the render's fallback chain can land on, longest first so
+# `{X} queries` is stripped before the bare-`{X}` case can claim it.
+_QMD_BANNER_TARGET_SUFFIXES = (" queries", " Triage")
+_QMD_BANNER_RE = re.compile(
+    r"^# \[[^\]]*\]\s+\[\[([^|\]#]+)(?:#[^|\]]*)?\|([^\]]+)\]\]")
+
+
+def check_c54_banner_label_matches_target(qmd_text: str) -> list[Finding]:
+    """C54 (T154) — every `# [..] [[X queries|LABEL]]` block in Q.md must link
+    to the anchor it is labelled with.
+
+    C1 tests whether the target RESOLVES, and C22 extends that same existence
+    test to other files — so a banner pointing at a real file belonging to a
+    DIFFERENT anchor passes both silently. That is not hypothetical: `SEEK`, an
+    anchor that has never existed, sat in Q.md reporting `Runnable 7` because
+    its banner linked to `[[SONAR queries]]`. It did not link to nothing; it
+    linked to somebody else's numbers.
+
+    Why it earns a rule rather than a one-off repair: LUMEN T021's starvation
+    logic picks which under-served anchor gets a morning Decisions slot by
+    reading question counts off exactly these banners, and Daybreak's Runnable
+    line reads them too. A mislabelled block does not merely look untidy — it
+    lends a real anchor's numbers to a name that owns none of them, and both
+    consumers believe it.
+
+    Case is not a mismatch. Obsidian and APFS both resolve case-insensitively,
+    so `[[Tink queries|TINK]]` reaches the same file TINK's own banner does;
+    that is case drift, which T138 ruled cosmetic and gave its own check. This
+    rule fires only when the two names are different anchors.
+
+    Not mechanically fixable: the repair is either to relabel the block or to
+    repoint it, and only the author knows which name was the typo.
+    """
+    findings: list[Finding] = []
+    for i, line in enumerate(qmd_text.splitlines(), start=1):
+        m = _QMD_BANNER_RE.match(line)
+        if not m:
+            continue
+        target, label = m.group(1).strip(), m.group(2).strip()
+        prefix = target
+        for suffix in _QMD_BANNER_TARGET_SUFFIXES:
+            if prefix.endswith(suffix):
+                prefix = prefix[:-len(suffix)]
+                break
+        if prefix.casefold() == label.casefold():
+            continue
+        findings.append(Finding(
+            severity="error",
+            surface_file=Q_MD,
+            surface_line=i,
+            code="C54",
+            message=(
+                f"banner labelled '{label}' links to '{target}', which belongs "
+                f"to '{prefix}' — the block reports {prefix}'s counts under "
+                f"{label}'s name. C1 passes it because the target resolves. "
+                f"Either relabel the block or repoint it (T154)"
+            ),
+            mechanically_fixable=False,
+        ))
     return findings
 
 
@@ -5701,6 +5772,7 @@ def main() -> int:
         qmd_links = links_in_file(Q_MD, vault_index)
         qmd_text = Q_MD.read_text(encoding="utf-8")
         findings.extend(check_c1_link_existence(qmd_links))
+        findings.extend(check_c54_banner_label_matches_target(qmd_text))
         findings.extend(check_c2_q_marker_existence(qmd_links, qmd_text))
         # C52 (F287) — vault-wide, so it runs with Q.md rather than per anchor:
         # an anchor that renders nowhere has no per-anchor pass to be found by.

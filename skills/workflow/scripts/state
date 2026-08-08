@@ -760,29 +760,56 @@ def _migrate_block_to_resolved(lines):
 # Lines a downstream reader depends on, and so the only ones grafted into an
 # agent-written entry that lacks them. Everything else about that entry —
 # wording, ordering, extra prose — is left exactly as written.
-_MERGE_CRITICAL = ("**Resolved:**",)
+_MERGE_CRITICAL = ("**Resolved:**", "**Lean:**")
+_MERGE_OPTION_RE = re.compile(r"^\s*- \*\*\([A-Za-z]\)\*\*")
+
+# The address the backlog row, Q.md, and every chat ask point at. Two entries
+# are the same entry when they carry the same one — never when their headings
+# merely read alike (T155).
+_Q_BLOCK_ID_RE = re.compile(r"\^([A-Za-z][A-Za-z0-9]*-Q\d+)\b")
+
+
+def _entry_block_id(block):
+    for ln in block:
+        m = _Q_BLOCK_ID_RE.search(ln)
+        if m:
+            return m.group(1)
+    return None
 
 
 def _merge_prewritten(lines, entries, rh2_start, rh2_end):
-    """Fold every entry whose Q-number already has a `### Q<n>` H3 under the
-    bottom `## Resolved` into that existing entry, and drop it from `entries`
-    so the caller does not append a second copy.
+    """Fold every entry whose BLOCK-ID already appears under the bottom
+    `## Resolved` into that existing entry, and drop it from `entries` so the
+    caller does not append a second copy.
 
     The agent's text WINS. It is normally better-reasoned than a generated
     stub — the agent wrote it while holding the discussion that produced the
-    decision — so only a missing machine-critical line is grafted on, at the
+    decision — so only missing machine-critical content is grafted on, at the
     end, where it cannot reorder anything. The alternatives were all worse: a
     hard error forces a delete-and-retry dance over something recoverable,
     writing both leaves the duplicate this exists to prevent, and a silent
     skip loses the signal that two writers touched one entry.
 
+    **Matching is on the block-ID, not the H3 title (T155).** It used to be
+    `### Q(\\d+)\\b`, which made `### Q1's answer is superseded — …` — the
+    normal, correct way to record a supersession, since a supersession is
+    *supposed* to name the question it supersedes — read as the entry that IS
+    Q1. The migrating machine entry was then dropped in its favour, taking the
+    question text, the option list, the `**Lean:**` line, and the `^F<n>-Q<n>`
+    block-ID with it, under a message that read as a courteous merge. So the
+    collision fired precisely when the record was most valuable, and an H3 that
+    merely *mentions* a Q-number now never shadows the entry that carries it.
+
     Returns (lines, [Q-numbers merged]); mutates `entries` in place.
     """
     existing = {}
-    for k in range(rh2_start + 1, min(rh2_end, len(lines))):
-        m = be._Q_HEADER_H3_RE.match(lines[k])
-        if m:
-            existing[int(m.group(2))] = k
+    heads = [k for k in range(rh2_start + 1, min(rh2_end, len(lines)))
+             if lines[k].startswith("### ")]
+    for i, k in enumerate(heads):
+        stop = heads[i + 1] if i + 1 < len(heads) else min(rh2_end, len(lines))
+        bid = _entry_block_id(lines[k:stop])
+        if bid:
+            existing[bid] = k
     if not existing:
         return lines, []
 
@@ -791,8 +818,9 @@ def _merge_prewritten(lines, entries, rh2_start, rh2_end):
     todo = []
     for entry in list(entries):
         m = be._Q_HEADER_H3_RE.match(entry[0])
-        if m and int(m.group(2)) in existing:
-            todo.append((existing[int(m.group(2))], int(m.group(2)), entry))
+        bid = _entry_block_id(entry)
+        if m and bid and bid in existing:
+            todo.append((existing[bid], int(m.group(2)), entry))
     for at, q_num, entry in sorted(todo, reverse=True):
         entries.remove(entry)
         kept.append(q_num)
@@ -800,15 +828,19 @@ def _merge_prewritten(lines, entries, rh2_start, rh2_end):
         while end < len(lines) and not lines[end].startswith("#"):
             end += 1
         block = lines[at:end]
-        have = any(c in b for b in block for c in _MERGE_CRITICAL)
-        graft = [] if have else [l for l in entry[1:]
-                                 if any(l.lstrip().startswith(c)
-                                        for c in _MERGE_CRITICAL)]
+        graft = []
+        for marker in _MERGE_CRITICAL:
+            if any(marker in b for b in block):
+                continue
+            graft += [l for l in entry[1:] if l.lstrip().startswith(marker)]
+        if not any(_MERGE_OPTION_RE.match(b) for b in block):
+            graft += [l for l in entry[1:] if _MERGE_OPTION_RE.match(l)]
         if graft:
             lines = (lines[:at] + _trim_blanks(list(block)) + [""]
                      + graft + [""] + lines[end:])
-        print(f"  Q{q_num} already had a Resolved entry; kept yours"
-              + (" (added the **Resolved:** line)" if graft else ""),
+        print(f"  Q{q_num} already had a Resolved entry (same block-ID); "
+              "kept yours"
+              + (f" (grafted {len(graft)} missing line(s))" if graft else ""),
               file=sys.stderr)
     return lines, sorted(kept)
 
