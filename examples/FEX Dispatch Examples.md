@@ -6,7 +6,7 @@ description: "live worked examples of each dispatch-table structure"
 | --- | --- |
 | Spec | [[DAS Dispatch Table]] § Structure |
 | Builder | [[audit-dispatch\|/audit dispatch]],   |
-| ... | [[_{{DISK_LABEL}} Template]],  [[_{{PURCHASE_DATE}} {{HOSTNAME}} Template]],  [[Bridges]],  [[CAE Architecture]],  [[CAE Decisions]],  [[CAE PRD]],  [[CAE Stories]],  [[CAE Testing]],  [[Clarifier]],  [[CSE]],  [[DAS Examples]],  [[DAS US-CAE-1 — Schedule a Task]],  [[DAS US-CAE-2 — Monitor Task Status]],  [[DAS US-CAE-3 — Retry Failed Tasks]],  [[Devtools]],  [[Decisions/DKT Decisions]],  [[PRD/DMUX PRD]],  [[Espresso]],  [[FEX API]],  [[FEX API Design]],  [[FEX Architecture]],  [[FEX Completed Roadmap]],  [[FEX CSE]],  [[FEX Decisions]],  [[FEX Decisions Details]],  [[FEX Facet]],  [[FEX Files]],  [[FEX Grouped Dispatch]],  [[FEX Icebox]],  [[FEX Inbox]],  [[FEX List Dispatch]],  [[FEX Minimal Facet]],  [[FEX Minimal Skill]],  [[FEX Project Root]],  [[FEX queries]],  [[FEX Repo]],  [[FEX Roadmap]],  [[FEX Rules]],  [[FEX Scheduler]],  [[FEX Skill]],  [[FEX Stories]],  [[Forum Stories]],  [[Architecture/HA Architecture]],  [[Architecture/HBR Architecture]],  [[Decisions/HBR Decisions]],  [[PRD/HBR PRD]],  [[HBR PRD User Stories]],  [[Testing/HBR Testing]],  [[HWP]],  [[Knots]],  [[Mini]],  [[Decisions/Mini Decisions]],  [[PRD/Mini PRD]],  [[Testing/Mini Testing]],  [[Architecture/MUX Architecture]],  [[Architecture/OBU Architecture]],  [[PRD/OBU PRD]],  [[SKA Bridge Testing]],  [[Snap]],  [[Testing/MUX Testing]],  [[Decisions/UCM Decisions]],  [[US-CAE-1 — Schedule a Task]],  [[US-CAE-3 — Retry Failed Tasks]],  [[Viz Bench]],   |
+| ... | [[_{{DISK_LABEL}} Template]],  [[_{{PURCHASE_DATE}} {{HOSTNAME}} Template]],  [[CSE]],  [[DAS Examples]],  [[DAS US-CAE-1 — Schedule a Task]],  [[DAS US-CAE-2 — Monitor Task Status]],  [[DAS US-CAE-3 — Retry Failed Tasks]],  [[ESP]],  [[FEX Agenda]],  [[FEX API]],  [[FEX API Design]],  [[FEX Architecture]],  [[FEX Claude]],  [[FEX Completed Roadmap]],  [[FEX CSE]],  [[FEX Decisions]],  [[FEX Decisions Details]],  [[FEX Facet]],  [[FEX Files]],  [[FEX Grouped Dispatch]],  [[FEX Icebox]],  [[FEX Inbox]],  [[FEX List Dispatch]],  [[FEX Minimal Facet]],  [[FEX Minimal Skill]],  [[FEX Project Root]],  [[FEX queries]],  [[FEX Repo]],  [[FEX Roadmap]],  [[FEX Rules]],  [[FEX Scheduler]],  [[FEX Skill]],  [[FEX Stories]],  [[FEX System Design]],  [[Forum Stories]],  [[HBR PRD User Stories]],  [[HWP]],  [[Mini]],  [[Viz Bench]],   |
 
 # FEX Dispatch Examples
 
@@ -18,8 +18,8 @@ A gallery of the dispatch-table alternatives from [[DAS Dispatch Table]] § Stru
 | --- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
 | 1   | **Masthead-only**          | breadcrumb + anchor-kind **structural rows** (Design / Architecture / User Docs / Dev Docs), no member zone — a non-collection anchor | [[HBR]]             |
 | 2   | **Member groups** (`+`)    | members under labeled, **expandable** group rows (`Anchor+`, `Doc+`, `Search+`) — the > 15 grouped layout                             | [[DAS Skills]]             |
-| 3   | **Flat member list**       | one row per member, hand-ordered — the ≤ 15 flat layout, manual                                                                       | [[SKA Access]]      |
-| 4   | **Hybrid** (manual + auto) | curated category rows the author pinned, plus a **`...`** compact-auto staging row at the bottom                                      | [[SYS]]             |
+| 3   | **Flat member list**       | one row per member, hand-ordered — the ≤ 15 flat layout, manual                                                                       | [[Bridges]]      |
+| 4   | **Hybrid** (manual + auto) | curated category rows the author pinned, plus a **`...`** compact-auto staging row at the bottom                                      | [[HBR]]             |
 | 5   | **With a figure**          | the page ordering when an anchor page carries a figure: **H1 → one-liner → figure (no title) → dispatch table**                       | [[FEX Figure Page]] |
 
 ## 1 — Masthead-only ([[HBR]])
@@ -33,15 +33,15 @@ This is what *most* project anchors look like: Masthead only.
 
 ## 2 — Member groups with `+` ([[DAS Skills]])
 
-`[[DAS]]` is the user-facing skill library — a [[Collection]] with **many** members (every published skill), so it uses **member groups**: rows like [[SKL Anchor|Anchor]], [[SKL Hygiene|Hygiene]], [[SKL Doc|Doc]], [[SKL Search|Search]] — each with a trailing `+`. The **`+`** marks each group row as *expandable* — it's itself a dispatch page of its members. This is the > 15 grouped layout (the [[progressive-disclosure]] size rule; the graduation from flat→grouped is [[granularity]]).
+`[[DAS]]` is the user-facing skill library — a [[Collection]] with **many** members (every published skill), so it uses **member groups**: rows like [[Devtools|Anchor]], [[Devtools Hygiene|Hygiene]], [[Devtools Doc|Doc]], [[Devtools Search|Search]] — each with a trailing `+`. The **`+`** marks each group row as *expandable* — it's itself a dispatch page of its members. This is the > 15 grouped layout (the [[progressive-disclosure]] size rule; the graduation from flat→grouped is [[granularity]]).
 
-## 3 — Flat member list ([[SKA Access]])
+## 3 — Flat member list ([[Bridges]])
 
-`[[SKA Access]]` is a small [[Collection]] (the accessor skills). Few members → a **flat member list**, one row per member: [[DAS Bridge]], [[SKA ctrl]], [[SKA io]], [[exp]]. Hand-ordered (manual). No grouping, no `+` — when a collection is small, the flat list is correct; it graduates to member groups only past ~15 ([[granularity]]).
+`[[Bridges]]` is a small [[Collection]] (the crossing helpers). Few members → a **flat member list**, one row per member: [[Espresso]], [[Knots]], [[Snap]], [[Clarifier]]. Hand-ordered (manual). No grouping, no `+` — when a collection is small, the flat list is correct; it graduates to member groups only past ~15 ([[granularity]]).
 
-## 4 — Hybrid: manual rows + `...` auto-staging ([[SYS]])
+## 4 — Hybrid: manual rows + `...` auto-staging ([[HBR]])
 
-`[[SYS]]` is the curation anchor — a big, evolving [[Collection]] of everything. Its table is **hybrid**: hand-curated **category rows** the author ordered by meaning (`Top`, `Direct`, `topic`, `Bespoke`, `Content`, …) — the *manual* part — followed by a `| ... |` **compact-auto staging row** at the bottom where newly-added, not-yet-categorized children land automatically. New items appear in `...`; when they earn a category, the author moves them up into a manual row. That's the manual-pins-above / auto-fill-below hybrid.
+`[[HBR]]` is the catalog anchor — a big, evolving [[Collection]] of everything. Its table is **hybrid**: hand-curated **category rows** the author ordered by meaning (`Top`, `Direct`, `topic`, `Bespoke`, `Content`, …) — the *manual* part — followed by a `| ... |` **compact-auto staging row** at the bottom where newly-added, not-yet-categorized children land automatically. New items appear in `...`; when they earn a category, the author moves them up into a manual row. That's the manual-pins-above / auto-fill-below hybrid.
 
 ## 5 — With a figure ([[FEX Figure Page]])
 
@@ -53,7 +53,7 @@ This is what *most* project anchors look like: Masthead only.
 |---|---|---|
 | [[HBR]] | (masthead-only — no member zone) | — |
 | [[DAS Skills]] | **member groups** (`+`) | manual |
-| [[SKA Access]] | **member list** (flat) | manual |
-| [[SYS]] | member list (category rows) | **hybrid** (manual + `...` auto) |
+| [[Bridges]] | **member list** (flat) | manual |
+| [[HBR]] | member list (category rows) | **hybrid** (manual + `...` auto) |
 
 The fifth combination — a fully **auto** member list (children listed below a bare `| --- | |` with no manual pins) — is the simplest: a folder of like children where the agent just enumerates them. `/audit dispatch` ([[audit-dispatch]]) produces any of these shapes from a folder, choosing layout by member count and automation by whether the author has pinned rows.

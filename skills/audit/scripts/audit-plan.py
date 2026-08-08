@@ -5728,7 +5728,7 @@ def chk_regex_basename(target, anchor_root, args):
 
 _VAULT_MARKERS = (
     # live project slugs, word-bounded so prose like "a mux of things" is safe
-    r"\b(?:DMUX|MUX|DKT|OBU|SKA|UCM|SVP|VEC|LUMEN|ATT|STEN|SONAR|WARD)\b",
+    r"\b(?:DMUX|MUX|DKT|OBU|SKA|SKL|SYS|UCM|SVP|VEC|LUMEN|ATT|ATL|STEN|SONAR|WARD|MED|AIS|HA)\b",
     # product / org names
     r"DictaMUX|DictaMux|MuxUX|HookAnchor|Docket|ob-utils|SportsVisio",
     # personal identifiers
