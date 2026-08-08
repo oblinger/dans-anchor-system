@@ -2,7 +2,7 @@
 description: "deferred work — roadmap milestones M0–M5"
 ---
 # Warden Backlog
-<!-- state:backlog pp -->
+<!-- state:backlog yn -->
 
 ## Active
 
@@ -13,6 +13,7 @@ _None._
 - **B-QFix — QFix** [Ready] — audit q findings routed by --fix; each sub-bullet is a residual on Warden's tree needing the 100%-fix discipline (per the audit skill's Governing principle). ^B-QFix
   - **Next:** Fix the next residual below at its source (repoint a renamed link, de-link a retired one, correct the flagged doc), then re-run `/audit q` to clear it — per the 100%-fix discipline.
   - **C48** SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Design/Warden Features/F237 — Golden corpus exists in two diverged copies — the drift oracle cannot be trusted.md:8 — '## Open Questions' integrity stamp mismatch (stored `v8`, computed `a9`) — the block was hand-edited past the state script's ask-format gates. Re-issue the change through `state`, or run `state "F237 — Golden corpus exists in two diverged copies — the drift oracle cannot be trusted" revalidate` to validate-then-restamp (F241).
+  - **C37** SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden queries.md:21 — bare F-number `F229` must be a wiki-link — to its feature doc `[[F229 — Title|F229]]` if one exists, else to the backlog row `[[{slug} Backlog#^F229|F229]]` (many items are bare backlog rows with no feature doc).
 
 ## Now
 
@@ -47,14 +48,14 @@ _None._
 
 ## Later
 
-- **F230 — Anchors over the coding tree (~/ob/proj)** [Blocked] — future work, parked by the user 2026-07-06 at the F229 review: extending Warden governance to the code repos would mean an anchor at the top of `~/ob/proj` — but the scan range would have to widen to trees that are much larger and churn heavily under build scripts, so the cost model needs thought first. Alternative also named: **explicitly-registered anchors outside the scan range** — they'd get anchor benefits (traits, base behavior) without auto-discovery. Blocker: the user's go, after the scan-range/churn design question is worked.
+- **F230 — Anchors over the coding tree (~/ob/proj)** [Blocked user-go] — future work, parked by the user 2026-07-06 at the F229 review: extending Warden governance to the code repos would mean an anchor at the top of `~/ob/proj` — but the scan range would have to widen to trees that are much larger and churn heavily under build scripts, so the cost model needs thought first. Alternative also named: **explicitly-registered anchors outside the scan range** — they'd get anchor benefits (traits, base behavior) without auto-discovery. Blocker: the user's go, after the scan-range/churn design question is worked. ^F230
 
-- **T002 — V2/V3 parks — skill:post ladder, elapsed-time when::, semantic diff levels, turn.prior(n), async oracle** [Blocked] — Queue-visible pointer to the deliberately-parked later-version scope — canonical list at [[Warden Roadmap]] § Beyond v1 (skill:post approximation ladder; elapsed-time `when::` via daemon timers; semantic-update levels / `file.diff.level`; `turn.prior(n)`; async live oracle). Parked past the v1 landing by user direction 2026-07-02. Blocker: the user's go, after v1 has soaked in real use. ^T002
+- **T002 — V2/V3 parks — skill:post ladder, elapsed-time when::, semantic diff levels, turn.prior(n), async oracle** [Blocked v1-soak] — Queue-visible pointer to the deliberately-parked later-version scope — canonical list at [[Warden Roadmap]] § Beyond v1 (skill:post approximation ladder; elapsed-time `when::` via daemon timers; semantic-update levels / `file.diff.level`; `turn.prior(n)`; async live oracle). Parked past the v1 landing by user direction 2026-07-02. Blocker: the user's go, after v1 has soaked in real use. ^T002
 
 - **T014 — State-store growth + write races — reval.json / oracle-cache.json (F232 B8, B7)** [Ready] ^T014
   - **Next:** Design GC + atomicity for the reval store (full file text per (rule,file), whole-blob rewrite per mark, CLI-vs-daemon last-wins clobber) and cap/atomic-write the oracle cache; add transport idempotency for daemon-retry double-fires. No store files exist on disk yet — latent until file-bearing/oracle rules are adopted, hence Later.
 
-- **T016 — Declarative deny guards — guarantee-grade vetoes evaluated in Rust (T013 Q1 option B)** [Blocked] — The (B) follow-on from the T013 Q1 ruling: compile simple veto tests (path suffix/glob matches, tokenized command scans — today's R-pathguard / R-ob-remote-ops bodies) into declarative guards the Rust dispatcher evaluates IN-PROCESS, so the deny path never needs the daemon — a guarantee-grade block instead of best-effort. A rule-language extension: needs vocabulary for the deny predicate + compiler emission + Rust evaluation + differential pins, and the C4 latent (turn_bearing/file_bearing absent from the Rust IR schema) should ride the same schema change. Blocker: the user's go — language-surface change, after the T013 posture has soaked. ^T016
+- **T016 — Declarative deny guards — guarantee-grade vetoes evaluated in Rust (T013 Q1 option B)** [Blocked T013-soak] — The (B) follow-on from the T013 Q1 ruling: compile simple veto tests (path suffix/glob matches, tokenized command scans — today's R-pathguard / R-ob-remote-ops bodies) into declarative guards the Rust dispatcher evaluates IN-PROCESS, so the deny path never needs the daemon — a guarantee-grade block instead of best-effort. A rule-language extension: needs vocabulary for the deny predicate + compiler emission + Rust evaluation + differential pins, and the C4 latent (turn_bearing/file_bearing absent from the Rust IR schema) should ride the same schema change. Blocker: the user's go — language-surface change, after the T013 posture has soaked. ^T016
 
 - **F234 — Fable scan: Warden engine** [Ready] — → [[F234 — Fable scan — Warden engine]] ^F234
   - **Next:** assess prior Fable coverage + ROI, then run the scoped scan
