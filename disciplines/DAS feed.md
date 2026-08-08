@@ -12,9 +12,9 @@ tools: Read
 user_invocable: false
 ---
 
-# Feed
+# DAS Feeds
 
-**Feed is how work becomes visible somewhere other than where it is owned.** An anchor holds its own planning surfaces; a feed is the declaration that another anchor draws from them, and the machinery that carries the top of one roster into the next.
+**Feed is an information flow discipline for aggregating information across anchors.** An anchor holds its own planning surfaces; a feed is the declaration that another anchor draws from them, and the machinery that carries the top of one roster into the next.
 
 **DRAFT, 2026-08-06.** Commissioned in [[TINK312 - Feed: a second DAG over anchors, and the facets that travel it|TINK F312]] and written ahead of its open questions. The naming landed 2026-08-06 (F312 Q5): the concept is **Feed** and the key is `feeds:`. What remains unwritten is the second member facet — that page is deliberately unwritten until F312 Q1 lands, because its filename and every one of its rule IDs depend on the answer.
 
