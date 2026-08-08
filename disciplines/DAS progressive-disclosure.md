@@ -8,7 +8,7 @@ user_invocable: false
 
 Progressive disclosure is *layered information presentation — each layer delivers as much as a reader at that depth needs, no more.* The discipline names the layers, the elements at each layer, and the order in which they appear. What distinguishes a conformant doc from an ad-hoc one:
 
-- **Preface zone** — H1 → dispatch table → TLDR → figure → first body H2. No preamble.
+- **Preface zone** — H1 → orientation line → **artifact** → dispatch table → TLDR → figure → first body H2. No preamble.
 - **Three levels** — project anchor page → folder/subsystem anchor page → within-doc dispatch. Two clicks from root to any leaf.
 - **Five named dispatch patterns** — Grouped / List / Compact (anchor-folder); Linear / Matrix (within-doc). Size rule: >15 entries → Grouped.
 - **Content first, meta last** — the first contentful sentence delivers the subject, not the document. "This document specifies..." goes in a tail `## Scope` section, or gets deleted.
@@ -20,6 +20,7 @@ Progressive disclosure is *layered information presentation — each layer deliv
 | **[[#The three levels of progressive disclosure]]** |  |
 |    [[#The tree of containers (the general rule)]] |  |
 | **[[#The preface zone]]** |  |
+| **[[#The artifact — the one thing the document exists to deliver]]** |  |
 | **[[#Content first. Meta last, or never.]]** |  |
 |    [[#Five tests]] |  |
 |    [[#Canonical good example]] |  |
@@ -91,12 +92,28 @@ The zone above a document's body, in canonical order:
 (document body begins here)
 ```
 
-**Order:** H1 → dispatch table (if present) → TLDR (if present) → figure (if present) → optional 1-2-sentence figure caption → first H2 (body begins).
+**Order:** H1 → orientation line → **artifact** (if the doc has one) → dispatch table (if present) → TLDR (if present) → figure (if present) → optional 1-2-sentence figure caption → first H2 (body begins).
+
+The artifact leads because it is the only preface element that is not an *aid* — see § The artifact. The orientation line is `R-progressive-03`'s single sentence saying what the file is.
 
 **No preamble** between H1 and the first H2 beyond the preface zone. The H2 is typically `## Overview` or another section-appropriate heading — it just begins; no "Body" wrapper, no transition text.
 
 **Author rule:** include each preface element only when it adds value. Short single-purpose docs may have none of them — H1 title and `description:` frontmatter alone are sufficient. Whether each element is *required* on a given doc type is set by that facet's spec; see § Per-facet preface requirements.
 
+
+## The artifact — the one thing the document exists to deliver
+
+Some documents are not *about* a subject; they **are** one thing. A file-system ownership tree, a generated comparison table, a roster, a chart, a rendered gallery — delete everything else and the document still does its job. That thing is the document's **artifact**, and it is the first element of the preface zone: directly under the H1's orientation line, above the dispatch table.
+
+**The selection test.** *If you deleted everything but one element and the document still did its job, that element is the artifact, and it goes first.* Most documents fail this test, and failing is the expected answer — a spec, a feature doc, a design record has no single element that survives the deletion, so it has no artifact and its preface zone is unchanged. The test is deliberately severe: an element that is merely the *most important* one is not an artifact.
+
+**Why it outranks the other three preface elements.** The dispatch table, the TLDR and the figure are all **aids** — navigational, summarizing, organizing. Each helps a reader approach something. The artifact *is* the something. Ranking an aid above the thing it aids inverts the discipline, and it produces the failure below.
+
+**The anti-pattern it retires: explaining before showing.** How-to-read instructions placed above the thing they describe. The reader meets the legend before the map, and every sentence of the legend is unreadable until they scroll past it to find what it refers to. This is the shape [[Agent Purview]] had until 2026-08-06 — a 60-line ownership tree with four paragraphs of reading instructions between the H1 and the tree. The repair was to move the tree directly under the orientation line and put every explanatory paragraph below it under `## Overview`, which is where a legend belongs: by then the reader has seen the map.
+
+**Artifact-bearing is a property of the document, not of its facet**, which is why § Per-facet preface requirements carries no column for it. Two Architecture docs may differ — one is a genuine specification, the other exists to deliver one diagram. The author applies the selection test per document.
+
+**A document has at most one artifact.** Two candidate elements means neither passes the test, since deleting either leaves the other doing only half the job. When that happens the doc has no artifact and both elements are ordinary body content — or it is two documents.
 
 ## Content first. Meta last, or never.
 
@@ -283,6 +300,8 @@ When a doc carries an organizing figure (system diagram, architecture sketch, fl
 
 **Author rule:** the figure should be *organizing* — it shows the doc's structure at a glance. Decorative figures don't belong in the preface zone; they live inline in the body where they illustrate the specific point at hand.
 
+**Reconciled with § The artifact — the organizing/illustrative split has a third case it did not name: a figure that IS the document.** Apply the selection test first. If deleting everything but the figure leaves a document that still does its job, that figure is the **artifact**: it leads the preface zone, above the dispatch table, rather than following the TLDR. Only when it fails the selection test does the split above apply — organizing to the preface after the TLDR, illustrative to the body at the point it illustrates. The earlier wording sent every *content* figure to the body, which is precisely what left an artifact-bearing document unbuildable: its whole reason for existing was classed as body material.
+
 
 ## Relationship to existing facets and skills
 
@@ -304,6 +323,7 @@ When a doc carries an organizing figure (system diagram, architecture sketch, fl
 - **A figure as preface decoration.** The preface-zone figure must be *organizing* — shows the doc's structure. Inline illustrative figures live in the body.
 - **Prose between H1 and first body H2.** The preface zone is dispatch / TLDR / figure (in that order). Nothing else fits there. No "this document covers …" lead-in paragraph; the TLDR is that lead-in if needed.
 - **Body content masquerading as preface.** The dispatch table is navigational; the TLDR is summarizing; the figure is organizing. None of them contain new information that isn't elsewhere in the doc.
+- **Explaining before showing.** How-to-read prose sitting above the artifact it describes — the legend before the map. If one element is what the document exists to deliver (§ The artifact), it goes directly under the orientation line and the explanation goes below it, under `## Overview`.
 - **Meta-prose at the top.** "`This document is the normative standard for...`" / "`This page specifies...`" / "`The following describes...`". Deferral disguised as introduction. Goes to a tail `## Scope` or `## About` section, or gets deleted. See § Content first. Meta last, or never.
 
 The companion ruleset lives at [[R-progressive]].

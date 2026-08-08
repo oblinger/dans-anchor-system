@@ -1,5 +1,5 @@
 ---
-description: Warden — the rule engine that powers /rule, /audit, and the ruleset facet
+description: "the rule engine — declarative rules fired at agent moments, validated against whole-file format specs, with agent-steering feedback"
 ---
 # Warden
 

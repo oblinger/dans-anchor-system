@@ -63,6 +63,16 @@ A summary covers a **set of units** — its own `##` sections for a file-scope d
 **Check pattern:** against the blessing registry (`~/.warden/disclosure.json`), changed-units ÷ total ≥ 0.25, or ≥1 unit added or removed.
 **Why:** counting changed units is what "big chunks moved" means mechanically. File-size delta fires on typo fixes; hashing only the heading set misses a section rewritten wholesale under an unchanged heading — which is exactly when a summary goes stale.
 
+### RULE R-progressive-06 — The artifact leads the document (stated)
+
+A document that exists to deliver **one element** — a tree, a generated table, a roster, a chart — puts that element directly under the H1's orientation line, above the dispatch table, and puts every word explaining it *below* the artifact under `## Overview`.
+
+**Check pattern:** apply the selection test — *if you deleted everything but one element and the document still did its job, that element is the artifact.* Fails when a document has an artifact and any prose paragraph, dispatch table, TLDR, figure, or body H2 precedes it. Passes vacuously on documents with no artifact, which is most of them.
+
+**Why this is stated and not checked.** The trigger is not mechanically decidable. No per-file checker can tell whether a large table is the document's whole reason for existing or one exhibit among many, and every honest proxy — largest block, `cssclasses: monospace`, fence length — fires on ordinary spec documents that legitimately carry a big example. Wiring a heuristic here would flag this repo's own rulesets and teach authors that the rule is noise. It becomes checkable the day an artifact is **declared** rather than inferred; until then the discipline states it and the author applies it.
+
+**Why:** the reader's first disclosure layer is *what this is*, and when the document is one thing, showing that thing IS the disclosure. Explanation above it is a legend printed before the map — unreadable until the reader scrolls past it to find its referent. Repaired by hand on [[Agent Purview]] 2026-08-06, which is the worked instance; the spec was not silent but mis-shaped, since § Anti-patterns already forbade prose between the H1 and the first body H2 while § Figure placement sent content figures to the body, leaving the artifact nowhere legal to stand.
+
 ## Mend
 
 Remediation messages for these rules — what to actually do when one fires. Reached as `warden mend R-progressive-<nn>`; wired by the `mend::` line on each rule. State the fix, point at the facet, never restate it.
