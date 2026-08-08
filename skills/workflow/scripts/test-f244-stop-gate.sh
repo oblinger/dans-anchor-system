@@ -9,19 +9,21 @@
 #   (E) block cap: 3 blocks then the 4th ALLOWs (fail-open)
 #   (F) the disarm (4th) writes a record to stopgate/disarms.jsonl
 #
-# Fixture anchor lives under ~/ob/kmr/Topic/Misc/Test/ (smoke-tests-in-vault).
+# Fixture anchor lives under ~/ob/kmr/Topic/Misc/Test/ (smoke-tests-in-vault);
+# snapshots + restores Q.md, and removes every fixture artifact on exit.
 set -u
 
 HOOK=~/.claude/skills/workflow/scripts/crank-stop-hook.py
 STATE=~/.claude/skills/workflow/scripts/state
 FIX_ROOT=~/ob/kmr/Topic/Misc/Test/"F244 Fixture"
 BACKLOG="$FIX_ROOT/F244FIX Track/F244FIX Backlog.md"
+QMD=~/ob/kmr/Q.md
 TMP=$(mktemp -d)
 PASS=0; FAIL=0
 
 DISARM_LOG=~/.config/anchor-system/stopgate/disarms.jsonl
 cleanup() {
-    rm -rf "$FIX_ROOT" "$TMP"
+    rm -rf "$FIX_ROOT"
     rm -f ~/.config/anchor-system/stopgate/F244FIX.json
     rm -f ~/.config/anchor-system/crank/F244FIX.json
     # strip this fixture's rows from the shared disarm log (no test pollution)
@@ -29,8 +31,16 @@ cleanup() {
         grep -v '"anchor": "F244FIX"' "$DISARM_LOG" > "$DISARM_LOG.tmp" 2>/dev/null
         mv "$DISARM_LOG.tmp" "$DISARM_LOG" 2>/dev/null
     fi
+    # `state` renders an F244FIX section into the real Q.md, and the reaper
+    # that would remove it needs the backlog this cleanup just deleted — so a
+    # fixture can never reap its own section. Restore instead (F239/F240/F241/
+    # F242 do the same; this test and F248 were the two that skipped it, which
+    # is how an F244FIX section outlived its anchor in Q.md for a day).
+    [ -f "$TMP/Q.md.bak" ] && cp "$TMP/Q.md.bak" "$QMD"
+    rm -rf "$TMP"
 }
 trap cleanup EXIT
+cp "$QMD" "$TMP/Q.md.bak"
 
 mkdir -p "$FIX_ROOT/F244FIX Track"
 printf 'slug: F244FIX\ntitle: F244 Fixture\n' > "$FIX_ROOT/.anchor"
