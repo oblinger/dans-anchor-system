@@ -19,14 +19,14 @@ Warden is **consumed by** the `/rule` and `/audit` skills and underpins the [[DA
 
 The full design is [[Warden Design]]; the build sequence is [[Warden Roadmap]].
 
-## Which copy runs — `~/ob/proj/warden`, always
+## Which copy runs — `~/ob/grove/warden`, always
 
 Warden's engine exists at two paths, and **only one of them executes anything**. Measured 2026-08-02 (T097):
 
 | | path | what it is |
 |---|---|---|
-| **Live** | `~/ob/proj/warden/engine/` | `~/bin/warden` is a symlink to `engine/warden`, so every `warden compile` / `warden off` you run is this copy |
-| **Live** | `~/ob/proj/warden/rs/target/release/warden-rs` | the Rust engine the `settings.json` hooks invoke — this is what fires on every file write |
+| **Live** | `~/ob/grove/warden/engine/` | `~/bin/warden` is a symlink to `engine/warden`, so every `warden compile` / `warden off` you run is this copy |
+| **Live** | `~/ob/grove/warden/rs/target/release/warden-rs` | the Rust engine the `settings.json` hooks invoke — this is what fires on every file write |
 | **Inert** | `dans-anchor-system/warden/engine/` | a vendored mirror; nothing loads it |
 
 **Edit the proj copy. A fix landed in the mirror runs nowhere.** The roadmap's Phase 1 extraction did happen ([[TINK Backlog#^T008|T008]]), but the intended `git subtree` vendor-back did not — the mirror is a plain copy that has since drifted, so the single-source-of-truth guarantee the subtree was meant to provide is not in force.
