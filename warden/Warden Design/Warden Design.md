@@ -3,7 +3,7 @@ description: system design for the rule system — PRD, architecture, rule langu
 ---
 # Warden Design
 
-| -[[Warden Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[Warden]] → [Warden Design](hook://p/Warden%20Design)<br>: system design for the rule system — PRD, architecture, rule language, semantics, events, roadmap |
+| -[[Warden Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[Warden\|WARD]] → [Warden Design](hook://p/Warden%20Design)<br>: system design for the rule system — PRD, architecture, rule language, semantics, events, roadmap |
 | --- | --- |
 | [[Warden PRD]]  | product requirements — the rule system, its goals, and the performance constraint |
 | [[Warden Architecture]]  | the unified map: rules, rulesets, `include::` composition, dispatch, the hook subsystem, and the compiler/audit engine |

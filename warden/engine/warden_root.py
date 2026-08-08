@@ -1,7 +1,7 @@
 """warden_root — locate the rule-corpus repo (dans-anchor-system).
 
 Since the T008 extraction (2026-07-13) the engine code lives at
-~/ob/proj/warden while the corpus it compiles (rulesets/, facets/,
+~/ob/grove/warden while the corpus it compiles (rulesets/, facets/,
 disciplines/, skills/audit) stays in dans-anchor-system, so the historic
 `HERE.parents[1]` assumption only holds when running from the vendored copy
 inside that repo. Resolution order:
