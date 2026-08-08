@@ -1252,17 +1252,42 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
     qfix_empty = _count_qfix_subs(backlog_file) == 0
     # Same ordering defect, same fix — leaving the sibling list on file order is
     # exactly the "fixed one, left the other" failure T099 keeps naming.
+    # T153 — the section router is MEMBER-AWARE, matching the class predicates
+    # the banner already uses. F305 rules that a bracket is a SET: `[Ready, User]`
+    # is legal and `validate_status` accepts it, splitting on commas and
+    # validating each member. These tests did not, so the vault's first real set
+    # bracket put F217 and F307 into `## Other` — neither under `## Ready` with
+    # its `Next:`, nor under `## User` with its ask, so the two things that made
+    # each row actionable both vanished while the banner read `Ready 12  User 3`
+    # because `in_class_ready`/`in_class_user` ARE member-aware. That is exactly
+    # the disagreement F305 was built to make impossible.
+    #
+    # A set-bracket row renders ONCE PER MEMBER CLASS, not once in a "primary"
+    # section. The banner counts per class through independent `any()`
+    # predicates, so a row genuinely in two classes is counted twice; showing it
+    # once would need the banner to pick a primary too, re-opening the same
+    # divergence and discarding the information the set bracket exists to carry.
+    # The two appearances are not a duplicate — each carries a different payload
+    # (`Next:` under Ready, the ask under User), which is what "the row is both"
+    # means. F217's Phase 1 and F307's draft phase are precisely this shape: an
+    # executable agent step that must run BEFORE Dan can usefully answer.
+    def _member(r, pred):
+        return any(pred(m) for m in audit_q.bracket_members(r.bracket))
+
     ready = _by_horizon([r for r in eligible if id(r) not in promoted
-                         and r.bracket in READY_ACTIVE_BRACKETS
+                         and _member(r, lambda m: m in READY_ACTIVE_BRACKETS)
                          and not (r.identifier == "B-QFix" and qfix_empty)])
-    qs = _by_horizon([r for r in eligible if id(r) not in promoted and "Questions" in r.bracket])
+    qs = _by_horizon([r for r in eligible if id(r) not in promoted
+                      and _member(r, lambda m: "Questions" in m)])
     # The ledger. `[Waiting]` rides with `[Blocked <handle>]` because both mean
     # "not moving, and not by the user's hand" — the difference is only who
     # eventually moves it, which the bracket itself already says.
     blocked = [r for r in eligible if id(r) not in promoted
-               and (r.bracket.startswith("Blocked") or r.bracket.startswith("Waiting"))]
+               and _member(r, lambda m: m.startswith("Blocked")
+                           or m.startswith("Waiting"))]
     verifs = [r for r in eligible if id(r) not in promoted
-              and (r.bracket.startswith("Verify") or r.bracket.startswith("Watching"))]
+              and _member(r, lambda m: m.startswith("Verify")
+                          or m.startswith("Watching"))]
     # F259 minted `[User]` for an action only the human can perform (log in,
     # click a permission dialog, run an experiment on a display the agent
     # cannot see), and the banner has counted them since — but no section ever
@@ -1270,7 +1295,8 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
     # leftovers and went unread. Dan, 2026-08-05: *"I don't even see a T21. I
     # don't even see it there."* A pile the user is the ONLY possible actor for
     # is the last thing that should be in the catch-all.
-    users = [r for r in eligible if id(r) not in promoted and r.bracket == "User"]
+    users = [r for r in eligible if id(r) not in promoted
+             and _member(r, lambda m: m == "User")]
     # F284 — the catch-all. Anything eligible that the named sections did not
     # claim renders here rather than falling off the end of the function.
     # `suppressed` is the ONE deliberate omission (the empty B-QFix row above);
@@ -1476,25 +1502,37 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
 
 def _coverage_warning(eligible: list[Row], sections: list[list[Row]],
                       suppressed: list[Row]) -> list[str]:
-    """F284's structural gate: assert the sections PARTITION `eligible`, and make
-    a breach visible rather than silent.
+    """F284's structural gate: assert every eligible row REACHES the page, and
+    make a breach visible rather than silent.
 
     The catch-all makes coverage total by construction, so this can only fire on
-    a code defect — a row claimed by two sections (sum exceeds the total) or a
-    new deliberate suppression that forgot to register itself (sum falls short).
-    Either way the answer is a complaint in the surface the user actually reads,
-    NOT a raised exception: aborting the render would delete the whole queue file
-    and hide 100% of the work to protest hiding some of it."""
-    rendered = sum(len(s) for s in sections)
-    total = rendered + len(suppressed)
-    if total == len(eligible):
+    a code defect — an eligible row claimed by no section, or a new deliberate
+    suppression that forgot to register itself. Either way the answer is a
+    complaint in the surface the user actually reads, NOT a raised exception:
+    aborting the render would delete the whole queue file and hide 100% of the
+    work to protest hiding some of it.
+
+    **Counted over DISTINCT rows, not by summing section lengths (T153).** The
+    original sum-based form encoded "the sections partition eligible", and read
+    any row in two sections as a `double-rendered` failure. Under F305 a bracket
+    is a SET, so a `[Ready, User]` row appearing under both `## Ready` and
+    `## User` is the CORRECT render — the sum would have turned the fix into a
+    coverage failure on the page. What must still be asserted is the direction
+    that actually loses work: a row reaching NO section at all."""
+    rendered_ids: set[int] = set()
+    for s in sections:
+        rendered_ids |= {id(r) for r in s}
+    accounted = rendered_ids | {id(r) for r in suppressed}
+    missing = [r for r in eligible if id(r) not in accounted]
+    if not missing:
         return []
     sys.stderr.write(
-        f"COVERAGE: {len(eligible)} eligible rows, {total} accounted "
-        f"({rendered} rendered + {len(suppressed)} suppressed)\n")
-    verb = "unrendered" if total < len(eligible) else "double-rendered"
+        f"COVERAGE: {len(eligible)} eligible rows, {len(accounted)} accounted "
+        f"({len(rendered_ids)} rendered + {len(suppressed)} suppressed) — "
+        f"missing {', '.join(r.identifier for r in missing)}\n")
     return ["", "## ⚠ Coverage failure",
-            f"- {abs(len(eligible) - total)} row(s) {verb} — the queue file is "
+            f"- {len(missing)} row(s) unrendered "
+            f"({', '.join(r.identifier for r in missing)}) — the queue file is "
             f"NOT showing this anchor's full frontier. This is a bug in "
             f"queries-render.py, not in the backlog."]
 

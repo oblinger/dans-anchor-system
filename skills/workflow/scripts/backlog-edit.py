@@ -648,6 +648,16 @@ def _verify_family(status):
     return s.startswith("Verify") or s.startswith("Watching")
 
 
+def _terminal_bracket(status):
+    """True for the brackets a row does not come back from — `Done`, `Done
+    YYYY-MM-DD`. Deliberately NOT folded into `_verify_family` (T123): the
+    family is what the F240 ownership gate governs, and that gate exists to
+    vet a question being ASKED. A terminal row is recording that the question
+    was ANSWERED, which needs no ownership justification and must not be
+    refused for reading like a machine event."""
+    return (status or "").strip().startswith("Done")
+
+
 def verify_ownership_gate(status, row_id, eff_verify, why_user):
     """F240 — enforce who-is-better-positioned at the moment a Verify is
     minted. Fires when a row ENTERS the Verify/Verify-by/Watching family or
@@ -1722,7 +1732,8 @@ def _row_field(lines, row_id, label):
     return None
 
 
-def _subbullets_to_write(status, eff_verify, eff_next, eff_user, next_text):
+def _subbullets_to_write(status, eff_verify, eff_next, eff_user, next_text,
+                         verify_text=None):
     """Which companion sub-bullets this edit attaches, as `[(label, text), …]`.
 
     Pure, so the dispatch is pinned by tests instead of living inline in
@@ -1770,6 +1781,26 @@ def _subbullets_to_write(status, eff_verify, eff_next, eff_user, next_text):
     # rewrite (and reorder) a sub-bullet nobody asked to change.
     if not wrote_next and next_text is not None and next_text.strip():
         out.append(("Next", next_text.strip()))
+
+    # T123 — a TERMINAL row may still carry and rewrite its `- **Verify:**`
+    # question. `_verify_family("Done")` is False, so the moment a row was
+    # answered and moved to [Done] its question froze at whatever it last said
+    # and every later `set --verify` was skipped, then correctly caught by
+    # T050's post-write guard ("the edit reported success but the file does not
+    # reflect it"). There was no supported way to correct or retire it, so a
+    # closed row went on vouching for a claim later proven false — MUX F237's
+    # question asserted "there is no log anywhere that ever saw 13", which the
+    # agent then disproved, and both lines had to be rewritten by hand outside
+    # `state`.
+    #
+    # Gated on `verify_text`, not `eff_verify`, for the same reason the Next
+    # block above is (T056): an ordinary re-touch of a Done row must not
+    # rewrite — and thereby reorder, since `_ensure_subbullet` re-inserts
+    # directly under the row line — a sub-bullet nobody asked to change.
+    wrote_verify = any(lbl == "Verify" for lbl, _ in out)
+    if (not wrote_verify and _terminal_bracket(status)
+            and verify_text is not None and verify_text.strip()):
+        out.append(("Verify", verify_text.strip()))
 
     # T122 — an explicitly EMPTY flag REMOVES the sub-bullet (text `None`).
     #
@@ -2216,7 +2247,7 @@ def perform_edit(
     # survives horizon-moves (which delete the old span) and same-status re-touch.
     if status not in ("same", "delete"):
         for label, text in _subbullets_to_write(
-            status, eff_verify, eff_next, eff_user, next_text
+            status, eff_verify, eff_next, eff_user, next_text, verify_text
         ):
             _ensure_subbullet(lines, row_id, label, text)
 
