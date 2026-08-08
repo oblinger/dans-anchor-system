@@ -42,3 +42,78 @@ When work begins on a protected default branch (e.g. `main`), the agent branches
 Outside an anchor with an explicit autonomous Git aspect (Commit / PR), the agent commits or pushes only when the user asks. The aspect is what licenses unprompted commits.
 
 **Why:** commit autonomy is opt-in per anchor; a generic project does not grant it by default.
+
+### RULE R-commit-discipline-06 — a dirty satellite repo is surfaced every turn until it is committed (checked)
+when:: prompt:submit
+
+Every git repository outside the vault that carries uncommitted changes is named back to the agent at each turn boundary, together with its dirty paths, until it is committed. The vault commits itself (`ob_boot` runs `km` at login); nothing does that for the satellite repos, so a repo touched by whichever agent needed it is a repo nobody is responsible for — `~/ob/bin` reached 87 uncommitted files and six months without a push that way.
+
+**Check pattern:** at `prompt:submit`, each git repo directly inside the code root (`~/ob/grove/`) is polled, plus `~/ob/bin` and the draining legacy root `~/ob/proj/` with `git status --porcelain`. A dirty repo is reported only when the newest mtime among its dirty paths falls inside a **12-hour window** — the window is what makes this a session-scoped nudge rather than a second copy of the nightly sweep, and it is stated here because a silent recency filter would make the rule's zero unreadable. Coverage follows the convention rather than a discovered set, so a repo living somewhere else is **not** seen — `~/ob/proj/` is listed only because the estate is mid-migration, and it drops out when empty. Anything older is [[ATT047 - ob_daily - one daily runner replacing per-task LaunchAgents|ATT F047]]'s daily backstop to collect, not this rule's.
+
+**Why the window rather than a write ledger.** The honest trigger would be *the repos this session wrote to*, and warden has no session-end moment and no per-session write ledger to read — building one is a larger change than the norm is worth. Recency is the available proxy and it is sound in the direction that matters: a repo the agent only **read** is never dirty on account of that read, so reading cannot trip the rule. It over-reports only when a second agent dirtied the same repo within the window, and there the correct action is identical.
+
+**Never auto-commit, and never push.** The rule reports; the agent commits. A partially-finished edit is better surfaced as something the agent must answer than swept into a commit, because the norm's whole value is a message describing real intent. Pushing is deliberately excluded — it needs credentials and a judgement about permanent public history (see [[Warden Backlog|WARDEN T021]], where four repos are blocked on exactly that judgement).
+
+```python
+import os
+import subprocess
+import time
+
+_ROOTS = ("~/ob/grove", "~/ob/proj", "~/ob/bin")   # proj is the draining legacy root; drops out when empty
+_WINDOW = 12 * 3600
+_MAX_PATHS = 5
+
+
+def _repos():
+    out = []
+    for root in _ROOTS:
+        root = os.path.expanduser(root)
+        if os.path.isdir(os.path.join(root, ".git")):
+            out.append(root)
+            continue
+        if not os.path.isdir(root):
+            continue
+        for name in sorted(os.listdir(root)):
+            cand = os.path.join(root, name)
+            if os.path.isdir(os.path.join(cand, ".git")):
+                out.append(cand)
+    return out
+
+
+def body(ctx):
+    lines = []
+    for repo in _repos():
+        try:
+            r = subprocess.run(["git", "-C", repo, "status", "--porcelain"],
+                               capture_output=True, text=True, timeout=5)
+        except Exception as exc:
+            lines.append(f"  · {repo} — could not be polled ({type(exc).__name__})")
+            continue
+        if r.returncode != 0:
+            continue
+        paths = [ln[3:].strip().strip('"') for ln in r.stdout.splitlines() if ln[3:].strip()]
+        if not paths:
+            continue
+        newest = 0.0
+        for rel in paths:
+            try:
+                newest = max(newest, os.path.getmtime(os.path.join(repo, rel)))
+            except OSError:
+                continue          # deleted path — its mtime is gone, not evidence of staleness
+        if newest and (time.time() - newest) > _WINDOW:
+            continue              # older than the window — ATT F047's nightly sweep owns it
+        shown = ", ".join(paths[:_MAX_PATHS])
+        more = f" (+{len(paths) - _MAX_PATHS} more)" if len(paths) > _MAX_PATHS else ""
+        lines.append(f"  · {repo} — {len(paths)} uncommitted: {shown}{more}")
+    if not lines:
+        return []
+    return ("[warden] uncommitted work in a satellite repo — commit it in the turn you touched it "
+            "(commit only, never push; answer a half-finished edit rather than sweeping it in):\n"
+            + "\n".join(lines))
+```
+
+### RULE R-commit-discipline-07 — an agent commits the repo it touched, and never pushes it (stated)
+
+The agent that writes to a repository is the one that commits it, in the same turn. It does **not** push: pushing needs credentials the agent may not hold and a judgement about permanent public history that belongs to the user.
+
+**Why:** ownership of a satellite repo is otherwise unassigned. The vault has an owner because `km` commits it on a timer; every other repo under `~/ob` is written by whichever agent needed it and then left, so "the one who touched it" is the only assignment that is always well-defined at the moment it matters. Policy written up at [[Agent Conventions]] § Who commits a satellite repo; `R-commit-discipline-06` is the enforcement half and the nightly sweep is the backstop.
