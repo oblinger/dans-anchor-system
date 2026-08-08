@@ -7,6 +7,7 @@ The pattern language the anchor system is written in — one notation that both 
 | -[[STEN]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [STEN](hook://p/STEN)<br>: Stencil — the pattern language the anchor system is written in — one notation that both generates a document and tests whether a document fits |
 | --- | --- |
 | [[STEN Track\|Track]]  | [[STEN Backlog\|Backlog]],   |
+| Language | [[STEN Language\|Language]] — the grammar: three constructs, four defaults |
 | Spec | [[TINK303 - Template DSL - one pattern language for facets, templates, and sections\|F303]] — the commissioning feature; the corpus is [[Template Examples]]  |
 | ... |  |
 
@@ -24,4 +25,4 @@ The notation belongs to the standard rather than to any engine. A stencil is aut
 
 ## Status
 
-Newly created, 2026-08-07. The language's corpus (M1) is complete and the grammar did not grow under it; M2 — defining Stencil from that corpus — is the next milestone. Work is tracked in [[STEN Backlog]]; the design record remains on [[TINK303 - Template DSL - one pattern language for facets, templates, and sections|F303]] until it earns its own design folder.
+Created 2026-08-07. The corpus (M1) is complete and the grammar did not grow under it; **M2 landed the same day** as [[STEN Language]] — three constructs, four defaults, one nesting rule, with variable extent recommended but not ratified. Work is tracked in [[STEN Backlog]]; the design record remains on [[TINK303 - Template DSL - one pattern language for facets, templates, and sections|F303]] until it earns its own design folder.
