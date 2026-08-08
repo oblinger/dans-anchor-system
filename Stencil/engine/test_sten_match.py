@@ -22,6 +22,8 @@ and every unit test passes.
 """
 from __future__ import annotations
 
+import json
+import pathlib
 import sys
 from pathlib import Path
 
@@ -33,11 +35,20 @@ import sten_match as M           # noqa: E402
 
 B = C.blocks()
 
-# Real vault files the corpus cites.  T3/T4's labelled paths (`@Robin Calder`,
-# `@Alex Trenton`, `@Northwind`) are PSEUDONYMS applied by the ATT redaction
-# sweep of 2026-08-08; the underlying files are these.  See the report.
-ROBIN = "AT/Corp/@Northwind/@Robin Calder.md"          # labelled @Robin Calder
-ALEX = "AT/@Alex Trenton.md"                            # labelled @Alex Trenton
+# Live vault files the corpus cites.  This repo is PUBLIC, so the paths of
+# private correspondence are NOT committed: they are read from an untracked
+# `vault-paths.local.json` beside this file, keyed by the neutral ids below.
+# A pair whose path is missing is SKIPPED AND COUNTED IN THE SUMMARY — never
+# silently passed, because a privacy fix that quietly shrinks the corpus is
+# just a vacuous zero wearing a different hat.
+_LOCAL = pathlib.Path(__file__).with_name("vault-paths.local.json")
+try:
+    _PATHS = json.loads(_LOCAL.read_text(encoding="utf-8"))
+except OSError:
+    _PATHS = {}
+
+PERSON_LOG_A = _PATHS.get("person_log_a")   # a correspondence log, `## ` entries
+PERSON_LOG_B = _PATHS.get("person_log_b")   # same facet, `### ` entries, no KIND
 HERMES = "SYS/Staff/Hermes/HERMES Track/HERMES Backlog.md"
 HAORUI = "SYS/SYS Catalog/Computer/Computer haorui.md"
 DANIEL = "SYS/SYS Catalog/Computer/Computer Daniel MacBook Pro.md"
@@ -134,6 +145,11 @@ def blk(k):
 
 
 def vault(rel):
+    """Getter for a live vault file. Returns None when the path is not
+    configured locally, which marks the pair SKIPPED rather than failing or —
+    worse — silently dropping it from the denominator."""
+    if not rel:
+        return lambda: None
     return lambda: C.read(rel)
 
 
@@ -166,20 +182,20 @@ PAIRS = [
      "T7: 'This is the acceptance test passing.'"),
 
     # ---- stencil against the real vault file the case cites ---------------
-    ("P11", "T3.A", "@Robin Calder.md", blk("T3.A"), vault(ROBIN), MATCH,
+    ("P11", "T3.A", "person-log-A", blk("T3.A"), vault(PERSON_LOG_A), MATCH,
      "The real file behind the `@Robin Calder` pseudonym; LOG at H1, entries at H2."),
-    ("P12", "T3.A", "@Alex Trenton.md", blk("T3.A"), vault(ALEX), NO,
+    ("P12", "T3.A", "person-log-B", blk("T3.A"), vault(PERSON_LOG_B), NO,
      "T4: \"T3.A's `## {{YYYY-MM-DD}}…`, read as 'one deeper than wherever LOG "
      "matched', is **wrong for this file**\" — entries are H3 here."),
-    ("P13", "T3.A-nested", "@Robin Calder.md", lambda: T3_A_NESTED, vault(ROBIN), MATCH,
+    ("P13", "T3.A-nested", "person-log-A", lambda: T3_A_NESTED, vault(PERSON_LOG_A), MATCH,
      "T4's prescribed repair — the entry heading is itself an anchor."),
-    ("P14", "T3.A-nested", "@Alex Trenton.md", lambda: T3_A_NESTED, vault(ALEX), NO,
+    ("P14", "T3.A-nested", "person-log-B", lambda: T3_A_NESTED, vault(PERSON_LOG_B), NO,
      "T4 asserts this form 'is correct for both'.  Reading the real file says "
      "otherwise: its entries are `### 2022-12-19  Summary of email for Nick.` — "
      "no DIRECTION, no KIND, no em-dash.  Depth was never the only difference."),
-    ("P15", "T3.B", "@Alex Trenton.md", blk("T3.B"), vault(ALEX), NO,
+    ("P15", "T3.B", "person-log-B", blk("T3.B"), vault(PERSON_LOG_B), NO,
      "Same file; `==` cannot reach H3 entries either."),
-    ("P16", "T4.A-anchored", "@Robin Calder.md", lambda: T4_A_ANCHORED, vault(ROBIN), MATCH,
+    ("P16", "T4.A-anchored", "person-log-A", lambda: T4_A_ANCHORED, vault(PERSON_LOG_A), MATCH,
      "T4.A carries no anchor marker; anchored, it locates the house-form entry."),
     ("P17", "T5.B", "Computer haorui.md", blk("T5.B"), vault(HAORUI), NO,
      "T5.B asserts the SAME `{{NICKNAME}}` appears in filename, H1 and the nickname "
@@ -250,8 +266,13 @@ FOLDER_PAIRS = [
 
 def run_pairs(verbose: bool):
     rows = []
+    skipped = []
     for pid, sl, tl, sget, tget, expect, why in PAIRS:
-        r = M.match(sget(), tget())
+        s_txt, t_txt = sget(), tget()
+        if s_txt is None or t_txt is None:
+            skipped.append((pid, f"{sl} × {tl}"))
+            continue
+        r = M.match(s_txt, t_txt)
         actual = MATCH if r.ok else NO
         rows.append((pid, f"{sl} × {tl}", expect, actual, why, r))
     for pid, sl, tl, mget, folder, env, sbv, expect, why in FOLDER_PAIRS:
@@ -259,6 +280,12 @@ def run_pairs(verbose: bool):
                            single_brace_vars=sbv)
         actual = MATCH if r.ok else NO
         rows.append((pid, f"{sl} × {tl}", expect, actual, why, r))
+
+    if skipped:
+        print(f"\n  SKIPPED {len(skipped)} pair(s) — no vault-paths.local.json; "
+              f"these are NOT counted as passing:")
+        for pid, name in skipped:
+            print(f"    - {pid}  {name}")
 
     tp = tn = fp = fn = 0
     misses, contingent = [], []

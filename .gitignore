@@ -3,3 +3,6 @@
 __pycache__/
 warden/rs/target/
 .DS_Store
+
+# Private vault paths cited by Stencil tests — this repo is PUBLIC.
+vault-paths.local.json
