@@ -11,4 +11,4 @@ description: HBR queries — mechanically rendered from the backlog (Blockers / 
 
 ## Questions
 - [[F003 — Scheduled Catalog Checkpoint|F003]] **(1Q)** ([[F003 — Scheduled Catalog Checkpoint]]) — · periodic SQLite WAL checkpoint so an unclean shutdown resumes from the last good catalog state (US-HBR-5). Q1 — fixed-interval vs write-triggered — is open.
-    - Q1 — Checkpoint trigger: fixed interval or write-count? the WAL checkpoint bounds how much ingest work an unclean shutdown can lose, and the trigger choice sets the `harbor.toml` surface v1 ships with. · **(A)** Fixed interval · **(B)** Write-count trigger · **(C)** Both · *Lean (A) for v1....*
+    - Q1 — Checkpoint trigger: fixed interval or write-count?

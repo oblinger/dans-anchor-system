@@ -953,6 +953,36 @@ def _truncate_body(text: str, soft_cap: int = 250) -> str:
     return text[:cut].rstrip() + "..."
 
 
+def _question_sentence(text: str, limit: int = 200) -> str:
+    """Return just the ASK — the question's own sentence, without its context.
+
+    Q005 (Dan, 2026-08-08): a doc-backed question renders as a preview, and the
+    preview's whole job is to let the reader recognise which question this is
+    before clicking the `(NQ)` link. That is one sentence, not a paragraph
+    truncated at a character count.
+
+    The `?` is preferred over `.` deliberately. A question stem often opens with
+    a declarative clause that ends in a period — *"Slugged anchor = an anchor
+    that explicitly declares `slug:`. Confirm, and accept the ~342-anchor review
+    it implies?"* — where cutting at the first period keeps the premise and
+    throws away the ask. Cutting at the first `?` keeps both.
+
+    Falls back to `_truncate_body` when there is no question mark inside the
+    budget, which covers questions phrased as statements.
+    """
+    text = text.strip()
+    text = ARROW_LINK_RE.sub("", text).strip()
+    text = re.sub(r"^\s*[—–-]\s*", "", text)
+    text = TRAILING_BLOCK_ID_RE.sub("", text).rstrip()
+    q = text.find("?")
+    # A `?` inside a `[[wiki-link]]` is part of a filename, not a sentence end.
+    while q != -1 and _safe_cut(text, q + 1) != q + 1:
+        q = text.find("?", q + 1)
+    if q != -1 and q + 1 <= limit:
+        return text[:q + 1]
+    return _truncate_body(text, limit)
+
+
 def _bullet_bracket_display(bracket: str, name: str = "",
                             block_ids: Optional[set] = None) -> str:
     """Return the bracket text as it should appear in the Q.md bullet, with a
@@ -1331,28 +1361,41 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
                          else _read_row_inline_questions(backlog_file, r))
             # A doc-backed Q is a PREVIEW — the answerable form (options,
             # block-id, Recommendation) lives one click away in the feature doc,
-            # so 200 chars is enough to identify it. An inline row Q has no such
-            # home: this render is the only place the user will read it, so it
-            # must carry its `**(A)**`/`**(B)**` options or it is unanswerable
-            # (North Star 2 — everything needed to answer is in the entry).
+            # so its QUESTION alone is enough to identify it. An inline row Q has
+            # no such home: this render is the only place the user will read it,
+            # so it must carry its `**(A)**`/`**(B)**` options or it is
+            # unanswerable (North Star 2 — everything needed to answer is in the
+            # entry).
             qlimit = 200 if qdoc else 420
             if q_entries:
                 for qid, qtext, qrec, qopts in q_entries:
                     if not qtext:
                         continue
-                    # T130 — the options come BEFORE the recommendation, and the
-                    # recommendation is suppressed without them. A lean names an
-                    # option; printing the name of a choice the reader cannot see
-                    # reads as a verdict about nothing (Dan, 2026-08-05 on F305
-                    # Q1: *"you're telling me you lean B on what?"*). Labels only
-                    # — the full argument is one click away in the feature doc,
-                    # which is what the (NQ) link is for.
+                    # Q005 (Dan, 2026-08-08, on F311's four questions: *"see how
+                    # unreadable these questions are… the options are just jammed
+                    # together"*). Every part of the ask — stem, options, lean —
+                    # shared one markdown line, so Obsidian wrapped them into a
+                    # run-on paragraph in which nothing was distinguishable and
+                    # each part was cut mid-sentence. A doc-backed Q now renders
+                    # as its handle plus its question sentence and NOTHING else;
+                    # the `(NQ)` link beside the row is what the reader clicks
+                    # for the answerable form.
+                    #
+                    # T130 survives intact, by suppressing MORE rather than less.
+                    # Its rule is that a lean must never name an option the
+                    # reader cannot see (2026-08-05 on F305 Q1: *"you're telling
+                    # me you lean B on what?"*) — dropping the options and the
+                    # recommendation together honours it; dropping only the
+                    # options would reintroduce exactly that defect.
+                    if qdoc:
+                        body.append(f"    - {qid} — "
+                                    f"{_question_sentence(qtext, qlimit)}")
+                        continue
                     opt_txt = ""
                     if qopts:
                         opt_txt = " · " + " · ".join(
                             f"**({lab})** {gloss}" for lab, gloss in qopts)
-                    rec_txt = (f" · *{_truncate_body(qrec, 90)}*"
-                               if qrec and (qopts or not qdoc) else "")
+                    rec_txt = f" · *{_truncate_body(qrec, 90)}*" if qrec else ""
                     # DISPLAY PREVIEW, not a formal ask-format Q entry. The
                     # answerable Qs (block-IDs, Recommendations, option bullets)
                     # live in the source feature doc's `## Open Questions`, which
