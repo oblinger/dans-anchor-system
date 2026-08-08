@@ -1232,11 +1232,40 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
     # currently point at Later rows (Tink F238 waits on F230, both parked), so the
     # section renders empty everywhere until a frontier row actually gets blocked
     # — which is the honest reading of "nothing is blocked."
+    # Dan, 2026-08-08, after failing to find ATT F041 while eight rows announced
+    # they were blocked on it: *"if an item is blocking other items, create a
+    # category at the very top, even above Ready… that way my eyes are drawn
+    # right to it."* The section already existed and already sat first; it was
+    # firing on nothing, for two independent reasons, and BOTH had to go.
+    #
+    # (1) SCOPE. The gate was `r.horizon in ACTIVE_HORIZONS_BANNER`, so only a
+    # blocked row on the Now/Next frontier could promote its blocker. But a
+    # `[Blocked …]` row under `## Later` DOES render — F283 admits it into the
+    # visibility ledger precisely so nothing disappears — and it is just as
+    # stuck. The honest test is not "is the waiting row on the frontier" but
+    # "does the waiting row appear on this page at all": if the reader can see a
+    # row saying it waits on X, the reader must be able to find X. Using
+    # `_row_should_render` also keeps this in step with the body automatically,
+    # rather than being a third horizon list that agrees with the other two
+    # today.
+    #
+    # (2) THE HANDLE NEVER MATCHED. `gated_by` is keyed by the handle text and
+    # looked up against `r.identifier`, so `[Blocked ATT-F041]` stored `ATT-F041`
+    # and the row it names is `F041` — no match, ever. Every anchor-qualified
+    # handle in the vault was inert, which is most of them: the qualified form is
+    # what a cross-anchor blocker has to use, and agents write it in-anchor too
+    # because it reads better. Stripping this anchor's own prefix makes the two
+    # spellings the same edge. A handle naming a DIFFERENT anchor still matches
+    # nothing here, which is correct — that row is not on this page to promote.
+    prefix = f"{name}-".casefold()
     gated_by: dict[str, list[str]] = {}
     for r in rows:
         m = _BLOCKED_HANDLE_RE.match(r.bracket)
-        if m and r.horizon in ACTIVE_HORIZONS_BANNER:
-            gated_by.setdefault(m.group(1), []).append(r.identifier)
+        if m and _row_should_render(r):
+            handle = m.group(1)
+            if handle.casefold().startswith(prefix):
+                handle = handle[len(prefix):]
+            gated_by.setdefault(handle, []).append(r.identifier)
     # `[Done]` is the one further exclusion: a resolved blocker means the WAITING
     # row is stale, which is a different finding and already /groom's.
     blockers = [r for r in rows

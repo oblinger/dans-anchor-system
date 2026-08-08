@@ -42,11 +42,11 @@ check:: rock_name_short_and_expanded
 
 A rock file is named `{slug} {ABBR}.md`, where `{ABBR}` is **at most two words** — normally one word, or an acronym when the rock's real name is multi-word. The expansion appears in the file's H1 orientation line or its `description:` frontmatter.
 
-**Check pattern:** for each member file other than the folder-note, strip the `{slug} ` prefix and assert the remainder is ≤ 2 whitespace-separated words; then, when the remainder is all-caps or mixed-caps of ≤ 5 characters, assert the file's first 10 lines or its `description:` contain an expansion.
+**Check pattern:** for each member file other than the folder-note, strip the `{slug} ` prefix and assert the remainder is ≤ 2 whitespace-separated words — an error. Then, when the remainder is all-caps or mixed-caps of ≤ 5 characters, assert the `description:` or the orientation line under the H1 **opens with a gloss** — a short phrase ahead of an em dash, saying something other than the rock's own name — and warn when it does not. Whether that phrase is the *correct* expansion is deliberately not mechanized: `HR` → *historical retrospective* is an acronym, but `TX` → *transcode*, `OBS` → *observability* and `LEX` → *life expectancy* are contractions, and no initials, prefix or subsequence test admits all four (`transcode` has no `x`). That half is a reader's judgment, and the warning is where it gets raised.
 
 **Why:** the wiki-link is the reusable unit and it is reused in a narrow line — `[[HBR HR]]: gather stats`, where the words after the colon carry the only current information. A long link crowds them out. The expansion requirement is the price of the abbreviation: a reader who does not recognize `HR` must be able to learn it by opening the file, and nowhere else.
 
-### RULE R-rocks-05 — Every member appears on a tier line (checked, warn)
+### RULE R-rocks-05 — Every member appears on a tier line (checked)
 check:: rocks_member_ranked
 
 Every rock file in the folder is named on some line of the folder-note's ranked list, below the dispatch table. Emitted as a **warning**, not an error.
@@ -60,7 +60,7 @@ check:: rocks_tier_links_resolve
 
 Every wiki-link on a tier line in the folder-note resolves to a file that exists.
 
-**Check pattern:** for each wiki-link below the dispatch table, assert the target resolves.
+**Check pattern:** for each tier line below the dispatch table — a line opening with a wiki-link, the `[[HBR HR]]: gather stats` form — assert that leading link's target resolves. Leading only: a promotion marker (`**Elevated to [[Rocks]]**`, R-rocks-13) and any commentary below the ranked list carry links that point outside the anchor, which a local resolver cannot see and must not fail the file for.
 
 **Why:** the ranked list is the surface people read and cite from; a link that goes nowhere makes the list untrustworthy at exactly the moment someone is trying to act on it. The vault-wide [[Rocks]] page carried five such rows for months, which is the failure this rule generalizes.
 
