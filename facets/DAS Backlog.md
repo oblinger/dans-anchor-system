@@ -181,6 +181,22 @@ The assignment test is **does the state undo itself?** A `[Waiting 2026-09-01]` 
 
 **A row may not block on a later horizon than its own.** `## Now` may not block on `## Next`; nothing in a horizon may block on the Icebox. Two Icebox rows blocking each other is fine. Otherwise the blocked row is invisible *and* its blocker is invisible, and the pair disappears together. Violation is an **error, not an auto-fix** — the agent decides whether to demote itself or promote the blocker. **Cross-anchor blocking is allowed** under the same horizon constraint, and a cross-anchor row is always **Parked, never Hidden**, because nobody may be looking at the other anchor.
 
+**The mandatory argument is accepted at the write, not yet refused.** `state` writes `[Waiting {date}]` and `[Watching {date}]` as of 2026-08-07, and the relative `Nd`/`Nh` forms still parse. Refusing a bare `[Waiting]` would make **93 live rows unwritable — including by the very edits that would fix them**, so the refusal waits on the migration rather than leading it. A shape cannot be outlawed before its replacement can be written.
+
+**And the migration is a reclassification, not a date-fill.** Measured across all 93 live `[Waiting]`/`[Watching]` rows on 2026-08-07:
+
+| what the row actually is | rows | the honest bracket |
+|---|---:|---|
+| no clock, no blocker, no user named | 62 (66%) | `[Blocked {what}]` — Parked |
+| clock language but no date anywhere | 13 (14%) | needs a date, or Blocked |
+| **a real future date** | **8 (9%)** | `[Waiting {date}]` — genuinely Hidden |
+| names a blocker | 5 (5%) | `[Blocked {handle}]` |
+| its own text says it awaits the user | 5 (5%) | `[Questions]` / `[User]` |
+
+**Only 9% of the population passes the undo-itself test that `[Waiting]` claims.** Not one of the 93 carried a date in its bracket. The seductive number is that 78% carry *some* date in the body — but sampling shows those are found-dates, prior-migration dates, a linked document's title, and in two cases a **folder name** (`2024-12-00 alg2_from_old_branches`). Auto-promoting them would stamp a *past* expiry on ~73 rows and graduate every one of them on the next sweep. **Do not date-fill from the body.**
+
+The class is right and the population is mislabeled: `[Waiting]` has been serving as a generic parking bracket, which is exactly what the undo-itself test was introduced to detect — and the first thing it did was falsify most of the corpus.
+
 **Retired by this table:** `[Verify-by {date}]` (a `[Waiting]` whose outcome happens to be a Verify — what a wait becomes is deliberately not encoded); bare `[Waiting]` and bare `[Blocked]` (both now illegal without an argument); the relative forms `[Waiting Nd]` / `[Waiting Nh]` / `[Watching Nd]` / `[Watching Nh]`, because a relative duration ages into a lie — a thirty-day-old `[Watching 7d]` still reads *7d* — while an absolute date never needs renumbering; `[Implementing]` (already an alias for `[Active]`); and `[Iced]`, which was never a state — the Icebox is a horizon, and a separate file.
 
 **There is no bracket for an agent-owned deferred check.** Under F240 a check the agent can run now is simply run, so such a check is bracket-worthy only while it *cannot* run — at which point the row is `[Waiting {date}]` or `[Watching {date}]` like any other clock-parked row. What the check *is* belongs in a sub-bullet field beside `- **Next:**`, `- **Verify:**` and `- **User:**`, not in the bracket.

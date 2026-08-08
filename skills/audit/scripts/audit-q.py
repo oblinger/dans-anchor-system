@@ -5265,13 +5265,24 @@ def in_class_user(bracket: str) -> bool:
 
 def in_class_parked(bracket: str) -> bool:
     """Class Parked — nothing blocked, but nothing undoes it either."""
-    return any(m.startswith("Verify") or m.startswith("Blocked")
+    return any((m.startswith("Verify") and not _VERIFY_BY_BRACKET_RE.match(m))
+               or m.startswith("Blocked")
                for m in bracket_members(bracket))
 
 
 def in_class_hidden(bracket: str) -> bool:
-    """Class Hidden — parked AND self-unwinding. The undo-itself test."""
+    """Class Hidden — parked AND self-unwinding. The undo-itself test.
+
+    `[Verify-by {date}]` lands HERE, not in Parked, and the test is what puts
+    it here: `sweep_stale_brackets` auto-Dones the row when the date arrives,
+    so it leaves its own state with nobody acting — which is the definition of
+    Hidden and exactly why F283 renders it nowhere. Classing it Parked made it
+    the one row in the vault that was counted in a class promising visibility
+    while rendering in no list. [[DAS Backlog]] already says as much in prose:
+    the form is *"a `[Waiting]` whose outcome happens to be a Verify"*. The
+    bracket is retired; it is classed correctly for as long as rows carry it."""
     return any(m.startswith("Waiting") or m.startswith("Watching")
+               or _VERIFY_BY_BRACKET_RE.match(m)
                for m in bracket_members(bracket))
 
 
@@ -5297,8 +5308,31 @@ def renders_in_body(horizon: str, bracket: str) -> bool:
     if _VERIFY_BY_BRACKET_RE.match(bracket):
         return False
     if horizon == "Later":
-        # Under Later, only the two classes the user must still see.
+        # Under Later: the User class and the Parked class — everything that
+        # needs the USER's eyes. Dan's rule, 2026-08-07: *"Ready, User and
+        # Parked are all shown. The only one that's not shown is Waiting."*
+        #
+        # `Blocked` was missing here, which silently defeated F283's entire
+        # purpose. That feature exists to be a **visibility ledger** — its own
+        # comment in `build_queries_body` says the section "renders anyway so
+        # that nothing silently disappears, which is the defect that produced
+        # this feature" — and yet 37 of the vault's 66 Parked rows rendered
+        # nowhere, every one a `[Blocked …]` row parked in `## Later`. The
+        # feature built to stop rows disappearing was disappearing them.
+        #
+        # `Ready`, `User` and `Designing` are NOT admitted here, and the reason
+        # is a standing ruling this branch must not quietly overturn: F284
+        # § Scope note keeps `## Later` off the render because it is
+        # deferred-by-choice and rendering all of it would bury the frontier.
+        # `Blocked` earns its place against that rule on specific evidence —
+        # 37 rows were vanishing from the very ledger built to prevent
+        # vanishing. No comparable evidence exists for the other three, and
+        # `Ready` in particular would be actively harmful: zone 1's count is
+        # what `/crank`'s hard continuation rule reads to decide the agent MUST
+        # keep working, so admitting it would push 30 vault-wide deliberately-
+        # deferred rows onto the agent's runway.
         return any("Questions" in m or m.startswith("Verify")
+                   or m.startswith("Blocked")
                    for m in bracket_members(bracket))
     return horizon in ("Active", "Ready", "Now", "Next", "Verify")
 

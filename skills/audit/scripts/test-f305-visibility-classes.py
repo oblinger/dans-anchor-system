@@ -70,7 +70,10 @@ TABLE = [
     ("User",                 ("User",)),
     ("Designing",            ("User",)),
     ("Verify",               ("Parked",)),
-    ("Verify-by 2026-09-01", ("Parked",)),       # retired form, still live
+    # `Verify-by` is HIDDEN, not Parked: `sweep_stale_brackets` auto-Dones
+    # it on its date, so it leaves its own state with nobody acting — the
+    # undo-itself test, applied to the one bracket whose name misleads.
+    ("Verify-by 2026-09-01", ("Hidden",)),       # retired form, still live
     ("Blocked F237",         ("Parked",)),       # chained / handle form
     ("Blocked upstream API", ("Parked",)),       # universe form
     ("Waiting 2026-09-01",   ("Hidden",)),
