@@ -9,7 +9,8 @@
 #   - an unknown directive errors;
 #   - piped/captured output carries NO ANSI escape (redirect-safe).
 #
-# Fixture anchor lives under ~/ob/kmr/Topic/Misc/Test/ (smoke-tests-in-vault).
+# Fixture anchor lives under ~/ob/kmr/Topic/Misc/Test/ (smoke-tests-in-vault);
+# snapshots + restores Q.md, and removes every fixture artifact on exit.
 set -u
 
 STATE=~/.claude/skills/workflow/scripts/state
@@ -17,10 +18,21 @@ FIX_ROOT=~/ob/kmr/Topic/Misc/Test/"F248 Fixture"
 TRACK="$FIX_ROOT/F248FIX Track"
 BACKLOG="$TRACK/F248FIX Backlog.md"
 QUERIES="$TRACK/F248FIX queries.md"
+QMD=~/ob/kmr/Q.md
+TMP=$(mktemp -d)
 PASS=0; FAIL=0
 
-cleanup() { rm -rf "$FIX_ROOT"; }
+cleanup() {
+    rm -rf "$FIX_ROOT"
+    # `state` renders an F248FIX section into the real Q.md, and the reaper
+    # that would remove it needs the backlog this cleanup just deleted — so a
+    # fixture can never reap its own section. Restore instead (F239/F240/F241/
+    # F242 do the same; this test and F244 were the two that skipped it).
+    [ -f "$TMP/Q.md.bak" ] && cp "$TMP/Q.md.bak" "$QMD"
+    rm -rf "$TMP"
+}
 trap cleanup EXIT
+cp "$QMD" "$TMP/Q.md.bak"
 
 mkdir -p "$TRACK"
 printf 'slug: F248FIX\ntitle: F248 Fixture\n' > "$FIX_ROOT/.anchor"
