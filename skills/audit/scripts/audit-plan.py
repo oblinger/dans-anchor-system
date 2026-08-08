@@ -5788,7 +5788,30 @@ def chk_examples_no_drive_shaped_folder(target, anchor_root, args):
                     "`_ARCHIVES_` is a real ~120 GB drive. Archive to Yore instead.")
 
 
+def chk_exceptions_table_wellformed(target, anchor_root, args):
+    """R-exception-discipline-05 — every row of the anchor's exception table
+    parses, and the file the audit engine reads is the file the author edited.
+
+    The whole value of an exception table is that it is trustworthy: a row with a
+    typo'd rule id silently stops suppressing anything, and the finding it was
+    written for reappears looking like a regression nobody accepted. So a
+    malformed row is a failure of the table, reported here by the same parser the
+    engine uses — never a second implementation that could disagree with it."""
+    if not target.is_file():
+        return "pass", ""
+    if target != _exceptions_file(anchor_root):
+        return "fail", (f"exception table at {target.name} is not read by the audit "
+                        f"engine — the one path is "
+                        f"{_exceptions_file(anchor_root).relative_to(anchor_root)}")
+    rows, problems = load_exceptions(anchor_root)
+    if problems:
+        return "fail", "; ".join(problems[:4])
+    return "pass", f"{len(rows)} approved"
+
+
 CHECKERS = {
+    # R-exception-discipline (F314) — the table the engine actually reads
+    "exceptions_table_wellformed": chk_exceptions_table_wellformed,
     # R-examples (TINK) — the gallery must be wholly invented
     "examples_no_vault_identifiers": chk_examples_no_vault_identifiers,
     "examples_no_drive_shaped_folder": chk_examples_no_drive_shaped_folder,
@@ -6006,6 +6029,127 @@ def _verdict_cache_put(cdir: Path, key: str, value: dict):
     (d / f"{key}.json").write_text(json.dumps(value), encoding="utf-8")
 
 
+# ── Exceptions (F314): a graded, target-scoped escape from any checked rule ──
+#
+# `R-exception-discipline` has stated this shape since 2026-07-06 and
+# `Warden Exceptions.md` has recorded three real deviations against it — and
+# nothing read either file. The discipline was correct and inert, which is the
+# same failure mode the spine discipline hit the day it was written: a rule with
+# no enforcement surface changes nothing. This is that surface.
+#
+# The point of having one at all is that a rule admitting NO exception is a rule
+# that gets weakened the first time it is genuinely wrong — and a weakened rule
+# stops catching the cases it was right about. An escape that is numbered,
+# graded, scoped to a named target and counted on every run is how a rule stays
+# strict where it should be.
+
+_EXC_GRADES = frozenset("ABCDEF")
+_EXC_HANDLE_RX = re.compile(r"^EX\d{3,}$")
+_EXC_RULE_RX = re.compile(r"^R-[a-z0-9-]+-\d{2}$")
+
+
+def _exceptions_file(anchor_root: Path) -> Path:
+    """`{slug} Track/{slug} Exceptions.md` on the anchor that OWNS the tracking.
+
+    One path per owning anchor, derived from where its tracking already lives —
+    the location `Warden Exceptions.md` occupies and the one `HA Rules.md` and
+    `MUX Rules/` independently converged on. `cab-audit.py`'s
+    `.skl/lint/exceptions.md` and the audit docs' `.anchor.d/lint/exceptions.md`
+    are retired rather than kept as alternatives: neither directory appears
+    anywhere in the vault, so preserving them would be ambiguity over paths that
+    have never held a file.
+
+    The ancestor walk is resolution, not fallback. A folder facet carries its own
+    `.anchor` — `{slug} Track/`, `{slug} Design/`, `{slug} Rocks/` — so auditing
+    one makes IT the anchor root, and it owns no tracking of its own. Its
+    exceptions are its owner's, and the walk finds the one anchor that has them.
+    Without it, every rule firing inside a Track or Design folder would be
+    unexceptable, which is most of the corpus."""
+    return _exceptions_owner(anchor_root)[1]
+
+
+def _exceptions_owner(anchor_root: Path) -> tuple[Path, Path]:
+    """(owning anchor root, its exceptions file). Target globs in the table are
+    relative to the OWNING root — the only stable frame, since auditing a Design
+    or Track sub-anchor would otherwise change what every row in the same table
+    means."""
+    for root in _ancestor_anchor_roots(anchor_root):
+        slug = _anchor_slug(root)
+        trk = root / f"{slug} Track"
+        if trk.is_dir():
+            return root, trk / f"{slug} Exceptions.md"
+    slug = _anchor_slug(anchor_root)
+    return anchor_root, anchor_root / f"{slug} Track" / f"{slug} Exceptions.md"
+
+
+def load_exceptions(anchor_root: Path) -> tuple[list[dict], list[str]]:
+    """Parse the anchor's exception table. Returns (admitted, problems).
+
+    `admitted` holds only APPROVED rows — grade A–F. A row graded `?` is the
+    agent's proposal: it is well-formed, it is durable and reviewable in the
+    anchor's own tree, and it suppresses nothing. That column IS the approval
+    gate, so a leak here would hand the agent every exception it ever wants.
+
+    `problems` is never empty-on-malformed: a row with a typo'd rule id would
+    otherwise stop applying with no signal at all, which is exactly how an
+    exception table decays into a pile nobody trusts."""
+    fp = _exceptions_file(anchor_root)
+    if not fp.is_file():
+        return [], []
+    admitted: list[dict] = []
+    problems: list[str] = []
+    for ln in _read(fp).splitlines():
+        if not _is_table_row(ln):
+            continue
+        cells = _row_cells(ln)
+        if len(cells) < 5:
+            continue
+        handle, rule, target, grade, why = (c.strip() for c in cells[:5])
+        if not _EXC_HANDLE_RX.match(handle):
+            continue                      # header, separator, or prose row
+        bad = []
+        if not _EXC_RULE_RX.match(rule):
+            bad.append(f"rule {rule!r} is not a rule id")
+        if not target:
+            bad.append("target is empty — write `**` for anchor-wide, deliberately")
+        if grade not in _EXC_GRADES and grade != "?":
+            bad.append(f"grade {grade!r} is not A-F (or `?` for proposed)")
+        if not why:
+            bad.append("no justification")
+        if bad:
+            problems.append(f"{handle}: " + "; ".join(bad))
+        elif grade != "?":
+            admitted.append({"handle": handle, "rule": rule, "target": target,
+                             "grade": grade, "why": why})
+    return admitted, problems
+
+
+def _exception_for(excs: list[dict], rule_id: str, target: Path,
+                   anchor_root: Path) -> dict | None:
+    """The first admitted row covering this (rule, target), else None.
+
+    Target is a glob over the path relative to the OWNING anchor — not to
+    whatever root this run happens to be scoped on, or the same row would mean
+    different files depending on where the audit was launched. Anchor-wide is
+    written `**` and never a blank cell: `cab-audit.py` made blank mean
+    everything, then needed a hardcoded list of rules for which blanket
+    suppression is refused, a special case that existed only because the default
+    was dangerous."""
+    owner, _ = _exceptions_owner(anchor_root)
+    try:
+        rel = target.resolve().relative_to(owner.resolve()).as_posix()
+    except (OSError, ValueError):
+        rel = target.name
+    for e in excs:
+        if e["rule"] != rule_id:
+            continue
+        if any(_glob_rx(pat).match(c)
+               for pat in _expand_braces(e["target"])
+               for c in (rel, target.name)):
+            return e
+    return None
+
+
 def execute_plan(plan: dict, cdir: Path | None) -> dict:
     """Run every matched rule that carries a `check::` ref; cache verdicts by
     (rule-id, rule-body-hash, target-content-hash). Returns a verdicts report."""
@@ -6014,7 +6158,11 @@ def execute_plan(plan: dict, cdir: Path | None) -> dict:
     # `warn` (T138) is a fourth verdict, not a soft fail: a rule that reports a
     # cosmetic condition must not land in the failure list, or the report treats
     # 98 links that route readers correctly as 98 things to repair.
-    counts = {"pass": 0, "fail": 0, "warn": 0, "error": 0, "cached": 0}
+    # `except` (F314) is a fifth, and it is deliberately NOT folded into `pass`:
+    # a corpus with forty accepted deviations must never read like one with none.
+    counts = {"pass": 0, "fail": 0, "warn": 0, "except": 0, "error": 0, "cached": 0}
+    excs, exc_problems = load_exceptions(anchor_root)
+    used: set[str] = set()
     for g in plan["groupings"]:
         for r in g["rules"]:
             if not r.get("check"):
@@ -6032,22 +6180,44 @@ def execute_plan(plan: dict, cdir: Path | None) -> dict:
                     status, detail = run_checker(r["check"], tp, anchor_root)
                     if cdir:
                         _verdict_cache_put(cdir, key, {"status": status, "detail": detail})
+                # Only a `fail` is excepted. An `error` is a checker that crashed
+                # — a bug, not a deviation — and no table entry may bury one.
+                if status == "fail" and excs:
+                    e = _exception_for(excs, r["id"], tp, anchor_root)
+                    if e:
+                        used.add(e["handle"])
+                        status = "except"
+                        detail = f"{e['handle']} (grade {e['grade']}) — {e['why']}" + (
+                            f"  [was: {detail}]" if detail else "")
                 counts[status] = counts.get(status, 0) + 1
                 results.append({"rule": r["id"], "target": disp, "status": status, "detail": detail})
-    return {"counts": counts, "results": results}
+    # A row that suppressed nothing is either stale — the document was fixed or
+    # deleted — or its rule simply did not run at THIS scope. The report must not
+    # claim to know which, only that the row did no work, because an unused row
+    # left silent is how the table stops being reviewable.
+    stale = [e["handle"] for e in excs if e["handle"] not in used]
+    return {"counts": counts, "results": results,
+            "stale_exceptions": stale, "exception_problems": exc_problems}
 
 
 def render_verdicts(report: dict) -> str:
     c = report["counts"]
     out = [f"# mechanical verdicts — pass {c['pass']}  fail {c['fail']}  "
-           f"warn {c.get('warn', 0)}  error {c['error']}  "
-           f"(cache hits {c['cached']})", ""]
+           f"warn {c.get('warn', 0)}  except {c.get('except', 0)}  "
+           f"error {c['error']}  (cache hits {c['cached']})", ""]
     for v in report["results"]:
-        mark = {"pass": "✓", "fail": "✗", "warn": "~", "error": "!"}.get(v["status"], "?")
+        mark = {"pass": "✓", "fail": "✗", "warn": "~",
+                "except": "⊘", "error": "!"}.get(v["status"], "?")
         line = f"{mark} {v['rule']} — {v['target']}"
         if v["detail"]:
             line += f"  ({v['detail']})"
         out.append(line)
+    for p in report.get("exception_problems", []):
+        out.append(f"! exception row malformed — {p}")
+    stale = report.get("stale_exceptions", [])
+    if stale:
+        out.append("~ exception(s) that did no work this run (stale, or the rule "
+                   f"was out of scope): {', '.join(stale)}")
     return "\n".join(out)
 
 
@@ -6302,7 +6472,12 @@ def execute_on_write(plan: dict, cdir: Path | None) -> dict:
     target: apply its `fix::` (and re-check) when it has one — else collect a
     message. Returns {fixed:[...], messages:[...]} (no cache: the file just changed)."""
     anchor_root = Path(plan["anchor_root"])
-    fixed, messages = [], []
+    fixed, messages, excepted = [], [], []
+    # The on-write path must honor exceptions BEFORE the fixer runs (F314). A
+    # `fix::` that repaired a document carrying an approved deviation would undo
+    # the exception silently on the next save — the auto-fixer being the thing
+    # that erases the record of why the file is the way it is.
+    excs, exc_problems = load_exceptions(anchor_root)
     for g in plan["groupings"]:
         for r in g["rules"]:
             chk = r.get("check")
@@ -6313,6 +6488,12 @@ def execute_on_write(plan: dict, cdir: Path | None) -> dict:
                 status, detail = run_checker(chk, tp, anchor_root)
                 if status != "fail":
                     continue
+                if excs:
+                    e = _exception_for(excs, r["id"], tp, anchor_root)
+                    if e:
+                        excepted.append({"rule": r["id"], "target": disp,
+                                         "handle": e["handle"], "grade": e["grade"]})
+                        continue
                 fx = r.get("fix")
                 if fx:
                     orig = tp.read_text(encoding="utf-8")
@@ -6333,7 +6514,8 @@ def execute_on_write(plan: dict, cdir: Path | None) -> dict:
                     # no change, or change didn't resolve it — fall through to a message
                 messages.append({"rule": r["id"], "target": disp, "detail": detail,
                                  "why": r.get("why"), "check_pattern": r.get("check_pattern")})
-    return {"fixed": fixed, "messages": messages}
+    return {"fixed": fixed, "messages": messages, "excepted": excepted,
+            "exception_problems": exc_problems}
 
 
 def render_on_write(report: dict) -> str:
@@ -6345,6 +6527,11 @@ def render_on_write(report: dict) -> str:
         if m.get("why"):
             line += f"  [why: {m['why']}]"
         out.append(line)
+    for e in report.get("excepted", []):
+        out.append(f"⊘ {e['rule']} — {e['target']}: accepted deviation "
+                   f"{e['handle']} (grade {e['grade']})")
+    for p in report.get("exception_problems", []):
+        out.append(f"! exception row malformed, suppressing nothing — {p}")
     return "\n".join(out) if out else "(clean — nothing to fix or flag)"
 
 
@@ -6417,11 +6604,13 @@ def render_report(plan: dict, mech: dict, man: dict) -> str:
     out.append(f"- scope files: {plan['scope_file_count']}  ·  "
                f"rulesets: {len(plan['groupings'])}")
     out.append(f"- mechanical: **{c['pass']} pass · {c['fail']} fail · "
-               f"{c.get('warn', 0)} warn · {c['error']} error** "
+               f"{c.get('warn', 0)} warn · {c.get('except', 0)} except · "
+               f"{c['error']} error** "
                f"(cache hits {c['cached']})")
     out.append(f"- to judge: **{man['task_count']}**  ·  judged-cached: {man['cached_count']}")
     out.append("")
-    fails = [v for v in mech["results"] if v["status"] not in ("pass", "warn")]
+    fails = [v for v in mech["results"]
+             if v["status"] not in ("pass", "warn", "except")]
     out.append("## mechanical failures" if fails else "## mechanical — all clean")
     for v in fails:
         mark = {"fail": "✗", "error": "!"}.get(v["status"], "?")
@@ -6436,6 +6625,24 @@ def render_report(plan: dict, mech: dict, man: dict) -> str:
         for v in warns:
             out.append(f"- ~ {v['rule']} — {v['target']}"
                        + (f"  ({v['detail']})" if v["detail"] else ""))
+        out.append("")
+    # Accepted deviations get a section of their own — never folded into the
+    # clean count (F314). A report that hides them makes a growing exception
+    # pile look exactly like a corpus that never needed one.
+    excepted = [v for v in mech["results"] if v["status"] == "except"]
+    probs = mech.get("exception_problems", [])
+    stale = mech.get("stale_exceptions", [])
+    if excepted or probs or stale:
+        out.append(f"## accepted deviations ({len(excepted)} suppressed — "
+                   f"see `{_anchor_slug(Path(plan['anchor_root']))} Exceptions.md`)")
+        for v in excepted:
+            out.append(f"- ⊘ {v['rule']} — {v['target']}"
+                       + (f"  ({v['detail']})" if v["detail"] else ""))
+        for p in probs:
+            out.append(f"- ! malformed exception row, suppressing nothing — {p}")
+        if stale:
+            out.append("- ~ did no work this run (stale, or the rule was out of "
+                       f"scope): {', '.join(stale)}")
         out.append("")
     out.append(f"## judgment residue ({man['task_count']} tasks)")
     if not man["tasks"]:

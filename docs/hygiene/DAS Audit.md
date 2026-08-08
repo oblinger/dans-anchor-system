@@ -2,12 +2,14 @@
 description: "How auditing works — design rationale, tool chain, and examples"
 ---
 # DAS Audit
+How auditing works — the rule-driven engine, the tool chain that runs it, and the detect-only posture that makes a sweep safe to run at any time.
+
 ## Philosophy
 
-| -[[DAS Audit]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Audit](hook://p/DAS%20Audit)<br>: How auditing works — design rationale, tool chain, and examples |
+| -[[DAS Audit]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [docs](hook://docs) → [DAS Audit](hook://p/DAS%20Audit)<br>: How auditing works — design rationale, tool chain, and examples |
 | --- | --- |
 | Related | [[skills/audit/SKILL.md\|SKILL]],   |
-| [[DAS Audit Design\|Design]] |  |
+| [[DAS Audit Design\|Design]]  |  |
 | ... |  |
 
 Auditing finds problems. It does NOT fix them. The output is a **punch list** — a table of fixes with concrete commands. The user reviews the punch list and tells the agent what to fix.
@@ -31,7 +33,7 @@ Levels run 1 (bare-bones marker-file checks) through 9 (pedantic spacing and TOC
 
 Cache: `.skl/lint/source-cache/` — keyed by file mtime. Second runs are instant.
 
-The scanner is **detect-only by design** (migrated from the retired `/lint` skill). Even when a finding implies an obvious fix — missing dispatch row, missing module doc, misplaced file — it never edits or moves things itself; that's `/rewire`'s job. Findings either get fixed in the relevant markdown file or get an entry in the anchor's `.anchor.d/lint/exceptions.md` file (for genuinely-private items, trivial accessors, or whole categories you want to skip via glob).
+The scanner is **detect-only by design** (migrated from the retired `/lint` skill). Even when a finding implies an obvious fix — missing dispatch row, missing module doc, misplaced file — it never edits or moves things itself; that's `/rewire`'s job. Findings either get fixed in the relevant markdown file or get a numbered, graded row in the anchor's `{slug} Track/{slug} Exceptions.md` (see [[R-exception-discipline]]). The path this line used to name, `.anchor.d/lint/exceptions.md`, never existed anywhere in the vault and nothing read it.
 
 The agent never calls cab-audit directly for user-facing work. `/audit docs` calls it internally.
 
@@ -66,13 +68,13 @@ Use `--recheck` for a full pass when you suspect the incremental check missed so
 
 ## Connection to Rules
 
-`/audit rules` delegates entirely to `/rule check --all`. The rule system has its own exception tracking (EX numbers, grades, For/Against). Audit just triggers it.
+`/audit rules` delegates entirely to `/rule check --all`. Its exception tracking is the same one the engine reads — numbered `EX` handles, graded, justified, in `{slug} Track/{slug} Exceptions.md` ([[R-exception-discipline]]). Audit just triggers it.
 
 ## Examples & related artifacts
 
 Per the one-concept-one-list model ([[SKA File Tree Architecture]] § One concept, one list), `audit` is listed **once, as a skill (a verb)**; its satellites are reached from here:
 
-- **Examples** — the `examples/Audited/` world: real artifacts (Architecture, PRD, Decisions, Stories, Testing) in their audited form — the FEX fixture for what `/audit` produces and checks. Specific example audit-run docs are added there and linked from this page (never a standalone `FEX Audit` index entry).
+- **Examples** — the invented specimens in `examples/` (Architecture, PRD, Decisions, Stories, Testing), which are what `/audit` is demonstrated against. The `examples/Audited/` folder this line used to name was deleted 2026-08-08: it held eleven genuine documents lifted from live projects, which [[DAS Decisions]] D1/D2 now forbid outright.
 - **Scripts** — `skills/audit/scripts/` (audit's mechanism; assets of this skill).
 
 **No separate facet.** Audit's noun-aspect — what a recorded audit report would contain — is too light to warrant its own `DAS Audit` facet file. Per the model, thin noun-content stays here on the skill page rather than spawning a facet; a facet is minted only if that spec ever becomes substantial and independently referenced.
