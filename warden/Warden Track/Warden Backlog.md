@@ -2,13 +2,17 @@
 description: "deferred work — roadmap milestones M0–M5"
 ---
 # Warden Backlog
-<!-- state:backlog my -->
+<!-- state:backlog pp -->
 
 ## Active
 
 _None._
 
 ## Ready
+
+- **B-QFix — QFix** [Ready] — audit q findings routed by --fix; each sub-bullet is a residual on Warden's tree needing the 100%-fix discipline (per the audit skill's Governing principle). ^B-QFix
+  - **Next:** Fix the next residual below at its source (repoint a renamed link, de-link a retired one, correct the flagged doc), then re-run `/audit q` to clear it — per the 100%-fix discipline.
+  - **C48** SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Design/Warden Features/F237 — Golden corpus exists in two diverged copies — the drift oracle cannot be trusted.md:8 — '## Open Questions' integrity stamp mismatch (stored `v8`, computed `a9`) — the block was hand-edited past the state script's ask-format gates. Re-issue the change through `state`, or run `state "F237 — Golden corpus exists in two diverged copies — the drift oracle cannot be trusted" revalidate` to validate-then-restamp (F241).
 
 ## Now
 
