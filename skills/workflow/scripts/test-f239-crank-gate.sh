@@ -91,7 +91,7 @@ cat > "$BACKLOG" <<'EOF'
 ## Done
 EOF
 LINE=$("$STATE" triage "$FIX_ROOT" 2>"$TMP/errB"); RC=$?
-if [ "$RC" -eq 0 ] && printf '%s' "$LINE" | grep -q "^TRIAGE — Runnable 1"; then
+if [ "$RC" -eq 0 ] && printf '%s' "$LINE" | grep -q "^TRIAGE — Ready 1"; then
     ok "B: clean gates stamped, canonical line: $LINE"
 else
     bad "B: expected stamp + line — rc=$RC, line: $LINE, err: $(cat "$TMP/errB")"

@@ -60,11 +60,32 @@ def _selffire(path):
 # ============================================================
 
 _AUDIT_Q_PATH = Path.home() / ".claude" / "skills" / "audit" / "scripts" / "audit-q.py"
-_spec = importlib.util.spec_from_file_location("audit_q", _AUDIT_Q_PATH)
-assert _spec is not None and _spec.loader is not None, f"cannot load {_AUDIT_Q_PATH}"
-audit_q = importlib.util.module_from_spec(_spec)
-sys.modules["audit_q"] = audit_q  # required so @dataclass can resolve the module
-_spec.loader.exec_module(audit_q)
+# Reuse an already-loaded audit_q rather than re-executing it. This block used
+# to exec unconditionally and overwrite `sys.modules["audit_q"]`, so any caller
+# that had loaded audit-q first ended up holding a DIFFERENT module object than
+# this one — two live copies of the same 6k-line module, with two copies of
+# every class predicate. Harmless while nothing compared them by identity, and
+# invisible for the same reason. F305 made the classes shared state, so the
+# duplicate would have quietly restored the very split it was removing.
+def _same_file(a, b) -> bool:
+    """Path equality by identity on disk, not by string. `~/.claude/skills` is
+    a symlink into the DAS repo, so the same file has at least two spellings
+    and a string compare would re-exec the module every time."""
+    try:
+        return a is not None and Path(a).resolve() == Path(b).resolve()
+    except OSError:
+        return False
+
+
+_loaded = sys.modules.get("audit_q")
+if _loaded is not None and _same_file(getattr(_loaded, "__file__", None), _AUDIT_Q_PATH):
+    audit_q = _loaded
+else:
+    _spec = importlib.util.spec_from_file_location("audit_q", _AUDIT_Q_PATH)
+    assert _spec is not None and _spec.loader is not None, f"cannot load {_AUDIT_Q_PATH}"
+    audit_q = importlib.util.module_from_spec(_spec)
+    sys.modules["audit_q"] = audit_q  # required so @dataclass can resolve the module
+    _spec.loader.exec_module(audit_q)
 
 LinkEntry = audit_q.LinkEntry
 BacklogEntry = audit_q.BacklogEntry
@@ -328,8 +349,15 @@ def parse_backlog(backlog_file: Path) -> list[Row]:
 
 
 # ============================================================
-# Banner derivation (mirrors audit_q.derive_anchor_banner)
+# Banner derivation
 # ============================================================
+# This header read "mirrors audit_q.derive_anchor_banner" until F305. It did,
+# and that was the defect: two copies of the class logic and two copies of the
+# format string, each self-consistent and therefore each invisible to the
+# other. The classes and the format string are now `audit_q`'s alone and are
+# imported below; what stays here is only what genuinely differs — this module
+# scopes zone 1 by the render predicate (so banner and body cannot disagree)
+# and appends the QFix residual suffix.
 
 
 def _pick_arrow_link(line: str, identifier: str) -> Optional[str]:
@@ -684,49 +712,60 @@ def _row_q_count(r: "Row", vault_index: dict) -> int:
     return 1 if "Questions" in r.bracket else 0
 
 
+# ---- F305 visibility classes -------------------------------------------------
+# Imported, NOT redefined. These used to be two independent copies — this file
+# carried its own class logic and its own banner format string, and said so at
+# line 331: *"Banner derivation (mirrors audit_q.derive_anchor_banner)"*. The
+# mirror drifted. One definition now lives in `audit_q`, which this module
+# already imports; see the block above `audit_q.derive_anchor_banner` for why
+# that direction and not the reverse.
+_in_class_ready = audit_q.in_class_ready
+_in_class_user = audit_q.in_class_user
+_in_class_parked = audit_q.in_class_parked
+_in_class_hidden = audit_q.in_class_hidden
+
+
 def derive_banner(name: str, rows: list[Row], backlog_file: Path,
                   vault_index: dict) -> Optional[str]:
     """Compute the H1 banner line. Returns None if anchor has zero items."""
     live = [r for r in rows
             if r.horizon in LIVE_HORIZON_H2S
             and not r.bracket.startswith("Done")]
-    actionable = [r for r in live if r.horizon in ACTIVE_HORIZONS_BANNER]
-    # F260 — [Implementing] is the feature-lifecycle alias for [Active]; both
-    # are in-progress and Runnable, so both count.
-    active_n = sum(1 for r in actionable if r.bracket in ("Active", "Implementing"))
-    # `Agreed` is the feature-lifecycle synonym for `Ready` (per [[SKA workflow]]
-    # / feature/SKILL.md) — count it as Ready so the banner doesn't drop Agreed
-    # rows from the agent-actionable headline.
+    # ---- zone 1: visibility classes, scoped to what the BODY renders --------
+    # F305: every count is a count of ROWS. Dan, 2026-08-07: *"if I have 10 items
+    # that each have one question, I'm much more motivated to answer a bunch of
+    # questions since I'm going to unblock a tremendous amount of work. If I had
+    # one ticket that had 10 questions, I'm not really very motivated."* The
+    # number that drives action is how many things are blocked on the user, not
+    # how much answering work is queued — so a row carrying four open questions
+    # contributes 1. This replaces the per-`Q<n>` sum `_row_q_count` produced.
+    #
+    # The scope is `_row_should_render`, i.e. exactly the rows the body lists.
+    # It is NOT the active horizons: the body also renders `[Questions]` and
+    # `[Verify]` rows under `## Later`, and scoping the banner more narrowly is
+    # what made banner and body disagree (MUX 2026-06-04 — banner `Questions 0`
+    # while the body listed two). That fix was written as a widened constant,
+    # `BODY_RENDERED_HORIZONS_FOR_QUESTIONS`, which was then aliased straight
+    # back to `ACTIVE_HORIZONS_BANNER` — so the comment promised the wider scope
+    # while the code kept the narrow one, and two live rows (Anchorage F029,
+    # Docket F054) were still rendered-but-uncounted on 2026-08-07. Deriving the
+    # scope from the render predicate itself is what makes the two agree by
+    # construction rather than by a constant somebody has to keep in sync.
+    shown = [r for r in live if _row_should_render(r)]
     # Exclude an empty B-QFix (0 residuals) — it's not actionable Ready work.
     _qfix_empty = _count_qfix_subs(backlog_file) == 0
-    ready_n = sum(1 for r in actionable if r.bracket in ("Ready", "Agreed")
+    ready_n = sum(1 for r in shown if _in_class_ready(r.bracket)
                   and not (r.identifier == "B-QFix" and _qfix_empty))
-    verify_n = sum(1 for r in actionable if r.bracket == "Verify")
-    # Questions count: sum of Q-markers across linked feature docs for each
-    # `[Questions]` / `[N Questions]` row, across **every rendered horizon**
-    # (not just ACTIVE_HORIZONS_BANNER). The body renders `[Questions]` rows
-    # under `## Later` via the LATER_RENDERED_BRACKETS_PREFIX filter — they
-    # must count in the banner too, otherwise banner-vs-body disagree
-    # (observed 2026-06-04 on MUX: banner said `Questions 0` while body
-    # showed F037 + F011 as `[Questions]` under `## Later`).
-    questions_n = 0
-    for r in live:
-        if r.horizon not in BODY_RENDERED_HORIZONS_FOR_QUESTIONS:
-            continue
-        if "Questions" not in r.bracket:
-            continue
-        # Count via the same resolution `_row_q_count` uses (T012 — this block
-        # previously re-implemented it with case-sensitive index lookups that
-        # never matched the lower-cased vault_index keys, so every row fell to
-        # the count-as-1 fallback). Floor of 1: a bracket-claim never counts 0.
-        questions_n += _row_q_count(r, vault_index) or 1
-    # F260 — [User] rows (gated on a user ACTION) join the User bucket, counted
-    # across the same rendered horizons as questions, one per row.
-    user_n = sum(
-        1 for r in live
-        if r.horizon in BODY_RENDERED_HORIZONS_FOR_QUESTIONS
-        and r.bracket == "User"
-    )
+    user_n = sum(1 for r in shown if _in_class_user(r.bracket))
+    # ---- zone 3: the quiet classes, unscoped by horizon --------------------
+    # Counted precisely BECAUSE they are omitted from the body — a class that
+    # appears in no list and no count is invisible everywhere but the raw file.
+    parked_n = sum(1 for r in live if _in_class_parked(r.bracket))
+    waiting_n = sum(1 for r in live if _in_class_hidden(r.bracket))
+    # TAG input only — `verify_n` no longer has a banner slot of its own.
+    verify_n = sum(1 for r in live
+                   if r.horizon in ACTIVE_HORIZONS_BANNER
+                   and _in_class_parked(r.bracket))
     # Per-horizon counts (live, non-Done)
     horizon_counts = {h: 0 for h in ("Active", "Ready", "Now", "Next", "Later", "Verify", "Icebox")}
     for r in rows:
@@ -748,12 +787,11 @@ def derive_banner(name: str, rows: list[Row], backlog_file: Path,
     # so the Verify horizon counts toward the user-pending signal even though
     # verify_n (banner Questions/Verify, active-horizon-only) is separate.
     has_u = (
-        questions_n > 0
-        or user_n > 0
+        user_n > 0
         or verify_n > 0
         or horizon_counts["Verify"] > 0
     )
-    has_a = active_n > 0 or ready_n > 0
+    has_a = ready_n > 0
     has_g = horizon_counts["Now"] > 0 or horizon_counts["Next"] > 0
     has_later = horizon_counts["Later"] > 0
     if has_u and has_a:
@@ -792,27 +830,30 @@ def derive_banner(name: str, rows: list[Row], backlog_file: Path,
     # the anchors needing attention.
     qfix_n = _count_qfix_subs(backlog_file)
     qfix_suffix = f"    {{{qfix_n}}}" if qfix_n > 0 else ""
-    # F260 — the two actionable buckets are keyed on WHOSE PLATE the work is on:
-    #   Runnable = [Ready]/[Agreed] + [Active]/[Implementing] — every row crank
-    #     will actually run. The "Runnable" label is what makes folding [Active]
-    #     in honest: it promises will-run-if-you-crank, not fresh/not-started, so
-    #     it supersedes the F250 #9 / F254 C1 "Ready 3 vs frontier 2" anomaly
-    #     (that was the WORD "Ready" implying not-started, not the count).
-    #   User = [Questions] + [User] — everything gated on a user answer or a
-    #     user action (completes F259's [User] fold, which never reached this
-    #     authoritative path). [Verify] is dropped from the actionable pair (it
-    #     collects junk) — it stays a horizon count and still drives the U TAG.
-    runnable_n = ready_n + active_n
-    user_actionable_n = questions_n + user_n
-    banner = (
-        f"# [{tag}]  {slug_label}  -  "
-        f"Runnable {runnable_n}    User {user_actionable_n}   |   "
-        f"Now {horizon_counts['Now']}    Next {horizon_counts['Next']}    "
-        f"Later {horizon_counts['Later']}    Verify {horizon_counts['Verify']}    "
-        f"Icebox {horizon_counts['Icebox']}"
-        f"{qfix_suffix}"
+    # F305 — THREE ZONES, ORDERED BY ATTENTION. This is the whole design and it
+    # is not a taxonomy. Zone 1 = what do I act on. Zone 2 = what is coming.
+    # Zone 3 = what am I not looking at.
+    #
+    # Zone 3 deliberately mixes a horizon (Icebox) in with two classes, and the
+    # mix is correct. Dan named it and kept it: *"I know it kind of mixes things
+    # up a little bit, but I do think that's the better ordering… The reason is
+    # simply visibility."* An editor who later regularizes these into
+    # classes-then-horizons will have destroyed the design. A new count goes in
+    # the zone matching how much ATTENTION it deserves, never the zone matching
+    # what kind of thing it is.
+    #
+    # `Verify` left zone 2 when it became a class — it is now inside `Parked`,
+    # alongside `[Blocked …]`, which had no banner slot at all before this.
+    # `Runnable` reverted to `Ready` (F260's word, kept three rounds, reverted
+    # on brevity); the class name now collides with the `[Ready]` bracket and
+    # that is deliberate — see [[DAS Backlog]] § The state table.
+    return audit_q.format_status_banner(
+        tag, slug_label,
+        ready_n, user_n,
+        horizon_counts["Now"], horizon_counts["Next"], horizon_counts["Later"],
+        parked_n, waiting_n, horizon_counts["Icebox"],
+        qfix_suffix,
     )
-    return banner
 
 
 # ============================================================
@@ -852,27 +893,12 @@ _MACHINE_DESC_RE = re.compile(
 
 
 def _row_should_render(row: Row) -> bool:
-    """True if a row is eligible for rendering in the Q.md body."""
-    if row.bracket.startswith("Done"):
-        return False
-    # F283 — `[Verify-by <date>]` renders NOWHERE. The bracket is a promise that
-    # nothing happens until the date, and `sweep_stale_brackets` auto-Dones the
-    # row when the date arrives, so it is set-and-forget by construction and
-    # showing it only crowds the checks that still want a look. Excluded here
-    # rather than in `build_queries_body` so the coverage assertion never sees
-    # it as an unclaimed row.
-    if _VERIFY_BY_RE.match(row.bracket):
-        return False
-    if row.horizon == "Later":
-        # Only Questions / Verify / Verify-by under Later
-        return (
-            "Questions" in row.bracket
-            or row.bracket.startswith("Verify")
-        )
-    if row.horizon in ("Active", "Ready", "Now", "Next", "Verify"):
-        return True
-    # Legwork / Icebox / Done / Notes — never rendered
-    return False
+    """True if a row is eligible for rendering in the Q.md body.
+
+    Delegates to `audit_q.renders_in_body` so that the BANNER's zone-1 scope
+    and the BODY's membership are one predicate rather than two that agree
+    today. Both audit-q and this module count zone 1 through it."""
+    return audit_q.renders_in_body(row.horizon, row.bracket)
 
 
 def _truncate_body(text: str, soft_cap: int = 250) -> str:

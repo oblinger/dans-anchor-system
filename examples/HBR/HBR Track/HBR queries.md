@@ -2,7 +2,7 @@
 description: HBR queries — mechanically rendered from the backlog (Blockers / Ready+Next / Questions / Blocked / Verifications / Other), and copied verbatim into Q.md. Do not hand-edit; edit the backlog rows.
 ---
 
-# [U+A]  [[HBR|HBR]]  -  Runnable 3    User 1   |   Now 1    Next 1    Later 0    Verify 0    Icebox 0
+# [U+A]  [[HBR|HBR]]  -  Ready 3    User 1   |   Now 1    Next 1    Later 0   |   Parked 0    Waiting 0    Icebox 0
 
 ## Ready
 - [[HBR Backlog#^T001|T001]] — **Next:** Add `cache_max_bytes` to `harbor.toml`, then sweep least-recently-served segments on each segment write once the dir exceeds it.

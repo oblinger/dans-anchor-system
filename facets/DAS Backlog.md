@@ -148,11 +148,11 @@ Ruled by Dan 2026-08-07 ([[TINK305 - Three answer shapes, one lifecycle|TINK F30
 
 | Bracket | Class | Argument | live |
 |---|---|---|---|
-| `[Ready]` | **Runnable** | — | 101 |
-| `[Active]` | **Runnable** | — | 11 |
-| `[Questions]` / `[N Questions]` | **Owed** | — | 32 |
-| `[User]` | **Owed** | — | 28 |
-| `[Designing]` | **Owed** | — | 3 |
+| `[Ready]` | **Ready** | — | 101 |
+| `[Active]` | **Ready** | — | 11 |
+| `[Questions]` / `[N Questions]` | **User** | — | 32 |
+| `[User]` | **User** | — | 28 |
+| `[Designing]` | **User** | — | 3 |
 | `[Verify]` | **Parked** | — | 33 |
 | `[Blocked {handle}]` | **Parked** | **required** — a row id | ⊂ 39 |
 | `[Blocked {what}]` | **Parked** | **required** — 1–3 words naming the universe change | ⊂ 39 |
@@ -162,20 +162,22 @@ Ruled by Dan 2026-08-07 ([[TINK305 - Three answer shapes, one lifecycle|TINK F30
 
 **The bracket is a SET, and it stays the source of truth.** `[Ready, Questions]` and `[Ready, 3 Questions, Verify]` are legal. Any combination is legal — there are no blessed pairs, because an exception is a rule to remember with no benefit and an audit cannot explain a refusal that rests on no principle. **Display order is fixed** so the bracket scans: class order, most urgent first — `[Ready, Questions]`, never `[Questions, Ready]`. Nothing about a row's state is computed behind the user's back; the row says what it is, and a row that disagrees with reality can be pointed at.
 
-**The consequence, accepted:** class counts sum to **more than the row count**. A banner reads *"8 runnable, 3 owed"* and never *"11 rows."*
+**The consequence, accepted:** class counts sum to **more than the row count**. A banner reads *"8 Ready, 3 User"* and never *"11 rows."*
 
 **The four classes, and the one test that assigns them.**
 
-- **Runnable** — the agent acts next.
-- **Owed** — the **user** is blocking the activity.
+- **Ready** — the agent acts next.
+- **User** — the **user** is blocking the activity.
 - **Parked** — nothing is blocked, but **nothing undoes it either**. Growth here is a bad smell.
 - **Hidden** — parked *and self-unwinding*. Omitted from the rendered page.
+
+**A class name may collide with a bracket name, and that is deliberate.** Class **Ready** holds `[Ready]` and `[Active]`; class **User** holds `[Questions]`, `[User]` and `[Designing]`. The alternative — coining `Runnable` and `Owed` so every class name is unique — was drafted and rejected on brevity: *"I'm a little bit tempted to basically say runnable. And I still think I would use the word ready. I know it's ambiguous because Active is getting slipped in there… I think I'm okay that Ready is a bit ambiguous."* The collision is also mild where it lands hardest: 82% of class Ready is literally `[Ready]`, so the name is right about the overwhelming case.
 
 The assignment test is **does the state undo itself?** A `[Waiting 2026-09-01]` row leaves its own state when the date passes with nobody acting, so a hundred of them is not a smell and omitting them costs nothing. A `[Verify]` or `[Blocked]` row sits forever until a person acts, so both stay visible — quietly — and their *growth* is the signal. This is the one criterion in the scheme that can be checked rather than argued.
 
 **Hidden means hidden from `{slug} queries.md`, never from the backlog.** The queries page is a render; this file is the store. `/crank` and `/groom` read the store, so a Hidden row is fully visible to the agent and to any user who opens the backlog — it is simply not pushed at the user. Every class, including Hidden, still carries a **count** in the banner.
 
-**Designing means designing *with the user*** — *"I know I need user input to finish this, even if it is just to confirm that it is okay"* — which is why it is Owed rather than Runnable. Its counterpart is the definition of execution: once every user input is cleared, building roadmaps and pre-planning artifacts is `[Active]`, not `[Designing]`.
+**Designing means designing *with the user*** — *"I know I need user input to finish this, even if it is just to confirm that it is okay"* — which is why it is class User rather than class Ready. Its counterpart is the definition of execution: once every user input is cleared, building roadmaps and pre-planning artifacts is `[Active]`, not `[Designing]`.
 
 **A row may not block on a later horizon than its own.** `## Now` may not block on `## Next`; nothing in a horizon may block on the Icebox. Two Icebox rows blocking each other is fine. Otherwise the blocked row is invisible *and* its blocker is invisible, and the pair disappears together. Violation is an **error, not an auto-fix** — the agent decides whether to demote itself or promote the blocker. **Cross-anchor blocking is allowed** under the same horizon constraint, and a cross-anchor row is always **Parked, never Hidden**, because nobody may be looking at the other anchor.
 

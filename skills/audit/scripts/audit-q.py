@@ -4872,7 +4872,7 @@ def report_stale_qfix_rows(
     to zero takes the `clear_qfix_row` branch. The gap was never the reconcile,
     it was the TRIGGER — most findings are fixed by editing the offending docs,
     which runs nothing, so the row survives `[Ready]` until the anchor's next
-    `state` mutation. In between, the banner reports Runnable work that does not
+    `state` mutation. In between, the banner reports Ready work that does not
     exist, which is exactly what the crank hard-continuation rule keys on.
 
     A read-only pass must not mutate a backlog, so this reports rather than
@@ -5189,6 +5189,102 @@ def check_c52_unclassified_backlog(vault_root: Path) -> list[Finding]:
     return findings
 
 
+# ============================================================
+# F305 visibility classes — THE canonical definition
+# ============================================================
+# These live here, in the lower module, because `queries-render.py` already
+# imports `audit_q` (LIVE_HORIZON_H2S and friends) and the reverse would be
+# circular. Before F305 each file carried its own copy of the class logic AND
+# its own copy of the banner format string, with `queries-render.py:331`
+# admitting the arrangement in a comment — *"Banner derivation (mirrors
+# audit_q.derive_anchor_banner)"*. A mirror is not a design; the two drifted in
+# exactly the way F305 exists to describe, and the drift was invisible because
+# each file was self-consistent.
+#
+# A bracket is a SET: `[Ready, Questions]` is legal and puts its row in BOTH
+# classes, so class counts may sum to more than the row count. That is intended
+# — see [[DAS Backlog]] § The state table. Membership is tested on each MEMBER,
+# never on the whole bracket string, so a date argument can never collide with
+# a class name.
+
+def bracket_members(bracket: str) -> list[str]:
+    """Split a bracket into its member states. `Ready, 3 Questions` -> both."""
+    return [m.strip() for m in bracket.split(",") if m.strip()]
+
+
+def in_class_ready(bracket: str) -> bool:
+    """Class Ready — the agent acts next. `Agreed`/`Implementing` are aliases."""
+    return any(m in ("Ready", "Agreed", "Active", "Implementing")
+               for m in bracket_members(bracket))
+
+
+def in_class_user(bracket: str) -> bool:
+    """Class User — the user is blocking. `[N Questions]` matched by containment."""
+    return any(m in ("User", "Designing") or "Questions" in m
+               for m in bracket_members(bracket))
+
+
+def in_class_parked(bracket: str) -> bool:
+    """Class Parked — nothing blocked, but nothing undoes it either."""
+    return any(m.startswith("Verify") or m.startswith("Blocked")
+               for m in bracket_members(bracket))
+
+
+def in_class_hidden(bracket: str) -> bool:
+    """Class Hidden — parked AND self-unwinding. The undo-itself test."""
+    return any(m.startswith("Waiting") or m.startswith("Watching")
+               for m in bracket_members(bracket))
+
+
+_VERIFY_BY_BRACKET_RE = re.compile(r"^Verify-by\s+\d{4}-\d{2}-\d{2}", re.I)
+
+
+def renders_in_body(horizon: str, bracket: str) -> bool:
+    """True if a row is listed in the rendered `{slug} queries.md` body.
+
+    THIS IS THE SCOPE FOR ZONE 1. The banner counts what the body lists, so
+    the two cannot disagree; deriving zone 1 from a horizon set instead is
+    what produced the MUX 2026-06-04 defect (banner `Questions 0` while the
+    body listed two rows under `## Later`). That fix was written as a widened
+    constant which was then aliased straight back to the narrow one, so the
+    comment promised the wide scope while the code kept the narrow — and two
+    live rows (Anchorage F029, Docket F054) were still rendered-but-uncounted
+    when F305 measured it on 2026-08-07."""
+    if bracket.startswith("Done"):
+        return False
+    # `[Verify-by <date>]` renders NOWHERE (F283): the bracket promises nothing
+    # happens until the date and `sweep_stale_brackets` auto-Dones it on
+    # arrival, so it is set-and-forget by construction.
+    if _VERIFY_BY_BRACKET_RE.match(bracket):
+        return False
+    if horizon == "Later":
+        # Under Later, only the two classes the user must still see.
+        return any("Questions" in m or m.startswith("Verify")
+                   for m in bracket_members(bracket))
+    return horizon in ("Active", "Ready", "Now", "Next", "Verify")
+
+
+def format_status_banner(tag: str, slug_label: str, ready: int, user: int,
+                         now: int, nxt: int, later: int,
+                         parked: int, waiting: int, icebox: int,
+                         suffix: str = "") -> str:
+    """THE status-banner format string. `R-query-16` locks this exact spacing
+    and must move in the same pass as any edit here — it has lagged once
+    already (F260), failing on 26 of 32 live pages while the renderer was
+    correct.
+
+    Three zones ordered by ATTENTION, not by kind: what do I act on | what is
+    coming | what am I not looking at. Zone 3 deliberately mixes a horizon
+    (Icebox) in with two classes; regularizing that destroys the design."""
+    return (
+        f"# [{tag}]  {slug_label}  -  "
+        f"Ready {ready}    User {user}   |   "
+        f"Now {now}    Next {nxt}    Later {later}   |   "
+        f"Parked {parked}    Waiting {waiting}    Icebox {icebox}"
+        f"{suffix}"
+    )
+
+
 def derive_anchor_banner(name: str, backlog_file: Path,
                          vault_index: dict[str, list[Path]]) -> Optional[str]:
     """Return the H1 banner line for an anchor's Q.md section.
@@ -5202,48 +5298,34 @@ def derive_anchor_banner(name: str, backlog_file: Path,
     live = [e for e in entries
             if e.horizon in LIVE_HORIZON_H2S
             and not e.status.startswith("Done")]
-    # User-actionable banner counts (Ready, Questions, Verify-bracket leftover)
-    # only count from ACTIVE horizons. Rows parked in ## Later or ## Verify are
-    # passive observation, not active questions. Per user direction 2026-06-02
-    # after MUX banner showed "Questions 13" with Now/Next at 0.
-    ACTIVE_HORIZONS = {"Active", "Ready", "Now", "Next", "Legwork"}
-    actionable = [e for e in live if e.horizon in ACTIVE_HORIZONS]
-    # Compute counts by bracket
-    # F260 — [Implementing] is the feature-lifecycle alias for [Active]; both count.
-    active_n = sum(1 for e in actionable if e.status in ("Active", "Implementing"))
-    ready_n = sum(1 for e in actionable if e.status in ("Ready", "Agreed"))
-    verify_n = sum(1 for e in actionable if e.status == "Verify")
-    # Questions count = sum of Q-markers across linked targets for each
-    # [N Questions]/[Questions] row in active horizons only.
-    questions_n = 0
-    for e in actionable:
-        if "Questions" not in e.status:
-            continue
-        # Arrow-form link only (T012 — e.link is the row's first link of any
-        # form and can be a prose mention); no-arrow rows carry inline Qs.
-        arrow_link = _arrow_target(e)
-        if arrow_link is None or not arrow_link.target_resolves:
-            questions_n += _row_inline_q_count(e) or 1
-            continue
-        target_path = arrow_link.target_file_path
-        assert target_path is not None
-        # F251 #7 (→ F254 C2) — count only PENDING Qs via extract_q_entries
-        # (skips `## Resolved`/`### Resolved` archives AND fenced example Qs),
-        # matching queries-render's _read_q_marker_count. The old
-        # Q_MARKER_RE.findall over the whole doc counted resolved/fenced/prose
-        # `Q<n> —` markers, over-reporting the banner Questions total.
-        container_id = e.identifier
-        fnum = feature_number(target_path.stem)
-        if fnum:
-            container_id = fnum
-        q_count = len(extract_q_entries(target_path, container_id))
-        if q_count == 0:
-            # Bracket-claim but no pending Qs: count as 1 (don't lose the row)
-            q_count = 1
-        questions_n += q_count
-    # F260 — [User] rows (gated on a user ACTION) join the User bucket (this
-    # completes F259's fold; the two actionable buckets are Runnable + User).
-    user_n = sum(1 for e in actionable if e.status == "User")
+    # Zone 1 — class counts, scoped to WHAT THE BODY RENDERS (`renders_in_body`).
+    # Rows parked in ## Later are mostly passive observation and stay out, per
+    # user direction 2026-06-02 after a MUX banner showed "Questions 13" with
+    # Now/Next at 0 — but the `[Questions]` and `[Verify]` rows under Later ARE
+    # listed in the body, so they must count here too or banner and body
+    # disagree. Sharing the predicate is what makes them agree by construction.
+    actionable = [e for e in live if renders_in_body(e.horizon, e.status)]
+    # F305 — EVERY COUNT IS A COUNT OF ROWS, including User. Dan, 2026-08-07:
+    # *"if I have 10 items that each have one question, I'm much more motivated
+    # to answer a bunch of questions since I'm going to unblock a tremendous
+    # amount of work. If I had one ticket that had 10 questions, I'm not really
+    # very motivated."* The number that drives action is how many things are
+    # blocked on the user, not how much answering work is queued.
+    #
+    # This retired a substantial machine: the old count resolved each row's
+    # arrow-link, opened the target feature doc, and summed its pending
+    # `Q<n>` entries (with a floor of 1 for an unresolvable link). All of that
+    # existed to produce a number Dan does not index off. `extract_q_entries`
+    # is still the authority for the per-feature `**(nQ)**` counts inside the
+    # rendered body — it just no longer feeds the banner.
+    ready_n = sum(1 for e in actionable if in_class_ready(e.status))
+    user_n = sum(1 for e in actionable if in_class_user(e.status))
+    verify_n = sum(1 for e in actionable if in_class_parked(e.status))
+    # Zone 3 — the quiet classes, unscoped by horizon. Counted precisely
+    # BECAUSE they are omitted from the rendered body: a class that appears in
+    # no list and no count is invisible everywhere but the raw backlog file.
+    parked_n = sum(1 for e in live if in_class_parked(e.status))
+    waiting_n = sum(1 for e in live if in_class_hidden(e.status))
     # Per-horizon counts (every entry, even with [Done] would count toward Now
     # in original spec, but C4 will move them out; here we count live only).
     horizon_counts = {h: 0 for h in ("Active", "Ready", "Now", "Next", "Later", "Verify", "Icebox")}
@@ -5261,8 +5343,8 @@ def derive_anchor_banner(name: str, backlog_file: Path,
         except (OSError, UnicodeDecodeError):
             pass
     # TAG cascade
-    has_u = questions_n > 0 or user_n > 0 or verify_n > 0
-    has_a = active_n > 0 or ready_n > 0
+    has_u = user_n > 0 or verify_n > 0
+    has_a = ready_n > 0
     has_g = (horizon_counts["Now"] > 0 or horizon_counts["Next"] > 0)
     has_later = horizon_counts["Later"] > 0
     if has_u and has_a:
@@ -5279,14 +5361,12 @@ def derive_anchor_banner(name: str, backlog_file: Path,
         tag = ""
     if not tag and horizon_counts["Icebox"] == 0:
         return None
-    banner = (
-        f"# [{tag}]  [[{name} queries|{name}]]  -  "
-        f"Runnable {ready_n + active_n}    User {questions_n + user_n}   |   "
-        f"Now {horizon_counts['Now']}    Next {horizon_counts['Next']}    "
-        f"Later {horizon_counts['Later']}    Verify {horizon_counts['Verify']}    "
-        f"Icebox {horizon_counts['Icebox']}"
+    return format_status_banner(
+        tag, f"[[{name} queries|{name}]]",
+        ready_n, user_n,
+        horizon_counts["Now"], horizon_counts["Next"], horizon_counts["Later"],
+        parked_n, waiting_n, horizon_counts["Icebox"],
     )
-    return banner
 
 
 # ============================================================
@@ -5792,10 +5872,14 @@ def main() -> int:
     return 1 if errors else 0
 
 
-# Regex to extract the two actionable counts (Runnable N, User N) from a
-# derived banner line (F260 — renamed from Ready/Questions).
+# Regex to extract the zone-1 class counts (Ready N, User N) from a derived
+# banner line. F260 renamed the pair Ready/Questions -> Runnable/User; F305
+# reverted the first half to `Ready` on brevity, so the word is back where it
+# started while the MEANING is F260's (class Ready folds in `[Active]`, not
+# just fresh rows). Anchored on `-  ` so the `Ready` here can only be zone 1's
+# label and never a bracket name appearing later in the line.
 _BANNER_COUNTS_RE = re.compile(
-    r"Runnable\s+(\d+).*?User\s+(\d+)"
+    r"-  Ready\s+(\d+)\s+User\s+(\d+)"
 )
 
 
@@ -5831,7 +5915,7 @@ def _print_hard_continuation_directive(
     """When the agent's OWN anchor has Ready > 0, surface the crank hard-rule
     to the agent in audit-q's stderr-style output. The directive cites the
     rule's home, names the failure mode by name, and lists the exit
-    requirement (3-gate argument). Silent when the own anchor is at Runnable 0.
+    requirement (3-gate argument). Silent when the own anchor is at Ready 0.
 
     `own_slug` scopes the push to the agent's anchor (T052). When None (cwd
     outside every anchor, and no --anchor given) the directive is suppressed
@@ -5840,24 +5924,24 @@ def _print_hard_continuation_directive(
     anchors count only when the user explicitly names cross-anchor scope)."""
     if own_slug is None:
         return
-    actionable: list[tuple[str, int, int]] = []  # (name, runnable_n, user_n)
+    actionable: list[tuple[str, int, int]] = []  # (name, ready_n, user_n)
     for name, banner in derived_banners.items():
         if name != own_slug:
             continue
         m = _BANNER_COUNTS_RE.search(banner)
         if not m:
             continue
-        runnable_n = int(m.group(1))
+        ready_n = int(m.group(1))
         user_n = int(m.group(2))
-        if runnable_n > 0:
-            actionable.append((name, runnable_n, user_n))
+        if ready_n > 0:
+            actionable.append((name, ready_n, user_n))
     if not actionable:
         return
     print()
     print("Agent requirement:  (skills/crank/SKILL.md § Hard continuation rule)")
-    print("  Anchors with Runnable > 0 — you MUST continue while context > 40%:")
+    print("  Anchors with Ready > 0 — you MUST continue while context > 40%:")
     for name, r, q in sorted(actionable):
-        print(f"    - {name}: Runnable {r}, User {q}")
+        print(f"    - {name}: Ready {r}, User {q}")
     print(
         "  To stop, print the 3-gate exit argument in chat:\n"
         "    Gate 1 (uncertain): I'd be guessing from <specific info gap>.\n"

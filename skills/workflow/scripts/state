@@ -2884,11 +2884,18 @@ _CONDITIONAL_NEXT_RE = re.compile(
 )
 
 _BANNER_NUM_RE = {
-    # F260 — the two actionable buckets: Runnable (= Ready + Active) and User
-    # (= Questions + User). Verify is the horizon count on the right of the bar.
-    "runnable": re.compile(r"Runnable\s+(\d+)"),
+    # Zone 1, the two actionable classes: Ready (= [Ready]/[Agreed] +
+    # [Active]/[Implementing], F260's fold) and User (= [Questions] + [User] +
+    # [Designing]). F305 reverted the first label from `Runnable` back to
+    # `Ready` and moved `Verify` out of the horizon group into the new zone-3
+    # `Parked` class, which also folds in `[Blocked …]`.
+    #
+    # `Ready` and `Parked` are anchored on their surrounding separators. Both
+    # words also appear as BRACKET names elsewhere on some lines, and an
+    # unanchored `Ready\s+(\d+)` would happily match the wrong one.
+    "runnable": re.compile(r"-  Ready\s+(\d+)"),
     "user": re.compile(r"User\s+(\d+)"),
-    "verify": re.compile(r"Verify\s+(\d+)"),
+    "verify": re.compile(r"\|   Parked\s+(\d+)"),
 }
 
 
@@ -3051,9 +3058,11 @@ def cmd_triage(slug, anchor_path, args):
         d = cur - prev_val
         return f"{name} {cur} ({'+' if d > 0 else ''}{d})"
 
-    line = ("TRIAGE — " + _part("Runnable", counts["runnable"])
+    # F305 — zone-1 label reverted to `Ready`; `Verify` became the `Parked`
+    # class, which also folds in every `[Blocked …]` row.
+    line = ("TRIAGE — " + _part("Ready", counts["runnable"])
             + " · " + _part("User", counts["user"])
-            + f" · Verify {counts['verify']}")
+            + f" · Parked {counts['verify']}")
 
     _TRIAGE_DIR.mkdir(parents=True, exist_ok=True)
     stamp_path.write_text(_json.dumps({
@@ -3106,7 +3115,7 @@ def cmd_groom_list(slug, anchor_path, args):
     counts = _read_banner_counts(backlog_path, slug)
     r, q, v = counts.get("runnable", 0), counts.get("user", 0), counts.get("verify", 0)
     # T034 exact format (F260 relabel): `{SLUG}: {recommendation} . Groomed .
-    # Runnable N . User M . Verify K`. ENTIRE line blue (rule 5). `Groomed` is
+    # Ready N . User M . Parked K`. ENTIRE line blue (rule 5). `Groomed` is
     # fixed (this branch only runs once the worklist is empty — rule 3). The
     # recommendation slot (rule 2) carries only what this presenter can DERIVE;
     # context-window recs (`please /clear` / `please /compact`) are the agent's
@@ -3121,7 +3130,7 @@ def cmd_groom_list(slug, anchor_path, args):
     else:                                                    # only Verify work — user-passive
         rec = ""
     rec_part = f"{rec} . " if rec else ""
-    print(_blue(f"{slug}: {rec_part}Groomed . Runnable {r} . User {q} . Verify {v}"))
+    print(_blue(f"{slug}: {rec_part}Groomed . Ready {r} . User {q} . Parked {v}"))
     return 0
 
 
@@ -3154,7 +3163,7 @@ def cmd_summary_line(slug, anchor_path, args):
     r, q, v = counts.get("runnable", 0), counts.get("user", 0), counts.get("verify", 0)
     rec = _SUMMARY_REC[args.recommend](r, q, v)
     rec_part = f"{rec} . " if rec else ""
-    print(_blue(f"{slug}: {rec_part}Groomed . Runnable {r} . User {q} . Verify {v}"))
+    print(_blue(f"{slug}: {rec_part}Groomed . Ready {r} . User {q} . Parked {v}"))
     return 0
 
 

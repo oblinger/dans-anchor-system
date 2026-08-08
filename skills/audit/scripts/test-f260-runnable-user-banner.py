@@ -1,9 +1,17 @@
 #!/usr/bin/env python3
-"""test-f260-runnable-user-banner.py — F260: the status-line banner's two
-actionable buckets are Runnable (= [Ready]/[Agreed] + [Active]/[Implementing])
-and User (= [Questions] + [User]); Verify is dropped from the pair (stays a
-horizon count). Asserts queries-render.py:derive_banner on a fixture backlog
-carrying one of each bracket.
+"""test-f260-runnable-user-banner.py — F260's SEMANTICS, which survive F305.
+
+F260's claim was about what the two zone-1 buckets MEAN, not what they are
+called: the agent-plate bucket folds `[Active]`/`[Implementing]` in beside
+`[Ready]`/`[Agreed]` (so it promises will-run-if-you-crank, not
+fresh-and-untouched), the user-plate bucket folds `[User]` in beside
+`[Questions]`, and `[Verify]` belongs to NEITHER.
+
+F305 (2026-08-07) renamed the first bucket back from `Runnable` to `Ready` on
+brevity and gave `[Verify]` a home of its own in the new `Parked` class. The
+two assertions here that locked the WORD `Runnable` were updated; every
+assertion about MEANING is unchanged and still passes, which is the useful
+signal — the rename did not move a single row between buckets.
 
 Self-contained: imports queries-render in-process, builds Row objects directly
 (no vault I/O), and reads the emitted banner string."""
@@ -63,25 +71,30 @@ rows = [
 banner = qr.derive_banner("ZZR", rows, Path("/fake/ZZR Backlog.md"), {})
 print(f"== banner ==\n  {banner}\n")
 
-# Runnable = Ready(1) + Implementing(1) + Active(1) = 3
-ok("Runnable = Ready + Active + Implementing (3)") if "Runnable 3" in banner \
-    else no(f"expected 'Runnable 3' in: {banner}")
+# The agent plate = Ready(1) + Implementing(1) + Active(1) = 3. THE CLAIM IS
+# THE FOLD, not the label: an alias bracket counts as its principal.
+ok("agent plate = Ready + Active + Implementing (3)") if "Ready 3" in banner \
+    else no(f"expected 'Ready 3' in: {banner}")
 
 # User = Questions(1) + User(1) = 2
 ok("User = Questions + User (2)") if "User 2" in banner \
     else no(f"expected 'User 2' in: {banner}")
 
-# The old labels are gone.
-ok("no 'Ready N' actionable label") if "Ready 3" not in banner and " Ready " not in banner \
-    else no(f"stale Ready label in: {banner}")
+# The pre-F260 label is gone: `Questions N` was the user-plate's original name
+# and folding `[User]` in is what retired it.
 ok("no 'Questions N' actionable label") if "Questions " not in banner \
     else no(f"stale Questions label in: {banner}")
 
-# Verify is NOT in the actionable pair — it only appears as the horizon count.
-# (derive_banner's Verify horizon count is 0 here since F6 is in Now, not the
-# Verify horizon — so the point is simply that no "User" count absorbed it.)
+# `[Verify]` is in NEITHER zone-1 bucket. Before F305 that was asserted only
+# negatively (it must not inflate User); now it has a positive home, so assert
+# both halves — a row that leaves one bucket must arrive somewhere, and
+# "absent from zone 1" alone would also be satisfied by dropping it entirely.
 ok("Verify not folded into User (User stays 2, not 3)") if "User 2" in banner \
     else no("Verify leaked into the User bucket")
+ok("Verify not folded into the agent plate (Ready stays 3)") if "Ready 3" in banner \
+    else no("Verify leaked into the agent plate")
+ok("Verify lands in Parked (1)") if "Parked 1" in banner \
+    else no(f"expected 'Parked 1' in: {banner}")
 
 # TAG must be U+A (has both a User-plate item and a Runnable item).
 ok("TAG is U+A (both plates non-empty)") if banner.startswith("# [U+A]") \

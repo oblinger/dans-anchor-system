@@ -152,13 +152,25 @@ try:
         encoding="utf-8",
     )
     vidx = aq.build_vault_index(TMP / "vault")
-    banner = aq.derive_anchor_banner("ZZC", blc, vidx) or ""
-    # F260 renamed the user-facing plate: pending Questions now report as `User`.
-    qm = re.search(r"User\s+(\d+)", banner)
-    if qm and qm.group(1) == "2":
-        ok("banner User = 2 (pending only; 3 Resolved + 1 fenced excluded)")
+    # F305 took the banner OFF per-Q counting: every count is a count of ROWS,
+    # so this one row reports `User 1` no matter how many questions it holds.
+    # The pending-only concern this check was written for did not go away — it
+    # moved. Assert it where it now lives (`extract_q_entries`, which still
+    # feeds the body's per-feature `**(nQ)**` label), and assert separately
+    # that the banner counts the row. Testing it through the banner was always
+    # indirect; the split makes each claim falsifiable on its own.
+    fdoc = anc / "ZZC Design" / "ZZC Features" / "F010 — Thing.md"
+    pending = aq.extract_q_entries(fdoc, "F010")
+    if len(pending) == 2:
+        ok("extract_q_entries = 2 pending (3 Resolved + 1 fenced excluded)")
     else:
-        no(f"banner User wrong: {banner!r}")
+        no(f"pending Q count wrong: {len(pending)} (expected 2)")
+    banner = aq.derive_anchor_banner("ZZC", blc, vidx) or ""
+    qm = re.search(r"User\s+(\d+)", banner)
+    if qm and qm.group(1) == "1":
+        ok("banner User = 1 — ROWS, not questions (F305)")
+    else:
+        no(f"banner User wrong (expected 1 row): {banner!r}")
 
     # ---- C1: queries-render banner "Ready" = [Ready] only, not [Active] (F250 #9)
     print("== C1 (#9) queries-render banner Ready counts [Ready] only (excludes [Active]) ==")
@@ -182,11 +194,14 @@ try:
     # F260 replaced the `Ready` plate with `Runnable` and DID fold [Active] in —
     # a mid-implementation row carrying a `- **Next:**` is runnable work. This
     # assertion previously encoded the opposite and had been red ever since.
-    rm = re.search(r"Runnable\s+(\d+)", banner_r)
+    # F305 reverted the LABEL to `Ready` while keeping F260's fold, so the
+    # expected count is unchanged at 2 and only the word moved. Anchored on
+    # `-  ` so `Ready` can only match zone 1's label, never a bracket name.
+    rm = re.search(r"-  Ready\s+(\d+)", banner_r)
     if rm and rm.group(1) == "2":
-        ok("banner Runnable = 2 ([Ready] + [Active], per F260)")
+        ok("banner Ready = 2 ([Ready] + [Active] — F260's fold, F305's label)")
     else:
-        no(f"banner Runnable wrong (expected 2): {banner_r!r}")
+        no(f"banner Ready wrong (expected 2): {banner_r!r}")
 
     print()
     print(f"==== RESULT: {PASS} passed, {FAIL} failed ====")

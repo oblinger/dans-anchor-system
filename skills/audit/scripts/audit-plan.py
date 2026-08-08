@@ -2796,27 +2796,37 @@ def chk_queries_location(target, anchor_root, args):
 _QUERIES_BANNER_RE = re.compile(
     r"^# \[(?:U\+A|U|A|G|\?|-)\]  "                    # tag + two spaces
     r"(?:\[\[[^\]]+\]\]|[^\[\]|]+?)  -  "              # wiki-linked or plain label
-    r"Runnable \d+    User \d+   \|   "                # headline pair (F260)
-    r"Now \d+    Next \d+    Later \d+    Verify \d+    Icebox \d+"
+    r"Ready \d+    User \d+   \|   "                    # zone 1 — classes
+    r"Now \d+    Next \d+    Later \d+   \|   "         # zone 2 — horizons
+    r"Parked \d+    Waiting \d+    Icebox \d+"          # zone 3 — the quiet group
     r"(?:    \{\d+\})?\s*$"                            # optional QFix residual count
 )
 
 
 def chk_queries_banner_form(target, anchor_root, args):
     """R-query-16: the H1 is the status banner in the locked form the renderer
-    emits (`queries-render.py derive_banner`) — `# [<TAG>]  <slug>  -  Runnable N
-    User N   |   Now N ... Icebox N` with the exact spacing (two spaces around
-    `-`, four between counts, three around `|`), slug wiki-linked or plain,
-    optional trailing `    {N}` residual count. The Q.md section scan keys off
-    this exact form.
+    emits (`queries-render.py derive_banner`) — three zones ordered by
+    attention, `Ready`/`User` | `Now`/`Next`/`Later` | `Parked`/`Waiting`/
+    `Icebox` — with the exact spacing (two spaces around `-`, four between
+    counts, three around each `|`), slug wiki-linked or plain, optional
+    trailing `    {N}` residual count. The Q.md section scan keys off this
+    exact form.
 
-    The headline pair is `Runnable`/`User` per F260, which renamed the buckets
-    on whose-plate-is-it grounds. This check kept enforcing the old
-    `Ready`/`Questions` pair for the whole interval, so it failed on 26 of 32
-    live queries files — every page the renderer currently produces — and fired
-    as an on-write warning against correct output. Accepting BOTH forms was
-    rejected: no-legacy-accumulation, and the handful of pre-F260 pages
-    self-correct on their next render."""
+    THIS CHECK MOVES WITH THE FORMAT STRING, IN THE SAME PASS. It has now
+    lagged once: F260 renamed the headline pair to `Runnable`/`User` and this
+    check kept enforcing the pre-F260 `Ready`/`Questions` pair for the whole
+    interval, so it failed on 26 of 32 live queries files — every page the
+    renderer produced — and fired as an on-write warning against correct
+    output. A lock that disagrees with the thing it locks is worse than no
+    lock, because it trains readers to ignore the warning.
+
+    F305 (2026-08-07) replaced the two zones with three: `Runnable` reverted to
+    `Ready`, `Verify` left the horizon group for the new `Parked` class, and
+    `Waiting` gained a count it never had. Accepting BOTH forms was rejected
+    again, on the same grounds as last time — no legacy accumulation — but the
+    resolution differs: rather than let pages self-correct whenever they next
+    render, every anchor was re-rendered in the same pass, so no page sits in
+    the failing interval at all."""
     if not target.is_file():
         return "pass", "not a file"
     if not target.name.endswith(" queries.md"):
@@ -2834,9 +2844,10 @@ def chk_queries_banner_form(target, anchor_root, args):
     if _QUERIES_BANNER_RE.match(raw):
         return "pass", ""
     return "fail", (f"H1 (line {idx + 1}) is not the locked status-banner "
-                    "form — expected `# [<TAG>]  <slug>  -  Runnable N    "
-                    "User N   |   Now N    Next N    Later N    "
-                    "Verify N    Icebox N` (re-render via queries-render.py)")
+                    "form — expected `# [<TAG>]  <slug>  -  Ready N    "
+                    "User N   |   Now N    Next N    Later N   |   "
+                    "Parked N    Waiting N    Icebox N` "
+                    "(re-render via queries-render.py)")
 
 
 def chk_queries_catchall_links(target, anchor_root, args):
