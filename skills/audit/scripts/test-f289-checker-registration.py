@@ -233,6 +233,16 @@ check("...so it is not reported as a ghost",
 # The five `R-svg-jiggle-06..10` fixes stay: they are resolutions inside the
 # repair loop, selected against a cost function and re-detected after each move,
 # not standalone fixers the on-write hook could fire one at a time.
+#
+# The regrowth this check exists to catch then happened, and this is the record
+# of it: [[R-rocks]] landed with nine `check::` refs and no implementations, and
+# EIGHT of them showed up here as new ghosts (2026-08-07, T156). The ninth never
+# reached the report — `RULE R-rocks-05` was headed `(checked, warn)`, which is
+# not one of the four tiers `_RULE_RE` admits, so the parser skipped the heading
+# and folded rule 05's `check::` onto rule 04. A ruleset can therefore lose a
+# rule outright without losing a ref, which is worth knowing when this list next
+# grows: count the refs in the FILE against the ids in the report. T156 wrote all
+# nine checkers and fixed the tier, so the set is back to the frozen six.
 KNOWN_GHOSTS = {
     "R-md-03": {"md_angle_brackets_backtick_only"},
     "R-svg-jiggle-06": {"slide_label_along_edge"},

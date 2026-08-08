@@ -5209,6 +5209,441 @@ def chk_agenda_track_dispatch_linked(target, anchor_root, args):
                     "facet nothing links to is a file the next agent never opens")
 
 
+# -- R-rocks (T156 wire-up) ---------------------------------------------------
+# The Rocks facet shipped nine `check::` refs and no implementations — the same
+# failure T071 fixed for Agenda, and it stays quiet for the same reason:
+# `_needs_judgment` is a membership test, so an unresolvable ref does not error,
+# it promotes the rule to billed agent judgment. Eight of the nine reached the
+# F289 ghost report; the ninth never did, because `RULE R-rocks-05` was headed
+# `(checked, warn)` — not one of the four tiers `_RULE_RE` admits — so the parser
+# skipped the heading and folded rule 05's `check::` onto rule 04, which is why
+# the report named `R-rocks-04 — rocks_member_ranked`. The tier is fixed in the
+# ruleset; the warn semantics live in the checker's verdict, where they belong.
+#
+# Scope differs from Agenda in one way that shapes everything below. Agenda's
+# `where::` selects ONE file per anchor; Rocks' selects `* Rocks/**` — every
+# member of the folder. Five of the nine rules are about the FOLDER (01, 02, 03,
+# 08, 09), so ungated they would emit the same verdict once per rock;
+# `_rocks_spokesfile` names the single member each folder-wide verdict reports
+# against, and it is the folder-note whenever there is one.
+
+_ROCKS_SUFFIX = " Rocks"
+
+# `{slug} Rocks/` carries its own `.anchor` and so does the `{slug} Track/` above
+# it, so the anchor_root a checker is handed is one or two facet sub-anchors below
+# the anchor whose slug the rules mean.
+_ROCKS_FACET_SUFFIXES = _AGENDA_FACET_SUFFIXES + (_ROCKS_SUFFIX,)
+
+
+def _rocks_owner(start: Path) -> Path:
+    """The project anchor that owns a Rocks folder.
+
+    Same intent as `_agenda_owner` and one step laxer: it does not require each
+    step's parent to carry an `.anchor`. A Rocks checker is often handed the
+    Rocks folder itself as anchor_root — one level deeper than anything the
+    Agenda walk sees — and a `{slug} Track/` without its own `.anchor` is legal.
+    """
+    d = start if start.is_dir() else start.parent
+    while any(d.name.endswith(s) for s in _ROCKS_FACET_SUFFIXES) and d.parent != d:
+        d = d.parent
+    return d
+
+
+def _rocks_folder(f: Path) -> Path | None:
+    """The nearest enclosing `* Rocks/` folder, or None when there is none.
+
+    The `where::` glob only selects files under one, so this is the belt to that
+    glob's braces — and the thing that makes an anchor-scope invocation, where
+    `_as_file` hands back an entry page from somewhere else entirely, a pass
+    instead of a wrong finding."""
+    for d in (f if f.is_dir() else f.parent, *f.parents):
+        if d.name.endswith(_ROCKS_SUFFIX):
+            return d
+    return None
+
+
+def _rocks_is_instance(folder: Path) -> bool:
+    """Is this `* Rocks/` folder an instance of the Rocks FACET?
+
+    The facet is elective (R-rocks-10), so a folder counts only when the anchor
+    has evidently adopted it: named `{slug} Rocks/` for its owning anchor, or
+    sitting directly under that anchor's `{slug} Track/`. Both halves keep a
+    rule's teeth, exactly as in `_agenda_is_instance` — the name test is what
+    lets R-rocks-02 fire on a `{slug} Design/{slug} Rocks/`, the location test is
+    what lets R-rocks-01 fire on a `{slug} Track/{slug} Big Rocks/`."""
+    slug = _anchor_slug(_rocks_owner(folder))
+    return (folder.name == f"{slug}{_ROCKS_SUFFIX}"
+            or folder.parent.name == f"{slug} Track")
+
+
+def _rocks_note(folder: Path) -> Path:
+    """The folder-note the facet mandates, `{slug} Rocks.md`. It need not exist —
+    that absence is R-rocks-01's finding and nobody else's."""
+    slug = _anchor_slug(_rocks_owner(folder))
+    return folder / f"{slug}{_ROCKS_SUFFIX}.md"
+
+
+def _rocks_members(folder: Path) -> list[Path]:
+    """The rock files: every `*.md` directly in the folder except the folder-note.
+
+    Both spellings of the note are excluded — the mandated `{slug} Rocks.md` and
+    the folder's own name — so a misnamed folder does not also read as a rock and
+    collect a second finding for the same defect."""
+    skip = {_rocks_note(folder).name, f"{folder.name}.md"}
+    try:
+        return sorted(p for p in folder.glob("*.md")
+                      if p.is_file() and p.name not in skip)
+    except OSError:
+        return []
+
+
+def _rocks_spokesfile(folder: Path) -> Path | None:
+    """The one member a FOLDER-scope verdict is reported against.
+
+    The folder-note when it exists — that is the document a folder-wide finding
+    is actually about. Otherwise the alphabetically first `*.md`, which is stable
+    across runs and always present when the selector matched anything at all;
+    without this fallback R-rocks-01 would go silent in the one case it exists
+    for, a Rocks folder with no folder-note."""
+    note = _rocks_note(folder)
+    if note.is_file():
+        return note
+    try:
+        cands = sorted(p for p in folder.glob("*.md") if p.is_file())
+    except OSError:
+        return None
+    return cands[0] if cands else None
+
+
+def _rocks_gate(target, anchor_root, folder_scope: bool):
+    """Shared preamble for every R-rocks checker.
+
+    Returns `(file, folder, slug, None)` when the checker should run, or
+    `(None, None, None, verdict)` when it should not — the target is not inside a
+    `* Rocks/` folder, the folder is not an instance of the elective facet, or
+    (folder-scope only) this target is not the member the folder's one verdict is
+    reported against."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return None, None, None, ("error", "no file")
+    folder = _rocks_folder(f)
+    if folder is None:
+        return None, None, None, ("pass", "not inside a `* Rocks/` folder")
+    if not _rocks_is_instance(folder):
+        return None, None, None, ("pass", "not a Rocks-facet instance "
+                                          "(elective facet, not adopted here)")
+    if folder_scope:
+        spokes = _rocks_spokesfile(folder)
+        if spokes is None:
+            return None, None, None, ("pass", "empty Rocks folder")
+        if f != spokes:
+            return None, None, None, ("pass", "folder-scope rule — judged once, "
+                                              f"on '{spokes.name}'")
+    return f, folder, _anchor_slug(_rocks_owner(folder)), None
+
+
+def chk_rocks_folder_named(target, anchor_root, args):
+    """R-rocks-01: the folder is `{slug} Rocks/` and holds a `{slug} Rocks.md`."""
+    f, folder, slug, done = _rocks_gate(target, anchor_root, True)
+    if done:
+        return done
+    problems = []
+    if folder.name != f"{slug} Rocks":
+        problems.append(f"folder is {folder.name!r}, expected '{slug} Rocks' — "
+                        "no qualifier suffix, no singular form")
+    if not (folder / f"{slug} Rocks.md").is_file():
+        problems.append(f"no folder-note '{slug} Rocks.md' inside it")
+    try:
+        alts = sorted(d.name for d in folder.parent.iterdir()
+                      if d.is_dir() and d != folder
+                      and d.name in (f"{slug} Big Rocks", f"{slug} Rock",
+                                     f"{slug} Rocks", f"{slug} Priorities"))
+    except OSError:
+        alts = []
+    if alts:
+        problems.append("alternate folder(s) alongside: " + ", ".join(alts))
+    if not problems:
+        return "pass", ""
+    return "fail", ("; ".join(problems) + " — the Track-dispatch wiring, this audit "
+                    "and any roll-up into the vault-wide [[Rocks]] all key on the "
+                    "exact name")
+
+
+def chk_rocks_in_track_folder(target, anchor_root, args):
+    """R-rocks-02: `{anchor}/{slug} Track/{slug} Rocks/` — not Design, not root."""
+    f, folder, slug, done = _rocks_gate(target, anchor_root, True)
+    if done:
+        return done
+    if folder.parent.name == f"{slug} Track":
+        return "pass", ""
+    return "fail", (f"sits in {folder.parent.name!r} — what the anchor is spending "
+                    f"effort on is metadata about the activity, so it belongs under "
+                    f"'{slug} Track/'; in Design it collapses the Track ⟺ Design "
+                    "boundary and lands beside Roadmap, the neighbour it is most "
+                    "often confused with")
+
+
+def chk_rocks_single_per_anchor(target, anchor_root, args):
+    """R-rocks-03: at most one Rocks folder per anchor, nested anchors excluded."""
+    f, folder, slug, done = _rocks_gate(target, anchor_root, True)
+    if done:
+        return done
+    owner = _rocks_owner(folder)
+    found = []
+    for cand in owner.rglob("* Rocks"):
+        if not cand.is_dir() or _under_dot_dir(cand, owner):
+            continue
+        # A nested project anchor owns its own Rocks folder; walk up to the
+        # nearest anchor that is not itself a facet sub-anchor.
+        d = cand.parent
+        while d != owner and d.parent != d:
+            if (d / ".anchor").is_file() and _rocks_owner(d) == d:
+                break
+            d = d.parent
+        if d == owner:
+            found.append(cand)
+    if len(found) <= 1:
+        return "pass", f"{len(found)} rocks folder"
+    rel = ", ".join(str(x.relative_to(owner)) for x in sorted(found))
+    return "fail", (f"{len(found)} Rocks folders under one anchor ({rel}) — two "
+                    "ranked lists for one anchor means two answers to what the big "
+                    "chunks are, with nothing to say which governs")
+
+
+# All-caps or mixed-caps of ≤5 characters — the shape that needs an expansion.
+# A plain word (`Ingest`) is its own expansion and is not probed.
+_ROCK_ABBR_RE = re.compile(r"^(?=.*[A-Z]{2})[A-Za-z]{1,5}$")
+
+
+def _rock_gloss(line: str, abbr: str) -> bool:
+    """Does this head line OPEN with a gloss — a short phrase ahead of an em dash
+    that says something other than the rock's own abbreviation?"""
+    if "—" not in line:
+        return False
+    head = line.split("—", 1)[0].strip().strip('"\'')
+    words = re.findall(r"[A-Za-z][\w'-]*", head)
+    return bool(words) and len(words) <= 6 and " ".join(words).casefold() != abbr.casefold()
+
+
+def chk_rock_name_short_and_expanded(target, anchor_root, args):
+    """R-rocks-04: a rock file is `{slug} {ABBR}.md` with `{ABBR}` ≤ 2 words, and
+    an abbreviation carries its expansion in the file's head.
+
+    Two halves, and they are not equally decidable. The NAME SHAPE is arithmetic
+    — strip the slug prefix, count words — and it is the half [[DAS Rocks]] calls
+    the one most likely to be lost when someone "improves" a rock's name for
+    readability, so a violation is a `fail`.
+
+    Whether a gloss actually EXPANDS the abbreviation is not mechanical, and the
+    corpus is what settles that rather than a hunch: `HR` → *historical
+    retrospective* is an acronym, but `TX` → *transcode*, `OBS` →
+    *observability* and `LEX` → *life expectancy* are contractions. No initials
+    test, prefix test or subsequence test admits all four — `transcode` contains
+    no `x` — and a probe that fires on three of the four real rocks in the vault
+    is noise that teaches a reader to skip the rule. So the probe checks the FORM
+    those four share: a gloss phrase heading the `description:` or the H1
+    orientation line, ahead of an em dash, saying something other than the file's
+    own name. A missing one is a `warn`. Whether the phrase is the RIGHT
+    expansion is stated in the rule and belongs to a reader, not to this
+    function."""
+    f, folder, slug, done = _rocks_gate(target, anchor_root, False)
+    if done:
+        return done
+    if f == _rocks_note(folder) or f.name == f"{folder.name}.md":
+        return "pass", "folder-note, not a rock"
+    stem = f.stem
+    if not stem.startswith(f"{slug} "):
+        return "fail", (f"{f.name!r} is not named '{slug} {{ABBR}}.md' — the rock's "
+                        "wiki-link is the reusable unit and it carries the slug")
+    abbr = stem[len(slug) + 1:].strip()
+    words = abbr.split()
+    if not words:
+        return "fail", f"{f.name!r} has no rock name after the '{slug} ' prefix"
+    if len(words) > 2:
+        return "fail", (f"rock name {abbr!r} is {len(words)} words — at most two, "
+                        "normally one. The link is reused in a narrow line whose "
+                        "words after the colon carry the only current information; "
+                        "a long link crowds them out")
+    if not _ROCK_ABBR_RE.match(abbr):
+        return "pass", f"name is {abbr!r} — not an abbreviation, nothing to expand"
+    text = _read(f)
+    fm = _frontmatter(text) or ""
+    m = re.search(r"^description:\s*(.+)$", fm, re.MULTILINE)
+    heads = [m.group(1).strip() if m else ""]
+    lines = text.splitlines()
+    h1_idx, _ = _head_h1(text)
+    heads += lines[h1_idx + 1:h1_idx + 11] if h1_idx is not None else lines[:10]
+    if any(_rock_gloss(h, abbr) for h in heads):
+        return "pass", ""
+    return "warn", (f"no expansion of {abbr!r} heading the `description:` or the "
+                    "orientation line under the H1 — a reader who does not "
+                    "recognize the abbreviation can learn it here and nowhere else")
+
+
+def _rocks_below_table(note: Path) -> list[tuple[int, str]]:
+    """`(line number, line)` for every non-blank line BELOW the folder-note's
+    dispatch table — the ranked list. Positional, taking the LAST table row in
+    the file as the boundary, so a second small table inside the note does not
+    hide the tier lines under it."""
+    lines = _strip_fenced(_read(note)).splitlines()
+    last = 0
+    for i, ln in enumerate(lines):
+        if _is_table_row(ln):
+            last = i + 1
+    return [(i + 1, ln) for i, ln in enumerate(lines) if i >= last and ln.strip()]
+
+
+def _rocks_link_target(raw: str) -> str:
+    """The file half of a wiki-link's inner text — alias, heading and block-id
+    stripped, and the table-cell pipe escape with it."""
+    return raw.replace("\\|", "|").split("|")[0].split("#")[0].split("^")[0].strip()
+
+
+def _rocks_tier_links(note: Path) -> list[tuple[int, str]]:
+    """`(line number, target)` for the LEADING wiki-link of each tier line.
+
+    A tier line is a ranked-list line that opens with a wiki-link — the
+    `[[HBR HR]]: gather stats` form [[HBR Rocks]] demonstrates. Leading only, and
+    deliberately: a promotion marker (`**Elevated to [[Rocks]] 2026-08-06.**`,
+    R-rocks-13) and the commentary an example carries below its ranked list both
+    hold links that point outside the anchor, and `_resolve_doc` searches at most
+    four ancestor anchor roots — so judging every link on the line would fail a
+    correct file for a link no local resolver can see. The leading link is the
+    rock being ranked, and its deadness is the one this rule is about."""
+    out = []
+    for ln, line in _rocks_below_table(note):
+        # `_WIKILINK_RE.match` anchors at position 0, which IS the leading test —
+        # the only preparation is dropping a list marker, since the ranked list is
+        # authored bare but a bulleted one means the same thing.
+        m = _WIKILINK_RE.match(re.sub(r"^\s*[-*+]\s+", "", line))
+        if m:
+            out.append((ln, _rocks_link_target(m.group(1))))
+    return out
+
+
+def chk_rocks_member_ranked(target, anchor_root, args):
+    """R-rocks-05: every rock file is named on a tier line. WARN, not fail.
+
+    A rock nobody has ranked is a real and transient state — the file lands
+    first, the ranking follows — and the `...` catch-all keeps it reachable
+    meanwhile, so this is cleanup pressure rather than a gate.
+
+    Membership is read from EVERY wiki-link below the dispatch table, not just
+    the leading ones `chk_rocks_tier_links_resolve` judges. The asymmetry is
+    deliberate: each direction takes the side that cannot manufacture a false
+    finding — a warning must not fire on a rock that is mentioned in some other
+    shape, and a failure must not fire on a link that is not a rock."""
+    f, folder, slug, done = _rocks_gate(target, anchor_root, True)
+    if done:
+        return done
+    note = _rocks_note(folder)
+    if not note.is_file():
+        return "pass", "no folder-note — R-rocks-01 owns that finding"
+    ranked = {_rocks_link_target(m.group(1)).casefold()
+              for _, line in _rocks_below_table(note)
+              for m in _WIKILINK_RE.finditer(line)}
+    missing = [p.stem for p in _rocks_members(folder) if p.stem.casefold() not in ranked]
+    if not missing:
+        return "pass", ""
+    return "warn", ("rock file(s) on no tier line: " + ", ".join(missing[:5])
+                    + " — reachable through the `...` catch-all, so this is cleanup "
+                      "pressure, not a gate")
+
+
+def chk_rocks_tier_links_resolve(target, anchor_root, args):
+    """R-rocks-06: no dead tier lines — every tier line's rock link resolves."""
+    f, folder, slug, done = _rocks_gate(target, anchor_root, True)
+    if done:
+        return done
+    note = _rocks_note(folder)
+    if not note.is_file():
+        return "pass", "no folder-note — R-rocks-01 owns that finding"
+    dead = []
+    for ln, name in _rocks_tier_links(note):
+        if not name:
+            continue
+        if (folder / f"{name}.md").is_file():
+            continue
+        if _resolve_doc(name, folder) is not None:
+            continue
+        dead.append(f"line {ln}: [[{name}]]")
+    if not dead:
+        return "pass", ""
+    return "fail", ("tier line(s) linking a file that does not exist — "
+                    + "; ".join(dead[:5]) + " — the ranked list is the surface "
+                    "people act on, and a dead link makes it untrustworthy at "
+                    "exactly that moment")
+
+
+# The bracket vocabulary is one list, not two: R-agenda-07 and R-rocks-07 forbid
+# the same grammar for the same reason, so the rocks side reuses `_AGENDA_BRACKET`
+# rather than forking a copy that can drift out of step with it.
+_ROCK_BLOCKID = re.compile(r"\^[FT]\d+")
+
+
+def chk_rocks_no_work_rows(target, anchor_root, args):
+    """R-rocks-07: a rock file carries no workflow brackets and mints no work item.
+
+    Minting is what the block-anchor probe measures — `^F310` is how an F-number
+    comes into existence. A rock file LINKING an already-minted feature is the
+    facet's own prescribed behaviour ([[DAS Rocks]] § What a rock file holds), so
+    a bare `F310` in prose is not a hit."""
+    f, folder, slug, done = _rocks_gate(target, anchor_root, False)
+    if done:
+        return done
+    if f == _rocks_note(folder) or f.name == f"{folder.name}.md":
+        return "pass", "folder-note, not a rock"
+    text = _read(f)
+    fenced = _fenced_mask(text)
+    hits = []
+    for n, line in enumerate(text.splitlines(), start=1):
+        if fenced[n - 1]:
+            continue
+        m = _AGENDA_BRACKET.search(line) or _ROCK_BLOCKID.search(line)
+        if m:
+            hits.append(f"line {n}: {m.group(0)}")
+    if not hits:
+        return "pass", ""
+    return "fail", ("a rock is a thinking surface, not a queue — work rows belong on "
+                    f"'{slug} Backlog'; two surfaces both claiming to be the work "
+                    "queue is how a work queue rots — " + "; ".join(hits[:4]))
+
+
+def chk_rocks_dispatch_linked(target, anchor_root, args):
+    """R-rocks-08: `{slug} Track.md` carries a row linking `[[{slug} Rocks]]`."""
+    f, folder, slug, done = _rocks_gate(target, anchor_root, True)
+    if done:
+        return done
+    track = _rocks_owner(folder) / f"{slug} Track" / f"{slug} Track.md"
+    if not track.is_file():
+        return "pass", "no Track dispatch page"
+    # Dispatch cells escape the pipe, so allow `[[X\|alias]]` as well as `[[X]]`.
+    pat = re.compile(r"\[\[" + re.escape(f"{slug} Rocks") + r"\s*(\\?\||\]|#|/)")
+    if pat.search(_read(track)):
+        return "pass", ""
+    return "fail", (f"'{slug} Track.md' does not link [[{slug} Rocks]] — the folder is "
+                    "elective, so nothing else guarantees it is reachable, and an "
+                    "unlinked one is invisible to anyone navigating the anchor")
+
+
+def chk_rocks_folder_note_catchall(target, anchor_root, args):
+    """R-rocks-09: the folder-note's dispatch table carries a `...` catch-all row."""
+    f, folder, slug, done = _rocks_gate(target, anchor_root, True)
+    if done:
+        return done
+    note = _rocks_note(folder)
+    if not note.is_file():
+        return "pass", "no folder-note — R-rocks-01 owns that finding"
+    for block in _table_blocks(_strip_fenced(_read(note)).splitlines()):
+        for row in block:
+            cells = _row_cells(row)
+            if cells and cells[0].strip() in ("...", "…"):
+                return "pass", ""
+    return "fail", ("the folder-note's dispatch table has no `...` catch-all row — "
+                    "the catch-all is what makes R-rocks-05 a warning rather than a "
+                    "gate; without it an unranked rock is genuinely invisible")
+
+
 # -- R-md-03 / R-code-repository-02 / R-versions-01 (T071 wire-up) -------------
 
 def chk_no_git_probe_fallback(target, anchor_root, args):
@@ -5270,6 +5705,16 @@ CHECKERS = {
     "agenda_no_work_rows": chk_agenda_no_work_rows,
     "agenda_header_shape": chk_agenda_header_shape,
     "agenda_track_dispatch_linked": chk_agenda_track_dispatch_linked,
+    # R-rocks (T156) — nine more refs that had no implementation
+    "rocks_folder_named": chk_rocks_folder_named,
+    "rocks_in_track_folder": chk_rocks_in_track_folder,
+    "rocks_single_per_anchor": chk_rocks_single_per_anchor,
+    "rock_name_short_and_expanded": chk_rock_name_short_and_expanded,
+    "rocks_member_ranked": chk_rocks_member_ranked,
+    "rocks_tier_links_resolve": chk_rocks_tier_links_resolve,
+    "rocks_no_work_rows": chk_rocks_no_work_rows,
+    "rocks_dispatch_linked": chk_rocks_dispatch_linked,
+    "rocks_folder_note_catchall": chk_rocks_folder_note_catchall,
     # T071 — the two other inert refs
     "no_git_probe_fallback": chk_no_git_probe_fallback,
     "regex_basename": chk_regex_basename,

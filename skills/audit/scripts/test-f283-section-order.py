@@ -165,26 +165,54 @@ def main():
     check("Verifications is gone once its only row was promoted",
           "## Verifications" in h2s4, False)
 
-    # --- a blocker is only a blocker if the waiting row is on the frontier -
-    # Dan, 2026-07-30: a blocker for something parked in `## Later` is not a
-    # blocker, it is a note — nothing he is working on is held up, so the row
-    # is noise at the position of highest attention. Tink shipped exactly this
-    # case for weeks (F238 waits on F230, both in Later) and it read as a real
-    # obstruction he had never been told about.
+    # --- a blocker is a blocker if the waiting row RENDERS ------------------
+    # SUPERSEDED 2026-08-08. This block asserted the opposite until then, on
+    # Dan's 2026-07-30 ruling: *a blocker for something parked in `## Later` is
+    # not a blocker, it is a note* — nothing he was working on was held up, so
+    # the row was noise at the position of highest attention. The case that
+    # produced it (Tink F238 waiting on F230, both in Later) was real.
+    #
+    # What changed is not the principle but the horizon's meaning. `[Blocked …]`
+    # rows under `## Later` DO render now — F283's own visibility ledger admits
+    # them, so 37 previously-vanishing rows became visible — and a reader who
+    # can see a row saying it waits on X must be able to find X. Dan,
+    # 2026-08-08, after failing to do exactly that: *"Atticus is blocked by F041
+    # in a lot of places. And I don't see F041… I wouldn't know to go and get
+    # that F041."*
+    #
+    # So the test is no longer the waiter's HORIZON but whether the waiter
+    # appears on the page at all. A `[Waiting]` row under Later still promotes
+    # nothing, which is what keeps the 2026-07-30 ruling's substance: work
+    # nobody can see does not get to occupy the top of the page.
     body5, h2s5 = render("""# X Backlog
 
 ## Now
 
-- **F001 — Named, but only by parked work** [Ready] — nothing live waits. ^F001
+- **F001 — Named by parked but VISIBLE work** [Ready] — a rendered row waits. ^F001
 
 ## Later
 
-- **F002 — Parked, and waiting** [Blocked F001] — deferred by intent. ^F002
+- **F002 — Parked, waiting, and rendered** [Blocked F001] — deferred by intent. ^F002
 """, next_actions={"F001": "go"})
-    check("a Later-only waiter does not make a blocker",
-          "## Blockers" in h2s5, False)
-    check("the un-promoted blocker stays in Ready",
+    check("a Later waiter that RENDERS does make a blocker",
+          "## Blockers" in h2s5, True)
+    check("...and the promoted blocker leaves Ready for the top",
           any("F001" in ln for ln in body5), True)
+
+    # The other side of the same rule: a waiter that renders NOWHERE promotes
+    # nothing. This is what carries the 2026-07-30 ruling forward.
+    _, h2s5b = render("""# X Backlog
+
+## Now
+
+- **F001 — Named only by an invisible row** [Ready] — nothing visible waits. ^F001
+
+## Later
+
+- **F002 — Parked and hidden** [Waiting] — renders in no section. ^F002
+""", next_actions={"F001": "go"})
+    check("a waiter that renders nowhere still promotes nothing",
+          "## Blockers" in h2s5b, False)
 
     # The same edge, with the waiter moved to the frontier, DOES surface —
     # so the assertion above is about horizon and not about the edge failing
@@ -262,9 +290,14 @@ def main():
             _in = ln.strip() == "## Blockers"
         elif ln.startswith("- ") and _in:
             _blockers_bullets.append(ln)
-    check("the parked waiter is not named in the Blockers bullet",
-          any("F009" in ln for ln in _blockers_bullets), False)
-    check("...but the parked row still appears in the Blocked ledger",
+    # SUPERSEDED 2026-08-08 along with the horizon rule above: a parked waiter
+    # that RENDERS is now named, because the bullet's job is to tell the reader
+    # which of the rows they can see are held up by this one. Naming only the
+    # frontier waiter left F009 visible in the `## Blocked` ledger saying it
+    # waits on F001, while F001's own bullet denied gating anything but F008.
+    check("a parked waiter that renders IS named in the Blockers bullet",
+          any("F009" in ln for ln in _blockers_bullets), True)
+    check("...and the parked row still appears in the Blocked ledger too",
           any("F009" in ln for ln in body7 if ln.startswith("- ")), True)
 
     # --- the case that decided the design: the BLOCKER itself is off-frontier
