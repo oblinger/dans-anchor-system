@@ -126,8 +126,20 @@ VALID_STATUS_PATTERNS = (
     # parser accepts (F091 / T007 / B-QFix / DMUX-F034 / R-Scaffolding.5.2).
     # Bare "Blocked" still parses here so existing rows can be READ and
     # re-bracketed; `blocked_grammar_gate` is what refuses it on a write.
-    re.compile(r"^Blocked(\s+[A-Za-z][A-Za-z0-9_\-]*(?:\.[A-Za-z0-9_\-]+)*)?$",
-               re.IGNORECASE),                                               # "Blocked F210", "Blocked B-QFix"
+    # F305 — TWO argument forms, both legal and deliberately not distinguished
+    # here: the HANDLE form (`Blocked F210`, `Blocked HA-T045`, `Blocked
+    # B-QFix`) names a row, and the WHAT form (`Blocked upstream API`) names a
+    # change in the universe in 1-3 words. Only the handle form is a typed
+    # edge — `_BLOCKED_HANDLE_RE` in queries-render.py stays single-token on
+    # purpose, so a multi-word "what" is never mistaken for a row id and
+    # rendered as a dead link.
+    #
+    # The 1-3 word cap is the spec's, and it is doing real work: it is what
+    # keeps this from becoming a free-text field. The bracket is a visual
+    # index scanned at a glance; a sentence there is a body, not a state.
+    re.compile(r"^Blocked(\s+[A-Za-z][A-Za-z0-9_\-]*(?:\.[A-Za-z0-9_\-]+)*"
+               r"(?:\s+[A-Za-z0-9][A-Za-z0-9_\-]*){0,2})?$",
+               re.IGNORECASE),                                               # "Blocked F210", "Blocked upstream API"
 )
 
 # A Questions-bracket promise: the linked target must contain ≥1 of these.
