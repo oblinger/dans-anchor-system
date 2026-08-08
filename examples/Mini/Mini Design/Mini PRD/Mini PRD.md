@@ -3,7 +3,7 @@ description:: Product requirements for Mini — the minimal example project.
 
 | -[[Mini PRD]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [[Mini]] → [Mini PRD](hook://p/Mini%20PRD)<br>: Product requirements for Mini. |
 | --- | --- |
-| [[Mini Stories]] | one user story — index for US-MINI-1 (folder-form per [[DAS Stories]]) |
+| [[Mini Stories]]  | one user story — index for US-MINI-1 (folder-form per [[DAS Stories]]) |
 | ... |  |
 
 ## Overview

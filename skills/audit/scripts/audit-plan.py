@@ -5718,7 +5718,80 @@ def chk_regex_basename(target, anchor_root, args):
     return "fail", f"basename {f.name!r} does not match {pattern}"
 
 
+# ── R-examples (TINK, 2026-08-08) — the gallery must be wholly invented ──────
+#
+# Decision: DAS Decisions § D1. A published repo authored from inside a private
+# vault has a standing gradient toward real examples; it has been followed four
+# separate times. These checkers are the counterweight — and they are a FLOOR,
+# not a definition (R-examples-04): a marker list only ever catches identifiers
+# someone thought to list.
+
+_VAULT_MARKERS = (
+    # live project slugs, word-bounded so prose like "a mux of things" is safe
+    r"\b(?:DMUX|MUX|DKT|OBU|SKA|UCM|SVP|VEC|LUMEN|ATT|STEN|SONAR|WARD)\b",
+    # product / org names
+    r"DictaMUX|DictaMux|MuxUX|HookAnchor|Docket|ob-utils|SportsVisio",
+    # personal identifiers
+    r"Oblinger|oblinger|/Users/[a-z]|~/ob/",
+)
+_VAULT_RX = re.compile("|".join(_VAULT_MARKERS))
+
+
+def chk_examples_no_vault_identifiers(target, anchor_root, args):
+    """R-examples-01 / -02 — no vault-derived identifier in an example.
+
+    Mentions on a markdown TABLE row are excluded on purpose. The `...` catch-all
+    is an electric zone enumerating whatever files are present, so a hit there
+    reports a real *file* in the gallery rather than authored prose — and the row
+    cannot be edited anyway (anything written into it is discarded on the next
+    rebuild). Flagging it would send the reader to fix the one line they must not
+    touch. The offending file trips these rules on its own content.
+    """
+    try:
+        text = _read(target)
+    except OSError:
+        return "error", "unreadable"
+    bad = []
+    for n, ln in enumerate(text.splitlines(), 1):
+        if _is_table_row(ln):
+            continue
+        # The `:>>` breadcrumb is derived from where the file physically sits, not
+        # authored, and R-doc-structure-01 requires it — so every example in a repo
+        # nested inside a vault carries that vault's path whatever its content says.
+        # That IS a real exposure, but it is one systemic fact rather than N content
+        # defects, and it cannot be fixed file-by-file. Tracked separately; flagging
+        # it here would bury the authored leaks this checker exists to surface.
+        if ln.lstrip().startswith(":>>"):
+            continue
+        for m in _VAULT_RX.finditer(ln):
+            bad.append(f"{n}:{m.group(0)}")
+    if not bad:
+        return "pass", ""
+    shown = ", ".join(dict.fromkeys(bad[:6]))
+    more = f" (+{len(bad) - 6} more)" if len(bad) > 6 else ""
+    return "fail", (f"vault identifier(s) in example prose — {shown}{more}. "
+                    "Examples are wholly invented (DAS Decisions D1): rewrite with "
+                    "an invented stand-in rather than renaming the real thing.")
+
+
+def chk_examples_no_drive_shaped_folder(target, anchor_root, args):
+    """R-examples-03 — no `_NAME_` folder; that form is a logical-drive claim."""
+    offenders = sorted({
+        part for part in target.relative_to(anchor_root).parts[:-1]
+        if len(part) > 2 and part.startswith("_") and part.endswith("_")
+    })
+    if not offenders:
+        return "pass", ""
+    return "fail", ("folder named " + ", ".join(offenders) +
+                    " — `_NAME_` is reserved to the logical-drive vocabulary, where "
+                    "it asserts a COMPLETE copy of logical drive NAME (Disk Conventions). "
+                    "`_ARCHIVES_` is a real ~120 GB drive. Archive to Yore instead.")
+
+
 CHECKERS = {
+    # R-examples (TINK) — the gallery must be wholly invented
+    "examples_no_vault_identifiers": chk_examples_no_vault_identifiers,
+    "examples_no_drive_shaped_folder": chk_examples_no_drive_shaped_folder,
     # R-agenda (T071) — nine rules that had check:: refs but no implementation
     "agenda_filename_valid": chk_agenda_filename_valid,
     "agenda_in_track_folder": chk_agenda_in_track_folder,

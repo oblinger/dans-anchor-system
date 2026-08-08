@@ -4,10 +4,10 @@ description: "system architecture"
 # HBR Architecture
 How Harbor is built: three pipelines around one shared SQLite catalog.
 
-| -[[HBR Architecture]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [[HBR]] → [[HBR Design]] → [HBR Architecture](hook://p/HBR%20Architecture)<br>: Harbor Architecture — system architecture |
+| -[[HBR Architecture]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [[HBR\|HARBOR]] → [[HBR Design\|HARBOR DESIGN]] → [HBR Architecture](hook://p/HBR%20Architecture)<br>: Harbor Architecture — system architecture |
 | --- | --- |
 | Anchor | [[HBR]] (parent) |
-| Related | [[HBR Components]],  [[HBR Decisions]],  [[HBR API Design]],   |
+| Related | [[HBR Components]],  ~~[[HBR Decisions]]~~,  [[HBR API Design]],   |
 | ... |  |
 
 ## Overview
@@ -35,9 +35,9 @@ Single process. The `harbor` binary boots all three pipelines as in-process subs
 
 ## Principles
 
-- **Catalog is the only shared state** — pipelines coordinate exclusively through catalog rows; no pipeline holds a handle to another. (see [[HBR Decisions|D01]].)
-- **Direct play first** — Serve streams original bytes whenever the client supports the codec; transcoding is a fallback, never the default path. (see [[HBR Decisions|D02]].)
-- **Content hash is identity** — the Deduper folds entries by content hash, so the same rip on two drives is one catalog entry. (see [[HBR Decisions|D03]].)
+- **Catalog is the only shared state** — pipelines coordinate exclusively through catalog rows; no pipeline holds a handle to another. (see ~~[[HBR Decisions|D01]]~~.)
+- **Direct play first** — Serve streams original bytes whenever the client supports the codec; transcoding is a fallback, never the default path. (see ~~[[HBR Decisions|D02]]~~.)
+- **Content hash is identity** — the Deduper folds entries by content hash, so the same rip on two drives is one catalog entry. (see ~~[[HBR Decisions|D03]]~~.)
 - **One config file** — every tunable lives in `harbor.toml`; no scattered env vars, no hidden defaults that aren't echoed at startup.
 - **No cloud, no telemetry** — Harbor is self-hosted and offline by default; the only outbound surface is the LAN web app it serves.
 
@@ -60,11 +60,11 @@ The catalog is one SQLite file. Sketch of the load-bearing tables:
 | D3 | Byte-range streaming over the original file | Direct play is cheapest and highest fidelity; the Transcoder is invoked only when codec negotiation fails. |
 | D4 | Crash recovery via catalog checkpoint | Operate's Backup checkpoints the SQLite catalog (WAL); a crash recovers by reopening the file — US-HBR-5. |
 
-Anchor-wide rulings (SQLite-not-server, direct-play-first, hash-identity) live in [[HBR Decisions]] and are referenced above, not restated.
+Anchor-wide rulings (SQLite-not-server, direct-play-first, hash-identity) live in ~~[[HBR Decisions]]~~ and are referenced above, not restated.
 
 ## See also
 
 - [[HBR Components]] — the grouped module tree (Ingest / Serve / Operate sub-anchors).
 - [[HBR API Design]] — the public contract surface.
-- [[HBR Decisions]] — durable anchor-wide rulings (D01–D03).
+- ~~[[HBR Decisions]]~~ — durable anchor-wide rulings (D01–D03).
 - [[HBR PRD]] — what Harbor is for and the v1 user stories.

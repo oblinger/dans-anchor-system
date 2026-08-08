@@ -4,7 +4,7 @@ description: "Harbor's design — PRD through features, in design-dispatch order
 # HBR Design
 The design of Harbor: what it's for, how it's shaped, and the rulings behind it.
 
-| -[[HBR Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [[HBR\|HARBOR]] → [HBR Design](hook://p/HBR%20Design)<br>: Harbor Design — the design docs |
+| -[[HBR Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [[HBR\|HARBOR]] → [HBR Design](hook://p/HBR%20Design)  |
 | --- | --- |
 | Anchor | [[HBR]] (parent) |
 | Related | [[HBR Components]],  [[DAS Design Docs]],  [[HBR Architecture]] (root-level sibling folder), |

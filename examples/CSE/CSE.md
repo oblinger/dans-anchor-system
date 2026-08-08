@@ -1,5 +1,4 @@
 ---
-description: Common Skill Example — reference anchor — a fully-wired example of a DAS skill anchor
 ---
 # CSE — Common Skill Example
 

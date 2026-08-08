@@ -1,14 +1,14 @@
 ---
-description: "SKA Bridge Testing — strategy + proposed-tests overview"
+description: "test strategy + proposed tests"
 status:: drafting
 ---
 # SKA Bridge Testing
 How the Bridge skill is verified: the kinds of test, how much of each, and the concrete inventory consistent with that strategy.
 
-| -[[SKA Bridge Testing]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [SKA Bridge Testing](hook://p/SKA%20Bridge%20Testing)<br>: test strategy + proposed tests |
+| -[[SKA Bridge Testing]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL]] → [SKA Bridge Testing](hook://p/SKA%20Bridge%20Testing)<br>: test strategy + proposed tests |
 | --- | --- |
-| Anchor | [[SKA Bridge Design]] (parent) |
-| Related | [[SKA Bridge PRD]],  [[SKA Bridge UX Design]],  [[DAS verification]],   |
+| Anchor | ~~[[SKA Bridge Design]]~~ (parent) |
+| Related | ~~[[SKA Bridge PRD]]~~,  ~~[[SKA Bridge UX Design]]~~,  [[DAS verification]],   |
 | ... |  |
 
 **TLDR**
@@ -20,7 +20,7 @@ How the Bridge skill is verified: the kinds of test, how much of each, and the c
 
 ## Overview
 
-Bridge is inherently a **two-machine** system, so its center of gravity is **integration testing against a real remote** — most of the logic is I/O orchestration (SSH, REST, rsync) that unit tests can't meaningfully cover. Unit tests cover the small islands of pure logic in the helper scripts; the e2e tier ties the kinds together into the "twin" scenario; one property test guards the hard transcript-exclusion invariant. The harness is `bridge-test.sh` under the skill folder — it runs the runnable tiers and prints mechanical PASS/FAIL per the [[CLAUDE.md]] no-manual-reproduction discipline.
+Bridge is inherently a **two-machine** system, so its center of gravity is **integration testing against a real remote** — most of the logic is I/O orchestration (SSH, REST, rsync) that unit tests can't meaningfully cover. Unit tests cover the small islands of pure logic in the helper scripts; the e2e tier ties the kinds together into the "twin" scenario; one property test guards the hard transcript-exclusion invariant. The harness is `bridge-test.sh` under the skill folder — it runs the runnable tiers and prints mechanical PASS/FAIL per the ~~[[CLAUDE.md]]~~ no-manual-reproduction discipline.
 
 ## Strategy
 
@@ -100,6 +100,6 @@ Bare-bracket entries (`[SKA Bridge Integration § Control]`) mark proposed-but-u
 
 ## See also
 
-- [[SKA Bridge PRD]] — the requirements each test verifies.
-- [[SKA Bridge UX Design]] — the verbs under test.
+- ~~[[SKA Bridge PRD]]~~ — the requirements each test verifies.
+- ~~[[SKA Bridge UX Design]]~~ — the verbs under test.
 - [[DAS verification]] — four-tier verification discipline mapped above.

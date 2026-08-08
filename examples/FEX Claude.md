@@ -22,27 +22,27 @@ The common case. No Pilot line, no role declaration: a mission, the commands tha
 \## Commands
 
 \### Main script usage
-- `python3 km` — execute all rebuild and commit actions (full rebuild cycle)
-- `python3 km -c` — commit all changes to git
-- `python3 km -i` — rebuild index pages (dated entry tables)
-- `python3 km -t` — rebuild topic index pages
+- `python3 hbr` — run the full catalog cycle (scan, dedup, checkpoint)
+- `python3 hbr -s` — scan the media roots for new files
+- `python3 hbr -d` — rebuild the content-hash dedup index
+- `python3 hbr -k` — write a catalog checkpoint
 
 \### Development commands
-- `python3 -m py_compile km` — syntax check the main script
-- `python3 -c "import km_lib"` — test module imports
+- `python3 -m py_compile hbr` — syntax check the main script
+- `python3 -c "import hbr_lib"` — test module imports
 
 \## Architecture
 
-A personal knowledge-management system operating on the knowledge repository at `~/ob/kmr`. The single `km` script drives everything; the work is split across modules that each export one main function.
+A home media catalog operating over the library at `~/media/harbor`. The single `hbr` script drives everything; the work is split across modules:
 
-- **km_commit.py** — git operations (add, commit, push, pull)
-- **km_history.py** — git log processing into timeline pages
-- **km_index.py** — dated-entry extraction and table generation
-- **km_lib.py** — shared utilities, constants, file operations
+- **hbr_scan.py** — walk the media roots, stat and enqueue new files
+- **hbr_hash.py** — content hashing and duplicate resolution
+- **hbr_catalog.py** — catalog table generation and checkpointing
+- **hbr_lib.py** — shared utilities, constants, file operations
 
 \### Core workflow
 
-`execute_all()` runs: commit changes → doc syncs → history rebuild → GitHub sync.
+`execute_all()` runs: scan roots → hash new files → resolve duplicates → write checkpoint.
 
 ---
 
@@ -59,16 +59,16 @@ You are the Pilot for the Harbor project. Role: `~/.claude/skills/role/role-pilo
 \## Split anchor structure
 
 This project uses a Split Anchor layout:
-- **Anchor root** (here): `~/ob/kmr/examples/HBR/` — inside the vault
+- **Anchor root** (here): `~/notes/harbor/` — inside the vault
 - **Planning / design / dev docs**: at the anchor root — `HBR Track/`, `HBR Design/`, `HBR Dev Docs/`
-- **Code**: `~/ob/proj/Harbor/`
+- **Code**: `~/code/harbor/`
 
 Edit documentation here in the vault. Code changes go through the code path above.
 
 \## ⚠️ Never copy binaries
 
 **There must be only one copy of each binary on the system.**
-- The only binaries live in `~/ob/proj/Harbor/target/release/`
+- The only binaries live in `~/code/harbor/target/release/`
 - `/Applications/Harbor.app` contains **symlinks**, not copies
 - Never use `cp` on a Harbor binary — if a symlink is broken, recreate it
 

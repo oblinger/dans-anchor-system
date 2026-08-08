@@ -1,5 +1,4 @@
 ---
-description: "a short whitepaper on the Harbor media server — the worked Paper anchor example"
 traits: [Paper]
 ---
 
