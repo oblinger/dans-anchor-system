@@ -742,6 +742,17 @@ def _match_file_glob(arg: str, scope_files: list[Path], anchor_root: Path) -> li
     scope files' anchor-relative paths — no filesystem walk (F232 B3)."""
     name = _anchor_name(anchor_root)
     root = anchor_root.resolve()
+    # T164 — a facet that materializes as a FOLDER carries its own `.anchor`, so
+    # `sub_anchor_roots` drops it from the parent's scope and it is only ever audited
+    # scoped on itself. But its selector is authored from the parent's point of view
+    # (`{anchor}/**/* Rocks/**`), which is then unsatisfiable from BOTH ends: out of
+    # scope from the parent, and from the folder itself `{anchor}` IS the Rocks folder,
+    # so the pattern demands a nested `* Rocks/` inside itself. Every rule read
+    # `(checked)` and fired on nothing. So each file also gets a candidate path
+    # prefixed with the anchor's own directory name, which is exactly the path the
+    # selector was written against. File-shaped facets are unaffected — their primary
+    # relative path already matched, and this only ever adds candidates.
+    own = anchor_root.name
     rel_of: dict = {}
     for p in scope_files:
         if p == anchor_root or p.resolve() == root:
@@ -768,7 +779,8 @@ def _match_file_glob(arg: str, scope_files: list[Path], anchor_root: Path) -> li
         else:
             rxs = [_glob_rx(pat) for pat in _expand_braces(rel)]
             paths = {p for p, r in rel_of.items()
-                     if r and any(rx.match(r) for rx in rxs)}
+                     if r and any(rx.match(c) for rx in rxs
+                                  for c in (r, f"{own}/{r}"))}
         (exclude if neg else include).update(paths)
     hits = include - exclude
     return [p for p in scope_files if p in hits]
