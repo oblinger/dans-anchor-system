@@ -1608,8 +1608,17 @@ def render_queries_doc(name: str, banner: Optional[str], rows: list[Row],
         # derive_banner; reused here rather than minting a token, since a fully
         # drained anchor is the same signal. Counts are all zero by definition:
         # any non-zero horizon or icebox count would have produced a banner.
-        h1 = (f"# [-]  [[{anchor_page_name}|{name}]]  -  Runnable 0    User 0   |   "
-              f"Now 0    Next 0    Later 0    Verify 0    Icebox 0")
+        # Through the one formatter, never hand-spelled. This line used to carry
+        # its own copy of the banner and had drifted two renames behind it —
+        # `Runnable` (renamed back to `Ready`) and a zone 3 of `Verify  Icebox`
+        # (now `Parked  Waiting  Icebox`) — so a fully drained anchor was
+        # published in a shape `R-query-16` no longer describes. Same defect as
+        # MUX T081 at the consuming end: a second spelling of a format is a
+        # second thing to forget. All counts are zero by definition here.
+        h1 = audit_q.format_status_banner(
+            "-", f"[[{anchor_page_name}|{name}]]",
+            0, 0, 0, 0, 0, 0, 0, 0,
+        )
         body = ["_Nothing pending._"]
     else:
         # The Q.md banner links the name to `{name} queries` (so the user clicks
