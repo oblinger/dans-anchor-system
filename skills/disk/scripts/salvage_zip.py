@@ -30,6 +30,7 @@ addressing would be valid and the run refuses.
 import argparse
 import collections
 import os
+import re
 import struct
 import sys
 import time
@@ -42,6 +43,12 @@ CD = b"PK\x01\x02"
 CHUNK = 1 << 22          # 4 MB feed to the decompressor
 BUF = 64 << 20           # 64 MB sliding window over the nested member
 MAX_RESYNC_SCAN = 256 << 20
+
+# Top-level names that are the INTERIOR of a zip-family container (.docx,
+# .xlsx, .pptx, .jar, .apk). If these turn up as members, the walk almost
+# certainly stepped inside a nested archive and emitted its guts.
+INNARDS_RE = re.compile(
+    r"^(\[Content_Types\]\.xml|_rels/|word/|xl/|ppt/|docProps/|META-INF/|customXml/)", re.IGNORECASE)
 
 
 class Slice:
@@ -184,6 +191,7 @@ def main():
         cls = collections.Counter()
         detail = collections.defaultdict(list)
         resyncs = []
+        suspect_innards = []
         names = set()
         dup = 0
         recovered_bytes = 0
@@ -301,6 +309,16 @@ def main():
                                 probe = p + 4
                             if found is not None:
                                 consumed = found - dstart
+                                if consumed and sl.at(dstart, 4) == SIG:
+                                    # THE case the run-3 defect lived in: a
+                                    # stored entry whose payload opens with a
+                                    # local-header signature, i.e. a nested
+                                    # archive. Counted, not merely handled --
+                                    # a fix proven only on synthetic input is
+                                    # a claim about the fixture. This number
+                                    # is how a real run demonstrates the fixed
+                                    # path actually ENGAGED on real bytes.
+                                    cls["NESTED_ARCHIVE_MEASURED"] += 1
                             elif sl.at(dstart, 4) == SIG:
                                 consumed = 0   # empty entry, no descriptor
                             else:
@@ -365,6 +383,16 @@ def main():
 
                 cls["RECOVERED"] += 1
                 recovered_bytes += usize
+                if INNARDS_RE.match(name):
+                    # An independent detector for the failure the exit code
+                    # cannot see. Walking INTO a nested archive raises nothing
+                    # and produces no resync -- it just emits that archive's
+                    # internal members as though they were top-level files and
+                    # loses the container. These names are the fingerprints of
+                    # an Office/jar/apk interior; in a backup of a person's
+                    # Drive they should essentially never appear at top level.
+                    # A non-zero count here means look, even on a "clean" run.
+                    suspect_innards.append(name)
 
                 if out:
                     wname = name
@@ -396,7 +424,9 @@ def main():
                 out.close()
 
     report(final=True)
-    total = sum(v for k, v in cls.items() if k != "REACHED_CENTRAL_DIRECTORY")
+    total = sum(v for k, v in cls.items()
+                if k not in ("REACHED_CENTRAL_DIRECTORY",
+                             "NESTED_ARCHIVE_MEASURED"))
     clean = cls["RECOVERED"] + cls["DIRECTORY"]
     print("\n=== salvage result ===")
     for k, v in cls.most_common():
@@ -408,6 +438,26 @@ def main():
           f"{100.0 * clean / max(total, 1):.2f}%")
     print(f"resyncs: {len(resyncs)}   bytes skipped: "
           f"{sum(n for _, n in resyncs):,}")
+    nested = cls.get("NESTED_ARCHIVE_MEASURED", 0)
+    print(f"\nnested archives measured by descriptor: {nested:,}")
+    if nested:
+        print("  Each of these is a STORED entry whose payload begins with a")
+        print("  local-header signature. The retired defect read them as empty")
+        print("  and walked INTO them, emitting their internal members as")
+        print("  top-level files. A non-zero count here is the fixed path")
+        print("  engaging on real bytes, not on a fixture.")
+    else:
+        print("  NONE encountered — so this run is NOT evidence about that path"
+              " one way or the other.")
+    print(f"\ncontainer-interior names seen at top level: {len(suspect_innards)}")
+    if suspect_innards:
+        print("  !! These are the fingerprint of a walk that stepped inside a")
+        print("  !! nested archive. This check is independent of the exit code,")
+        print("  !! because that failure raises nothing and causes no resync.")
+        for n in suspect_innards[:15]:
+            print(f"     {n}")
+    else:
+        print("  none — no sign the walk stepped inside a nested container")
     for off, n in resyncs[:10]:
         print(f"    resync at {off:,} skipped {n:,} bytes")
     if dup:
@@ -420,7 +470,9 @@ def main():
                 print("   ", s[:160])
     bad = (cls["CRC_MISMATCH"] + cls["INFLATE_FAIL"] + cls["NO_DESCRIPTOR"]
            + cls["STORED_NO_LENGTH"])
-    return 0 if bad == 0 and not resyncs else 2
+    # suspect_innards is a finding in its own right: everything else can be
+    # clean and the archive still be wrong in the one way that is invisible.
+    return 0 if bad == 0 and not resyncs and not suspect_innards else 2
 
 
 sys.exit(main())

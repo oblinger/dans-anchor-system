@@ -23,7 +23,11 @@ T = tempfile.mkdtemp(prefix="salv-")
 fails = []
 
 
+_all = []
+
+
 def check(label, cond, extra=""):
+    _all.append(label)
     print(("  ok    " if cond else "  FAIL  ") + label
           + ("" if cond else "   " + str(extra)[:400]))
     if not cond:
@@ -134,8 +138,36 @@ try:
     check("empty file preserved as empty rather than dropped",
           got.get("docs/empty.txt") == b"")
     check("no phantom members invented", len(got) == len(payload), sorted(got))
+    # The two instruments added for the real run must be shown to FIRE. A
+    # counter that cannot reach a non-zero value proves nothing when it reads
+    # zero on the 64.9 GB, and "no innards seen" means nothing if the detector
+    # is inert.
+    check("nested-archive counter engages (not a probe that can never pass)",
+          "nested archives measured by descriptor: 1" in out, out[-900:])
+    check("innards detector reports clean on a correct walk",
+          "none — no sign the walk stepped inside a nested container" in out,
+          out[-900:])
 except Exception as e:
     check("recovered archive opens", False, repr(e))
+
+# --- the innards detector must be able to FIRE ------------------------------
+ns2 = NoSeek()
+with zipfile.ZipFile(ns2, "w", zipfile.ZIP_DEFLATED) as iz2:
+    iz2.writestr("word/fonts/Tahoma-bold.ttf", b"z" * 500)
+    iz2.writestr("[Content_Types].xml", b"<xml/>")
+inner2 = bytearray(ns2.b.getvalue())
+_e2 = inner2.rfind(b"PK\x05\x06")
+_c2 = struct.unpack("<I", bytes(inner2[_e2 + 16:_e2 + 20]))[0]
+inner2[_c2:] = b"\x00" * (len(inner2) - _c2)
+oI = os.path.join(T, "innards.zip")
+build(bytes(inner2), oI)
+rc, out = run(oI, os.path.join(T, "outI.zip"))
+check("innards detector FIRES on container-interior names at top level",
+      "container-interior names seen at top level: 2" in out, out[-900:])
+check("innards detector: exits non-zero even with nothing else wrong",
+      rc != 0, f"rc={rc}")
+check("innards detector: says the exit code cannot see this failure",
+      "independent of the exit code" in out, out[-900:])
 
 c2 = bytearray(broken)
 hit = c2.find(b"docs/report.txt")
@@ -168,5 +200,5 @@ rc, out = run(o1, r4, ("--dry-run",))
 check("--dry-run verifies and writes nothing", not os.path.exists(r4), out[-200:])
 
 shutil.rmtree(T, ignore_errors=True)
-print(f"\n  {17 - len(fails)}/17 passed" if not fails else f"\n  FAILED: {fails}")
+print(f"\n  {len(_all) - len(fails)}/{len(_all)} passed" if not fails else f"\n  FAILED: {fails}")
 sys.exit(1 if fails else 0)
