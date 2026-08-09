@@ -45,7 +45,17 @@ def body(ctx):
             break
         if host is None or not remote:
             continue  # bare interactive `ssh <host>` — a legitimate attach
-        if remote[0].strip("'\"") == "tmux":
+        rc = remote[0].strip("'\"")
+        if len(remote) == 1:
+            # a quoted remote command is ONE token after the outer shlex.split
+            # (e.g. `ssh host "tmux send-keys -t '...' '...' Enter"`) — retokenize
+            # just that token to find its actual first word.
+            try:
+                parts = shlex.split(remote[0])
+            except ValueError:
+                parts = remote[0].split()
+            rc = parts[0] if parts else ""
+        if rc == "tmux":
             continue  # the bridge's own control plane (attach/send-keys/capture-pane)
         return ["DENY: Remote-control work → use the `bridge` skill (persistent tmux; "
                 "the remote tmux inherits TCC/FDA from its launching Terminal). "

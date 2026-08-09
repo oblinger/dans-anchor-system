@@ -58,6 +58,7 @@ one document from the command line.
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -70,6 +71,34 @@ import sten_match as M            # noqa: E402  — the parser, reused, not copi
 class StencilError(Exception):
     """Generation refused: a malformed stencil, a missing binding, or a
     binding-list whose length disagrees with a sibling in the same group."""
+
+
+# ------------------------------------------------------------- table escaping
+
+# T6 finding (F303 M4 escaping defect): an unescaped `|` inside a substituted
+# value opens a new markdown table column, silently turning a two-cell row
+# into four.  A malformed stencil written this way is invisible to
+# `M.match`, because match and generate both parse the SAME `parse_stencil`
+# and a table row is just literal text to it — only comparing generated
+# output against a REAL specimen exposes it.  So the escaping has to live
+# here, in the generator, rather than be pushed onto every env as a rule
+# callers must remember: a binding that must be pre-escaped is a trap the
+# corpus (T6.A / ENV_T6A) already proves people fall into.
+_UNESCAPED_PIPE_RE = re.compile(r"(?<!\\)\|")
+
+
+def _escape_pipes(value: str) -> str:
+    """Escape every `|` in `value` that is not already escaped — never
+    double-escapes a `\\|` the binding already carries."""
+    return _UNESCAPED_PIPE_RE.sub(r"\\|", value)
+
+
+def _is_table_row(pat: "M.Pat") -> bool:
+    """A stencil line is a table row by its OWN shape — a leading `|` — not
+    by anything the binding says.  Only substituted values get escaped;
+    the stencil's own structural pipes (`| --- | --- |`) are literal text
+    and pass through untouched."""
+    return pat.raw.lstrip().startswith("|")
 
 
 # --------------------------------------------------------------- primitives
@@ -101,13 +130,14 @@ def _free_vars_of_item(item, bound: dict) -> list[str]:
     return out
 
 
-def _render_segs(segs, bound: dict, name: str) -> str:
+def _render_segs(segs, bound: dict, name: str, escape_pipes: bool = False) -> str:
     parts = []
     for kind, val in segs:
         if kind == "lit":
             parts.append(val)
         elif val in bound:
-            parts.append(bound[val])
+            v = bound[val]
+            parts.append(_escape_pipes(v) if escape_pipes else v)
         else:
             raise StencilError(
                 f"{name}: missing binding for variable {{{{{val}}}}}")
@@ -121,7 +151,7 @@ def _render_item(item, bound: dict, name: str) -> str:
                 f"{name}: missing binding for variable {{{{{item.name}}}}}")
         return bound[item.name]
     if isinstance(item, M.Pat):
-        return _render_segs(item.segs, bound, name)
+        return _render_segs(item.segs, bound, name, escape_pipes=_is_table_row(item))
     raise AssertionError(f"unexpected item in a repeatable group: {item!r}")
 
 

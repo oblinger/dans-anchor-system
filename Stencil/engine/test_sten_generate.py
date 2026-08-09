@@ -149,12 +149,28 @@ UNITS = [unit_singular_binding, unit_hole_is_multiline,
 
 # ------------------------------------------------------------- corpus round trips
 
-# Bindings for every generable proposal.  Values are lifted from the corpus's
-# own specimens where one exists (T1.a, T3.a, T6.a) so a generated document
-# reads as a real instance rather than an invented one; T5.B and T7.A have no
-# single specimen to lift verbatim (T5.a is abridged and carries the cut
-# line; T7.b has no variables at all — it is the shape already, not a
-# stencil instance), so their bindings are plain, stencil-shaped text.
+# Bindings for every generable proposal.  Provenance, MEASURED rather than
+# assumed (T179): this comment used to claim every value was "lifted from the
+# corpus's own specimens where one exists (T1.a, T3.a, T6.a)".  That is false
+# for T1.A, and only half true for T3.A and T6.A — see the specimen-equality
+# section below, which checks generated output against the real specimen
+# text (not against the parser that produced the stencil) and is what a
+# hand-typed, wrong binding cannot slip past silently the way it did before.
+#
+#   T1.A   NOT lifted.  None of `slug` / `one-line description` /
+#          `dispatch table` occurs anywhere in specimen T1.a (`HERMES
+#          Backlog.md`) — this env is a self-referential, TINK-flavoured
+#          document describing this very test suite, invented from scratch.
+#   T3.A   the FIRST LOG entry is lifted verbatim (see ENV_T3A below); the
+#          SECOND is invented — repetition needs two occurrences and the
+#          specimen shows only one.
+#   T5.B   T7.A no single specimen to lift verbatim (T5.a is abridged and carries
+#          the cut line; T7.b has no variables at all — it is the shape
+#          already, not a stencil instance), so their bindings are plain,
+#          stencil-shaped text.
+#   T6.A   TITLE / IDENTITY / the two curated rows are lifted verbatim (see
+#          ENV_T6A below); the specimen's trailing `...` catch-all row is
+#          deliberately not covered — T6.A proposes only the curated rows.
 
 ENV_T1A = {
     "slug": "TINK",
@@ -167,18 +183,23 @@ ENV_T1A = {
         "| ... | [[TINK queries]],   |",
 }
 
+# The FIRST LOG entry, extracted with the real matcher against the real
+# specimen — not hand-typed — so it is byte-exact, including the leading
+# blank line the `{{entry body}}` Hole itself captures (T3.A's stencil has
+# no Blank between the heading and the Hole; T3.a's actual layout does, so
+# the Hole's capture legitimately starts with "\n").  A hand-typed copy
+# dropped that blank line and nothing caught it before specimen-equality did.
+_T3A_ENTRY0 = M.match(B["T3.A"], B["T3.a"]).bindings
+
 ENV_T3A = {
-    "one-line description":
-        "Reverse-chronological correspondence and notes with Robin Calder "
-        "(Northwind champion), newest first.",
-    "YYYY-MM-DD": ["2026-08-03", "2026-08-05"],
-    "DAY": ["Mon", "Wed"],
-    "DIRECTION": ["SENT", "RECEIVED"],
-    "KIND": ["reply", "note"],
+    "one-line description": _T3A_ENTRY0["one-line description"],
+    "YYYY-MM-DD": [_T3A_ENTRY0["YYYY-MM-DD"], "2026-08-05"],
+    "DAY": [_T3A_ENTRY0["DAY"], "Wed"],
+    "DIRECTION": [_T3A_ENTRY0["DIRECTION"], "RECEIVED"],
+    "KIND": [_T3A_ENTRY0["KIND"], "note"],
     "entry body": [
-        "To: robin@northwind.example\nSubject: Thanks, Robin\n\nRobin,\n\n"
-        "Thanks for the update, and for running a straight process "
-        "throughout.\n\nBest,\nDan",
+        _T3A_ENTRY0["entry body"],
+        # invented second entry — the specimen shows only one occurrence
         "To: robin@northwind.example\nSubject: Following up\n\n"
         "Robin, checking in on the timeline.",
     ],
@@ -190,13 +211,27 @@ ENV_T5B = {
     "HOSTNAME": "haorui",
 }
 
+# TITLE / IDENTITY / the two curated rows, likewise extracted with the real
+# matcher against T6.a's own lines rather than hand-typed.  The hand-typed
+# version this replaces got THREE things wrong at once — "Scout Track"
+# instead of the specimen's "SCOUT Track", trailing padding baked into
+# LEFT/IDENTITY that duplicated padding the stencil's own literals already
+# supply, and (T179's actual defect) an unescaped `|` — and every one of
+# them still reported MATCH under the existential round trip below.
+_T6A_HEAD = M.match("| -[[{{TITLE}}]]- | {{IDENTITY}} |",
+                    B["T6.a"].split("\n")[0]).bindings
+_T6A_ROWS = [M.match("| {{LEFT}}  | {{RIGHT}} |", line).bindings
+            for line in B["T6.a"].split("\n")[2:4]]      # Backlog, Messages —
+            # NOT the trailing `...` catch-all row, which T6.A does not cover
+
 ENV_T6A = {
-    "TITLE": "Scout Track",
-    "IDENTITY":
-        "→ [[kmr]] → [[SYS]] → [[Staff]] → [[SCOUT]] → "
-        "[Scout Track](hook://p/Scout%20Track)  ",
-    "LEFT": ["[[Scout Backlog|Backlog]]  ", "[[Scout Messages|Messages]]  "],
-    "RIGHT": ["", ""],
+    "TITLE": _T6A_HEAD["TITLE"],
+    "IDENTITY": _T6A_HEAD["IDENTITY"],
+    # unescaped here on purpose — Part 1 of T179 makes escaping the
+    # GENERATOR's job, so a binding carries the plain `|` and `generate`
+    # re-escapes it for the table row that renders it.
+    "LEFT": [b["LEFT"].replace("\\|", "|") for b in _T6A_ROWS],
+    "RIGHT": [b["RIGHT"] for b in _T6A_ROWS],
 }
 
 ENV_T6B = {"dispatch table": "| a | b |\n| --- | --- |\n| ... |  |"}
@@ -231,6 +266,80 @@ NOT_GENERABLE = {
             "entries are never rewritten (F302), so there is no document "
             "to generate.",
 }
+
+
+# --------------------------------------------------- specimen equality (T179)
+#
+# `run_round_trips` below asks an EXISTENTIAL question — does some stencil
+# accept the generated text — and both directions of that question run
+# through the SAME `parse_stencil`, so a malformation both sides express
+# identically (the T6.A unescaped-`|` defect) is invisible to it.  This asks
+# the stronger question: does the generated text match the corpus's OWN
+# specimen, not the parser that produced the stencil.
+#
+# label -> specimen label is "same digits, lowercase letter" — not assumed,
+# checked against `sten_corpus.blocks()` below (`unit_specimen_map_matches_corpus`).
+# T3.B is the one declared exception: there is no `T3.b` block in the corpus
+# — T3.B shares T3.A's body verbatim (`generate` does not read anchor mode)
+# and so is checked against the SAME specimen, T3.a, not one of its own.
+SPECIMEN_OF = {"T1.A": "T1.a", "T3.A": "T3.a", "T3.B": "T3.a", "T6.A": "T6.a"}
+ALIASED_SPECIMEN = {"T3.B"}          # excused from the by-convention check
+
+
+def unit_specimen_map_matches_corpus():
+    """SPECIMEN_OF is a claim about the corpus's own labelling, not a
+    hand-trusted assumption — every pair must be two real blocks in
+    `sten_corpus.blocks()`, and (aside from the declared alias above) must
+    differ by exactly the letter's case."""
+    for stencil_label, specimen_label in SPECIMEN_OF.items():
+        assert stencil_label in B, f"{stencil_label} not a corpus block"
+        assert specimen_label in B, f"{specimen_label} not a corpus block"
+        if stencil_label in ALIASED_SPECIMEN:
+            continue
+        num_s, letter_s = stencil_label.split(".")
+        num_e, letter_e = specimen_label.split(".")
+        assert num_s == num_e and letter_s.lower() == letter_e, (
+            f"{stencil_label} / {specimen_label}: not a stencil/specimen pair "
+            f"by the same-digits-lowercase-letter convention")
+
+
+UNITS.append(unit_specimen_map_matches_corpus)
+
+# Which of SPECIMEN_OF's pairs get checked, and how — T1.A is EXCLUDED even
+# though T1.a exists: measured above, none of ENV_T1A's values occur in it,
+# so there is nothing of the specimen for generated text to reproduce.
+#   "specimen-is-prefix"  the specimen's full text must open the generated
+#                          text — used where generate legitimately emits MORE
+#                          than the specimen shows (T3's invented 2nd entry).
+#   "generated-is-prefix" the generated text must open the specimen's full
+#                          text — used where the specimen legitimately shows
+#                          MORE than the proposal covers (T6.A's proposal
+#                          never emits the catch-all row T6.a carries).
+SPECIMEN_EQUALITY = [
+    ("T3.A", "T3.a", "specimen-is-prefix"),
+    ("T3.B", "T3.a", "specimen-is-prefix"),
+    ("T6.A", "T6.a", "generated-is-prefix"),
+]
+
+
+def run_specimen_equality(generated: dict):
+    print("\n=== specimen equality: generate(S, env) vs the corpus's own specimen ===")
+    bad = []
+    for stencil_label, specimen_label, mode in SPECIMEN_EQUALITY:
+        gen = generated[stencil_label]
+        specimen = B[specimen_label]
+        if mode == "specimen-is-prefix":
+            ok = gen.startswith(specimen)
+        elif mode == "generated-is-prefix":
+            ok = specimen.startswith(gen.rstrip("\n"))
+        else:
+            raise AssertionError(f"unknown mode {mode!r}")
+        mark = "ok " if ok else "XX "
+        print(f"  {mark}{stencil_label:<8} vs {specimen_label} ({mode}): "
+              f"{'MATCH' if ok else 'MISMATCH'}")
+        if not ok:
+            bad.append((stencil_label, specimen_label, mode))
+    return not bad
 
 
 def run_round_trips(verbose: bool):
@@ -306,9 +415,10 @@ def main():
         print(f"    not generable  {label}  — {why}")
 
     rt_ok, generated = run_round_trips(verbose)
+    se_ok = run_specimen_equality(generated)
     neg_ok = run_negative_direction(generated)
 
-    green = rt_ok and neg_ok and not failed
+    green = rt_ok and se_ok and neg_ok and not failed
     print("\n" + ("SUITE GREEN" if green else "SUITE RED"))
     return 0 if green else 1
 

@@ -6455,6 +6455,31 @@ def _alnum_subseq(orig: str, new: str) -> bool:
     return all(c in it for c in _alnum(orig))
 
 
+# T178: a frozen specimen region — `<!-- begin {body} --> ... <!-- end {body} -->`
+# — is a document quoting bytes verbatim on purpose (a Stencil test corpus, a
+# spec's worked example). No fixer may rewrite a byte inside one, no matter how
+# well-intentioned the fix (T4.a's trailing double-space hard breaks are the
+# exact bytes that specimen exists to demonstrate; `fix_md_trailing_ws` strips
+# them like any other line). `{body}` is whatever text follows "begin " up to
+# " -->", matched verbatim on the paired "end " line — general to any marker
+# vocabulary, not special-cased to Stencil's `example`/`proposal` kinds.
+_FROZEN_RE = re.compile(r"<!-- begin (.+?) -->\n.*?\n<!-- end \1 -->", re.S)
+
+
+def _frozen_regions(text: str) -> list[str]:
+    """Every frozen-specimen block in `text`, markers included, as exact
+    substrings — the unit a fixer must reproduce byte-for-byte to touch this
+    file at all."""
+    return [m.group(0) for m in _FROZEN_RE.finditer(text)]
+
+
+def _frozen_preserved(orig: str, new: str) -> bool:
+    """True iff every frozen-specimen block in `orig` still appears in `new`
+    as an exact substring — a fixer may rewrite anything OUTSIDE these
+    regions, but nothing inside them, ever."""
+    return all(region in new for region in _frozen_regions(orig))
+
+
 def _repl_outside_code(text: str, repl):
     """Apply `repl` to the parts of `text` outside fenced blocks and inline code spans."""
     out, i = [], 0
@@ -6683,6 +6708,13 @@ def execute_on_write(plan: dict, cdir: Path | None) -> dict:
                             tp.write_text(orig, encoding="utf-8")  # never delete content
                             messages.append({"rule": r["id"], "target": disp,
                                              "detail": (detail or "") + " — auto-fix SUPPRESSED (would alter content); fix by hand",
+                                             "why": r.get("why"), "check_pattern": r.get("check_pattern")})
+                            continue
+                        if not _frozen_preserved(orig, new):
+                            tp.write_text(orig, encoding="utf-8")  # never touch a frozen specimen region
+                            messages.append({"rule": r["id"], "target": disp,
+                                             "detail": (detail or "") + " — auto-fix SUPPRESSED (would rewrite a frozen "
+                                             "`<!-- begin/end -->` specimen region); fix by hand",
                                              "why": r.get("why"), "check_pattern": r.get("check_pattern")})
                             continue
                         status2, _ = run_checker(chk, tp, anchor_root)
