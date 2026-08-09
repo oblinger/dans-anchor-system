@@ -49,26 +49,23 @@ check:: svg_label_over_panel
 **Check pattern:** the same geometry as R-svg-jiggle-02 — ≥ 5 px overlap in both axes, < 70 % contained — but the box it lands on **fully encloses at least one other box**, making it a grouping panel rather than a node. Resolutions: `slide-label` → `flip-label`. **`nudge-box` is deliberately withheld**, so an unclearable straddle stays in the issue list as an honest residual (the bargain R-svg-jiggle-10 strikes for an un-widened band).
 **Why:** the words stay legible — a panel border is a region boundary, not a surface printed over — so this is a discomfort rather than a readability failure. Dan, 2026-08-04: *"a minor discomfort. If one can move elements around to avoid having that line overlap… then we should refactor the image. But if it's a problem to refactor the image, then it is acceptable… it really is discouraged."* The tier encodes exactly that: cheap moves are tried, an expensive restructure is never forced, and the residual is still reported so the discouragement is visible. Graded soft rather than exempted because all six of the vault's audit-scoped hard findings are this shape — exempting would have taken the hard tier to zero by deleting its only signal instead of re-grading it ([[F297 — Route non-markdown document rules — audit sweeps and the write moment|F297]] Q2).
 
-## Resolution catalog (fixes — each a `fix::` tagged to its issue type)
+## Resolution catalog (fixes — resolutions inside `svg-jiggle.py`'s repair loop, not `fix::` refs)
+
+These five are moves the repair loop selects and re-detects after each application, not standalone document fixers an on-write hook could fire one at a time — so none carries a `fix::`; `svg-jiggle.py` remains the way to apply them.
 
 ### RULE R-svg-jiggle-06 — slide-label-along-edge (free) (sampled)
-fix:: slide_label_along_edge
 Translate the label along its associated edge (+ modest perpendicular), accept the **minimum-displacement** clean position (zero box intersection, in-canvas, within ~110 px of the edge). Twins (halo+fill) move together. Tried first for label-over-box / label-over-wrong-line — zero cascade, label stays bound to its edge.
 
 ### RULE R-svg-jiggle-07 — flip-label-across-edge (free) (sampled)
-fix:: flip_label_across_edge
 Mirror the label to the empty side of its **own** edge (foot-of-perpendicular reflection); accept only if clean. Clears label-over-wrong-line (rejected-records → other side of its dashed arrow) and label-over-box where one side is crowded but the mirror side is open. Still free.
 
 ### RULE R-svg-jiggle-08 — nudge-box (cascading) (sampled)
-fix:: nudge_box
 Move a box into adjacent whitespace when that closes a label/box collision and opens clearance; **reconnect every incident edge endpoint** to the box's new boundary, move the box's node label(s) with it, and **reject any nudge that overlaps another box**. The first cascading move — applied only when slide/flip can't clear a hard issue, or to open band clearance (e.g. dead-letter box up → "daily rollups" clears).
 **Why:** some hard overlaps can't be cleared by moving the label alone; moving the *box* is the user's "local move of one object, see if it fits," generalized.
 
 ### RULE R-svg-jiggle-09 — shrink-arrowhead (local) (sampled)
-fix:: shrink_arrowhead
 Scale a specific short edge's marker down so the head is ≤ 20 % of its segment (per-edge, long edges untouched). Resolves overweighted-head; helps crowded-band.
 
 ### RULE R-svg-jiggle-10 — widen (global, gated) (stated)
-fix:: try_widen
-Uniformly scale inter-box **gaps** (and the canvas) on the cramped axis so a crowded band gains arrow length; boxes keep relative order, only gaps grow. The most invasive resolution — **gated**: applied only when `shrink-arrowhead` alone cannot clear the crowded-band, and when it can be done without distorting the layout. When unsafe, the crowded-band is left as an **honest residual** in the issue list rather than forced.
+Uniformly scale inter-box **gaps** (and the canvas) on the cramped axis so a crowded band gains arrow length; boxes keep relative order, only gaps grow. The most invasive resolution — **gated**: applied only when `shrink-arrowhead` alone cannot clear the crowded-band, and when it can be done without distorting the layout. When unsafe, the crowded-band is left as an **honest residual** in the issue list rather than forced. (`try_widen` is the one named resolver that exists as real code in `svg-jiggle.py` — it currently always takes the unsafe branch, so the residual is what it does today.)
 **Why:** widen is the only fix for a whole-band crowd, but it is structural; honesty about an un-widened residual beats a distorted diagram.

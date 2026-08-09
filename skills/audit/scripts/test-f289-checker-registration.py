@@ -27,6 +27,7 @@ for a check instead of another sweep.
 import contextlib
 import importlib.util
 import io
+import re
 import sys
 import tempfile
 from pathlib import Path
@@ -221,20 +222,28 @@ check("a `fix::` ref resolves through FIXERS, not CHECKERS — `breadcrumb_posit
 check("...so it is not reported as a ghost",
       any("breadcrumb_position" in g for g in REPORT["ghosts"]), False)
 
-# A ratchet, not a gate: the six below are pre-existing and each has a home. New
-# ones must not join them silently, and closing one must shrink this list in the
+# A ratchet, not a gate: the one below is pre-existing and has a home. New
+# ones must not join it silently, and closing one must shrink this list in the
 # same commit — T074 did exactly that on 2026-08-02, taking the four
 # `R-svg-jiggle-02..05` checks out by registering them.
 #
-# F289's design recorded ELEVEN ghosts and this list started as that eleven. Two
-# corrections since, both measured:
+# F289's design recorded ELEVEN ghosts and this list started as that eleven.
+# Three corrections since, all measured:
 #   - `R-doc-structure-01 — fix:: breadcrumb_position` was never a ghost. The
 #     first cut checked `fix::` refs against CHECKERS; they resolve through
 #     FIXERS, where `breadcrumb_position` has always been registered. 11 -> 10.
 #   - T074 registered the four `svg_*` checks. 10 -> 6.
-# The five `R-svg-jiggle-06..10` fixes stay: they are resolutions inside the
-# repair loop, selected against a cost function and re-detected after each move,
-# not standalone fixers the on-write hook could fire one at a time.
+#   - T175 deleted the five `R-svg-jiggle-06..10` `fix::` lines outright rather
+#     than leaving them as name-matching ghosts: they were resolutions inside
+#     the repair loop, selected against a cost function and re-detected after
+#     each move, not standalone fixers the on-write hook could fire one at a
+#     time — and (T172) a `fix::` with no `check::` on the same rule never even
+#     reaches the compiled IR, so the declaration was dead two ways over. The
+#     knowledge of what each resolution does moved into the rule body prose;
+#     see the frozen-empty `fix::`-without-`check::` assertion below, which is
+#     the population this ghost check does NOT freeze (a corpus rule can be a
+#     name-matching ghost with no fix::-without-check:: problem, or vice versa
+#     — the two lists measure different things). 6 -> 1.
 #
 # The regrowth this check exists to catch then happened, and this is the record
 # of it: [[R-rocks]] landed with nine `check::` refs and no implementations, and
@@ -244,14 +253,10 @@ check("...so it is not reported as a ghost",
 # and folded rule 05's `check::` onto rule 04. A ruleset can therefore lose a
 # rule outright without losing a ref, which is worth knowing when this list next
 # grows: count the refs in the FILE against the ids in the report. T156 wrote all
-# nine checkers and fixed the tier, so the set is back to the frozen six.
+# nine checkers and fixed the tier, so the set was back to six — then T175 took
+# it to one.
 KNOWN_GHOSTS = {
     "R-md-03": {"md_angle_brackets_backtick_only"},
-    "R-svg-jiggle-06": {"slide_label_along_edge"},
-    "R-svg-jiggle-07": {"flip_label_across_edge"},
-    "R-svg-jiggle-08": {"nudge_box"},
-    "R-svg-jiggle-09": {"shrink_arrowhead"},
-    "R-svg-jiggle-10": {"try_widen"},
 }
 _got = {}
 for _line in REPORT["ghosts"]:
@@ -310,6 +315,32 @@ check("the live warden engine's compile-time resolver prints ZERO "
 check("...and the one remaining corpus warning is the known, unrelated "
       "R-md-03 checker gap, not a regression of this fix",
       _engine_warnings, [ln for ln in _engine_warnings if "R-md-03" in ln])
+
+
+print("\nA `fix::` with no `check::` on the same rule is caught at the source (T175)")
+
+# T172 found the IR-wiring gap; T175 closed the five instances it named
+# (`R-svg-jiggle-06..10`, deleted from rulesets/R-svg-jiggle.md, their repair
+# moves folded into rule body prose) and gave `warden_compile.py` a warning
+# worded for the REAL problem — "the ref is never wired" — distinct from the
+# "registered by no imported module" wording above, which is about a name
+# failing to resolve, not about a fix:: that can never be reached regardless
+# of registration. This freezes the corpus-wide population of that mistake at
+# its current, correct value: empty. A sixth `fix::`-without-`check::` rule
+# appearing anywhere under rulesets/ must fail here, not sit silently reading
+# as a wired auto-repair the way the original five did for weeks.
+_fix_no_check_warnings = [ln for ln in _engine_err.getvalue().splitlines()
+                           if "the ref is never wired" in ln]
+_fix_no_check_ids = set()
+for _ln in _fix_no_check_warnings:
+    _m = re.search(r"WARNING — (\S+) declares fix::", _ln)
+    if _m:
+        _fix_no_check_ids.add(_m.group(1))
+
+check("the live engine's corpus-wide `fix::`-without-`check::` population is "
+      "exactly the frozen set (empty, since T175 deleted the only five that "
+      "ever existed) — a new one fails here instead of silently doing nothing",
+      _fix_no_check_ids, set())
 
 
 def test_a_new_ghost_is_caught():

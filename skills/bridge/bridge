@@ -16,8 +16,10 @@
 #       T171: the session is NOT the drive/read surface — every agent gets
 #       its own WINDOW inside it (bridge-<host>:agent-<slug>), so two agents
 #       never share a keyboard. Agent identity: --agent <slug>, else
-#       $BRIDGE_AGENT, else derived from $CLAUDE_CODE_SESSION_ID (fails
-#       loudly if none resolves — no silent shared-window fallback). An
+#       $BRIDGE_AGENT, else REFUSE. T176 measured that the harness exposes no
+#       per-agent value at all (session id, pid and socket are identical
+#       across an orchestrator and its subagents), so there is nothing
+#       honest to derive from — no silent shared-window fallback. An
 #       occupancy preflight refuses to reuse a window that is busy or was
 #       written to in the last 30s, naming the occupant.
 #       Drive it (ssh one-shot against the REMOTE server, explicit target —
@@ -118,8 +120,26 @@ resolve_target() {
 # two agents on the same host share one keyboard. Resolve a per-agent slug
 # that is (a) stable for the life of one agent session, (b) human-readable
 # in `tmux list-windows`. Precedence: explicit --agent > $BRIDGE_AGENT >
-# Claude Code's own session id (stable per agent invocation; the harness
-# sets CLAUDE_CODE_SESSION_ID for every session, including subagents).
+# refuse. There is no third source, and that is a measurement, not an
+# omission.
+#
+# T176 (measured 2026-08-08, orchestrator + two subagents fanned out of one
+# session, each printing its own environment): the Claude Code harness
+# exposes NO per-agent identifier. All three saw the identical
+# CLAUDE_CODE_SESSION_ID, the identical CLAUDE_PID (25716 — subagents run
+# in-process, so the pid is the CLI's), the identical
+# CLAUDE_CODE_MESSAGING_SOCKET (derived from that pid), CLAUDE_CODE_CHILD_
+# SESSION=1 in all three including the orchestrator, and $PPID identical
+# because every Bash-tool child is a direct child of the one CLI process.
+# Nothing in `env` names a task or an agent.
+#
+# So the earlier fallback — basename($PWD)-${CLAUDE_CODE_SESSION_ID:0:8} —
+# handed one window to every agent of a fan-out: precisely the configuration
+# T171 exists to prevent, and the configuration this vault actually runs in.
+# Deriving from a session id is not a weak identity, it is a WRONG one, and a
+# wrong identity that usually works is worse than none: it makes the
+# occupancy preflight fire routinely, and a routine refusal teaches agents to
+# reach for --force. Refusing up front costs one flag and cannot be wrong.
 # No silent fallback to a shared/default window — fail loudly instead
 # (that silent fallback IS the T171 bug).
 sanitize_slug() { printf '%s' "$1" | tr -c 'A-Za-z0-9_-' '-' | sed 's/-\{2,\}/-/g; s/^-//; s/-$//'; }
@@ -130,10 +150,16 @@ resolve_agent() {
     raw="$AGENT_FLAG"
   elif [ -n "${BRIDGE_AGENT:-}" ]; then
     raw="$BRIDGE_AGENT"
-  elif [ -n "${CLAUDE_CODE_SESSION_ID:-}" ]; then
-    raw="$(basename "$PWD")-${CLAUDE_CODE_SESSION_ID:0:8}"
   else
-    fail "cannot determine agent identity — pass --agent <slug>, set \$BRIDGE_AGENT, or run under Claude Code (needs \$CLAUDE_CODE_SESSION_ID). Refusing to fall back to a shared window — that silent fallback is the T171 bug."
+    fail "cannot determine agent identity — pass --agent <slug> (or export \$BRIDGE_AGENT once, at the top of your session).
+  Suggested:  --agent $(sanitize_slug "$(basename "$PWD")")-1
+  There is deliberately no auto-derivation. Measured 2026-08-08 (T176): the Claude Code
+  harness exposes NO per-agent value — an orchestrator and two subagents fanned out of one
+  session all report the same CLAUDE_CODE_SESSION_ID, the same CLAUDE_PID, the same
+  messaging socket, and CLAUDE_CODE_CHILD_SESSION=1. Deriving from any of them would give
+  every agent of a fan-out the SAME window, which is the T171 bug it was meant to prevent.
+  Pick a slug that says who you are; it shows up in \`tmux list-windows\` and in the
+  occupancy refusal any other agent gets."
   fi
   AGENT_SLUG="$(sanitize_slug "$raw")"
   [ -n "$AGENT_SLUG" ] || fail "agent identity sanitizes to empty string (raw: '$raw') — pass a usable --agent <slug>"
@@ -431,6 +457,25 @@ cmd_doctor() {
   [ "$aqua" -ge 1 ] && check launch yes "tmux server Aqua-launched" || check launch no "server SSH-launched or absent — run: bridge tmux $HOST"
   sess=$("${SSH[@]}" "tmux ls 2>/dev/null" | tr '\n' ' ')
   [ -n "$sess" ] && check mux yes "sessions: $sess" || check mux no "no tmux sessions"
+  # T176: who holds which window. A collision is otherwise invisible until an
+  # agent reproduces it, and since T176 removed auto-derivation the failure a
+  # human needs to SEE is two agents that chose the same --agent slug by hand.
+  # Read-only, and never a FAIL — it is a census, not a check.
+  local wins
+  wins=$("${SSH[@]}" "tmux list-windows -t '$SESSION' -F '#{window_name}|#{pane_current_command}|#{window_activity}|#{@bridge_occupant}'" 2>/dev/null)
+  if [ -n "$wins" ]; then
+    say "  ----  agents  windows in '$SESSION' (T176 occupancy census):"
+    local now_r; now_r=$("${SSH[@]}" 'date +%s' 2>/dev/null)
+    printf '%s\n' "$wins" | while IFS='|' read -r wn cmd act occ; do
+      [ -n "$wn" ] || continue
+      age="?"
+      if [ -n "$now_r" ] && [ -n "$act" ]; then age="$((now_r - act))s ago"; fi
+      if [ -z "$occ" ]; then occ="(untagged — not created by bridge)"; fi
+      say "        $wn  [$cmd, last write $age]  occupant: $occ"
+    done
+  else
+    say "  ----  agents  no windows in '$SESSION' (nobody attached yet)"
+  fi
   "$SCRIPT_DIR/screen-check.sh" "$HOST" "$SESSION" >/dev/null 2>&1 \
     && check tcc yes "FDA + screen grab OK inside mux server" \
     || check tcc no "capabilities incomplete — see: bridge tmux $HOST output for the grant walk"
