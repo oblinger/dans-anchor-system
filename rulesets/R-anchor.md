@@ -1,5 +1,5 @@
 # RULESET R-anchor
-include:: [[R-doc]], [[R-anchor-page]], [[R-naming]], [[R-design]], [[R-roadmap]], [[R-prd]], [[R-status]], [[R-stories]], [[R-fct-features]], [[R-rocks]], [[R-wp]], [[R-fct-outputs]], [[R-examples]], [[R-exception-discipline]] 
+include:: [[R-doc]], [[R-anchor-page]], [[R-naming]], [[R-design]], [[R-roadmap]], [[R-prd]], [[R-status]], [[R-stories]], [[R-fct-features]], [[R-rocks]], [[R-wp]], [[R-fct-outputs]], [[R-fct-inbox]], [[R-examples]], [[R-exception-discipline]] 
 description:: Everything checked when auditing a whole anchor — the entry page + naming + planning facets, plus the doc-level rulesets (via R-doc) for every document the anchor contains.
 
 The umbrella that **`/audit anchor <path|slug>`** resolves ([[F001 — Rule-driven audit engine — resolve, run, judge|F001]]). Auditing an anchor *includes* auditing its documents, so this umbrella `include::`s [[R-doc]] (markdown / file-association / ruleset / brief / discussion / log / messages) on top of the anchor-structural sets:
