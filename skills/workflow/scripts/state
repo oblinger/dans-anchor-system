@@ -1749,6 +1749,25 @@ def _run_question_gates(q_num, body, why_ask, require_on_answer=False):
             "  See [[DAS ask-format]] § The Damage field.\n"
         )
     auto_resolve = damage_cat in be.DAMAGE_AUTO_RESOLVE
+    # T188 — `Recommendation: None` vetoes the auto-resolve, whatever the class.
+    # F270 routes a waste/priority question away from the user by "resolving it
+    # to the agent's lean"; when the recommendation is None there IS no lean, so
+    # the router picks an option on a question that just said it has no answer.
+    # F257 treats None as the honest ask and mints it freely, so the two gates
+    # disagreed and the router won. Caught 2026-08-09 on F317 Q1 — "port skl-stat
+    # or retire it?", recommendation None because it turns on whether Dan still
+    # reads the Ops page — which auto-resolved to RETIRE, i.e. delete a script and
+    # strike a mandatory instruction from three skills, decided on the one input
+    # the question said could not be obtained by measuring anything.
+    if auto_resolve and be.recommendation_strength(body) == "None":
+        auto_resolve = False
+        sys.stderr.write(
+            f"⚠ Q{q_num} declares `Damage: {damage_cat}` but `Recommendation: None`, so it is\n"
+            "  SURFACED rather than auto-resolved: a question with no lean has nothing to\n"
+            "  resolve TO, and picking an option for it would answer the one question the\n"
+            "  agent said it could not answer (T188). If you do have a lean, say so and the\n"
+            f"  `{damage_cat}` class will route it away from the user as before.\n"
+        )
     reason_cat, reason_why = damage_cat, damage_why
     if not auto_resolve:
         # Surface: the Damage line IS the justification (subsumes --why-ask).

@@ -163,6 +163,32 @@ except be.BacklogEditError:
     ok("bad category refused, file untouched") if f.read_text() == before \
         else no("refused but wrote file")
 
+# (f) T188 — `Recommendation: None` vetoes the auto-resolve, whatever the class.
+# A waste/priority Q is routed away from the user by resolving it to the agent's
+# LEAN; with no lean there is nothing to resolve to, so the router would pick an
+# option on a question that just said it has no answer. Caught live on F317 Q1,
+# which auto-resolved "port skl-stat or retire it?" to RETIRE.
+for cat in ("waste", "priority"):
+    f = fresh_doc()
+    out, err = define(f, body("None. turns on a fact about the user I cannot observe",
+                              f"{cat} — a wrong pick spends effort in the wrong place"))
+    txt = f.read_text()
+    surfaced = "- **Q1 —" in txt and "## Resolved" not in txt
+    ok(f"{cat} + Recommendation None SURFACES rather than auto-resolving") if surfaced \
+        else no(f"{cat}+None was auto-resolved:\n{txt}")
+    ok(f"{cat} + None says WHY it surfaced (names the missing lean)") \
+        if ("Recommendation: None" in err and "nothing to" in err) \
+        else no(f"{cat}+None surfaced without an explanation:\nERR={err!r}")
+
+# ...and the same class with a real lean still auto-resolves, so the veto is
+# keyed on the missing lean and did not simply disable F270's routing.
+f = fresh_doc()
+out, err = define(f, body("Lean (A). the cheaper path and trivially reversible",
+                          "waste — a wrong pick just re-runs one step"))
+ok("waste + a real Lean still auto-resolves (the veto is not a blanket off-switch)") \
+    if "## Resolved" in f.read_text() \
+    else no(f"waste+Lean should still auto-resolve:\n{f.read_text()}")
+
 print("-" * 40)
 print(f"F270 Damage-field test: {PASS} passed, {FAIL} failed")
 sys.exit(1 if FAIL else 0)
