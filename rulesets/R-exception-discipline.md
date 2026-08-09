@@ -39,7 +39,7 @@ The anchor's exception table lives at `{slug} Track/{slug} Exceptions.md` — vi
 
 **Check pattern:** the file the engine reads is `{slug} Track/{slug} Exceptions.md`; any other exception table in the anchor is not read and is reported as such.
 
-**Why:** two other spellings existed and neither had ever held a file — `cab-audit.py` reads `.skl/lint/exceptions.md`, the audit skill's docs cited `.anchor.d/lint/exceptions.md`, and **neither directory appears anywhere in the vault**. Keeping either as a fallback would preserve ambiguity over paths with no instances behind them. The chosen path is the one [[Warden Exceptions]] already occupied.
+**Why:** two other spellings existed and neither had ever held a file — `cab-audit.py` read `.skl/lint/exceptions.md`, the audit skill's docs cited `.anchor.d/lint/exceptions.md`, and **neither directory appeared anywhere in the vault**. Keeping either as a fallback would preserve ambiguity over paths with no instances behind them. The chosen path is the one [[Warden Exceptions]] already occupied. **`cab-audit.py`'s loader was deleted 2026-08-08 (TINK T167)** rather than routed here: its rule ids are a separate namespace (`field-undocumented`, not `R-*`), its second path pointed at `~/.claude/skills/cab/`, a directory that does not exist, and the whole mechanism had suppressed nothing since it was written. There is now one exception surface, not a preferred one.
 
 ### RULE R-exception-discipline-05 — The table's five columns, and Target is never blank (checked)
 check:: exceptions_table_wellformed

@@ -8,7 +8,6 @@ Default level is 5, which includes module doc comparison.
 """
 
 import argparse
-import fnmatch
 import json
 import os
 import re
@@ -1058,94 +1057,6 @@ def report_json(anchor: Anchor, results: list[LintResult], level: int) -> str:
     }, indent=2)
 
 
-# ── Exceptions ─────────────────────────────────────────────────────────────────
-
-
-@dataclass
-class Exception_:
-    module: str   # glob pattern for source path
-    target: str   # class, method, or field name (empty = whole module)
-    rule: str     # rule ID
-    reason: str
-
-
-def load_exceptions_from_file(exc_file: Path) -> list[Exception_]:
-    """Load exceptions from a markdown table file."""
-    if not exc_file.exists():
-        return []
-
-    exceptions = []
-    try:
-        content = exc_file.read_text(errors="replace")
-        for line in content.split("\n"):
-            # Parse table rows: | Module | Target | Rule | Reason |
-            if not line.startswith("|"):
-                continue
-            parts = [p.strip() for p in line.split("|")]
-            # Skip header, separator, empty
-            if len(parts) < 5:
-                continue
-            module, target, rule, reason = parts[1], parts[2], parts[3], parts[4]
-            if module in ("Module", "---") or "---" in module:
-                continue
-            if module == "":
-                module = "*"  # empty module = match any
-            # Reject blanket suppressions: * with no target for content rules
-            if module == "*" and target == "" and rule in (
-                "field-undocumented", "field-stale-doc", "field-count-mismatch",
-                "method-undocumented", "method-stale-doc",
-                "class-undocumented", "class-stale-doc",
-            ):
-                print(f"WARNING: Blanket exception rejected: * | | {rule} — must specify Module or Target", file=sys.stderr)
-                continue
-            exceptions.append(Exception_(
-                module=module, target=target, rule=rule, reason=reason,
-            ))
-    except Exception:
-        pass
-
-    return exceptions
-
-
-def load_exceptions(anchor_path: Path) -> list[Exception_]:
-    """Load project exceptions from .skl/lint/exceptions.md"""
-    return load_exceptions_from_file(anchor_path / ".skl" / "lint" / "exceptions.md")
-
-
-def is_excepted(result: LintResult, exceptions: list[Exception_]) -> bool:
-    """Check if a lint result is suppressed by an exception."""
-    for exc in exceptions:
-        if exc.rule != result.rule_id:
-            continue
-        # Match module path (glob)
-        if exc.module:
-            if not fnmatch.fnmatch(result.file, exc.module) and result.file != exc.module:
-                # Also try matching just the filename
-                if not fnmatch.fnmatch(os.path.basename(result.file), exc.module):
-                    continue
-        # Match target (if specified)
-        if exc.target:
-            if exc.target not in result.message:
-                continue
-        return True
-    return False
-
-
-def filter_exceptions(results: list[LintResult],
-                      exceptions: list[Exception_]) -> tuple[list[LintResult], int]:
-    """Filter out excepted results. Returns (filtered, suppressed_count)."""
-    if not exceptions:
-        return results, 0
-    filtered = []
-    suppressed = 0
-    for r in results:
-        if is_excepted(r, exceptions):
-            suppressed += 1
-        else:
-            filtered.append(r)
-    return filtered, suppressed
-
-
 # ── Main ───────────────────────────────────────────────────────────────────────
 
 
@@ -1157,8 +1068,6 @@ def main():
     parser.add_argument("--type", dest="anchor_type", help="Override detected type")
     parser.add_argument("--json", action="store_true", help="JSON output")
     parser.add_argument("--verbose", "-v", action="store_true", help="Verbose output")
-    parser.add_argument("--show-exceptions", action="store_true",
-                        help="Show suppressed warnings")
     parser.add_argument("--private", action="store_true",
                         help="Include private items in warnings (excluded by default)")
     parser.add_argument("--pub-only", action="store_true",
@@ -1229,15 +1138,6 @@ def main():
                 "Module docs exist but no source files were parsed",
             ))
 
-    # Load and apply system suppressions (global, not counted in report)
-    system_supp_file = Path.home() / ".claude" / "skills" / "cab" / "LINT User Docs" / "cab-lint-system-suppressions.md"
-    system_exceptions = load_exceptions_from_file(system_supp_file)
-    results, sys_suppressed = filter_exceptions(results, system_exceptions)
-
-    # Load and apply project exceptions (per-anchor, counted)
-    exceptions = load_exceptions(path)
-    results, suppressed = filter_exceptions(results, exceptions)
-
     # Output
     if args.json:
         print(report_json(anchor, results, args.level))
@@ -1252,18 +1152,8 @@ def main():
             parts.append(f"{failed} fail")
         if concerns:
             parts.append(f"{concerns} warnings")
-        if suppressed:
-            parts.append(f"{suppressed} excepted")
-        if sys_suppressed:
-            parts.append(f"{sys_suppressed} system")
         if parts:
             output += f"\n{', '.join(parts)}"
-
-        if args.show_exceptions and exceptions:
-            output += f"\n\n### Exceptions ({len(exceptions)})"
-            for exc in exceptions:
-                target = f" {exc.target}" if exc.target else ""
-                output += f"\n  · {exc.module}{target} [{exc.rule}] — {exc.reason}"
         print(output)
 
     g = gate(results)

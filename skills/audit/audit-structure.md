@@ -162,7 +162,7 @@ The orchestrator (or single-skill caller) will roll this up into the final stat 
 `cab-audit.py` (formerly `cab-lint.py`) is the standalone static scanner covering the structural checks above plus the module-doc comparison consumed by `/audit docs`. Run it as the mechanical first pass; the workflow steps 2–7 cover the judgment calls the script can't make. The script is **read-only** — its output feeds the findings table (step 8), never direct repairs.
 
 ```bash
-python3 ~/.claude/skills/audit/scripts/cab-audit.py <anchor-path> [--level 5] [--verbose] [--show-exceptions]
+python3 ~/.claude/skills/audit/scripts/cab-audit.py <anchor-path> [--level 5] [--verbose]
 # or, once wired onto $PATH by /install:
 cab-audit <anchor-path> --level 3
 ```

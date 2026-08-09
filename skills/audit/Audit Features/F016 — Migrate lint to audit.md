@@ -3,6 +3,7 @@ description: "Retire /lint into /audit: hard rename, 1:1 subaction map, vault-wi
 ---
 
 # [[SKA]] · F078 — Migrate `/lint` → `/audit` — deprecate lint skill, sweep references
+Retires the `/lint` skill family into `/audit` by a hard rename with a 1:1 subaction map, plus the vault-wide reference sweep that follows it.
 
 ## Summary
 
@@ -41,7 +42,7 @@ Migrate the `/lint` skill family into `/audit`, per the user's direction to unif
 
 ### Known residue (pre-existing bugs in cab-audit.py — fix lands with M-Migrate.2)
 
-- **Exceptions-path mismatch** — the script reads per-anchor exceptions from `.skl/lint/exceptions.md` while all docs (per F059) say `.anchor.d/lint/exceptions.md`. Behavior change deliberately deferred (matches § Out of scope item 3).
+- **Exceptions-path mismatch** — ~~the script reads per-anchor exceptions from `.skl/lint/exceptions.md` while all docs (per F059) say `.anchor.d/lint/exceptions.md`~~. **Closed 2026-08-08 by deletion, not by reconciliation (TINK T167).** Neither path had ever held a file — `.skl/lint/` appears zero times in the vault and `~/.claude/skills/cab/` does not exist at all — so the whole mechanism had suppressed nothing since it was written. The one live exception surface is now `{slug} Track/{slug} Exceptions.md`, read by `audit-plan.py` ([[R-exception-discipline]], [[TINK314 - Exceptions: a graded, user-approved escape from any checked rule|TINK F314]]).
 - **Dead system-suppressions path** — `cab-audit.py:1233` loads suppressions from a path that no longer exists (the real file sits in `facets/CAB Legacy/LINT User Docs/LINT System Suppressions.md`), so system suppressions silently never load. Left as-is: the suppressions have been dormant since the legacy move, and silently re-enabling them would change scan output; M-Migrate.2 re-expresses the checks as engine rulesets and settles suppression handling properly.
 
 ## Resolved
