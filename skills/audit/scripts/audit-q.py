@@ -1478,6 +1478,28 @@ def apply_c4_fix(backlog_file: Path,
 # C19: option sub-bullets each on own line, labeled (A)/(B)/...  (report only)
 # C20: blank line after Recommendation, separating Q groups      (report only)
 # C21: ## Open Questions H2 with zero pending Qs (Phase 2 missed) (report only)
+def _dedupe_paths(paths: list[Path]) -> list[Path]:
+    """Order-preserving de-duplication of a check's file scope.
+
+    Scopes here are assembled by concatenating overlapping sources (ask-format
+    files, anchor backlogs, queries files), and the same file reaching a check
+    twice produces every finding twice. Resolve before comparing so two spellings
+    of one file — a symlinked skills tree, a `..` segment — collapse to one entry
+    rather than surviving as a near-duplicate that looks like a second defect."""
+    seen: set[Path] = set()
+    out: list[Path] = []
+    for p in paths:
+        try:
+            key = p.resolve()
+        except OSError:
+            key = p
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(p)
+    return out
+
+
 # C22: link existence in feature docs / backlogs (extends C1's Q.md scope) (report only)
 # C23: [Designing] must resolve to [N Questions] or [Ready] — never [Designing] alone (auto-fix)
 # (C11 — Verify 4-piece layout — deferred; too heuristic for v1.)
@@ -2389,7 +2411,11 @@ def check_c22_link_existence_extended(
 ) -> list[Finding]:
     """C22: extend C1's link-existence check beyond Q.md to feature docs +
     backlogs. C1 covers Q.md; C22 covers everything else where broken
-    wiki-links are user-visible (feature docs, backlogs, queries.md files)."""
+    wiki-links are user-visible (feature docs, backlogs, queries.md files).
+
+    Callers must pass a de-duplicated scope — see `_dedupe_paths`. This check
+    walks whatever it is handed, so a file listed twice yields every one of its
+    findings twice."""
     findings: list[Finding] = []
     for file_path in scope_files:
         for link in links_in_file(file_path, vault_index):
@@ -6375,6 +6401,14 @@ def main() -> int:
         queries_md = backlog_file.parent / f"{backlog_file.stem.replace(' Backlog', ' queries')}.md"
         if queries_md.is_file():
             c22_scope.append(queries_md)
+    # These three sources OVERLAP, and a scope that lists a file twice reports
+    # each of its broken links twice. `find_ask_format_files` ends by appending
+    # the backlog itself (row-scoped Qs live there), so every backlog arrives
+    # here already in `ask_format_files` and is then added again above; it also
+    # yields `{slug} queries.md`, which the loop re-adds. Duplicates are not
+    # cosmetic — they inflate the finding count a caller uses to decide whether
+    # the tree is clean, and they make one broken link look like two problems.
+    c22_scope = _dedupe_paths(c22_scope)
     findings.extend(check_c22_link_existence_extended(c22_scope, vault_index))
     # C53 — vault-wide, index-driven; runs once per invocation, not per anchor.
     # Computed vault-wide, REPORTED per-anchor: an explicit --anchor means the
@@ -6390,6 +6424,7 @@ def main() -> int:
         c7_scope.append(Q_MD)
     c7_scope.extend(p for _, p in ask_format_files)
     c7_scope.extend(anchor_backlogs.values())
+    c7_scope = _dedupe_paths(c7_scope)  # same backlog double-add as C22 above
     findings.extend(check_c7_link_form(c7_scope, vault_index))
     # B16 — C12 walks anchor backlogs only (Verify-by lives on backlog rows)
     findings.extend(check_c12_verify_by_rationale(anchor_backlogs))
