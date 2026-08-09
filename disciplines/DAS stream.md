@@ -41,6 +41,8 @@ Whenever a facet's content is a stream of the shape above. Scope-agnostic — th
 
 Each facet declares which scopes it supports.
 
+**A stream is permitted on any document; only a citing facet may narrow that.** The discipline states no exclusion of its own — its selector is a content sentinel, so it already reaches whatever document carries dated entries, and adding a document-class exclusion here would fail documents that are correct. [[DAS Discussion]] narrows it and is the only facet that does: a Discussion does not attach to navigation or sequencing artifacts (anchor page, dispatch page, Backlog, Roadmap), because a discussion belongs on the thing being decided, not on the index to it. That exclusion is Discussion's, not the discipline's — a Log-shaped or history-shaped stream on an anchor page or a facet dispatch page is ordinary and correct. Measured across the corpus 2026-08-08: **zero** Backlogs, Roadmaps or dispatch pages carry a Discussion, so Discussion's exclusion holds in fact; **five** navigation-role documents carry a non-Discussion dated stream, which hoisting the exclusion up to this discipline would have converted into five false findings.
+
 ## Placement (inherited)
 
 Uses [[DAS file-association]]'s three methods — inline H1 (1) / sibling file (2) / sibling folder (3) — chosen by the cardinality→placement rule, migrated one-way `1 → 2 → 3`, one-form-per-parent, linked from the parent's dispatch table. See the umbrella for all of that; it is **not** re-spelled here.
@@ -58,6 +60,8 @@ Uses [[DAS file-association]]'s three methods — inline H1 (1) / sibling file (
 Within one facet's stream, every entry follows the same H3 sub-structure. Discussion's skeleton is Problem / Options Considered / Decision / (optionally Why This Works). Log's skeleton is per its facet spec. The discipline doesn't dictate which skeleton — it dictates that the *facet* declare one, and that every entry conform.
 
 This invariant is what makes the stream scannable. Readers can predict where to look for "what was decided" or "what failed" within any entry; un-uniform entries force re-reading every time.
+
+**The discipline declares no default skeleton, and the corpus is why.** The obvious alternative — Stream ships one skeleton that facets override — was measured against the six citing facets 2026-08-08 and does not survive: their entries are not variations on a shape, they are different kinds of object. One mandates four H3s; one specifies a wholly different entry shape for dated *files*; one's entry is a blockquoted message whose status tag is the payload; two are entire files fronted by a `# {date} {name}` H1 and have no H3 structure to default; one specifies a section order instead. A default would be inherited by one facet and overridden by five, which is not a default — it is one facet's shape promoted above its peers and then contradicted everywhere. `R-stream-02` therefore requires *that* a skeleton exist and be uniform within a facet, and says nothing about which.
 
 ## Citing facets declare their methods
 
