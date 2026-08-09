@@ -5840,7 +5840,98 @@ def chk_exceptions_table_wellformed(target, anchor_root, args):
     return "pass", detail
 
 
+# --------------------------------------------------------------- R-fct-inbox
+# T170. These three rules said "(checked)" for their whole life and carried no
+# `check::` field, so they were agent judgment wearing a checker's label — a
+# quieter failure than the one warden warns about, since `check:: missing_fn`
+# earns a WARNING and no `check::` line at all earns nothing.
+#
+# The status vocabulary is imported from audit-q rather than restated. A second
+# spelling of "what marks an entry processed" is exactly how a checker and the
+# `Inbox N` banner come to disagree about which entries are pending.
+# Matched against an H2's TITLE (the text `_h2_titles` returns), not the raw
+# line — so the `##` spelling stays in `_H2_RE` where T099's ratchet keeps it.
+_INBOX_ENTRY_RE = re.compile(r"^\d{4}-\d{2}-\d{2} — .+")
+_INBOX_TAG_RE = re.compile(r"`(?:DONE|MOVED\s*→[^`]*)`")
+# Tag-SHAPED: a backticked all-caps token. Used only to catch an invented or
+# typo'd tag; ordinary prose backticks (`audit-q.py`, `slug`) do not match.
+_INBOX_TAGLIKE_RE = re.compile(r"`([A-Z][A-Z0-9 _→+-]*)`")
+
+
+def _inbox_entries(target) -> list[str]:
+    """H2 titles in document order, fences skipped.
+
+    Routed through `_h2_titles` rather than scanning for `## `: the naive form
+    reads a fenced EXAMPLE of an inbox entry as a live one, which is precisely
+    the class of defect T099's structure ratchet exists to stop — and it caught
+    this function's first draft doing it."""
+    try:
+        lines = target.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeDecodeError):
+        return []
+    return [title for _, title in _h2_titles(lines)]
+
+
+def chk_inbox_in_track_folder(target, anchor_root, args):
+    """R-fct-inbox-01 — the Inbox sits in the anchor's Track folder.
+
+    Co-location is the whole discoverability claim: an agent looking for an
+    anchor's pending input opens `{slug} Track/` and expects it there. An Inbox
+    that drifted elsewhere still parses and still counts, so nothing else in the
+    system would ever report it."""
+    if not target.is_file():
+        return "pass", ""
+    parent = target.parent.name
+    if not parent.endswith(" Track"):
+        return "fail", (f"Inbox sits in {parent!r}, not a `* Track/` folder — "
+                        f"move it beside the anchor's other tracking surfaces")
+    return "pass", f"in {parent}"
+
+
+def chk_inbox_entry_headings(target, anchor_root, args):
+    """R-fct-inbox-02 — every H2 is a dated entry heading.
+
+    Tag ABSENCE is never a finding: an untagged entry is what pending means, it
+    is what every `state drop` writes, and it is what `Inbox N` counts. This
+    checker asserts only the heading FORM, and deliberately says nothing about
+    where a tag sits, because `count_pending_inbox` accepts one anywhere in the
+    entry and the two must not be able to disagree."""
+    if not target.is_file():
+        return "pass", ""
+    bad = [h for h in _inbox_entries(target) if not _INBOX_ENTRY_RE.match(h)]
+    if bad:
+        return "fail", (f"{len(bad)} H2(s) are not `## YYYY-MM-DD — Topic`: "
+                        + "; ".join(h[:60] for h in bad[:3]))
+    n = len(_inbox_entries(target))
+    return "pass", f"{n} entr{'y' if n == 1 else 'ies'}"
+
+
+def chk_inbox_status_tags(target, anchor_root, args):
+    """R-fct-inbox-03 — only `DONE` and `MOVED → …` appear as status tags.
+
+    An invented tag is worse than no tag: the author believes the entry is
+    processed, every consumer keys off the two sanctioned strings and so counts
+    it pending forever, and nothing reports the mismatch. Scoped to the heading
+    line, where tags are written — narrow enough that ordinary backticked prose
+    in an entry body cannot manufacture a finding."""
+    if not target.is_file():
+        return "pass", ""
+    bad = []
+    for h in _inbox_entries(target):
+        for tok in _INBOX_TAGLIKE_RE.findall(h):
+            if not _INBOX_TAG_RE.search(f"`{tok}`"):
+                bad.append(tok)
+    if bad:
+        return "fail", (f"unsanctioned status tag(s) {', '.join(repr(b) for b in bad[:3])} — "
+                        f"only `DONE` and `MOVED → …` are read by anything")
+    return "pass", "tags sanctioned"
+
+
 CHECKERS = {
+    # R-fct-inbox (T170) — three rules that claimed "(checked)" with no checker
+    "inbox_in_track_folder": chk_inbox_in_track_folder,
+    "inbox_entry_headings": chk_inbox_entry_headings,
+    "inbox_status_tags": chk_inbox_status_tags,
     # R-exception-discipline (F314) — the table the engine actually reads
     "exceptions_table_wellformed": chk_exceptions_table_wellformed,
     # R-examples (TINK) — the gallery must be wholly invented
