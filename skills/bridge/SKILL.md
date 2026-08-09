@@ -1,6 +1,6 @@
 ---
 name: bridge
-description: Connect this Mac to another machine — via the packaged dispatcher `~/.claude/skills/bridge/bridge` (F279); never improvise raw ssh. **Control** (`bridge tmux <host>`) — symmetric `bridge-<host>` tmux sessions both sides, a live viewer Terminal window on the REMOTE's own screen, TCC inheritance (FDA/Screen Recording/Accessibility) so the agent drives the remote as a local box. **Converge** (`bridge install <host>`, alias `refresh`) — idempotent env-twin provisioning: skills + CLAUDE.md + ctrl + launchd-durable Syncthing + provision stamp. **Diagnose** (`bridge doctor <host>`) — read-only deep check; a sub-second preflight also rides every verb automatically. **Sync** (`bridge sync`) — Syncthing status/revive. **Agent** (`bridge agent`) — deploy a briefed Claude agent. Slash-only. Per-user recipe in ~/.config/bridge/config.yaml.
+description: Connect this Mac to another machine — via the packaged dispatcher `~/.claude/skills/bridge/bridge` (F279); never improvise raw ssh. **Control** (`bridge tmux <host> --agent <slug>`) — symmetric `bridge-<host>` tmux sessions both sides, each agent driven through its OWN window (`bridge-<host>:agent-<slug>`, never the shared session directly — T171), an occupancy preflight that refuses a busy/recently-active window by name, a live viewer Terminal window on the REMOTE's own screen, TCC inheritance (FDA/Screen Recording/Accessibility) so the agent drives the remote as a local box. **Converge** (`bridge install <host>`, alias `refresh`) — idempotent env-twin provisioning: skills + CLAUDE.md + ctrl + launchd-durable Syncthing + provision stamp. **Diagnose** (`bridge doctor <host>`) — read-only deep check; a sub-second preflight also rides every verb automatically. **Sync** (`bridge sync`) — Syncthing status/revive. **Agent** (`bridge agent`) — deploy a briefed Claude agent. Slash-only. Per-user recipe in ~/.config/bridge/config.yaml.
 ---
 
 # Bridge
@@ -65,7 +65,7 @@ See the `devops` skill for the general heartbeat/watcher discipline; this sectio
 
 | Verb | Kind | What it does |
 |---|---|---|
-| `bridge tmux <host> [--session S] [--force] [--viewer]` | mechanism — **control** | **Flagship connect.** Ensures a tmux session on the remote launched in a Terminal window **on the remote's own screen** (the glanceable viewer + the TCC-blessed context), and a **local tmux session `bridge-<host>`** ssh-attached to it. Session named `bridge-<host>` on both sides. Drive: `tmux send-keys -t bridge-<host> "<cmd>" Enter`; read: `tmux capture-pane -t bridge-<host> -p`. Renamed from `bridge mux` (F279 — tmux is what's being bridged). |
+| `bridge tmux <host> [--session S] [--agent SLUG] [--force] [--force-server] [--viewer]` | mechanism — **control** | **Flagship connect.** Ensures a tmux session on the remote launched in a Terminal window **on the remote's own screen** (the glanceable viewer + the TCC-blessed context). Session named `bridge-<host>` on both sides, **shared** — but the drive/read surface is a **per-agent WINDOW** inside it (`bridge-<host>:agent-<slug>`, T171), never the bare session. Agent identity: `--agent <slug>` > `$BRIDGE_AGENT` > derived from `$CLAUDE_CODE_SESSION_ID`; resolving to nothing is a loud failure, never a silent shared-window fallback. An occupancy preflight refuses to reuse a window that's busy or was written to in the last 30s, naming the occupant. Drive: `ssh user@host.local "tmux send-keys -t 'bridge-<host>:agent-<slug>' '<cmd>' Enter"`; read: `ssh user@host.local "tmux capture-pane -t 'bridge-<host>:agent-<slug>' -p"` — run directly against the remote server (not the local wrapper session, whose relayed keystrokes follow whatever window is remotely selected). Renamed from `bridge mux` (F279 — tmux is what's being bridged). |
 | `bridge install <host>` (alias `refresh`) | **goal — converge** | **Idempotent "make it so."** Env files via claude-provision (`~/.claude`, `~/.config` includes, `bin` utilities like ctrl), skills-repo wiring, launchd-durable Syncthing on the remote, provision stamp (remote + local cache). First run installs; re-run reconverges (subsumes F262's refresh). |
 | `bridge sync [host]` | mechanism — **data** | Syncthing status/revive. Full share creation stays in `syncthing-helper.py` (move-aside confirmation gate). |
 | `bridge skills <host>` | **goal** | Ensure the remote's `~/.claude/skills` tracks the skills repo named in config (`skills_repo`) — symlink into the vault-synced copy when present; clone from `url` only for non-twin machines (never alongside a sync-covered path). Bridge stays generic; only the user's config names the repo (F279 D1). |
@@ -130,7 +130,7 @@ Every probe below runs **inside the canonical `bridge-<host>` tmux server** (Aqu
 | **Clipboard** | `pbcopy` / `pbpaste`, cross-agent hand-off | `echo bridge-probe \| pbcopy && [ "$(pbpaste)" = bridge-probe ]` | Exit 0. Empty pbpaste = pboard daemon stuck (very rare). | Restart pboard: `killall pboard` (macOS auto-relaunches). |
 | **Notification** | `osascript display notification`, Notification-Center pings | `osascript -e 'display notification "bridge probe" with title "Bridge"' >/dev/null 2>&1` | Exit 0. Fails "Not authorized" if TCC blocks System Events. | Grant Terminal.app "Automation → System Events" TCC. |
 | **Audio (say + afplay)** | Voice output, alert tones | `afplay /System/Library/Sounds/Ping.aiff -t 0.1 2>&1 \| grep -qi error && exit 1; say -v Alex "" 2>&1 \| grep -qi error && exit 1; exit 0` | Exit 0. Failure typically means no default audio device connected. | No install; surface "no audio output device" as informational. |
-| **Concurrent-agent tmux window convention** *(convention, not a bare-probe)* | Multiple agents sharing `bridge-<host>` without stealing each other's `ctrl jpage` navigations or interleaving keystrokes (2026-07-26 four-agent-collision incident) | `tmux list-windows -t bridge-<host> -F '#{window_name}' 2>/dev/null \| grep -Eq '^agent-'` — the session must carry at least one window whose name is `agent-<slug>`; verbs must `send-keys` to a window by name, never the active window | ≥1 `agent-*` window present. Verbs target by name. Missing = concurrent agents collide on window 0. | `bridge tmux <host> --agent <slug>` opens a fresh named window `agent-<slug>`; the `bridge` dispatcher's `send-keys` targets `-t bridge-<host>:agent-<slug>`. Browser claim/lease (see below) built on top. |
+| **Concurrent-agent tmux window convention** *(built, T171 — see § Control bridge)* | Multiple agents sharing `bridge-<host>` without stealing each other's keystrokes or `ctrl jpage` navigations (2026-07-26 four-agent-collision incident; 2026-08-08 live incident where one agent's probes interleaved with another's archive reconcile) | `tmux list-windows -t bridge-<host> -F '#{window_name}' 2>/dev/null \| grep -Eq '^agent-'` — the session must carry at least one window whose name is `agent-<slug>`; verbs must `send-keys`/`capture-pane` to that window by name, always via ssh one-shot against the remote server | ≥1 `agent-*` window present. Verbs target by name. Missing = concurrent agents collide on window 0. | `bridge tmux <host> --agent <slug>` creates/reuses window `agent-<slug>`, refusing reuse (occupancy preflight, T171 B) if it's busy or was written to in the last 30s. Browser claim/lease (see below) still open. |
 
 **Shared-browser claim (open design, F027).** With multiple agents in one bridge, the *browser* (Safari / Playwright Chromium) is a single shared surface — the last agent's `ctrl jpage` navigation wins. Sketch: a file-lock lease under `/tmp/bridge-browser.<slug>.lock` with a wall-clock deadline; `ctrl jpage` / `ctrl cpage` acquire before navigating, release on completion. Timeout = agent crashed, forfeit lease. Not yet designed — parked as `[Questions]` on F027 pending user input.
 
@@ -138,24 +138,31 @@ Every probe below runs **inside the canonical `bridge-<host>` tmux server** (Aqu
 
 **Below `full` — thinner profiles.** Deferred until real minimal-remote use cases surface. First real cheap-remote use case defines the profile; premature enumeration would just guess.
 
-**Wiring (stage 2, 2026-07-30).** `bridge doctor <host> --profile <name>` walks the profile after the standard checks, reporting PASS/FAIL per row with the exact repair command. `bridge install <host> --profile <name>` runs the same probes, executes the install action for each FAIL, re-probes once to confirm. Dry-run mode (`bridge install --profile full --dry-run`) prints the plan without side effects. Each profile is a companion file `profile-<name>.sh` — the `full` profile ships as `profile-full.sh` with 7 capability rows (aqua, screen, playwright, safari-ae, clipboard, notification, audio). Auto-installable rows execute their `defaults write` / `pip install` / `killall` action; TCC-gated rows (aqua, screen, notification) print grant guidance instead. **Stage 3 (parked):** the Windows-VM row (`utmctl` — user-prompted), the concurrent-agent tmux window convention, and the shared-browser claim/lease design.
+**Wiring (stage 2, 2026-07-30).** `bridge doctor <host> --profile <name>` walks the profile after the standard checks, reporting PASS/FAIL per row with the exact repair command. `bridge install <host> --profile <name>` runs the same probes, executes the install action for each FAIL, re-probes once to confirm. Dry-run mode (`bridge install --profile full --dry-run`) prints the plan without side effects. Each profile is a companion file `profile-<name>.sh` — the `full` profile ships as `profile-full.sh` with 7 capability rows (aqua, screen, playwright, safari-ae, clipboard, notification, audio). Auto-installable rows execute their `defaults write` / `pip install` / `killall` action; TCC-gated rows (aqua, screen, notification) print grant guidance instead. **Stage 3 (parked):** the Windows-VM row (`utmctl` — user-prompted) and the shared-browser claim/lease design. (The concurrent-agent tmux window convention shipped as T171 — see § Control bridge.)
 
 ---
 
 # Control bridge — `bridge tmux <host>`
 
-**One command does all of this:** `~/.claude/skills/bridge/bridge tmux <host>` (F279 — renamed from `bridge mux`). It automates the whole setup below — Aqua-launched server, the on-screen viewer window, the symmetric `bridge-<host>` sessions, the capability check — and refuses to restart a server with busy panes (`--force` overrides; `--viewer` only re-throws the viewer window). The manual recipe is kept for background and troubleshooting; do **not** hand-run it when the dispatcher works.
+**One command does all of this:** `~/.claude/skills/bridge/bridge tmux <host> --agent <slug>` (F279 — renamed from `bridge mux`). It automates the whole setup below — Aqua-launched server, the on-screen viewer window, the shared `bridge-<host>` session, **plus a per-agent WINDOW inside it that is the actual drive/read surface (T171)** — and refuses to restart a server with busy panes (`--force-server` overrides, destroying every agent's window; the window-scoped `--force` only recreates *your own* window). The manual recipe is kept for background and troubleshooting; do **not** hand-run it when the dispatcher works.
 
 Drive a remote machine *as if it were a local box* — sustained interactive work, FDA-bearing commands, multiplexer hand-off — via a tmux-on-this-side ⇄ tmux-on-the-other-side bridge.
 
 Key insight: **the remote multiplexer inherits TCC from whatever launches it.** If tmux starts from a Terminal app with Full Disk Access, the tmux server has FDA, and every command in its panes inherits FDA — even when the agent attaches via SSH (which itself has no FDA). The dispatcher achieves this headlessly: it writes a `.command` to the remote and `open`s it over ssh, which launches Terminal **in the remote's Aqua session** — that window doubles as the user-glanceable viewer of everything the agent runs.
 
+**T171 — one session, many windows, never a shared keyboard.** `bridge tmux <host>` used to name `bridge-<host>` as *both* the session *and* the drive/read target — so a second agent connecting got the exact same pane as the first: two agents' `send-keys` interleaved into one shell, and a `cd` from one silently moved the other's working directory (live incident, 2026-08-08, against a 10 TB archive reconcile — one step from a reboot that would have killed it mid-write). The session name is still shared (one glanceable place per host), but every drive/read verb now targets a **window** inside it, one per agent: `bridge-<host>:agent-<slug>`. Agent identity resolves from `--agent <slug>` → `$BRIDGE_AGENT` → `$CLAUDE_CODE_SESSION_ID` (fails loudly, never silently shares a window, if none resolve). A preflight also refuses to *reuse* a window that's currently busy or was written to in the last 30s, naming the occupant — the backstop for when two different invocations still pick the same slug.
+
 ```
-This Mac:                                   Remote host:
-┌─ tmux session bridge-<host> ──── ssh ────► tmux session bridge-<host>
-│  drive: tmux send-keys -t bridge-<host>     server launched by Terminal.app (Aqua)
-└─ read:  tmux capture-pane -t bridge-<host>  → panes have FDA; window visible on remote screen
+This Mac:                                              Remote host:
+┌─ tmux session bridge-<host> (viewer only) ── ssh ───► tmux session bridge-<host>
+│                                                          ├─ window agent-<slug-A>  (agent A's shell)
+│  drive: ssh user@host "tmux send-keys                   ├─ window agent-<slug-B>  (agent B's shell)
+│          -t bridge-<host>:agent-<slug> …"                └─ … one window per agent, never window 0
+└─ read:  ssh user@host "tmux capture-pane                  server launched by Terminal.app (Aqua);
+           -t bridge-<host>:agent-<slug> -p"                 panes have FDA; visible on remote screen
 ```
+
+Drive/read run as **ssh one-shots against the remote server with an explicit `session:window` target** — not through the local wrapper session's relayed keystrokes. That relay follows whatever window is currently selected *remotely*, and tmux shares one "current window" per session across every attached client (local or remote) — that shared-selection relay is exactly the mechanism that let two agents' input interleave before this fix. The local `bridge-<host>` session still exists as an optional convenience viewer (`tmux attach -t bridge-<host>` on the laptop), but it is never the drive/read surface.
 
 Legacy note: the pre-F279 pattern (`ctrl box2` + remote session `work`) is retired — the dedicated `bridge-<host>` local session replaces boxN slots for remote driving.
 
@@ -197,11 +204,16 @@ Persists on detach (`Ctrl-B D` tmux, `Ctrl-A D` screen).
 
 **Step 5b — grant TCC to that Terminal** (one-time, remote's System Settings → Privacy & Security): **Full Disk Access**, **Screen Recording** (for `screen.py grab`), and **Accessibility** (for `screen.py` click/type). Quit & reopen Terminal after granting so the server inherits them. Skip these and the bridge silently degrades to file-only.
 
-**Step 6 — attach from the local side.**
+**Step 6 — create your own agent window, then attach from the local side (optional viewer).**
 ```
-tmux new-session -d -s bridge-<host> "ssh -t oblinger@<host>.local 'tmux attach -t bridge-<host>'"
+ssh oblinger@<host>.local "tmux new-window -t bridge-<host> -n agent-<slug>"
+tmux new-session -d -s bridge-<host> "ssh -t oblinger@<host>.local 'tmux attach -t bridge-<host>:agent-<slug>'"
 ```
-From here `tmux send-keys -t bridge-<host> "<cmd>" Enter` runs inside the remote pane with full FDA; `tmux capture-pane -t bridge-<host> -p` reads back.
+From here, drive/read run as ssh one-shots against the remote server, targeting **your window**, not the bare session (T171 — a bare `-t bridge-<host>` hands every agent the same pane):
+```
+ssh oblinger@<host>.local "tmux send-keys -t 'bridge-<host>:agent-<slug>' '<cmd>' Enter"
+ssh oblinger@<host>.local "tmux capture-pane -t 'bridge-<host>:agent-<slug>' -p"
+```
 
 **Step 7 — VERIFY the bridge has the capabilities you expect — at setup AND cheaply at each (re)connect.** A bridge that *looks* up but silently lacks GUI context is the exact failure this section exists to prevent, so **test, don't assume**:
 ```

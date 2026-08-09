@@ -6,14 +6,28 @@
 # raw ssh for remote-control work; every bridge operation is a verb here.
 #
 # Verbs:
-#   bridge tmux <host> [--session S] [--force] [--viewer]
+#   bridge tmux <host> [--session S] [--agent SLUG] [--force] [--force-server] [--viewer]
 #       Flagship connect. Ensures (a) a tmux session on the remote, launched
 #       in a Terminal window on the REMOTE'S OWN SCREEN (the glanceable
 #       viewer, and the TCC-blessed context that gives panes FDA / Screen
 #       Recording / Accessibility), and (b) a LOCAL tmux session ssh-attached
-#       to it. Session name defaults to bridge-<host> on BOTH sides.
-#       Drive it:  tmux send-keys -t bridge-<host> "<cmd>" Enter
-#       Read it:   tmux capture-pane -t bridge-<host> -p
+#       to it. Session name defaults to bridge-<host> on BOTH sides — that
+#       session is SHARED across every agent working the same host.
+#       T171: the session is NOT the drive/read surface — every agent gets
+#       its own WINDOW inside it (bridge-<host>:agent-<slug>), so two agents
+#       never share a keyboard. Agent identity: --agent <slug>, else
+#       $BRIDGE_AGENT, else derived from $CLAUDE_CODE_SESSION_ID (fails
+#       loudly if none resolves — no silent shared-window fallback). An
+#       occupancy preflight refuses to reuse a window that is busy or was
+#       written to in the last 30s, naming the occupant.
+#       Drive it (ssh one-shot against the REMOTE server, explicit target —
+#       NOT the local wrapper session, whose relayed keystrokes follow
+#       whatever window is remotely selected and would reintroduce the bug):
+#         ssh user@host.local "tmux send-keys -t bridge-<host>:agent-<slug> '<cmd>' Enter"
+#         ssh user@host.local "tmux capture-pane -t bridge-<host>:agent-<slug> -p"
+#       --force recreates only MY window; --force-server does the old
+#       session-wide kill-server restart (destroys every agent's window —
+#       only for a genuinely SSH-launched/non-Aqua server).
 #   bridge install <host> [--profile P] [--dry-run]
 #       Idempotent converge — "make it so." Env files (claude-provision),
 #       launchd-durable Syncthing on the remote, provision stamp. Re-run any
@@ -46,18 +60,23 @@ SESSION=""
 MODE="ensure"
 PROFILE=""
 DRY_RUN=0
+AGENT_FLAG=""
 for arg in "$@"; do
   case "$arg" in
     --session) : ;;             # value captured next loop via flag
     --session=*) SESSION="${arg#*=}" ;;
     --profile) : ;;             # value captured next loop
     --profile=*) PROFILE="${arg#*=}" ;;
+    --agent)   : ;;             # value captured next loop
+    --agent=*) AGENT_FLAG="${arg#*=}" ;;
     --viewer)  MODE="viewer" ;;
-    --force)   MODE="force" ;;
+    --force)   MODE="force" ;;         # T171: window-scoped now — recreates only MY window
+    --force-server) MODE="force-server" ;;  # T171: the old session-wide meaning, renamed+separated
     --dry-run) DRY_RUN=1 ;;
     *) case "${PREV:-}" in
          --session) [ -z "$SESSION" ] && SESSION="$arg" ;;
          --profile) [ -z "$PROFILE" ] && PROFILE="$arg" ;;
+         --agent)   [ -z "$AGENT_FLAG" ] && AGENT_FLAG="$arg" ;;
        esac ;;
   esac
   PREV="$arg"
@@ -92,6 +111,70 @@ resolve_target() {
   [ -z "$SESSION" ] && SESSION="bridge-${HOST%%.*}"
   LOCAL_SESSION="bridge-${HOST%%.*}"
   STAMP_CACHE="$STATE_DIR/stamp-$TARGET"
+}
+
+# ------------------------------------------------------------ agent identity
+# T171: every drive/read verb must be window-scoped, not session-scoped, or
+# two agents on the same host share one keyboard. Resolve a per-agent slug
+# that is (a) stable for the life of one agent session, (b) human-readable
+# in `tmux list-windows`. Precedence: explicit --agent > $BRIDGE_AGENT >
+# Claude Code's own session id (stable per agent invocation; the harness
+# sets CLAUDE_CODE_SESSION_ID for every session, including subagents).
+# No silent fallback to a shared/default window — fail loudly instead
+# (that silent fallback IS the T171 bug).
+sanitize_slug() { printf '%s' "$1" | tr -c 'A-Za-z0-9_-' '-' | sed 's/-\{2,\}/-/g; s/^-//; s/-$//'; }
+
+resolve_agent() {
+  local raw
+  if [ -n "$AGENT_FLAG" ]; then
+    raw="$AGENT_FLAG"
+  elif [ -n "${BRIDGE_AGENT:-}" ]; then
+    raw="$BRIDGE_AGENT"
+  elif [ -n "${CLAUDE_CODE_SESSION_ID:-}" ]; then
+    raw="$(basename "$PWD")-${CLAUDE_CODE_SESSION_ID:0:8}"
+  else
+    fail "cannot determine agent identity — pass --agent <slug>, set \$BRIDGE_AGENT, or run under Claude Code (needs \$CLAUDE_CODE_SESSION_ID). Refusing to fall back to a shared window — that silent fallback is the T171 bug."
+  fi
+  AGENT_SLUG="$(sanitize_slug "$raw")"
+  [ -n "$AGENT_SLUG" ] || fail "agent identity sanitizes to empty string (raw: '$raw') — pass a usable --agent <slug>"
+  WINDOW="agent-$AGENT_SLUG"
+}
+
+# Record who owns a window (T171 B — "naming the occupant"). Stored as a
+# tmux window user-option so it lives exactly as long as the window does.
+tag_window() {  # $1 = "session:window"
+  local who
+  who="$AGENT_SLUG @ $(hostname -s 2>/dev/null || echo local-mac) since $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  "${SSH[@]}" "$TMUX_BIN set-window-option -t '$1' @bridge_occupant '$who'" 2>/dev/null
+}
+
+BUSY_WINDOW_SECS=30   # T171 B: refuse to reuse a window written to more recently than this
+
+# Occupancy preflight (T171 B). Refuses — loudly, naming the occupant — to
+# reuse an existing window that shows live occupancy: a foreground process
+# that isn't an idle shell, or a write within BUSY_WINDOW_SECS. This is the
+# backstop for when (A)'s agent-id derivation still collides (e.g. two
+# different --agent invocations pick the same slug). Never silently
+# degrades to "just use it anyway."
+check_occupancy() {  # $1 = "session:window" (caller confirmed the window exists)
+  local target="$1" wname busy_cmd last_active now_r occupant
+  wname="${target#*:}"
+  busy_cmd=$("${SSH[@]}" "$TMUX_BIN list-panes -t '$target' -F '#{pane_current_command}'" 2>/dev/null \
+             | grep -Ev '^-?(zsh|bash|sh)$' | head -1)
+  occupant=$("${SSH[@]}" "$TMUX_BIN show-window-options -t '$target' -v '@bridge_occupant'" 2>/dev/null)
+  [ -n "$occupant" ] || occupant="(untagged — not created by bridge)"
+  if [ -n "$busy_cmd" ]; then
+    fail "occupied — window '$target' has a live foreground process ('$busy_cmd'); occupant: $occupant. Refusing to hand a second agent the same keyboard (T171) — pick a distinct --agent slug, or confirm it's safe and retarget by hand."
+  fi
+  last_active=$("${SSH[@]}" "$TMUX_BIN list-windows -t $SESSION -F '#{window_name} #{window_activity}'" 2>/dev/null \
+             | awk -v w="$wname" '$1==w{print $2}')
+  now_r=$("${SSH[@]}" 'date +%s' 2>/dev/null)
+  if [ -n "$last_active" ] && [ -n "$now_r" ]; then
+    local age=$(( now_r - last_active ))
+    if [ "$age" -lt "$BUSY_WINDOW_SECS" ]; then
+      fail "occupied — window '$target' was written to ${age}s ago (< ${BUSY_WINDOW_SECS}s); occupant: $occupant. Refusing to hand a second agent the same keyboard (T171) — pick a distinct --agent slug, or wait."
+    fi
+  fi
 }
 
 # ---------------------------------------------------------------- preflight
@@ -132,7 +215,7 @@ EOF
 
 # ---------------------------------------------------------------- tmux verb
 cmd_tmux() {
-  require_host; resolve_target; preflight
+  require_host; resolve_target; preflight; resolve_agent
   "${SSH[@]}" 'true' 2>/dev/null || fail "reach — ssh key-auth to $TARGET failed"
   say "PASS  reach   $TARGET"
   local console_user
@@ -142,34 +225,40 @@ cmd_tmux() {
   say "PASS  gui     console user: $console_user"
   remote_tmux_bin
   say "PASS  tmux    $TMUX_BIN"
+  say "PASS  agent   $AGENT_SLUG  → window '$WINDOW'"
+
+  local WTARGET="$SESSION:$WINDOW"
 
   # Aqua-launched server? If the server exists but was SSH-launched, panes
-  # have no window-server access — it must be restarted from Terminal.
+  # have no window-server access. Aqua-ness is a SERVER-WIDE property (not
+  # per-window) so recovery is a full server restart — inherently
+  # destructive to every agent's window, hence gated behind --force-server
+  # (not the window-scoped --force) and a busy-panes-across-the-server
+  # refusal.
   local have_server aqua
   have_server=$("${SSH[@]}" "tmux ls >/dev/null 2>&1 && echo yes || echo no")
   aqua=$("${SSH[@]}" "tmux show-environment -g 2>/dev/null" | grep -c 'TERM_PROGRAM=Apple_Terminal' || true)
 
-  if [ "$have_server" = "yes" ] && [ "$aqua" -ge 1 ] && [ "$MODE" != "force" ]; then
-    # good server — ensure our session exists + a viewer window shows it
+  if [ "$have_server" = "yes" ] && [ "$aqua" -ge 1 ]; then
+    # good server — ensure the shared host session exists (session is
+    # shared by design; windows are what isolate agents within it — T171)
     if ! "${SSH[@]}" "tmux has-session -t $SESSION 2>/dev/null"; then
       "${SSH[@]}" "$TMUX_BIN new -d -s $SESSION"
     fi
-    say "....  opening viewer window on $HOST's display"
-    open_command "exec $TMUX_BIN attach -t $SESSION"
   else
     if [ "$have_server" = "yes" ]; then
       local busy
       busy=$("${SSH[@]}" "tmux list-panes -a -F '#{session_name}:#{window_index} #{pane_current_command}' 2>/dev/null" \
              | awk '$2 !~ /^(zsh|bash|sh|-zsh|-bash)$/')
-      if [ -n "$busy" ] && [ "$MODE" != "force" ]; then
-        fail "busy panes — refusing to restart the SSH-launched server (--force to override):
+      if [ -n "$busy" ] && [ "$MODE" != "force-server" ]; then
+        fail "busy panes across the server — refusing a full restart that would kill EVERY agent's window, not just mine (--force-server to override; this is destructive to all windows):
 $busy"
       fi
     fi
-    say "....  (re)launching tmux server from $HOST's Aqua Terminal"
+    say "....  (re)launching tmux server from $HOST's Aqua Terminal — SERVER-WIDE, kills every existing window"
     open_command "$TMUX_BIN kill-server 2>/dev/null
 sleep 1
-exec $TMUX_BIN new -A -s $SESSION"
+$TMUX_BIN new -d -A -s $SESSION"
     sleep 4
   fi
 
@@ -184,16 +273,52 @@ exec $TMUX_BIN new -A -s $SESSION"
   [ "$aqua" -ge 1 ] && say "PASS  launch  Aqua (Terminal) context" \
                     || say "WARN  launch  server not Aqua-launched — capabilities will be degraded"
 
-  # local twin session, ssh-attached
+  # ---- per-agent WINDOW (T171 A) — the actual drive/read surface, never
+  # the bare session. (T171 B) occupancy preflight guards reuse of an
+  # existing window that isn't mine.
+  local window_exists
+  window_exists=$("${SSH[@]}" "$TMUX_BIN list-windows -t $SESSION -F '#{window_name}' 2>/dev/null" \
+                   | grep -qx "$WINDOW" && echo yes || echo no)
+  if [ "$window_exists" = "yes" ]; then
+    if [ "$MODE" = "force" ]; then
+      say "....  --force: recreating window '$WTARGET' fresh (mine only — other agents' windows untouched)"
+      "${SSH[@]}" "$TMUX_BIN kill-window -t '$WTARGET'" 2>/dev/null
+      "${SSH[@]}" "$TMUX_BIN new-window -t $SESSION -n $WINDOW"
+      say "PASS  window  '$WTARGET' recreated"
+    else
+      check_occupancy "$WTARGET"
+      say "PASS  window  '$WTARGET' reused (occupancy check clear)"
+    fi
+  else
+    "${SSH[@]}" "$TMUX_BIN new-window -t $SESSION -n $WINDOW"
+    say "PASS  window  '$WTARGET' created"
+  fi
+  tag_window "$WTARGET"
+
+  # local twin session, ssh-attached — OPTIONAL convenience viewer only
+  # (a human can `tmux attach -t bridge-<host>` on the laptop to watch).
+  # T171: this is NOT the drive/read surface — a client attached to a
+  # LOCAL wrapper session relays raw keystrokes over the ssh pty into
+  # whatever window is currently selected REMOTELY, and tmux shares one
+  # "current window" per session across every attached client, local or
+  # remote. That relay is the exact mechanism that let two agents' input
+  # interleave before this fix. Drive/read below instead run tmux commands
+  # directly against the remote server (ssh one-shot, explicit
+  # session:window target) — that addressing is independent of any
+  # client's current view, so it can't collide.
   if tmux has-session -t "$LOCAL_SESSION" 2>/dev/null; then
-    say "PASS  local   session '$LOCAL_SESSION' already up"
+    say "PASS  local   session '$LOCAL_SESSION' already up (viewer only)"
   else
     tmux new-session -d -s "$LOCAL_SESSION" \
-      "ssh -t -o ControlMaster=auto -o 'ControlPath=$CTL' -o ControlPersist=600 $USER@$TARGET 'tmux attach -t $SESSION'"
-    say "PASS  local   session '$LOCAL_SESSION' created (ssh-attached)"
+      "ssh -t -o ControlMaster=auto -o 'ControlPath=$CTL' -o ControlPersist=600 $USER@$TARGET 'tmux attach -t $WTARGET'"
+    say "PASS  local   session '$LOCAL_SESSION' created (ssh-attached, viewer only)"
   fi
 
-  # capability check (screen-check probes inside the mux server)
+  say "....  opening viewer window on $HOST's display, focused on '$WTARGET'"
+  open_command "exec $TMUX_BIN attach -t '$WTARGET'"
+
+  # capability check (screen-check probes inside the mux server, its own
+  # scratch window — doesn't touch any agent's window)
   "$SCRIPT_DIR/screen-check.sh" "$HOST" "$SESSION" || {
     say "WARN  capabilities incomplete — if launch is Aqua, grant Terminal on $HOST:"
     say "      System Settings → Privacy & Security → Full Disk Access + Screen Recording + Accessibility,"
@@ -201,9 +326,9 @@ exec $TMUX_BIN new -A -s $SESSION"
   }
 
   say ""
-  say "Viewer  : Terminal window on $HOST's screen, attached to '$SESSION'"
-  say "Drive   : tmux send-keys -t $LOCAL_SESSION \"<cmd>\" Enter"
-  say "Read    : tmux capture-pane -t $LOCAL_SESSION -p"
+  say "Viewer  : Terminal window on $HOST's screen, attached to '$WTARGET'"
+  say "Drive   : ssh $USER@$TARGET \"tmux send-keys -t '$WTARGET' '<cmd>' Enter\""
+  say "Read    : ssh $USER@$TARGET \"tmux capture-pane -t '$WTARGET' -p\""
 }
 
 # ------------------------------------------------------------- install verb
@@ -338,6 +463,6 @@ case "$VERB" in
   skills)           cmd_skills ;;
   sync)             cmd_sync ;;
   doctor)           cmd_doctor ;;
-  help|--help|-h)   sed -n '2,30p' "$0" | sed 's/^# \{0,1\}//' ;;
+  help|--help|-h)   sed -n '2,48p' "$0" | sed 's/^# \{0,1\}//' ;;
   *) fail "unknown verb '$VERB' — verbs: tmux, install (alias refresh), skills, sync, doctor" ;;
 esac

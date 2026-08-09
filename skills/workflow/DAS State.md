@@ -7,6 +7,23 @@ Man-page-style reference for the `state` CLI — the one write path for backlog 
 
 > **STATUS:** Canonical. Shipped 2026-06-07 via F129; unified on one address scheme 2026-07-13 via F236; moved to the verb-first v3 grammar 2026-08-01 via F293, which REMOVED the address-first v2 form rather than deprecating it. `backlog-edit.py` ships alongside at the helper level — `state` delegates to it via importlib; new code always invokes `state`.
 
+| Table of Contents |  |
+|---|---|
+| **[[#NAME]]** |  |
+| **[[#SYNOPSIS]]** |  |
+| **[[#ANCHOR RESOLUTION]]** |  |
+| **[[#BACKLOG ROWS — `state <verb> <anchor> Backlog <F<n>|T<n>>`]]** |  |
+|    [[#Standalone question rows — `state define <anchor> Backlog Q<n>` (F275 M2/M3)]] |  |
+| **[[#DOC QUERIES — `state <verb> <anchor> <doc> <Q<n>|V<n>>`]]** |  |
+| **[[#READING AN ITEM — `state show <anchor> <doc> <label>`]]** |  |
+| **[[#INBOX — `state drop | inbox-list | inbox-tag`]]** |  |
+| **[[#BODY SOURCE]]** |  |
+| **[[#POST-CONDITIONS]]** |  |
+| **[[#EXAMPLES]]** |  |
+| **[[#DESIGN NOTES]]** |  |
+| **[[#IMPLEMENTATION STATUS]]** |  |
+| **[[#RELATED]]** |  |
+
 ## NAME
 
 `state` — canonical state editor for backlog rows, doc Open Questions, and doc Verifications
@@ -208,6 +225,46 @@ looks first; the echo serves the one who does not. A row `remove` is a HARD
 delete of the row *and* every sub-bullet under it, with none of the `### Removed`
 audit trail a Q gets. This is also why a `remove --dry-run` was dropped rather
 than built: a dry run only helps someone who already suspected they needed one.
+
+## INBOX — `state drop | inbox-list | inbox-tag`
+
+Three verbs cover the [[DAS Inbox]] drop-zone's whole lifecycle (T131). `<anchor>` here is the TARGET anchor whose Inbox is being written to or read — resolved the same two ways as everywhere else (SLUG or a path holding `.anchor`); nothing is inferred from cwd.
+
+```
+drop        state drop <anchor> "<message>" [--source S] [--tag T] [--topic H]
+            Appends ONE pending entry to `{prefix} Track/{prefix} Inbox.md`
+            (`{prefix}` comes off the anchor's own Backlog FILENAME, not the
+            `.anchor` slug — those differ whenever the display name isn't
+            already all-caps), creating the file from the standard template
+            on first drop. The entry carries NO status tag — that absence is
+            the whole pending signal the `Inbox N` banner counts. --source
+            names the sender (attribution line only); --tag here is a
+            message TYPE (fact/handoff/note/nudge), NOT a status — DONE /
+            MOVED → are written by inbox-tag, never by drop. --topic sets
+            the dated H2's topic; derived from the message's opening
+            sentence when omitted. Nothing is executed by dropping.
+
+inbox-list  state inbox-list <anchor> [--all]
+            Prints every PENDING entry's markdown verbatim (heading +
+            attribution + body). "Pending" is decided by the exact regexes
+            `count_pending_inbox` (audit-q.py) counts against — imported,
+            not restated, so this can never disagree with the `Inbox N`
+            banner about which entries qualify. --all also lists processed
+            entries (debugging only).
+
+inbox-tag   state inbox-tag <anchor> --date D [--topic T] --tag TAG
+            The drain's sanctioned writer, paired with `drop` at the other
+            end of an entry's lifecycle. Locates the one entry dated `D`
+            (disambiguated by --topic, a case-insensitive substring, when
+            more than one entry shares that date) and appends the
+            normalized tag to its existing H2 line — the topic text already
+            on disk is never re-typed. --tag must be exactly `DONE` or
+            `MOVED → {destination}` (R-fct-inbox-03's whole vocabulary); a
+            bare `MOVED` with no destination is refused, and so is a
+            re-tag of an already-processed entry.
+```
+
+The `/inbox` skill is the procedure that walks the pending list, integrates each entry into the right planning surface, and calls `inbox-tag`; it never hand-edits the Inbox markdown.
 
 ## BODY SOURCE
 

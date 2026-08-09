@@ -22,13 +22,23 @@ Verifications:
                 resolve (move to Done/Resolved) | remove (soft-delete, audit
                 trail preserved)
 
-Plus the agent-inbox sender (T131, design [[ATT045 - Agent inbox pattern]]):
+Plus the agent-inbox sender + drain writer (T131, design [[ATT045 - Agent
+inbox pattern]]):
     state drop <anchor> "<message>" [--source S] [--tag T] [--topic H]
         Appends ONE pending entry to the target anchor's [[DAS Inbox]] file
         (`{prefix} Track/{prefix} Inbox.md`), creating it from the standard
         template on first drop. The entry carries NO status tag — that absence
         is what marks it pending; the drain writes `DONE` / `MOVED →`. Nothing
         is executed by dropping.
+    state inbox-list <anchor> [--all]
+        The drain's read half (leg 3, the `/inbox` skill): prints every
+        PENDING entry's markdown verbatim. "Pending" is decided by the exact
+        regexes `count_pending_inbox` counts against, imported not restated.
+    state inbox-tag <anchor> --date D [--topic T] --tag TAG
+        The drain's sanctioned writer (leg 3, the `/inbox` skill): marks one
+        entry processed by appending `DONE` or `MOVED → {destination}` to its
+        existing H2 line. `--tag` must be one of those two exact forms
+        (R-fct-inbox-03); refuses if the entry already carries a tag.
 
 Plus one repair verb for the row that has no address at all (T162):
     state mint-id <anchor> Backlog <T+|F+|T042> --match "<title substring>"
@@ -3335,6 +3345,182 @@ def cmd_drop(slug, anchor_path, args):
     return 0
 
 
+# T131 leg 3 — the drain's sanctioned writer, paired with `drop` above.
+#
+# `drop` writes NO tag (that absence is the whole pending signal); `inbox-tag`
+# writes exactly one, chosen from [[DAS Inbox]]'s two-value vocabulary
+# (R-fct-inbox-03): `DONE` or `MOVED → {destination}`. Routing the write
+# through `state` — rather than letting the `/inbox` skill hand-edit the
+# markdown — means the vocabulary is enforced in one place instead of trusted
+# to every caller, the same reason `drop` itself is a verb here and not a
+# skill-side string splice.
+_INBOX_MOVED_RE = re.compile(r"^MOVED\s*→\s*(\S.*)$")
+_INBOX_H2_DATE_RE = re.compile(r"^## (\d{4}-\d{2}-\d{2}) — (.+)$")
+
+
+def _normalize_inbox_tag(raw):
+    """`DONE`, or `MOVED → {destination}` re-spaced to the canonical single
+    space either side of the arrow — never a third spelling. A bare `MOVED`
+    with no destination is refused: per [[DAS Inbox]] it leaves a later reader
+    with no idea where the entry went, so it is treated as a malformed tag,
+    not a degenerate valid one."""
+    tag = (raw or "").strip()
+    if tag == "DONE":
+        return tag
+    m = _INBOX_MOVED_RE.match(tag)
+    if m:
+        dest = m.group(1).strip()
+        if "`" in dest:
+            raise be.BacklogEditError(
+                "inbox-tag: --tag destination cannot itself contain a "
+                "backtick — it would break the tag's own backtick-wrapping")
+        return f"MOVED → {dest}"
+    raise be.BacklogEditError(
+        f"inbox-tag: --tag must be exactly 'DONE' or 'MOVED → {{destination}}' "
+        f"— the only two values [[DAS Inbox]] (R-fct-inbox-03) sanctions — "
+        f"got {raw!r}")
+
+
+def _load_audit_q():
+    """Lazy-import `audit-q.py` for its `_INBOX_ENTRY_RE` / `_INBOX_DONE_RE` —
+    the exact regexes `count_pending_inbox` counts against and the `Inbox N`
+    banner is built from. `inbox-tag` reuses `_INBOX_DONE_RE` to detect an
+    already-tagged entry rather than restating the tag-shape test — a second
+    spelling of "what marks an entry processed" is exactly how a writer and
+    the banner it feeds come to disagree. Loaded lazily (only by this verb) so
+    every other `state` call doesn't pay a 6000-line-module import for a
+    check it never uses."""
+    path = (Path.home() / ".claude" / "skills" / "audit" / "scripts"
+             / "audit-q.py")
+    spec = importlib.util.spec_from_file_location("audit_q_shared", path)
+    if spec is None or spec.loader is None:
+        raise be.BacklogEditError(f"inbox-tag: cannot load {path}")
+    mod = importlib.util.module_from_spec(spec)
+    # Register before exec — audit-q.py's @dataclass classes resolve their own
+    # module via sys.modules[cls.__module__] while executing, same reason
+    # `state`'s own backlog-edit.py load (top of this file) registers first.
+    sys.modules["audit_q_shared"] = mod
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def cmd_inbox_list(slug, anchor_path, args):
+    """`state inbox-list <anchor> [--all]` — the drain's READ half, paired with
+    `inbox-tag`'s write half.
+
+    Prints every PENDING entry's markdown verbatim (heading + body) so the
+    `/inbox` drain skill reads real content instead of re-deriving it from a
+    summary. "Pending" is decided by walking the file with the exact regexes
+    `count_pending_inbox` counts against (imported via `_load_audit_q`, same
+    as `inbox-tag`) — a drain that disagreed with the `Inbox N` banner about
+    which entries qualify is the exact failure this project already hit once.
+    `--all` also lists already-processed entries (debugging only; the drain
+    never acts on them).
+    """
+    inbox_path, _backlog_path = _inbox_path(slug, anchor_path)
+    if not inbox_path.is_file():
+        print(f"{slug}: no Inbox file at {inbox_path} — nothing pending",
+              file=sys.stderr)
+        return 0
+
+    audit_q = _load_audit_q()
+    lines = inbox_path.read_text(encoding="utf-8").splitlines()
+    # Mirrors count_pending_inbox's own walk (audit-q.py) span-for-span, so
+    # "pending" can never mean something different here than it does there:
+    # an entry opens at its `## ` heading, stays pending until a sanctioned
+    # tag appears anywhere inside it (heading or body), and closes at the
+    # next `## ` heading or EOF.
+    spans = []  # (start, end_exclusive, still_pending)
+    start = None
+    pending = False
+    for i, line in enumerate(lines):
+        if audit_q._INBOX_ENTRY_RE.match(line):
+            if start is not None:
+                spans.append((start, i, pending))
+            start = i
+            pending = not bool(audit_q._INBOX_DONE_RE.search(line))
+        elif start is not None and audit_q._INBOX_DONE_RE.search(line):
+            pending = False
+    if start is not None:
+        spans.append((start, len(lines), pending))
+
+    shown = [s for s in spans if (args.all or s[2])]
+    print(f"{slug}: {len(shown)} of {len(spans)} entries "
+          f"{'shown' if args.all else 'pending'} in {inbox_path.name}",
+          file=sys.stderr)
+    for s, e, _is_pending in shown:
+        sys.stdout.write("\n".join(lines[s:e]).rstrip("\n") + "\n\n")
+    return 0
+
+
+def cmd_inbox_tag(slug, anchor_path, args):
+    """`state inbox-tag <anchor> --date D [--topic T] --tag TAG`.
+
+    Locates the ONE pending-or-not entry dated `--date` (disambiguated by
+    `--topic`, a case-insensitive substring, when more than one entry shares
+    that date — same shape as `mint-id --match`), refuses if it already
+    carries a tag, and appends the normalized tag to its existing H2 line
+    verbatim — so the topic text on disk is never re-typed and can never
+    drift from what `drop` originally wrote.
+    """
+    if not re.match(r"^\d{4}-\d{2}-\d{2}$", args.date or ""):
+        raise be.BacklogEditError(
+            f"inbox-tag: --date must be YYYY-MM-DD — got {args.date!r}")
+    tag = _normalize_inbox_tag(args.tag)
+
+    inbox_path, _backlog_path = _inbox_path(slug, anchor_path)
+    if not inbox_path.is_file():
+        raise be.BacklogEditError(
+            f"inbox-tag: no Inbox file at {inbox_path} — nothing to tag")
+
+    audit_q = _load_audit_q()
+    before = inbox_path.read_text(encoding="utf-8")
+    lines = before.splitlines()
+
+    topic_filter = (args.topic or "").strip().lower()
+    matches = []
+    for i, line in enumerate(lines):
+        m = _INBOX_H2_DATE_RE.match(line)
+        if not m or m.group(1) != args.date:
+            continue
+        if topic_filter and topic_filter not in m.group(2).lower():
+            continue
+        matches.append(i)
+
+    if not matches:
+        raise be.BacklogEditError(
+            f"inbox-tag: no entry dated {args.date}"
+            + (f" matching --topic {args.topic!r}" if args.topic else "")
+            + f" in {inbox_path.name}")
+    if len(matches) > 1:
+        candidates = "; ".join(f'"{lines[i][3:][:60]}"' for i in matches)
+        raise be.BacklogEditError(
+            f"inbox-tag: {len(matches)} entries dated {args.date} — "
+            f"disambiguate with --topic (candidates: {candidates})")
+
+    idx = matches[0]
+    if audit_q._INBOX_DONE_RE.search(lines[idx]):
+        raise be.BacklogEditError(
+            f"inbox-tag: {lines[idx][3:]!r} already carries a status tag — "
+            f"inbox-tag never overwrites a processed entry")
+
+    new_line = f"{lines[idx]}    `{tag}`"
+    lines[idx] = new_line
+    inbox_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+    # T050 — prove it landed by re-reading the DISK, and undo cleanly if not.
+    landed = inbox_path.read_text(encoding="utf-8")
+    if new_line not in landed.splitlines():
+        inbox_path.write_text(before, encoding="utf-8")
+        raise be.BacklogEditError(
+            f"inbox-tag: the tag did not land in {inbox_path.name} — the "
+            f"file has been restored to its pre-call state.")
+
+    _selffire(inbox_path)
+    print(f"{slug}: inbox-tag {args.date} → `{tag}`")
+    return 0
+
+
 def cmd_revalidate(slug, anchor_path, args):
     """F241 — the doc verb: `state revalidate <anchor> <doc>`.
 
@@ -3696,9 +3882,9 @@ _ITEM_VERBS = ("define", "set", "resolve", "remove")
 # Every top-level verb — item verbs, the doc verb, and the domain verbs. Only
 # the tombstones read this, to tell a retired v2-form invocation (which leads
 # with the address) from a plain typo.
-_ALL_VERBS = _ITEM_VERBS + ("show", "mint-id", "drop", "revalidate", "status",
-                            "roadmap", "triage", "crank", "groom-list",
-                            "summary-line")
+_ALL_VERBS = _ITEM_VERBS + ("show", "mint-id", "drop", "inbox-list",
+                            "inbox-tag", "revalidate", "status", "roadmap",
+                            "triage", "crank", "groom-list", "summary-line")
 
 _LABEL_HELP = ("item id — F<n>/T<n>/C<n>/Q<n> on Backlog, Q<n>/V<n> on any "
                "other doc; LETTERS+'+' auto-mints (F+, T+, C+, Q+, V+); "
@@ -3868,6 +4054,35 @@ def build_parser():
                     help="read the message from a file (alternative to the "
                          "positional / stdin)")
 
+    il = subs.add_parser(
+        "inbox-list",
+        help="T131 leg 3 — print every PENDING Inbox entry's markdown "
+             "verbatim, for the `/inbox` drain skill to read")
+    il.add_argument("anchor",
+                    help="anchor SLUG whose Inbox is being drained, or a "
+                         "path to a directory holding .anchor")
+    il.add_argument("--all", action="store_true",
+                    help="also list already-processed entries (debugging)")
+
+    it = subs.add_parser(
+        "inbox-tag",
+        help="T131 leg 3 — write the sanctioned status tag onto one Inbox "
+             "entry (marks it processed); pairs with `drop` at the sending "
+             "end")
+    it.add_argument("anchor",
+                    help="anchor SLUG whose Inbox is being drained, or a "
+                         "path to a directory holding .anchor")
+    it.add_argument("--date", required=True,
+                    help="the entry's YYYY-MM-DD, matching its H2")
+    it.add_argument("--topic", default=None,
+                    help="case-insensitive substring of the entry's topic — "
+                         "required only to disambiguate two entries dated "
+                         "the same day")
+    it.add_argument("--tag", required=True,
+                    help="'DONE' or 'MOVED → {destination}' — the only two "
+                         "sanctioned values (R-fct-inbox-03); a bare 'MOVED' "
+                         "with no destination is refused")
+
     # ---- doc verb ---------------------------------------------------------
 
     rv = subs.add_parser(
@@ -4014,6 +4229,10 @@ def main(argv):
             return cmd_mint_id(slug, anchor_path, args)
         if args.verb == "drop":
             return cmd_drop(slug, anchor_path, args)
+        if args.verb == "inbox-list":
+            return cmd_inbox_list(slug, anchor_path, args)
+        if args.verb == "inbox-tag":
+            return cmd_inbox_tag(slug, anchor_path, args)
         if args.verb == "revalidate":
             return cmd_revalidate(slug, anchor_path, args)
         if args.verb == "triage":
