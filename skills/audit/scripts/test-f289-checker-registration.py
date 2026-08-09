@@ -24,7 +24,9 @@ for a check instead of another sweep.
 
     python3 test-f289-checker-registration.py
 """
+import contextlib
 import importlib.util
+import io
 import sys
 import tempfile
 from pathlib import Path
@@ -258,6 +260,56 @@ for _line in REPORT["ghosts"]:
 check("the ghost population is exactly the frozen known set — a new one fails "
       "here rather than silently becoming a billed agent-judgment task",
       _got, KNOWN_GHOSTS)
+
+
+print("\nThe live warden engine actually resolves what a name match only guesses at (T172)")
+
+# Everything above compares two STRINGS — the name a rule declares against the
+# name a module defines — and stops there. That is exactly the gap T172 found:
+# `R-svg-jiggle-06..10` pass every check above (their `fix::` name matches a
+# real name somewhere in the corpus' vocabulary) while `warden compile` printed
+# "registered by no imported module" for all five, because name-matching and
+# resolving are different questions and this file only ever asked the first
+# one. Ask the ENGINE that actually runs on write — the live copy at
+# ~/ob/grove/warden/engine, not dans-anchor-system's own divergent copy under
+# warden/engine/ (T172 found the two differ; reconciling them is out of scope
+# here) — by running its real corpus-mode compiler over this corpus and
+# reading what it prints, the same way `warden compile` does.
+_wc_path = Path.home() / "ob" / "grove" / "warden" / "engine" / "warden_compile.py"
+_wc_spec = importlib.util.spec_from_file_location("wc", _wc_path)
+wc = importlib.util.module_from_spec(_wc_spec)
+_wc_spec.loader.exec_module(wc)
+sys.path.insert(0, str(_wc_path.parent))
+import warden_scan  # noqa: E402 — the live engine's own scan step, corpus-mode input
+
+_ix_path = ap.REPO_ROOT / ".warden" / "rules-index.json"
+_prior_bearing, _prior_seen = warden_scan.load_index(str(_ix_path))
+_files, _seen, _ = warden_scan.build_index(str(ap.REPO_ROOT), _prior_bearing, _prior_seen, rescan=False)
+_index = {"root": str(ap.REPO_ROOT), "files": _files, "seen": _seen}
+
+_engine_err = io.StringIO()
+with contextlib.redirect_stderr(_engine_err):
+    wc.compile_corpus(ap.REPO_ROOT, _index, "all", "test-f289-resolution-check")
+_engine_warnings = [ln for ln in _engine_err.getvalue().splitlines()
+                    if "registered by no imported module" in ln]
+_svg_engine_warnings = [ln for ln in _engine_warnings if "R-svg-jiggle" in ln]
+
+check("the live warden engine's compile-time resolver prints ZERO "
+      "'registered by no imported module' warnings for R-svg-jiggle — this is "
+      "the assertion that would have failed on day one for R-svg-jiggle-06..10, "
+      "before warden_compile.py's fix:: ref collection was corrected to match "
+      "what compile_rule() actually wires (a fix:: only reaches the IR when "
+      "its own rule also carries check::)",
+      _svg_engine_warnings, [])
+
+# R-md-03's `check:: md_angle_brackets_backtick_only` is a genuinely
+# unregistered checker — a real, pre-existing, unrelated gap (no fix::
+# involved at all), left exactly as found; T172 scoped this to the
+# R-svg-jiggle fix:: resolution, not a corpus-wide checker sweep. Recorded
+# so a future zero-warning ratchet does not have to rediscover it.
+check("...and the one remaining corpus warning is the known, unrelated "
+      "R-md-03 checker gap, not a regression of this fix",
+      _engine_warnings, [ln for ln in _engine_warnings if "R-md-03" in ln])
 
 
 def test_a_new_ghost_is_caught():
