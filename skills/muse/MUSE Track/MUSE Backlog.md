@@ -6,7 +6,7 @@ description: "MUSE backlog — voice-memo pipeline features"
 
 Voice-memo ingestion + review-and-do pipeline work items.
 
-| -[[MUSE Backlog]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [SKL](hook://SKL) → [[MUSE]] → [MUSE Backlog](hook://p/MUSE%20Backlog)  |
+| -[[MUSE Backlog]]- | → [[DAS]] → [[SKL]] → [[MUSE]] → [MUSE Backlog](hook://p/MUSE%20Backlog)  |
 | --- | --- |
 | ... |  |
 

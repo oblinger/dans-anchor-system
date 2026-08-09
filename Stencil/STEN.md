@@ -4,7 +4,7 @@ description: Stencil — the pattern language the anchor system is written in
 # Stencil
 The pattern language the anchor system is written in — one notation that both generates a document and tests whether a document fits.
 
-| -[[STEN]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [STEN](hook://p/STEN)<br>: Stencil — the pattern language the anchor system is written in — one notation that both generates a document and tests whether a document fits |
+| -[[STEN]]- | → [[DAS]] → [STEN](hook://p/STEN)<br>: Stencil — the pattern language the anchor system is written in — one notation that both generates a document and tests whether a document fits |
 | --- | --- |
 | [[STEN Track\|Track]]  | [[STEN Backlog\|Backlog]],   |
 | Language | [[STEN Language\|Language]] — the grammar: three constructs, four defaults |

@@ -2,7 +2,7 @@
 description: Subsystem design for the Tracking group — the surfaces, verbs, and rules that let a human and an agent share one picture of work state. Paradigm doc for per-group subsystem design.
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [design](hook://design) → [DAS Tracking Design](hook://p/DAS%20Tracking%20Design)
+:>> [[DAS]] → [design](hook://design) → [DAS Tracking Design](hook://p/DAS%20Tracking%20Design)
 # DAS Tracking Design
 Tracking is the subsystem that keeps one shared picture of work state between the human and the agent: what is ready, what is blocked, what question is waiting on whom.
 

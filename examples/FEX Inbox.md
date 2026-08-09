@@ -2,7 +2,7 @@
 description: "raw input to process"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [FEX Inbox](hook://p/FEX%20Inbox)
+:>> [[DAS]] → [[examples]] → [FEX Inbox](hook://p/FEX%20Inbox)
 # FEX Inbox
 
 Drop zone for raw input. The user pastes thoughts, change requests, or design notes here; an agent reads them and integrates into the appropriate planning docs (PRD, System Design, Backlog, Rules). Entries are reverse-chronological.

@@ -3,7 +3,7 @@ description: "how the audit engine is built"
 ---
 
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [design](hook://design) → [DAS Audit System Design](hook://p/DAS%20Audit%20System%20Design)
+:>> [[DAS]] → [design](hook://design) → [DAS Audit System Design](hook://p/DAS%20Audit%20System%20Design)
 # DAS Audit System Design
 
 The per-audit pipeline — how one audit executes against a target. [[DAS Audit Architecture|Audit Architecture]] gives the system's structure (rule sets + components); this page is the flow inside the engine.

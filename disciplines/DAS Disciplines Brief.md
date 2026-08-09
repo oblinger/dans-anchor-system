@@ -2,10 +2,10 @@
 
 Editing-and-maintenance brief for [[DAS Disciplines]]. Read before adding a new discipline, restructuring the catalog, or auditing what belongs here.
 
-| -[[DAS Disciplines Brief]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[disciplines]] → [DAS Disciplines Brief](hook://p/DAS%20Disciplines%20Brief)  |
+| -[[DAS Disciplines Brief]]- | → [[DAS]] → [[disciplines]] → [DAS Disciplines Brief](hook://p/DAS%20Disciplines%20Brief)  |
 | --- | --- |
 | Related | [[DAS Disciplines]],  [[DAS Brief]],  [[DAS Facets]],   |
-| ... | [[DAS anchor-dag]],  [[DAS ask-format]],  [[DAS code-repo]],  [[DAS file-association]],  [[DAS formats]],  [[DAS granularity]],  [[DAS Linked Mode]],  [[DAS markdown]],  [[DAS mode]],  [[DAS progressive-disclosure]],  [[DAS role]],  [[DAS rust]],  [[DAS stream]],  [[DAS technical-answer]],  [[DAS verification]],  [[DAS workflow]],  [MODE](hook://MODE),  [ROLE](hook://ROLE),   |
+| ... | [[DAS anchor-dag]],  [[DAS ask-format]],  [[DAS code-repo]],  [[DAS feed]],  [[DAS file-association]],  [[DAS formats]],  [[DAS granularity]],  [[DAS Linked Mode]],  [[DAS markdown]],  [[DAS mode]],  [[DAS progressive-disclosure]],  [[DAS role]],  [[DAS rust]],  [[DAS spine]],  [[DAS stream]],  [[DAS technical-answer]],  [[DAS verification]],  [[DAS workflow]],   |
 
 *Conceptual source: [[PKM]] (under [[AOT]]) — disciplines codify the anchoring / hook-naming / local-global patterns.*
 

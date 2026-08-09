@@ -1,13 +1,13 @@
 ---
-description: "The full purchasing lifecycle — research, narrow, buy, reorder."
+description: "The full purchasing lifecycle — research a product category, narrow to an item, buy, and reorder consumables via web search + browser automation"
 ---
 # DAS Purchase
 The Product skill handles the full purchasing lifecycle: researching a product category, narrowing down to a specific item, executing the purchase, and reordering consumables. It uses web search and browser automation to gather information and navigate to purchase pages.
 
-| -[[DAS Purchase]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [docs](hook://docs) → [DAS Purchase](hook://p/DAS%20Purchase)<br>: The full purchasing lifecycle — research a product category, narrow to an item, buy, and reorder consumables via web search + browser automation |
+| -[[DAS Purchase]]- | → [[DAS]] → [docs](hook://docs) → [DAS Purchase](hook://p/DAS%20Purchase)<br>: The full purchasing lifecycle — research a product category, narrow to an item, buy, and reorder consumables via web search + browser automation |
 | --- | --- |
 | Related | [[skills/buy/SKILL.md\|SKILL]],   |
-| [[DAS Purchase Design\|Design]] |  |
+| [[DAS Purchase Design\|Design]]  |  |
 | ... |  |
 
 The workflow moves through four stages. Hunt is the broad research phase — surveying a category, comparing top options, reading reviews. Find narrows to a specific SKU and compares retailers for the best price. Buy navigates to the purchase page for checkout. Reorder handles repeat purchases of consumables you have bought before.

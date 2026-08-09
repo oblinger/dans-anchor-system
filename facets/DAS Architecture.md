@@ -5,7 +5,7 @@ description: per-anchor architecture overview — anchor-folder form with subsys
 # DAS Architecture
 Specification for the **Architecture** facet — the system-architecture story: a single `{slug} Design/{slug} Architecture.md` that upgrades to a folder-doc as subsystems grow.
 
-| -[[DAS Architecture]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT]] → [DAS Architecture](hook://p/DAS%20Architecture)  |
+| -[[DAS Architecture]]- | → [[DAS]] → [[FCT]] → [DAS Architecture](hook://p/DAS%20Architecture)  |
 | --- | --- |
 | Related | [[DAS Module Doc]],  [[DAS Decisions]],  [[DAS Design Dispatch]],   |
 | Examples | [[FEX Architecture\|minimal (Excalidraw, partial subsystem docs)]],  [[HBR Architecture\|fuller (D2/SVG, all subsystems linked)]],   |

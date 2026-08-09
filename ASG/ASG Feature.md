@@ -1,7 +1,7 @@
 ---
 description: "Manage a feature from idea through design, agreement, implementation, testing, and completion."
 ---
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[ASG]] → [ASG Feature](hook://p/ASG%20Feature)
+:>> [[DAS]] → [[ASG]] → [ASG Feature](hook://p/ASG%20Feature)
 # /feature — user guide
 
 **Full internals & design:** [[DAS Feature]]   ·   **Runtime spec:** [[skills/feature/SKILL.md\|SKILL.md]]

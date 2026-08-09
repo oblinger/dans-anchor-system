@@ -4,7 +4,7 @@ description: "the strategy facet — one {slug} Agenda.md per anchor carrying th
 # DAS Agenda
 The strategic frame — one optional `{slug} Agenda.md` per anchor saying why this activity exists, what winning looks like, and how we plan to attack it.
 
-| -[[DAS Agenda]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets\|FCT]] → [DAS Agenda](hook://p/DAS%20Agenda)  |
+| -[[DAS Agenda]]- | → [[DAS]] → [[FCT]] → [DAS Agenda](hook://p/DAS%20Agenda)  |
 | --- | --- |
 | Related | [[templates/agenda.md\|agenda template]],  [[DAS Track]],  [[DAS Roadmap]],  [[DAS PRD]],  [[DAS Brief]],  [[DAS Backlog]],   |
 | Examples | [[FEX Agenda\|worked example]],   |

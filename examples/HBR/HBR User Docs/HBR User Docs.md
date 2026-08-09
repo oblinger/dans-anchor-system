@@ -4,7 +4,7 @@ description: "Harbor user docs — how to run and use the server"
 # HBR User Docs
 Docs for the person running Harbor.
 
-| -[[HBR User Docs]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [[HBR]] → [HBR User Docs](hook://p/HBR%20User%20Docs)<br>: Harbor User Docs — user docs |
+| -[[HBR User Docs]]- | → [[DAS]] → [[examples]] → [[HBR\|HARBOR]] → [HBR User Docs](hook://p/HBR%20User%20Docs)  |
 | --- | --- |
 | Anchor | [[HBR]] (parent) |
 | Related | [[HBR CLI]],   |

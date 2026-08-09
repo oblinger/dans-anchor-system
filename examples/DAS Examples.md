@@ -5,7 +5,7 @@ description: "the example gallery — fictional worlds + a per-kind map"
 # Examples
 A small set of complete, fictional example anchors — reused to illustrate each facet and anchor-page kind.
 
-| -[[DAS Examples]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [DAS Examples](hook://p/DAS%20Examples)<br>: the example gallery — fictional worlds + a per-kind map |
+| -[[DAS Examples]]- | → [[DAS]] → [[examples]] → [DAS Examples](hook://p/DAS%20Examples)<br>: the example gallery — fictional worlds + a per-kind map |
 | --- | --- |
 | Related | [[DAS Skills\|Skills]],  [[DAS Facets\|Facets]],  [[DAS Disciplines\|Disciplines]],  [[DAS Traits\|Traits]],  [[DAS Rulesets\|Rulesets]],  [[DAS\|dans-anchor-system]],   |
 |  | **THE EXAMPLE WORLDS** |

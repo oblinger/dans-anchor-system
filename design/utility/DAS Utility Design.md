@@ -2,7 +2,7 @@
 description: Subsystem design for the Utility group — machine access (local, remote, GPU, GUI), capture pipelines (voice, text), and life utilities; always available, no anchor trait.
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [design](hook://design) → [DAS Utility Design](hook://p/DAS%20Utility%20Design)
+:>> [[DAS]] → [design](hook://design) → [DAS Utility Design](hook://p/DAS%20Utility%20Design)
 # DAS Utility Design — the design of the Utility subsystem
 Utility is the grab-bag subsystem, organized as three clusters: **Connection** (reach other machines — bridge, exp), **Machine control** (drive this one — ctrl, screen, get-user-auth), and **Productivity** (the little tools — vox, muse, snip, cook, atlas). No anchor trait declares them; they are always available.
 

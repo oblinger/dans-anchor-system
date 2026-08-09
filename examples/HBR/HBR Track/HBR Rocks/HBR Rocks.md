@@ -4,7 +4,7 @@ description: "Harbor's big chunks of work, ranked by commitment"
 # HBR Rocks
 The big chunks Harbor is trying to move — ranked by commitment, not by sequence.
 
-| -[[HBR Rocks]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [[HBR\|HARBOR]] → [[HBR Track\|HARBOR TRACK]] → [HBR Rocks](hook://p/HBR%20Rocks)  |
+| -[[HBR Rocks]]- | → [[DAS]] → [[examples]] → [[HBR\|HARBOR]] → [[HBR Track\|HARBOR TRACK]] → [HBR Rocks](hook://p/HBR%20Rocks)  |
 | --- | --- |
 | Related | [[DAS Rocks]],  [[HBR Roadmap]],  [[HBR Backlog]],   |
 | ... |  |

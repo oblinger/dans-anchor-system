@@ -1,2 +1,2 @@
 traits: [skill]
-description: Common Skill Example — reference anchor — a fully-wired example of a DAS skill anchor
+description: "**Common Skill Example** — the fully-wired worked-example **skill** anchor (`SKILL.md` shape), cited by the Skill-Anchor trait spec. Relocated here from `CAB/` 2026-06-27."

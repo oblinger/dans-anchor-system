@@ -2,7 +2,7 @@
 description: Subsystem design for the Search group — the research verbs that answer questions about the world (find one, profile one, compare many, buy one) and file dated result docs.
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Search Design](hook://p/DAS%20Search%20Design)
+:>> [[DAS]] → [design](hook://design) → [DAS Search Design](hook://p/DAS%20Search%20Design)
 # DAS Search Design — the design of the Search subsystem
 Search is the research subsystem: four verbs that answer a question about the world — locate one entity, build a dossier on one, compare many, or find where to buy one — each running at a declared depth tier and filing a dated, source-attributed result doc.
 

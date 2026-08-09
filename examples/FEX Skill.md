@@ -7,7 +7,7 @@ user_invocable: true
 # Snap — capture + file a screenshot
 Grab a screenshot, name it from its content, file it under `~/notes/log/snap/`.
 
-| -[[FEX Skill]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [FEX Skill](hook://p/FEX%20Skill)<br>: canonical skill exemplar |
+| -[[FEX Skill]]- | → [[DAS]] → [[examples]] → [FEX Skill](hook://p/FEX%20Skill)<br>: canonical skill exemplar |
 | --- | --- |
 | Related | [[FEX Facet]],  [[DAS Skill]] (the skill facet),  [[FEX Dispatch Examples]]  |
 | ... | [[_{{DISK_LABEL}} Template]],  [[_{{PURCHASE_DATE}} {{HOSTNAME}} Template]],  [[Bridges]],  [[Clarifier]],  [[CSE]],  [[DAS Examples]],  [[DAS US-CAE-1 — Schedule a Task]],  [[DAS US-CAE-2 — Monitor Task Status]],  [[DAS US-CAE-3 — Retry Failed Tasks]],  [[Devtools]],  [[ESP]],  [[Espresso]],  [[FEX Agenda]],  [[FEX API]],  [[FEX API Design]],  [[FEX Architecture]],  [[FEX Claude]],  [[FEX Completed Roadmap]],  [[FEX CSE]],  [[FEX Decisions]],  [[FEX Decisions Details]],  [[FEX Figure Page]],  [[FEX Files]],  [[FEX Grouped Dispatch]],  [[FEX Icebox]],  [[FEX Inbox]],  [[FEX List Dispatch]],  [[FEX Minimal Facet]],  [[FEX Minimal Skill]],  [[FEX Project Root]],  [[FEX queries]],  [[FEX Repo]],  [[FEX Roadmap]],  [[FEX Rules]],  [[FEX Scheduler]],  [[FEX Stories]],  [[FEX System Design]],  [[Forum Stories]],  [[HBR]],  [[HBR PRD User Stories]],  [[HWP]],  [[Knots]],  [[Mini]],  [[Snap]],  [[Viz Bench]],   |

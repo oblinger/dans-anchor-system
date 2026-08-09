@@ -1,7 +1,7 @@
 ---
 description: "/ask — the clean skill for asking you questions, formatted so you can always answer from what's written."
 ---
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[ASG]] → [ASG Query](hook://p/ASG%20Query)
+:>> [[DAS]] → [[ASG]] → [ASG Query](hook://p/ASG%20Query)
 # /ask — user guide
 
 **Full internals & design:** [[DAS Ask]]   ·   **Runtime spec:** [[skills/ask/SKILL.md\|SKILL.md]]

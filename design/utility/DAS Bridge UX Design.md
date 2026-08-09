@@ -1,14 +1,14 @@
 ---
-description: "the subskill command surface — every verb, its arguments, output shape, confirmation gates"
+description: "the command surface that realizes these requirements"
 ---
 
 # DAS Bridge UX Design
 
-| -[[DAS Bridge UX Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [design](hook://design) → [DAS Bridge UX Design](hook://p/DAS%20Bridge%20UX%20Design)<br>: user-facing command surface |
+| -[[DAS Bridge UX Design]]- | → [[DAS]] → [design](hook://design) → [DAS Bridge UX Design](hook://p/DAS%20Bridge%20UX%20Design)<br>: user-facing command surface |
 | --- | --- |
-| [[DAS Bridge PRD\|PRD]] | the requirements these verbs satisfy |
-| [[DAS Bridge Testing\|Testing]] | how each verb is exercised |
-| [[bridge\|SKILL.md]] | the live runbook |
+| [[DAS Bridge PRD\|PRD]]  | the requirements these verbs satisfy |
+| [[DAS Bridge Testing\|Testing]]  | how each verb is exercised |
+| [[bridge\|SKILL.md]]  | the live runbook |
 | ... |  |
 
 The skill is **slash-only** (`/bridge …`) — "bridge" is too common a word to be a spoken DMUX trigger. The verb surface groups into the three kinds of bridging. A bare `/bridge <host>` defaults to the **control** bridge (the most-common interactive case); `sync` and `claude` are explicit named intents.

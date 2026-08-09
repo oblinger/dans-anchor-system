@@ -4,7 +4,7 @@ description: "Plan — federated orchestrator for a project anchor's planning ar
 # DAS Plan
 The `/design` skill walks a project anchor through its planning artifacts in canonical order, detecting which exist, what's missing, and dispatching to per-artifact sub-skills.
 
-| -[[DAS Plan]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [docs](hook://docs) → [DAS Plan](hook://p/DAS%20Plan)<br>: Plan — federated orchestrator for a project anchor's planning artifacts. The Track-cluster sibling of /crank. |
+| -[[DAS Plan]]- | → [[DAS]] → [docs](hook://docs) → [DAS Plan](hook://p/DAS%20Plan)<br>: Plan — federated orchestrator for a project anchor's planning artifacts. The Track-cluster sibling of /crank. |
 | --- | --- |
 | Related | [[skills/design/SKILL.md\|SKILL]] (runtime),  [[DAS Crank]] (Drive-cluster sibling), |
 | ... |  |

@@ -4,11 +4,11 @@ description: "LAN HTTP API surface"
 # HBR API Design
 The HTTP API the [[HBR UX Design|viewer app]] calls: browse the catalog, stream bytes, transcode on demand.
 
-| -[[HBR API Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [[HBR]] → [[HBR Design]] → [HBR API Design](hook://p/HBR%20API%20Design)<br>: LAN HTTP API surface |
+| -[[HBR API Design]]- | → [[DAS]] → [[examples]] → [[HBR\|HARBOR]] → [[HBR Design\|HARBOR DESIGN]] → [HBR API Design](hook://p/HBR%20API%20Design)<br>: LAN HTTP API surface |
 | --- | --- |
 | Anchor | [[HBR Design]] (parent) |
 | Related | [[HBR PRD]],  [[HBR UX Design]],  [[HBR Architecture]],  [[HBR CLI]],   |
-| ... | [[HBR CLI Help.txt]],  [[HBR Design/HBR Decisions]],  [[HBR Features/HBR Features]],  [[HBR Design/HBR Features]],  [[HBR Roadmap]],  [[HBR Design/HBR Testing]],   |
+| ... | [[HBR CLI Help.txt]],  [[HBR Decisions]],  [[HBR Features]],  [[HBR Roadmap]],  [[HBR Testing]],   |
 
 **TL;DR.**
 - Consumer: the Harbor web client (browser JS on the LAN) fetching JSON and streaming bytes from the [[HBR Serve|Serve]] pipeline.

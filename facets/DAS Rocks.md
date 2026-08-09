@@ -4,7 +4,7 @@ description: "the rocks facet — an optional {slug} Rocks/ folder per anchor ho
 # DAS Rocks
 The big chunks an anchor is trying to move — an optional `{slug} Rocks/` folder holding one file per rock and a ranked folder-note, forming one node of a vault-wide tree whose root is the global [[Rocks]].
 
-| -[[DAS Rocks]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets\|FCT]] → [DAS Rocks](hook://p/DAS%20Rocks)  |
+| -[[DAS Rocks]]- | → [[DAS]] → [[FCT]] → [DAS Rocks](hook://p/DAS%20Rocks)  |
 | --- | --- |
 | Related | [[Rocks]],  [[DAS Agenda]],  [[DAS Roadmap]],  [[DAS Backlog]],  [[VEC Mandate]],   |
 | Examples | [[HBR Rocks\|worked instance]],  [[Rocks\|the root aggregator]] (differently shaped — see § The root is not an instance) |

@@ -2,7 +2,7 @@
 description: Subsystem design for the Code group — the verbs that plan, write, test, and ship code against an anchor's Sparse-Linked repo, keeping design and docs vault-side.
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [design](hook://design) → [DAS Code Design](hook://p/DAS%20Code%20Design)
+:>> [[DAS]] → [design](hook://design) → [DAS Code Design](hook://p/DAS%20Code%20Design)
 # DAS Code Design — the design of the Code subsystem
 Code is the code-work subsystem: its verbs carry a change from spec through implementation, testing, and release against the anchor's linked repo (`code:` → `~/ob/proj/…`), while the design artifacts and documentation stay vault-side.
 

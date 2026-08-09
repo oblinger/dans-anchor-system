@@ -5,7 +5,7 @@ traits: [Paper]
 # HWP - Harbor Whitepaper
 A short whitepaper on the Harbor media server's design — the worked **Paper** example, carrying the version-table signature: dated drafts, newest on top, with per-section track-changes markup.
 
-| -[[HWP]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [HWP](hook://p/HWP)<br>: Harbor Whitepaper — example Paper anchor — a long-form writeup revised across dated versions |
+| -[[HWP]]- | → [[DAS]] → [[examples]] → [HWP](hook://p/HWP)<br>: Harbor Whitepaper — example Paper anchor — a long-form writeup revised across dated versions |
 | --- | --- |
 | Related | [[HBR]] (the project it describes),  [[Paper Anchor]] (the trait it illustrates),  [[DAS Examples]] (the example gallery), |
 | ... |  |

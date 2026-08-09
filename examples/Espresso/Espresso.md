@@ -1,10 +1,10 @@
 ---
-description: "example **topic collection** (≤ 15) — a flat, hand-ordered member list of notes on pulling espresso"
+description: "Espresso — example topic collection (≤ 15 members) — notes on pulling espresso"
 ---
 # ESP - Espresso
 Working notes on pulling espresso — the variables, the gear, and what to do when the shot goes wrong.
 
-| -[[Espresso]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [Espresso](hook://p/Espresso)<br>: Espresso — example topic collection (≤ 15 members) — notes on pulling espresso |
+| -[[Espresso]]- | → [[DAS]] → [[examples]] → [Espresso](hook://p/Espresso)<br>: Espresso — example topic collection (≤ 15 members) — notes on pulling espresso |
 | --- | --- |
 | Related | [[Bridges]] (list variant),  [[DAS Dispatch Table]],  [[DAS Examples]], |
 | ~~[[Espresso Beans\|Beans]]~~  | choosing roast, freshness, and origin for espresso |

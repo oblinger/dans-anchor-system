@@ -2,7 +2,7 @@
 description: Warden queries — mechanically rendered from the backlog (Blockers / Ready+Next / Questions / Blocked / Verifications / Other), and copied verbatim into Q.md. Do not hand-edit; edit the backlog rows.
 ---
 
-# [U+A]  [[Warden|Warden]]  -  Ready 5    User 2   |   Now 4    Next 2    Later 5   |   Parked 3    Waiting 0    Icebox 0    {3}
+# [U+A]  [[Warden|Warden]]  -  Ready 5    User 2   |   Now 4    Next 2    Later 5   |   Parked 3    Waiting 0    Icebox 0    {2}
 
 ## Ready
 - [[Warden Backlog#^B-QFix|B-QFix]] — **Next:** Fix the next residual below at its source (repoint a renamed link, de-link a retired one, correct the flagged doc), then re-run `/audit q` to clear it — per the 100%-fix discipline.

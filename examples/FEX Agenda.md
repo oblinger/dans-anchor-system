@@ -2,7 +2,7 @@
 description: "strategy for Harbor — why the scheduler exists, what winning looks like, and the approach we are betting on"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [FEX Agenda](hook://p/FEX%20Agenda)
+:>> [[DAS]] → [[examples]] → [FEX Agenda](hook://p/FEX%20Agenda)
 # FEX Agenda
 The strategic frame for [[HBR|Harbor]] — why this activity exists, what winning looks like, and the approach we are betting on. Worked example for [[DAS Agenda]].
 

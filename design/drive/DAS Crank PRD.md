@@ -2,7 +2,7 @@
 description: "product requirements"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Crank PRD](hook://p/DAS%20Crank%20PRD)
+:>> [[DAS]] → [design](hook://design) → [DAS Crank PRD](hook://p/DAS%20Crank%20PRD)
 # Crank PRD
 
 The current skill spec lives at [[crank/SKILL\|SKILL.md]]. User docs live at [[DAS Crank]].

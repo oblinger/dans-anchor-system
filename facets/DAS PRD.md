@@ -5,7 +5,7 @@ description: "facet spec this doc follows"
 # DAS PRD
 Facet spec for `{slug} PRD.md` — the first doc in an anchor's Design folder, defining what the product does (goals, non-goals, user stories) for every downstream design phase to consume.
 
-| -[[DAS PRD]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT]] → [DAS PRD](hook://p/DAS%20PRD)  |
+| -[[DAS PRD]]- | → [[DAS]] → [[FCT]] → [DAS PRD](hook://p/DAS%20PRD)  |
 | --- | --- |
 | Related | [[DAS Architecture]],  [[DAS Testing]],  [[DAS Decisions]],  [[DAS Stories]],  [[templates/prd.md\|PRD template]],   |
 | Examples | [[HBR PRD\|single-file form]],  [[HBR PRD\|folder form (stories extracted)]],  [[Mini PRD]],   |

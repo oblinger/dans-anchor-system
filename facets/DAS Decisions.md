@@ -5,7 +5,7 @@ description: decisions are documentation — recorded under a `## Decisions` sec
 # DAS Decisions
 **Worked examples:** [[HBR Decisions]], [[Mini Decisions]], [[FEX Decisions]]
 
-| -[[DAS Decisions]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT]] → [DAS Decisions](hook://p/DAS%20Decisions)  |
+| -[[DAS Decisions]]- | → [[DAS]] → [[FCT]] → [DAS Decisions](hook://p/DAS%20Decisions)  |
 | --- | --- |
 | Related | [[DAS Ruleset]],  [[DAS Architecture]],  [[DAS Design Docs]],  [[DAS Rulesets]],   |
 | Examples | [[Mini Architecture#Decisions\|distributed — decision in the doc it shapes]],  [[Mini Decisions\|optional central — cross-cutting value only]],  [[FEX Decisions\|legacy central master (pre-doctrine include:: + implementation map)]],  [[HBR Decisions\|legacy central (durable rulings)]],   |

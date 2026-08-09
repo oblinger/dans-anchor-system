@@ -1,3 +1,6 @@
+---
+description: "Install CAB command-line tools — make stat, cab-config, cab-scan, cab-audit available from any shell. Run once per machine."
+---
 
 # anchor-install — wire the anchor CLI tools
 *(action file of [[anchor/SKILL|/anchor]]; formerly the standalone `/install` skill — folded in per F234 Q1=A, 2026-07-14)*

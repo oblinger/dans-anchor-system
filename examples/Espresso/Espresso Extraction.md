@@ -4,7 +4,7 @@ description: "what actually dissolves out, and how to read the shot"
 # Espresso Extraction
 What the hot water actually pulls out of the coffee — and how to tell whether you pulled too little or too much.
 
-| -[[Espresso Extraction]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [[Espresso\|ESP]] → [Espresso Extraction](hook://p/Espresso%20Extraction) |
+| -[[Espresso Extraction]]- | → [[DAS]] → [[examples]] → [[ESP]] → [Espresso Extraction](hook://p/Espresso%20Extraction)  |
 | --- | --- |
 | Related | [[Espresso Grind\|Grind]],  [[Espresso Ratio\|Ratio]],  [[Espresso Troubleshooting\|Troubleshooting]],   |
 | ... |  |

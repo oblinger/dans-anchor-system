@@ -5,7 +5,7 @@ description: "worked System Design for the FEX scheduler — a detailed technica
 # FEX System Design
 The scheduler's current technical design — modules, flows, data shapes — sitting one level below [[FEX Architecture]], with its rulings kept in a Decisions file rather than a section here.
 
-| -[[FEX System Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [FEX System Design](hook://p/FEX%20System%20Design)  |
+| -[[FEX System Design]]- | → [[DAS]] → [[examples]] → [FEX System Design](hook://p/FEX%20System%20Design)  |
 | --- | --- |
 | Related | [[DAS System Design]],   |
 

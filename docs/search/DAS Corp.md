@@ -2,7 +2,7 @@
 description: "skim → click into the rule that applies"
 ---
 # DAS Corp
-| -[[DAS Corp]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [docs](hook://docs) → [DAS Corp](hook://p/DAS%20Corp)<br>: skim → click into the rule that applies |
+| -[[DAS Corp]]- | → [[DAS]] → [docs](hook://docs) → [DAS Corp](hook://p/DAS%20Corp)<br>: skim → click into the rule that applies |
 | --- | --- |
 | Corp rules (any verb) | [[SRCH rules/corp\|corp.md]],   |
 | Verbs | [[SRCH rules/find-corp\|find-corp]],  [[SRCH rules/profile-corp\|describe-corp]],  [[SRCH rules/survey-corp\|survey-corp]],   |

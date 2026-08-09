@@ -4,7 +4,7 @@ description: "design surface for the Daybreak morning routine"
 # DAS Daybreak Design
 How the morning routine is built — read order, the watermark, the authority model, and the reasoning behind each.
 
-| -[[DAS Daybreak Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [design](hook://design) → [DAS Daybreak Design](hook://p/DAS%20Daybreak%20Design)<br>: design surface for the Daybreak morning routine |
+| -[[DAS Daybreak Design]]- | → [[DAS]] → [design](hook://design) → [DAS Daybreak Design](hook://p/DAS%20Daybreak%20Design)<br>: design surface for the Daybreak morning routine |
 | --- | --- |
 | Related | [[DAS Daybreak PRD\|PRD]],  [[DAS Daybreak]] (user docs),  [[skills/daybreak/SKILL.md\|SKILL]],  [[MUSE]],  [[LUMEN]], |
 

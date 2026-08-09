@@ -4,7 +4,7 @@ description: "example discipline — the retention rule"
 # FEX Retention
 The cross-cutting rule for how long a snapshot bundle lives before the sweep removes it.
 
-| -[[FEX Retention]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [[FEX Repo]] → [FEX Retention](hook://p/FEX%20Retention)<br>: example discipline — the retention rule |
+| -[[FEX Retention]]- | → [[DAS]] → [[examples]] → [[FEX Repo]] → [FEX Retention](hook://p/FEX%20Retention)<br>: example discipline — the retention rule |
 | --- | --- |
 | Related | [[FEX Repo]],  [[FEX Snapshot\|Snapshot]] (reads it),  [[FEX Manifest\|Manifest]], |
 | ... | [[FEX Bundle]],  [[FEX Pin]],  [[R-fex-manifest]],   |

@@ -5,11 +5,11 @@ status:: drafting
 # HBR Testing
 How Harbor is verified: the kinds of test, how much of each, and the concrete inventory consistent with that strategy.
 
-| -[[HBR Testing]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [[HBR]] → [[HBR Design]] → [HBR Testing](hook://p/HBR%20Testing)<br>: test strategy + proposed tests |
+| -[[HBR Testing]]- | → [[DAS]] → [[examples]] → [[HBR\|HARBOR]] → [[HBR Design\|HARBOR DESIGN]] → [HBR Testing](hook://p/HBR%20Testing)<br>: test strategy + proposed tests |
 | --- | --- |
 | Anchor | [[HBR Design]] (parent) |
 | Related | [[HBR Architecture]],  [[HBR PRD]],  [[DAS verification]],   |
-| ... | [[HBR API Design]],  [[HBR CLI]],  [[HBR CLI Help.txt]],  [[HBR Design/HBR Decisions]],  [[HBR Features/HBR Features]],  [[HBR Design/HBR Features]],  [[HBR Roadmap]],  [[HBR UX Design]],   |
+| ... | [[HBR API Design]],  [[HBR CLI]],  [[HBR CLI Help.txt]],  [[HBR Decisions]],  [[HBR Features]],  [[HBR Roadmap]],  [[HBR UX Design]],   |
 
 **TLDR**
 - **Library-shaped posture** — heavy unit + integration on catalog logic; live + e2e kept lean because the surface is one CLI plus one LAN page.

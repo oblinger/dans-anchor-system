@@ -5,7 +5,7 @@ status:: drafting
 # SKA Bridge Testing
 How the Bridge skill is verified: the kinds of test, how much of each, and the concrete inventory consistent with that strategy.
 
-| -[[SKA Bridge Testing]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL]] → [SKA Bridge Testing](hook://p/SKA%20Bridge%20Testing)<br>: test strategy + proposed tests |
+| -[[SKA Bridge Testing]]- | → [[DAS]] → [[SKL]] → [SKA Bridge Testing](hook://p/SKA%20Bridge%20Testing)<br>: test strategy + proposed tests |
 | --- | --- |
 | Anchor | ~~[[SKA Bridge Design]]~~ (parent) |
 | Related | ~~[[SKA Bridge PRD]]~~,  ~~[[SKA Bridge UX Design]]~~,  [[DAS verification]],   |

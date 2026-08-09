@@ -2,7 +2,7 @@
 description: Subsystem design for the Anchor group — the folder-shape substrate every other subsystem rides on, plus the lifecycle verbs that create, restructure, relocate, publish, and archive anchors.
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [design](hook://design) → [DAS Anchor Design](hook://p/DAS%20Anchor%20Design)
+:>> [[DAS]] → [design](hook://design) → [DAS Anchor Design](hook://p/DAS%20Anchor%20Design)
 # DAS Anchor Design — the design of the Anchor subsystem
 Anchor is the substrate subsystem: a named folder + `.anchor` marker + dispatch-table anchor page is the unit all of the vault's organization rides on, and this group's verbs carry an anchor through its whole life — created, restructured, relocated, published, and finally archived.
 

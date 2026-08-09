@@ -4,7 +4,7 @@ description: "grind size as the master dial — finer slows the shot"
 # Espresso Grind
 Grind size is the single most powerful dial on an espresso setup — it sets how fast water can move through the puck.
 
-| -[[Espresso Grind]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [[Espresso\|ESP]] → [Espresso Grind](hook://p/Espresso%20Grind) |
+| -[[Espresso Grind]]- | → [[DAS]] → [[examples]] → [[ESP]] → [Espresso Grind](hook://p/Espresso%20Grind)  |
 | --- | --- |
 | Related | [[Espresso Extraction\|Extraction]],  [[Espresso Dose\|Dose]],  [[Espresso Tamp\|Tamp]],   |
 | ... |  |

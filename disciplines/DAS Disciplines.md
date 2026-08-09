@@ -5,7 +5,7 @@ description: "cross-cutting concepts the agent reads"
 # DAS Disciplines
 The catalog of disciplines — cross-cutting concepts the agent reads — organized by the nine subsystems in [[DAS]] order (groups owning no disciplines are omitted).
 
-| -[[DAS Disciplines]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[disciplines]] → [DAS Disciplines](hook://p/DAS%20Disciplines)<br>: cross-cutting concepts the agent reads |
+| -[[DAS Disciplines]]- | → [[DAS]] → [[disciplines]] → [DAS Disciplines](hook://p/DAS%20Disciplines)<br>: cross-cutting concepts the agent reads |
 | --- | --- |
 | Related | [[DAS Skills\|Skills]],  [[DAS Facets\|Facets]],  [[DAS Traits\|Traits]],  [[DAS Examples\|Examples]],  [[DAS Rulesets\|Rulesets]],  [[DAS Disciplines Brief\|Brief]],  [[DAS\|dans-anchor-system]],   |
 |  |  |

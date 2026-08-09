@@ -4,7 +4,7 @@ description: "Anchor System Guide (ASG) — the user manual for Dan's Anchor Sys
 # ASG — Anchor System Guide
 The **user manual** for Dan's Anchor System — how to *use* each skill, facet, discipline, and trait. To go deeper on any item, follow it into the [[DAS]] design tree.
 
-| -[[ASG]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [ASG](hook://p/ASG)<br>: the Anchor System user guide |
+| -[[ASG]]- | → [[DAS]] → [ASG](hook://p/ASG)<br>: the Anchor System user guide |
 | --- | --- |
 | Design tree | [[DAS]] (everything: PRDs, design, runtime) |
 | Sections | [[DAS Skills\|Skills]],  [[DAS Facets\|Facets]],  [[DAS Disciplines\|Disciplines]],  [[DAS Traits\|Traits]] (the design-tree indexes) |

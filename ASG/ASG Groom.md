@@ -1,7 +1,7 @@
 ---
 description: "/groom — get every task that could be next fully ready to execute; it never asks you a question mid-run."
 ---
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[ASG]] → [ASG Groom](hook://p/ASG%20Groom)
+:>> [[DAS]] → [[ASG]] → [ASG Groom](hook://p/ASG%20Groom)
 # /groom — user guide
 
 **Full internals & design:** [[DAS Groom]]   ·   **Runtime spec:** [[skills/groom/SKILL.md\|SKILL.md]]

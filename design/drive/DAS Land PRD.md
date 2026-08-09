@@ -2,7 +2,7 @@
 description: "product requirements"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Land PRD](hook://p/DAS%20Land%20PRD)
+:>> [[DAS]] → [design](hook://design) → [DAS Land PRD](hook://p/DAS%20Land%20PRD)
 # Land PRD
 
 _Placeholder. Authored on demand when design discussions warrant it._

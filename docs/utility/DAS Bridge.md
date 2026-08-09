@@ -4,7 +4,7 @@ description: "`bridge` connects this Mac to another machine — tmux / install /
 # DAS Bridge
 `bridge` connects this Mac to another machine. Every operation is a verb of **one packaged dispatcher** — `~/.claude/skills/bridge/bridge` — invoked by full path (it rides the skills repo, so it exists on any provisioned machine; no `~/bin`, no PATH assumptions, nothing user-specific). Agents never improvise raw ssh. This page is the solution overview + command reference; the runbook and gotchas live in the [[skills/bridge/SKILL.md|SKILL]]; design rationale in SKA F279.
 
-| -[[DAS Bridge]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [docs](hook://docs) → [DAS Bridge](hook://p/DAS%20Bridge)<br>: `bridge` connects this Mac to another machine — tmux / install / doctor / sync / agent. |
+| -[[DAS Bridge]]- | → [[DAS]] → [docs](hook://docs) → [DAS Bridge](hook://p/DAS%20Bridge)<br>: `bridge` connects this Mac to another machine — tmux / install / doctor / sync / agent. |
 | --- | --- |
 | Related | [[skills/bridge/SKILL.md\|SKILL]],  [[DAS Bridge Design\|Design]],  [[DAS Bridge Testing\|Testing]],   |
 | ... |  |

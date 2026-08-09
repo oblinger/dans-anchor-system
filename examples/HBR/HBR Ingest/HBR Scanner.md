@@ -1,11 +1,11 @@
 ---
-description: "walks the watched roots and emits candidate media paths"
+description: "a leaf component — the ingest scanner"
 ---
 
 # HBR Scanner
 The first stage of ingest — discovers media files under the watched library roots.
 
-| -[[HBR Scanner]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [[HBR]] → [[HBR Ingest]] → [HBR Scanner](hook://p/HBR%20Scanner)<br>: a leaf component — the ingest scanner |
+| -[[HBR Scanner]]- | → [[DAS]] → [[examples]] → [[HBR\|HARBOR]] → [[HBR Ingest\|HARBOR INGEST]] → [HBR Scanner](hook://p/HBR%20Scanner)<br>: a leaf component — the ingest scanner |
 | --- | --- |
 | Anchor | [[HBR Ingest]] (parent) |
 | Related | [[HBR Importer]] (next stage),  [[HBR Deduper]] (next stage), |

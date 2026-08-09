@@ -6,9 +6,9 @@ description: User guides for aide skills — chief-of-staff work done on your be
 
 User guides for aide skills — chief-of-staff work done on your behalf. Routines, errands, purchases, bookings. Membership test: would you hand this to a competent assistant?
 
-| -[[SKL Aide]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[skill-docs]] → [SKL Aide](hook://p/SKL%20Aide)<br>: User guides for aide skills — chief-of-staff work done on your behalf. Routines, errands, purchases, bookings. |
+| -[[SKL Aide]]- | → [[DAS]] → [[skill-docs]] → [SKL Aide](hook://p/SKL%20Aide)<br>: User guides for aide skills — chief-of-staff work done on your behalf. Routines, errands, purchases, bookings. |
 | --- | --- |
-| [[DAS Daybreak\|Daybreak]] | Morning routine — the day's opening sequence. |
-| [[DAS Purchase\|Purchase]] | The full purchasing lifecycle — research, narrow, buy, reorder. |
-| [[DAS Cook\|Cook]] | Recipe-aware shopping and staging list from Paprika. |
+| [[DAS Daybreak\|Daybreak]]  | Morning routine — the day's opening sequence. |
+| [[DAS Purchase\|Purchase]]  | The full purchasing lifecycle — research, narrow, buy, reorder. |
+| [[DAS Cook\|Cook]]  | Recipe-aware shopping and staging list from Paprika. |
 | --- | |

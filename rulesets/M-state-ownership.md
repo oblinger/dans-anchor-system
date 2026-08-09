@@ -2,7 +2,7 @@
 description: "mend messages for script-owned surfaces"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [rulesets](hook://rulesets) → [M-state-ownership](hook://p/M-state-ownership) 
+:>> [[DAS]] → [rulesets](hook://rulesets) → [M-state-ownership](hook://p/M-state-ownership) 
 # M-state-ownership
 Remediation messages shared by [[R-pathguard]] and [[R-state-region]] — the twin rulesets that guard the same script-owned surfaces, one by denying the edit and one by warning about it.
 

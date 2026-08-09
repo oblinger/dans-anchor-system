@@ -1,7 +1,7 @@
 ---
 description: "`/mint` — take what's ready and make it real."
 ---
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[ASG]] → [ASG Mint](hook://p/ASG%20Mint)
+:>> [[DAS]] → [[ASG]] → [ASG Mint](hook://p/ASG%20Mint)
 # /mint — user guide
 
 **Full internals & design:** [[DAS Mint]]   ·   **Runtime spec:** [[skills/mint/SKILL.md\|SKILL.md]]

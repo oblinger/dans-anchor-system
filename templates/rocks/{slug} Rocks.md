@@ -4,7 +4,7 @@ description: ">>"
 # {slug} Rocks
 The big chunks {slug} is trying to move — ranked by commitment, not by sequence.
 
-| -[[{slug} Rocks]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[Templates]] → [{slug} Rocks](hook://p/{slug}%20Rocks)<br>: >> |
+| -[[{slug} Rocks]]- | → [[DAS]] → [[Templates]] → [{slug} Rocks](hook://p/{slug}%20Rocks)<br>: >> |
 | --- | --- |
 | Anchor | [[{slug} Track]] (parent) |
 | Related | [[DAS Rocks]],   |

@@ -1,14 +1,14 @@
 ---
-description: "what bridge produces; the three kinds of bridging (control / sync / claude); mechanism-vs-goal; config-is-the-recipe"
+description: "product requirements — the kinds of bridging"
 ---
 
 # DAS Bridge PRD
 
-| -[[DAS Bridge PRD]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [design](hook://design) → [DAS Bridge PRD](hook://p/DAS%20Bridge%20PRD)<br>: product requirements — the kinds of bridging |
+| -[[DAS Bridge PRD]]- | → [[DAS]] → [design](hook://design) → [DAS Bridge PRD](hook://p/DAS%20Bridge%20PRD)<br>: product requirements — the kinds of bridging |
 | --- | --- |
-| [[DAS Bridge UX Design\|UX Design]] | the command surface that realizes these requirements |
-| [[DAS Bridge Testing\|Testing]] | how each kind of bridging is verified |
-| [[bridge\|SKILL.md]] | the live runbook |
+| [[DAS Bridge UX Design\|UX Design]]  | the command surface that realizes these requirements |
+| [[DAS Bridge Testing\|Testing]]  | how each kind of bridging is verified |
+| [[bridge\|SKILL.md]]  | the live runbook |
 | ... |  |
 
 ## Problem

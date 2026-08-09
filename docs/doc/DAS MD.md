@@ -4,10 +4,10 @@ description: "How to format markdown — file trees, TOC tables, dispatch tables
 # DAS MD
 The MD skill defines standard markdown formatting conventions used across all documents in the system. It covers structural patterns (file trees, tables of contents, dispatch tables) and inline conventions (definition lists, heading spacing, date formats).
 
-| -[[DAS MD]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS MD](hook://p/DAS%20MD)<br>: How to format markdown — file trees, TOC tables, dispatch tables, cards, definition lists |
+| -[[DAS MD]]- | → [[DAS]] → [docs](hook://docs) → [DAS MD](hook://p/DAS%20MD)<br>: How to format markdown — file trees, TOC tables, dispatch tables, cards, definition lists |
 | --- | --- |
 | Related | [[skills/md/SKILL.md\|SKILL]],   |
-| [[DAS MD Design\|Design]] |  |
+| [[DAS MD Design\|Design]]  |  |
 | ... |  |
 
 These conventions matter because the agent generates and edits markdown constantly. Consistent formatting makes documents machine-parseable and visually predictable. When you ask the agent to create a TOC, draw a file tree, or format a dispatch table, it follows these specs exactly.

@@ -5,7 +5,7 @@ description: "Two worked CLAUDE.md files — the plain-content tier and the agen
 # FEX Claude
 Two complete `CLAUDE.md` files at the facet's two tiers: a plain-content anchor that only needs commands and architecture, and an agentic-project anchor that opens with a Pilot role declaration.
 
-| -[[FEX Claude]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [FEX Claude](hook://p/FEX%20Claude)  |
+| -[[FEX Claude]]- | → [[DAS]] → [[examples]] → [FEX Claude](hook://p/FEX%20Claude)  |
 | --- | --- |
 | Related | [[DAS Claude]],   |
 

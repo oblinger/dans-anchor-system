@@ -4,7 +4,7 @@ cssclasses:
 description: repository file tree (audit-generated)
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [FEX Files](hook://p/FEX%20Files)
+:>> [[DAS]] → [[examples]] → [FEX Files](hook://p/FEX%20Files)
 # FEX Files
 
 File tree for the example-project repository with descriptions.

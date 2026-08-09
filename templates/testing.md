@@ -2,7 +2,7 @@
 description: "test strategy + proposed tests"
 status:: drafting
 ---
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [testing markdown](hook://p/testing%20markdown)
+:>> [[DAS]] → [[Templates]] → [testing markdown](hook://p/testing%20markdown)
 # {slug} Testing
 How {slug} is verified: the kinds of test, how much of each, and the concrete inventory consistent with that strategy.
 

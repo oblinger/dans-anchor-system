@@ -7,7 +7,7 @@ A worked example: an anchor page that carries a figure.
 
 ![[F143-1-top-level.svg]]
 
-| -[[FEX Figure Page]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [FEX Figure Page](hook://p/FEX%20Figure%20Page)<br>: the figure-bearing anchor-page layout |
+| -[[FEX Figure Page]]- | → [[DAS]] → [[examples]] → [FEX Figure Page](hook://p/FEX%20Figure%20Page)<br>: the figure-bearing anchor-page layout |
 | --- | --- |
 | Gallery | [[FEX Dispatch Examples]],   |
 | Related | [[FEX Dispatch Examples]],  [[DAS Dispatch Table]],   |

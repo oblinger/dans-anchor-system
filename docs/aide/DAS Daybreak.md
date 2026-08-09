@@ -4,7 +4,7 @@ description: "`/daybreak` — the morning routine; the day's opening sequence"
 # DAS Daybreak
 `/daybreak` — runs the morning routine, the day's opening sequence that sets up what the day looks like.
 
-| -[[DAS Daybreak]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [docs](hook://docs) → [DAS Daybreak](hook://p/DAS%20Daybreak)<br>: `/daybreak` — the morning routine; the day's opening sequence |
+| -[[DAS Daybreak]]- | → [[DAS]] → [docs](hook://docs) → [DAS Daybreak](hook://p/DAS%20Daybreak)<br>: `/daybreak` — the morning routine; the day's opening sequence |
 | --- | --- |
 | Related | [[skills/daybreak/SKILL.md\|SKILL]],  [[MUSE]],  [[LUMEN]],   |
 | [[DAS Daybreak Design\|Design]]  | [[DAS Daybreak PRD\|PRD]],   |

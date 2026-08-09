@@ -2,7 +2,7 @@
 description: "product requirements — what /audit produces and for whom"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [design](hook://design) → [DAS Audit PRD](hook://p/DAS%20Audit%20PRD)
+:>> [[DAS]] → [design](hook://design) → [DAS Audit PRD](hook://p/DAS%20Audit%20PRD)
 # DAS Audit PRD
 
 Audit checks the user's artifacts against the rules that govern their structure — sourced from the facet and discipline specs — and corrects the violations it finds, both on explicit command and online as files are written.

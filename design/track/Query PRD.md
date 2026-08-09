@@ -2,7 +2,7 @@
 description: "product requirements"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [design](hook://design) → [Query PRD](hook://p/Query%20PRD)
+:>> [[DAS]] → [design](hook://design) → [Query PRD](hook://p/Query%20PRD)
 # Query PRD
 
 

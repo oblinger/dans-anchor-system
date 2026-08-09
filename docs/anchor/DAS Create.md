@@ -4,10 +4,10 @@ description: "Create a new thing — anchor, feature, work product, spec, or rul
 # DAS Create
 Create a new thing — anchor, feature, work product, spec, or rule.
 
-| -[[DAS Create]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Create](hook://p/DAS%20Create)<br>: Create a new thing — anchor, feature, work product, spec, or rule. |
+| -[[DAS Create]]- | → [[DAS]] → [docs](hook://docs) → [DAS Create](hook://p/DAS%20Create)<br>: Create a new thing — anchor, feature, work product, spec, or rule. |
 | --- | --- |
 | Related | [[skills/create/SKILL.md\|SKILL]],   |
-| [[DAS Create Design\|Design]] |  |
+| [[DAS Create Design\|Design]]  |  |
 | ... |  |
 
 `/create` requires an argument specifying what to create:

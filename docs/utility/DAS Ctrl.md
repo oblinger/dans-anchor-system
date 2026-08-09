@@ -4,10 +4,10 @@ description: "How to control the local environment — browser, shell sessions, 
 # DAS Ctrl
 The Ctrl skill manages interaction with the local macOS environment. It handles three main areas: browser automation (opening URLs, searching the web), persistent shell sessions (running commands that survive across conversations), and reading output from those sessions.
 
-| -[[DAS Ctrl]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Ctrl](hook://p/DAS%20Ctrl)<br>: How to control the local environment — browser, shell sessions, and system interaction |
+| -[[DAS Ctrl]]- | → [[DAS]] → [docs](hook://docs) → [DAS Ctrl](hook://p/DAS%20Ctrl)<br>: How to control the local environment — browser, shell sessions, and system interaction |
 | --- | --- |
 | Related | [[skills/ctrl/SKILL.md\|SKILL]],   |
-| [[DAS Ctrl Design\|Design]] |  |
+| [[DAS Ctrl Design\|Design]]  |  |
 | ... |  |
 
 Most Ctrl actions are mapped to trigger words in CLAUDE.md. When you say "surf", "trot", or "outbox", the agent executes the corresponding command immediately without asking questions. This makes environment control feel like voice commands rather than multi-step workflows.

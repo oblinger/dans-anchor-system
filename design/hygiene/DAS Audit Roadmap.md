@@ -2,7 +2,7 @@
 description: "milestones"
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [design](hook://design) → [DAS Audit Roadmap](hook://p/DAS%20Audit%20Roadmap)
+:>> [[DAS]] → [design](hook://design) → [DAS Audit Roadmap](hook://p/DAS%20Audit%20Roadmap)
 # DAS Audit Roadmap
 
 ## [x] M-Engine — Rule-driven engine

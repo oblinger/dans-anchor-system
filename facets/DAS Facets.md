@@ -5,7 +5,7 @@ description: "the per-doc structural specs"
 # DAS Facets
 The catalog of facets — per-document structural specs — organized by the nine subsystems in [[DAS]] order (groups owning no facets are omitted; *Meta* is a proposed tenth group for the system's own vocabulary).
 
-| -[[DAS Facets]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT]] → [DAS Facets](hook://p/DAS%20Facets)  |
+| -[[DAS Facets]]- | → [[DAS]] → [[FCT]] → [DAS Facets](hook://p/DAS%20Facets)  |
 | --- | --- |
 | Related | [[DAS Skills\|Skills]],  [[DAS Disciplines\|Disciplines]],  [[DAS Traits\|Traits]],  [[DAS Examples\|Examples]],  [[DAS Rulesets\|Rulesets]],  [[DAS\|dans-anchor-system]],   |
 |  |  |

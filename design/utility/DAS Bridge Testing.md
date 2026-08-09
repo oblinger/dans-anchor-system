@@ -1,14 +1,14 @@
 ---
-description: "testing strategy + proposed integration tests, grouped by bridge kind"
+description: "how each kind of bridging is verified"
 ---
 
 # DAS Bridge Testing
 
-| -[[DAS Bridge Testing]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [design](hook://design) → [DAS Bridge Testing](hook://p/DAS%20Bridge%20Testing)<br>: testing strategy + tests |
+| -[[DAS Bridge Testing]]- | → [[DAS]] → [design](hook://design) → [DAS Bridge Testing](hook://p/DAS%20Bridge%20Testing)<br>: testing strategy + tests |
 | --- | --- |
-| [[DAS Bridge PRD\|PRD]] | the requirements each test verifies |
-| [[DAS Bridge UX Design\|UX Design]] | the verbs under test |
-| [[DAS Testing]] | facet spec this doc instantiates |
+| [[DAS Bridge PRD\|PRD]]  | the requirements each test verifies |
+| [[DAS Bridge UX Design\|UX Design]]  | the verbs under test |
+| [[DAS Testing]]  | facet spec this doc instantiates |
 | ... |  |
 
 Each **test type** below links to its detail section — click through to see the actual tests of that type.

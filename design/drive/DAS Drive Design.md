@@ -2,7 +2,7 @@
 description: Subsystem design for the Drive group — the autonomous-execution loop that consumes Ready work (crank → mint → finalize), the feeders that mint new work, and the bounded stop.
 ---
 
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [design](hook://design) → [DAS Drive Design](hook://p/DAS%20Drive%20Design) 
+:>> [[DAS]] → [design](hook://design) → [DAS Drive Design](hook://p/DAS%20Drive%20Design) 
 # DAS Drive Design — the design of the Drive subsystem
 Drive is the execution subsystem: it consumes what Tracking surfaces as Ready and turns it into shipped, committed work — `/crank` loops for maximum progress, `/mint` executes one item, `/finalize` closes it out — with `/feature` and `/change` minting new work in, `/fortify` for when iteration stops converging, and `/land` as the bounded stop.
 

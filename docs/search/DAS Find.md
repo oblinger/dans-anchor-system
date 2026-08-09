@@ -2,7 +2,7 @@
 description: "skim → click into the rule that applies"
 ---
 # DAS Find
-| -[[DAS Find]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [docs](hook://docs) → [DAS Find](hook://p/DAS%20Find)<br>: skim → click into the rule that applies |
+| -[[DAS Find]]- | → [[DAS]] → [docs](hook://docs) → [DAS Find](hook://p/DAS%20Find)<br>: skim → click into the rule that applies |
 | --- | --- |
 | Related | [[skills/find/SKILL.md\|SKILL]],   |
 | Find rules (any type) | [[SRCH rules/find\|find.md]],   |

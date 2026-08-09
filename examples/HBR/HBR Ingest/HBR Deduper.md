@@ -1,11 +1,11 @@
 ---
-description: "content-hashes imports and folds duplicates into one entry"
+description: "a leaf component — the ingest deduper"
 ---
 
 # HBR Deduper
 The final stage of ingest — collapses duplicate files into a single catalog entry.
 
-| -[[HBR Deduper]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [[HBR]] → [[HBR Ingest]] → [HBR Deduper](hook://p/HBR%20Deduper)<br>: a leaf component — the ingest deduper |
+| -[[HBR Deduper]]- | → [[DAS]] → [[examples]] → [[HBR\|HARBOR]] → [[HBR Ingest\|HARBOR INGEST]] → [HBR Deduper](hook://p/HBR%20Deduper)<br>: a leaf component — the ingest deduper |
 | --- | --- |
 | Anchor | [[HBR Ingest]] (parent) |
 | Related | [[HBR Scanner]] (prior stage),  [[HBR Importer]] (prior stage), |

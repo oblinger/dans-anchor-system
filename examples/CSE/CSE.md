@@ -4,7 +4,7 @@
 
 A self-contained reference anchor demonstrating the canonical DAS skill-trait anchor structure — sibling to [[HBR]] for the Code trait.
 
-| -[[CSE]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [CSE](hook://p/CSE)<br>: Common Skill Example — reference anchor — a fully-wired example of a DAS skill anchor |
+| -[[CSE]]- | → [[DAS]] → [[examples]] → [CSE](hook://p/CSE)<br>: Common Skill Example — reference anchor — a fully-wired example of a DAS skill anchor |
 | --- | --- |
 | Skill | [[CSE/SKILL\|SKILL.md]],  [[FEX CSE\|User Docs]],   |
 | [[CSE Design\|Design]]  | [[CSE PRD\|PRD]],   |

@@ -10,7 +10,7 @@ The catalog of skills — the `/`-invocable runbooks — organized by the nine s
 
 
 
-| -[[DAS Skills]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [SKL](hook://SKL) → [DAS Skills](hook://p/DAS%20Skills)<br>: Skills — the `/`-invocable runbooks |
+| -[[DAS Skills]]- | → [[DAS]] → [[SKL]] → [DAS Skills](hook://p/DAS%20Skills)<br>: Skills — the `/`-invocable runbooks |
 | --- | --- |
 | Related | [[DAS Facets\|Facets]],  [[DAS Disciplines\|Disciplines]],  [[DAS Traits\|Traits]],  [[DAS Examples\|Examples]],  [[DAS Rulesets\|Rulesets]],  [[DAS\|dans-anchor-system]],   |
 |  |  |
@@ -32,6 +32,7 @@ The catalog of skills — the `/`-invocable runbooks — organized by the nine s
 | [[ask/SKILL]]  | The system for NOT asking the user questions piecemeal. Prime directive: ELIMINATE every question the agent can (auto-resolve reversible/soon-visible guesses, run checks itself, decide low-stakes/visible calls, infer from the codebase), then CONSOLIDATE the irreducible residue into one self-documenting, counted, one-shot-answerable pile in the anchor's `{slug} queries.md` (sections Agent Resolutions / Verifications / Immediate Questions / Questions). The doc is the always-current STORE of open questions — write every question there the moment it is raised; chat is at most a VIEW, never carrying a question the doc lacks (the user runs many agents; chat scrolls away). Glance the doc and trim answered items. Use when the user runs /ask or an agent has a decision to route. Per F169 + [[Query PRD]]. |
 | [[Audit]]  | SKA skill anchor for `/audit` |
 | [[brief-template]]  |  |
+| [[buy/SKILL]]  | Given a known product (model + identifier), find verified buy locations across major retailers, drive a real browser via ctrl (NOT WebFetch / curl / Playwright — they're all bot-blocked by every major retailer's bot-wall), confirm each landing page is a real product page for the exact model the user wants, capture current price + buy-button presence + stock + promos, and recommend the best place to purchase with confidence. Retries per retailer when the first candidate URL is invalid; keeps the best verified page per company. Use when the user names a specific product to purchase: "what's the best price on the {X}", "where should I buy {X}", "buy {X}". Sibling of /find (identifies products) / /profile (profiles them) / /survey (compares them). v1: skeleton — fleshed-out section is § Page-validity verification and § Per-retailer retry loop; everything else is the obvious shape. |
 | [[cab-migrate]]  |  |
 | [[code/SKILL]]  | Development workflow skill — planning, architecture, implementation, testing, release, and orchestration. Use with an action argument: /code plan, /code architect, /code mint, /code test, /code release, etc. Key sub-skills: /code delegate (parallel work dispatch — "delegate this", "fan out"), /code spike (aggressive root cause — "spike that bug"), /code bugfix (red-green bug response), /code forge (rebuild+restart), /code rewire (structural repair), /code replan (requirements changed), /code ask-questions (resolve pending decisions), /code research (investigate landscape). When the user says "new feature", "spike that bug", "fix this bug", "forge it", "rewire this", invoke the corresponding /code action. |
 | [[code-anchor]]  |  |
@@ -74,15 +75,18 @@ The catalog of skills — the `/`-invocable runbooks — organized by the nine s
 | [[code-workers]]  |  |
 | [[code-worktrees]]  |  |
 | [[cook/SKILL]]  | Recipe-aware shopping/staging list from Paprika |
+| [[CRAFT]]  |  |
 | [[ctrl/SKILL]]  | Local environment control — browser automation, persistent shell sessions, and system interaction. Subcommands: box, outbox, surf, search, navigate, shell. Most subcommands are mapped to trigger words in CLAUDE.md. |
 | [[daybreak/SKILL]]  | Morning routine — the day's opening sequence. Run each morning to set up what the day looks like. Use when the user says "daybreak", "/daybreak", or asks to start the day. |
+| [[Drawing Wisdom]]  | Accumulated judgment about drawing pictures — when a figure earns its place, what makes one readable, and the mistakes that keep recurring. The companion to the `viz` skill's mechanical instruction. |
 | [[dupes/SKILL]]  | Vault hygiene — scan for duplicate filenames; emit a confidence-ranked natural-language edit list; user instructs verbally, agent executes |
 | [[excalidraw-examples]]  |  |
+| [[docs/EXP]]  | **Remote compute** — ephemeral GPU instances via SSH + rsync + watcher (not yet under the SKA prefix). |
 | [[EXP Backlog]]  |  |
 | [[docs/EXP Experiment Flow]]  |  |
 | [[docs/EXP Experiment Template]]  |  |
 | [[docs/EXP Master Flow]]  |  |
-| [[EXP Messages]]  | agent inbox — system messages for this anchor; cleared on every pause. See [[DAS Messages]]. |
+| [[EXP Messages]]  | agent inbox — background-process messages for this anchor; append-only. See [[DAS Messages]]. |
 | [[docs/EXP Orchestrator Flow]]  |  |
 | [[exp/SKILL]]  | Remote-experimentation toolkit — runs ML workloads on ephemeral GPU instances (vast.ai) via SSH + rsync + watcher daemon. Multi-remote, with named workers and a zap dispatch pattern. |
 | [[docs/EXP Worker Instructions]]  |  |
@@ -99,15 +103,19 @@ The catalog of skills — the `/`-invocable runbooks — organized by the nine s
 | [[fix-obsidian-python-comments]]  |  |
 | [[google-sheets]]  |  |
 | [[google-slides]]  |  |
-| [[io-calendar]]  |  |
-| [[io-calendar-access]]  |  |
-| [[io-email]]  |  |
-| [[io-email-access]]  |  |
+| [[imgen/SKILL]]  | Generate and edit images into the IMGEN anchor — each sitting is a numbered roll whose page carries one pending "Next render" plus every batch it has already produced, prompt recorded beside the images it made. Text-to-image (flux-dev) and instruction editing (flux-kontext) are wired; visible per-call cost; a pick pins the keeper. Use when the user says "/imgen", "really imgen", or asks for a picture to be generated or edited. Not for authored diagrams — that is /viz. |
+| [[inbox/SKILL]]  | Drains the current anchor's [[DAS Inbox]] — reads every PENDING entry (raw input dropped in by another agent or the user via `state drop`), integrates each one into the right planning surface (Backlog, PRD, Roadmap, Discussion, or handled in place), and marks it processed with the sanctioned status tag (`DONE` or `MOVED → {destination}`) via `state inbox-tag`. Never hand-edits the Inbox markdown directly. Use when the user says "/inbox", "drain the inbox", "check the inbox", "process the inbox", or when the status banner shows `Inbox N` with N > 0. T131 leg 3 — the drain half of the agent-inbox pattern (leg 1: `state drop`; leg 2: the `Inbox N` banner signal). |
+| [[io/SKILL]]  | External system I/O — read from and write to external applications and services. Google Workspace: Sheets, Slides, Drive, Docs. Apple: Mail, Calendar, Health. Use when the user says: "put this in sheets", "read the spreadsheet", "update the slides", "upload to drive", "read my email", "search mail for", "find that email from", "what's on my calendar", "read my calendar", "what do I have today", "pull my health data", "what's my sleep/heart rate", "check my apple health". Subcommands: /io gsheet, /io gslide, /io gdoc, /io gdrive, /io imail, /io ical, /io ihealth, /io notion. |
 | [[io-excel]]  |  |
 | [[io-gdoc]]  |  |
 | [[io-gdrive]]  |  |
 | [[io-gsheet]]  |  |
 | [[io-gslide]]  |  |
+| [[io-ical]]  |  |
+| [[io-ical-access]]  |  |
+| [[io-ihealth]]  |  |
+| [[io-imail]]  |  |
+| [[io-imail-access]]  |  |
 | [[io-notion]]  |  |
 | [[maintain/SKILL]]  |  |
 | [[md/SKILL]]  | Markdown utility verbs — produce or maintain markdown artifacts: /md file-tree (format file trees), /md toc (regenerate tables of contents), /md dispatch-table (build dispatch pages), /md cards (build cheat / summary / detail cards), /md track-changes (inline diff HTML for edits). Bare /md glances the [[DAS markdown]] discipline rules. The format-rule content moved to [[DAS markdown]] 2026-06-10 — this skill keeps utility verbs only. |
@@ -124,7 +132,9 @@ The catalog of skills — the `/`-invocable runbooks — organized by the nine s
 | [[pr-flow/SKILL]]  |  |
 | [[publish/SKILL]]  |  |
 | [[rewire]]  |  |
+| [[SKA Bridge Testing]]  | SKA Bridge Testing — strategy + proposed-tests overview |
 | [[SKILL-retired]]  | > |
+| [[SKL]]  | the skills pillar — every Claude Code skill, one folder per skill with a SKILL.md entry point |
 | [[slug-scan/SKILL]]  |  |
 | [[snip/SKILL]]  | Capture rough text drops and iteratively refine them. Use when the user says `/snip <text>` (or the word "snip" gets auto-prefixed as `/snip` by the dictation pipeline). Three modes: (1) `/snip <text>` with no revise marker drops a new dated H2 entry with two versions stacked newest-on-top: `### version 1` (AI refinement) above `### version 0` (raw verbatim). (2) `/snip revise <instructions>` — or any args containing `snip <punct/ws> revise` somewhere — takes the current top version of the top entry, applies the instructions, and prepends the result as the next version. (3) Bare `/snip` re-refines the top version with a generic clean pass, prepending the next version. In every case the new top version is pbcopy'd to clipboard and the file is glanced. |
 | [[status-doc-template]]  |  |
@@ -142,7 +152,7 @@ The catalog of skills — the `/`-invocable runbooks — organized by the nine s
 | [[viz-pdf]]  |  |
 | [[viz-pptx]]  |  |
 | [[viz-svg]]  |  |
-| [[buy/SKILL]]  | Given a known product (model + identifier), find verified buy locations across major retailers, drive a real browser via ctrl (NOT WebFetch / curl / Playwright — they're all bot-blocked by every major retailer's bot-wall), confirm each landing page is a real product page for the exact model the user wants, capture current price + buy-button presence + stock + promos, and recommend the best place to purchase with confidence. Retries per retailer when the first candidate URL is invalid; keeps the best verified page per company. Use when the user names a specific product to purchase: "what's the best price on the `<X>`", "where should I buy `<X>`", "buy `<X>`". Sibling of /find (identifies products) / /profile (profiles them) / /survey (compares them). v1: skeleton — fleshed-out section is § Page-validity verification and § Per-retailer retry loop; everything else is the obvious shape. |
-| [[docs/EXP]]  | 2026 Vast ML Testing — ML experiment suites (distillation, interpretability, LLM probing) run on vast.ai GPUs |
-| [[imgen/SKILL]]  | Generated imagery — roll an image from a prompt into the [[IMGEN]] anchor, which keeps the prompt beside it. Sessions are numbered batches; `-t "{topic}"` opens a new one, no flag appends to the latest, `--dry-run` shows where a roll will land. Use when the user says "/imgen" or "really imgen". Authored diagrams are /viz. |
-| [[io/SKILL]]  | External system I/O — read from and write to external applications and services. Google Workspace: Sheets, Slides, Drive, Docs. Email via Apple Mail. Use when the user says: "put this in sheets", "read the spreadsheet", "update the slides", "upload to drive", "read my email", "search mail for", "find that email from". Subcommands: /io gsheet, /io gslide, /io gdoc, /io gdrive, /io email, /io notion. |
+| [[io-calendar]]  |  |
+| [[io-calendar-access]]  |  |
+| [[io-email]]  |  |
+| [[io-email-access]]  |  |

@@ -1,7 +1,7 @@
 ---
 description: "The **finalize discipline** is the closing ceremony for a unit of work — the sequence of small steps that catch the things commonly forgotten when something \"is done.\" Verify tests pass, commit, pu…"
 ---
-:>> [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[ASG]] → [ASG Finalize](hook://p/ASG%20Finalize)
+:>> [[DAS]] → [[ASG]] → [ASG Finalize](hook://p/ASG%20Finalize)
 # /finalize — user guide
 
 **Full internals & design:** [[DAS Finalize]]   ·   **Runtime spec:** [[skills/finalize/SKILL.md\|SKILL.md]]

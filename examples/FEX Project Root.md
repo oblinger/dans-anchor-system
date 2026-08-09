@@ -8,7 +8,7 @@ A CLI that turns messy meeting transcripts into clean, attributed minutes.
 
 ![[F143-1-top-level.svg]]
 
-| -[[FEX Project Root]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [FEX Project Root](hook://p/FEX%20Project%20Root)<br>: canonical project-root exemplar |
+| -[[FEX Project Root]]- | → [[DAS]] → [[examples]] → [FEX Project Root](hook://p/FEX%20Project%20Root)<br>: canonical project-root exemplar |
 | --- | --- |
 | Related | [[FEX Facet]],  [[DAS Project Page]] (the facet),  [[vox]] (sibling transcript tool),  [Repo](https://github.com/example/clarifier),  [Docs site](https://example.github.io/clarifier/)  |
 | [[Clarifier Design\|Design]]+ | [[Clarifier PRD\|PRD]],  [[Clarifier UX Design\|UX Design]],  [[Clarifier CLI\|CLI]],  [[Clarifier API Design\|API]],  [[Clarifier Architecture\|Architecture]],  [[Clarifier Decisions\|Decisions]],  [[Clarifier Testing\|Testing]],  [[Clarifier Roadmap\|Roadmap]],  [[Clarifier Features\|Features]],   |

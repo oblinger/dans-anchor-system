@@ -2,7 +2,7 @@
 description: "skim → click into the rule that applies"
 ---
 # DAS Person
-| -[[DAS Person]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [docs](hook://docs) → [DAS Person](hook://p/DAS%20Person)<br>: skim → click into the rule that applies |
+| -[[DAS Person]]- | → [[DAS]] → [docs](hook://docs) → [DAS Person](hook://p/DAS%20Person)<br>: skim → click into the rule that applies |
 | --- | --- |
 | Person rules (any verb) | [[SRCH rules/person\|person.md]],   |
 | Verbs | [[SRCH rules/find-person\|find-person]],  [[SRCH rules/profile-person\|describe-person]],  [[SRCH rules/survey-person\|survey-person]],   |

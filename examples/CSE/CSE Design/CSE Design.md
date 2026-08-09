@@ -3,7 +3,7 @@ description: Design docs for the CSE example anchor. PRD, architecture, interfac
 ---
 # CSE Design
 
-| -[[CSE Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [[CSE]] → [CSE Design](hook://p/CSE%20Design)<br>: Design docs for the CSE example anchor. PRD, architecture, interface, principles. |
+| -[[CSE Design]]- | → [[DAS]] → [[examples]] → [[CSE]] → [CSE Design](hook://p/CSE%20Design)<br>: Design docs for the CSE example anchor. PRD, architecture, interface, principles. |
 | --- | --- |
 | [[CSE PRD]]  | product requirements |
 | ~~[[CSE System Design]]~~  | system architecture |

@@ -5,7 +5,7 @@ description: Voice-memo ingestion + review-and-do pipeline — watch/phone recor
 # MUSE
 The service that turns spoken thought into acted-on knowledge. A ~~[[skills|Claude skill]]~~ with two entry points: **`muse ingest`** runs headlessly when a new voice recording lands (via `launchd`) — transcribes it, writes an item file to the permanent archive at `~/ob/kmr/Log/MUSE/`, and prepends a bullet to the [[Quick]] pane. **`/muse do <path>`** runs in Claude Code when typed with an item path — reads the item and proposes an action for the user to approve.
 
-| -[[MUSE]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [SKL](hook://SKL) → [MUSE](hook://p/MUSE)<br>: Voice-memo ingestion + review-and-do pipeline |
+| -[[MUSE]]- | → [[DAS]] → [[SKL]] → [MUSE](hook://p/MUSE)<br>: Voice-memo ingestion + review-and-do pipeline |
 | --- | --- |
 |  | [[Log Muse\|Log]],  [[WIRE Muse\|Wire]],   |
 | [[DAS MUSE Architecture\|Design]]  | → [[DAS MUSE Architecture\|Architecture]] — flows, action space, safety, config, build order |
@@ -17,7 +17,7 @@ The service that turns spoken thought into acted-on knowledge. A ~~[[skills|Clau
 | Quick pane | `~/ob/kmr/LST/Quick.md` — MUSE prepends a bullet per ingest (raw text when transcript ≤ `MUSE_INLINE_MAX_CHARS`, default 80; else a Markdown link back to the item file). Suppressed items skip Quick. |
 | Review | Type `/muse do <path>` into the SYS Claude session; Claude reads the item, proposes an action, waits for approval. (GUI hotkey binding is designed but deferred — see [[DAS MUSE Architecture\|Architecture]] § Do flow.) |
 | Status | ✅ **Live** — `muse ingest` running, items land in `~/ob/kmr/Log/MUSE/`, Quick.md bulleted, `/muse do` slash-command available. HUD Cmd+Opt+D binding deferred (invocation is by typing the slash command). Shipped as [[F018 — MUSE — Watch-first voice-memo pipeline (ingest + do)]] on 2026-07-13. |
-| ... | [[F001 — Silence-aware suppression (leading-burst + capped-silence-trim + trimmed-WPS)]],  [[MUSE Backlog\|Backlog]],  [[MUSE Messages\|Messages]],  [[MUSE queries\|queries]],  [[muse/SKILL]],   |
+| ... | [[F001 — Silence-aware suppression (leading-burst + capped-silence-trim + trimmed-WPS)]],  [[MUSE Backlog\|Backlog]],  [[MUSE Inbox\|Inbox]],  [[MUSE Messages\|Messages]],  [[MUSE queries\|queries]],  [[muse/SKILL]],   |
 
 
 ## Overview

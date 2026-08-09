@@ -4,7 +4,7 @@ description: Warden user documentation — the manual for writing and running ru
 # Warden User Docs
 The task-oriented manual for authoring and running Warden rules — start at [[Warden Examples]].
 
-| -[[Warden User Docs]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[Warden]] → [Warden User Docs](hook://p/Warden%20User%20Docs)<br>: the manual — how to write and run Warden rules |
+| -[[Warden User Docs]]- | → [[DAS]] → [[WARD]] → [Warden User Docs](hook://p/Warden%20User%20Docs)<br>: the manual — how to write and run Warden rules |
 | --- | --- |
 | [[Warden Examples]]  | worked examples of every rule-execution mode (start here) |
 | ... | [[Warden Examples Extended]],   |

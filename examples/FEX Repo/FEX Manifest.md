@@ -4,7 +4,7 @@ description: "the Manifest facet definition"
 # FEX Manifest
 The Manifest facet — the fixed key/value record written into every snapshot bundle. A worked example of a **single-file, cardinality-one, fixed-format** facet.
 
-| -[[FEX Manifest]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[examples]] → [[FEX Repo]] → [FEX Manifest](hook://p/FEX%20Manifest)<br>: the Manifest facet definition |
+| -[[FEX Manifest]]- | → [[DAS]] → [[examples]] → [[FEX Repo]] → [FEX Manifest](hook://p/FEX%20Manifest)<br>: the Manifest facet definition |
 | --- | --- |
 | Anchor | [[FEX Repo]] (parent) |
 | Related | [[FEX Snapshot]] (writes it),  [[R-fex-manifest]] (its rules),  [[FEX Bundle]] (carries it),  [[DAS Facet]] (the facet spec), |

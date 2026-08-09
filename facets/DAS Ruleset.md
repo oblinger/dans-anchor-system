@@ -5,7 +5,7 @@ description: "the Ruleset facet — what a ruleset is and the format every rules
 # DAS Ruleset
 A named, reusable bundle of audit-checkable rules — and the spec for how to write one.
 
-| -[[DAS Ruleset]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[FCT]] → [DAS Ruleset](hook://p/DAS%20Ruleset)  |
+| -[[DAS Ruleset]]- | → [[DAS]] → [[FCT]] → [DAS Ruleset](hook://p/DAS%20Ruleset)  |
 | --- | --- |
 | Related | [[DAS Facet]],  [[DAS Skill]],  [[DAS Decisions]] (companion),  [[DAS Rulesets]] (the catalog),  [[DAS Primitives]], |
 | Rules | [[R-ruleset]],   |
