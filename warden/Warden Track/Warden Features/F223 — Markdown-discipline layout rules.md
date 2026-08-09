@@ -17,7 +17,7 @@ User directive 2026-07-05: *"BUILD it, and we will see how it does. I will check
 
 **What done looks like.** Two layout rules fire on every markdown write and steer real, fixable findings with **zero false positives** across the whole doc corpus:
 
-- **R-progressive-01** — a doc never carries BOTH its own dispatch-masthead and a `:>>` breadcrumb (the two navigation forms are alternatives; per [[feedback_breadcrumb_vs_dispatch_table]]).
+- **R-spine-01** — a doc never carries BOTH its own dispatch-masthead and a `:>>` breadcrumb (the two navigation forms are alternatives; per [[feedback_breadcrumb_vs_dispatch_table]]).
 - **R-progressive-02** — progressive-disclosure section spacing: every `## H2` is preceded by a blank line, and no trailing blank at EOF.
 
 **How it will be verified.** Repo-wide validation (784 docs) shows only genuine violations and no false positives; `fire_audit` fires the rules verdict-identically through both the audit-plan and warden engines (the golden corpus is re-blessed with the new pass verdicts); and the rules fire live on a real markdown write through the dispatcher.
@@ -33,8 +33,8 @@ User directive 2026-07-05: *"BUILD it, and we will see how it does. I will check
 
 ## Status
 
-**Built + LIVE 2026-07-05.** `R-progressive` (2 rules) is authored, wired into `R-doc`, and firing. **Repo-wide validation: 13 genuine findings across 784 docs, 0 false positives** (3 both-navigation docs — `FEX Architecture`, `CAE User Docs`, `CAE Dev Docs`; 10 spacing — 5 glued-H2, 5 trailing-blank). Fires verdict-identically through `fire_audit` on both engines; the golden corpus is re-blessed (doc cases gained R-progressive pass verdicts, both engines agree). The F177 audit-on-write hook surfaced R-progressive-01 live on the very first edit that added it to `R-doc` — which is exactly how the one design bug (treating a ruleset-stub anchor page as needing a masthead) was caught and removed before it could be noisy. The one Warden-anchor finding (`Warden Survey.md`'s glued `## Overview`) is fixed as the demonstration; the other 12 are left for the live system to surface in usage.
+**Built + LIVE 2026-07-05.** `R-progressive` (2 rules) is authored, wired into `R-doc`, and firing. **Repo-wide validation: 13 genuine findings across 784 docs, 0 false positives** (3 both-navigation docs — `FEX Architecture`, `CAE User Docs`, `CAE Dev Docs`; 10 spacing — 5 glued-H2, 5 trailing-blank). Fires verdict-identically through `fire_audit` on both engines; the golden corpus is re-blessed (doc cases gained R-progressive pass verdicts, both engines agree). The F177 audit-on-write hook surfaced R-spine-01 live on the very first edit that added it to `R-doc` — which is exactly how the one design bug (treating a ruleset-stub anchor page as needing a masthead) was caught and removed before it could be noisy. The one Warden-anchor finding (`Warden Survey.md`'s glued `## Overview`) is fixed as the demonstration; the other 12 are left for the live system to surface in usage.
 
 ## Open questions
 
-1. **Widen the assertions once trusted.** The conditional "present-direction" (which anchor pages must carry a masthead) is deliberately deferred to `R-anchor-page`. If a reliable anchor-page classifier emerges (e.g., from the compiler's anchor index), R-progressive-01 could regain the full both-ways conditional. Revisit after the rules have soaked in usage.
+1. **Widen the assertions once trusted.** The conditional "present-direction" (which anchor pages must carry a masthead) is deliberately deferred to `R-anchor-page`. If a reliable anchor-page classifier emerges (e.g., from the compiler's anchor index), R-spine-01 could regain the full both-ways conditional. Revisit after the rules have soaked in usage.

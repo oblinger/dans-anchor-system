@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""test-simple-facet-form.py — the simple-facet-form exemption in R-progressive-03.
+"""test-simple-facet-form.py — the simple-facet-form exemption in R-spine-02.
 
 A slug-prefixed facet page may fuse the breadcrumb into its H1
 (`# [[{slug}]] {Facet}`, {slug} = the filename prefix) and lead with its essence

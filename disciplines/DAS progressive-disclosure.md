@@ -94,7 +94,7 @@ The zone above a document's body, in canonical order:
 
 **Order:** H1 → orientation line → **artifact** (if the doc has one) → dispatch table (if present) → TLDR (if present) → figure (if present) → optional 1-2-sentence figure caption → first H2 (body begins).
 
-The artifact leads because it is the only preface element that is not an *aid* — see § The artifact. The orientation line is `R-progressive-03`'s single sentence saying what the file is.
+The artifact leads because it is the only preface element that is not an *aid* — see § The artifact. The orientation line is `R-spine-02`'s single sentence saying what the file is.
 
 **No preamble** between H1 and the first H2 beyond the preface zone. The H2 is typically `## Overview` or another section-appropriate heading — it just begins; no "Body" wrapper, no transition text.
 

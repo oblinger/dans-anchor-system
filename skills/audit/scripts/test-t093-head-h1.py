@@ -74,7 +74,7 @@ check("a fenced `# Sample` is not the head (inherited from _strip_fenced)",
 
 print("\nThe callers that were being misled")
 
-# R-progressive-03, `where:: always` — 177 of the 220 failed here, each asking for
+# R-spine-02, `where:: always` — 177 of the 220 failed here, each asking for
 # an orientation line under a body-section divider.
 f = write("## Contact\n\nphone: 555\n\n# LOG\n\n- an entry\n")
 check("orientation-line rule: a headless doc is out of scope, not failed",

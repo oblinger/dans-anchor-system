@@ -1323,7 +1323,7 @@ def _head_h1(text: str) -> tuple[int | None, str | None]:
     hands every caller a "head" hundreds of lines into the body, and the findings
     that follow blame a real line number for a defect that is not there: an
     orientation line demanded under a section divider, a slug mismatch against
-    `# LOG`. `R-progressive-03` produced 177 of those and `R-doc-structure`'s
+    `# LOG`. `R-spine-02` produced 177 of those and `R-doc-structure`'s
     top-order check another 58, both on rules scoped `where:: always`.
 
     So a heading of ANY level appearing before the first H1 means there is no head
@@ -3386,7 +3386,7 @@ def chk_toc_table_iff_long(target, anchor_root, args):
 
 
 # ---------------------------------------------------------------------------
-# R-progressive-04/05 — progressive-disclosure summary (SKA F277, 2026-07-20)
+# R-spine-03/05 — progressive-disclosure summary (SKA F277, 2026-07-20)
 # ---------------------------------------------------------------------------
 
 DISCLOSURE_REGISTRY = Path.home() / ".warden" / "disclosure.json"
@@ -3501,7 +3501,7 @@ def _disclosure_save(reg):
 
 
 def chk_summary_present_iff_complex(target, anchor_root, args):
-    """R-progressive-04 (F277 M1) — a complex doc opens with a summary entity.
+    """R-spine-03 (F277 M1) — a complex doc opens with a summary entity.
 
     The primary failure is ABSENCE, not staleness: agents are told to write a
     top summary and largely do not, because nothing ever forces the check.
@@ -3539,7 +3539,7 @@ def chk_summary_fresh(target, anchor_root, args):
         return "pass", ""
     has, summary_hash = _disclosure_summary(f)
     if not has:
-        return "pass", ""      # absence is R-progressive-04's business, not ours
+        return "pass", ""      # absence is R-spine-03's business, not ours
 
     scope = _disclosure_scope(f, anchor_root)
     units = _disclosure_units(f, scope)
@@ -5886,7 +5886,7 @@ CHECKERS = {
     "dispatch_area_row": chk_dispatch_area_row,
     "dispatch_link_case_drift": chk_dispatch_link_case_drift,
     "toc_table_iff_long": chk_toc_table_iff_long,
-    # R-progressive-04/05 — summary presence + freshness (SKA F277)
+    # R-spine-03/05 — summary presence + freshness (SKA F277)
     "summary_present_iff_complex": chk_summary_present_iff_complex,
     "summary_fresh": chk_summary_fresh,
     "regex_present": chk_regex_present,

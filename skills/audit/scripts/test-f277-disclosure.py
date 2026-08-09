@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""test-f277-disclosure.py — R-progressive-04/05 (F277 progressive-disclosure review).
+"""test-f277-disclosure.py — R-spine-03/05 (F277 progressive-disclosure review).
 
 Covers the two checkers behind the "Warden detects staleness, the agent judges"
 mechanism: `summary_present_iff_complex` (a complex folder-index must carry a
