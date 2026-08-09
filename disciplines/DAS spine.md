@@ -5,6 +5,14 @@ user_invocable: false
 ---
 
 # Spine Discipline
+The routing zone every document opens with — two forms, six shapes, and the one question that chooses between them.
+
+| -[[DAS spine]]- | → [[DAS]] → [[disciplines]] → [DAS spine](hook://p/DAS%20spine)<br>: Discipline. Exactly two ways to open a file — a breadcrumb or a dispatch table — chosen by one question, plus the fixed line order that follows each. |
+| --- | --- |
+| Related | [[DAS Dispatch Table]],  [[DAS progressive-disclosure]],  [[DAS Disciplines\|Disciplines]],  [[DAS\|dans-anchor-system]],   |
+| Rules | [[R-spine]],  [[R-dispatch-table]],  [[R-exception-discipline]],   |
+| Shapes | [[PKM Discussion\|S1 breadcrumb]],  [[FCT\|S2 redirect]],  [[Rolodex\|S3 masthead-only]],  [[DAS Anchor\|S4 dot-dot-dot]],  [[DAS WP Design\|S5 dash]],  [[VOX\|S6 caret]],   |
+| Examples | [[FEX Dispatch Examples\|dispatch gallery]],  [[TINK308 - Spine: the routing zone every document opens with\|F308 census]],   |
 
 **Every file in the system opens one of exactly two ways.** Either a **breadcrumb** or a **dispatch table**. There is no third opening, and the choice is not a matter of taste.
 
@@ -43,14 +51,30 @@ A masthead: the breadcrumb folded into the table's first row, then governed rows
 
 **Never hand-author the electric zone** — everything below the separator is recomputed. See the vault's `CLAUDE.md`.
 
-## The six shapes are refinements of these two
+## The six shapes
 
-[[TINK308 - Spine: the routing zone every document opens with|F308]] measures the vault and resolves the two families into six shapes, selected by the terminal separator, which is the axis the machine already dispatches on:
+The two families are the decision; the six shapes are the calibration. They are selected by the **terminal separator** — the axis HookAnchor already dispatches on — so the shape a page is in is a fact about its last table row, not a judgement about its contents. Counts are [[TINK308 - Spine: the routing zone every document opens with|F308]]'s census of 7,627 files; the exemplars are live pages, verified to resolve, so each one can be opened to see the shape rather than read about it.
 
-- **Breadcrumb family** — S1 breadcrumb (organizes nothing), S2 redirect line (organizes nothing but owes two or three named destinations).
-- **Masthead family** — S3 masthead only (fixed hand-picked set, no separator), S4 `...` (children surface, no per-child sentence — the anchor-page default), S5 `---` (each child earns a row and a description), S6 `^^^` (same, dated, newest first).
+| Shape | When it applies | Live examples | Live pages |
+|---|---|---|---|
+| **S1 — Breadcrumb** | Organizes nothing and owes no named siblings. A `:>>` path as the first body line, no table. | [[PKM Discussion]] · [[ABIO Safety]] · [[MGR Architecture Diagrams]] · [[JOBS Figure]] | 1,266 |
+| **S2 — Redirect line** | Organizes nothing but owes two or three named destinations — or *is* a slug marker standing in for its anchor page. A `(See …)` line, no table. | [[AI Safety]] · [[MED Food]] · [[Flashcards]] — slug-marker sub-form: [[FCT]] · [[ANC]] | 86 |
+| **S3 — Masthead only** | Organizes a **fixed, hand-picked** set. Every row authored, **no separator** — so nothing auto-surfaces and a new child does *not* appear. | [[Rolodex]] · [[MENTORS]] · [[SV Design]] · [[STARTUPPER]] | 157 |
+| **S4 — Masthead + `...`** | Children should surface but need no per-child sentence: one compact row. **The anchor-page default.** | [[DAS Traits]] · [[DAS Anchor]] · [[SKA pilot-flow]] · [[SVAR]] | 822 |
+| **S5 — Masthead + `---`** | Each child earns its own row and a description. Alphabetical, machine-ordered. | [[DAS WP Design]] · [[DAS Ctrl Design]] · [[Move Design]] | 226 |
+| **S6 — Masthead + `^^^`** | The same as S5 with **dated** children, so reverse-alphabetical puts newest first. The stream shape. | [[EOC Log]] · [[MED Log]] · [[SV Log]] · [[Trips]] · [[VOX]] | 23 |
 
-Read the two families as the decision and the six as the calibration. If the one question above does not settle a document, the six shapes will; if they also do not, the document is probably two documents.
+**S1 → S2 and S5 → S6 are each one question, not two.** A leaf either has named destinations to hand the reader or it does not; an enumerated list either is dated or it is not. That is what keeps the set closed rather than a taste ladder — **S3 → S4 → S5 is the only run with judgement in it**, and even there the question is single: *is this set fixed, is it enumerable-but-uninteresting, or does each member need a sentence?*
+
+**Two spec'd markers are deliberately not shapes.** `+++` (alphabetical with grandchildren) and `!!!` (clip) each occur in exactly one file vault-wide — the same file, the spec that defines them. Under the standing rule that *a shape with no live exemplar is a shape you invented*, both stay out. The `+` row marker is likewise not a shape: it is a **per-row** régime, and all 21 pages carrying one also carry a terminal separator, so a page is never *in* `+` — it is in one of the six **and** uses `+` on some rows.
+
+**This page is an S3**, and that is the honest classification: it fronts no folder, so a `...` catch-all would auto-surface nothing. Its rows are hand-picked and stay that way.
+
+### Where the examples live, and why not in a folder here
+
+The natural instinct is to make this discipline an anchor **folder** and put the six shapes' examples inside it. The house pattern says otherwise, and the reason is [[project_fex_hbr_examples|examples are real instances]]: a gallery of *copies* rots the moment the vault moves on, and a copied exemplar cannot be clicked to see how the shape actually behaves under HookAnchor. So examples are **live pages, linked** — every exemplar in the table above is a real document doing that shape for real reasons.
+
+Where a discipline needs more than a table's worth, the gallery goes in `examples/` as a `FEX <Topic> Examples` doc — [[FEX Dispatch Examples]] is the worked case, and `FEX Spine Examples` is the slot if this table ever outgrows one row per shape. That keeps galleries in one place rather than one per discipline folder, and it is why `disciplines/` holds files rather than a folder per discipline.
 
 ## The escape, when a document genuinely needs a third opening
 
