@@ -631,7 +631,12 @@ def _is_placeholder_basename(basename: str) -> bool:
 
 # Memory-file prefixes (live in ~/.claude/projects/.../memory/, OUTSIDE the
 # kmr vault). Wiki-links to them are valid but the audit can't see them.
-_MEMORY_PREFIXES = ("feedback_", "user_", "project_", "reference_")
+# `gotcha_` is a naming convention layered on top of `type: project` rather than
+# a type of its own, which is why it was missed here: the list was built from the
+# four `type:` values and the corpus uses five prefixes. 19 `gotcha_*` memories
+# existed before any vault document cited one, so the omission produced no finding
+# until 2026-08-09 and then produced a false C22 on the first citation.
+_MEMORY_PREFIXES = ("feedback_", "user_", "project_", "reference_", "gotcha_")
 
 
 def _is_out_of_vault_wiki_link(basename: str) -> bool:
