@@ -520,6 +520,39 @@ def classify_suppression(name: str):
     return None
 
 
+SIDECAR_SUFFIX = ".README.txt"
+
+
+def sidecar_owner(name: str, expected_names) -> str | None:
+    """A `<stem>.README.txt` beside a catalogued `<stem>.<ext>` is explained by
+    that row, and returning its owner is what lets the report say so.
+
+    This cannot live in SUPPRESS_RULES, which match a filename against a fixed
+    pattern and nothing else.  A sidecar is not suppressible by name — a
+    `.README.txt` with no catalogued sibling is a genuinely unexplained file and
+    must stay in the report.  What explains it is the row it sits next to, which
+    only the container's expected-name set knows.
+
+    Written 2026-08-09 after the first clean run reported two sidecars written
+    the previous night (F052's and F036's) as unexplained.  Suppressing them by
+    a blanket `*.README.txt` rule would have muted the useful case along with
+    the noise, which is the mute-button failure the exception list is supposed
+    to avoid.
+    """
+    if not name.endswith(SIDECAR_SUFFIX):
+        return None
+    stem = name[: -len(SIDECAR_SUFFIX)]
+    if not stem:
+        return None
+    for candidate in expected_names:
+        if candidate == stem:
+            return candidate
+        base, dot, _ext = candidate.rpartition(".")
+        if dot and base == stem:
+            return candidate
+    return None
+
+
 def scan_unexplained(root: Path, catalog_rows: list[CatalogRow]):
     """Direction 2 — present-but-unexplained.
 
@@ -572,8 +605,13 @@ def scan_unexplained(root: Path, catalog_rows: list[CatalogRow]):
             rel_path = f"{container}/{entry_name}" if container else entry_name
             if entry_name in expected_names or rel_path in all_container_paths:
                 continue
+            owner = sidecar_owner(entry_name, expected_names)
             reason = classify_suppression(entry_name)
-            if reason:
+            if owner:
+                suppressed.setdefault(
+                    f"sidecar README for a catalogued row — explained by `{owner}`", []
+                ).append(rel_path)
+            elif reason:
                 suppressed.setdefault(reason, []).append(rel_path)
             else:
                 unexplained.append(

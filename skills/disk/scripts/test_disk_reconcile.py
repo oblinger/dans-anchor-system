@@ -270,6 +270,32 @@ def main():
           f"rel={len(doc['relocated'])} never={len(doc['never_landed'])} "
           f"miss={len(doc['missing'])} unverified={len(doc['relocated_unverified'])}")
 
+
+    # --- sidecar READMEs (2026-08-09) -----------------------------------
+    # Found by the first clean 10T run, which reported the two `.README.txt`
+    # files written the night before as unexplained. A blanket `*.README.txt`
+    # suppression would have muted the genuinely-orphaned case too, so the rule
+    # keys on the catalogued row beside it -- and these run it through the tool
+    # rather than calling the helper, so a rule that never fires cannot pass.
+    arch = os.path.join(root, "__MASTERS__/_ARCHIVES_")
+    pathlib.Path(arch, "sidecarred.zip").write_bytes(b"x")
+    pathlib.Path(arch, "sidecarred.README.txt").write_text("explains the row")
+    pathlib.Path(arch, "orphan.README.txt").write_text("explains nothing")
+    write_catalog(cat, base + [{"10T Path": "__MASTERS__/_ARCHIVES_/sidecarred.zip",
+                                "Bytes": 1, "Files": 1}])
+    rc, out = run(root, cat)
+    check("sidecar beside a catalogued row is suppressed, not reported",
+          "_ARCHIVES_/sidecarred.README.txt" not in out.split("## Suppressed")[0],
+          out[-400:])
+    check("suppression names the row that explains it",
+          "explained by `sidecarred.zip`" in out, out[-400:])
+    check("a README with NO catalogued sibling is still reported",
+          "orphan.README.txt" in out.split("## Suppressed")[0], out[-400:])
+    check("the catalogued file itself is not reported",
+          "_ARCHIVES_/sidecarred.zip" not in out.split("## Suppressed")[0], out[-400:])
+    for f in ("sidecarred.zip", "sidecarred.README.txt", "orphan.README.txt"):
+        os.remove(os.path.join(arch, f))
+
     shutil.rmtree(tmp, ignore_errors=True)
     print(f"\n  {total[0] - len(fails)}/{total[0]} passed" if not fails
           else f"\n  FAILED ({len(fails)}/{total[0]}): {fails}")
