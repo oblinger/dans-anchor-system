@@ -81,10 +81,20 @@ cap_install_screen() {
 cap_desc_playwright()   { echo "Browser automation (Playwright + Chromium) — ctrl cpage, headless JS-heavy fetches"; }
 cap_repair_playwright() { echo "pip install --user playwright && python3 -m playwright install chromium"; }
 
+# Probe Playwright directly, NOT through `ctrl cpage` (corrected 2026-08-08, F027).
+# The original probe ran `ctrl cpage --url about:blank`, which could never pass:
+# `cpage` takes the url POSITIONALLY (there is no --url flag), and it rejects
+# `about:` anyway -- it accepts only http(s) or a tab number. So the row reported
+# FAIL on haorui while Playwright and Chromium were installed and working, and the
+# repair action reinstalled ~200 MB of Chromium on every run to fix nothing.
+# Launching chromium through the Playwright API proves the actual capability and
+# needs no network. The command uses double quotes ONLY -- no single quote may
+# appear in it, because it is carried inside a single-quoted argument through the
+# ssh -> printf %q -> tmux new-window chain, and one apostrophe would end that
+# argument early and split the command. Keep it that way when editing.
 cap_probe_playwright() {
-  _run_in_mux playwright 'ctrl cpage --url about:blank --output /tmp/bridge-cap-pw.json >/dev/null 2>&1 && [ -s /tmp/bridge-cap-pw.json ]' 5
+  _run_in_mux playwright 'python3 -c "import playwright.sync_api as s; p=s.sync_playwright().start(); b=p.chromium.launch(); print(b.version); b.close(); p.stop()" >/dev/null 2>&1' 25
   local rc=$?
-  "${SSH[@]}" "rm -f /tmp/bridge-cap-pw.json" 2>/dev/null
   _clean_marker playwright; return $rc
 }
 
