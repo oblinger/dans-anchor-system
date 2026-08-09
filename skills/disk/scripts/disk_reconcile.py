@@ -43,8 +43,9 @@ exercise the tool against scratch fixtures without ever touching /Volumes):
                                  SOURCE-LABEL (mirrors --root, for the source
                                  side of a refresh preview).
 
-Exit codes: 0 clean; 1 direction (1) missing or (2) unexplained non-empty;
-2 setup error (drive not mounted, catalog unreadable, rsync failed).
+Exit codes: 0 clean; 1 direction (1) missing, (2) unexplained, or
+RELOCATED-CONTENTS-UNVERIFIED non-empty; 2 setup error (drive not mounted,
+catalog unreadable, rsync failed).
 """
 
 from __future__ import annotations
@@ -57,6 +58,7 @@ import plistlib
 import re
 import subprocess
 import sys
+import zipfile
 from typing import NoReturn
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -167,6 +169,15 @@ NEVER_LANDED_RE = re.compile(r"never\s+landed", re.IGNORECASE)
 # findable at the recorded destination", and a stamp that vouches for an unchecked
 # destination is the failure this whole feature exists to catch.
 BROKEN_ARCHIVE_GLOB = "_ARCHIVES_/Master Reconciliation *"
+
+# The destination directory existing is not evidence the bytes are inside it --
+# a real 2026-06-25 finding was two rows reported "relocated, destination
+# confirmed" on the strength of the directory alone, while their contents live
+# inside a ZIP under it (`Broken Archives.zip`) that was never opened. Per the
+# M3 legend, moved-out files land in `Broken <type>.zip` archives directly
+# under the Master Reconciliation dir -- glob those and open each with
+# zipfile.namelist() rather than trusting the directory listing.
+BROKEN_ARCHIVE_ZIP_GLOB = "Broken *.zip"
 
 # Anchored with a leading slash where the excluded name has real content
 # nested *under* it on 10T (886 real files under nested .Spotlight-V100/
@@ -301,15 +312,51 @@ def never_landed(row, marker) -> bool:
     return bool(row.notes and NEVER_LANDED_RE.search(str(row.notes)))
 
 
-def relocation_verdict(row, root: Path):
+def verify_archive_contents(dest: Path, basename: str):
+    """Open every 'Broken *.zip' archive directly under dest and look for
+    basename inside its namelist. A directory existing is not evidence the
+    bytes are inside it -- this is the entire difference between "the
+    destination is there" and "the file is there".
+
+    Returns (state, detail):
+      'confirmed'   - basename found inside a readable zip's namelist
+      'absent'      - readable zip(s) exist under dest, none list basename
+      'no_archive'  - no 'Broken *.zip' archive exists under dest at all
+      'unreadable'  - an archive exists but could not be opened (corrupt/IO)
+
+    An exception opening an archive is reported as its own state, never
+    swallowed into a default -- letting a corrupt archive read as "verified"
+    (by skipping it and falling through) is the exact defect this closes.
+    """
+    archives = sorted(dest.glob(BROKEN_ARCHIVE_ZIP_GLOB))
+    if not archives:
+        return "no_archive", f"no '{BROKEN_ARCHIVE_ZIP_GLOB}' archive under {dest.name}/"
+    checked = []
+    for archive in archives:
+        try:
+            with zipfile.ZipFile(archive) as zf:
+                names = zf.namelist()
+        except (zipfile.BadZipFile, OSError) as exc:
+            return "unreadable", f"{archive.name} could not be opened: {exc}"
+        checked.append(archive.name)
+        if any(n == basename or n.endswith("/" + basename) for n in names):
+            return "confirmed", f"{basename} found inside {archive.name}"
+    return "absent", f"{basename} not listed in {', '.join(checked)}"
+
+
+def relocation_verdict(row, root: Path, real_path: str):
     """Was this row's absence explained by the M3 move-out, and did the bytes
     actually land where the catalog says?
 
-    Returns (kind, note) where kind is 'relocated' | 'unconfirmed' | None.
-    'unconfirmed' is deliberately NOT treated as explained -- a row whose
-    disposition suggests relocation but whose destination cannot be seen stays
-    under missing, because the alternative is a tool that launders an unchecked
-    claim into a clean report."""
+    Returns (kind, note) where kind is 'relocated' | 'contents_unverified' |
+    'unconfirmed' | None. 'unconfirmed' is deliberately NOT treated as
+    explained -- a row whose disposition suggests relocation but whose
+    destination cannot be seen stays under missing, because the alternative
+    is a tool that launders an unchecked claim into a clean report.
+    'contents_unverified' is the sharper middle case: the destination
+    DIRECTORY is there, but opening its archive did not confirm the bytes are
+    actually inside it -- a distinction that exists only as a sentence in the
+    report is not a fix, so it gets its own kind and its own non-zero exit."""
     moved = m3_counts(row.m3_disposition).get("M", 0)
     if not moved:
         return None, None
@@ -326,16 +373,40 @@ def relocation_verdict(row, root: Path):
         return "unconfirmed", (
             f"all {moved} file(s) were moved out per the disposition, but no "
             f"'{BROKEN_ARCHIVE_GLOB}' exists on this drive to receive them")
-    return "relocated", (
-        f"all {moved} file(s) moved to {dests[0].name}/Broken */ per the M3 pass; "
-        "destination directory confirmed present")
+    # Search EVERY Master Reconciliation dir, not just the first. The glob
+    # carries a date wildcard precisely because a drive can accumulate more
+    # than one pass, and a row archived by the second pass is confirmed just
+    # as well as one archived by the first. Checking only dests[0] would turn
+    # a second reconciliation date into a wave of false "contents unverified"
+    # findings — each one exiting non-zero, which is the expensive direction
+    # for a check whose whole value is that a finding means something.
+    basename = Path(real_path).name
+    failures = []
+    for dest in dests:
+        state, detail = verify_archive_contents(dest, basename)
+        if state == "confirmed":
+            return "relocated", (
+                f"all {moved} file(s) moved to {dest.name}/ per the M3 pass; "
+                f"contents confirmed — {detail}")
+        failures.append((dest, state, detail))
+    # No destination confirmed it. Report the loudest failure rather than the
+    # first: a corrupt archive is a different problem from a merely absent
+    # entry, and it must not be hidden behind an earlier dir that simply had
+    # no archive in it.
+    rank = {"unreadable": 0, "absent": 1, "no_archive": 2}
+    dest, state, detail = min(failures, key=lambda f: rank[f[1]])
+    return "contents_unverified", (
+        f"all {moved} file(s) reportedly moved to {dest.name}/, but the "
+        f"bytes could not be confirmed inside it — destination directory "
+        f"present, contents unverified ({detail})")
 
 
 def scan_missing(root: Path, catalog_rows: list[CatalogRow]):
-    """Direction 1 — expected-but-missing (+ RELOCATED split-out)."""
+    """Direction 1 — expected-but-missing (+ RELOCATED / contents-unverified split-out)."""
     missing = []
     relocated = []
     never = []
+    unverified = []
     for row in catalog_rows:
         real_path, marker = strip_path_marker(row.path)
         if (root / real_path).exists():
@@ -361,15 +432,17 @@ def scan_missing(root: Path, catalog_rows: list[CatalogRow]):
                 "stamps assert a verification of content this drive never held")
             never.append(entry)
             continue
-        kind, note = relocation_verdict(row, root)
+        kind, note = relocation_verdict(row, root, real_path)
         entry["relocation_note"] = note
         if kind == "relocated":
             relocated.append(entry)
+        elif kind == "contents_unverified":
+            unverified.append(entry)
         else:
             missing.append(entry)
-    for lst in (missing, relocated, never):
+    for lst in (missing, relocated, never, unverified):
         lst.sort(key=lambda e: e["path"])
-    return missing, relocated, never
+    return missing, relocated, never, unverified
 
 
 def classify_suppression(name: str):
@@ -653,6 +726,23 @@ def render_text(result: dict) -> str:
         lines.append("  (none)")
     lines.append("")
 
+    unverified = result["relocated_unverified"]
+    lines.append(f"## RELOCATED — CONTENTS UNVERIFIED — {len(unverified)}")
+    if unverified:
+        lines.append(
+            "Destination directory present but not opened -- the M3 pass's "
+            "'Broken *.zip' archive either doesn't exist, couldn't be read, or "
+            "doesn't list this row's file. A directory being there is not "
+            "evidence the bytes are inside it; this is a finding, not bookkeeping."
+        )
+        for e in unverified:
+            lines.append(f"  - {e['path']}  — {e['m3_disposition']}")
+            if e.get("relocation_note"):
+                lines.append(f"      {e['relocation_note']}")
+    else:
+        lines.append("  (none)")
+    lines.append("")
+
     lines.append(f"## (2) Present-but-unexplained — {len(result['unexplained'])}")
     if result["unexplained"]:
         for e in result["unexplained"]:
@@ -708,6 +798,7 @@ def render_json(result: dict) -> str:
     payload = {
         "missing": result["missing"],
         "relocated": result["relocated"],
+        "relocated_unverified": result["relocated_unverified"],
         "never_landed": result["never_landed"],
         "unexplained": result["unexplained"],
         "capacity": result["capacity"],
@@ -743,7 +834,7 @@ def main():
     if not target_root.exists():
         die(f"drive root not found: {target_root} (expected mirror root for '{args.drive}'). Is it mounted?", 2)
 
-    missing, relocated, never = scan_missing(target_root, catalog_rows)
+    missing, relocated, never, relocated_unverified = scan_missing(target_root, catalog_rows)
     unexplained, suppressed = scan_unexplained(target_root, catalog_rows)
     capacity, refresh = build_capacity_and_refresh(args, target_root, catalog_rows)
 
@@ -754,6 +845,7 @@ def main():
         "catalog_rows": len(catalog_rows),
         "missing": missing,
         "relocated": relocated,
+        "relocated_unverified": relocated_unverified,
         "never_landed": never,
         "unexplained": unexplained,
         "suppressed": suppressed,
@@ -769,8 +861,11 @@ def main():
     # A never-landed row is a finding, not bookkeeping: it means two clones carry
     # verification stamps for content the master never held. Excluding it from the
     # exit code would let the one class of defect this tool is best placed to see
-    # exit 0 and be filed as clean.
-    if missing or unexplained or never:
+    # exit 0 and be filed as clean. Same reasoning for relocated_unverified: a
+    # destination directory existing is not confirmation the bytes are inside it,
+    # and a distinction that only shows up as a sentence in the report -- never as
+    # an exit code -- is not a fix, it's the defect being described.
+    if missing or unexplained or never or relocated_unverified:
         sys.exit(1)
     sys.exit(0)
 
