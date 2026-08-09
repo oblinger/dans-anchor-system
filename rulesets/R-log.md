@@ -1,5 +1,5 @@
 # RULESET R-log
-include:: [[R-stream]]
+include:: [[R-stream]] 
 import:: skills/audit/scripts/audit-plan.py
 where:: `{anchor}/**/* Log.md, !**/DAS *.md`
 exclusion-note:: `!**/DAS *.md` exempts the facet-spec catalog (a `DAS <Name>.md` is the SPEC for the facet, not an instance; specs are governed by [[R-facet-spec]]) — added 2026-07-13, T014 follow-on.
@@ -38,6 +38,8 @@ Go-forward naming is `YYYY-MM-DD — <topic>` (ISO date + em-dash + title), owne
 
 **Why:** ISO-date prefix forces chronological sort; descriptive topic suffix makes the file self-identifying without opening. Logs without dates become unbrowsable as they grow.
 
+**This narrows [[R-stream]]-03 for the Log facet's shape; it does not restate it, and deleting it as a duplicate was refused on measurement 2026-08-08.** `R-stream-03` asserts that a method-3 entry file's H1 omits its date, and it only reaches the `YYYY-MM-DD — Title.md` em-dash form — of which the corpus has zero instances, so it passes on all 125 log entry files without evaluating anything. This rule asserts the different and load-bearing thing: that an entry **carries a date prefix at all**. It also admits what a Log actually holds and a `.md`-only rule cannot — eight extensions, sub-directories, and year-only or year-month dates for entries whose exact day is unknown. It finds 5 failing anchors today.
+
 ### RULE R-log-04 — Entries don't restate spec / convention content (stated)
 
 Log entries describe what *happened* on the day. They do not contain spec definitions, conventions, rules, or standards that belong in their own facet docs (Conventions, Spec, Backlog, etc.).
@@ -54,6 +56,8 @@ The `{slug} Log.md` dispatch table lists entries with the **newest entry at top*
 **Check pattern:** parse dispatch-row wiki-links to extract dates from `[[YYYY-MM-DD ...]]`; assert monotonically non-increasing.
 
 **Why:** the reader's primary query is "what happened recently?" Reverse-chronological ordering puts the answer first; chronological ordering buries it.
+
+**This applies [[R-stream]]-01's ordering invariant to a surface `R-stream-01` cannot see.** `R-stream-01` counts `## YYYY-MM-DD —` H2 headings *inside* a document; a folder-form log keeps its entries in separate files, so its dispatch page has no dated H2s and `R-stream-01` returns *"no dated entries found"* on every one of them. This rule reads the dispatch table's wiki-links instead, and finds 4 out-of-order dispatch tables today. One rule orders the ledger, this one orders the index to it — deleting it as a duplicate was refused on that measurement 2026-08-08.
 
 ### RULE R-log-06 — Dispatch table is append-only (stated)
 
