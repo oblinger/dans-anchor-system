@@ -1,0 +1,21 @@
+{
+  "_comment": "TINK F313 — per-kind declarations consumed by `stone` (skills/workflow/scripts/stone). DAS-side, vault-wide: every anchor and every agent must agree on what a control file is named and how a stone line renders, so this lives beside the facet specs (DAS Stone.md, DAS Stone Design.md, DAS Stone Keys.md) rather than in ~/.config/. Format keys available in each template: {slug}. 'control' MUST be of the exact shape '{slug} WORD' — stone's header/self-section detection derives the fixed WORD suffix from it.",
+
+  "pebble": {
+    "folder": "{slug} Pebbles",
+    "control": "{slug} Pebble",
+    "prefix": "P",
+    "digits": 4,
+    "stone_alias": "{slug}:",
+    "header_alias": "-{slug}-"
+  },
+
+  "rock": {
+    "folder": "{slug} Rocks",
+    "control": "{slug} Rock",
+    "prefix": "R",
+    "digits": 4,
+    "stone_alias": "{slug}:",
+    "header_alias": "-{slug}-"
+  }
+}

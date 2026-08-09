@@ -1,0 +1,826 @@
+#!/usr/bin/env python3
+"""stone — mint and propagate pebbles and rocks (TINK F313).
+
+See `~/ob/kmr/SYS/Bespoke/Skill Agent/dans-anchor-system/facets/DAS Stone.md`
+(and its `DAS Stone Design.md` / `DAS Stone Keys.md` siblings) for the design.
+This is the mechanical half only.
+
+    stone <kind> new <anchor> --line "TEXT" [--body TEXT] [--root PATH]
+        Mint the next stone file for <anchor> (`{slug} {PREFIX}{NNNN}`, never
+        recycled), and insert its rendered line at the top of that anchor's
+        OWN control file. Does not propagate — run `update` for that.
+
+    stone <kind> update [--root PATH]
+        Walk the `feeds:` DAG under PATH (default: vault root) and reconcile
+        every control file of this kind against its stones:
+          - a line differing from its stone is an EDIT of the stone — the
+            edit travels up to the stone (last writer wins within the pass,
+            no merge, no conflict report), then every projection is rewritten
+            to match (convergence: every projection == its stone at the end).
+          - a stone missing from every OTHER control file it should reach is
+            silently re-added (a feed edge, or a line's position relative to
+            the self-section, changed); a stone whose line only vanished from
+            its OWN control file is archived — moved to `archive/` inside its
+            stone folder. Both are silent: nothing is printed per line.
+          - a cycle in `feeds:` is reported as a path and the whole pass
+            aborts with NO writes.
+
+Kind config (folder, control-file name, stone-number prefix, digits, the two
+display-alias templates) is DAS-side JSON, not code and not ~/.config/:
+`<DAS>/facets/DAS Stone Kinds.json`. Nothing about a kind is hard-coded here.
+
+Root resolution mirrors backlog-edit.py's `ANCHOR_VAULT_ROOT` / VAULT_ROOT
+convention (F269) so fixture tests never touch the real vault: `--root`, else
+`$ANCHOR_VAULT_ROOT`, else `~/ob/kmr`.
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import re
+import shutil
+import sys
+from pathlib import Path
+from types import SimpleNamespace
+
+# --------------------------------------------------------------------------
+# Errors — mirrors `backlog_edit.BacklogEditError` / `state`'s convention:
+# a SystemExit subclass so a caller must catch it by name, never by accident.
+
+
+class StoneError(SystemExit):
+    def __init__(self, msg):
+        super().__init__(f"stone: {msg}")
+
+
+# --------------------------------------------------------------------------
+# Config
+
+DEFAULT_ROOT = (
+    Path(os.environ["ANCHOR_VAULT_ROOT"]).expanduser()
+    if os.environ.get("ANCHOR_VAULT_ROOT")
+    else Path.home() / "ob" / "kmr"
+)
+
+_KIND_CONFIG_PATH = (
+    Path(__file__).resolve().parents[3] / "facets" / "DAS Stone Kinds.json"
+)
+
+
+def load_kind_config(path: Path = _KIND_CONFIG_PATH) -> dict:
+    if not path.is_file():
+        raise StoneError(
+            f"kind config not found at {path} — DAS ships pebble/rock "
+            "pre-configured; if this file moved, the path baked into `stone` "
+            "needs to move with it"
+        )
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as e:
+        raise StoneError(f"kind config {path} is not valid JSON: {e}")
+    return {k: v for k, v in data.items() if not k.startswith("_")}
+
+
+def _control_suffix(cfg: dict) -> str:
+    """The fixed word after `{slug} ` in cfg['control'] — e.g. 'Rock'.
+
+    Header/self-section identity (R-stone-04: "a header is identified by its
+    link target") is derived from this, never from a separate pattern, so a
+    kind whose 'control' template isn't literally '{slug} WORD' is refused up
+    front rather than silently never matching a header anywhere.
+    """
+    tmpl = cfg["control"]
+    lead = "{slug} "
+    if not tmpl.startswith(lead) or tmpl == lead:
+        raise StoneError(
+            f"kind config 'control' template {tmpl!r} must be exactly "
+            "'{slug} WORD' — header detection derives the fixed WORD from it"
+        )
+    return tmpl[len(lead):]
+
+
+# --------------------------------------------------------------------------
+# Anchor discovery — `.anchor` carries `slug:` and `feeds:` (DAS feed, F312)
+
+_SLUG_RE = re.compile(r"^slug:\s*(\S+)\s*$")
+_FEEDS_RE = re.compile(r"^feeds:\s*(.*)$")
+
+
+def _anchor_slug(anchor_dir: Path) -> str:
+    f = anchor_dir / ".anchor"
+    if f.is_file():
+        for line in f.read_text(encoding="utf-8").splitlines():
+            m = _SLUG_RE.match(line)
+            if m:
+                return m.group(1)
+    return anchor_dir.name
+
+
+def _anchor_feeds(anchor_dir: Path) -> list:
+    f = anchor_dir / ".anchor"
+    if not f.is_file():
+        return []
+    for line in f.read_text(encoding="utf-8").splitlines():
+        m = _FEEDS_RE.match(line)
+        if m:
+            return [s.strip() for s in m.group(1).split(",") if s.strip()]
+    return []
+
+
+def discover_anchors(root: Path) -> dict:
+    """slug -> SimpleNamespace(slug, path, feeds), every `.anchor` under root."""
+    anchors = {}
+    for dirpath, dirnames, filenames in os.walk(root):
+        dirnames[:] = [d for d in dirnames if not d.startswith(".")]
+        if ".anchor" in filenames:
+            p = Path(dirpath)
+            slug = _anchor_slug(p)
+            if slug in anchors:
+                raise StoneError(
+                    f"duplicate anchor slug {slug!r}: {anchors[slug].path} "
+                    f"and {p} — every anchor must resolve to one slug"
+                )
+            anchors[slug] = SimpleNamespace(slug=slug, path=p, feeds=_anchor_feeds(p))
+    return anchors
+
+
+def _track_dir(anchor_path: Path, slug: str) -> Path:
+    return anchor_path / f"{slug} Track"
+
+
+def _stone_folder(anchor_path: Path, slug: str, cfg: dict) -> Path:
+    return _track_dir(anchor_path, slug) / cfg["folder"].format(slug=slug)
+
+
+def _control_path(anchor_path: Path, slug: str, cfg: dict) -> Path:
+    return _track_dir(anchor_path, slug) / (cfg["control"].format(slug=slug) + ".md")
+
+
+# --------------------------------------------------------------------------
+# Topological order over the feed DAG, cycle reported as a path (F312 Inv. 1)
+
+def topo_order(anchors: dict) -> list:
+    indeg = {s: 0 for s in anchors}
+    consumers = {s: [] for s in anchors}  # source -> [downstream slugs]
+    for x in anchors.values():
+        for src in x.feeds:
+            if src not in anchors:
+                raise StoneError(
+                    f"{x.slug}: feeds: names {src!r}, no such anchor found "
+                    "under the scanned root — every edge must resolve"
+                )
+            consumers[src].append(x.slug)
+            indeg[x.slug] += 1
+    order = []
+    ready = sorted(s for s, d in indeg.items() if d == 0)
+    while ready:
+        n = ready.pop(0)
+        order.append(n)
+        newly_ready = []
+        for m in consumers[n]:
+            indeg[m] -= 1
+            if indeg[m] == 0:
+                newly_ready.append(m)
+        ready = sorted(ready + newly_ready)
+    if len(order) != len(anchors):
+        remaining = [s for s in anchors if s not in order]
+        path = _find_cycle_path(remaining, anchors)
+        raise StoneError(
+            "cycle in feeds: DAG — " + " → ".join(path)
+        )
+    return order
+
+
+def _find_cycle_path(remaining: list, anchors: dict) -> list:
+    rem = set(remaining)
+    visiting: list = []
+    visited: set = set()
+
+    def dfs(node):
+        visiting.append(node)
+        for src in anchors[node].feeds:
+            if src not in rem:
+                continue
+            if src in visiting:
+                i = visiting.index(src)
+                return visiting[i:] + [src]
+            if src not in visited:
+                found = dfs(src)
+                if found:
+                    return found
+        visiting.pop()
+        visited.add(node)
+        return None
+
+    for n in sorted(rem):
+        found = dfs(n)
+        if found:
+            return list(reversed(found))
+    return sorted(rem)  # unreachable if len(order) != len(anchors) was true
+
+
+# --------------------------------------------------------------------------
+# Stone files — `key:: value` lines at the top, above the prose (DAS Stone Keys)
+
+_KEY_RE = re.compile(r"^([A-Za-z][\w-]*)::\s?(.*)$")
+
+
+def _parse_stone(text: str):
+    lines = text.splitlines()
+    keys = []
+    i = 0
+    while i < len(lines):
+        m = _KEY_RE.match(lines[i])
+        if not m:
+            break
+        keys.append((m.group(1), m.group(2)))
+        i += 1
+    if i < len(lines) and lines[i].strip() == "":
+        i += 1
+    body = "\n".join(lines[i:])
+    return keys, body
+
+
+def _render_stone(keys: list, body: str) -> str:
+    out = [f"{k}:: {v}" for k, v in keys]
+    out.append("")
+    if body:
+        out.extend(body.splitlines())
+    text = "\n".join(out)
+    if not text.endswith("\n"):
+        text += "\n"
+    return text
+
+
+def _kv_get(keys: list, name: str, default=None):
+    for k, v in keys:
+        if k == name:
+            return v
+    return default
+
+
+def _kv_set(keys: list, name: str, value: str):
+    for i, (k, _v) in enumerate(keys):
+        if k == name:
+            keys[i] = (name, value)
+            return
+    keys.append((name, value))
+
+
+def _load_stone(path: Path, slug: str, live: bool):
+    text = path.read_text(encoding="utf-8")
+    keys, body = _parse_stone(text)
+    line = _kv_get(keys, "line", "") or ""
+    appears_raw = _kv_get(keys, "appears", "") or ""
+    appears = {a.strip() for a in appears_raw.split(",") if a.strip()}
+    sid = path.stem[len(slug) + 1:]
+    return SimpleNamespace(
+        slug=slug, sid=sid, path=path, keys=keys, body=body,
+        line=line, orig_line=line,
+        appears=appears, orig_appears=frozenset(appears),
+        live=live, orig_live=live,
+    )
+
+
+def _write_stone(st):
+    _kv_set(st.keys, "line", st.line)
+    _kv_set(st.keys, "appears", ", ".join(sorted(st.appears)))
+    st.path.write_text(_render_stone(st.keys, st.body), encoding="utf-8")
+
+
+def _archive_stone(st):
+    folder = st.path.parent
+    archive_dir = folder / "archive"
+    archive_dir.mkdir(parents=True, exist_ok=True)
+    dest = archive_dir / st.path.name
+    if dest.exists():
+        raise StoneError(
+            f"cannot archive {st.path} — {dest} already exists in archive/"
+        )
+    shutil.move(str(st.path), str(dest))
+    st.path = dest
+    st.live = False
+    st.appears = set()
+
+
+# --------------------------------------------------------------------------
+# Line-level parsing of a control file. A HEADER is any line whose first
+# link's TARGET is some anchor's control file for this kind (R-stone-04); a
+# STONE line is any line whose first link's TARGET is `{slug} {PREFIX}{NNNN}`.
+
+_FIRST_LINK_RE = re.compile(r"^\s*\[\[([^\]|]+)(?:\|([^\]]*))?\]\](.*)$")
+
+
+def _is_header_target(target: str, cfg: dict):
+    suf = _control_suffix(cfg)
+    tail = " " + suf
+    if target.endswith(tail):
+        slug = target[: -len(tail)]
+        if slug:
+            return slug
+    return None
+
+
+def _is_stone_target(target: str, cfg: dict):
+    prefix = cfg["prefix"]
+    digits = cfg.get("digits", 4)
+    m = re.match(rf"^([A-Za-z][A-Za-z0-9]*) ({re.escape(prefix)}\d{{{digits}}})$", target)
+    if m:
+        return m.group(1), m.group(2)
+    return None
+
+
+def classify_line(line: str, cfg: dict):
+    """('other',) | ('header', anchor_slug, rest_after_link) |
+    ('stone', owner_slug, sid, line_text)."""
+    m = _FIRST_LINK_RE.match(line)
+    if not m:
+        return ("other",)
+    target = m.group(1).strip()
+    rest = m.group(3)
+    hdr_slug = _is_header_target(target, cfg)
+    if hdr_slug:
+        return ("header", hdr_slug, rest)
+    st = _is_stone_target(target, cfg)
+    if st:
+        owner, sid = st
+        return ("stone", owner, sid, rest.lstrip())
+    return ("other",)
+
+
+def classify_stone_chunk(chunk: str, cfg: dict):
+    """Like classify_line but for one comma-separated INLINE entry (no
+    trailing content beyond the entry itself is expected)."""
+    m = _FIRST_LINK_RE.match(chunk.strip())
+    if not m:
+        return None
+    target = m.group(1).strip()
+    rest = m.group(3)
+    st = _is_stone_target(target, cfg)
+    if not st:
+        return None
+    owner, sid = st
+    return owner, sid, rest.lstrip()
+
+
+def _split_inline(payload: str) -> list:
+    """Split an inline header's comma list at `, [[`, never inside a link."""
+    return [p.strip() for p in re.split(r",\s*(?=\[\[)", payload) if p.strip()]
+
+
+def render_stone_line(owner: str, sid: str, text: str, cfg: dict) -> str:
+    alias = cfg["stone_alias"].format(slug=owner)
+    return f"[[{owner} {sid}|{alias}]] {text}"
+
+
+def _render_header(owner: str, cfg: dict) -> str:
+    control = cfg["control"].format(slug=owner)
+    alias = cfg["header_alias"].format(slug=owner)
+    return f"[[{control}|{alias}]]"
+
+
+def _find_header_index(lines: list, target_slug: str, cfg: dict):
+    for i, line in enumerate(lines):
+        cls = classify_line(line, cfg)
+        if cls[0] == "header" and cls[1] == target_slug:
+            return i
+    return None
+
+
+def _content_start(lines: list) -> int:
+    """Index just past frontmatter and a leading H1 (+ trailing blanks)."""
+    i = 0
+    if i < len(lines) and lines[i].strip() == "---":
+        i += 1
+        while i < len(lines) and lines[i].strip() != "---":
+            i += 1
+        i += 1
+        while i < len(lines) and lines[i].strip() == "":
+            i += 1
+    if i < len(lines) and lines[i].lstrip().startswith("# "):
+        i += 1
+        while i < len(lines) and lines[i].strip() == "":
+            i += 1
+    return min(i, len(lines))
+
+
+def _find_all_stone_occurrences(lines: list, cfg: dict) -> set:
+    out = set()
+    for line in lines:
+        cls = classify_line(line, cfg)
+        if cls[0] == "stone":
+            out.add((cls[1], cls[2]))
+        elif cls[0] == "header":
+            tail = cls[2].lstrip()
+            if tail.startswith(":"):
+                payload = tail[1:].strip()
+                for chunk in _split_inline(payload):
+                    sub = classify_stone_chunk(chunk, cfg)
+                    if sub:
+                        out.add((sub[0], sub[1]))
+    return out
+
+
+def _add_to_own_top(cf, slug: str, sid: str, st, cfg: dict):
+    idx = _content_start(cf.lines)
+    cf.lines.insert(idx, render_stone_line(slug, sid, st.line, cfg))
+
+
+def _add_downstream(cf, source_slug: str, additions: list, stones: dict, cfg: dict):
+    """additions: [(owner, sid), ...] in desired order — insert under the
+    header for `source_slug` (block, one line each; inline, comma-appended),
+    or at the top of the file if no such header exists (§ Propagation)."""
+    hdr_idx = _find_header_index(cf.lines, source_slug, cfg)
+    if hdr_idx is None:
+        insert_idx = _content_start(cf.lines)
+        for owner, sid in additions:
+            cf.lines.insert(insert_idx, render_stone_line(owner, sid, stones[(owner, sid)].line, cfg))
+            insert_idx += 1
+        return
+
+    line = cf.lines[hdr_idx]
+    cls = classify_line(line, cfg)
+    rest = cls[2]
+    tail = rest.lstrip()
+    if tail.startswith(":"):
+        payload = tail[1:].strip()
+        chunks = _split_inline(payload) if payload else []
+        for owner, sid in additions:
+            chunks.append(render_stone_line(owner, sid, stones[(owner, sid)].line, cfg))
+        prefix = line[: len(line) - len(rest)]
+        cf.lines[hdr_idx] = f"{prefix}: " + ", ".join(chunks)
+        return
+
+    # Block form: append after the contiguous run of stone-lines under header.
+    end = hdr_idx + 1
+    while end < len(cf.lines) and classify_line(cf.lines[end], cfg)[0] == "stone":
+        end += 1
+    insert_idx = end
+    for owner, sid in additions:
+        cf.lines.insert(insert_idx, render_stone_line(owner, sid, stones[(owner, sid)].line, cfg))
+        insert_idx += 1
+
+
+def remove_stones(cf, targets: set, cfg: dict):
+    """Drop every block line and inline chunk naming a stone in `targets`."""
+    new_lines = []
+    for line in cf.lines:
+        cls = classify_line(line, cfg)
+        if cls[0] == "stone":
+            if (cls[1], cls[2]) in targets:
+                continue
+            new_lines.append(line)
+        elif cls[0] == "header":
+            _, _hdr_slug, rest = cls
+            tail = rest.lstrip()
+            if tail.startswith(":"):
+                payload = tail[1:].strip()
+                if payload:
+                    kept = []
+                    for chunk in _split_inline(payload):
+                        sub = classify_stone_chunk(chunk, cfg)
+                        if sub and (sub[0], sub[1]) in targets:
+                            continue
+                        kept.append(chunk)
+                    prefix = line[: len(line) - len(rest)]
+                    new_lines.append(f"{prefix}: " + ", ".join(kept) if kept else f"{prefix}:")
+                else:
+                    new_lines.append(line)
+            else:
+                new_lines.append(line)
+        else:
+            new_lines.append(line)
+    cf.lines[:] = new_lines
+
+
+# --------------------------------------------------------------------------
+# The propagation pass (§ Propagation)
+
+def readback(stones: dict, control: dict, cfg: dict):
+    """Any line differing from its stone is an edit of the stone (wherever
+    found). Last writer wins within the pass — compared against each stone's
+    ORIGINAL line:: (as of the start of the pass), not a running value, so a
+    single edit surrounded by untouched stale copies is never mistaken for a
+    later 'edit' reverting it. Then every occurrence is resynced to the final
+    value: convergence, the property the design is tested against."""
+    occ: dict = {}
+    for slug in sorted(control):
+        cf = control[slug]
+        for line in cf.lines:
+            cls = classify_line(line, cfg)
+            if cls[0] == "stone":
+                _, owner, sid, text = cls
+                occ.setdefault((owner, sid), []).append(text)
+            elif cls[0] == "header":
+                tail = cls[2].lstrip()
+                if tail.startswith(":"):
+                    payload = tail[1:].strip()
+                    for chunk in _split_inline(payload):
+                        sub = classify_stone_chunk(chunk, cfg)
+                        if sub:
+                            owner, sid, text = sub
+                            occ.setdefault((owner, sid), []).append(text)
+
+    for key, texts in occ.items():
+        st = stones.get(key)
+        if st is None:
+            continue  # dangling reference — left untouched, not this tool's job
+        original = st.orig_line
+        last_edit = None
+        for text in texts:
+            if text != original:
+                last_edit = text
+        if last_edit is not None and last_edit != st.line:
+            st.line = last_edit
+
+    for slug in sorted(control):
+        cf = control[slug]
+        for i, line in enumerate(cf.lines):
+            cls = classify_line(line, cfg)
+            if cls[0] == "stone":
+                _, owner, sid, text = cls
+                st = stones.get((owner, sid))
+                if st is not None and text != st.line:
+                    cf.lines[i] = render_stone_line(owner, sid, st.line, cfg)
+        for i, line in enumerate(cf.lines):
+            cls = classify_line(line, cfg)
+            if cls[0] != "header":
+                continue
+            _, _hdr_slug, rest = cls
+            tail = rest.lstrip()
+            if not tail.startswith(":"):
+                continue
+            payload = tail[1:].strip()
+            if not payload:
+                continue
+            new_chunks = []
+            any_diff = False
+            for chunk in _split_inline(payload):
+                sub = classify_stone_chunk(chunk, cfg)
+                if sub:
+                    owner, sid, text = sub
+                    st = stones.get((owner, sid))
+                    if st is not None:
+                        nc = render_stone_line(owner, sid, st.line, cfg)
+                        if nc != chunk:
+                            any_diff = True
+                        new_chunks.append(nc)
+                        continue
+                new_chunks.append(chunk)
+            if any_diff:
+                prefix = line[: len(line) - len(rest)]
+                cf.lines[i] = f"{prefix}: " + ", ".join(new_chunks)
+        # write-out compares final text against what was on disk, so a file
+        # with no real difference simply writes a no-op-identical text.
+
+
+def compute_published(slug: str, cf, stones: dict, cfg: dict) -> list:
+    """Stones (owned or merely re-shared) below this anchor's OWN self-section
+    marker — the header, anywhere in its own control file, pointing at its
+    own control file. No marker: nothing is published."""
+    hdr_idx = _find_header_index(cf.lines, slug, cfg)
+    if hdr_idx is None:
+        return []
+    out = []
+    for i, line in enumerate(cf.lines):
+        if i <= hdr_idx:
+            continue
+        cls = classify_line(line, cfg)
+        if cls[0] == "stone":
+            _, owner, sid, _text = cls
+            st = stones.get((owner, sid))
+            if st is not None and st.live:
+                out.append((owner, sid))
+        elif cls[0] == "header":
+            tail = cls[2].lstrip()
+            if tail.startswith(":"):
+                payload = tail[1:].strip()
+                for chunk in _split_inline(payload):
+                    sub = classify_stone_chunk(chunk, cfg)
+                    if sub:
+                        owner, sid, _text = sub
+                        st = stones.get((owner, sid))
+                        if st is not None and st.live:
+                            out.append((owner, sid))
+    return out
+
+
+def reconcile_own(slug: str, stones: dict, control: dict, cfg: dict, stats: dict):
+    """A stone is always present in its own control file — except once: gone
+    from THERE (not merely absent) is the archive signal (§ A stone always
+    appears in its own control file — except once)."""
+    cf = control[slug]
+    owned = sorted(sid for (s, sid) in stones if s == slug)
+    for sid in owned:
+        st = stones[(slug, sid)]
+        if not st.live:
+            continue
+        present = (slug, sid) in _find_all_stone_occurrences(cf.lines, cfg)
+        if present:
+            continue
+        if slug in st.appears:
+            _archive_stone(st)
+            stats["archived"] += 1
+        else:
+            _add_to_own_top(cf, slug, sid, st, cfg)
+            st.appears.add(slug)
+
+
+def propagate_in(slug: str, anchors: dict, stones: dict, control: dict, published: dict, cfg: dict):
+    """Add/remove are silent (§ Adding and removing are silent, and are not
+    events) — driven purely by (a) the feeds: edge existing and (b) the
+    upstream stone's current published-ness, never by anything printed."""
+    cf = control[slug]
+    sources = anchors[slug].feeds
+    desired = set()
+    for src in sources:
+        desired.update(published.get(src, []))
+
+    existing = _find_all_stone_occurrences(cf.lines, cfg)
+    to_remove = {(o, s) for (o, s) in existing if o != slug and (o, s) not in desired}
+    if to_remove:
+        remove_stones(cf, to_remove, cfg)
+        for key in to_remove:
+            stones[key].appears.discard(slug)
+
+    existing_after = _find_all_stone_occurrences(cf.lines, cfg)
+    for src in sources:
+        adds = [key for key in published.get(src, []) if key not in existing_after]
+        if not adds:
+            continue
+        _add_downstream(cf, src, adds, stones, cfg)
+        for key in adds:
+            stones[key].appears.add(slug)
+        existing_after = _find_all_stone_occurrences(cf.lines, cfg)
+
+
+# --------------------------------------------------------------------------
+# Verbs
+
+def _default_control_lines(slug: str, cfg: dict) -> list:
+    control_name = cfg["control"].format(slug=slug)
+    return ["---", f"description: {control_name} — control file", "---", "", f"# {control_name}", ""]
+
+
+def cmd_new(kind: str, cfg: dict, root: Path, args) -> int:
+    anchors = discover_anchors(root)
+    slug = args.anchor
+    if slug not in anchors:
+        raise StoneError(f"no anchor {slug!r} (.anchor) found under {root}")
+    a = anchors[slug]
+
+    folder = _stone_folder(a.path, slug, cfg)
+    folder.mkdir(parents=True, exist_ok=True)
+    archive_dir = folder / "archive"
+    prefix = cfg["prefix"]
+    digits = cfg.get("digits", 4)
+    num_re = re.compile(rf"^{re.escape(slug)} {re.escape(prefix)}(\d{{{digits}}})$")
+
+    nums = []
+    for f in folder.glob(f"{slug} {prefix}*.md"):
+        m = num_re.match(f.stem)
+        if m:
+            nums.append(int(m.group(1)))
+    if archive_dir.is_dir():
+        for f in archive_dir.glob(f"{slug} {prefix}*.md"):
+            m = num_re.match(f.stem)
+            if m:
+                nums.append(int(m.group(1)))
+    next_num = (max(nums) + 1) if nums else 1
+    sid = f"{prefix}{str(next_num).zfill(digits)}"
+    stone_path = folder / f"{slug} {sid}.md"
+    if stone_path.exists():
+        raise StoneError(f"{stone_path} already exists — refusing to overwrite")
+
+    keys = [("line", args.line)]
+    body = args.body or ""
+    stone_path.write_text(_render_stone(keys, body), encoding="utf-8")
+    st = _load_stone(stone_path, slug, live=True)
+
+    cpath = _control_path(a.path, slug, cfg)
+    cpath.parent.mkdir(parents=True, exist_ok=True)
+    lines = cpath.read_text(encoding="utf-8").splitlines() if cpath.is_file() else _default_control_lines(slug, cfg)
+    cf = SimpleNamespace(slug=slug, path=cpath, lines=lines)
+    _add_to_own_top(cf, slug, sid, st, cfg)
+    cpath.write_text("\n".join(cf.lines) + "\n", encoding="utf-8")
+
+    st.appears.add(slug)
+    _write_stone(st)
+
+    print(f"stone: minted {slug} {sid} in {folder.name}/, inserted into {cpath.name}")
+    return 0
+
+
+def cmd_update(kind: str, cfg: dict, root: Path, args) -> int:
+    anchors = discover_anchors(root)
+    if not anchors:
+        raise StoneError(f"no anchors (.anchor) found under {root}")
+
+    stones: dict = {}
+    control: dict = {}
+    for slug, a in anchors.items():
+        folder = _stone_folder(a.path, slug, cfg)
+        prefix = cfg["prefix"]
+        if folder.is_dir():
+            for f in sorted(folder.glob(f"{slug} {prefix}*.md")):
+                if f.is_file():
+                    st = _load_stone(f, slug, live=True)
+                    stones[(slug, st.sid)] = st
+            archive_dir = folder / "archive"
+            if archive_dir.is_dir():
+                for f in sorted(archive_dir.glob(f"{slug} {prefix}*.md")):
+                    if f.is_file():
+                        st = _load_stone(f, slug, live=False)
+                        stones[(slug, st.sid)] = st
+
+        cpath = _control_path(a.path, slug, cfg)
+        exists = cpath.is_file()
+        lines = cpath.read_text(encoding="utf-8").splitlines() if exists else []
+        control[slug] = SimpleNamespace(slug=slug, path=cpath, lines=lines, exists=exists)
+
+    readback(stones, control, cfg)
+
+    order = topo_order(anchors)  # raises + aborts (no writes yet) on a cycle
+
+    stats = {"archived": 0}
+    published: dict = {}
+    for slug in order:
+        reconcile_own(slug, stones, control, cfg, stats)
+        propagate_in(slug, anchors, stones, control, published, cfg)
+        published[slug] = compute_published(slug, control[slug], stones, cfg)
+
+    n_files = 0
+    for cf in control.values():
+        original = cf.path.read_text(encoding="utf-8") if cf.exists else None
+        new_text = "\n".join(cf.lines) + ("\n" if cf.lines else "")
+        if new_text != (original or ""):
+            cf.path.parent.mkdir(parents=True, exist_ok=True)
+            cf.path.write_text(new_text, encoding="utf-8")
+            n_files += 1
+
+    n_stones = 0
+    for st in stones.values():
+        if st.live != st.orig_live or st.line != st.orig_line or set(st.appears) != st.orig_appears:
+            _write_stone(st)
+            n_stones += 1
+
+    # F312 Inv. "no silent empty" — a pass always says what it did, even zero.
+    print(
+        f"stone: {kind} update — {n_files} control file(s) written, "
+        f"{n_stones} stone file(s) written ({stats['archived']} archived), "
+        f"across {len(anchors)} anchor(s)"
+    )
+    return 0
+
+
+# --------------------------------------------------------------------------
+# CLI
+
+def build_parser(cfg_all: dict) -> argparse.ArgumentParser:
+    p = argparse.ArgumentParser(
+        prog="stone",
+        description=(
+            "stone <kind> <verb> — mint and propagate pebbles/rocks (TINK "
+            "F313). Kinds are config-declared, not hard-coded; `stone "
+            "<kind> --help` lists its verbs."
+        ),
+    )
+    kind_subs = p.add_subparsers(dest="kind", required=True)
+    for kind_name in cfg_all:
+        ks = kind_subs.add_parser(kind_name, help=f"{kind_name} stones")
+        verb_subs = ks.add_subparsers(dest="verb", required=True)
+
+        nw = verb_subs.add_parser("new", help="mint a new stone, top of its own control file")
+        nw.add_argument("anchor", help="owning anchor's slug")
+        nw.add_argument("--line", required=True, help="the stone's line:: — the canonical one-line rendering")
+        nw.add_argument("--body", default=None, help="prose body (optional)")
+        nw.add_argument("--root", default=None, help="scan root (default: $ANCHOR_VAULT_ROOT or ~/ob/kmr)")
+
+        up = verb_subs.add_parser("update", help="reconcile + propagate along feeds:")
+        up.add_argument("--root", default=None, help="scan root (default: $ANCHOR_VAULT_ROOT or ~/ob/kmr)")
+    return p
+
+
+def main(argv) -> int:
+    cfg_all = load_kind_config()
+    parser = build_parser(cfg_all)
+    args = parser.parse_args(argv[1:])
+    cfg = cfg_all[args.kind]
+    root = Path(args.root).expanduser().resolve() if args.root else DEFAULT_ROOT
+
+    try:
+        if args.verb == "new":
+            return cmd_new(args.kind, cfg, root, args)
+        if args.verb == "update":
+            return cmd_update(args.kind, cfg, root, args)
+    except StoneError as e:
+        print(str(e), file=sys.stderr)
+        return 1
+
+    print(f"stone: unknown verb {args.verb!r}", file=sys.stderr)
+    return 2
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))
