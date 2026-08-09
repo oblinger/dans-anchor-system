@@ -12,6 +12,8 @@ fixtures below therefore use the encoding the Legend sheet documents:
 """
 import json
 import os
+import pathlib
+import unicodedata
 import shutil
 import subprocess
 import sys
@@ -20,8 +22,7 @@ import zipfile
 
 import openpyxl
 
-TOOL = ("/Users/oblinger/ob/kmr/SYS/Bespoke/Skill Agent/dans-anchor-system/"
-        "skills/disk/scripts/disk_reconcile.py")
+TOOL = str(pathlib.Path(__file__).resolve().with_name("disk_reconcile.py"))
 HDR = ["10T Path", "Frozen", "Bytes", "Files", "8T", "BLACK", "Source", "Notes",
        "Content (SHA-256)", "10T ✓", "M3 disposition"]
 
@@ -99,8 +100,15 @@ def main():
     # entry matching the row's basename, before asserting a clean RELOCATED.
     os.makedirs(dest)
     zip_path = os.path.join(dest, "Broken Archives.zip")
-    with zipfile.ZipFile(zip_path, "w") as zf:
-        zf.writestr("gone.zip", b"stand-in bytes for the moved archive")
+    CATPATH = "__MASTERS__/_ARCHIVES_/gone.zip"
+
+    def write_zip(path, members):
+        """members: {name_inside_zip: byte_length}"""
+        with zipfile.ZipFile(path, "w") as zf:
+            for name, n in members.items():
+                zf.writestr(name, b"x" * n)
+
+    write_zip(zip_path, {f"Broken Archives/{CATPATH}": 500})
     base.append({"10T Path": "_ARCHIVES_", "Bytes": 0, "Files": 0,
                  "M3 disposition": "M3 clean (2026-06-25)"})
     write_catalog(cat, base + [moved])
@@ -111,7 +119,12 @@ def main():
     check("relocated: not counted as contents-unverified either",
           "RELOCATED — CONTENTS UNVERIFIED — 0" in out)
     check("relocated: contents were actually opened and confirmed, not assumed",
-          "contents confirmed" in out and "gone.zip found inside Broken Archives.zip" in out)
+          "contents confirmed" in out
+          and "full catalogued path is listed inside" in out, out[-500:])
+    check("relocated: the declared size was compared, and says so with the number",
+          "declaring exactly the catalogued 500 bytes" in out, out[-500:])
+    check("relocated: admits no CRC was checked — not a byte verification",
+          "no CRC was checked" in out, out[-500:])
 
     # --- Part 2: zip exists but does NOT list the entry -> contents unverified
     good_zip_stash = os.path.join(tmp, "good.zip")
@@ -171,6 +184,40 @@ def main():
           f"rc={rc}")
     shutil.move(os.path.join(dest2, "Broken Archives.zip"), zip_path)
     os.rmdir(dest2)
+
+    # --- the path is there but declares the WRONG size -> a finding ---------
+    # Strictly stronger than a name match: "something called gone.zip is in
+    # there" and "the row's bytes are in there" are different claims.
+    write_zip(zip_path, {f"Broken Archives/{CATPATH}": 499})
+    rc, out = run(root, cat)
+    check("size mismatch: refuses to call it relocated",
+          "RELOCATED (documented, not missing) — 0" in out, out[-500:])
+    check("size mismatch: reports the discrepancy with BOTH numbers",
+          "declares 499 bytes where the catalog records 500" in out, out[-600:])
+    check("size mismatch: exits non-zero", rc == 1, f"rc={rc}")
+
+    # --- right filename at the WRONG path -> located, but explicitly WEAK ---
+    # A bare-name match is how an unrelated hit reads as proof: during the F052
+    # hunt a search for 'Google Drive' matched unrelated Aeolus paths.
+    write_zip(zip_path, {"Broken Archives/somewhere/else/gone.zip": 500})
+    rc, out = run(root, cat)
+    check("wrong path, right name: flagged WEAK MATCH, not proof",
+          "WEAK MATCH" in out, out[-600:])
+    check("wrong path, right name: names where it actually found it",
+          "somewhere/else/gone.zip" in out, out[-600:])
+
+    # --- macOS stores names decomposed; the catalog is typed composed -------
+    nfd_row = dict(moved)
+    nfd_row["10T Path"] = "__MASTERS__/_ARCHIVES_/Resum\u00e9.zip  [MOVED 2026-06-25]"
+    write_zip(zip_path, {"Broken Archives/__MASTERS__/_ARCHIVES_/"
+                         + unicodedata.normalize("NFD", "Resum\u00e9.zip"): 500})
+    write_catalog(cat, base + [nfd_row])
+    rc, out = run(root, cat)
+    check("NFD vs NFC: the same filename is recognised as the same file",
+          "RELOCATED (documented, not missing) — 1" in out, out[-600:])
+
+    write_zip(zip_path, {f"Broken Archives/{CATPATH}": 500})
+    write_catalog(cat, base + [moved])
 
     # --- the same row with NO destination on the drive -> stays missing --
     shutil.move(os.path.join(root, "_ARCHIVES_/Master Reconciliation 2026-06-25"), os.path.join(tmp, "stash"))

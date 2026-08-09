@@ -24,6 +24,9 @@ The cost of that blind spot was real: three 28.8 GB temp files once appeared in 
 | Action | Script | Description |
 |---|---|---|
 | `/disk reconcile <drive>` | `scripts/disk_reconcile.py` | Full four-part reconciliation of `<drive>` against the catalog |
+| `/disk salvage` | `scripts/salvage_zip.py` | Recover the contents of a zip whose container is broken but whose bytes are intact, into a new valid archive |
+
+Both scripts carry a fixture suite beside them — `scripts/test_disk_reconcile.py` (26 cases) and `scripts/test_salvage_zip.py` (17 cases). Run them after any edit; they are self-locating, so they always test the file shipped next to them. That property is not decoration: the reconcile suite previously lived in a scratchpad, pointed at an absolute path, and went stale without anyone noticing when the tool grew its archive-contents check — the assertions kept passing against a message the tool no longer emitted.
 
 Flags:
 
@@ -50,6 +53,25 @@ Flags:
    - **Suppressed** — every exception applied along the way (drive-local `*.tsv` manifests, the catalog workbook itself, `READ ME FIRST.txt`, `SYNC-LOG-*.txt`, macOS per-volume cruft, and dotfiles generically), each with a reason and a count. Nothing is ever dropped silently — a guard that discards without saying so manufactures an invisible miss, which is the exact failure mode this tool exists to catch elsewhere.
 4. **Exit code drives the response.** `0` = clean, nothing to do. `1` = direction (1) or (2), or RELOCATED-CONTENTS-UNVERIFIED, found something — surface it to the user before taking any action; this tool reports, it never deletes or moves anything itself. `2` = setup problem (drive not mounted, catalog unreadable, rsync failed) — fix the setup, don't reinterpret the output.
 5. **Never act on a finding unilaterally.** Missing rows, unexplained entries, and "won't fit" capacity calls all go back to the user — per the Disk disciplines, destructive drive work is confirmed first, every time.
+
+## `/disk salvage` — when the container is broken but the bytes are not
+
+`zip -FF` failing to rebuild an index is **not** the same as the content being gone. A zip's central directory is a lookup table appended at the end; lose it and every entry's local header, data, and CRC are still sitting in the stream. `salvage_zip.py` walks that stream and writes a fresh, valid archive.
+
+```bash
+python3 scripts/salvage_zip.py --outer <archive.zip> --member <path/inside.zip> \
+    --out <new.zip> [--dry-run] [--limit N]
+```
+
+`--outer`/`--member` address a broken zip nested **inside** another archive (the shape the reconciliation archive produces); the member must be `STORED`, and the run refuses outright if it is compressed, because then its bytes are not contiguous and none of the offset arithmetic would be valid. `--dry-run` verifies and writes nothing. `--limit N` stops after N entries — use it to prove the method on a slice before committing hours to a full run.
+
+Three rules it follows, each of which was a bug first:
+
+- **Chain, never scan.** The next local header begins at the byte immediately after this entry's data and descriptor. Searching for `PK\x03\x04` finds false headers inside any nested zip — and any archive holding a `.docx`, `.xlsx`, or `.jar` holds whole nested zips. Signature search survives only as a resync-after-damage fallback, and every resync is counted with the byte span it skipped, because a silent resync is an invisible miss.
+- **Measure, never infer.** Streaming-written entries record `0` in the header's size field and put the real length in a trailing data descriptor. An incremental decompressor reports exactly what it consumed, so the end is measured and the descriptor validated against it. In particular, a **stored** entry whose payload begins with `PK\x03\x04` is a nested zip, not an empty entry — assuming the latter walks the parser straight into the nested archive and emits its inner members as top-level files.
+- **Verify before writing.** Every entry is inflated and CRC-32 checked against the archive's own recorded CRC *before* it goes into the output. An entry that fails is named in a class and left out, and the run exits non-zero. A residual bucket is not a result: every class must have a named cause before a run is trusted.
+
+Finish with `unzip -t` on the output — every member inflated and CRC-checked. `file` reads only the first four bytes and will happily call a truncated archive a zip.
 
 ## What it is not
 

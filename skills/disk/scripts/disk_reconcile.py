@@ -58,6 +58,7 @@ import plistlib
 import re
 import subprocess
 import sys
+import unicodedata
 import zipfile
 from typing import NoReturn
 from dataclasses import dataclass, field
@@ -312,36 +313,100 @@ def never_landed(row, marker) -> bool:
     return bool(row.notes and NEVER_LANDED_RE.search(str(row.notes)))
 
 
-def verify_archive_contents(dest: Path, basename: str):
-    """Open every 'Broken *.zip' archive directly under dest and look for
-    basename inside its namelist. A directory existing is not evidence the
-    bytes are inside it -- this is the entire difference between "the
-    destination is there" and "the file is there".
+def _nfc(s: str) -> str:
+    """macOS stores filenames decomposed (NFD) while the catalog is typed NFC,
+    so 'Resumé' and 'Resumé' are the same file and compare unequal.
+    Every name comparison against archive members goes through here."""
+    return unicodedata.normalize("NFC", s)
+
+
+def verify_archive_contents(dest: Path, real_path: str, expected_bytes=None,
+                            expected_files=None):
+    """Open every 'Broken *.zip' archive directly under dest and look for this
+    row's file inside it. A directory existing is not evidence the bytes are
+    inside it -- that is the entire difference between "the destination is
+    there" and "the file is there".
+
+    The match is GRADED, because the three strengths are not the same claim:
+
+      path+size  the member's full catalogued path is present AND its declared
+                 uncompressed size equals the row's Bytes. The strongest thing
+                 obtainable without inflating 65 GB.
+      path       the full catalogued path is present, but the row carries no
+                 single-file byte count to compare against.
+      basename   only the filename matched, at some other path. Reported as
+                 confirmed but explicitly WEAK -- two files can share a name,
+                 and a bare-name match is how an unrelated hit gets read as
+                 proof (it happened during the F052 hunt: a substring search for
+                 'Google Drive' matched unrelated Aeolus paths).
 
     Returns (state, detail):
-      'confirmed'   - basename found inside a readable zip's namelist
-      'absent'      - readable zip(s) exist under dest, none list basename
-      'no_archive'  - no 'Broken *.zip' archive exists under dest at all
-      'unreadable'  - an archive exists but could not be opened (corrupt/IO)
+      'confirmed'      - found; detail names which strength was achieved
+      'size_mismatch'  - the path IS there but declares different bytes. This is
+                         a finding, not a confirmation, and it outranks every
+                         other failure in the report.
+      'absent'         - readable zip(s) exist under dest, none list the file
+      'no_archive'     - no 'Broken *.zip' archive exists under dest at all
+      'unreadable'     - an archive exists but could not be opened (corrupt/IO)
 
-    An exception opening an archive is reported as its own state, never
-    swallowed into a default -- letting a corrupt archive read as "verified"
-    (by skipping it and falling through) is the exact defect this closes.
+    NOT verified here, and said out loud wherever this is reported: the declared
+    sizes come from the zip central directory. No CRC is checked and nothing is
+    inflated, so same-size corruption would pass. Calling that byte-verified
+    would be the exact error this feature exists to catch.
     """
     archives = sorted(dest.glob(BROKEN_ARCHIVE_ZIP_GLOB))
     if not archives:
         return "no_archive", f"no '{BROKEN_ARCHIVE_ZIP_GLOB}' archive under {dest.name}/"
+    want_path = _nfc(real_path.strip("/"))
+    want_base = _nfc(Path(real_path).name)
+    comparable = expected_bytes is not None and expected_files in (None, 1)
     checked = []
+    weak_hit = None
     for archive in archives:
         try:
             with zipfile.ZipFile(archive) as zf:
-                names = zf.namelist()
+                members = [(_nfc(i.filename), i.file_size) for i in zf.infolist()]
         except (zipfile.BadZipFile, OSError) as exc:
             return "unreadable", f"{archive.name} could not be opened: {exc}"
         checked.append(archive.name)
-        if any(n == basename or n.endswith("/" + basename) for n in names):
-            return "confirmed", f"{basename} found inside {archive.name}"
-    return "absent", f"{basename} not listed in {', '.join(checked)}"
+        for name, size in members:
+            if name == want_path or name.endswith("/" + want_path):
+                if not comparable:
+                    return "confirmed", (
+                        f"the full catalogued path is listed inside "
+                        f"{archive.name} (path match; the row carries no "
+                        f"single-file byte count to compare against). Declared "
+                        f"sizes come from the zip central directory — no CRC "
+                        f"was checked and nothing was inflated")
+                if size == expected_bytes:
+                    return "confirmed", (
+                        f"the full catalogued path is listed inside "
+                        f"{archive.name} declaring exactly the catalogued "
+                        f"{expected_bytes:,} bytes (path + size match). "
+                        f"Declared sizes come from the zip central directory — "
+                        f"no CRC was checked and nothing was inflated, so "
+                        f"same-size corruption would pass this check")
+                return "size_mismatch", (
+                    f"the catalogued path IS inside {archive.name}, but it "
+                    f"declares {size:,} bytes where the catalog records "
+                    f"{expected_bytes:,} — a difference of "
+                    f"{size - expected_bytes:+,}. The bytes are not the bytes "
+                    f"this row claims were preserved")
+        if weak_hit is None:
+            for name, size in members:
+                if name == want_base or name.endswith("/" + want_base):
+                    weak_hit = (archive.name, name, size)
+                    break
+    if weak_hit:
+        aname, found_at, size = weak_hit
+        return "confirmed", (
+            f"WEAK MATCH — '{want_base}' appears inside {aname} at "
+            f"'{found_at}', which is NOT the catalogued path '{want_path}'. A "
+            f"filename can repeat; treat this as located-but-unproven rather "
+            f"than as the row's bytes")
+    return "absent", (
+        f"'{want_path}' is not listed in {', '.join(checked)} — neither at its "
+        f"catalogued path nor under its bare filename")
 
 
 def relocation_verdict(row, root: Path, real_path: str):
@@ -380,10 +445,10 @@ def relocation_verdict(row, root: Path, real_path: str):
     # a second reconciliation date into a wave of false "contents unverified"
     # findings — each one exiting non-zero, which is the expensive direction
     # for a check whose whole value is that a finding means something.
-    basename = Path(real_path).name
     failures = []
     for dest in dests:
-        state, detail = verify_archive_contents(dest, basename)
+        state, detail = verify_archive_contents(
+            dest, real_path, row.bytes, row.files)
         if state == "confirmed":
             return "relocated", (
                 f"all {moved} file(s) moved to {dest.name}/ per the M3 pass; "
@@ -393,7 +458,10 @@ def relocation_verdict(row, root: Path, real_path: str):
     # first: a corrupt archive is a different problem from a merely absent
     # entry, and it must not be hidden behind an earlier dir that simply had
     # no archive in it.
-    rank = {"unreadable": 0, "absent": 1, "no_archive": 2}
+    # size_mismatch outranks everything: "the path is there but the bytes are
+    # different" is a louder finding than "it is not there at all", and it
+    # must not be hidden behind a sibling directory that merely lacked an archive.
+    rank = {"size_mismatch": 0, "unreadable": 1, "absent": 2, "no_archive": 3}
     dest, state, detail = min(failures, key=lambda f: rank[f[1]])
     return "contents_unverified", (
         f"all {moved} file(s) reportedly moved to {dest.name}/, but the "
