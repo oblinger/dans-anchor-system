@@ -2,11 +2,11 @@
 description: Subsystem design for the Code group — the verbs that plan, write, test, and ship code against an anchor's Sparse-Linked repo, keeping design and docs vault-side.
 ---
 
-:>> [[DAS]] → [design](hook://design) → [DAS Code Design](hook://p/DAS%20Code%20Design)
+:>> [[DAS]] → [design](hook://design) → [DAS Code Design](hook://p/DAS%20Code%20Design) 
 # DAS Code Design — the design of the Code subsystem
 Code is the code-work subsystem: its verbs carry a change from spec through implementation, testing, and release against the anchor's linked repo (`code:` → `~/ob/proj/…`), while the design artifacts and documentation stay vault-side.
 
-![[DAS Code Design.svg|3000]]
+![[DAS Code Design.svg|3000]] 
 
 | **Skills**                             |                                                                                                                      |
 | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
@@ -35,7 +35,7 @@ Code is the code-work subsystem: its verbs carry a change from spec through impl
 
 ## Overview
 
-Code's contract: **code lives in the repo, understanding lives in the vault.** The anchor's `.anchor` `code:` key points at the real git repo (`~/ob/proj/…`, Sparse-Linked per [[SKA Decisions]] D12); `/code` runs the work loop against it — read the spec, plan, execute, test, ship — with its sub-actions covering the specialized moves (parallel delegation, root-cause spikes, red-green bugfixes). `/pr-flow` and `/pilot-flow` are the two collaboration shapes (iterative-reviewed vs. top-down-from-design); `/module-doc` writes the vault-side module pages from source so the documentation tracks the code; `/cleanup` keeps the worktree population safe; `/devops` carries the long operational tail (builds, deploys, test machines) under the heartbeat discipline. The git-behavior traits (`commit`, `push`, `pr`, `nogit`) declare per-anchor how autonomously the agent lands work.
+Code's contract: **code lives in the repo, understanding lives in the vault.** The anchor's `.anchor` `code:` key points at the real git repo (`~/ob/grove/…`, Two-Way Doc Mirror per [[DAS Code Repository]] § Doc Mirror); `/code` runs the work loop against it — read the spec, plan, execute, test, ship — with its sub-actions covering the specialized moves (parallel delegation, root-cause spikes, red-green bugfixes). `/pr-flow` and `/pilot-flow` are the two collaboration shapes (iterative-reviewed vs. top-down-from-design); `/module-doc` writes the vault-side module pages from source so the documentation tracks the code; `/cleanup` keeps the worktree population safe; `/devops` carries the long operational tail (builds, deploys, test machines) under the heartbeat discipline. The git-behavior traits (`commit`, `push`, `pr`, `nogit`) declare per-anchor how autonomously the agent lands work.
 
 Boundaries: **Design authors what Code builds** — PRDs, architecture, and specs are Design-subsystem artifacts; Code consumes them (the pilot-flow runbook walks Design's pipeline before touching code). **Anchor owns the marker vocabulary** — `code:` and `mirror:` are `.anchor` keys defined by the Anchor group; Code exercises them. **Drive sequences the work** — `/crank` and `/mint` decide *when* a Dev task runs; Code's verbs are what they dispatch into.
 
