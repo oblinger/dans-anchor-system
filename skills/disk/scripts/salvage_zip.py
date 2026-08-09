@@ -357,8 +357,12 @@ def main():
                     g = descriptor_at(sl, end)
                     if g is None or g[1] != consumed:
                         cls["NO_DESCRIPTOR"] += 1
+                        got = descriptor_at(sl, end)
                         detail["NO_DESCRIPTOR"].append(
-                            f"{name} :: consumed={consumed}")
+                            f"meth={meth} streaming={streaming} "
+                            f"dstart={dstart} consumed={consumed} "
+                            f"end={end} hdr_csz={csz} hdr_usz={usz} "
+                            f"dd_at_end={got} :: {name[-60:]}")
                         pos = end
                         continue
                     exp = g[0]
@@ -467,7 +471,7 @@ def main():
         if detail[cname]:
             print(f"\n-- {cname} ({len(detail[cname])}) first 10 --")
             for s in detail[cname][:10]:
-                print("   ", s[:160])
+                print("   ", s[:400])
     bad = (cls["CRC_MISMATCH"] + cls["INFLATE_FAIL"] + cls["NO_DESCRIPTOR"]
            + cls["STORED_NO_LENGTH"])
     # suspect_innards is a finding in its own right: everything else can be
