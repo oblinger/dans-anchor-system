@@ -415,7 +415,7 @@ SYS/SYS Catalog/Computer/
 <!-- begin example T6.b -->
 | -[[DKT Track]]- | → [[kmr]] → [[prj]] → [[ClaudiMux]] → [[DKT]] → [DKT Track](hook://p/DKT%20Track)<br>: work tracking + planning |
 | --- | --- |
-| [[DKT Backlog\|Backlog]]  | workflow-state backlog |
+| [[DKT Backlog Archive\|Backlog]]  | workflow-state backlog |
 | [[DKT Features\|Features]]  | dated feature specs (F-numbered) |
 | --- | |
 | [[DKT Icebox]]  | Items deferred indefinitely; not on the active backlog. Reactivate by moving back to the appropriate backlog section. |

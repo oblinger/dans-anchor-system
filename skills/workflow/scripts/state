@@ -257,10 +257,37 @@ def _resolve_q_identifier(lines, q_num, slug):
 # ============================================================
 
 
+_ARROW_POINTER_RE = re.compile(r"→\s+\[\[[^\]]+\]\]")
+
+
+def _carry_doc_pointer(old_body, new_body):
+    """T174 — `--body` is a whole-body REPLACEMENT, so a caller passing a
+    completion write-up silently deleted the row's `→ [[doc]]` pointer, the only
+    edge from the backlog row to its feature doc. Worse, the F102 check noticed
+    the pointer was gone and responded by *skipping* the `## Status` block check
+    — spending the one signal that could have caught it on excusing it.
+
+    Carry a leading pointer across when the new body has none. Deliberately not
+    a refusal: the overwhelmingly common case is a caller who wants to say more
+    about the row, not one who wants to sever it from its doc. A caller who
+    genuinely means to drop the pointer passes `--drop-pointer`.
+    """
+    if not old_body or not new_body:
+        return new_body, None
+    if _ARROW_POINTER_RE.search(new_body):
+        return new_body, None
+    m = _ARROW_POINTER_RE.search(old_body)
+    if not m:
+        return new_body, None
+    pointer = m.group(0)
+    return f"{pointer} · {new_body}", pointer
+
+
 def _delegate_row_edit(slug, horizon, row_id_arg, status, title, body,
                        title_provided, body_provided,
                        verify_text=None, next_text=None, pending_subs=None,
-                       why_user=None, user_text=None, why_user_action=None):
+                       why_user=None, user_text=None, why_user_action=None,
+                       drop_pointer=False):
     """Delegate to backlog-edit's perform_edit machinery, mirroring its main()."""
     if status != "delete" and status != "same":
         # Validate status bracket against the closed canonical set.
@@ -292,6 +319,29 @@ def _delegate_row_edit(slug, horizon, row_id_arg, status, title, body,
     src_file, dst_file, dst_horizon = be.resolve_files_for_edit(
         slug, backlog_path, horizon, row_id_arg, status,
     )
+
+    # T174 — carry the existing row's `→ [[doc]]` pointer onto a replacement body
+    # that lacks one. Runs before every write path, including the cross-file move,
+    # so no caller can lose the edge by choosing a different verb.
+    if body_provided and not drop_pointer and status != "delete":
+        existing = None
+        for probe in (src_file, dst_file):
+            if probe is None:
+                continue
+            try:
+                existing = be.read_full_row(probe, row_id_arg)
+            except Exception:
+                existing = None
+            if existing is not None:
+                break
+        if existing is not None:
+            body, carried = _carry_doc_pointer(existing.get("body", ""), body)
+            if carried:
+                print(
+                    f"note: carried the row's doc pointer onto the new body — {carried} "
+                    f"(T174; pass --drop-pointer to sever it deliberately)",
+                    file=sys.stderr,
+                )
 
     if src_file is not None:
         # F250 #1/#2/#4 — cross-file move (Backlog↔Icebox). Read the source
@@ -2119,6 +2169,7 @@ def _row_set(slug, backlog_path, label, args):
         verify_text=args.verify, next_text=args.next_step,
         why_user=getattr(args, "why_user", None),
         user_text=getattr(args, "user", None),
+        drop_pointer=getattr(args, "drop_pointer", False),
         why_user_action=getattr(args, "why_user_action", None),
     )
 
@@ -3990,6 +4041,9 @@ def build_parser():
     # own flag and never reads a body stream. v2 declared --from-file globally
     # and then refused it here at runtime; the per-verb schema is the check.
     s.add_argument("--body", dest="inline", default=None, help="new row body")
+    s.add_argument("--drop-pointer", dest="drop_pointer", action="store_true",
+                   help="T174 — sever the row's `→ [[doc]]` pointer instead of "
+                        "carrying it onto the new --body (default is to carry it)")
 
     r = subs.add_parser(
         "resolve",
