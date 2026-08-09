@@ -2,6 +2,12 @@
 *.pyc
 __pycache__/
 warden/rs/target/
+
+# cab-audit.py's on-demand parse cache — 172 JSON files mirroring the repo's own
+# source tree, regenerated on every run. Not ignored until 2026-08-08, so it sat
+# as untracked noise in `git status` and was one `git add -A` away from landing
+# in a public repo.
+.skl/
 .DS_Store
 
 # Private vault paths cited by Stencil tests — this repo is PUBLIC.
