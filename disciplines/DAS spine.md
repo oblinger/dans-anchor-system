@@ -56,7 +56,9 @@ Read the two families as the decision and the six as the calibration. If the one
 
 A rule that admits no exception gets weakened the first time it is genuinely wrong, and a weakened rule stops catching the cases it was right about. So the two-way rule is strict *because* there is a way out: a numbered, graded row in the anchor's `{slug} Track/{slug} Exceptions.md`, scoped to the one document, with a sentence saying why the strict fix is not being taken ([[R-exception-discipline]]).
 
-An agent writes that row itself, graded `?`, the moment it decides a deviation is right — which **suppresses nothing** and makes the proposal durable and reviewable instead of an argument in a chat log. Grading it `A`–`F` is the user's act, and that is what makes it bind.
+**On the spine rules specifically, the agent asks before it writes the row.** Most checked rules let an agent record a proposal freely, graded `?`, and that proposal suppresses nothing until the user grades it. The three rules that enforce the spine — `R-progressive-01`, `-03`, `-04` — instead carry `confirm:: user`, because there should not be many exceptions to a two-way rule and each one deserves a conversation. An ungraded row against them **fails** the anchor's exception table, so the proposal cannot sit as a permanent pending; the agent asks, and records the grade it is given.
+
+Grading is the user's act either way, and the grade is a scale: `A`–`C` suppresses the finding, `D` or lower records the refusal while the finding goes on failing — so *"I read this and the answer is no"* is a thing the table can hold, rather than something that has to be said by deleting the row and losing why it was ever proposed.
 
 The live case is `Agent Purview`, `Agent Conventions` and `Agent Roster` — [[Agent Memory]]'s own siblings — which open frontmatter → H1 → summary, with neither a breadcrumb nor a masthead. That is a third opening this rule says should not exist. Whether they are a legitimate variant or four documents needing a breadcrumb is a real question, not a formality; either way the answer gets written down where the audit can see it.
 

@@ -160,8 +160,9 @@ with tempfile.TemporaryDirectory() as td:
         td, "| EX001 | R-progressive-03 |  | A | target cell empty. |\n"
             "| EX002 | R-progressive-03 | FIX Thing.md | A |  |\n"
             "| EX003 | R-progressive-03 | FIX Thing.md | Z | bad grade. |\n")
-    rows, problems = ap.load_exceptions(root)
+    rows, declined, problems = ap.load_exceptions(root)
     check("no malformed row is admitted", rows, [])
+    check("a malformed row is not quietly filed as merely declined", declined, [])
     check("every malformed row is reported", len(problems), 3)
     check("the report names the offending EX handle",
           all(any(h in p for p in problems) for h in ("EX001", "EX002", "EX003")),
@@ -229,6 +230,97 @@ with tempfile.TemporaryDirectory() as td:
     rep = ap.execute_on_write(plan, None)
     check("on-write: a proposed (`?`) row still raises the message",
           [m["rule"] for m in rep["messages"]], ["R-progressive-03"])
+
+
+# ── 9. the grade is a scale, not a rubber stamp: A-C suppress, D and below do not ──
+#
+# Dan 2026-08-08: "we just auto fail if it's got a rating of D or lower or just
+# not there." Before this, every letter A-F did the same thing, which made the
+# column a binary wearing a scale's clothes and left no way to say "I read this
+# and the answer is no" except to delete the row — losing the record of why the
+# deviation was ever proposed, so the next agent proposes it again.
+
+for grade, suppresses in (("A", True), ("B", True), ("C", True),
+                          ("D", False), ("E", False), ("F", False)):
+    with tempfile.TemporaryDirectory() as td:
+        root, doc, other = build_anchor(
+            td, f"| EX001 | R-progressive-03 | FIX Thing.md | {grade} | judged. |\n")
+        rep = ap.execute_plan(plan_for(root, [doc]), None)
+        check(f"grade {grade} {'suppresses' if suppresses else 'does NOT suppress'}",
+              statuses(rep), ["except"] if suppresses else ["fail"])
+
+with tempfile.TemporaryDirectory() as td:
+    root, doc, other = build_anchor(
+        td, "| EX001 | R-progressive-03 | FIX Thing.md | D | not good enough. |\n")
+    rows, declined, problems = ap.load_exceptions(root)
+    check("a D-graded row is well-formed, not an error", problems, [])
+    check("a D-graded row is not admitted", rows, [])
+    check("a D-graded row is kept as a declined record", [d["handle"] for d in declined],
+          ["EX001"])
+    rep = ap.execute_plan(plan_for(root, [doc]), None)
+    check("a refused row is reported, never silently inert",
+          [d["handle"] for d in rep["declined_exceptions"]], ["EX001"])
+    check("a refused row is NOT reported as stale — it did exactly what it says",
+          rep.get("stale_exceptions"), [])
+    check("the verdict render names the refusal",
+          "EX001" in ap.render_verdicts(rep) and "below the C floor" in
+          ap.render_verdicts(rep), True)
+
+
+# ── 10. `confirm:: user` — the agent may not except a rule on its own say-so ──
+#
+# The gate is the grade, because a grade is the user's act. So an ungraded row
+# against a confirm-rule is a table waiting on a conversation, and it goes RED
+# until the conversation happens. Without this, "ask me first" is a sentence in a
+# document that reads identically whether or not anyone obeys it — the exact
+# failure R-exception-discipline itself spent a month demonstrating.
+
+def exc_file(root):
+    return root / "FIX Track" / "FIX Exceptions.md"
+
+
+# The live catalog is the authority on which rules carry the marker; asserting it
+# here is what makes the marker's disappearance a test failure rather than a
+# silent loss. F308 M2 moves these rules into `R-spine` — when it does, the
+# marker moves with them and this tuple is updated in the same pass.
+SPINE_RULES = ("R-progressive-01", "R-progressive-03", "R-progressive-04")
+for rid in SPINE_RULES:
+    check(f"{rid} (spine) requires user confirmation",
+          ap.rule_requires_user_confirmation(rid), True)
+check("a rule with no marker does not require confirmation",
+      ap.rule_requires_user_confirmation("R-progressive-02"), False)
+check("an unresolvable rule id does not silently become a confirm-rule",
+      ap.rule_requires_user_confirmation("R-nonexistent-01"), False)
+
+with tempfile.TemporaryDirectory() as td:
+    root, doc, other = build_anchor(
+        td, "| EX001 | R-progressive-03 | FIX Thing.md | ? | proposed by the agent. |\n")
+    status, detail = ap.chk_exceptions_table_wellformed(exc_file(root), root, [])
+    check("an ungraded row against a confirm-rule fails the table", status, "fail")
+    check("the failure names the row and the reason",
+          "EX001" in detail and "confirm" in detail, True)
+
+with tempfile.TemporaryDirectory() as td:
+    root, doc, other = build_anchor(
+        td, "| EX001 | R-progressive-03 | FIX Thing.md | B | user graded it. |\n")
+    status, detail = ap.chk_exceptions_table_wellformed(exc_file(root), root, [])
+    check("a graded row against a confirm-rule passes", status, "pass")
+
+with tempfile.TemporaryDirectory() as td:
+    root, doc, other = build_anchor(
+        td, "| EX001 | R-progressive-03 | FIX Thing.md | D | user refused it. |\n")
+    status, detail = ap.chk_exceptions_table_wellformed(exc_file(root), root, [])
+    check("a REFUSED row against a confirm-rule also passes the table — the "
+          "conversation happened and the answer was no", status, "pass")
+    check("the table reports the non-suppressing row rather than reading clean",
+          "not suppressing" in detail, True)
+
+with tempfile.TemporaryDirectory() as td:
+    root, doc, other = build_anchor(
+        td, "| EX001 | R-progressive-02 | FIX Thing.md | ? | proposed by the agent. |\n")
+    status, detail = ap.chk_exceptions_table_wellformed(exc_file(root), root, [])
+    check("an ungraded row against an ordinary rule is fine — the agent may "
+          "propose freely where the rule does not demand a conversation", status, "pass")
 
 
 print(f"test-f314-exceptions: {passed} passed, {failed} failed")

@@ -5,8 +5,11 @@ import:: skills/audit/scripts/audit-plan.py
 
 The mechanical, whole-document layout checks of this discipline: the **conditional dispatch-table** placement and the **section-spacing** conventions. Applies to every markdown document (`always`); each rule decides internally whether and how it constrains a given doc. These are the deliberately *conditional, multi-check* rules — one rule that both determines what kind of doc it is looking at and makes several assertions accordingly — the case that stress-tests a declarative rule engine (per the [[Warden Roadmap]] item 8). Format of this set: [[DAS Ruleset]].
 
+**`-01`, `-03` and `-04` carry `confirm:: user`.** They are the three that enforce the spine — the rule that every file opens exactly one of two ways ([[DAS spine]]) — and there should not be many exceptions to it, so an agent may not accept one unaided: it asks, then records the grade it is given. An ungraded proposal against these three fails the anchor's exception table rather than sitting there pending ([[R-exception-discipline]] -09). When F308 M2 extracts `R-spine`, the marker moves with the rules.
+
 ### RULE R-progressive-01 — never both a dispatch-masthead and a `:>>` breadcrumb (checked)
 check:: dispatch_table_by_context
+confirm:: user
 mend:: doc-navigation-form
 
 A doc uses **one** navigation form, never two: a **dispatch-masthead** marks the page that *is* a container (the anchor page); a **`:>>` breadcrumb** is the navigation on every other doc. A doc must **never carry both**.
@@ -27,6 +30,7 @@ The blank-line conventions that keep a doc's outline scannable: every `## H2` is
 
 ### RULE R-progressive-03 — Standard doc head: breadcrumb → H1 → orientation line (checked)
 check:: doc_head_orientation_line
+confirm:: user
 mend:: doc-head
 
 Every markdown doc opens with the `# H1` carrying the file's name (optionally ` — <subname or explanation>`), then an **orientation line** directly under it — a single sentence stating, at the coarsest grain, what this file is / what this item is about. Navigation takes exactly one of two forms (mutually exclusive per `R-progressive-01`):
@@ -53,6 +57,7 @@ Sits under [[R-doc]] (cross-cutting documentation conventions umbrella), beside 
 
 ### RULE R-progressive-04 — An index doc fronting a folder carries a dispatch table (checked)
 check:: summary_present_iff_complex
+confirm:: user
 A doc that is its folder's **same-named index** (`Foo/Foo.md`), or that carries a `.anchor` beside it, summarizes the *folder*, not itself — so it opens with a **dispatch table linking the members**, letting a reader reach any of them in one click. Scope is read mechanically from that structure; no declaration is needed. Deliberately **not** extended to file-scope docs: a long doc's own table of contents is already `R-doc-structure-03` (`toc_table_iff_long`, same 300-line floor), and a second rule for one constraint is the duplication this system forbids. "Leave it deliberately" stays a legitimate outcome — the rule forces the consideration, not a particular table.
 **Check pattern:** a same-named index (or `.anchor` sibling) whose folder holds ≥1 other `.md` carries ≥1 member wiki-link or dispatch row.
 **Why:** absence, not staleness, is the primary progressive-disclosure failure — the rule was long stated in prose and largely unfollowed because nothing in the write path forced the check. A folder index with no member links makes the reader open the folder to learn what is in it, defeating the point of having an index at all.

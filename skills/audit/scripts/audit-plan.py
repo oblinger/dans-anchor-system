@@ -188,6 +188,7 @@ def parse_ruleset_block(block: list[str], source: Path) -> dict:
     rs = {
         "name": header.group(2),
         "where": None,
+        "confirm": None,
         "description": None,
         "includes": [],
         "imports": [],
@@ -214,6 +215,11 @@ def parse_ruleset_block(block: list[str], source: Path) -> dict:
             rs["imports"].extend(_strip_ticks(p) for p in re.split(r"[,\s]+", val) if p.strip())
         elif key == "where":
             rs["where"] = _strip_ticks(val) or None
+        elif key == "confirm":
+            # `confirm:: user` (F314) — this ruleset's rules may not be excepted
+            # on the agent's own say-so. Inherited by every rule in the set
+            # unless a rule overrides it, exactly like `where::`.
+            rs["confirm"] = _strip_ticks(val) or None
         elif key == "description":
             rs["description"] = val or None
         i += 1
@@ -237,6 +243,7 @@ def parse_ruleset_block(block: list[str], source: Path) -> dict:
                 "title": rm.group(2).strip(),
                 "tier": rm.group(3),
                 "where": None,
+                "confirm": None,
                 "check": None,
                 "fix": None,
                 "check_pattern": None,
@@ -248,9 +255,9 @@ def parse_ruleset_block(block: list[str], source: Path) -> dict:
             continue
         s = ln.strip()
         wm = _FIELD_RE.match(s)
-        if wm and wm.group(1) in ("where", "check", "fix"):
+        if wm and wm.group(1) in ("where", "check", "fix", "confirm"):
             fv = wm.group(2).strip()
-            if wm.group(1) == "where":
+            if wm.group(1) in ("where", "confirm"):
                 fv = _strip_ticks(fv)
             cur[wm.group(1)] = fv or None
         elif s.startswith("**Check pattern:**"):
@@ -637,6 +644,13 @@ def flatten_umbrella_cached(umbrella: str, cdir: Path | None, warnings: list[str
 def effective_where(rule: dict, ruleset: dict) -> str:
     """Precedence: rule.where > ruleset.where > 'always'."""
     return rule.get("where") or ruleset.get("where") or "always"
+
+
+def effective_confirm(rule: dict, ruleset: dict) -> str | None:
+    """Precedence: rule.confirm > ruleset.confirm > None. Same shape as
+    `effective_where`, because the question it answers is the same kind: a
+    property a ruleset sets for all its rules and any one rule may override."""
+    return rule.get("confirm") or ruleset.get("confirm") or None
 
 
 def parse_selector(where: str) -> tuple[str, str]:
@@ -5803,10 +5817,27 @@ def chk_exceptions_table_wellformed(target, anchor_root, args):
         return "fail", (f"exception table at {target.name} is not read by the audit "
                         f"engine — the one path is "
                         f"{_exceptions_file(anchor_root).relative_to(anchor_root)}")
-    rows, problems = load_exceptions(anchor_root)
+    rows, declined, problems = load_exceptions(anchor_root)
     if problems:
         return "fail", "; ".join(problems[:4])
-    return "pass", f"{len(rows)} approved"
+    # A rule marked `confirm:: user` may not be excepted on the agent's own say-so
+    # (F314, Dan 2026-08-08: "it should ask me before it puts an exception in
+    # because there shouldn't be that many exceptions to the rule"). The grade IS
+    # the confirmation — it is the user's act — so an ungraded row against such a
+    # rule is a table that is waiting on a conversation, and it goes red until the
+    # conversation happens. This is the whole enforcement surface: without it,
+    # "ask first" is a sentence in a document that reads identically whether or
+    # not anyone obeys it.
+    unconfirmed = [r["handle"] for r in declined
+                   if r["grade"] == "?" and rule_requires_user_confirmation(r["rule"])]
+    if unconfirmed:
+        return "fail", (f"{', '.join(unconfirmed)} propose an exception to a rule that "
+                        f"requires your confirmation first (`confirm:: user`) — ask, "
+                        f"then record the grade you are given")
+    detail = f"{len(rows)} approved"
+    if declined:
+        detail += f", {len(declined)} recorded but not suppressing"
+    return "pass", detail
 
 
 CHECKERS = {
@@ -6044,8 +6075,49 @@ def _verdict_cache_put(cdir: Path, key: str, value: dict):
 # strict where it should be.
 
 _EXC_GRADES = frozenset("ABCDEF")
+# Only A-C suppress. `D` or lower is a grade the user CAN give and means "I read
+# this deviation and it is not good enough" — so the row stays as a durable
+# record of the judgment while the finding goes on failing. Without the split,
+# grading was a binary dressed as a scale: every letter A-F did the same thing,
+# which made the column decorative and left the user no way to say "recorded,
+# and no" short of deleting the row and losing why it was ever proposed.
+_EXC_PASSING = frozenset("ABC")
 _EXC_HANDLE_RX = re.compile(r"^EX\d{3,}$")
 _EXC_RULE_RX = re.compile(r"^R-[a-z0-9-]+-\d{2}$")
+_RULESET_OF_RULE_RX = re.compile(r"^(R-[a-z0-9-]+)-\d{2}$")
+_CONFIRM_MEM: dict[str, bool] = {}
+
+
+def rule_requires_user_confirmation(rule_id: str) -> bool:
+    """True when this rule's ruleset declares `confirm:: user` (F314).
+
+    Read from the rule catalog rather than from a list kept here, so the rules
+    that need a conversation before they can be excepted are declared in the one
+    place a reader of the rule would look — next to the rule itself.
+
+    Resolution is by name: `R-spine-02` lives in `R-spine`. That is the same
+    identity the exception table's Rule column already asserts, so a rule id that
+    resolves to nothing is a malformed row, caught separately by the `^R-…-\\d\\d$`
+    shape check rather than silently read as unconfirmed."""
+    if rule_id in _CONFIRM_MEM:
+        return _CONFIRM_MEM[rule_id]
+    verdict = False
+    m = _RULESET_OF_RULE_RX.match(rule_id)
+    if m:
+        fp = resolve_file(m.group(1))
+        if fp is not None:
+            try:
+                blk = extract_ruleset_block(_read(fp), m.group(1))
+            except OSError:
+                blk = None
+            if blk:
+                rs = parse_ruleset_block(blk[0], fp)
+                for r in rs["rules"]:
+                    if r["id"] == rule_id:
+                        verdict = effective_confirm(r, rs) == "user"
+                        break
+    _CONFIRM_MEM[rule_id] = verdict
+    return verdict
 
 
 def _exceptions_file(anchor_root: Path) -> Path:
@@ -6082,21 +6154,28 @@ def _exceptions_owner(anchor_root: Path) -> tuple[Path, Path]:
     return anchor_root, anchor_root / f"{slug} Track" / f"{slug} Exceptions.md"
 
 
-def load_exceptions(anchor_root: Path) -> tuple[list[dict], list[str]]:
-    """Parse the anchor's exception table. Returns (admitted, problems).
+def load_exceptions(anchor_root: Path) -> tuple[list[dict], list[dict], list[str]]:
+    """Parse the anchor's exception table. Returns (admitted, declined, problems).
 
-    `admitted` holds only APPROVED rows — grade A–F. A row graded `?` is the
-    agent's proposal: it is well-formed, it is durable and reviewable in the
-    anchor's own tree, and it suppresses nothing. That column IS the approval
-    gate, so a leak here would hand the agent every exception it ever wants.
+    `admitted` holds only rows graded A–C. Two other outcomes are well-formed and
+    deliberately kept as rows rather than dropped:
+
+    - **`?` — proposed.** The agent's own record of a deviation it accepted. It
+      is durable and reviewable in the anchor's own tree, and it suppresses
+      nothing. That column IS the approval gate, so a leak here would hand the
+      agent every exception it ever wants.
+    - **`D`–`F` — refused.** The user read the proposal and judged it poor. The
+      finding keeps failing, and the row survives so the next agent to meet the
+      same violation finds the answer already given instead of re-proposing it.
 
     `problems` is never empty-on-malformed: a row with a typo'd rule id would
     otherwise stop applying with no signal at all, which is exactly how an
     exception table decays into a pile nobody trusts."""
     fp = _exceptions_file(anchor_root)
     if not fp.is_file():
-        return [], []
+        return [], [], []
     admitted: list[dict] = []
+    declined: list[dict] = []
     problems: list[str] = []
     for ln in _read(fp).splitlines():
         if not _is_table_row(ln):
@@ -6116,12 +6195,19 @@ def load_exceptions(anchor_root: Path) -> tuple[list[dict], list[str]]:
             bad.append(f"grade {grade!r} is not A-F (or `?` for proposed)")
         if not why:
             bad.append("no justification")
+        row = {"handle": handle, "rule": rule, "target": target,
+               "grade": grade, "why": why}
         if bad:
             problems.append(f"{handle}: " + "; ".join(bad))
-        elif grade != "?":
-            admitted.append({"handle": handle, "rule": rule, "target": target,
-                             "grade": grade, "why": why})
-    return admitted, problems
+        elif grade in _EXC_PASSING:
+            admitted.append(row)
+        else:
+            row["declined"] = ("ungraded — suppresses nothing until you grade it"
+                               if grade == "?" else
+                               f"graded {grade} — below the C floor, so it records "
+                               f"the judgment without suppressing")
+            declined.append(row)
+    return admitted, declined, problems
 
 
 def _exception_for(excs: list[dict], rule_id: str, target: Path,
@@ -6161,7 +6247,7 @@ def execute_plan(plan: dict, cdir: Path | None) -> dict:
     # `except` (F314) is a fifth, and it is deliberately NOT folded into `pass`:
     # a corpus with forty accepted deviations must never read like one with none.
     counts = {"pass": 0, "fail": 0, "warn": 0, "except": 0, "error": 0, "cached": 0}
-    excs, exc_problems = load_exceptions(anchor_root)
+    excs, exc_declined, exc_problems = load_exceptions(anchor_root)
     used: set[str] = set()
     for g in plan["groupings"]:
         for r in g["rules"]:
@@ -6196,8 +6282,8 @@ def execute_plan(plan: dict, cdir: Path | None) -> dict:
     # claim to know which, only that the row did no work, because an unused row
     # left silent is how the table stops being reviewable.
     stale = [e["handle"] for e in excs if e["handle"] not in used]
-    return {"counts": counts, "results": results,
-            "stale_exceptions": stale, "exception_problems": exc_problems}
+    return {"counts": counts, "results": results, "stale_exceptions": stale,
+            "declined_exceptions": exc_declined, "exception_problems": exc_problems}
 
 
 def render_verdicts(report: dict) -> str:
@@ -6214,6 +6300,8 @@ def render_verdicts(report: dict) -> str:
         out.append(line)
     for p in report.get("exception_problems", []):
         out.append(f"! exception row malformed — {p}")
+    for d in report.get("declined_exceptions", []):
+        out.append(f"~ {d['handle']} ({d['rule']}) — {d['declined']}")
     stale = report.get("stale_exceptions", [])
     if stale:
         out.append("~ exception(s) that did no work this run (stale, or the rule "
@@ -6477,7 +6565,7 @@ def execute_on_write(plan: dict, cdir: Path | None) -> dict:
     # `fix::` that repaired a document carrying an approved deviation would undo
     # the exception silently on the next save — the auto-fixer being the thing
     # that erases the record of why the file is the way it is.
-    excs, exc_problems = load_exceptions(anchor_root)
+    excs, exc_declined, exc_problems = load_exceptions(anchor_root)
     for g in plan["groupings"]:
         for r in g["rules"]:
             chk = r.get("check")
@@ -6515,6 +6603,7 @@ def execute_on_write(plan: dict, cdir: Path | None) -> dict:
                 messages.append({"rule": r["id"], "target": disp, "detail": detail,
                                  "why": r.get("why"), "check_pattern": r.get("check_pattern")})
     return {"fixed": fixed, "messages": messages, "excepted": excepted,
+            "declined_exceptions": exc_declined,
             "exception_problems": exc_problems}
 
 
@@ -6532,6 +6621,8 @@ def render_on_write(report: dict) -> str:
                    f"{e['handle']} (grade {e['grade']})")
     for p in report.get("exception_problems", []):
         out.append(f"! exception row malformed, suppressing nothing — {p}")
+    for d in report.get("declined_exceptions", []):
+        out.append(f"~ {d['handle']} ({d['rule']}) — {d['declined']}")
     return "\n".join(out) if out else "(clean — nothing to fix or flag)"
 
 
@@ -6632,7 +6723,8 @@ def render_report(plan: dict, mech: dict, man: dict) -> str:
     excepted = [v for v in mech["results"] if v["status"] == "except"]
     probs = mech.get("exception_problems", [])
     stale = mech.get("stale_exceptions", [])
-    if excepted or probs or stale:
+    declined = mech.get("declined_exceptions", [])
+    if excepted or probs or stale or declined:
         out.append(f"## accepted deviations ({len(excepted)} suppressed — "
                    f"see `{_anchor_slug(Path(plan['anchor_root']))} Exceptions.md`)")
         for v in excepted:
@@ -6640,6 +6732,12 @@ def render_report(plan: dict, mech: dict, man: dict) -> str:
                        + (f"  ({v['detail']})" if v["detail"] else ""))
         for p in probs:
             out.append(f"- ! malformed exception row, suppressing nothing — {p}")
+        # A refused or still-ungraded row is neither an accepted deviation nor a
+        # stale one, and printing it alongside both is what keeps the table's
+        # third state from reading as either of the other two.
+        for d in declined:
+            out.append(f"- ~ {d['handle']} ({d['rule']} on `{d['target']}`) — "
+                       f"{d['declined']}")
         if stale:
             out.append("- ~ did no work this run (stale, or the rule was out of "
                        f"scope): {', '.join(stale)}")
