@@ -123,6 +123,25 @@ def descriptor_at(sl, p):
     return None
 
 
+def size_matches(recorded, measured):
+    """Does a descriptor's 32-bit size field agree with a measured length?
+
+    Directly, or modulo 2**32. A zip writer that meets a >4 GB entry is
+    supposed to switch to the ZIP64 24-byte descriptor; some do not, and emit
+    the ordinary 16-byte record holding the size WRAPPED. Two entries in the
+    2019 Drive archive do exactly this -- a 5,546,452,494-byte stream recorded
+    as 1,251,485,198, which is the true length minus exactly 2**32.
+
+    Rejecting those cost two real files (a .mov and a database backup) and two
+    resyncs. Accepting the wrap costs nothing, because the CRC-32 in the same
+    descriptor is unaffected by the truncation and still has to match before
+    anything is written -- the size field is a hint, the CRC is the proof.
+    """
+    if recorded == measured:
+        return True
+    return measured >= 1 << 32 and recorded == (measured & 0xFFFFFFFF)
+
+
 def inflate_measure(sl, start, sink=None):
     """Inflate the raw-deflate stream at `start`.
 
@@ -303,7 +322,7 @@ def main():
                                 if p < 0:
                                     break
                                 gg = descriptor_at(sl, p)
-                                if gg and gg[1] == p - dstart:
+                                if gg and size_matches(gg[1], p - dstart):
                                     found = p
                                     break
                                 probe = p + 4
@@ -355,7 +374,12 @@ def main():
                 exp = crc
                 if streaming:
                     g = descriptor_at(sl, end)
-                    if g is None or g[1] != consumed:
+                    if g is not None and g[1] != consumed and size_matches(g[1], consumed):
+                        cls["DESCRIPTOR_SIZE_WRAPPED"] += 1
+                        detail["DESCRIPTOR_SIZE_WRAPPED"].append(
+                            f"recorded={g[1]} measured={consumed} "
+                            f"(+2**32) :: {name[-60:]}")
+                    if g is None or not size_matches(g[1], consumed):
                         cls["NO_DESCRIPTOR"] += 1
                         got = descriptor_at(sl, end)
                         detail["NO_DESCRIPTOR"].append(
@@ -417,7 +441,19 @@ def main():
                         zi.date_time = (1980, 1, 1, 0, 0, 0)
                     zi.compress_type = zipfile.ZIP_DEFLATED
                     zi.external_attr = 0o644 << 16
-                    with out.open(zi, "w") as fh_out:
+                    # zipfile decides whether an entry needs ZIP64 extensions
+                    # from zinfo.file_size BEFORE any data is written, and
+                    # raises "File size unexpectedly exceeded ZIP64 limit" if
+                    # the truth turns out larger. Leaving file_size at its 0
+                    # default therefore fails on exactly the >4 GB entries this
+                    # archive contains -- the mirror image of the read-side bug,
+                    # where the ORIGINAL writer also failed to use ZIP64 and
+                    # wrapped its size field instead. Set it from the measured
+                    # length, and force the extensions when the entry is large
+                    # enough that the estimate could go either way.
+                    zi.file_size = usize
+                    with out.open(zi, "w",
+                                  force_zip64=usize >= (1 << 31)) as fh_out:
                         for b in blocks:
                             fh_out.write(b)
                     written += 1
@@ -430,7 +466,8 @@ def main():
     report(final=True)
     total = sum(v for k, v in cls.items()
                 if k not in ("REACHED_CENTRAL_DIRECTORY",
-                             "NESTED_ARCHIVE_MEASURED"))
+                             "NESTED_ARCHIVE_MEASURED",
+                             "DESCRIPTOR_SIZE_WRAPPED"))
     clean = cls["RECOVERED"] + cls["DIRECTORY"]
     print("\n=== salvage result ===")
     for k, v in cls.most_common():
@@ -443,6 +480,14 @@ def main():
     print(f"resyncs: {len(resyncs)}   bytes skipped: "
           f"{sum(n for _, n in resyncs):,}")
     nested = cls.get("NESTED_ARCHIVE_MEASURED", 0)
+    wrapped = cls.get("DESCRIPTOR_SIZE_WRAPPED", 0)
+    print(f"\nentries whose descriptor size was wrapped mod 2**32: {wrapped:,}")
+    if wrapped:
+        print("  Each is larger than 4 GB and its writer emitted a 32-bit")
+        print("  descriptor instead of the ZIP64 form. Accepted on the strength")
+        print("  of the CRC, which the truncation does not affect. Listed below.")
+        for d in detail["DESCRIPTOR_SIZE_WRAPPED"][:10]:
+            print(f"     {d}")
     print(f"\nnested archives measured by descriptor: {nested:,}")
     if nested:
         print("  Each of these is a STORED entry whose payload begins with a")
