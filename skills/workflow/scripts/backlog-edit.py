@@ -928,11 +928,22 @@ def option_labels(body):
 #
 #     - **Risk of (A):** file — the pass rewrites 1350 anchor pages and their
 #       prose has no backup.
+# `money` was added 2026-08-10 on a casualty report from [[Munger]] (CFO), and
+# it is the one class here that names something OUTSIDE the vault. Munger was
+# blocked minting a genuine user decision — how deep to set the floor on a real
+# options collar — because every class above describes vault damage and none of
+# them fits "Dan's money, via an irreversible fill at a broker". The gate then
+# told it that a casualty it could not name meant the question should
+# auto-resolve, which converts a missing word into an instruction to decide
+# someone's money without asking. An anchor that TRANSACTS rather than writes
+# had no valid casualty to name at all.
 RISK_CASUALTIES = {
     "file": "a file, a document, or prose that would be damaged or lost",
     "interface": "a name, schema, path or CLI that other code hard-codes",
     "commitment": "a promise already made to a person or a downstream dependant",
     "time": "a named person's time — say WHOSE, and roughly how much",
+    "money": "the user's money or another real-world asset, through an action "
+             "outside the vault that cannot be recalled",
     "interpretation": "nothing in the vault — only my own reading of what you "
                       "asked for is at stake",
 }

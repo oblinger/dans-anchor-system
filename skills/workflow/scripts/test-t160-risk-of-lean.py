@@ -289,5 +289,34 @@ except be.BacklogEditError:
     ok("`define` refuses, and left the doc untouched") if f.read_text() == DOC \
         else no("define refused but wrote the doc anyway")
 
+# ---- G: money — a casualty OUTSIDE the vault --------------------------------
+print("== G: `money` — a casualty outside the vault (CFO report, 2026-08-10) ==")
+# Munger could not mint a real user decision about an options-collar floor:
+# every class named vault damage, and the gate's own advice for an unnameable
+# casualty is "then auto-resolve" — i.e. decide someone's money without asking.
+# So `money` must both parse AND stay out of RISK_AUTO_RESOLVE.
+_opt, _cas, _why = be.parse_risk_of_lean(
+    body("Lean (A). x",
+         risk="(A):** money — a collar filled at the wrong floor pays the "
+              "spread on both legs and cannot be unwound at yesterday's mark"))
+if (_opt, _cas) == ("A", "money"):
+    ok("`money` parses as a casualty class")
+else:
+    no(f"got option={_opt!r} casualty={_cas!r}")
+if _why.startswith("a collar filled at the wrong floor"):
+    ok("the money narrative carries through")
+else:
+    no(f"narrative wrong: {_why!r}")
+if "money" not in be.RISK_AUTO_RESOLVE:
+    ok("`money` does NOT auto-resolve — it reaches the user")
+else:
+    no("`money` wrongly auto-resolves — the gate would spend it silently")
+try:
+    be.parse_risk_of_lean(body("Lean (A). x", risk="(A):** cash — nope"))
+    no("a near-miss class (`cash`) should still refuse")
+except be.BacklogEditError as ex:
+    ok("a near-miss refuses, and `money` is offered in the message") \
+        if "money" in str(ex) else no(f"money missing from the closed set: {ex}")
+
 print(f"\n{PASS} passed, {FAIL} failed")
 sys.exit(1 if FAIL else 0)
