@@ -1,18 +1,15 @@
 ---
 name: vox
 description: >
-  File voice-memo audio into the VOX folder with a whisper-transcribed `.md`
-  sibling. Two surfaces. (1) Manual mode — `/vox` (no args) scans the
-  clipboard AND the intake folders (`~/Desktop`, `~/Downloads` by default) for
-  audio files and processes each; `/vox <path>` processes one named file or
-  every audio file in a named directory. Intake-folder sources are removed
-  after filing; clipboard sources are left alone (the canonical copy lives in
-  the VOX folder with 40-day retention either way). (2) Email mode — an Apple
-  Mail rule catches messages whose subject contains "VOX" and routes the
-  attachment through the same `vox-process` script. Both modes share SHA-256 content dedup, audio-metadata
-  date extraction, and the same retention sweep. Use when the user says "/vox",
-  "vox these files", "process these voice memos", "transcribe these audio
-  files", or hands you a path to one or more audio files to file.
+  File voice-memo audio into the VOX folder (`vox` is Latin for voice, not an
+  acronym) paired with a whisper-generated `.md` transcript — the transcript is
+  the durable artifact, the audio is pruned after 40 days. Audio arrives four
+  ways, all through the same `vox-process` pipeline: a bare `/vox` sweeping the
+  intake folders (`~/Desktop`, `~/Downloads`), a file on the clipboard, a path
+  handed to `/vox` directly, or an Apple Mail rule catching any message whose
+  subject contains "VOX". Use when the user says "/vox", "vox these files",
+  "process these voice memos", "transcribe these audio files", or hands you a
+  path to one or more audio files to file.
 tools: Read, Edit, Write, Bash
 user_invocable: true
 ---
