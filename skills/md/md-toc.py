@@ -2,25 +2,29 @@
 # /// script
 # requires-python = ">=3.10"
 # ///
-"""cab-toc: Generate a table of contents from markdown headings.
+"""md-toc: keep a markdown document's table of contents correct, or absent.
 
-Reads a markdown file, extracts H2 and H3 headings, and generates a TOC
-in the CAB TOC Format (Form 3: Table). Replaces the existing TOC table
-in the file.
+One idempotent pass decides all three questions the TOC discipline asks, so a
+document only ever has the TOC it is entitled to:
 
-Usage:
-    cab-toc.py <file.md>
+  WHETHER  a doc at or above the size floor (default 3 pages, 500 words/page)
+           and carrying at least two sections gets a TOC; anything smaller has
+           its TOC removed.
+  WHAT     top-level sections only when the full outline would be too long to
+           scan (default > 25 entries), otherwise both levels.
+  WHERE    directly below the H1's orientation line and directly above the
+           heart — never above the H1, and never fused into the spine.
 
-The TOC is identified as the first markdown table whose header row contains
-"Table of Contents". If no such table exists, the TOC is printed to stdout.
+Run it as often as you like: same input, same output, no drift.
 
-When replacing an existing TOC, the script preserves content from columns
-beyond the first (descriptions, notes, etc.) by matching on the heading title.
-The number of columns is preserved from the existing table.
+    md-toc.py <file.md> [--dry-run] [--pages 3] [--max-entries 25]
 
-Links are Obsidian wiki-links: [[#heading text]].
+A TOC is recognized as the first markdown table whose header row contains
+"Table of Contents". Content in columns beyond the first is preserved across
+regeneration by matching on the heading title, so hand-written descriptions
+survive. Links are Obsidian wiki-links: [[#heading text]].
 
-See: CAB TOC Format (Common Anchor Form > CAB Markdown)
+See: [[DAS spine]] (the TOC is document content, not spine), CAB TOC Format.
 """
 
 import argparse
@@ -50,12 +54,25 @@ def _selffire(path):
 # ---------------------------------------------------------------------------
 
 
+FIG_SPACE = ' '   # figure space — does not collapse in markdown renderers
+PAGE_WORDS = 500       # one "page" of prose
+DEFAULT_PAGES = 3      # size floor below which a doc gets no TOC
+MAX_ENTRIES = 25       # full outline longer than this drops to top level only
 
-FIG_SPACE = '\u2007'  # figure space — does not collapse in markdown renderers
+
+# --- reading the document ---------------------------------------------------
+
+def split_frontmatter(lines: list[str]) -> int:
+    """Return the index of the first body line, skipping YAML frontmatter."""
+    if lines and lines[0].strip() == '---':
+        for i in range(1, len(lines)):
+            if lines[i].strip() == '---':
+                return i + 1
+    return 0
 
 
-def extract_headings(text: str) -> list[dict]:
-    """Extract H2 and H3 headings from markdown text, skipping code blocks."""
+def extract_headings(text: str, max_level: int = 3) -> list[dict]:
+    """Extract H2..H{max_level} headings, skipping fenced code blocks."""
     headings = []
     in_code_block = False
     for line in text.split('\n'):
@@ -66,181 +83,274 @@ def extract_headings(text: str) -> list[dict]:
             continue
         m = re.match(r'^(#{2,3})\s+(.+)$', line)
         if m:
-            level = len(m.group(1))  # 2 or 3
-            title = m.group(2).strip()
-            headings.append({
-                'level': level,
-                'title': title,
-            })
+            level = len(m.group(1))
+            if level <= max_level:
+                headings.append({'level': level, 'title': m.group(2).strip()})
     return headings
 
 
-def parse_table_row(line: str) -> list[str]:
-    """Split a markdown table row into cell contents.
+def find_h1(lines: list[str]) -> int | None:
+    """Index of the document's H1, outside frontmatter and fences."""
+    in_code_block = False
+    for i in range(split_frontmatter(lines), len(lines)):
+        line = lines[i]
+        if line.startswith('```'):
+            in_code_block = not in_code_block
+            continue
+        if in_code_block:
+            continue
+        if re.match(r'^# \S', line):
+            return i
+    return None
 
-    '| foo | bar | baz |' -> ['foo', 'bar', 'baz']
+
+def is_masthead_row(line: str) -> bool:
+    """A dispatch masthead's identity row: '| -[[Name]]- | ... |'."""
+    return bool(re.match(r'^\|\s*-\[\[', line))
+
+
+def insertion_point(lines: list[str], h1: int) -> int:
+    """Index where the TOC belongs: after the orientation line, before the heart.
+
+    Skips `key:: value` inline fields (skill pages carry `requires::` there) and
+    steps over a masthead table still sitting below the H1 — the pre-migration
+    position — so the TOC never lands between a spine and the page it labels.
     """
-    stripped = line.strip().strip('|')
-    return [cell.strip() for cell in stripped.split('|')]
+    i = h1 + 1
+    while i < len(lines) and (not lines[i].strip()
+                              or re.match(r'^\w[\w-]*::', lines[i])):
+        i += 1
+    if i < len(lines) and not lines[i].startswith('|'):
+        i += 1                                    # consume the orientation line
+    while i < len(lines) and not lines[i].strip():
+        i += 1
+    if i < len(lines) and is_masthead_row(lines[i]):
+        while i < len(lines) and lines[i].startswith('|'):
+            i += 1
+    return i
+
+
+def find_toc_span(lines: list[str]) -> tuple[int, int] | None:
+    """Line span [start, end) of the first 'Table of Contents' table."""
+    for i, line in enumerate(lines):
+        if re.match(r'^\|.*Table of Contents.*\|', line, re.IGNORECASE):
+            if i + 1 < len(lines) and re.match(r'^\|[-| :]+\|', lines[i + 1]):
+                j = i + 2
+                while j < len(lines) and lines[j].startswith('|'):
+                    j += 1
+                return (i, j)
+    return None
+
+
+def parse_table_row(line: str) -> list[str]:
+    """Split a markdown table row into cell contents, honoring escaped pipes.
+
+    A character scanner, not a regex: TOC cells hold wiki-links whose display
+    form is `[[Target\\|Display]]`, and every `[^|]*`-style pattern either stops
+    at that escaped pipe or captures the backslash. Three separate vault
+    measurements were wrong before this was written as a scanner (F319).
+    """
+    s = line.strip()
+    if s.startswith('|'):
+        s = s[1:]
+    if s.endswith('|'):
+        s = s[:-1]
+    cells, buf, k = [], [], 0
+    while k < len(s):
+        c = s[k]
+        if c == '\\' and k + 1 < len(s):
+            buf.append(s[k:k + 2])
+            k += 2
+            continue
+        if c == '|':
+            cells.append(''.join(buf).strip())
+            buf = []
+        else:
+            buf.append(c)
+        k += 1
+    cells.append(''.join(buf).strip())
+    return cells
 
 
 def extract_title_from_cell(cell: str) -> str | None:
-    """Extract the heading title from a TOC cell.
-
-    Handles both wiki-links and markdown links:
-      '**[[#1.4.3 Roadmap]]**' -> '1.4.3 Roadmap'
-      '[[#1.4.3 Roadmap|Roadmap]]' -> '1.4.3 Roadmap'
-      '**[1.4.3 Roadmap](#1-4-3-roadmap)**' -> '1.4.3 Roadmap'
-    """
-    # Wiki-link: [[#title]] or [[#title|display]]
+    """Recover the heading title from a TOC cell (wiki-link or markdown link)."""
     m = re.search(r'\[\[#([^|\]]+)', cell)
     if m:
         return m.group(1)
-    # Markdown link: [title](#anchor)
     m = re.search(r'\[([^\]]+)\]\(#', cell)
     if m:
         return m.group(1)
     return None
 
 
-def parse_existing_toc(text: str) -> tuple[dict[str, list[str]], int]:
-    """Parse the existing TOC table and extract extra-column data.
-
-    Returns:
-        - dict mapping heading title -> list of strings (one per extra column)
-        - number of columns in the existing table
-    """
-    extra = {}
-    num_cols = 2  # default
-    lines = text.split('\n')
-    i = 0
-    while i < len(lines):
-        if re.match(r'^\|.*Table of Contents.*\|', lines[i], re.IGNORECASE):
-            cells = parse_table_row(lines[i])
-            num_cols = len(cells)
-            i += 2  # skip separator row
-            while i < len(lines) and lines[i].startswith('|'):
-                cells = parse_table_row(lines[i])
-                title = extract_title_from_cell(cells[0]) if cells else None
-                if title and len(cells) > 1:
-                    extra[title] = cells[1:]
-                i += 1
-            break
-        i += 1
+def parse_existing_toc(lines: list[str], span) -> tuple[dict, int]:
+    """Extra-column content keyed by heading title, plus the column count."""
+    extra, num_cols = {}, 2
+    if not span:
+        return extra, num_cols
+    start, end = span
+    num_cols = len(parse_table_row(lines[start]))
+    for k in range(start + 2, end):
+        cells = parse_table_row(lines[k])
+        title = extract_title_from_cell(cells[0]) if cells else None
+        if title and len(cells) > 1:
+            extra[title] = cells[1:]
     return extra, num_cols
 
 
-def generate_toc_table(headings: list[dict], existing: dict[str, list[str]] = None,
-                       num_cols: int = 2) -> str:
-    """Generate a TOC in CAB TOC Format (Form 3: Table)."""
-    if existing is None:
-        existing = {}
-    extra_cols = num_cols - 1
+# --- writing the table ------------------------------------------------------
 
-    # Header row
-    header_cells = ['Table of Contents'] + [''] * extra_cols
-    header = '| ' + ' | '.join(header_cells) + ' |'
+def unlinkable(title: str) -> str | None:
+    """Why `[[#title]]` cannot address this heading, or None if it can.
 
-    # Separator row
-    sep = '|' + '|'.join(['---'] * num_cols) + '|'
-
-    lines = [header, sep]
-    for h in headings:
-        indent = FIG_SPACE * 3 if h['level'] == 3 else ''
-        bold_start = '**' if h['level'] == 2 else ''
-        bold_end = '**' if h['level'] == 2 else ''
-        link = f'[[#{h["title"]}]]'
-        first_cell = f'{indent}{bold_start}{link}{bold_end}'
-
-        # Reuse existing extra-column content if available
-        prev = existing.get(h['title'], [])
-        extra = []
-        for c in range(extra_cols):
-            if c < len(prev):
-                extra.append(prev[c])
-            else:
-                extra.append('')
-
-        row = '| ' + first_cell + ' | ' + ' | '.join(extra) + ' |'
-        lines.append(row)
-    return '\n'.join(lines)
-
-
-def find_toc_table(text: str) -> tuple[int, int] | None:
-    """Find the first markdown table whose header contains 'Table of Contents'.
-
-    Returns (start, end) character offsets, or None if not found.
+    Obsidian's heading link ends at the first `]]`, so a heading containing a
+    wiki-link or a bare `]` is permanently untargetable — no escaping rescues
+    it, and the fix is to rewrite the heading.
     """
-    lines = text.split('\n')
-    i = 0
-    while i < len(lines):
-        line = lines[i]
-        if re.match(r'^\|.*Table of Contents.*\|', line, re.IGNORECASE):
-            if i + 1 < len(lines) and re.match(r'^\|[-| :]+\|', lines[i + 1]):
-                table_start = sum(len(l) + 1 for l in lines[:i])
-                j = i + 2
-                while j < len(lines) and lines[j].startswith('|'):
-                    j += 1
-                table_end = sum(len(l) + 1 for l in lines[:j])
-                if table_end > 0:
-                    table_end -= 1
-                return (table_start, table_end)
-        i += 1
+    if '[[' in title:
+        return 'contains a wiki-link'
+    if ']' in title:
+        return 'contains a `]`'
+    if '#' in title:
+        return 'contains a `#`'
     return None
 
 
-def update_file(path: Path, headings: list[dict]) -> bool:
-    """Replace the TOC table in the file, preserving extra columns.
+def escape_cell(s: str) -> str:
+    """Escape bare pipes so a heading with a `|` cannot split the table row."""
+    return re.sub(r'(?<!\\)\|', r'\\|', s)
 
-    Returns True if updated.
+
+def generate_toc_table(headings, extra=None, num_cols=2) -> list[str]:
+    """Build the TOC table (CAB TOC Format, Form 3)."""
+    extra = extra or {}
+    n_extra = num_cols - 1
+    out = ['| ' + ' | '.join(['Table of Contents'] + [''] * n_extra) + ' |',
+           '|' + '|'.join(['---'] * num_cols) + '|']
+    for h in headings:
+        indent = FIG_SPACE * 3 if h['level'] == 3 else ''
+        bold = '**' if h['level'] == 2 else ''
+        cell = f'{indent}{bold}[[#{escape_cell(h["title"])}]]{bold}'
+        prev = extra.get(h['title'], [])
+        tail = [prev[c] if c < len(prev) else '' for c in range(n_extra)]
+        out.append('| ' + cell + ' | ' + ' | '.join(tail) + ' |')
+    return out
+
+
+# --- the decision -----------------------------------------------------------
+
+def body_words(lines: list[str], toc_span) -> int:
+    """Words in the document body, excluding frontmatter and the TOC itself."""
+    start = split_frontmatter(lines)
+    skip = set(range(*toc_span)) if toc_span else set()
+    return sum(len(lines[i].split())
+               for i in range(start, len(lines)) if i not in skip)
+
+
+def choose_depth(text: str, max_entries: int) -> tuple[int, list[dict]]:
+    """Both levels when the full outline is scannable; top level when it isn't.
+
+    A doc with fewer than two top-level sections keeps both levels regardless —
+    a one-row TOC is not a table of contents.
     """
-    text = path.read_text()
-    span = find_toc_table(text)
+    full = extract_headings(text, 3)
+    tops = [h for h in full if h['level'] == 2]
+    if len(full) <= max_entries or len(tops) < 2:
+        return 3, full
+    return 2, tops
+
+
+def plan(path: Path, pages: int, page_words: int, max_entries: int):
+    """Decide what this file's TOC should be. Returns (action, new_lines, note)."""
+    try:
+        text = path.read_text()
+    except UnicodeDecodeError:
+        # Never rewrite a file we cannot read losslessly — a replacement-char
+        # round-trip would silently corrupt whatever bytes we failed to decode.
+        return 'skip', None, 'not valid UTF-8', []
+    lines = text.split('\n')
+    span = find_toc_span(lines)
+    words = body_words(lines, span)
+    floor = pages * page_words
+    h1 = find_h1(lines)
+
+    depth, headings = choose_depth(text, max_entries)
+    warnings = [f'{h["title"][:60]} — {why}'
+                for h in extract_headings(text, 3)
+                if (why := unlinkable(h['title']))]
+
+    wants = words >= floor and len(headings) >= 2
+    note = f'{words} words ({words / page_words:.1f} pages), floor {floor}'
+
+    if not wants:
+        if span is None:
+            return 'none', lines, note + ' — no TOC, correct'
+        out = lines[:span[0]] + lines[span[1]:]
+        while out and span[0] < len(out) and not out[span[0]].strip():
+            del out[span[0]]
+        return 'delete', out, note + ' — below floor, TOC removed'
+
+    if h1 is None:
+        return 'none', lines, note + ' — no H1, skipped'
+
+    extra, num_cols = parse_existing_toc(lines, span)
+    table = generate_toc_table(headings, extra, num_cols)
+
+    body = lines[:span[0]] + lines[span[1]:] if span else list(lines)
     if span:
-        start, end = span
-        existing_table_text = text[start:end]
-        existing, num_cols = parse_existing_toc(existing_table_text)
-        toc = generate_toc_table(headings, existing, num_cols)
-        new_text = text[:start] + toc + text[end:]
-        path.write_text(new_text)
-        _selffire(path)
-        return True
-    return False
+        while span[0] < len(body) and not body[span[0]].strip():
+            del body[span[0]]
+    h1b = find_h1(body)
+    at = insertion_point(body, h1b)
+    # Absorb the blank lines on both sides of the insertion point rather than
+    # adding to them, so the table is always framed by exactly one blank line
+    # and a re-run cannot accrete another.
+    start = at
+    while start > 0 and not body[start - 1].strip():
+        start -= 1
+    while at < len(body) and not body[at].strip():
+        at += 1
+    out = body[:start] + [''] + table + [''] + body[at:]
+
+    lvl = 'top level only' if depth == 2 else 'both levels'
+    detail = f'{note} — {len(headings)} entries, {lvl}'
+    if out == lines:
+        return 'ok', lines, detail, warnings
+    if span is None:
+        return 'insert', out, detail, warnings
+    return ('update' if span[0] == start + 1 else 'move'), out, detail, warnings
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description='Generate a table of contents from markdown headings.'
-    )
-    parser.add_argument('file', type=Path, help='Markdown file to process')
-    parser.add_argument('--dry-run', action='store_true',
-                        help='Print TOC to stdout without modifying the file')
-    args = parser.parse_args()
+    ap = argparse.ArgumentParser(
+        description='Create, update, move, or remove a document\'s table of contents.')
+    ap.add_argument('file', type=Path, nargs='+', help='Markdown file(s)')
+    ap.add_argument('--dry-run', action='store_true',
+                    help='Report the decision without writing')
+    ap.add_argument('--pages', type=int, default=DEFAULT_PAGES,
+                    help=f'Size floor in pages (default {DEFAULT_PAGES})')
+    ap.add_argument('--page-words', type=int, default=PAGE_WORDS,
+                    help=f'Words per page (default {PAGE_WORDS})')
+    ap.add_argument('--max-entries', type=int, default=MAX_ENTRIES,
+                    help=f'Above this, top-level only (default {MAX_ENTRIES})')
+    args = ap.parse_args()
 
-    if not args.file.exists():
-        print(f'Error: {args.file} not found', file=sys.stderr)
-        sys.exit(1)
-
-    text = args.file.read_text()
-    headings = extract_headings(text)
-
-    if not headings:
-        print('No H2/H3 headings found.', file=sys.stderr)
-        sys.exit(1)
-
-    if args.dry_run:
-        existing, num_cols = parse_existing_toc(text)
-        toc = generate_toc_table(headings, existing, num_cols)
-        print(toc)
-        return
-
-    if update_file(args.file, headings):
-        print(f'Updated TOC in {args.file} ({len(headings)} entries)')
-    else:
-        toc = generate_toc_table(headings)
-        print('No TOC table found (header must contain "Table of Contents").')
-        print('Printing to stdout:\n')
-        print(toc)
+    rc = 0
+    for f in args.file:
+        if not f.exists():
+            print(f'Error: {f} not found', file=sys.stderr)
+            rc = 1
+            continue
+        result = plan(f, args.pages, args.page_words, args.max_entries)
+        action, out, note = result[0], result[1], result[2]
+        warnings = result[3] if len(result) > 3 else []
+        print(f'{f.name}: {action} — {note}')
+        for w in warnings:
+            print(f'  ! unlinkable heading: {w}')
+        if action not in ('none', 'ok', 'skip') and not args.dry_run:
+            f.write_text('\n'.join(out))
+            _selffire(f)
+    sys.exit(rc)
 
 
 if __name__ == '__main__':
