@@ -16,13 +16,15 @@ Everything above the H1 says where the page sits; the heart directly below says 
 
 | Spine shape | Marker | What it says about the children | Live | Made-up | Pages |
 |---|---|---|---|---|---|
-| **[[#Breadcrumb spine\|Breadcrumb]]** | *(none)* | there are none — this page is a leaf | [[LUMEN Nudge]] | [[Harbor Latency Budget]] | 1,266 |
-| **[[#Grouped spine\|Grouped]]** | `...` | sorted under a few **plain labels**; the catchall sweeps the rest | [[Rolodex]] | [[Harbor Runbooks]] | 223 |
-| **[[#Two-level spine\|Two-level]]** | `...` + `+` | labels that are **themselves pages**, each with its own spine | [[SKA]] | [[Devtools]] | 13 |
-| **[[#List spine\|List]]** | `---` | the machine writes **one row each**, alphabetical, with descriptions | [[Disk]] | [[Harbor Hops]] | 231 |
-| **[[#Stream spine\|Stream]]** | `^^^` | the same, reversed, so **dated** children read newest-first | [[VOX]] | [[Harbor Releases]] | 23 |
+| **[[#Breadcrumb spine\|Breadcrumb]]** | `:>>` | there are none — this page is a leaf | [[LUMEN Nudge]] | [[Harbor Latency Budget]] | 1,266 |
+| **[[#Curated spine\|Curated]]** | `...` | listed by hand, one row each; the catchall is a safety valve | [[Legal]] | [[Bridges]] | 578 |
+| **[[#Grouped spine\|Grouped]]** | `...` | curated, but the rows form cohesive named groups | [[Rolodex]] | [[Harbor Runbooks]] | 223 |
+| **[[#Two-level spine\|Two-level]]** | `...` `+` | grouped, but each label is itself a page with its own spine | [[SKA]] | [[Devtools]] | 13 |
+| **[[#List spine\|List]]** | `---` | the machine writes one row each, alphabetical, with descriptions | [[Disk]] | [[Harbor Hops]] | 231 |
+| **[[#Stream spine\|Stream]]** | `^^^` | the same, reversed, so dated children read newest-first | [[VOX]] | [[Harbor Releases]] | 23 |
+| **[[#External spine\|External]]** | none | they are not in this folder at all — the rows point outside | [[STARTUPPER]] | ~~[[Harbor Retrospectives]]~~ | 22+ |
 
-Counts are a vault scan of 1,234 masthead pages plus [[TINK308 - Spine: the routing zone every document opens with|F308]]'s breadcrumb census. Each shape is specified in its own section below; the examples illustrate those specs and do not replace them.
+**The middle four are a refinement ladder, not four unrelated options:** curated ⊃ grouped ⊃ two-level, each adding one constraint to the one above; list is what you take instead when no grouping exists *and* each child needs its own sentence. External sits outside the ladder entirely, because it is the one shape whose rows leave the folder. Counts are a vault scan of 1,234 masthead pages plus [[TINK308 - Spine: the routing zone every document opens with|F308]]'s breadcrumb census; the curated/bare-catchall boundary is a judgement, so that row's figure is the `...` population net of grouped and two-level. Each shape is specified in its own section below; the examples illustrate those specs and do not replace them.
 
 ## What a spine is
 
@@ -59,13 +61,23 @@ Line 5 is load-bearing and the one most often got wrong: the main thing goes **d
 
 **A data table on a leaf is not a dispatch table.** This is the distinction a reader must make on sight, and the reason [[Harbor Latency Budget]] exists: it carries a substantial table and is still a leaf, because the table describes the page's own subject rather than routing anywhere.
 
+### Curated spine
+
+**Marker:** `...` **Use when:** you are listing the children by hand and no grouping suggests itself.
+
+Every entry gets its own hand-written row above the marker. **The `...` is a safety valve, not the content** — it exists so a child you forgot, or one added later, still surfaces rather than vanishing. On a well-kept curated page it is nearly empty, and that is the point.
+
+This is the honest shape for a hodgepodge. [[Legal]] is the live case: about a hundred hand-listed contracts, invoices and disclosures that genuinely do not sort into three tidy piles. Forcing groups onto that would invent structure the material does not have.
+
+**Every dispatch spine has curated rows** — everything above the marker is always the author's. What makes *this* shape curated is that those rows carry essentially all the content, with automation demoted to a backstop.
+
 ### Grouped spine
 
 **Marker:** `...` **Use when:** the children live in this folder and fall into a few natural groups.
 
 The labels are **plain text** — `Incident`, `Routine`, `Recovery` name nothing you can open. Every child is already in this one folder; the label only tells the reader which one they want. Below the labelled rows, the `...` sweeps up whatever has not been placed.
 
-**Grouped is the preferred hub shape.** Fifteen children as fifteen rows and as three named groups of five carry the same links, but three groups are what a reader can hold in their head. [[Rolodex]] is the worked case — **Corporate**, **Professional**, **Personal**, and the whole contact system is legible at a glance.
+**Grouped is a special case of curated** — the case where cohesive groupings exist. Fifteen children as fifteen rows and as three named groups of five carry the same links, but three groups are what a reader can hold in their head. [[Rolodex]] is the worked case — **Corporate**, **Professional**, **Personal**, and the whole contact system is legible at a glance. Prefer grouped whenever the groups are real, and fall back to curated when they are not, rather than inventing them.
 
 **A grouped spine with zero labels is a bare catchall** — 577 pages, the vault's commonest shape, and the right default when the children need no sentence and form no natural clusters. That is grouped with the knob at zero, not a separate shape.
 
@@ -96,6 +108,20 @@ Identical to a list spine except reversed, so reverse-alphabetical *is* reverse-
 **The marker follows the children, not the topic.** A page of dated children takes `^^^` whether it is a release log, a trip list, or a set of dated applications — which is why the live `^^^` pages include `Apply`, `Find`, `Guide`, `Profile`, `Survey` and `Trips` alongside `EOC Log` and `MED Log`.
 
 **A stream is not automatically a stream spine.** [[DAS stream]] is an *ordering* principle and applies at two granularities: entries as H2s **inside one file** (no children to enumerate — the page ends `...`, which is what [[DAS Log]] and the `{slug} Log` template do), or **one dated file per entry**, which is where the stream spine appears. Same ordering, different object.
+
+### External spine
+
+**Marker:** none, and that is load-bearing. **Use when:** the pages this one organizes are deliberately not in its folder.
+
+Every other shape describes children the file tree already holds. An external spine points at material that lives elsewhere — because it is grouped by a *property* rather than by a place. [[STARTUPPER]] is the live case: thirty members whose `@Name` pages sit all over `AT/`, gathered here because they are startup-affiliated, not because they share a directory.
+
+**It must carry no marker at all.** An electric marker can only ever compute the folder, so on a page whose rows deliberately leave the folder it would compute the wrong set — sweeping in unrelated neighbours while adding nothing to the curated list. This is the one shape where the absence of automation is part of the definition rather than an omission, and the general rule already covers why: *a page that fronts no folder has nothing to sweep.*
+
+**The rows are therefore fully manual, and nothing can verify them.** Every other shape can be diffed against its folder; this one cannot, because there is no folder to diff against. That is the cost of the shape, and the reason to reach for it only when the grouping really is by property.
+
+An external spine can otherwise be laid out however suits it — [[STARTUPPER]] happens to be grouped (**People**, **Companies**, **Related pages**). Layout and externality are independent.
+
+**This page is an external spine.** `disciplines/DAS spine.md` fronts no folder, and its rows point at [[LUMEN Nudge]], [[Rolodex]], [[Disk]], [[VOX]] and the Harbor examples — 93% of them outside `disciplines/`. It carries no marker, correctly.
 
 ## Rules that cut across every shape
 
@@ -140,7 +166,7 @@ Supporting detail — a second table for bookkeeping, the reasoning, the caveats
 
 The row vocabulary, the identity cell, and the fixed row order are [[DAS Dispatch Table]]'s; the automation semantics are summarized above but owned there. Do not restate either here.
 
-**This page carries no marker deliberately** — `disciplines/DAS spine.md` fronts no folder, so a catchall would sweep nothing. Its rows are hand-picked and stay that way. By the rule above that is correct, not an omission.
+**This page is itself an [[#External spine|external spine]]** — see that section; it fronts no folder and its rows point outward, so carrying no marker is correct rather than an omission.
 
 ### Where the examples live, and why not in a folder here
 

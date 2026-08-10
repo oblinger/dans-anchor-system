@@ -6,6 +6,7 @@ description: "canonical stream-spine exemplar — dated children, newest first"
 | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Related | [[FEX Spine Examples]],  [[Bridges]],  [[DAS spine]],  [[DAS stream]],   |
 | ^^^ | |
+| [[Harbor Retrospectives]]  | made-up external-spine exemplar — rows pointing at pages outside this folder |
 | [[2026-08-03 — Harbor 4.2 connection pooling]]  | Harbor 4.2 — connection pooling; p99 egress down 38% |
 | [[2026-07-19 — Harbor 4.1 auth cache]]  | Harbor 4.1 — auth lookup cache; three breaches traced to cold starts |
 | [[2026-06-28 — Harbor 4.0 the rewrite]]  | Harbor 4.0 — the rewrite; new routing core, breaking config change |
