@@ -161,6 +161,7 @@ class Spine:
             lines = self.path.read_text(encoding="utf-8",
                                         errors="replace").split("\n")
         self.lines = lines
+        self.fenced = self._fenced()
         self.body_start = self._after_frontmatter()
         self.h1 = self._find(lambda l: l.startswith("# "), self.body_start)
         self.breadcrumb = self._find(lambda l: BREADCRUMB.match(l), self.body_start)
@@ -169,6 +170,32 @@ class Spine:
         self.marker_idx, self.marker = self._find_marker()
         self.fronts_folder = self.path.stem in entry_names(self.path.parent)
         self.children = self._children()
+
+    def _fenced(self) -> list[bool]:
+        """Which lines sit inside a code fence.
+
+        A spec page shows the house head as a fenced TEMPLATE — frontmatter,
+        a `:>>` breadcrumb, an H1 — and without this every such page reads as
+        carrying a real breadcrumb on top of its real masthead. Fences open
+        with three-or-more backticks and close on a run at least as long, so
+        a ````markdown block containing ``` is handled.
+        """
+        out, depth = [], 0
+        for l in self.lines:
+            s = l.lstrip()
+            m = re.match(r"^(`{3,}|~{3,})", s)
+            if m:
+                tick = m.group(1)
+                if depth == 0:
+                    depth = len(tick)
+                    out.append(True)
+                    continue
+                if len(tick) >= depth and not s[len(tick):].strip():
+                    depth = 0
+                    out.append(True)
+                    continue
+            out.append(depth > 0)
+        return out
 
     def _after_frontmatter(self) -> int:
         if self.lines and self.lines[0].strip() == "---":
@@ -180,12 +207,16 @@ class Spine:
     def _find(self, pred, start=0, stop=None):
         stop = len(self.lines) if stop is None else stop
         for j in range(start, stop):
+            if self.fenced[j]:
+                continue
             if pred(self.lines[j]):
                 return j
         return None
 
     def _find_identity(self):
         for j in range(self.body_start, len(self.lines)):
+            if self.fenced[j]:
+                continue
             l = self.lines[j]
             if l.strip().startswith("|") and IDENTITY.match(cell(l, 1)):
                 return j
@@ -211,6 +242,21 @@ class Spine:
             if re.fullmatch(r"-{3,}", c0) and not cell(self.lines[j], 2):
                 return j, "---"
         return None, None
+
+    def child_names(self) -> list[str]:
+        """The folder members a catchall would sweep, by the name a wiki-link
+        would use — the stem for a page, the directory name for a folder."""
+        if not self.fronts_folder:
+            return []
+        try:
+            return sorted(
+                (p.stem if p.suffix == ".md" else p.name)
+                for p in self.path.parent.iterdir()
+                if not p.name.startswith(".") and p.name not in SKIP_DIRS
+                and (p.is_dir() or p.suffix == ".md") and p != self.path
+            )
+        except OSError:
+            return []
 
     def _children(self) -> int:
         if not self.fronts_folder:
@@ -259,9 +305,22 @@ class Spine:
         return self.shape() in TOC_ELIGIBLE
 
 
+def is_fixture(p: Path) -> bool:
+    """A deliberate-violation corpus specimen, which no checker may grade.
+
+    Warden's corpus holds cases like `progressive-001-both-forms/fixture/` —
+    files authored to BREAK a rule so the engine can be tested against them.
+    Reporting a finding there is reporting that the test data is test data.
+    """
+    parts = p.parts
+    return "fixture" in parts and any("Corpus" in d for d in parts)
+
+
 def walk(root: Path):
     for p in sorted(root.rglob("*.md")):
         if not p.is_file() or any(d in SKIP_DIRS for d in p.parts):
+            continue
+        if is_fixture(p):
             continue
         yield p
 

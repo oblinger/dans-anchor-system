@@ -184,8 +184,24 @@ def check(path: Path) -> list[tuple[str, int, str]]:
         if p.marker is None and p.fronts_folder and p.children > 0:
             out.append(("S07", (p.table_end or 1), f"{CODES['S07']} ({p.children} hidden)"))
         mi = p.marker_idx if p.marker_idx is not None else 0
-        if p.marker in {"---", "^^^"} and p.rows_below_marker == 0:
-            out.append(("S08", mi + 1, CODES["S08"]))
+        # Degenerate means the machine SHOULD have written rows and did not —
+        # so the folder has to exist and hold members. A `---` over an empty
+        # folder, or on a page that fronts no folder at all (which is S09's
+        # business), is at its correct resting state. Without this the code was
+        # 43/44 false positive in-repo, measured 2026-08-10.
+        if (p.marker in {"---", "^^^"} and p.rows_below_marker == 0
+                and p.fronts_folder and p.children > 0):
+            # ...and only for members the page does not ALREADY link. An empty
+            # electric zone under a marker is the correct state when every
+            # child is linked above it by hand (F081 body-mention suppression)
+            # — the zone is empty because suppression worked, not because the
+            # index is stale. [[HBR Log]] is exactly that page.
+            body = "\n".join(p.lines)
+            unlisted = [c for c in p.child_names() if f"[[{c}" not in body]
+            if unlisted:
+                out.append(("S08", mi + 1,
+                            f"{CODES['S08']} ({len(unlisted)} member(s) unlisted, "
+                            f"e.g. {unlisted[0]})"))
         if p.marker is not None and not p.fronts_folder:
             out.append(("S09", mi + 1, CODES["S09"]))
 
