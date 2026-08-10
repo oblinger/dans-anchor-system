@@ -66,6 +66,7 @@ AGENT_FLAG=""
 JOB_NAME=""
 JOB_SCRIPT=""
 STALL=600                      # F054: seconds of no output AND no CPU before STALLED
+WATCH=0                        # F054: block until the job reaches a terminal verdict
 for arg in "$@"; do
   case "$arg" in
     --session) : ;;             # value captured next loop via flag
@@ -84,6 +85,7 @@ for arg in "$@"; do
     --force)   MODE="force" ;;         # T171: window-scoped now — recreates only MY window
     --force-server) MODE="force-server" ;;  # T171: the old session-wide meaning, renamed+separated
     --dry-run) DRY_RUN=1 ;;
+    --watch)   WATCH=1 ;;
     *) case "${PREV:-}" in
          --session) [ -z "$SESSION" ] && SESSION="$arg" ;;
          --profile) [ -z "$PROFILE" ] && PROFILE="$arg" ;;
@@ -558,7 +560,13 @@ cmd_run() {
 
   say "launched '$JOB_NAME' on $HOST (window $SESSION:$win, stall threshold ${STALL}s)"
   say "  log:   ~/.bridge-jobs/$JOB_NAME.log   on $HOST"
+  if [ "$WATCH" = 1 ]; then
+    watch_loop "$JOB_NAME"
+    return $?
+  fi
   say "  check: bridge jobs $HOST      <- do this instead of tailing the log"
+  say "  NOTE: nothing will wake you. For an unattended job use --watch and run"
+  say "        this call in the background; its exit IS the wake-up."
 }
 
 cmd_jobs() {
@@ -648,10 +656,61 @@ EOF
   return 0
 }
 
+
+# ---------------------------------------------------------------- watch (F054)
+# Block until this job reaches a verdict, then exit. Run it in the BACKGROUND
+# from the agent's side (`run_in_background: true`) and its exit becomes the one
+# wake-up: silence while the job is healthy, exactly one interruption when it
+# finishes or wedges.
+#
+# One interruption, not one per state change. STALLED is reported and the watch
+# ENDS -- a stalled job can recover (a drive wakes up), and deciding whether to
+# re-arm is a judgement, not something a loop should make silently. The
+# alternative, notifying on every transition, is how a watcher becomes noise and
+# then becomes ignored.
+watch_loop() {
+  local name="$1"
+  local interval=$(( STALL / 4 ))
+  [ "$interval" -lt 15 ] && interval=15
+  [ "$interval" -gt 60 ] && interval=60
+  # A backstop, not a policy: a watcher that outlives its usefulness is a
+  # process nobody remembers starting.
+  local deadline=$(( $(date +%s) + 86400 ))
+  say "watching '$name' (checking every ${interval}s; one report at DONE/FAILED/STALLED)"
+  while :; do
+    sleep "$interval"
+    local out line verdict
+    out=$(cmd_jobs 2>/dev/null || true)
+    line=$(printf '%s\n' "$out" | awk -v n="$name" '$2 == n {print; exit}')
+    verdict=$(printf '%s' "$line" | awk '{print $1}')
+    case "$verdict" in
+      DONE|FAILED|GONE|STALLED)
+        say ""
+        say "== $verdict: $name =="
+        say "${line# }"
+        say "-- last 25 lines of its log --"
+        "${SSH[@]}" "tail -25 \$HOME/.bridge-jobs/$name.log 2>/dev/null" || true
+        case "$verdict" in DONE) return 0 ;; *) return 1 ;; esac ;;
+    esac
+    if [ "$(date +%s)" -ge "$deadline" ]; then
+      say "== WATCH EXPIRED: $name still running after 24h =="
+      say "   Not a verdict about the job — the watcher stopped, the job did not."
+      return 2
+    fi
+  done
+}
+
+cmd_watch() {
+  require_host; resolve_target
+  [ -n "$JOB_NAME" ] || fail "usage: bridge watch <host> --job <name> [--stall <seconds>]"
+  watch_loop "$JOB_NAME"
+}
+
 # ------------------------------------------------------------------- verbs
 case "$VERB" in
   tmux)             cmd_tmux ;;
   run)              cmd_run ;;
+  watch)            cmd_watch ;;
   jobs)             cmd_jobs ;;
   install|refresh)  cmd_install ;;
   skills)           cmd_skills ;;
