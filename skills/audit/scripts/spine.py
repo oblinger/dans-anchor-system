@@ -46,6 +46,36 @@ MARKERS = {"...", "+++", "^^^", "!!!"}
 IDENTITY = re.compile(r"^\s*-\s*\[\[.+?\]\]\s*-\s*$")
 BREADCRUMB = re.compile(r"^\s*:>>")
 
+_ANCHOR_KEY = re.compile(r"^\s*(slug|title)\s*:\s*(.+?)\s*$")
+_entry_names: dict[Path, set[str]] = {}
+
+
+def entry_names(folder: Path) -> set[str]:
+    """The stems that would name this folder's anchor entry page.
+
+    An anchor's entry page is `{slug}.md`, and `slug` falls back to the folder
+    basename when `.anchor` does not declare one ([[DAS Dot Anchor]]) — but a
+    declared `slug` or `title` renames it, so `dans-anchor-system/` is fronted
+    by `DAS.md` and `skills/` by `DAS Skills.md`. Testing basename equality
+    alone misses 45 anchor pages vault-wide and calls each one a page that
+    sweeps its siblings. Cached: this is asked once per scanned file.
+    """
+    hit = _entry_names.get(folder)
+    if hit is not None:
+        return hit
+    names = {folder.name}
+    a = folder / ".anchor"
+    if a.is_file():
+        try:
+            for ln in a.read_text(encoding="utf-8", errors="replace").split("\n"):
+                m = _ANCHOR_KEY.match(ln)
+                if m:
+                    names.add(m.group(2).strip().strip('"').strip("'"))
+        except OSError:
+            pass
+    _entry_names[folder] = names
+    return names
+
 # Which shapes can host a table of contents.
 #
 # A dispatch spine that ENUMERATES its folder has already answered "what is
@@ -92,6 +122,36 @@ def cell(line: str, n: int) -> str:
     return cs[n].strip() if len(cs) > n else ""
 
 
+_in_anchor: dict[Path, bool] = {}
+
+
+def in_anchor(path: Path) -> bool:
+    """Is this file inside an anchor — the scope the spine rule applies to?
+
+    F308 Q3, ruled by the user 2026-08-06: *"the spine only applies to files,
+    markdown files inside of an anchor."* Loose material outside every anchor
+    is out of scope until it is filed, at which point it inherits the rule.
+    The walk stops at the vault root, so a file above every anchor is out.
+    """
+    d = Path(path).parent
+    seen = []
+    while True:
+        hit = _in_anchor.get(d)
+        if hit is not None:
+            break
+        seen.append(d)
+        if (d / ".anchor").exists():
+            hit = True
+            break
+        if d == VAULT or d.parent == d:
+            hit = False
+            break
+        d = d.parent
+    for s in seen:
+        _in_anchor[s] = hit
+    return hit
+
+
 class Spine:
     """A page's spine, parsed once."""
 
@@ -107,7 +167,7 @@ class Spine:
         self.table_start = self._find_identity()
         self.table_end = self._table_end()
         self.marker_idx, self.marker = self._find_marker()
-        self.fronts_folder = self.path.parent.name == self.path.stem
+        self.fronts_folder = self.path.stem in entry_names(self.path.parent)
         self.children = self._children()
 
     def _after_frontmatter(self) -> int:
@@ -206,12 +266,37 @@ def walk(root: Path):
         yield p
 
 
+def expand(paths) -> list[Path]:
+    """Resolve a mixed list of files and directories to markdown files.
+
+    A directory expands to every `.md` beneath it. A path that yields nothing
+    is an error, never a silent skip: a scan that quietly drops its argument
+    reports a clean zero that is a claim about the scanner, not the corpus.
+    """
+    out, empty = [], []
+    for p in (Path(x).resolve() for x in paths):
+        if p.is_dir():
+            found = list(walk(p))
+            (out.extend(found) if found else empty.append(p))
+        elif p.suffix == ".md":
+            out.append(p)
+        else:
+            empty.append(p)
+    if empty:
+        raise ValueError("no markdown found under: "
+                         + ", ".join(str(p) for p in empty))
+    return out
+
+
 def _targets(args, ap):
     if args.vault:
         return list(walk(VAULT))
     if args.file:
-        return args.file
-    ap.error("give files or --vault")
+        try:
+            return expand(args.file)
+        except ValueError as e:
+            ap.error(str(e))
+    ap.error("give files, a directory, or --vault")
 
 
 def v_shape(args, ap) -> int:

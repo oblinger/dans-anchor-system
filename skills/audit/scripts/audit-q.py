@@ -4315,6 +4315,9 @@ def check_c35_ask_md_drift(
     """
     findings: list[Finding] = []
     q_ref_re = re.compile(r"\bQ(\d+)\b")
+    # A claim of pendingness, not a mention: `- Q5 — ...` at the head of an
+    # enumeration sub-bullet. See the note at its use site below.
+    q_claim_re = re.compile(r"-\s*\*{0,2}Q(\d+)\b")
     wiki_link_re = re.compile(r"\[\[([^|\]]+?)(?:\|[^\]]+)?\]\]")
     for name, backlog_file in anchor_backlogs.items():
         queries_file = backlog_file.parent / f"{name} queries.md"
@@ -4368,18 +4371,27 @@ def check_c35_ask_md_drift(
             container_id = fnum
             # Extract claimed Q-numbers from the bullet line (and any
             # immediately-following indented continuation lines).
-            bullet_text = line
+            bullet_lines = [line]
             j = line_num + 1
             while j < q_end:
                 nxt = lines[j]
                 if nxt.startswith("  ") or nxt.startswith("\t"):
-                    bullet_text += " " + nxt
+                    bullet_lines.append(nxt)
                     j += 1
                 elif nxt == "":
                     break
                 else:
                     break
-            claimed = sorted({int(m.group(1)) for m in q_ref_re.finditer(bullet_text)})
+            # Only an ENUMERATION position counts as a claim. Scanning the
+            # whole bullet for \bQ<n>\b makes any Q whose TITLE names another
+            # question ("Q6 — Q3's scope ruling selects the whole vault") read
+            # as a claim that Q3 is pending, and report drift against a
+            # correctly-rendered file. queries-render only ever enumerates as
+            # `- Q<n> — <title>`, and the file is machine-written, so anchoring
+            # to that position loses nothing.
+            claimed = sorted({int(m.group(1))
+                              for ln in bullet_lines
+                              for m in [q_claim_re.match(ln.strip())] if m})
             pending_qs = {q.q_num for q in extract_q_entries(target_file, container_id)}
             # Core drift (F176 fix): a feature listed under `## Questions` whose
             # linked doc has ZERO pending Qs is wrong regardless of whether the

@@ -33,8 +33,17 @@ from pathlib import Path
 # would drift into disagreeing about what a page is.
 from spine import (  # noqa: E402
     VAULT, SKIP_DIRS, MARKERS, IDENTITY, BREADCRUMB,
-    split_cells, cell, Spine,
+    split_cells, cell, Spine, expand, in_anchor,
 )
+
+def disp(p: Path) -> str:
+    """Vault-relative when it can be, absolute otherwise — a path outside the
+    vault (a repo checked out elsewhere) must still print, not raise."""
+    try:
+        return str(p.relative_to(VAULT))
+    except ValueError:
+        return str(p)
+
 
 FIGURE = re.compile(r"!\[\[[^\]]+\]\]|<img\s|\.svg\)|\.png\)")
 TOC = re.compile(r"^\|\s*(\*\*)?Table of Contents", re.I)
@@ -136,8 +145,11 @@ def check(path: Path) -> list[tuple[str, int, str]]:
     out: list[tuple[str, int, str]] = []
 
     if not p.has_spine:
-        # Only meaningful for pages that are part of the anchor system's world.
-        out.append(("S01", (p.h1 or 0) + 1, CODES["S01"]))
+        # Scoped to markdown inside an anchor, per F308 Q3 (B). A spine's whole
+        # content is a path THROUGH the anchor tree, so a file outside every
+        # anchor has no such path to state and is out of scope until it is filed.
+        if in_anchor(path):
+            out.append(("S01", (p.h1 or 0) + 1, CODES["S01"]))
         return out
 
     if p.table_start is not None and p.breadcrumb is not None:
@@ -201,9 +213,15 @@ def main(argv=None) -> int:
     ap.add_argument("--shapes", action="store_true", help="tally spine shapes instead of findings")
     a = ap.parse_args(argv)
 
-    files = list(walk(VAULT)) if a.vault else [p for p in a.paths if p.suffix == ".md"]
-    if not files:
-        ap.error("give paths or --vault")
+    if a.vault:
+        files = list(walk(VAULT))
+    elif a.paths:
+        try:
+            files = expand(a.paths)
+        except ValueError as e:
+            ap.error(str(e))
+    else:
+        ap.error("give paths, a directory, or --vault")
 
     if a.shapes:
         tally: dict[str, int] = {}
@@ -232,8 +250,7 @@ def main(argv=None) -> int:
             step = max(1, len(hits) // a.sample)
             print(f"\n{'=' * 78}\n{code} — {CODES.get(code, '')}   [{len(hits)} total]\n{'=' * 78}")
             for f, line, msg in hits[::step][:a.sample]:
-                rel = f.relative_to(VAULT)
-                print(f"\n  {rel}:{line}")
+                print(f"\n  {disp(f)}:{line}")
                 try:
                     src = f.read_text(encoding="utf-8", errors="replace").split("\n")
                     lo, hi = max(0, line - 3), min(len(src), line + 2)
@@ -247,7 +264,7 @@ def main(argv=None) -> int:
     if not a.summary:
         for code in sorted(found):
             for f, line, msg in found[code]:
-                print(f"  [{code}] {f.relative_to(VAULT)}:{line} — {msg}")
+                print(f"  [{code}] {disp(f)}:{line} — {msg}")
         print()
     print(f"spine check: {total} finding(s) across {len(files)} file(s)")
     for code in sorted(found):
