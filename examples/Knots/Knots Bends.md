@@ -1,14 +1,14 @@
 ---
-description: "a sub-topic page within the Knots Topic example"
+description: "knots that join two ropes end-to-end"
 ---
-
-# Knots Bends - Bends
-Bends join two ropes into one longer line; the right bend depends on whether the ropes match in diameter and how easily you need to untie it later.
 
 | -[[Knots Bends]]- | : a sub-topic page within the Knots Topic example<br>→ [[DAS]] → [[examples]] → [[Knots\|KNOT TYING]] → [Knots Bends](hook://p/Knots%20Bends)  |
 | --- | --- |
 | Anchor | [[Knots]] (parent) |
 | ... | [[Knots Hitches]],   |
+
+# Knots Bends - Bends
+Bends join two ropes into one longer line; the right bend depends on whether the ropes match in diameter and how easily you need to untie it later.
 
 ## The working bends
 

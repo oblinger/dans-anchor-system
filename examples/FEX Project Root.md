@@ -3,11 +3,6 @@ description: "canonical project-root exemplar"
 traits: [Code]
 ---
 
-# CLF — Clarifier
-A CLI that turns messy meeting transcripts into clean, attributed minutes.
-
-![[F143-1-top-level.svg]]
-
 | -[[FEX Project Root]]- | : canonical project-root exemplar<br>→ [[DAS]] → [[examples]] → [FEX Project Root](hook://p/FEX%20Project%20Root)  |
 | --- | --- |
 | Related | [[FEX Facet]],  [[DAS Project Page]] (the facet),  [[vox]] (sibling transcript tool),  [Repo](https://github.com/example/clarifier),  [Docs site](https://example.github.io/clarifier/)  |
@@ -16,6 +11,12 @@ A CLI that turns messy meeting transcripts into clean, attributed minutes.
 | [[Clarifier User Docs\|User Docs]]+ | [[Clarifier Guide\|Guide]],   |
 | [[Clarifier Dev Docs\|Dev Docs]]+ | [[Clarifier Files\|Files]],   |
 | ... | [[_{{DISK_LABEL}} Template]],  [[_{{PURCHASE_DATE}} {{HOSTNAME}} Template]],  [[Bridges]],  [[Clarifier]],  [[CSE]],  [[DAS Examples]],  [[DAS US-CAE-1 — Schedule a Task]],  [[DAS US-CAE-2 — Monitor Task Status]],  [[DAS US-CAE-3 — Retry Failed Tasks]],  [[Devtools]],  [[ESP]],  [[Espresso]],  [[FEX Agenda]],  [[FEX API]],  [[FEX API Design]],  [[FEX Architecture]],  [[FEX Claude]],  [[FEX Completed Roadmap]],  [[FEX CSE]],  [[FEX Decisions]],  [[FEX Decisions Details]],  [[FEX Dispatch Examples]],  [[FEX Files]],  [[FEX Icebox]],  [[FEX Inbox]],  [[FEX Minimal Facet]],  [[FEX Minimal Skill]],  [[FEX Repo]],  [[FEX Roadmap]],  [[FEX Rules]],  [[FEX Scheduler]],  [[FEX Skill]],  [[FEX Spine Examples]],  [[FEX Stories]],  [[FEX System Design]],  [[Forum Stories]],  [[Harbor Hops]],  [[Harbor Latency Budget]],  [[Harbor Releases]],  [[Harbor Runbooks]],  [[HBR]],  [[HBR PRD User Stories]],  [[HWP]],  [[Knots]],  [[Mini]],  [[Snap]],  [[Viz Bench]],   |
+
+# CLF — Clarifier
+A CLI that turns messy meeting transcripts into clean, attributed minutes.
+
+![[F143-1-top-level.svg]]
+
 
 > **Canonical project root.** The `{slug}.md` entry page for a designed **project** anchor (`traits: [code]`). It's **masthead-only** — a project is *not* a [[Collection]] of like members; it has **structural parts**, so its dispatch rows are the anchor's standard sub-folders, each a `+` container link *down* to that sub-folder's own dispatch page (the [[progressive-disclosure]] tree of containers):
 > - **Masthead order ([[R-anchor-page]]-12/-13/-14):** `Related` is the **1st** row (omit if empty — never blank). If the anchor has the design facet, `Design` is the **2nd** row (mandatory), in the fixed order **PRD → UX Design → CLI → API → Architecture → Decisions → Testing → Roadmap → Features** (PRD · the three user-surface docs · Architecture+Decisions · Testing · Roadmap · Features).

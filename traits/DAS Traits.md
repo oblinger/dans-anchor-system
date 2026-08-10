@@ -8,7 +8,6 @@ description: "The anchor traits — declarable specializations of an anchor"
 | ... | [[anchor-base]],  [[pr]],  [[push]],   |
 
 # Traits
-
 The declarable properties an anchor carries in its `.anchor` `traits:` key — each specializes the [[Common Anchor Blueprint]].
 
 All anchor types follow the [[Common Anchor Blueprint]]. Each type adds specializations:

@@ -4,7 +4,6 @@ description: "product requirements"
 
 :>> [[DAS]] → [design](hook://design) → [DAS Fortify PRD](hook://p/DAS%20Fortify%20PRD)
 # Fortify PRD
-
 The current skill spec lives at [[fortify/SKILL\|SKILL.md]]. User docs live at [[DAS Fortify]].
 
 **From:** [[F200 — Cautious Crank]]

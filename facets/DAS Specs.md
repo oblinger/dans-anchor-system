@@ -2,9 +2,6 @@
 description: "specification for the OpenSpec-conformant specs/ folder — per-capability behavioral contracts with RFC-2119 requirements and Given/When/Then scenarios"
 ---
 
-# DAS Specs
-Specification for the **Specs** facet — the OpenSpec-conformant `specs/` folder holding the anchor's durable behavioral contract, one capability per folder.
-
 | -[[DAS Specs]]- | → [[DAS]] → [[FCT]] → [DAS Specs](hook://p/DAS%20Specs)  |
 | --- | --- |
 | Related | [[DAS Changes]],  [[DAS Architecture]],  [[DAS Testing]],  [[F230 — OpenSpec conversion\|F230]],   |
@@ -12,6 +9,9 @@ Specification for the **Specs** facet — the OpenSpec-conformant `specs/` folde
 | Rules | [[R-specs]],   |
 | Examples | none yet — first adoption pending ([[F230 — OpenSpec conversion\|F230]]) |
 | ... | [[anchor-page]],  [[DAS Agenda]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Page]],  [[DAS Anchor Tree]],  [[DAS API Design]],  [[DAS Aspects]],  [[DAS Backlog]],  [[DAS Brief]],  [[DAS Cards]],  [[DAS Claude]],  [[DAS CLI]],  [[DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[facets/DAS Decisions]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Design Folder]],  [[DAS Dev Dispatch]],  [[DAS Discussion]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facet]],  [[DAS Facets]],  [[DAS Features]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Interface]],  [[DAS Log]],  [[DAS Messages]],  [[DAS Module Doc]],  [[facets/DAS Move]],  [[DAS Naming]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS PRD]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Roadmap]],  [[DAS Rocks]],  [[DAS Ruleset]],  [[facets/DAS Skill]],  [[DAS Status]],  [[DAS Stone]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Track]],  [[DAS User Dispatch]],  [[DAS UX Design]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
+
+# DAS Specs
+Specification for the **Specs** facet — the OpenSpec-conformant `specs/` folder holding the anchor's durable behavioral contract, one capability per folder.
 
 **Location:** `specs/` at the anchor root (lowercase, [OpenSpec](https://github.com/Fission-AI/OpenSpec/)-conformant). One folder per **capability**, each holding exactly one file named `spec.md` — nothing else (verified against OpenSpec's own repo; everything richer lives in the anchor's design docs).
 

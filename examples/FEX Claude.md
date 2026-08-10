@@ -2,12 +2,12 @@
 description: "Two worked CLAUDE.md files — the plain-content tier and the agentic-project tier — as the DAS Claude facet's in-repo example"
 ---
 
-# FEX Claude
-Two complete `CLAUDE.md` files at the facet's two tiers: a plain-content anchor that only needs commands and architecture, and an agentic-project anchor that opens with a Pilot role declaration.
-
 | -[[FEX Claude]]- | → [[DAS]] → [[examples]] → [FEX Claude](hook://p/FEX%20Claude)  |
 | --- | --- |
 | Related | [[DAS Claude]],   |
+
+# FEX Claude
+Two complete `CLAUDE.md` files at the facet's two tiers: a plain-content anchor that only needs commands and architecture, and an agentic-project anchor that opens with a Pilot role declaration.
 
 **Why this file is not a `CLAUDE.md`.** A real `CLAUDE.md` anywhere in this tree would be **loaded as live instructions** by any Claude Code session rooted at or below it — an example would start configuring the agent reading it. So the two instances below are quoted inside a teaching artifact instead, and their headings carry backslash escapes (`\## Mission`) so the quoted outline does not merge into this document's own. This is the same escaping convention [[DAS Claude]] uses in its inline reference block; preserve the backslashes when editing.
 

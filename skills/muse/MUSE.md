@@ -2,8 +2,6 @@
 aliases: [Muse]
 description: Voice-memo ingestion + review-and-do pipeline — watch/phone recordings become inbox items, executed via Claude in a tmux session.
 ---
-# MUSE
-The service that turns spoken thought into acted-on knowledge. A ~~[[skills|Claude skill]]~~ with two entry points: **`muse ingest`** runs headlessly when a new voice recording lands (via `launchd`) — transcribes it, writes an item file to the permanent archive at `~/ob/kmr/Log/MUSE/`, and prepends a bullet to the [[Quick]] pane. **`/muse do <path>`** runs in Claude Code when typed with an item path — reads the item and proposes an action for the user to approve.
 
 | -[[MUSE]]- | : Voice-memo ingestion + review-and-do pipeline<br>→ [[DAS]] → [[SKL]] → [MUSE](hook://p/MUSE)  |
 | --- | --- |
@@ -19,6 +17,8 @@ The service that turns spoken thought into acted-on knowledge. A ~~[[skills|Clau
 | Status | ✅ **Live** — `muse ingest` running, items land in `~/ob/kmr/Log/MUSE/`, Quick.md bulleted, `/muse do` slash-command available. HUD Cmd+Opt+D binding deferred (invocation is by typing the slash command). Shipped as [[F018 — MUSE — Watch-first voice-memo pipeline (ingest + do)]] on 2026-07-13. |
 | ... | [[F001 — Silence-aware suppression (leading-burst + capped-silence-trim + trimmed-WPS)]],  [[MUSE Backlog\|Backlog]],  [[MUSE Inbox\|Inbox]],  [[MUSE Messages\|Messages]],  [[MUSE queries\|queries]],  [[muse/SKILL]],   |
 
+# MUSE
+The service that turns spoken thought into acted-on knowledge. A ~~[[skills|Claude skill]]~~ with two entry points: **`muse ingest`** runs headlessly when a new voice recording lands (via `launchd`) — transcribes it, writes an item file to the permanent archive at `~/ob/kmr/Log/MUSE/`, and prepends a bullet to the [[Quick]] pane. **`/muse do <path>`** runs in Claude Code when typed with an item path — reads the item and proposes an action for the user to approve.
 
 ## Overview
 

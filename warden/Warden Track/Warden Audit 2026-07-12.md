@@ -1,6 +1,5 @@
 :>> [[DAS]] → [[WARD]] → [[Warden Track]] → [Warden Audit 2026-07-12](hook://p/Warden%20Audit%202026-07-12)
 # Warden Audit 2026-07-12
-
 Adversarial spec-vs-code latent-bug audit of the live-wired Warden engine (Fable recipe: build the behavioral model from the design docs, trace the engine against it, construct concrete breaking inputs, verify each by code-trace or executed probe). Read-only. Complements the 2026-07-06 register ([[F232 — Latent-bug audit 2026-07-06 — findings register|F232]]) — every finding here is new to that register or a gap its fixes left open.
 
 ## TLDR

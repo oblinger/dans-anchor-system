@@ -4,13 +4,13 @@ description: "Capture a screenshot, file it with a generated title, and drop a t
 user_invocable: true
 ---
 
-# Snap — capture + file a screenshot
-Grab a screenshot, name it from its content, file it under `~/ob/kmr/Log/SNAP/`.
-
 | -[[Snapper Dapper]]- | : example skill anchor — a `SKILL.md`<br>→ [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [Snap](hook://p/Snap) |
 | --- | --- |
 | Related | [[Clarifier]] (example project),  [[DAS Skill]] (the skill facet),  [[DAS Examples]] |
 | ... |  |
+
+# Snap — capture + file a screenshot
+Grab a screenshot, name it from its content, file it under `~/ob/kmr/Log/SNAP/`.
 
 ## When to Use
 

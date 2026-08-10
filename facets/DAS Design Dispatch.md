@@ -2,15 +2,15 @@
 description: "design docs dispatch page — Architecture, UX Design, Interface, Data Model, Principles, PRD"
 ---
 
-# DAS Design Dispatch
-Facet spec for `{slug} Design.md` — the dispatch page listing all high-level system-spec documents for an anchor.
-
 | -[[DAS Design Dispatch]]- | → [[DAS]] → [[FCT]] → [DAS Design Dispatch](hook://p/DAS%20Design%20Dispatch)  |
 | --- | --- |
 | Related | [[DAS Architecture]],  [[DAS UX Design]],  [[DAS Interface]],  [[DAS PRD]],   |
 | Examples | [[HBR Design\|minimal]],  [[HBR Design\|fuller]],   |
 | Rules | [[R-design-dispatch]],   |
 | ... | [[anchor-page]],  [[DAS Agenda]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS API Design]],  [[DAS Aspects]],  [[DAS Backlog]],  [[DAS Brief]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Claude]],  [[DAS CLI]],  [[DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[DAS Design Docs]],  [[DAS Design Folder]],  [[DAS Discussion]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facet]],  [[DAS Facets]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Log]],  [[DAS Messages]],  [[DAS Module Doc]],  [[facets/DAS Move]],  [[DAS Naming]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Rocks]],  [[DAS Ruleset]],  [[facets/DAS Skill]],  [[DAS Specs]],  [[DAS Status]],  [[DAS Stone]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
+
+# DAS Design Dispatch
+Facet spec for `{slug} Design.md` — the dispatch page listing all high-level system-spec documents for an anchor.
 
 **TLDR** — `{slug} Design.md` is the one-per-anchor dispatch page listing the high-level system-spec documents (UX Design, Interface, Decisions, Data Model, Principles, PRD, Features, Roadmap, Design Discussion) for an anchor. It lives at the root-level `{slug} Design/{slug} Design.md`. The system-architecture story **is** a Design child — `{slug} Architecture` (a single `.md`, or a `{slug} Architecture/` folder-doc once it grows subsystems) inside `{slug} Design/`. (F094's root placement reversed 2026-06-27.) Interface is required for Code anchors.
 

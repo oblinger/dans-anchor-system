@@ -4,7 +4,6 @@ description: "invocation surface + output format"
 
 :>> [[DAS]] → [design](hook://design) → [DAS Audit UX Design](hook://p/DAS%20Audit%20UX%20Design)
 # DAS Audit UX Design
-
 How the user and agent invoke audit and what they see back. The interaction shape follows the two trigger modes and four levels in [[DAS Audit PRD|Audit PRD]].
 
 ## Command grammar

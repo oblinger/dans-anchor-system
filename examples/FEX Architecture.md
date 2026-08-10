@@ -1,12 +1,6 @@
 ---
 description: "CAE system architecture — worked example of the DAS Architecture facet"
 ---
-# FEX Architecture
-CAE is a single-process CLI scheduler. A submitted task carries a deadline, a retry policy, and an opaque command payload; the scheduler enqueues it in a SQLite-backed priority store, dispatches to a fixed worker pool when ready, and routes failures through a centralized retry manager. No daemon, no IPC — every coordination decision flows through the SQLite store.
-
-![[CAE Architecture.png]]
-
-CLI submits tasks to the **Scheduler**, which dispatches to the **Worker Pool**, persists state in **TaskStore**, and consults **RetryManager** on failure. The injectable **Clock** (not shown — passed by reference at construction) is the time source every component reads from.
 
 | -[[FEX Architecture]]- | : CAE system architecture — worked example of the DAS Architecture facet<br>→ [[DAS]] → [[examples]] → [FEX Architecture](hook://p/FEX%20Architecture)  |
 | --- | --- |
@@ -88,6 +82,14 @@ CLI submits tasks to the **Scheduler**, which dispatches to the **Worker Pool**,
 | [[Decisions/UCM Decisions]]  | architectural and implementation decisions for UCM |
 | [[US-CAE-1 — Schedule a Task]]  | Schedule a deferred shell task with absolute or relative time |
 | [[US-CAE-3 — Retry Failed Tasks]]  | Auto-retry failed tasks with exponential backoff to a cap |
+
+# FEX Architecture
+CAE is a single-process CLI scheduler. A submitted task carries a deadline, a retry policy, and an opaque command payload; the scheduler enqueues it in a SQLite-backed priority store, dispatches to a fixed worker pool when ready, and routes failures through a centralized retry manager. No daemon, no IPC — every coordination decision flows through the SQLite store.
+
+![[CAE Architecture.png]]
+
+CLI submits tasks to the **Scheduler**, which dispatches to the **Worker Pool**, persists state in **TaskStore**, and consults **RetryManager** on failure. The injectable **Clock** (not shown — passed by reference at construction) is the time source every component reads from.
+
 
 
 > [!note] DAS Architecture convention

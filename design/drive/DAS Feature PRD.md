@@ -4,7 +4,6 @@ description: "product requirements"
 
 :>> [[DAS]] → [design](hook://design) → [DAS Feature PRD](hook://p/DAS%20Feature%20PRD)
 # Feature PRD
-
 The current skill spec lives at [[feature/SKILL\|SKILL.md]]. User docs live at [[DAS Feature]].
 
 **From:** [[F199 — F-Number Cross-Anchor Collision Guard]]

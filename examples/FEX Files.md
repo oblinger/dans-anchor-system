@@ -6,9 +6,7 @@ description: repository file tree (audit-generated)
 
 :>> [[DAS]] → [[examples]] → [FEX Files](hook://p/FEX%20Files)
 # FEX Files
-
 File tree for the example-project repository with descriptions.
-
 
 example-project/                          [[FEX Architecture#Public API rollup|CAE Architecture § Public API rollup]]
 ├── Cargo.toml                            Workspace config + dependencies

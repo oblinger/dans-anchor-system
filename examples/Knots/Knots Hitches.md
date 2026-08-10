@@ -1,14 +1,14 @@
 ---
-description: "a sub-topic page within the Knots Topic example"
+description: "knots that grip a post, rail, or ring"
 ---
-
-# Knots Hitches - Hitches
-Hitches attach a rope to a fixed object — a post, rail, ring, or another rope under tension — and hold only while that tension is on.
 
 | -[[Knots Hitches]]- | : a sub-topic page within the Knots Topic example<br>→ [[DAS]] → [[examples]] → [[Knots\|KNOT TYING]] → [Knots Hitches](hook://p/Knots%20Hitches)  |
 | --- | --- |
 | Anchor | [[Knots]] (parent) |
 | ... | [[Knots Bends]],   |
+
+# Knots Hitches - Hitches
+Hitches attach a rope to a fixed object — a post, rail, ring, or another rope under tension — and hold only while that tension is on.
 
 ## The working hitches
 

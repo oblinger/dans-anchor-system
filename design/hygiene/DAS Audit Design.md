@@ -2,8 +2,6 @@
 description: "design-pipeline docs for the Audit skill"
 ---
 
-# DAS Audit Design
-
 | -[[DAS Audit Design\|Audit Design]]- | : design-pipeline docs for the Audit skill<br>→ [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [design](hook://design) → [[Audit]] → [DAS Audit Design](hook://p/DAS%20Audit%20Design) |
 | --- | --- |
 | [[DAS Audit PRD\|PRD]]  | product requirements — what /audit produces and for whom |
@@ -20,5 +18,8 @@ description: "design-pipeline docs for the Audit skill"
 | [[Audit Features\|Features]]  | feature design records (kept at `skills/audit/`, not under `design/` — T041 Q3) — the per-feature docs defining V2 audit |
 | [[DAS Audit Completed Roadmap\|Completed Roadmap]]  | shipped milestones |
 | ... |  |
+
+# DAS Audit Design
+
 
 Design is the umbrella for system-spec content for the **Audit** skill — PRD, UX Design, Architecture, and the rest of the design pipeline. Member order follows the canonical Design-row order ([[R-anchor-page]]-13): PRD → (Stories) → UX Design → (CLI) → API → Architecture → (System / Files) → Decisions → Testing → Roadmap. As a SKA sub-project the Audit skill owns this design but no tracking or status ([[DAS Track]] § Who owns a Track folder); see [[DAS Design Docs]] for the canonical Design-dispatch shape.

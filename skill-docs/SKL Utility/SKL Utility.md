@@ -2,10 +2,6 @@
 description: User guides for cross-cutting helpers — local-environment control, remote-machine bridging, agent-to-agent communication, recipe lookups, remote experimentation, capture.
 ---
 
-# SKL Utility
-
-User guides for cross-cutting helpers — local-environment control, remote-machine bridging, agent-to-agent communication, recipe lookups, remote experimentation, capture.
-
 | -[[SKL Utility]]- | : User guides for cross-cutting helpers — local-environment control, remote-machine bridging, agent-to-agent communication, recipe lookups, remote experimentation, capture.<br>→ [[DAS]] → [[skill-docs]] → [SKL Utility](hook://p/SKL%20Utility)  |
 | --- | --- |
 | [[DAS Bridge\|Bridge]]  | `bridge` connects this Mac to another machine — control (SSH + tmux + TCC inheritance), sync (folder mirroring at identical paths), claude (environment-twin), agent (a working Claude agent deployed on the remote). |
@@ -15,3 +11,6 @@ User guides for cross-cutting helpers — local-environment control, remote-mach
 | [[DAS Parley\|Parley]]  | Structured discussion — talk through a topic with the user, capture decisions, and surface next steps. |
 | [[DAS Snip\|Snip]]  | Capture rough text drops to the SNIP log and refine them inline. |
 | --- | |
+
+# SKL Utility
+User guides for cross-cutting helpers — local-environment control, remote-machine bridging, agent-to-agent communication, recipe lookups, remote experimentation, capture.

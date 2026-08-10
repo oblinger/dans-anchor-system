@@ -2,14 +2,15 @@
 description: "product requirements — the kinds of bridging"
 ---
 
-# DAS Bridge PRD
-
 | -[[DAS Bridge PRD]]- | : product requirements — the kinds of bridging<br>→ [[DAS]] → [design](hook://design) → [DAS Bridge PRD](hook://p/DAS%20Bridge%20PRD)  |
 | --- | --- |
 | [[DAS Bridge UX Design\|UX Design]]  | the command surface that realizes these requirements |
 | [[DAS Bridge Testing\|Testing]]  | how each kind of bridging is verified |
 | [[bridge\|SKILL.md]]  | the live runbook |
 | ... |  |
+
+# DAS Bridge PRD
+
 
 ## Problem
 

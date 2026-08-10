@@ -2,10 +2,6 @@
 description: User guides for document-production skills — Google Workspace I/O, markdown formatting, visualizations, and inline editing.
 ---
 
-# SKL Doc
-
-User guides for document-production skills — Google Workspace I/O, markdown formatting, visualizations, and inline editing.
-
 | -[[SKL Doc]]- | : User guides for document-production skills — Google Workspace I/O, markdown formatting, visualizations, and inline editing.<br>→ [[DAS]] → [[skill-docs]] → [SKL Doc](hook://p/SKL%20Doc)  |
 | --- | --- |
 | [[DAS Edit\|Edit]]  | How to create and export visual content — Excalidraw diagrams, SVG, PNG, Google Slides |
@@ -14,3 +10,6 @@ User guides for document-production skills — Google Workspace I/O, markdown fo
 | [[DAS Viz\|Viz]]  | `/viz` produces visual artifacts — diagrams, charts, mockups, slides, formatted docs. |
 | [[DAS Imgen\|Image]]  | `/image` — generate an image from a prompt; sidecar, cost, presets. |
 | --- | |
+
+# SKL Doc
+User guides for document-production skills — Google Workspace I/O, markdown formatting, visualizations, and inline editing.

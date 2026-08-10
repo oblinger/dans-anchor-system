@@ -2,6 +2,10 @@
 description: "The case corpus Stencil is derived from — a real example first, then proposed stencils, then the discussion. Every block is delimited, verbatim, and copy-pasteable."
 ---
 
+| -[[HERMES Backlog]]- | → [[kmr]] → [[SYS]] → [[Staff]] → [[HERMES]] → [[HERMES Track]] → [HERMES Backlog](hook://p/HERMES%20Backlog)  |
+| --- | --- |
+| ... | [[HERMES Messages]],   |
+
 # Template Examples
 The working corpus for [[TINK303 - Template DSL - one pattern language for facets, templates, and sections|F303]] M1 — every template-shaped case that actually exists, and how **Stencil** would express it.
 
@@ -97,9 +101,6 @@ Two accepted costs of verbatim-and-unfenced: specimen headings are real headings
 <!-- state:backlog 6h -->
 The work queue for [[HERMES|Hermes]], the purchasing agent — content curated is [[BUY]].
 
-| -[[HERMES Backlog]]- | → [[kmr]] → [[SYS]] → [[Staff]] → [[HERMES]] → [[HERMES Track]] → [HERMES Backlog](hook://p/HERMES%20Backlog)  |
-| --- | --- |
-| ... | [[HERMES Messages]],   |
 
 ## Ready
 

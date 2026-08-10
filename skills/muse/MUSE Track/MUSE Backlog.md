@@ -1,14 +1,16 @@
 ---
 description: "MUSE backlog — voice-memo pipeline features"
 ---
+
+| -[[MUSE Backlog]]- | → [[DAS]] → [[SKL]] → [[MUSE]] → [MUSE Backlog](hook://p/MUSE%20Backlog)  |
+| --- | --- |
+| ... |  |
+
 # MUSE Backlog
 <!-- state:backlog h7 -->
 
 Voice-memo ingestion + review-and-do pipeline work items.
 
-| -[[MUSE Backlog]]- | → [[DAS]] → [[SKL]] → [[MUSE]] → [MUSE Backlog](hook://p/MUSE%20Backlog)  |
-| --- | --- |
-| ... |  |
 
 ## Ready
 

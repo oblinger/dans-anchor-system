@@ -1,12 +1,13 @@
 ---
 description: "How the search skill family combines knowledge and rules — the mental model behind find/profile/survey."
 ---
-# DAS Search Overview
-The mental model behind the **search skill family** (`find`, `describe`, `survey`) — how the pieces fit together so you know how to ask, where to find rules, and where results land.
 
 | -[[DAS Search Overview]]- | : How the search skill family combines knowledge and rules — the mental model behind find/profile/survey.<br>→ [[DAS]] → [docs](hook://docs) → [DAS Search Overview](hook://p/DAS%20Search%20Overview)  |
 | --- | --- |
 | ... |  |
+
+# DAS Search Overview
+The mental model behind the **search skill family** (`find`, `describe`, `survey`) — how the pieces fit together so you know how to ask, where to find rules, and where results land.
 
 ## The two axes
 

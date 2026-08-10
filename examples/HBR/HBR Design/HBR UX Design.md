@@ -1,14 +1,15 @@
 ---
 description: "sibling — human CLI surface"
 ---
-# HBR UX Design
-What a household viewer sees: browse the catalog, then play a title — on whatever device is in hand.
 
-| -[[HBR UX Design]]- | : viewer-facing UX<br>→ [[DAS]] → [[examples]] → [[HBR\|HARBOR]] → [[HBR Design\|HARBOR DESIGN]] → [HBR UX Design](hook://p/HBR%20UX%20Design) |
+| -[[HBR UX Design]]- | : viewer-facing UX<br>→ [[DAS]] → [[examples]] → [[HBR\|HARBOR]] → [[HBR Design\|HARBOR DESIGN]] → [HBR UX Design](hook://p/HBR%20UX%20Design)  |
 | --- | --- |
 | Anchor | [[HBR Design]] (parent) |
 | Related | [[HBR API Design]],  [[HBR CLI]],  [[HBR Architecture]],  [[HBR PRD]],   |
 | ... | [[HBR CLI Help.txt]],  [[HBR Features]],  [[HBR Roadmap]],  [[HBR Testing]],   |
+
+# HBR UX Design
+What a household viewer sees: browse the catalog, then play a title — on whatever device is in hand.
 
 ## TLDR
 - **Audience** — a household viewer on a LAN device (TV browser, phone, laptop); no account, no install.

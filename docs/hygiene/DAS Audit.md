@@ -1,16 +1,18 @@
 ---
 description: "How auditing works — design rationale, tool chain, and examples"
 ---
-# DAS Audit
-How auditing works — the rule-driven engine, the tool chain that runs it, and the detect-only posture that makes a sweep safe to run at any time.
-
-## Philosophy
 
 | -[[DAS Audit]]- | : How auditing works — design rationale, tool chain, and examples<br>→ [[DAS]] → [docs](hook://docs) → [DAS Audit](hook://p/DAS%20Audit)  |
 | --- | --- |
 | Related | [[skills/audit/SKILL.md\|SKILL]],   |
 | [[DAS Audit Design\|Design]]  |  |
 | ... |  |
+
+# DAS Audit
+How auditing works — the rule-driven engine, the tool chain that runs it, and the detect-only posture that makes a sweep safe to run at any time.
+
+## Philosophy
+
 
 Auditing finds problems. It does NOT fix them. The output is a **punch list** — a table of fixes with concrete commands. The user reviews the punch list and tells the agent what to fix.
 

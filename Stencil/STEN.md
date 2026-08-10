@@ -1,8 +1,6 @@
 ---
 description: Stencil — the pattern language the anchor system is written in
 ---
-# Stencil
-The pattern language the anchor system is written in — one notation that both generates a document and tests whether a document fits.
 
 | -[[STEN]]- | : Stencil — the pattern language the anchor system is written in — one notation that both generates a document and tests whether a document fits<br>→ [[DAS]] → [STEN](hook://p/STEN)  |
 | --- | --- |
@@ -10,6 +8,9 @@ The pattern language the anchor system is written in — one notation that both 
 | Language | [[STEN Language\|Language]] — the grammar: three constructs, four defaults |
 | Spec | [[TINK303 - Template DSL - one pattern language for facets, templates, and sections\|F303]] — the commissioning feature; the corpus is [[Template Examples]]  |
 | ... | [[STEN Restated Corpus\|Restated Corpus]],   |
+
+# Stencil
+The pattern language the anchor system is written in — one notation that both generates a document and tests whether a document fits.
 
 ## Overview
 

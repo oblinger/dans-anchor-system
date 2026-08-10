@@ -2,9 +2,6 @@
 description: "the example gallery — fictional worlds + a per-kind map"
 ---
 
-# Examples
-A small set of complete, fictional example anchors — reused to illustrate each facet and anchor-page kind.
-
 | -[[DAS Examples]]- | : the example gallery — fictional worlds + a per-kind map<br>→ [[DAS]] → [[examples]] → [DAS Examples](hook://p/DAS%20Examples)  |
 | --- | --- |
 | Related | [[DAS Skills\|Skills]],  [[DAS Facets\|Facets]],  [[DAS Disciplines\|Disciplines]],  [[DAS Traits\|Traits]],  [[DAS Rulesets\|Rulesets]],  [[DAS\|dans-anchor-system]],   |
@@ -15,6 +12,9 @@ A small set of complete, fictional example anchors — reused to illustrate each
 | [[HWP\|Harbor Whitepaper]]  | **Harbor Whitepaper** — a **Paper** anchor: a short whitepaper on Harbor carrying the dated version-table + per-section track-changes signature |
 | [[CSE]]  | **Common Skill Example** — the fully-wired worked-example **skill** anchor (`SKILL.md` shape), cited by the Skill-Anchor trait spec. Relocated here from `CAB/` 2026-06-27. |
 | ... | [[Bridges]],  [[Clarifier]],  [[DAS US-CAE-2 — Monitor Task Status]],  [[DAS US-CAE-3 — Retry Failed Tasks]],  [[Devtools]],  [[ESP]],  [[Espresso]],  [[FEX Agenda]],  [[FEX API]],  [[FEX API Design]],  [[FEX Architecture]],  [[FEX Claude]],  [[FEX Completed Roadmap]],  [[FEX CSE]],  [[FEX Decisions]],  [[FEX Decisions Details]],  [[FEX Dispatch Examples]],  [[FEX Facet]],  [[FEX Figure Page]],  [[FEX Files]],  [[FEX Icebox]],  [[FEX Inbox]],  [[FEX Minimal Facet]],  [[FEX Minimal Skill]],  [[FEX Project Root]],  [[FEX Roadmap]],  [[FEX Rules]],  [[FEX Scheduler]],  [[FEX Skill]],  [[FEX Spine Examples]],  [[FEX System Design]],  [[Forum Stories]],  [[Harbor Hops]],  [[Harbor Latency Budget]],  [[Harbor Releases]],  [[Harbor Runbooks]],  [[HBR PRD User Stories]],  [[Mini]],  [[Snap]],  [[Viz Bench]],   |
+
+# Examples
+A small set of complete, fictional example anchors — reused to illustrate each facet and anchor-page kind.
 
 ## By kind / facet — which example shows it
 

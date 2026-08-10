@@ -4,13 +4,13 @@ description: "canonical skill exemplar"
 user_invocable: true
 ---
 
-# Snap — capture + file a screenshot
-Grab a screenshot, name it from its content, file it under `~/notes/log/snap/`.
-
 | -[[FEX Skill]]- | : canonical skill exemplar<br>→ [[DAS]] → [[examples]] → [FEX Skill](hook://p/FEX%20Skill)  |
 | --- | --- |
 | Related | [[FEX Facet]],  [[DAS Skill]] (the skill facet),  [[FEX Dispatch Examples]]  |
 | ... | [[_{{DISK_LABEL}} Template]],  [[_{{PURCHASE_DATE}} {{HOSTNAME}} Template]],  [[Bridges]],  [[Clarifier]],  [[CSE]],  [[DAS Examples]],  [[DAS US-CAE-1 — Schedule a Task]],  [[DAS US-CAE-2 — Monitor Task Status]],  [[DAS US-CAE-3 — Retry Failed Tasks]],  [[Devtools]],  [[ESP]],  [[Espresso]],  [[FEX Agenda]],  [[FEX API]],  [[FEX API Design]],  [[FEX Architecture]],  [[FEX Claude]],  [[FEX Completed Roadmap]],  [[FEX CSE]],  [[FEX Decisions]],  [[FEX Decisions Details]],  [[FEX Figure Page]],  [[FEX Files]],  [[FEX Icebox]],  [[FEX Inbox]],  [[FEX Minimal Facet]],  [[FEX Minimal Skill]],  [[FEX Project Root]],  [[FEX Repo]],  [[FEX Roadmap]],  [[FEX Rules]],  [[FEX Scheduler]],  [[FEX Spine Examples]],  [[FEX Stories]],  [[FEX System Design]],  [[Forum Stories]],  [[Harbor Hops]],  [[Harbor Latency Budget]],  [[Harbor Releases]],  [[Harbor Runbooks]],  [[HBR]],  [[HBR PRD User Stories]],  [[HWP]],  [[Knots]],  [[Mini]],  [[Snap]],  [[Viz Bench]],   |
+
+# Snap — capture + file a screenshot
+Grab a screenshot, name it from its content, file it under `~/notes/log/snap/`.
 
 > **Canonical skill exemplar.** This *is* the `SKILL.md` template every skill follows. Note: (1) **frontmatter** carries the `name` (= folder = slash command) and the front-loaded `description` (the always-loaded surface — first sentence is what it does, then *when* to invoke); (2) **H1** = `<command> — <plain gloss>`; (3) a **one-liner**; (4) a small **masthead** (just `Related`); (5) the **body** is the runbook. Worked content: a hypothetical `snap` skill.
 

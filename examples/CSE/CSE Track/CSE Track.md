@@ -1,7 +1,6 @@
 ---
 description: planning surface for the CSE example skill anchor
 ---
-# CSE Plan
 
 | -[[CSE Track]]- | : planning surface for the CSE example skill anchor<br>→ [[DAS]] → [[examples]] → [[CSE]] → [CSE Track](hook://p/CSE%20Track)  |
 | --- | --- |
@@ -10,3 +9,6 @@ description: planning surface for the CSE example skill anchor
 | [[CSE queries]]  | items needing user involvement (agent-owned) |
 | [[CSE Features]]  | dated feature specs for changes to the skill |
 | ... | [[CSE Messages]],   |
+
+# CSE Plan
+

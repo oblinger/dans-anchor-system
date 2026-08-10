@@ -1,13 +1,14 @@
 ---
 description: "high-rigor three-stage form of /survey for high-stakes comparisons"
 ---
-# DAS Meta Survey
+
 | -[[DAS Meta Survey]]- | : high-rigor three-stage form of /survey for high-stakes comparisons<br>→ [[DAS]] → [docs](hook://docs) → [DAS Meta Survey](hook://p/DAS%20Meta%20Survey)  |
 | --- | --- |
 | Runbook | [[survey/meta-survey\|meta-survey.md]],   |
 | Standard /survey | [[DAS Survey]],   |
 | ... |  |
 
+# DAS Meta Survey
 **Meta-survey** is the high-rigor form of `/survey`. Reach for it when the user is about to commit (purchase, adopt, hire, publish), the domain is contested or rapidly changing, sources disagree, or "we got it wrong" has a real cost.
 
 ## Three composed surveys

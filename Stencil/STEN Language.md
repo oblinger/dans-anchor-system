@@ -2,6 +2,12 @@
 description: "the Stencil language — three constructs and four defaults"
 ---
 
+| -[[STEN Language]]- | : the Stencil language — three constructs and four defaults<br>→ [[DAS]] → [[STEN]] → [STEN Language](hook://p/STEN%20Language)  |
+| --- | --- |
+| Corpus | [[Template Examples]] — the seven cases every construct is derived from |
+| Spec | [[TINK303 - Template DSL - one pattern language for facets, templates, and sections\|F303]] — the commissioning feature |
+| ... | [[STEN Restated Corpus]],  [[STEN Track]],   |
+
 # Stencil Language
 The whole language: three constructs, four defaults, and one nesting rule.
 
@@ -20,11 +26,6 @@ The whole language: three constructs, four defaults, and one nesting rule.
 
 **Anchors nest, and every depth is relative to the nearest enclosing anchor.** An anchor marker may sit on a heading *inside* a stencil, not only on its first line; below it, depth is read against that heading rather than against the file.
 
-| -[[STEN Language]]- | : the Stencil language — three constructs and four defaults<br>→ [[DAS]] → [[STEN]] → [STEN Language](hook://p/STEN%20Language)  |
-| --- | --- |
-| Corpus | [[Template Examples]] — the seven cases every construct is derived from |
-| Spec | [[TINK303 - Template DSL - one pattern language for facets, templates, and sections\|F303]] — the commissioning feature |
-| ... | [[STEN Restated Corpus]],  [[STEN Track]],   |
 
 ## Overview
 

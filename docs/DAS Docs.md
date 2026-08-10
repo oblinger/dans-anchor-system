@@ -2,10 +2,6 @@
 description: "the reading surface — per-skill user docs, grouped by group"
 ---
 
-# Docs
-
-The **reading surface** — one user-facing page per skill (how to *use* it, no design internals), filed under `docs/<group>/`. The operational `skills/` folder is page-less storage; these slugged pages are its human entry points.
-
 | -[[DAS Docs]]- | : the reading surface — per-skill user docs, grouped by group<br>→ [[DAS]] → [docs](hook://docs) → [DAS Docs](hook://p/DAS%20Docs)  |
 | --- | --- |
 | Related | [[DAS Skills\|Skills]],  [[DAS Design\|Design]],  [[DAS Facets\|Facets]],  [[DAS\|dans-anchor-system]],   |
@@ -23,3 +19,6 @@ The **reading surface** — one user-facing page per skill (how to *use* it, no 
 | [[DAS Code Skill]]  | How to use the development workflow — from planning through implementation and release. |
 | [[anchor/DAS Move]]  | `/move` relocates an anchor folder to a new path and updates every path-dependent system that indexes it — HookAnchor, Claude Code session history, hardcoded paths inside the anchor's own configs, … |
 | [[search/DAS Skill]]  | skim → click into the rule that applies |
+
+# Docs
+The **reading surface** — one user-facing page per skill (how to *use* it, no design internals), filed under `docs/<group>/`. The operational `skills/` folder is page-less storage; these slugged pages are its human entry points.

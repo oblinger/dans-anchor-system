@@ -2,15 +2,15 @@
 description: "specification for F-numbered per-feature design docs and their index page"
 ---
 
-# DAS Features
-Specification for the **Features** facet — F-numbered per-feature design docs that live under `{slug} Design/{slug} Features/`, with their index page and first-H2 Open-Questions block.
-
 | -[[DAS Features]]- | → [[DAS]] → [[FCT]] → [DAS Features](hook://p/DAS%20Features)  |
 | --- | --- |
 | Related | [[DAS Roadmap]],  [[DAS Backlog]],  [[DAS Status]],  [[DAS Facet]],   |
 | Rules | [[R-fct-features]],   |
 | Examples | [[HBR Features\|minimal]],  [[HBR Features\|fuller]],   |
 | ... | [[anchor-page]],  [[DAS Agenda]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Page]],  [[DAS Anchor Tree]],  [[DAS API Design]],  [[DAS Architecture]],  [[DAS Aspects]],  [[DAS Brief]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Claude]],  [[DAS CLI]],  [[DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[facets/DAS Decisions]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Design Folder]],  [[DAS Dev Dispatch]],  [[DAS Discussion]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facets]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Interface]],  [[DAS Log]],  [[DAS Messages]],  [[DAS Module Doc]],  [[facets/DAS Move]],  [[DAS Naming]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS PRD]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Rocks]],  [[DAS Ruleset]],  [[facets/DAS Skill]],  [[DAS Specs]],  [[DAS Stone]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS Track]],  [[DAS User Dispatch]],  [[DAS UX Design]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
+
+# DAS Features
+Specification for the **Features** facet — F-numbered per-feature design docs that live under `{slug} Design/{slug} Features/`, with their index page and first-H2 Open-Questions block.
 
 **Location:** `{slug} Design/{slug} Features/` (folder; one file per feature, `F<NNN> — <Title>.md`).
 

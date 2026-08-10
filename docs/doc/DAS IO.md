@@ -10,7 +10,6 @@ description: "How to read from and write to external services — Google Workspa
 | ... |  |
 
 # DAS IO
-
 The **io** skill is the gateway between this Mac and external services — cloud (Google Workspace, email, Notion) and local desktop apps (Microsoft Excel). Each surface is a subcommand (`/io <surface>`).
 
 **The aim is live, bidirectional I/O.** Where the surface allows, io makes an external document behave like one you and the agent co-edit *live* — the agent reads your latest, you see the agent's edits, and neither side clobbers the other. It isn't guaranteed for every surface, but that's the design intent — and it's fully realized for **Excel** (`/io excel`): a save-before-read / reload-after-write handshake makes a local `.xlsx` behave, in practice, exactly like live editing.

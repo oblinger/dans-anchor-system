@@ -1,14 +1,15 @@
 ---
 description: "Harbor's versions/ release-artifact store"
 ---
-# HBR Versions
-Harbor's `versions/` folder — the immutable store its published `.dmg` releases are promoted into. A worked instance of [[DAS Versions]].
 
 | -[[HBR Versions]]- | : Harbor's versions/ release-artifact store<br>→ [[DAS]] → [[examples]] → [[HBR\|HARBOR]] → [[HBR Dev Docs\|HARBOR DEV DOCS]] → [HBR Versions](hook://p/HBR%20Versions)  |
 | --- | --- |
 | Anchor | [[HBR Dev Docs]] (parent) |
 | Related | [[DAS Versions]] (the facet),  [[HBR CLI]], |
 | ... | [[HBR Files]],   |
+
+# HBR Versions
+Harbor's `versions/` folder — the immutable store its published `.dmg` releases are promoted into. A worked instance of [[DAS Versions]].
 
 Harbor ships two components from one repo — the `harbor` daemon/CLI and a small `harbor-tap` menu-bar helper — so it uses the **one shared, flat** `versions/` store, version-first naming letting both sort together by version:
 

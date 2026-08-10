@@ -1,12 +1,13 @@
 ---
 description: "Compare agent skills that do similar work — find how others built a given skill concept and produce a choice-point comparison with a recommendation"
 ---
-# DAS Research Skill
-Specialized survey for **comparing agent skills** that do similar work. You give it a concept ("architect", "feature designer", "PRD writer"), it finds skills others have built that address it, and produces a comparison report with **choice-point analysis** and a recommendation.
 
 | -[[DAS Research Skill]]- | : Compare agent skills that do similar work — find how others built a given skill concept and produce a choice-point comparison with a recommendation<br>→ [[DAS]] → [docs](hook://docs) → [DAS Research Skill](hook://p/DAS%20Research%20Skill)  |
 | --- | --- |
 | ... |  |
+
+# DAS Research Skill
+Specialized survey for **comparing agent skills** that do similar work. You give it a concept ("architect", "feature designer", "PRD writer"), it finds skills others have built that address it, and produces a comparison report with **choice-point analysis** and a recommendation.
 
 # Details
 

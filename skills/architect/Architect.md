@@ -1,13 +1,15 @@
 ---
 description: "SKA skill anchor for `/architect`"
 ---
-# Architect
 
 | -[[Architect]]- | : SKA skill anchor for `/architect`<br>→ [[DAS]] → [[SKL]] → [Architect](hook://p/Architect)  |
 | --- | --- |
 | Skill | [[architect/SKILL\|SKILL.md]],  [[DAS Architect\|User Docs]],   |
 | [[DAS Architect Design\|Design]]  | [[DAS Architect PRD\|PRD]],   |
 | ... | [[architect-changes]],  [[architect-drift]],  [[architect-new]],  [[architect-overview]],  [[architect-update]],   |
+
+# Architect
+
 
 `/architect` — see [[architect/SKILL|SKILL.md]] for the agent runbook and [[DAS Architect]] for user-facing docs.
 

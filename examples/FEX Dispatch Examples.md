@@ -9,7 +9,6 @@ description: "live worked examples of each dispatch-table structure"
 | ... | [[_{{DISK_LABEL}} Template]],  [[_{{PURCHASE_DATE}} {{HOSTNAME}} Template]],  [[CSE]],  [[DAS Examples]],  [[DAS US-CAE-1 — Schedule a Task]],  [[DAS US-CAE-2 — Monitor Task Status]],  [[DAS US-CAE-3 — Retry Failed Tasks]],  [[ESP]],  [[FEX Agenda]],  [[FEX API]],  [[FEX API Design]],  [[FEX Architecture]],  [[FEX Claude]],  [[FEX Completed Roadmap]],  [[FEX CSE]],  [[FEX Decisions]],  [[FEX Decisions Details]],  [[FEX Facet]],  [[FEX Files]],  [[FEX Icebox]],  [[FEX Inbox]],  [[FEX Minimal Facet]],  [[FEX Minimal Skill]],  [[FEX Project Root]],  [[FEX Repo]],  [[FEX Roadmap]],  [[FEX Rules]],  [[FEX Scheduler]],  [[FEX Skill]],  [[FEX Spine Examples]],  [[FEX Stories]],  [[FEX System Design]],  [[Forum Stories]],  [[Harbor Hops]],  [[Harbor Latency Budget]],  [[Harbor Releases]],  [[Harbor Runbooks]],  [[HBR PRD User Stories]],  [[HWP]],  [[Mini]],  [[Viz Bench]],   |
 
 # FEX Dispatch Examples
-
 A gallery of the dispatch-table alternatives from [[DAS Dispatch Table]] § Structure — each a **live, real** anchor page (click through to see it render), not a fenced copy. Recall the model: every dispatch table is a **Masthead** (breadcrumb + structural rows + curated links) optionally followed by a **Member zone** (a [[Collection]] anchor's members, as a *member list* or *member groups*, *manual / auto / hybrid*), with the markers `---` (auto-list), `...` (compact auto), `+` (expandable group).
 
 ## The four kinds

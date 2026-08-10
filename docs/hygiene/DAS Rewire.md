@@ -1,14 +1,15 @@
 ---
 description: "Idempotent structural repair for any anchor."
 ---
-# DAS Rewire
-Idempotent structural repair for any anchor. Ensures all files are linked from the right dispatch tables, the skeleton matches the anchor's traits, and orphan files are surfaced. Safe to run repeatedly — running it on a clean anchor produces no changes.
 
 | -[[DAS Rewire]]- | : Idempotent structural repair for any anchor.<br>→ [[DAS]] → [docs](hook://docs) → [DAS Rewire](hook://p/DAS%20Rewire)  |
 | --- | --- |
 | Related | [[skills/rewire/SKILL.md\|SKILL]],   |
 | [[DAS Rewire Design\|Design]]  |  |
 | ... |  |
+
+# DAS Rewire
+Idempotent structural repair for any anchor. Ensures all files are linked from the right dispatch tables, the skeleton matches the anchor's traits, and orphan files are surfaced. Safe to run repeatedly — running it on a clean anchor produces no changes.
 
 **When to use:** "rewire", "fix the structure", "wire it up", "check the wiring", "fix dispatch tables", "rewire the backlog".
 

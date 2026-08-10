@@ -1,14 +1,15 @@
 ---
 description: "the Pin facet definition"
 ---
-# FEX Pin
-The Pin facet — a marker that keeps one snapshot bundle forever. A worked example of a **single-file, cardinality-many** facet (the filename is the key).
 
 | -[[FEX Pin]]- | : the Pin facet definition<br>→ [[DAS]] → [[examples]] → [[FEX Repo]] → [FEX Pin](hook://p/FEX%20Pin)  |
 | --- | --- |
 | Anchor | [[FEX Repo]] (parent) |
 | Related | [[FEX Retention]] (honors it),  [[FEX Bundle]] (what it protects),  [[DAS Facet]] (the facet spec), |
 | ... | [[R-fex-manifest]],   |
+
+# FEX Pin
+The Pin facet — a marker that keeps one snapshot bundle forever. A worked example of a **single-file, cardinality-many** facet (the filename is the key).
 
 ## What it is
 A small marker the user drops to keep a bundle forever, regardless of its age.

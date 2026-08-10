@@ -1,15 +1,17 @@
 ---
 description: "work queue"
 ---
-# HBR Backlog
-<!-- state:backlog 3o -->
-Harbor's work queue — horizon H2s, one row per item, status in brackets.
 
 | -[[HBR Backlog]]- | → [[DAS]] → [[examples]] → [[HBR\|HARBOR]] → [[HBR Track\|HARBOR TRACK]] → [HBR Backlog](hook://p/HBR%20Backlog)  |
 | --- | --- |
 | Anchor | [[HBR Track]] (parent) |
 | Related | [[HBR Features]],  [[HBR Roadmap]],   |
 | ... | [[HBR Messages]],  [[HBR queries]],  [[HBR Rocks]],  [[HBR Status]],   |
+
+# HBR Backlog
+<!-- state:backlog 3o -->
+Harbor's work queue — horizon H2s, one row per item, status in brackets.
+
 
 ## Active
 

@@ -2,10 +2,6 @@
 description: "the design pipeline — per-skill design docs + PRDs, grouped by group"
 ---
 
-# Design
-
-The **design internals** — the `{skill} Design` / `{skill} PRD` pages that specify how each skill works, filed under `design/<group>/`. Only skills with real design work appear here; the user-facing counterparts live under [[DAS Docs]].
-
 | -[[DAS Design]]- | : the design pipeline — per-skill design docs + PRDs, grouped by group<br>→ [[DAS]] → [design](hook://design) → [DAS Design](hook://p/DAS%20Design)  |
 | --- | --- |
 | Related | [[DAS Docs\|Docs]],  [[DAS Skills\|Skills]],  [[DAS Design Folder\|Design (facet)]],  [[DAS\|dans-anchor-system]],   |
@@ -32,3 +28,6 @@ The **design internals** — the `{skill} Design` / `{skill} PRD` pages that spe
 | [[DAS Utility Design]]  | Subsystem design for the Utility group — machine access (local, remote, GPU, GUI), capture pipelines (voice, text), and life utilities; always available, no anchor trait. |
 | [[Template Examples]]  | The case corpus Stencil is derived from — a real example first, then proposed stencils, then the discussion. Every block is delimited, verbatim, and copy-pasteable. |
 | [[DAS Design Design\|Design]]  | Subsystem design for the Design group — the artifact pipeline, gates, and verbs that turn an idea into an agreed, buildable specification before execution starts. |
+
+# Design
+The **design internals** — the `{skill} Design` / `{skill} PRD` pages that specify how each skill works, filed under `design/<group>/`. Only skills with real design work appear here; the user-facing counterparts live under [[DAS Docs]].

@@ -1,14 +1,15 @@
 ---
 description: "the rocks facet — an optional {slug} Rocks/ folder per anchor holding the big chunks that anchor is trying to move; rocks form a tree and promotion up the tree is the main action"
 ---
-# DAS Rocks
-The big chunks an anchor is trying to move — an optional `{slug} Rocks/` folder holding one file per rock and a ranked folder-note, forming one node of a vault-wide tree whose root is the global [[Rocks]].
 
 | -[[DAS Rocks]]- | → [[DAS]] → [[FCT]] → [DAS Rocks](hook://p/DAS%20Rocks)  |
 | --- | --- |
 | Related | [[Rocks]],  [[DAS Agenda]],  [[DAS Roadmap]],  [[DAS Backlog]],  [[VEC Mandate]],   |
 | Examples | [[HBR Rocks\|worked instance]],  [[Rocks\|the root aggregator]] (differently shaped — see § The root is not an instance) |
 | Rules | [[R-rocks]],   |
+
+# DAS Rocks
+The big chunks an anchor is trying to move — an optional `{slug} Rocks/` folder holding one file per rock and a ranked folder-note, forming one node of a vault-wide tree whose root is the global [[Rocks]].
 
 **TLDR** — a **rock** is a multi-week-to-quarter chunk of work an anchor is trying to move. The facet materializes as a folder, `{slug} Track/{slug} Rocks/`, holding one short-named file per rock and a folder-note that **ranks them by commitment**. Cardinality **0-or-1 per anchor, elective**. Rocks form a **tree** — each rocks folder is a node, and **promotion** up the tree is the main action, ending at the global [[Rocks]]. Every rock is **owned by an anchor**; the global list never holds an unowned one. Tier vocabulary inside the folder-note is deliberately unspecified.
 

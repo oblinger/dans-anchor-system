@@ -1,7 +1,6 @@
 ---
 description: Profile — skill anchor for building thorough structured descriptions / profiles of one entity. Deep tier is "Dig."
 ---
-# Profile
 
 | -[[Profile]]- | : one-entity profile / dossier — structured description with sources<br>→ [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [Profile](hook://p/Profile) |
 | --- | --- |
@@ -10,3 +9,6 @@ description: Profile — skill anchor for building thorough structured descripti
 | Rules | [[profile\|rules/]] (verb-level + pair files per [[skill-search-rules]]) |
 | Output | [[Profile]] (`~/ob/kmr/Topic/Search/Profile/`) |
 | ... |  |
+
+# Profile
+

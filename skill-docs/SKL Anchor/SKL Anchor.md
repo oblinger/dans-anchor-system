@@ -2,10 +2,6 @@
 description: User guides for anchor-lifecycle skills — creating, installing, migrating, moving, and shipping anchor folders.
 ---
 
-# SKL Anchor
-
-User guides for anchor-lifecycle skills — creating, installing, migrating, moving, and shipping anchor folders.
-
 | -[[SKL Anchor]]- | : User guides for anchor-lifecycle skills — creating, installing, migrating, moving, and shipping anchor folders.<br>→ [[DAS]] → [[skill-docs]] → [SKL Anchor](hook://p/SKL%20Anchor)  |
 | --- | --- |
 |  |  |
@@ -20,3 +16,6 @@ User guides for anchor-lifecycle skills — creating, installing, migrating, mov
 | [[DAS WP\|WP]]  | `/wp <name>` creates a new dated **work product** folder inside the current anchor's `{slug} WP/` folder. |
 | [[DAS Yore\|Yore]]  | `/yore` archives a folder or file to **Yore**, the standard archival location. |
 | --- | |
+
+# SKL Anchor
+User guides for anchor-lifecycle skills — creating, installing, migrating, moving, and shipping anchor folders.

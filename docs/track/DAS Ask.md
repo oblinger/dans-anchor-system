@@ -1,14 +1,15 @@
 ---
 description: "the `/ask` skill"
 ---
-# DAS Ask
-The **`/ask` skill** is the universal asking subroutine.
 
 | -[[DAS Ask]]- | : the `/ask` skill<br>→ [[DAS]] → [docs](hook://docs) → [DAS Ask](hook://p/DAS%20Ask)  |
 | --- | --- |
 | Related | [[skills/ask/SKILL.md\|SKILL]],  [[DAS ask-inline]],   |
 | [[Query PRD\|Design]]  |  |
 | ... |  |
+
+# DAS Ask
+The **`/ask` skill** is the universal asking subroutine.
 
 The **`/ask` skill** is the system for *not* asking you questions piecemeal. Whenever an agent has decisions it can't make itself, `/ask` eliminates every one it can (guessing reversible calls, running checks itself, inferring from the code), then consolidates the irreducible remainder into one place you can answer in a single pass — the anchor's `{slug} queries.md` — and surfaces it on the vault-wide dashboard `[[Q]]`. You never get a trickle of one-off pings.
 

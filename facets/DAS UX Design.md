@@ -2,15 +2,15 @@
 description: "facet spec for `{slug} UX Design.md` — the human user-facing surface (CLI commands, screens, organization, naming, output shapes, error voice)"
 ---
 
-# DAS UX Design
-Facet spec for `{slug} UX Design.md` — the *human* user-facing surface: CLI commands, screens, organization, naming, output shapes, error voice.
-
 | -[[DAS UX Design]]- | → [[DAS]] → [[FCT]] → [DAS UX Design](hook://p/DAS%20UX%20Design)  |
 | --- | --- |
 | Related | [[DAS API Design]],  [[DAS CLI]],  [[DAS Decisions]],  [[DAS Architecture]],   |
 | Examples | [[HBR UX Design\|minimal (CLI surface)]],  [[HBR UX Design\|fuller (multi-surface)]],   |
 | Rules | [[R-ux]],   |
 | ... | [[anchor-page]],  [[DAS Agenda]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Page]],  [[DAS Anchor Tree]],  [[DAS Aspects]],  [[DAS Backlog]],  [[DAS Brief]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Claude]],  [[DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[DAS Design Docs]],  [[DAS Design Folder]],  [[DAS Dev Dispatch]],  [[DAS Discussion]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facet]],  [[DAS Facets]],  [[DAS Features]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Interface]],  [[DAS Log]],  [[DAS Messages]],  [[DAS Module Doc]],  [[facets/DAS Move]],  [[DAS Naming]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS PRD]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Roadmap]],  [[DAS Rocks]],  [[facets/DAS Skill]],  [[DAS Specs]],  [[DAS Stone]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS Track]],  [[DAS User Dispatch]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
+
+# DAS UX Design
+Facet spec for `{slug} UX Design.md` — the *human* user-facing surface: CLI commands, screens, organization, naming, output shapes, error voice.
 
 **TLDR**
 - **One per anchor** — a single `{slug} UX Design.md` captures all human-facing surface intent for the anchor.

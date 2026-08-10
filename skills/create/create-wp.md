@@ -1,3 +1,6 @@
+| -[[{date} {name}]]- | +> |
+| --- | --- |
+| [[{date} {name}/{document-name}\|{document-name}]] | {type} |
 
 # create-wp — Create a dated work product folder
 *(action file of [[create/SKILL|/create]]; formerly the standalone `/wp` skill — folded in per F234 Q1=A, 2026-07-14)*
@@ -75,9 +78,6 @@ type: {type}
 
 {user's description goes here}
 
-| -[[{date} {name}]]- | +> |
-| --- | --- |
-| [[{date} {name}/{document-name}\|{document-name}]] | {type} |
 
 ```
 

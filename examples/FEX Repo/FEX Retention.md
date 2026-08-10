@@ -1,13 +1,14 @@
 ---
 description: "example discipline — the retention rule"
 ---
-# FEX Retention
-The cross-cutting rule for how long a snapshot bundle lives before the sweep removes it.
 
 | -[[FEX Retention]]- | : example discipline — the retention rule<br>→ [[DAS]] → [[examples]] → [[FEX Repo]] → [FEX Retention](hook://p/FEX%20Retention)  |
 | --- | --- |
 | Related | [[FEX Repo]],  [[FEX Snapshot\|Snapshot]] (reads it),  [[FEX Manifest\|Manifest]], |
 | ... | [[FEX Bundle]],  [[FEX Pin]],  [[R-fex-manifest]],   |
+
+# FEX Retention
+The cross-cutting rule for how long a snapshot bundle lives before the sweep removes it.
 
 A snapshot bundle is retained as follows:
 

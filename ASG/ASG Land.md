@@ -3,7 +3,6 @@ description: "`/land` — bounded crank."
 ---
 :>> [[DAS]] → [[ASG]] → [ASG Land](hook://p/ASG%20Land)
 # /land — user guide
-
 **Full internals & design:** [[DAS Land]]   ·   **Runtime spec:** [[skills/land/SKILL.md\|SKILL.md]]
 
 `/land` — bounded crank. Finish **every** activity that is currently in flight, commit, clean up, report done, and stop.

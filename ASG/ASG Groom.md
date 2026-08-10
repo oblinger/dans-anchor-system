@@ -3,7 +3,6 @@ description: "/groom — get every task that could be next fully ready to execut
 ---
 :>> [[DAS]] → [[ASG]] → [ASG Groom](hook://p/ASG%20Groom)
 # /groom — user guide
-
 **Full internals & design:** [[DAS Groom]]   ·   **Runtime spec:** [[skills/groom/SKILL.md\|SKILL.md]]
 
 `/groom` walks the current anchor's backlog and gets every task that could be next fully ready to execute — planning it, declaring its next step, promoting it, or parking its blocking questions. Convergent: safe to call anytime.

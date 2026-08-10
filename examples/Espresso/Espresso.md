@@ -1,8 +1,6 @@
 ---
 description: "Espresso — example topic collection (≤ 15 members) — notes on pulling espresso"
 ---
-# ESP - Espresso
-Working notes on pulling espresso — the variables, the gear, and what to do when the shot goes wrong.
 
 | -[[Espresso]]- | : Espresso — example topic collection (≤ 15 members) — notes on pulling espresso<br>→ [[DAS]] → [[examples]] → [Espresso](hook://p/Espresso)  |
 | --- | --- |
@@ -18,3 +16,6 @@ Working notes on pulling espresso — the variables, the gear, and what to do wh
 | ~~[[Espresso Troubleshooting\|Troubleshooting]]~~  | diagnosing sour, bitter, gushing, and choked shots |
 | ~~[[Espresso Cleaning\|Cleaning]]~~  | backflushing, descaling, and daily upkeep |
 | ... |  |
+
+# ESP - Espresso
+Working notes on pulling espresso — the variables, the gear, and what to do when the shot goes wrong.

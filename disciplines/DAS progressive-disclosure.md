@@ -4,8 +4,11 @@ description: Discipline. Layered information presentation across the vault — t
 user_invocable: false
 ---
 
-# Progressive Disclosure Discipline
+| -[[{Document}]]- | ><br>: One-line description |
+| --- | --- |
+| ... (dispatch table — Grouped / List / Compact / Linear / Matrix per Q4) |  |
 
+# Progressive Disclosure Discipline
 Progressive disclosure is *layered information presentation — each layer delivers as much as a reader at that depth needs, no more.* The discipline names the layers, the elements at each layer, and the order in which they appear. What distinguishes a conformant doc from an ad-hoc one:
 
 - **Preface zone** — H1 → orientation line → **artifact** → dispatch table → TLDR → figure → first body H2. No preamble.
@@ -73,9 +76,6 @@ The zone above a document's body, in canonical order:
 ```markdown
 # {Document Title}
 
-| -[[{Document}]]- | ><br>: One-line description |
-| --- | --- |
-| ... (dispatch table — Grouped / List / Compact / Linear / Matrix per Q4) |  |
 
 **TLDR**
 

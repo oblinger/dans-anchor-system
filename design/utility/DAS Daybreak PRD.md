@@ -1,12 +1,13 @@
 ---
 description: "product requirements for the Daybreak morning routine"
 ---
-# DAS Daybreak PRD
-Why the morning routine exists, who it serves, and what would make it fail.
 
 | -[[DAS Daybreak PRD]]- | : product requirements for the Daybreak morning routine<br>→ [[DAS]] → [design](hook://design) → [DAS Daybreak PRD](hook://p/DAS%20Daybreak%20PRD)  |
 | --- | --- |
 | Related | [[DAS Daybreak Design\|Design]],  [[DAS Daybreak]] (user docs),  [[skills/daybreak/SKILL.md\|SKILL]], |
+
+# DAS Daybreak PRD
+Why the morning routine exists, who it serves, and what would make it fail.
 
 ## The problem
 

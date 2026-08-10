@@ -2,12 +2,12 @@
 description: "worked System Design for the FEX scheduler — a detailed technical spec sitting under FEX Architecture, with rulings kept in their own file"
 ---
 
-# FEX System Design
-The scheduler's current technical design — modules, flows, data shapes — sitting one level below [[FEX Architecture]], with its rulings kept in a Decisions file rather than a section here.
-
 | -[[FEX System Design]]- | → [[DAS]] → [[examples]] → [FEX System Design](hook://p/FEX%20System%20Design)  |
 | --- | --- |
 | Related | [[DAS System Design]],   |
+
+# FEX System Design
+The scheduler's current technical design — modules, flows, data shapes — sitting one level below [[FEX Architecture]], with its rulings kept in a Decisions file rather than a section here.
 
 **A constructed exemplar, not a quoted instance.** Every other file in this folder is abridged from something real; this one is composed, because the [[FEX Scheduler]] world has no live System Design to quote. What it demonstrates is the *kind* of document, not a required outline — [[DAS System Design]] has no fixed section spine, and the sections below are named after this system rather than copied from a template. A real one about a different system would name different sections.
 

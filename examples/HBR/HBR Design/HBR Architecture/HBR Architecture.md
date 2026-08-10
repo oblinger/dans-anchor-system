@@ -1,14 +1,15 @@
 ---
 description: "system architecture"
 ---
-# HBR Architecture
-How Harbor is built: three pipelines around one shared SQLite catalog.
 
 | -[[HBR Architecture]]- | → [[DAS]] → [[examples]] → [[HBR\|HARBOR]] → [[HBR Design\|HARBOR DESIGN]] → [HBR Architecture](hook://p/HBR%20Architecture)  |
 | --- | --- |
 | Anchor | [[HBR]] (parent) |
 | Related | [[HBR Components]],  [[HBR Decisions]],  [[HBR API Design]],   |
 | ... |  |
+
+# HBR Architecture
+How Harbor is built: three pipelines around one shared SQLite catalog.
 
 ## Overview
 

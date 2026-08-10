@@ -1,7 +1,6 @@
 ---
 description: Find — skill anchor for locating one specific instance matching criteria. Returns identifier + sources + confidence.
 ---
-# Find
 
 | -[[Find]]- | : locate one specific match — ID + sources + confidence<br>→ [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[skills]] → [Find](hook://p/Find) |
 | --- | --- |
@@ -10,3 +9,6 @@ description: Find — skill anchor for locating one specific instance matching c
 | Rules | [[find\|rules/]] (verb-level + pair files per [[skill-search-rules]]) |
 | Output | [[Find]] (`~/ob/kmr/Topic/Search/Find/`) |
 | ... |  |
+
+# Find
+

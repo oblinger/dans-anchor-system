@@ -2,9 +2,6 @@
 description: the shared facet behind pebbles and rocks — one file per item, a hand-arranged control file that orders them, and propagation along the feed DAG
 ---
 
-# DAS Stone
-Facet spec for a **stone group** — a `{slug} Track/{slug} {Kind}s/` folder holding one file per item, ordered by a hand-arranged control file, and propagated to downstream anchors along the `feeds:` DAG.
-
 | -[[DAS Stone]]- | → [[DAS]] → [[FCT]] → [DAS Stone](hook://p/DAS%20Stone)  |
 | --- | --- |
 | [[DAS Stone Design\|Design]]  | [[DAS Stone Keys\|Keys]],   |
@@ -12,6 +9,9 @@ Facet spec for a **stone group** — a `{slug} Track/{slug} {Kind}s/` folder hol
 | Related | [[DAS Backlog]],  [[DAS Agenda]],   |
 | Rules | [[R-stone]],   |
 | ... | [[anchor-page]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Page]],  [[DAS Anchor Tree]],  [[DAS API Design]],  [[DAS Architecture]],  [[DAS Aspects]],  [[DAS Brief]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Claude]],  [[DAS CLI]],  [[DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[facets/DAS Decisions]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Design Folder]],  [[DAS Dev Dispatch]],  [[DAS Discussion]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facet]],  [[DAS Features]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Interface]],  [[DAS Log]],  [[DAS Messages]],  [[DAS Module Doc]],  [[facets/DAS Move]],  [[DAS Naming]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS PRD]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Roadmap]],  [[DAS Ruleset]],  [[facets/DAS Skill]],  [[DAS Specs]],  [[DAS Status]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS Track]],  [[DAS User Dispatch]],  [[DAS UX Design]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
+
+# DAS Stone
+Facet spec for a **stone group** — a `{slug} Track/{slug} {Kind}s/` folder holding one file per item, ordered by a hand-arranged control file, and propagated to downstream anchors along the `feeds:` DAG.
 
 **TLDR** — Pebbles and rocks are the same shape of thing at two sizes, so they are one facet parameterised by **kind**, not two facets that resemble each other.
 

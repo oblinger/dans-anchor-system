@@ -2,14 +2,15 @@
 description: "test strategy + proposed tests"
 status:: drafting
 ---
-# Mini Testing
-How Mini is verified: the kinds of test, how much of each, and the concrete inventory consistent with that strategy.
 
 | -[[Mini Testing]]- | : test strategy + proposed tests<br>→ [[DAS]] → [[examples]] → [[Mini]] → [Mini Testing](hook://p/Mini%20Testing)  |
 | --- | --- |
 | Anchor | [[Mini Design]] (parent) |
 | Related | [[Mini PRD]],  [[DAS verification]],   |
 | ... |  |
+
+# Mini Testing
+How Mini is verified: the kinds of test, how much of each, and the concrete inventory consistent with that strategy.
 
 **TLDR**
 - **Library-shaped posture** — heavy unit on the one pure function; one e2e on the CLI surface.

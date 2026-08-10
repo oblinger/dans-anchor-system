@@ -4,9 +4,7 @@ description: "raw input to process"
 
 :>> [[DAS]] → [[examples]] → [FEX Inbox](hook://p/FEX%20Inbox)
 # FEX Inbox
-
 Drop zone for raw input. The user pastes thoughts, change requests, or design notes here; an agent reads them and integrates into the appropriate planning docs (PRD, System Design, Backlog, Rules). Entries are reverse-chronological.
-
 
 ## 2026-04-21 — Scheduler `pause()` for maintenance windows `MOVED → HBR Backlog`
 

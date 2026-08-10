@@ -1,14 +1,15 @@
 ---
 description: "durable rulings"
 ---
-# HBR Decisions
-The durable rulings that shape Harbor; each is referenced by `// D0n` comments in the code.
 
 | -[[HBR Decisions]]- | : durable rulings<br>→ [[DAS]] → [[examples]] → [[HBR\|HARBOR]] → [[HBR Design\|HARBOR DESIGN]] → [HBR Decisions](hook://p/HBR%20Decisions)  |
 | --- | --- |
 | Anchor | [[HBR Design]] (parent) |
 | Related | [[HBR Architecture]],   |
 | ... | [[HBR API Design]],  [[HBR CLI]],  [[HBR CLI Help.txt]],  [[HBR Features]],  [[HBR PRD]],  [[HBR Roadmap]],  [[HBR Testing]],  [[HBR UX Design]],   |
+
+# HBR Decisions
+The durable rulings that shape Harbor; each is referenced by `// D0n` comments in the code.
 
 ### D01 — SQLite, not a server database
 **Choice:** the catalog is a single SQLite file. A self-hosted household server should need no separate database process; one file also makes [[HBR Backup\|backup]] a file copy.

@@ -1,13 +1,14 @@
 ---
 description: "skim → click into the rule that applies"
 ---
-# DAS Software
+
 | -[[DAS Software]]- | : skim → click into the rule that applies<br>→ [[DAS]] → [docs](hook://docs) → [DAS Software](hook://p/DAS%20Software)  |
 | --- | --- |
 | Software rules (any verb) | [[SRCH rules/software\|software.md]],   |
 | Verbs | [[SRCH rules/find-software\|find-software]],  [[SRCH rules/profile-software\|describe-software]],  [[SRCH rules/survey-software\|survey-software]],   |
 | ... |  |
 
+# DAS Software
 When the search agent runs against **software** — an OSS project, a SaaS product, a library, a CLI tool, a mobile / desktop app — these are the rules that apply.
 
 **Software is like [[DAS Product|product]], with the purchase action optional.** Many candidates are free OSS or freemium — the actionable artifact is `brew install X` / `npm install X` / a GitHub URL / a Sign-Up button rather than a Buy button. Survey's purchasable-link gate becomes an **install-vector** gate; find resolves the install path (not just the purchase URL); describe handles both paid and unpaid pricing cards.

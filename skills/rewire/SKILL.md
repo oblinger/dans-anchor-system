@@ -10,6 +10,10 @@ tools: Read, Write, Edit, Bash, Glob, Grep
 user_invocable: true
 ---
 
+| -[[{basename}]]- | |
+| --- | --- |
+| --- | |
+
 # Rewire
 requires:: vault, anchor-cli, skill:ask, facet:backlog, facet:dispatch-table
 subsystem:: [[DAS Hygiene Design]] — the Hygiene group's subsystem profile
@@ -306,9 +310,6 @@ The dispatch-table **placeholder form** (what a generator emits before rewire fi
 
 ```
 
-| -[[{basename}]]- | |
-| --- | --- |
-| --- | |
 
 ```
 

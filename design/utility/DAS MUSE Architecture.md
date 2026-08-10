@@ -4,7 +4,6 @@ description: MUSE architecture + implementation plan — skill shape, ingest flo
 
 :>> [[DAS]] → [design](hook://design) → [DAS MUSE Architecture](hook://p/DAS%20MUSE%20Architecture)
 # MUSE Architecture
-
 Full design and implementation plan for [[MUSE]]. Referenced from `MUSE.md`; not user-facing on its own.
 
 ## Overview

@@ -4,7 +4,6 @@ description: "cold-storage / someday-maybe"
 
 :>> [[DAS]] → [[examples]] → [FEX Icebox](hook://p/FEX%20Icebox)
 # CAE Icebox
-
 Items parked for distant-future consideration. Not on the active [[HBR Backlog]] — the Icebox is for things we want to remember but are not currently weighing.
 
 See [[DAS Icebox]] for the format.

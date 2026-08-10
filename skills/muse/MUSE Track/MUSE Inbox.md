@@ -2,12 +2,12 @@
 description: MUSE inbox — raw input dropped for later processing.
 ---
 
-# MUSE Inbox
-Drop zone for raw input; an entry with no status tag is pending, and draining writes `DONE` or `MOVED → {destination}` per [[DAS Inbox]].
-
 | -[[MUSE Inbox]]- |  |
 | --- | --- |
 | --- | |
+
+# MUSE Inbox
+Drop zone for raw input; an entry with no status tag is pending, and draining writes `DONE` or `MOVED → {destination}` per [[DAS Inbox]].
 
 ## 2026-08-08 — Addressed-to-Lumen captures could be delivered via the new…
 

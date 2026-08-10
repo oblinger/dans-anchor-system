@@ -1,8 +1,6 @@
 ---
 description: system design — PRD, UX Design, Testing
 ---
-# DAS Bridge Design
-System design for the bridge skill — PRD and design docs.
 
 | -[[DAS Bridge Design]]- | : system design — PRD, UX Design, Testing<br>→ [[DAS]] → [design](hook://design) → [DAS Bridge Design](hook://p/DAS%20Bridge%20Design)  |
 | --- | --- |
@@ -10,6 +8,9 @@ System design for the bridge skill — PRD and design docs.
 | [[DAS Bridge UX Design\|UX Design]]  | the subskill command surface — every verb, its arguments, output shape, confirmation gates |
 | [[DAS Bridge Testing\|Testing]]  | testing strategy + proposed integration tests, grouped by bridge kind |
 | --- | |
+
+# DAS Bridge Design
+System design for the bridge skill — PRD and design docs.
 
 See ~~[[DAS Design Dispatch]]~~ for the canonical Design-dispatch shape. The live runbook is `~/.claude/skills/bridge/SKILL.md` (~~[[DAS Bridge|bridge]]~~); this design hierarchy is the *what/why*, the SKILL.md is the *how*.
 

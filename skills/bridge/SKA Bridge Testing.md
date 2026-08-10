@@ -2,14 +2,15 @@
 description: "test strategy + proposed tests"
 status:: drafting
 ---
-# SKA Bridge Testing
-How the Bridge skill is verified: the kinds of test, how much of each, and the concrete inventory consistent with that strategy.
 
 | -[[SKA Bridge Testing]]- | : test strategy + proposed tests<br>→ [[DAS]] → [[SKL]] → [SKA Bridge Testing](hook://p/SKA%20Bridge%20Testing)  |
 | --- | --- |
 | Anchor | ~~[[SKA Bridge Design]]~~ (parent) |
 | Related | ~~[[SKA Bridge PRD]]~~,  ~~[[SKA Bridge UX Design]]~~,  [[DAS verification]],   |
 | ... |  |
+
+# SKA Bridge Testing
+How the Bridge skill is verified: the kinds of test, how much of each, and the concrete inventory consistent with that strategy.
 
 **TLDR**
 - **Two-machine posture** — center of gravity is integration testing against a real remote; most logic is I/O orchestration.

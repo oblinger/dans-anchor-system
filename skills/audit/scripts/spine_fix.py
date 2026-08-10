@@ -130,6 +130,11 @@ def fix_s03(lines: list[str], sp: Spine) -> bool:
         return False
     block = lines[t0:t1]
     rest = lines[:t0] + lines[t1:]
+    # Lifting the table out leaves the blank that preceded it adjacent to the
+    # blank that followed it. Collapse that pair, or every moved page ends up
+    # with a double blank under its orientation line.
+    if 0 < t0 < len(rest) and not rest[t0 - 1].strip() and not rest[t0].strip():
+        del rest[t0]
     # re-find the H1 in the remainder, then drop blanks that bracketed the table
     h = next((i for i, l in enumerate(rest) if l.startswith("# ")), None)
     if h is None:

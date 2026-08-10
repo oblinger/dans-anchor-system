@@ -3,7 +3,6 @@ description: "Manage a feature from idea through design, agreement, implementati
 ---
 :>> [[DAS]] → [[ASG]] → [ASG Feature](hook://p/ASG%20Feature)
 # /feature — user guide
-
 **Full internals & design:** [[DAS Feature]]   ·   **Runtime spec:** [[skills/feature/SKILL.md\|SKILL.md]]
 
 `/feature` -- Creates a new feature document specifying work to be done.

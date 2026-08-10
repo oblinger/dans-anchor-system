@@ -1,7 +1,6 @@
 ---
 description: Survey — skill anchor for building multi-dimensional comparison tables across many entities. Includes a meta-survey sub-pattern.
 ---
-# Survey
 
 | -[[Survey]]- | : comparison table across many entities — rows × dimensions + interpretive notes<br>→ [[kmr]] → [[Topic]] → [[SRCH]] → [Survey](hook://p/Survey) |
 | --- | --- |
@@ -10,3 +9,6 @@ description: Survey — skill anchor for building multi-dimensional comparison t
 | Rules | [[survey\|rules/]] (verb-level + pair files per [[skill-search-rules]]) |
 | Output | [[Survey]] (`~/ob/kmr/Topic/Search/Survey/`) |
 | ... |  |
+
+# Survey
+

@@ -2,15 +2,15 @@
 description: "one cheat sheet plus its spaced-repetition summary and detail cards — one file per sheet"
 ---
 
-# DAS Cards
-Facet spec for a `{slug} {topic}.md` study-card file — one cheat sheet together with the summary and detail cards distilled from it. One file per sheet, so a sheet and its flashcards live in the same place; the anchor page indexes the sheets, letting the anchor double as a study deck for its own topic.
-
 | -[[DAS Cards]]- | → [[DAS]] → [[FCT]] → [DAS Cards](hook://p/DAS%20Cards)  |
 | --- | --- |
 | Related | [[DAS Brief]],  [[DAS Anchor Page]],  [[DAS Aspects]],  [[DAS Output]],   |
 | Examples | [[numpy bcast\|one topic — sheet + its summary & detail cards]],  [[numpy\|the anchor page that indexes the sheets]],   |
 | Rules | [[R-cards]],   |
 | ... | [[anchor-page]],  [[DAS Agenda]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Tree]],  [[DAS API Design]],  [[DAS Architecture]],  [[DAS Backlog]],  [[DAS Changes]],  [[DAS Claude]],  [[DAS CLI]],  [[DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[facets/DAS Decisions]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Design Folder]],  [[DAS Dev Dispatch]],  [[DAS Discussion]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facet]],  [[DAS Facets]],  [[DAS Features]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Interface]],  [[DAS Log]],  [[DAS Messages]],  [[DAS Module Doc]],  [[facets/DAS Move]],  [[DAS Naming]],  [[DAS Outputs]],  [[DAS PRD]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Roadmap]],  [[DAS Rocks]],  [[DAS Ruleset]],  [[facets/DAS Skill]],  [[DAS Specs]],  [[DAS Status]],  [[DAS Stone]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS Track]],  [[DAS User Dispatch]],  [[DAS UX Design]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
+
+# DAS Cards
+Facet spec for a `{slug} {topic}.md` study-card file — one cheat sheet together with the summary and detail cards distilled from it. One file per sheet, so a sheet and its flashcards live in the same place; the anchor page indexes the sheets, letting the anchor double as a study deck for its own topic.
 
 **TLDR** — A study-card file (`{slug} {topic}.md`, one per cheat-sheet topic) holds three tiers of study material for *that one topic*: a bold-heading cheat sheet (reference, no SR), summary cards (the gist/rule), and detail cards (exceptions/gotchas). Requires an SR tag on line 1, `-?-` separators, 69-char card lines, and `.` for in-card blank lines. Keeping each sheet with its own cards in one file is the point — you study a topic and its flashcards from a single place.
 

@@ -1,8 +1,6 @@
 ---
 description: "the /groom concept dossier"
 ---
-# DAS Groom
-The concept dossier for **`/groom`** — everything published about the frontier-planning skill: the user guide, its PRD, the shared resolution-layer design, and the runtime spec.
 
 | -[[DAS Groom]]- | : the /groom concept dossier<br>→ [[DAS]] → [docs](hook://docs) → [DAS Groom](hook://p/DAS%20Groom)  |
 | --- | --- |
@@ -10,6 +8,9 @@ The concept dossier for **`/groom`** — everything published about the frontier
 | [[DAS Groom Design\|Design]]  | [[DAS Groom PRD\|PRD]],  [[Query PRD\|resolution-layer PRD]],   |
 | Facet | [[DAS Backlog]] (the backlog file + the five groomed states) |
 | ... |  |
+
+# DAS Groom
+The concept dossier for **`/groom`** — everything published about the frontier-planning skill: the user guide, its PRD, the shared resolution-layer design, and the runtime spec.
 
 ## Overview
 

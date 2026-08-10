@@ -1,12 +1,13 @@
 ---
 description: "How to ask the user a question inline — ONE crisp, bold, `[question]`-tagged line they can answer immediately, with the context inside it. The style that finally worked after the user struggled for a long time to get agents to ask answerable questions."
 ---
-# DAS ask-inline
-**Quick summary for another agent:** When you need a decision from the user, ask **one immediate question** — a single **bold** line, set off by blank lines, tagged **`[question]`**, that they can answer in a word (yes/no or a short pick). Put any must-know context *inside that line*. **Never bury the question under paragraphs of explanation** — if the user has to hunt for what you're asking, you've failed. One line; two at most.
 
 | -[[DAS ask-inline]]- | : How to ask the user a question inline — ONE crisp, bold, `[question]`-tagged line they can answer immediately, with the context inside it. The style that finally worked after the user struggled for a long time to get agents to ask answerable questions.<br>→ [[DAS]] → [docs](hook://docs) → [DAS ask-inline](hook://p/DAS%20ask-inline)  |
 | --- | --- |
 | ... |  |
+
+# DAS ask-inline
+**Quick summary for another agent:** When you need a decision from the user, ask **one immediate question** — a single **bold** line, set off by blank lines, tagged **`[question]`**, that they can answer in a word (yes/no or a short pick). Put any must-know context *inside that line*. **Never bury the question under paragraphs of explanation** — if the user has to hunt for what you're asking, you've failed. One line; two at most.
 
 ## The format
 

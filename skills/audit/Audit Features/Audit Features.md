@@ -1,7 +1,6 @@
 ---
 description: "Feature design records for the Audit skill — the per-feature design docs that define V2 audit (migrated + renumbered from SKA)."
 ---
-# Audit Features
 
 | -[[Audit Features]]- | : feature design records defining V2 audit<br>→ [[DAS]] → [[SKL]] → [[Audit]] → [Audit Features](hook://p/Audit%20Features)  |
 | --- | --- |
@@ -22,6 +21,9 @@ description: "Feature design records for the Audit skill — the per-feature des
 | [[F015 — Audit architecture]]  | Architecture-doc validation: diagram-then-table shape + wiki-link integrity. Shipped, auto-run by /architect. |
 | [[F016 — Migrate lint to audit]]  | Retire /lint into /audit: hard rename, 1:1 subaction map, vault-wide reference sweep. |
 | ... |  |
+
+# Audit Features
+
 
 ## Provenance
 

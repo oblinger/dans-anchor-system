@@ -1,8 +1,6 @@
 ---
 description: The command-line specification facet — the full command surface for an anchor that ships a CLI, opened by a compressed `--help` figure (an SVG); a design-pipeline doc downstream of UX Design
 ---
-# DAS CLI
-Facet spec for `{slug} CLI.md` — the **command-line specification** for an anchor that ships a CLI: a compressed `--help` figure (an SVG) opens the doc, then the full command surface is specified below. Authored in the design pipeline, downstream of UX Design.
 
 | -[[DAS CLI]]- | → [[DAS]] → [[FCT]] → [DAS CLI](hook://p/DAS%20CLI)  |
 | --- | --- |
@@ -10,6 +8,9 @@ Facet spec for `{slug} CLI.md` — the **command-line specification** for an anc
 | Examples | [[HBR CLI\|worked example]],   |
 | Rules | [[R-cli]],   |
 | ... | [[anchor-page]],  [[DAS Agenda]],  [[DAS Anchor]],  [[DAS Anchor Page]],  [[DAS Anchor Tree]],  [[DAS Architecture]],  [[DAS Aspects]],  [[DAS Backlog]],  [[DAS Brief]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Claude]],  [[DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[facets/DAS Decisions]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Dev Dispatch]],  [[DAS Discussion]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facet]],  [[DAS Facets]],  [[DAS Features]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Interface]],  [[DAS Log]],  [[DAS Messages]],  [[DAS Module Doc]],  [[facets/DAS Move]],  [[DAS Naming]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS PRD]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Roadmap]],  [[DAS Rocks]],  [[DAS Ruleset]],  [[facets/DAS Skill]],  [[DAS Specs]],  [[DAS Status]],  [[DAS Stone]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS Track]],  [[DAS User Dispatch]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
+
+# DAS CLI
+Facet spec for `{slug} CLI.md` — the **command-line specification** for an anchor that ships a CLI: a compressed `--help` figure (an SVG) opens the doc, then the full command surface is specified below. Authored in the design pipeline, downstream of UX Design.
 
 **TLDR** — `{slug} CLI.md` is the **full command-line specification** of an anchor's CLI. It opens with a compressed `--help` **figure** — rendered as an **SVG** (from a `.txt` source via `cli-help-svg.py`, so aligned `# comments` never re-wrap) — that maps the whole surface at a glance; below it, each command is specified in full (flags, defaults, semantics, exit behaviour). The figure is compressed; the document is not. **Cardinality: one per anchor**, only when it ships a CLI. **Home:** authored at `{slug} Design/{slug} CLI.md`; as a *migrating reference* it graduates to `{slug} User Docs/` once the CLI stabilizes.
 

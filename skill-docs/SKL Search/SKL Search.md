@@ -2,10 +2,6 @@
 description: User guides for search-shaped skills — query the open web, find skills others have built, surface product information.
 ---
 
-# SKL Search
-
-User guides for search-shaped skills — query the open web, find skills others have built, surface product information.
-
 | -[[SKL Search]]- | : User guides for search-shaped skills — query the open web, find skills others have built, surface product information.<br>→ [[DAS]] → [[skill-docs]] → [SKL Search](hook://p/SKL%20Search)  |
 | --- | --- |
 | [[DAS Search Overview\|Overview]]  | How the search skill family combines knowledge and rules — the mental model behind find/profile/survey. |
@@ -17,3 +13,6 @@ User guides for search-shaped skills — query the open web, find skills others 
 | Outputs | [[Survey]],  [[Profile]],  [[Find]],   |
 | Legacy | [[DAS Purchase\|Purchase]] (purchasing — `/product hunt/find/buy/reorder`),  [[DAS Research\|Research]] (`/research` family),  [[DAS Research Skill\|Research Skill]] (skill comparison — folded into [[DAS Skill]]), |
 | ... |  |
+
+# SKL Search
+User guides for search-shaped skills — query the open web, find skills others have built, surface product information.

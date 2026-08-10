@@ -1,14 +1,15 @@
 ---
 description: "the strategy facet — one {slug} Agenda.md per anchor carrying the theory-of-victory for a big-chunk activity"
 ---
-# DAS Agenda
-The strategic frame — one optional `{slug} Agenda.md` per anchor saying why this activity exists, what winning looks like, and how we plan to attack it.
 
 | -[[DAS Agenda]]- | → [[DAS]] → [[FCT]] → [DAS Agenda](hook://p/DAS%20Agenda)  |
 | --- | --- |
 | Related | [[templates/agenda.md\|agenda template]],  [[DAS Track]],  [[DAS Roadmap]],  [[DAS PRD]],  [[DAS Brief]],  [[DAS Backlog]],   |
 | Examples | [[FEX Agenda\|worked example]],   |
 | Rules | [[R-agenda]],   |
+
+# DAS Agenda
+The strategic frame — one optional `{slug} Agenda.md` per anchor saying why this activity exists, what winning looks like, and how we plan to attack it.
 
 **TLDR** — `{slug} Track/{slug} Agenda.md` is the anchor's **strategy** surface: five required H2s (`## Purpose` · `## Success — what "won" looks like` · `## Approach` · `## Constraints` · `## Cadence`) plus optional `## Open Questions` / `## History` / `## Links down`. User-authored by default (the agent may draft, the user ratifies), prose-only — no bracketed work rows. It sits **above** the Roadmap: Roadmap says "next milestone: X"; Agenda says "this activity exists because Y, winning 12 months out is Z, and our approach is W." **Cardinality: 0-or-1 per anchor, elective** — most anchors neither have nor need one.
 

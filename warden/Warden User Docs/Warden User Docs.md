@@ -1,13 +1,14 @@
 ---
 description: Warden user documentation — the manual for writing and running rules
 ---
-# Warden User Docs
-The task-oriented manual for authoring and running Warden rules — start at [[Warden Examples]].
 
 | -[[Warden User Docs]]- | : the manual — how to write and run Warden rules<br>→ [[DAS]] → [[WARD]] → [Warden User Docs](hook://p/Warden%20User%20Docs)  |
 | --- | --- |
 | [[Warden Examples]]  | worked examples of every rule-execution mode (start here) |
 | ... | [[Warden Examples Extended]],   |
+
+# Warden User Docs
+The task-oriented manual for authoring and running Warden rules — start at [[Warden Examples]].
 
 **Warden** lets you state a rule once — *when* a moment happens, *where* (which file), and optionally *if* a condition holds — and have it enforced automatically, with a corrective message fed back to the agent. This is the user-facing manual: how to author rules and what they can do.
 

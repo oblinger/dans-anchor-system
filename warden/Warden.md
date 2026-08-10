@@ -1,7 +1,6 @@
 ---
 description: "the rule engine — declarative rules fired at agent moments, validated against whole-file format specs, with agent-steering feedback"
 ---
-# Warden
 
 | -[[Warden]]- | : the rule engine — declarative rules fired at agent moments, validated against whole-file format specs, with agent-steering feedback<br>→ [[DAS]] → [Warden](hook://p/Warden)  |
 | --- | --- |
@@ -10,6 +9,9 @@ description: "the rule engine — declarative rules fired at agent moments, vali
 | [[Warden Corpus\|Corpus]]  | the golden test corpus — rule × fixture × expected-verdict cases, the drift oracle for every Warden engine |
 | [[Warden Track\|Track]]  | [[Warden Backlog\|Backlog]],  [[Warden Features\|Features]],   |
 | ... |  |
+
+# Warden
+
 
 ## Overview
 

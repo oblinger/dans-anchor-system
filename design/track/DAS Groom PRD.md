@@ -4,7 +4,6 @@ description: "product requirements"
 
 :>> [[DAS]] → [design](hook://design) → [DAS Groom PRD](hook://p/DAS%20Groom%20PRD)
 # Groom PRD
-
 **Shared design:** `/groom` and `/ask` are one **resolution layer** — the frontier, the `F`/`T`/`M`/`R` work-item-identity model, the five groomed states, and the question bar are specified once in **[[Query PRD]]** (read it as the resolution-layer PRD). This doc covers groom-specific requirements; runtime spec is [[skills/groom/SKILL.md\|SKILL.md]]; user guide is [[ASG Groom]].
 
 ## Overview

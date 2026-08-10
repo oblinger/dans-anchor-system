@@ -1,5 +1,12 @@
-# Design PRD — Author or assess `{slug} PRD.md`
+| -[[{slug} PRD]]- | : <description><br>→ <breadcrumb> |
+| --- | --- |
+| [[{slug} Architecture]] | system-architecture story (peer Design facet) |
+| [[{slug} Testing]] | testing strategy + proposed-tests overview |
+| [[{slug} Decisions]] | load-bearing decisions citing rules |
+| [[DAS PRD]] | facet spec this doc follows |
+| --- | |
 
+# Design PRD — Author or assess `{slug} PRD.md`
 Phase 1 of the canonical `/design` sequence (PRD → Architecture → Milestones → Testing → design-accepted gate → Roadmap → Features, per [[DAS Design Design]]). Authors `{slug} Design/{slug} PRD.md` per the [[DAS PRD]] facet; Stories is this phase's satellite.
 
 **Two modes** — the same skill drives both:
@@ -131,13 +138,6 @@ Create `{anchor}/{slug} Design/{slug} PRD.md` (single-file form by default) with
 # {slug} PRD
 description:: <one-line tagline — product type + intent + key trait>
 
-| -[[{slug} PRD]]- | : <description><br>→ <breadcrumb> |
-| --- | --- |
-| [[{slug} Architecture]] | system-architecture story (peer Design facet) |
-| [[{slug} Testing]] | testing strategy + proposed-tests overview |
-| [[{slug} Decisions]] | load-bearing decisions citing rules |
-| [[DAS PRD]] | facet spec this doc follows |
-| --- | |
 
 ## Overview
 

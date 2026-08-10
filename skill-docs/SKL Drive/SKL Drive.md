@@ -2,9 +2,6 @@
 description: "crank, land, fortify, ask, feature, groom, mint, finalize"
 ---
 
-# SKL Drive
-User guides for the engine-room verbs that drive work forward through the lifecycle — from inbox to backlog, backlog to active, active to verified.
-
 | -[[SKL Drive]]- | : User guides for the engine-room verbs that drive work forward through the lifecycle — from inbox to backlog, backlog to active, active to verified.<br>→ [[DAS]] → [[skill-docs]] → [SKL Drive](hook://p/SKL%20Drive)  |
 | --- | --- |
 | [[DAS Crank\|Crank]]  | The "go" button. |
@@ -14,3 +11,6 @@ User guides for the engine-room verbs that drive work forward through the lifecy
 | [[DAS Land\|Land]]  | `/land` — bounded crank. |
 | [[DAS Fortify\|Fortify]]  | Cautious, skeptical counterpart to `crank`. |
 | --- | |
+
+# SKL Drive
+User guides for the engine-room verbs that drive work forward through the lifecycle — from inbox to backlog, backlog to active, active to verified.

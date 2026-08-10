@@ -1,13 +1,14 @@
 ---
 description: "`bridge` connects this Mac to another machine — control (SSH + tmux + TCC inheritance), sync (folder mirroring at identical paths), claude (environment-twin), agent (a working Claude agent deployed on the remote)."
 ---
-# DAS Bridge
-`bridge` connects this Mac to another machine. Every operation is a verb of **one packaged dispatcher** — `~/.claude/skills/bridge/bridge` — invoked by full path (it rides the skills repo, so it exists on any provisioned machine; no `~/bin`, no PATH assumptions, nothing user-specific). Agents never improvise raw ssh. This page is the solution overview + command reference; the runbook and gotchas live in the [[skills/bridge/SKILL.md|SKILL]]; design rationale in SKA F279.
 
-| -[[DAS Bridge]]- | : `bridge` connects this Mac to another machine — tmux / install / doctor / sync / agent.<br>→ [[DAS]] → [docs](hook://docs) → [DAS Bridge](hook://p/DAS%20Bridge) |
+| -[[DAS Bridge]]- | : `bridge` connects this Mac to another machine — tmux / install / doctor / sync / agent.<br>→ [[DAS]] → [docs](hook://docs) → [DAS Bridge](hook://p/DAS%20Bridge)  |
 | --- | --- |
 | Related | [[skills/bridge/SKILL.md\|SKILL]],  [[DAS Bridge Design\|Design]],  [[DAS Bridge Testing\|Testing]],   |
 | ... |  |
+
+# DAS Bridge
+`bridge` connects this Mac to another machine. Every operation is a verb of **one packaged dispatcher** — `~/.claude/skills/bridge/bridge` — invoked by full path (it rides the skills repo, so it exists on any provisioned machine; no `~/bin`, no PATH assumptions, nothing user-specific). Agents never improvise raw ssh. This page is the solution overview + command reference; the runbook and gotchas live in the [[skills/bridge/SKILL.md|SKILL]]; design rationale in SKA F279.
 
 ## The solution in one picture
 

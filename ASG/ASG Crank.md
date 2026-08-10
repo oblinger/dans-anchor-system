@@ -3,7 +3,6 @@ description: "The \"go\" button."
 ---
 :>> [[DAS]] → [[ASG]] → [ASG Crank](hook://p/ASG%20Crank)
 # /crank — user guide
-
 **Full internals & design:** [[DAS Crank]]   ·   **Runtime spec:** [[skills/crank/SKILL.md\|SKILL.md]]
 
 The "go" button. One press of `/crank` (or `'`) drives **as much progress as possible** through Ready work — sequencing items and using parallel workers when items are independent. Stops only when continuing would drop quality.

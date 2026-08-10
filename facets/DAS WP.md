@@ -2,15 +2,15 @@
 description: dated work products — papers, reports, polished outputs
 ---
 
-# DAS WP
-Facet spec for the **Work Products** zone of an anchor — dated, polished outputs (papers, reports, analyses) organized as one folder per work product under `{slug} WP/`.
-
 | -[[DAS WP]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS WP](hook://p/DAS%20WP) |
 | --- | --- |
 | Related | [[DAS Log]],  [[DAS Feature]],  [[DAS Brief]],  [[DAS Dispatch]],   |
 | Examples | [[AIS WP\|example dispatch page]],   |
 | Rules | [[R-wp]],   |
 | ... |  |
+
+# DAS WP
+Facet spec for the **Work Products** zone of an anchor — dated, polished outputs (papers, reports, analyses) organized as one folder per work product under `{slug} WP/`.
 
 **Location:** `{slug} WP/{slug} {Title}/` at the anchor root — one folder per work product, per § Location below.
 

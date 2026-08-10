@@ -1,14 +1,15 @@
 ---
 description: "`/viz` produces visual artifacts — diagrams, charts, mockups, slides, formatted docs."
 ---
-# DAS Viz
-`/viz` produces visual artifacts — diagrams, charts, mockups, slides, formatted docs. You always pair it with a sub-action that picks the rendering tool, since each tool has a distinct aesthetic: `/viz excalidraw` for hand-drawn architecture sketches, `/viz matplot` for Tufte-grade data charts (timeline, multi-line, quadrant, scatter, waterfall, hex shot, etc.), `/viz mermaid` for flow / sequence / gantt / state diagrams from text, `/viz dot` for Graphviz dependency graphs and org charts, `/viz pptx` for custom slide-shaped layouts, and `/viz docx` / `/viz pdf` for converting markdown to polished documents.
 
 | -[[DAS Viz]]- | : `/viz` produces visual artifacts — diagrams, charts, mockups, slides, formatted docs.<br>→ [[DAS]] → [docs](hook://docs) → [DAS Viz](hook://p/DAS%20Viz)  |
 | --- | --- |
 | Related | [[skills/viz/SKILL.md\|SKILL]],   |
 | [[DAS Viz Design\|Design]]  |  |
 | ... |  |
+
+# DAS Viz
+`/viz` produces visual artifacts — diagrams, charts, mockups, slides, formatted docs. You always pair it with a sub-action that picks the rendering tool, since each tool has a distinct aesthetic: `/viz excalidraw` for hand-drawn architecture sketches, `/viz matplot` for Tufte-grade data charts (timeline, multi-line, quadrant, scatter, waterfall, hex shot, etc.), `/viz mermaid` for flow / sequence / gantt / state diagrams from text, `/viz dot` for Graphviz dependency graphs and org charts, `/viz pptx` for custom slide-shaped layouts, and `/viz docx` / `/viz pdf` for converting markdown to polished documents.
 
 Trigger phrases: "draw," "diagram," "mockup," "chart this," "plot data," "timeline chart," "excalidraw," or "convert this to PDF." Output lands in `~/ob/data/MyDesk/` by default with a slug-and-timestamp filename, so you can find what you generated across sessions without it scattering through `/tmp`. First-time use on a new machine needs a one-time setup step (install Inter + JetBrains Mono fonts, pandoc + tectonic for docx/pdf, Node for Excalidraw) — see the skill's setup section.
 

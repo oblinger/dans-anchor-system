@@ -2,9 +2,6 @@
 description: "Harbor's ingest pipeline — pulls media off disk into the catalog."
 ---
 
-# HBR Ingest
-The ingest pipeline — discovers media on disk and lands it in the catalog, the worked built-out sub-anchor example.
-
 | -[[HBR Ingest]]- | → [[DAS]] → [[examples]] → [[HBR\|HARBOR]] → [HBR Ingest](hook://p/HBR%20Ingest)  |
 | --- | --- |
 | Anchor | [[HBR Components]] (parent) |
@@ -13,3 +10,6 @@ The ingest pipeline — discovers media on disk and lands it in the catalog, the
 | [[HBR Importer\|Importer]]  | probes each file, extracts metadata, writes catalog rows |
 | [[HBR Deduper\|Deduper]]  | content-hashes imports and folds duplicates into one entry |
 | ... |  |
+
+# HBR Ingest
+The ingest pipeline — discovers media on disk and lands it in the catalog, the worked built-out sub-anchor example.

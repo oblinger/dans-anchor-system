@@ -2,15 +2,15 @@
 description: "per-document discussion log — dated trade-off threads attached to the doc they're about"
 ---
 
-# DAS Discussion
-Per-document discussion log — dated trade-off threads attached to the doc they're about.
-
 | -[[DAS Discussion]]- | → [[DAS]] → [[FCT]] → [DAS Discussion](hook://p/DAS%20Discussion)  |
 | --- | --- |
 | Related | [[DAS Decisions]],  [[DAS Log]],  [[DAS PRD]],  [[DAS stream]],   |
 | Examples | [[HA Frontmatter\|inline method-1]],  [[HA Design Discussions\|sibling-file method-2]],   |
 | Rules | [[R-discussion]],   |
 | ... | [[anchor-page]],  [[DAS Agenda]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Page]],  [[DAS Anchor Tree]],  [[DAS Aspects]],  [[DAS Backlog]],  [[DAS Brief]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Claude]],  [[DAS CLI]],  [[DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Design Folder]],  [[DAS Dev Dispatch]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facet]],  [[DAS Features]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Interface]],  [[DAS Messages]],  [[DAS Module Doc]],  [[facets/DAS Move]],  [[DAS Naming]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Roadmap]],  [[DAS Ruleset]],  [[facets/DAS Skill]],  [[DAS Specs]],  [[DAS Status]],  [[DAS Stone]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS Track]],  [[DAS User Dispatch]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
+
+# DAS Discussion
+Per-document discussion log — dated trade-off threads attached to the doc they're about.
 
 **TLDR** — A doc-scoped stream (cardinality: many) that attaches to spec docs — PRDs, Architecture, feature docs, etc. Each entry follows a Problem / Options Considered / Decision skeleton. Two placement methods: inline `# Discussion` H1 (default) or sibling `{Parent} Discussions.md` (when inline grows past ~2 screens). Append-only after Decision is filled. Does NOT attach to navigation/sequencing artifacts (anchor pages, dispatch pages, Backlog, Roadmap).
 

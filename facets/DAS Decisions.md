@@ -2,15 +2,15 @@
 description: decisions are documentation — recorded under a `## Decisions` section in the design doc they shape; Warden never computes against them. Anything directly checkable is a rule, living in the companion `# RULESET` directly after the Decisions section; rules link back with an implements-D{N} note.
 ---
 
-# DAS Decisions
-**Worked examples:** [[HBR Decisions]], [[Mini Decisions]], [[FEX Decisions]]
-
 | -[[DAS Decisions]]- | → [[DAS]] → [[FCT]] → [DAS Decisions](hook://p/DAS%20Decisions)  |
 | --- | --- |
 | Related | [[DAS Ruleset]],  [[DAS Architecture]],  [[DAS Design Docs]],  [[DAS Rulesets]],   |
 | Examples | [[Mini Architecture#Decisions\|distributed — decision in the doc it shapes]],  [[Mini Decisions\|optional central — cross-cutting value only]],  [[FEX Decisions\|legacy central master (pre-doctrine include:: + implementation map)]],  [[HBR Decisions\|legacy central (durable rulings)]],   |
 | Rules | [[R-decisions]],   |
 | ... | [[anchor-page]],  [[DAS Agenda]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Page]],  [[DAS Anchor Tree]],  [[DAS API Design]],  [[DAS Aspects]],  [[DAS Backlog]],  [[DAS Brief]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Claude]],  [[DAS CLI]],  [[DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[DAS Design Dispatch]],  [[DAS Design Folder]],  [[DAS Dev Dispatch]],  [[DAS Discussion]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facet]],  [[DAS Facets]],  [[DAS Features]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Interface]],  [[DAS Log]],  [[DAS Messages]],  [[DAS Module Doc]],  [[facets/DAS Move]],  [[DAS Naming]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS PRD]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Roadmap]],  [[DAS Rocks]],  [[facets/DAS Skill]],  [[DAS Specs]],  [[DAS Status]],  [[DAS Stone]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS Track]],  [[DAS User Dispatch]],  [[DAS UX Design]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
+
+# DAS Decisions
+**Worked examples:** [[HBR Decisions]], [[Mini Decisions]], [[FEX Decisions]]
 
 The facet for recorded decisions — the documentation layer that sits above Warden's rules.
 

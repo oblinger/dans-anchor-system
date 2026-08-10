@@ -4,7 +4,6 @@ description: "system-architecture story — modules, data flow"
 
 :>> [[DAS]] → [design](hook://design) → [DAS Audit Architecture](hook://p/DAS%20Audit%20Architecture)
 # DAS Audit Architecture
-
 The audit system is two things: the **rule sets** it runs over, and the **components** — skills and scripts — that run over them. This page is the structural overview; the detailed per-audit pipeline is a subdocument.
 
 ![[DAS Audit Architecture.svg|2400]]

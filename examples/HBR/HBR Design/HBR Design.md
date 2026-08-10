@@ -1,8 +1,6 @@
 ---
 description: "Harbor's design — PRD through features, in design-dispatch order"
 ---
-# HBR Design
-The design of Harbor: what it's for, how it's shaped, and the rulings behind it.
 
 | -[[HBR Design]]- | → [[DAS]] → [[examples]] → [[HBR\|HARBOR]] → [HBR Design](hook://p/HBR%20Design)  |
 | --- | --- |
@@ -18,3 +16,6 @@ The design of Harbor: what it's for, how it's shaped, and the rulings behind it.
 | --- | |
 | [[HBR CLI Help.txt]]  |  |
 | [[HBR Design/HBR Decisions]]  | durable rulings |
+
+# HBR Design
+The design of Harbor: what it's for, how it's shaped, and the rulings behind it.

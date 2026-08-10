@@ -4,15 +4,15 @@ cssclasses:
 description: anchor master tree — every possible doc/folder in an anchor, linked to its facet spec
 ---
 
-# DAS Anchor Tree
-The annotated master file tree showing every possible file and folder that may appear inside a DAS anchor, with each named element wiki-linked to its governing facet spec.
-
 | -[[DAS Anchor Tree]]- | → [[DAS]] → [[FCT]] → [DAS Anchor Tree](hook://p/DAS%20Anchor%20Tree)  |
 | --- | --- |
 | Related | [[DAS Anchor Page]],  [[DAS Anchor]],  [[DAS Facet]],   |
 | Examples | [[HBR\|minimal Code anchor]],  [[HBR\|fuller anchor with components]],   |
 | Rules | [[R-anchor]],  [[R-anchor-tree]],   |
 | ... | [[anchor-page]],  [[DAS Agenda]],  [[DAS API Design]],  [[DAS Aspects]],  [[DAS Brief]],  [[DAS Changes]],  [[DAS CLI]],  [[DAS Code]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[facets/DAS Decisions]],  [[DAS Design Docs]],  [[DAS Design Folder]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Dot Anchor]],  [[DAS Facets]],  [[DAS Files Architecture]],  [[DAS Interface]],  [[DAS Log]],  [[DAS Messages]],  [[facets/DAS Move]],  [[DAS Naming]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Rocks]],  [[DAS Ruleset]],  [[facets/DAS Skill]],  [[DAS Specs]],  [[DAS Status]],  [[DAS Stone]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
+
+# DAS Anchor Tree
+The annotated master file tree showing every possible file and folder that may appear inside a DAS anchor, with each named element wiki-linked to its governing facet spec.
 
 **Cardinality: one per anchor** — each anchor has exactly one canonical file tree (this spec is the reference; an anchor's actual tree is its on-disk directory).
 

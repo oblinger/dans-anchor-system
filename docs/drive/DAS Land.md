@@ -1,11 +1,12 @@
 ---
 description: "`/land` — bounded crank."
 ---
-# DAS Land
-The concept dossier for **`/land`** — everything published about the skill: the user guide, its design, and the runtime spec.
 
 | -[[DAS Land]]- | : `/land` — bounded crank.<br>→ [[DAS]] → [docs](hook://docs) → [DAS Land](hook://p/DAS%20Land)  |
 | --- | --- |
 | Related | [[ASG Land\|Land User Guide]],  [[skills/land/SKILL.md\|SKILL]] (runtime) |
 | [[DAS Land Design\|Design]]  | [[DAS Land PRD\|PRD]],   |
 | ... |  |
+
+# DAS Land
+The concept dossier for **`/land`** — everything published about the skill: the user guide, its design, and the runtime spec.

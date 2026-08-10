@@ -1,13 +1,14 @@
 ---
 description: "skim → click into the rule that applies"
 ---
-# DAS Product
+
 | -[[DAS Product]]- | : skim → click into the rule that applies<br>→ [[DAS]] → [docs](hook://docs) → [DAS Product](hook://p/DAS%20Product)  |
 | --- | --- |
 | Product rules (any verb) | [[SRCH rules/product\|product.md]],   |
 | Verbs | [[SRCH rules/find-product\|find-product]],  [[SRCH rules/profile-product\|describe-product]],  [[SRCH rules/survey-product\|survey-product]],   |
 | ... |  |
 
+# DAS Product
 When the search agent runs against a **product** — finding, describing, or surveying — these are the rules that apply.
 
 **Distinct from [[DAS Purchase]]** — that's the legacy product-*purchasing* skill (hunt / find / buy / reorder). This doc is about Product as a *kind of thing the search agent can search over*.

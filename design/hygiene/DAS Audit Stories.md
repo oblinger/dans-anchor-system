@@ -4,7 +4,6 @@ description: "user stories elaborating the PRD"
 
 :>> [[DAS]] → [design](hook://design) → [DAS Audit Stories](hook://p/DAS%20Audit%20Stories)
 # DAS Audit Stories
-
 The four stories that drive the design. Each names the trigger mode and automation level it exercises (see [[DAS Audit PRD|Audit PRD]] § Automation scale).
 
 ## US-AUDIT-1 — Online auto-fix while editing

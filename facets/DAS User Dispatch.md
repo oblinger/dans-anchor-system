@@ -2,15 +2,15 @@
 description: user-facing docs dispatch page — curated, synthesis-level human-authored docs for any audience
 ---
 
-# DAS User Dispatch
-Facet spec for the `{slug} User Docs.md` dispatch page that catalogs an anchor's end-user / consumer-facing documentation (Guide, Installation, CLI, FAQ, Cards).
-
 | -[[DAS User Dispatch]]- | → [[DAS]] → [[FCT]] → [DAS User Dispatch](hook://p/DAS%20User%20Dispatch)  |
 | --- | --- |
 | Related | [[DAS Design Dispatch]],  [[DAS Dev Dispatch]],  [[DAS Dispatch]],   |
 | Examples | [[HBR User Docs\|minimal (code anchor)]],  [[HBR User Docs\|fuller (server anchor)]],   |
 | Rules | [[R-fct-user-dispatch]],   |
 | ... | [[anchor-page]],  [[DAS Agenda]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Page]],  [[DAS Anchor Tree]],  [[DAS API Design]],  [[DAS Architecture]],  [[DAS Aspects]],  [[DAS Backlog]],  [[DAS Brief]],  [[DAS Changes]],  [[DAS Claude]],  [[DAS CLI]],  [[DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[facets/DAS Decisions]],  [[DAS Design Docs]],  [[DAS Design Folder]],  [[DAS Discussion]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facet]],  [[DAS Facets]],  [[DAS Features]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Interface]],  [[DAS Log]],  [[DAS Messages]],  [[DAS Module Doc]],  [[facets/DAS Move]],  [[DAS Naming]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS PRD]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Roadmap]],  [[DAS Rocks]],  [[DAS Ruleset]],  [[facets/DAS Skill]],  [[DAS Specs]],  [[DAS Status]],  [[DAS Stone]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS Track]],  [[DAS UX Design]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
+
+# DAS User Dispatch
+Facet spec for the `{slug} User Docs.md` dispatch page that catalogs an anchor's end-user / consumer-facing documentation (Guide, Installation, CLI, FAQ, Cards).
 
 **TLDR** — `{slug} User Docs.md` is the dispatch page for end-user / consumer-facing documentation (Guide, Installation, CLI, FAQ, Cards). It lives in the root-level `{slug} User Docs/` folder. Cardinality: **one per anchor**. Scope boundary: user-task docs only; system-spec docs (Interface, Architecture) live elsewhere — Interface in [[DAS Design Dispatch|Design]], the Architecture story in `{slug} Design/`.
 

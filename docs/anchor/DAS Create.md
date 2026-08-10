@@ -1,14 +1,15 @@
 ---
 description: "Create a new thing — anchor, feature, work product, spec, or rule."
 ---
-# DAS Create
-Create a new thing — anchor, feature, work product, spec, or rule.
 
 | -[[DAS Create]]- | : Create a new thing — anchor, feature, work product, spec, or rule.<br>→ [[DAS]] → [docs](hook://docs) → [DAS Create](hook://p/DAS%20Create)  |
 | --- | --- |
 | Related | [[skills/create/SKILL.md\|SKILL]],   |
 | [[DAS Create Design\|Design]]  |  |
 | ... |  |
+
+# DAS Create
+Create a new thing — anchor, feature, work product, spec, or rule.
 
 `/create` requires an argument specifying what to create:
 

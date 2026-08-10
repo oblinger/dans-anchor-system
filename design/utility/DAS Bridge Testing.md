@@ -2,14 +2,15 @@
 description: "how each kind of bridging is verified"
 ---
 
-# DAS Bridge Testing
-
 | -[[DAS Bridge Testing]]- | : testing strategy + tests<br>→ [[DAS]] → [design](hook://design) → [DAS Bridge Testing](hook://p/DAS%20Bridge%20Testing)  |
 | --- | --- |
 | [[DAS Bridge PRD\|PRD]]  | the requirements each test verifies |
 | [[DAS Bridge UX Design\|UX Design]]  | the verbs under test |
 | [[DAS Testing]]  | facet spec this doc instantiates |
 | ... |  |
+
+# DAS Bridge Testing
+
 
 Each **test type** below links to its detail section — click through to see the actual tests of that type.
 

@@ -4,7 +4,6 @@ description: "Warden-native audit-rules pipeline — entry doc for the reserved 
 
 :>> [[DAS]] → [design](hook://design) → [DAS Audit Rules Redesign](hook://p/DAS%20Audit%20Rules%20Redesign)
 # DAS Audit Rules Redesign — Warden-native
-
 Entry document for the user's reserved `/plan` cycle over the audit skill (user, 2026-06-16: *"I'm gonna run an explicit plan cycle over the whole thing and ship it at the end of that"*). It states what is already settled and real, sketches the target pipeline, and enumerates the forks the plan cycle must decide. Source feature: [[F132 — Rules Migration]] (Q6 resolved 2026-07-12).
 
 ## Settled foundation — not up for re-decision

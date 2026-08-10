@@ -2,9 +2,6 @@
 description: "the Ruleset facet — what a ruleset is and the format every ruleset file (a standalone `R-<slug>` or an anchor-local {slug} Rules.md) must take"
 ---
 
-# DAS Ruleset
-A named, reusable bundle of audit-checkable rules — and the spec for how to write one.
-
 | -[[DAS Ruleset]]- | → [[DAS]] → [[FCT]] → [DAS Ruleset](hook://p/DAS%20Ruleset)  |
 | --- | --- |
 | Related | [[DAS Facet]],  [[DAS Skill]],  [[DAS Decisions]] (companion),  [[DAS Rulesets]] (the catalog),  [[DAS Primitives]], |
@@ -12,6 +9,8 @@ A named, reusable bundle of audit-checkable rules — and the spec for how to wr
 | Examples | [[R-fex-manifest\|small, standalone]],  [[R-diagram\|large, standalone]],  [[FEX Rules\|anchor-local Rules.md]],   |
 | ... | [[anchor-page]],  [[DAS Agenda]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Page]],  [[DAS Anchor Tree]],  [[DAS API Design]],  [[DAS Architecture]],  [[DAS Aspects]],  [[DAS Backlog]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Claude]],  [[DAS CLI]],  [[DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Design Folder]],  [[DAS Dev Dispatch]],  [[DAS Discussion]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facets]],  [[DAS Features]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Interface]],  [[DAS Log]],  [[DAS Messages]],  [[DAS Module Doc]],  [[facets/DAS Move]],  [[DAS Naming]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS PRD]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Roadmap]],  [[DAS Rocks]],  [[DAS Specs]],  [[DAS Status]],  [[DAS Stone]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS Track]],  [[DAS User Dispatch]],  [[DAS UX Design]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
 
+# DAS Ruleset
+A named, reusable bundle of audit-checkable rules — and the spec for how to write one.
 
 **TLDR**
 - **What it is** — a named bundle of portable, audit-checkable rules (`# RULESET R-<slug>`), or an anchor-local `{slug} Rules.md`.

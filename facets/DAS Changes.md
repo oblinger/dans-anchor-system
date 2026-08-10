@@ -2,9 +2,6 @@
 description: "specification for the OpenSpec-conformant changes/ folder — C-numbered change folders that land on the backlog like features"
 ---
 
-# DAS Changes
-Specification for the **Changes** facet — the OpenSpec-conformant `changes/` folder holding C-numbered change folders, each a self-contained unit of work that lands on the backlog exactly like a feature does.
-
 | -[[DAS Changes]]- | → [[DAS]] → [[FCT]] → [DAS Changes](hook://p/DAS%20Changes)  |
 | --- | --- |
 | Related | [[DAS Specs]],  [[DAS Features]],  [[DAS Backlog]],  [[F230 — OpenSpec conversion\|F230]],   |
@@ -12,6 +9,9 @@ Specification for the **Changes** facet — the OpenSpec-conformant `changes/` f
 | Rules | [[R-changes]],   |
 | Examples | none yet — first adoption pending ([[F230 — OpenSpec conversion\|F230]]) |
 | ... | [[anchor-page]],  [[DAS Agenda]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Page]],  [[DAS Anchor Tree]],  [[DAS API Design]],  [[DAS Architecture]],  [[DAS Aspects]],  [[DAS Brief]],  [[DAS Cards]],  [[DAS Claude]],  [[DAS CLI]],  [[DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[facets/DAS Decisions]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Design Folder]],  [[DAS Dev Dispatch]],  [[DAS Discussion]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facet]],  [[DAS Facets]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Interface]],  [[DAS Log]],  [[DAS Messages]],  [[DAS Module Doc]],  [[facets/DAS Move]],  [[DAS Naming]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS PRD]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Roadmap]],  [[DAS Rocks]],  [[DAS Ruleset]],  [[facets/DAS Skill]],  [[DAS Status]],  [[DAS Stone]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS Track]],  [[DAS User Dispatch]],  [[DAS UX Design]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
+
+# DAS Changes
+Specification for the **Changes** facet — the OpenSpec-conformant `changes/` folder holding C-numbered change folders, each a self-contained unit of work that lands on the backlog exactly like a feature does.
 
 **Location:** `changes/` at the anchor root (lowercase, [OpenSpec](https://github.com/Fission-AI/OpenSpec/)-conformant — their tooling reads it unmodified). One folder per change: `changes/C<NNN>-<kebab-slug>/`.
 

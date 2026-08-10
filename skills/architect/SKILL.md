@@ -19,6 +19,11 @@ tools: Read, Write, Edit, Bash, Glob, Grep
 user_invocable: true
 ---
 
+| -[[{slug} <Module>]]- | |
+| --- | --- |
+| Arch | [[{slug} <Subsystem> Arch]] |       ← architect-managed row
+| --- | |
+
 # Architect — Maintain `{slug} Architecture/`
 requires:: vault, skill:ask, skill:audit, skill:viz, facet:architecture
 subsystem:: [[DAS Design Design]] — the Design group's subsystem profile (pipeline, gates, facets, rules)
@@ -117,10 +122,6 @@ Architecture-to-modules links live in each subsystem's **modules table** (above)
 
 ```
 
-| -[[{slug} <Module>]]- | |
-| --- | --- |
-| Arch | [[{slug} <Subsystem> Arch]] |       ← architect-managed row
-| --- | |
 
 ```
 

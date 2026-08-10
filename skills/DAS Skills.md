@@ -2,14 +2,6 @@
 description: "Skills — the `/`-invocable runbooks"
 ---
 
-# DAS Skills
-The catalog of skills — the `/`-invocable runbooks — organized by the nine subsystems in [[DAS]] order.
-
-![[F143-1-top-level.svg|2400]]
-*Dan's Anchor System — the kinds of system parts: **Skills** (verbs) create **Facets** (nouns); **Disciplines** (adjectives) modify both; **Rulesets** constrain all three.*
-
-
-
 | -[[DAS Skills]]- | : Skills — the `/`-invocable runbooks<br>→ [[DAS]] → [[SKL]] → [DAS Skills](hook://p/DAS%20Skills)  |
 | --- | --- |
 | Related | [[DAS Facets\|Facets]],  [[DAS Disciplines\|Disciplines]],  [[DAS Traits\|Traits]],  [[DAS Examples\|Examples]],  [[DAS Rulesets\|Rulesets]],  [[DAS\|dans-anchor-system]],   |
@@ -133,6 +125,7 @@ The catalog of skills — the `/`-invocable runbooks — organized by the nine s
 | [[pr-flow/SKILL]]  |  |
 | [[publish/SKILL]]  |  |
 | [[rewire]]  |  |
+| [[role-pilot]]  |  |
 | [[SKA Bridge Testing]]  | SKA Bridge Testing — strategy + proposed-tests overview |
 | [[SKILL-retired]]  | > |
 | [[SKL]]  | the skills pillar — every Claude Code skill, one folder per skill with a SKILL.md entry point |
@@ -157,3 +150,12 @@ The catalog of skills — the `/`-invocable runbooks — organized by the nine s
 | [[io-calendar-access]]  |  |
 | [[io-email]]  |  |
 | [[io-email-access]]  |  |
+
+# DAS Skills
+The catalog of skills — the `/`-invocable runbooks — organized by the nine subsystems in [[DAS]] order.
+
+![[F143-1-top-level.svg|2400]]
+*Dan's Anchor System — the kinds of system parts: **Skills** (verbs) create **Facets** (nouns); **Disciplines** (adjectives) modify both; **Rulesets** constrain all three.*
+
+
+
