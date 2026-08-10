@@ -5927,6 +5927,79 @@ def chk_inbox_status_tags(target, anchor_root, args):
     return "pass", "tags sanctioned"
 
 
+# ---------------------------------------------------------------------------
+# R-spine, F319 M2 — the spine checks.
+#
+# These are thin adapters over `spine_check.check`, deliberately. The shape
+# classifier and the finding logic live in spine.py / spine_check.py, which
+# md-toc.py also reads; re-implementing any of it here is how two callers come
+# to disagree about what a page is. Each checker below selects ONE code from
+# that one implementation.
+#
+# They grade `warn`, not `error`, on purpose. Turning them hard today would put
+# ~900 vault pages into violation at once, the finding would stop carrying
+# information, and agents would learn to scroll past it — which defeats the
+# lazy-accrual milestone that depends on the check being noticed. F319 M6
+# promotes them once the corpus is clean.
+# ---------------------------------------------------------------------------
+_SPINE_CACHE: dict = {}
+
+
+def _spine_findings(f):
+    """Every spine finding for one file, computed once per (path, mtime)."""
+    import importlib.util
+    global _SPINE_CACHE
+    try:
+        key = (str(f), f.stat().st_mtime_ns)
+    except OSError:
+        return []
+    hit = _SPINE_CACHE.get(key)
+    if hit is not None:
+        return hit
+    mod = _SPINE_CACHE.get("__mod__")
+    if mod is None:
+        here = Path(__file__).resolve().parent
+        spec = importlib.util.spec_from_file_location(
+            "spine_check", here / "spine_check.py")
+        if spec is None or spec.loader is None:
+            raise RuntimeError(f"cannot load the spine checker beside {here}")
+        import sys as _sys
+        if str(here) not in _sys.path:
+            _sys.path.insert(0, str(here))
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        _SPINE_CACHE["__mod__"] = mod
+    out = mod.check(f)
+    _SPINE_CACHE[key] = out
+    return out
+
+
+def _spine_rule(code, ok_msg):
+    """Build a checker that reports one spine code as an advisory."""
+    def _chk(target, anchor_root, args):
+        f = _as_file(target, anchor_root)
+        if f is None:
+            return "error", "no file"
+        hits = [(ln, msg) for c, ln, msg in _spine_findings(f) if c == code]
+        if not hits:
+            return "pass", ok_msg
+        ln, msg = hits[0]
+        return "warn", f"line {ln}: {msg}"
+    return _chk
+
+
+chk_spine_above_h1 = _spine_rule(
+    "S03", "spine sits above the H1")
+chk_identity_cell_description_first = _spine_rule(
+    "S04", "identity cell leads with its description")
+chk_orientation_line_adjoins_h1 = _spine_rule(
+    "S05", "orientation line sits directly under the H1")
+chk_masthead_over_folder_has_marker = _spine_rule(
+    "S07", "no folder children are hidden")
+chk_marker_has_rows_below = _spine_rule(
+    "S08", "marker is not degenerate")
+
+
 CHECKERS = {
     # R-fct-inbox (T170) — three rules that claimed "(checked)" with no checker
     "inbox_in_track_folder": chk_inbox_in_track_folder,
@@ -6049,6 +6122,12 @@ CHECKERS = {
     "dispatch_table_by_context": chk_dispatch_table_by_context,
     "progressive_disclosure_layout": chk_progressive_disclosure_layout,
     "doc_head_orientation_line": chk_doc_head_orientation_line,
+    # R-spine (F319 M2) — advisory until the corpus is clean
+    "spine_above_h1": chk_spine_above_h1,
+    "identity_cell_description_first": chk_identity_cell_description_first,
+    "orientation_line_adjoins_h1": chk_orientation_line_adjoins_h1,
+    "masthead_over_folder_has_marker": chk_masthead_over_folder_has_marker,
+    "marker_has_rows_below": chk_marker_has_rows_below,
     # R-roadmap
     "file_exists": chk_file_exists,
     "milestone_checkbox": chk_milestone_checkbox,

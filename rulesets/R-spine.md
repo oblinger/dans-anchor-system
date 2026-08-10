@@ -51,6 +51,64 @@ A doc that is its folder's **same-named index** (`Foo/Foo.md`), or that carries 
 
 **Why:** absence, not staleness, is the primary failure here — the rule was long stated in prose and largely unfollowed because nothing in the write path forced the check. A folder index with no member links makes the reader open the folder to learn what is in it, defeating the point of having an index at all.
 
+### RULE R-spine-04 — the spine sits above the H1, never below it (checked)
+check:: spine_above_h1
+mend:: spine-position
+
+A masthead is the **spine**: it states where the page sits before the page says what it is. So it goes *above* the `# H1`, in the same position the `:>>` breadcrumb occupies on a leaf. A page whose H1 comes first has put its title above its position, which reads as content-then-routing and breaks the head's disclosure order.
+
+**Check pattern:** the doc's own identity-row masthead exists and the first H1 precedes it → warn.
+
+**Why:** the two spine forms should be interchangeable in position, so a reader's eye lands in the same place on every page. Measured 2026-08-09: **921 vault pages** put the H1 above the spine, which is why this rule ships advisory (§ The grade, below).
+
+### RULE R-spine-05 — the identity cell leads with its description (checked)
+check:: identity_cell_description_first
+mend:: spine-position
+
+The identity row's right-hand cell carries `<br>`-delimited segments. The **description** — the `: `-led one — comes first, and the `→ ` breadcrumb sits beneath it, so the first line reads *name + what this is*. User direction 2026-08-09: *"that's the way I want to do all of the tables."*
+
+**Check pattern:** in the identity row's third cell, a `→ ` appears before a `: ` → warn.
+
+**Why:** the name alone does not say what a thing is, and the breadcrumb repeats what the page's location already tells you. Leading with the description makes the row answer the reader's actual question first. **Verified safe against the daemon** 2026-08-10: a description-first cell survives a HookAnchor rebuild byte-identical, on two spine shapes — the order is not re-imposed.
+
+### RULE R-spine-06 — no blank line between the H1 and its orientation line (checked)
+check:: orientation_line_adjoins_h1
+mend:: spine-position
+
+The orientation line sits **directly** under the H1. A blank line between them separates the title from the sentence that explains it, and lets the two drift apart as the page grows.
+
+**Check pattern:** a blank line follows the H1 and the next non-blank line is prose (not a heading or a table) → warn. This is the shape `R-spine-02`'s own checker skips past, which is why it needs its own rule rather than a tightening of that one.
+
+**Why:** the H1 and its orientation line are one unit — the reader's second and third disclosure layers. 850 vault pages currently split them.
+
+### RULE R-spine-07 — a masthead over a folder ends in an electric marker (checked)
+check:: masthead_over_folder_has_marker
+mend:: spine-marker
+
+A page that fronts a folder with children **must** end its masthead with an electric marker (`...`, `---`, `^^^`). Without one, a child added to that folder never surfaces and the page silently goes stale.
+
+**Check pattern:** the page is its folder's anchor entry page, the folder holds ≥1 other member, and the masthead carries no marker row → warn, naming the hidden-child count.
+
+**Why:** absence is the failure mode here, exactly as in `R-spine-03` — nothing in the write path forces the check, so the omission is invisible until someone wonders where a file went. Note that **"fronts a folder" is not basename equality**: an anchor's entry page is `{slug}.md`, and a declared `slug:` or `title:` renames it away from the folder name. Testing `parent.name == stem` misses 45 anchor pages vault-wide; the checker reads `.anchor`. The rule deliberately says *every masthead **over a folder***, not *every masthead* — an [[DAS spine#External spine|external spine]] gathers members by a property rather than by location and has no folder to sweep, so a marker there would add wrong entries and still miss every real one.
+
+### RULE R-spine-08 — a marker with nothing below it is degenerate (checked)
+check:: marker_has_rows_below
+mend:: spine-marker
+
+A `---` or `^^^` marker declares that the machine writes the rows beneath it. When no rows appear, either the folder is empty or the page is claiming a régime it has no members for.
+
+**Check pattern:** the marker is `---` or `^^^` and zero rows follow it inside the table → warn. `...` is excluded: an empty catch-all is the normal, correct state of a folder whose children are all already linked in the body (F081 body-mention suppression), and flagging it would manufacture 100+ false findings.
+
+**Why:** a degenerate list or stream reads as "there is nothing here" when the truth is usually "this page has the wrong shape". 103 vault instances.
+
+## The grade — these five ship advisory, and why that is not softness
+
+`R-spine-04` … `-08` grade **`warn`**, not `error`, and `R-spine-01` … `-03` are unchanged. That is a deliberate, temporary state with a stated end.
+
+Turning them hard today puts **~900 pages** into violation at once. Every anchor's audit goes red, the finding stops carrying information, and agents learn to scroll past it — which would defeat the lazy-accrual step that depends on the check being *noticed*. The promotion to `error` is [[TINK319 - Spine Agenda|F319]] M6, gated on the corpus being clean rather than on anyone's confidence.
+
+**Two codes are deliberately absent from this set.** `S01` (no spine at all, 5,094 files) has no rule here because its scope is unsettled — [[TINK308 - Spine: the routing zone every document opens with|F308]] Q6 reopened it after the previous ruling turned out to select the entire vault. `S09` (a marker on a page that fronts no folder, 581 files) has none because whether sweeping siblings is legitimate has not been decided. **Shipping a rule against an unsettled number is how a checker teaches the wrong thing**, so both stay as detector codes until they are answered.
+
 ## Position in the catalog
 
 Sits under [[R-doc]], beside [[R-progressive]] and [[R-dispatch-table]] — the three that between them govern a document's opening and its body. Applies to every markdown doc (`always`); each rule decides internally whether and how it constrains a given doc.
@@ -80,6 +138,28 @@ Three head shapes are legal and no others: breadcrumb form (`:>>` row directly a
 Machine-written stamps are skipped, so a `<!-- state:backlog XX -->` line between the H1 and the orientation line is fine and does not need moving.
 
 For the model, read [[DAS Doc Structure]]; for worked instances see [[DAS Tracking Design]] (breadcrumb form) and [[DAS Status]] (masthead form).
+
+### MEND spine-position
+
+Move the piece into its place, then re-run the write. Three rearrangements, all byte-level — nothing is invented and nothing is lost.
+
+**Spine above the H1** (`R-spine-04`): cut the whole masthead table — identity row, separator, every row including everything below the electric marker — and paste it above the `# H1`, keeping the frontmatter above it. Move the block opaquely; never parse or rewrite the rows below the marker.
+
+**Description first** (`R-spine-05`): in the identity row's right-hand cell, the segments are `<br>`-delimited. Put the `: <description>` segment first and the `→ <breadcrumb>` after it. **Split the row on unescaped pipes with a character scanner, not a regex** — wiki-links inside cells are written `[[Target\|Display]]`, and every regex of the form `[^|]*` either stops early or captures the backslash. That bug silently skipped 17 files on the first pass through this repo.
+
+**Orientation line adjoining** (`R-spine-06`): delete the blank line between the H1 and the sentence under it. Machine-written stamps (`<!-- state:backlog XX -->`) legitimately sit between the two and stay where they are.
+
+For the model, read [[DAS spine]]; exemplar: [[HBR]] carries all three.
+
+### MEND spine-marker
+
+Give the masthead the row it is missing, then re-run the write.
+
+**No marker over a folder** (`R-spine-07`): add a `| ... |  |` row as the table's last row. The catch-all is the valve — it sweeps whatever is in the folder and is not already linked in the page body. Do not hand-author its contents: everything below the marker is an electric zone that HookAnchor recomputes, and anything typed there is discarded on the next rebuild. If the folder holds so many files that the swept row would be noise, that is usually a sign the folder wants splitting, not that the marker wants suppressing.
+
+**Degenerate marker** (`R-spine-08`): a `---` or `^^^` with nothing beneath it means the page is claiming a machine-written régime with no members. Either the folder is genuinely empty — in which case the page probably wants a curated `...` instead — or the page has the wrong shape. Check which before adding rows.
+
+For the model, read [[DAS spine]] § The catchall is not optional and [[DAS Dispatch Table]] § Electric zones.
 
 ## See also
 
