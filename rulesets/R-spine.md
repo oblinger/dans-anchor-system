@@ -4,13 +4,13 @@ confirm:: user
 description:: the routing zone every document opens with — which of the two forms a document gets, and the fixed line order that follows
 import:: skills/audit/scripts/audit-plan.py
 
-Every document opens with exactly one **spine**: a `:>>` breadcrumb or a dispatch masthead, chosen by the document's role rather than by taste. This set owns that choice and the line order that follows it. Everything below the H1 belongs to [[R-progressive]], which after this extraction mentions routing nowhere. Discipline: [[DAS spine]]; measurement and the six shapes: [[TINK308 - Spine: the routing zone every document opens with|F308]]. Format of this set: [[DAS Ruleset]].
+Every document opens with exactly one **spine**: a `:>>` breadcrumb or a dispatch masthead, chosen by the document's role rather than by taste. This set owns that choice and the line order that follows it. Everything below the H1 belongs to [[R-progressive]], which after this extraction mentions routing nowhere. Discipline: [[DAS spine]]; measurement and the four shapes: [[TINK308 - Spine: the routing zone every document opens with|F308]]. Format of this set: [[DAS Ruleset]].
 
 **Extracted from [[R-progressive]] by F308 M2**, where these three lived as routing rules inside the *progressive-disclosure* set. That mislocation was the tangle F308 named: a rule about where a reader is cannot be audited from the same set as a rule about what they read next, and the two had been growing into each other for as long as both existed. The rules keep their bodies and their checkers verbatim — this is a move, verified by the vault-wide verdict set being unchanged — and only their ids and their home changed.
 
 **The whole set carries `confirm:: user`.** There should not be many exceptions to a two-way rule, so an agent may not accept one unaided: it asks, then records the grade it is given. An ungraded proposal against any rule here fails the anchor's exception table rather than sitting there as a permanent pending ([[R-exception-discipline]] -09).
 
-**What this set does NOT own: the masthead's internals.** [[R-dispatch-table]] keeps every rule about row order, cell escaping, row labels and the terminal separator, and is not folded in here. Those govern the *content* of one spine form; this set governs *which form a document gets*. Splitting them the other way would put two authorities over one table — the failure this extraction exists to end, repeated one level down.
+**What this set does NOT own: the masthead's internals.** [[R-dispatch-table]] keeps every rule about row order, cell escaping, row labels and the separator row, and is not folded in here. Those govern the *content* of one spine form; this set governs *which form a document gets*. Splitting them the other way would put two authorities over one table — the failure this extraction exists to end, repeated one level down.
 
 ### RULE R-spine-01 — never both a dispatch-masthead and a `:>>` breadcrumb (checked)
 check:: dispatch_table_by_context

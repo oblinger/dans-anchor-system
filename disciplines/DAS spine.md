@@ -1,33 +1,80 @@
 ---
 name: spine
-description: Discipline. Exactly two ways to open a file — a breadcrumb or a dispatch table — chosen by one question, plus the fixed line order that follows each.
+description: Discipline. The spine states a page's position in the structure — upward always, downward when it has children — in one of four shapes.
 user_invocable: false
 ---
 
 # Spine Discipline
-The routing zone every document opens with — two forms, six shapes, and the one question that chooses between them.
+The top-of-file zone that says where this page sits in the structure: what it hangs under, and what hangs under it.
 
-| -[[DAS spine]]- | → [[DAS]] → [[disciplines]] → [DAS spine](hook://p/DAS%20spine)<br>: Discipline. Exactly two ways to open a file — a breadcrumb or a dispatch table — chosen by one question, plus the fixed line order that follows each. |
+| -[[DAS spine]]- | → [[DAS]] → [[disciplines]] → [DAS spine](hook://p/DAS%20spine)<br>: Discipline. The spine states a page's position in the structure — upward always, downward when it has children — in one of four shapes. |
 | --- | --- |
 | Related | [[DAS Dispatch Table]],  [[DAS progressive-disclosure]],  [[DAS Disciplines\|Disciplines]],  [[DAS\|dans-anchor-system]],   |
 | Rules | [[R-spine]],  [[R-dispatch-table]],  [[R-exception-discipline]],   |
-| Shapes | [[PKM Discussion\|S1 breadcrumb]],  [[FCT\|S2 redirect]],  [[Rolodex\|S3 masthead-only]],  [[DAS Anchor\|S4 dot-dot-dot]],  [[DAS WP Design\|S5 dash]],  [[VOX\|S6 caret]],   |
-| Examples | [[FEX Dispatch Examples\|dispatch gallery]],  [[TINK308 - Spine: the routing zone every document opens with\|F308 census]],   |
+| Shapes | [[LUMEN Nudge\|breadcrumb spine]],  [[Rolodex\|grouped spine]],  [[Disk\|list spine]],  [[VOX\|stream spine]],   |
+| Examples | [[FEX Spine Examples\|made-up gallery]],  [[FEX Grouped Dispatch]],  [[FEX List Dispatch]],  [[FEX Dispatch Examples\|dispatch gallery]],   |
 
-**Every file in the system opens one of exactly two ways.** Either a **breadcrumb** or a **dispatch table**. There is no third opening, and the choice is not a matter of taste.
+## What a spine is
 
-The spine is the routing zone at the top of a document. Everything below it belongs to [[DAS progressive-disclosure]]; this discipline governs only the top, and it governs it strictly, because the top is the only part a scanning reader is guaranteed to see.
+**A spine states the page's position in the structure.** That is the whole definition, and it has two directions:
 
-## The one question that selects the spine
+- **Upward — what this page hangs under.** The breadcrumb: `kmr → SYS → Staff → LUMEN → LUMEN Nudge`. Every page owes this.
+- **Downward — what hangs under this page.** The dispatch rows. Only a page with children owes this.
 
-> **Does this document organize other files?**
+Those are not two competing forms to choose between; they are the two halves of one job. **A dispatch table already contains its breadcrumb** — it is folded into the identity row, right of the `-[[Name]]-` cell — so a masthead is a breadcrumb that also points down. That is why no page carries both: the table *is* the breadcrumb, extended.
 
-- **No** — it is about one thing, and owes the reader no named siblings. **Breadcrumb spine.**
-- **Yes** — it stands over a set of children a reader should be handed. **Dispatch-table spine.**
+So the question a page faces is not "which opening?" but **"do I have children?"**
 
-That is the whole test. It is about the document's *role*, not its length, importance, or how much work went into it. A long, central, carefully-written document that organizes nothing takes a breadcrumb.
+- **No children** — a leaf. Upward only. **Breadcrumb spine.**
+- **Children** — a hub. Both directions. **Dispatch spine**, in one of three shapes below.
 
-**The failure this exists to stop is a single-entity document wearing a dispatch table.** A masthead announces "I route you onward"; when the document routes nowhere, every row is either empty or invented, and the reader's first impression is of a hub that turns out to be a leaf. This is the common error and it is worth naming: the pull is that a masthead *looks* more finished. It isn't — it is a promise the document cannot keep.
+That is the whole test, and it is about the document's *position*, not its length, importance, or how much work went into it. A long, central, carefully-written document at the bottom of the tree takes a breadcrumb.
+
+**The failure this exists to stop is a leaf wearing a dispatch table.** A masthead announces "I route you onward"; when the page routes nowhere, every row is empty or invented, and the reader's first impression is of a hub that turns out to be a leaf. The pull is that a masthead *looks* more finished. It isn't — it is a promise the page cannot keep.
+
+## The four shapes
+
+The shape is chosen by two independent questions, not one:
+
+- **Layout — how are the children expressed?** As named groups, or as one row each.
+- **Automation — who writes the rows?** The author, above the marker; or the machine, below it.
+
+Layout is the interesting axis; automation is a mechanical consequence. Counts are from a vault scan of 1,234 masthead pages plus [[TINK308 - Spine: the routing zone every document opens with|F308]]'s breadcrumb census.
+
+| Shape | Downward expression | Live example | Pages |
+|---|---|---|---|
+| **Breadcrumb spine** | none — this page is a leaf | [[LUMEN Nudge]] · [[HA Config]] · [[MUX Testing]] | 1,266 |
+| **Grouped spine** | children sorted into a few named groups, plus a `...` catchall | [[Rolodex]] · [[FEX Grouped Dispatch]] · [[DAS Skills]] | 814 |
+| **List spine** | one row per child, each able to carry a description | [[Disk]] · [[FEX List Dispatch]] · [[Career]] | 231 |
+| **Stream spine** | one row per **dated** child, newest first | [[VOX]] · [[EOC Log]] · [[Trips]] | 23 |
+
+### Grouped is the preferred hub shape
+
+Given a folder of fifteen children, a flat list of fifteen rows and three named groups of five carry the same links — but the three groups are the ones a reader can hold in their head. [[Rolodex]] is the worked case: **Corporate**, **Professional**, **Personal**, and the reader understands the whole contact system at a glance. The same page as a fifteen-row list would be complete and unreadable.
+
+**Prefer grouped whenever natural groups exist.** Reach for a list spine when they don't, or when the per-child *description* is the point — which is the one thing grouping costs you, since a group row spends its right-hand cell on links rather than prose. [[Disk]] is where that trade is visibly worth paying: each drive gets its own row and its own sentence.
+
+A grouped spine with **zero** groups is just a catchall, and that is fine — it is the commonest shape in the vault (581 of the 814) and the right default for a folder whose children need no sentence and form no natural clusters.
+
+### The catchall is not optional
+
+**Every hub ends in an electric marker.** Not because the page needs it today, but because of what happens tomorrow: someone adds a file to the folder and does not update the masthead. With a catchall the new child appears in the `...` row automatically — unsorted, but *visible*. Without one it is invisible, and nothing ever tells you.
+
+That is a measured failure, not a hypothetical. **36 pages in the vault front a folder that has children and carry no marker at all.** The worst is `SKA Features` — **189 children, none surfaced by its own page**. Others: `ASIO` (33), `START Ideas` (26), `Food` (23), `ATT Features` (19), `MUX Architecture` (18), `META` (14).
+
+So a hub's rows are always *author's rows first, machine's rows last*. The three markers differ only in what the machine writes below them:
+
+- **`...`** — one compact row sweeping every child not already named above. The grouped spine's ending.
+- **`---`** — one row per child, alphabetical. The list spine's ending.
+- **`^^^`** — the same, reversed, so date-named children read newest-first. The stream spine's ending.
+
+**A page that fronts no folder has nothing to sweep**, and correctly carries no marker — 121 pages sit there legitimately. The rule is not "every masthead needs a marker"; it is **"every masthead over a folder needs one."**
+
+**Never hand-author the zone below the marker** — it is recomputed, and anything typed there is silently discarded on the next rebuild. See the vault's `CLAUDE.md`.
+
+### Two markers are deliberately not shapes
+
+`+++` (alphabetical with grandchildren) and `!!!` (clip) each occur in exactly one file vault-wide — the same file, the spec that defines them. Under the standing rule that *a shape with no live exemplar is a shape you invented*, both stay out. The `+` row marker is likewise not a shape but a **per-row** régime, marking a group label as an expandable container with its own page ([[FEX Grouped Dispatch]] shows it); all 21 pages carrying one also carry a marker, so a page is never *in* `+` — it is in one of the four **and** uses `+` on some rows.
 
 ## Breadcrumb spine — the line order is fixed
 
@@ -41,53 +88,54 @@ Five lines, in this order, immediately after frontmatter:
 | 4 | *(blank)* |
 | 5 | **The overview entity** — the one main thing the document exists to hold |
 
-Line 5 is the load-bearing one and the one most often got wrong. A document about one thing has one *main* thing in it — a table, a figure, a checklist, a short list. **That goes first, directly under the summary**, before any prose that explains it. If a reader has to scroll past three paragraphs of context to reach the table the page exists for, the spine has failed even though lines 1–4 are perfect.
+Line 5 is the load-bearing one and the one most often got wrong. A document about one thing has one *main* thing in it — a table, a figure, a checklist. **That goes first, directly under the summary**, before any prose explaining it. If a reader must scroll past three paragraphs to reach the table the page exists for, the spine has failed even though lines 1–4 are perfect.
 
-Supporting detail — a second table for internal bookkeeping, the reasoning, the caveats — goes *below* the overview entity, never above it.
+[[LUMEN Nudge]] is the exemplar: breadcrumb, H1, one sentence, then immediately the table of what is coming up — the entire reason the page exists. Note that this table is **content, not navigation**: a primary data table on a leaf is not a dispatch table and does not make the page a hub.
 
-## Dispatch-table spine
+Supporting detail — a second table for bookkeeping, the reasoning, the caveats — goes *below* the overview entity, never above it.
 
-A masthead: the breadcrumb folded into the table's first row, then governed rows, then an optional terminal separator that decides what auto-surfaces. The row vocabulary and the separator semantics are [[DAS Dispatch Table]]'s; do not restate them here.
+## Dispatch spine
 
-**Never hand-author the electric zone** — everything below the separator is recomputed. See the vault's `CLAUDE.md`.
+The row vocabulary, the identity cell, and the fixed row order are [[DAS Dispatch Table]]'s; the automation semantics are summarized above but owned there. Do not restate either here.
 
-## The six shapes
-
-The two families are the decision; the six shapes are the calibration. They are selected by the **terminal separator** — the axis HookAnchor already dispatches on — so the shape a page is in is a fact about its last table row, not a judgement about its contents. Counts are [[TINK308 - Spine: the routing zone every document opens with|F308]]'s census of 7,627 files; the exemplars are live pages, verified to resolve, so each one can be opened to see the shape rather than read about it.
-
-| Shape | When it applies | Live examples | Live pages |
-|---|---|---|---|
-| **S1 — Breadcrumb** | Organizes nothing and owes no named siblings. A `:>>` path as the first body line, no table. | [[PKM Discussion]] · [[ABIO Safety]] · [[MGR Architecture Diagrams]] · [[JOBS Figure]] | 1,266 |
-| **S2 — Redirect line** | Organizes nothing but owes two or three named destinations — or *is* a slug marker standing in for its anchor page. A `(See …)` line, no table. | [[AI Safety]] · [[MED Food]] · [[Flashcards]] — slug-marker sub-form: [[FCT]] · [[ANC]] | 86 |
-| **S3 — Masthead only** | Organizes a **fixed, hand-picked** set. Every row authored, **no separator** — so nothing auto-surfaces and a new child does *not* appear. | [[Rolodex]] · [[MENTORS]] · [[SV Design]] · [[STARTUPPER]] | 157 |
-| **S4 — Masthead + `...`** | Children should surface but need no per-child sentence: one compact row. **The anchor-page default.** | [[DAS Traits]] · [[DAS Anchor]] · [[SKA pilot-flow]] · [[SVAR]] | 822 |
-| **S5 — Masthead + `---`** | Each child earns its own row and a description. Alphabetical, machine-ordered. | [[DAS WP Design]] · [[DAS Ctrl Design]] · [[Move Design]] | 226 |
-| **S6 — Masthead + `^^^`** | The same as S5 with **dated** children, so reverse-alphabetical puts newest first. The stream shape. | [[EOC Log]] · [[MED Log]] · [[SV Log]] · [[Trips]] · [[VOX]] | 23 |
-
-**S1 → S2 and S5 → S6 are each one question, not two.** A leaf either has named destinations to hand the reader or it does not; an enumerated list either is dated or it is not. That is what keeps the set closed rather than a taste ladder — **S3 → S4 → S5 is the only run with judgement in it**, and even there the question is single: *is this set fixed, is it enumerable-but-uninteresting, or does each member need a sentence?*
-
-**Two spec'd markers are deliberately not shapes.** `+++` (alphabetical with grandchildren) and `!!!` (clip) each occur in exactly one file vault-wide — the same file, the spec that defines them. Under the standing rule that *a shape with no live exemplar is a shape you invented*, both stay out. The `+` row marker is likewise not a shape: it is a **per-row** régime, and all 21 pages carrying one also carry a terminal separator, so a page is never *in* `+` — it is in one of the six **and** uses `+` on some rows.
-
-**This page is an S3**, and that is the honest classification: it fronts no folder, so a `...` catch-all would auto-surface nothing. Its rows are hand-picked and stay that way.
+**This page carries no marker deliberately** — `disciplines/DAS spine.md` fronts no folder, so a catchall would sweep nothing. Its rows are hand-picked and stay that way. By the rule above that is correct, not an omission.
 
 ### Where the examples live, and why not in a folder here
 
-The natural instinct is to make this discipline an anchor **folder** and put the six shapes' examples inside it. The house pattern says otherwise, and the reason is [[project_fex_hbr_examples|examples are real instances]]: a gallery of *copies* rots the moment the vault moves on, and a copied exemplar cannot be clicked to see how the shape actually behaves under HookAnchor. So examples are **live pages, linked** — every exemplar in the table above is a real document doing that shape for real reasons.
+The instinct is to make this discipline an anchor **folder** with the shapes' examples inside it. The house pattern says otherwise, for two reasons that pull in opposite directions and settle in the same place.
 
-Where a discipline needs more than a table's worth, the gallery goes in `examples/` as a `FEX <Topic> Examples` doc — [[FEX Dispatch Examples]] is the worked case, and `FEX Spine Examples` is the slot if this table ever outgrows one row per shape. That keeps galleries in one place rather than one per discipline folder, and it is why `disciplines/` holds files rather than a folder per discipline.
+**Live pages, for the real shapes.** Every exemplar in the table above is a real document doing that shape for real reasons — an example is a real instance, never a copy, because a copied exemplar rots the moment the vault moves on and cannot be clicked to see the shape behave under HookAnchor.
 
-## The escape, when a document genuinely needs a third opening
+**Made-up pages, for the teaching gallery.** Real vault content in a published repo leaks the vault, so the synthetic worlds ([[FEX Grouped Dispatch]], [[FEX List Dispatch]], [[FEX Spine Examples]]) are deliberately invented — coherent fictional instances rather than real ones.
 
-A rule that admits no exception gets weakened the first time it is genuinely wrong, and a weakened rule stops catching the cases it was right about. So the two-way rule is strict *because* there is a way out: a numbered, graded row in the anchor's `{slug} Track/{slug} Exceptions.md`, scoped to the one document, with a sentence saying why the strict fix is not being taken ([[R-exception-discipline]]).
+Either way the gallery lives in `examples/` as a `FEX <Topic>` doc, not in a folder per discipline. That is why `disciplines/` holds files.
 
-**On the spine rules specifically, the agent asks before it writes the row.** Most checked rules let an agent record a proposal freely, graded `?`, and that proposal suppresses nothing until the user grades it. Every rule in [[R-spine]] instead carries `confirm:: user` — the set declares it once, so a rule added later inherits it — because there should not be many exceptions to a two-way rule and each one deserves a conversation. An ungraded row against them **fails** the anchor's exception table, so the proposal cannot sit as a permanent pending; the agent asks, and records the grade it is given.
+## The escape, when a page genuinely needs a third opening
 
-Grading is the user's act either way, and the grade is a scale: `A`–`C` suppresses the finding, `D` or lower records the refusal while the finding goes on failing — so *"I read this and the answer is no"* is a thing the table can hold, rather than something that has to be said by deleting the row and losing why it was ever proposed.
+A rule that admits no exception gets weakened the first time it is genuinely wrong, and a weakened rule stops catching the cases it was right about. So the rule is strict *because* there is a way out: a numbered, graded row in the anchor's `{slug} Track/{slug} Exceptions.md`, scoped to the one document, with a sentence saying why the strict fix is not being taken ([[R-exception-discipline]]).
 
-The live case is `Agent Purview`, `Agent Conventions` and `Agent Roster` — [[Agent Memory]]'s own siblings — which open frontmatter → H1 → summary, with neither a breadcrumb nor a masthead. That is a third opening this rule says should not exist. Whether they are a legitimate variant or four documents needing a breadcrumb is a real question, not a formality; either way the answer gets written down where the audit can see it.
+**On the spine rules specifically, the agent asks before it writes the row.** Most checked rules let an agent record a proposal freely, graded `?`, suppressing nothing until the user grades it. Every rule in [[R-spine]] instead carries `confirm:: user` — the set declares it once, so a rule added later inherits it — because there should not be many exceptions here and each deserves a conversation. An ungraded row against them **fails** the anchor's exception table, so a proposal cannot sit as a permanent pending; the agent asks, and records the grade it is given.
+
+Grading is the user's act either way, and the grade is a scale: `A`–`C` suppresses the finding, `D` or lower records the refusal while the finding goes on failing — so *"I read this and the answer is no"* is a thing the table can hold, rather than something said by deleting the row and losing why it was ever proposed.
+
+The live case is `Agent Purview`, `Agent Conventions` and `Agent Roster` — [[Agent Memory]]'s own siblings — which open frontmatter → H1 → summary, with neither a breadcrumb nor a masthead. That is a third opening this rule says should not exist. Whether they are a legitimate variant or three documents needing a breadcrumb is a real question, not a formality; either way the answer gets written where the audit can see it.
 
 ## Why this is a discipline rather than a facet
 
 A facet describes one *kind* of document. The spine governs the opening of **every** document of every kind, so it cannot be owned by any facet — which is exactly how the routing rules ended up scattered across `R-progressive` and `R-dispatch-table` with no single home.
 
-**[[R-spine]] is that home, extracted 2026-08-08 (F308 M2).** It owns the choice of opening — `R-spine-01` (never both forms), `-02` (breadcrumb → H1 → orientation line), `-03` (an index doc fronting a folder carries a dispatch table) — and `R-progressive` now mentions routing nowhere. [[R-dispatch-table]] keeps the masthead's internals and is deliberately not folded in: those rules govern the *content* of one spine form, not which form a document gets, and merging them would put two authorities over one table.
+**[[R-spine]] is that home, extracted 2026-08-08 (F308 M2).** It owns the choice of opening — `R-spine-01` (never both forms), `-02` (breadcrumb → H1 → orientation line), `-03` (an index doc fronting a folder carries a dispatch table) — and `R-progressive` now mentions routing nowhere. [[R-dispatch-table]] keeps the masthead's internals and is deliberately not folded in: those rules govern the *content* of one spine form, not which form a page gets, and merging them would put two authorities over one table.
+
+# Log
+
+**2026-08-09 — the six shapes became four, and the axis was wrong.** The first cut of this page keyed six shapes (S1–S6) on "the terminal separator," which was wrong in three ways the user caught by reading the exemplars:
+
+- **The marker is not terminal.** For `---` and `^^^` it sits in the *middle*, with machine-written child rows below it. Only `...` happens to be last, because its electric zone is a single sweeping row. The marker is a **boundary**, which is what the vault `CLAUDE.md` says; "terminal" was this page's invention.
+- **`Rolodex` was cited as "masthead-only, no separator." It ends `...`.** It is the vault's best *grouped* spine, and citing it for the absence of the thing it has inverted its lesson.
+- **"S3 — no separator" was not a shape but a bug class.** 36 folder-fronting pages carry no marker and hide their children, `SKA Features` worst at 189. Folded into § The catchall is not optional.
+
+The user's reframing replaced the old selector ("does this document organize other files?") with **position in the structure, up and down** — which explains why the identity row contains a breadcrumb, a fact the two-forms framing could not account for. Naming follows the user's spine-family vocabulary (breadcrumb / grouped / list / stream). The apparent collision with the existing [[FEX List Dispatch]] — a *manual* flat list ending `...`, where the new "list spine" is *machine* rows below `---` — dissolved once layout and automation were separated: both are one-row-per-child, differing only in who writes the rows.
+
+Exemplars replaced in the same pass: `PKM Discussion` → [[LUMEN Nudge]] (the user asked for a breadcrumb page whose primary entity is a table; `PKM Discussion` has no primary entity and is arguably a stream), and `DAS WP Design` → [[Disk]] (the old one had zero child rows below its `---`, a degenerate list — 94 of 231 list spines share that defect).
+
+**Still open:** whether the `(See …)` redirect line (86 pages) is a spine at all. Carried as [[TINK308 - Spine: the routing zone every document opens with|F308]] Q5.
