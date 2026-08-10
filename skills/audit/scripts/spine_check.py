@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""spine-check.py — validate a page's spine and heart against [[DAS spine]].
+"""spine_check — validate a page's spine and heart against [[DAS spine]].
 
 This is F319 M2's detector, brought forward. It reports; it never edits.
 
@@ -12,11 +12,11 @@ Two jobs:
      touch hearts (F319 § The detector nominates a heart; it never moves one).
 
 Usage
-  spine-check.py <path> [<path> ...]        check specific files
-  spine-check.py --vault                    check the whole vault
-  spine-check.py --vault --summary          counts only
-  spine-check.py --vault --code S04         only that finding
-  spine-check.py --vault --sample 8         print 8 spread-out examples per code,
+  spine check <path> [<path> ...]           check specific files
+  spine check --vault                       check the whole vault
+  spine check --vault --summary             counts only
+  spine check --vault --code S04            only that finding
+  spine check --vault --sample 8            print 8 spread-out examples per code,
                                             with context, for eyeballing
 
 Exit status is 0 always: this is a lens, not a gate. It becomes a gate at F319 M5.
@@ -191,7 +191,7 @@ def walk(root: Path):
         yield p
 
 
-def main() -> int:
+def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("paths", nargs="*", type=Path)
     ap.add_argument("--vault", action="store_true", help="check the whole vault")
@@ -199,7 +199,7 @@ def main() -> int:
     ap.add_argument("--code", action="append", help="restrict to these finding codes")
     ap.add_argument("--sample", type=int, metavar="N", help="print N spread-out examples per code")
     ap.add_argument("--shapes", action="store_true", help="tally spine shapes instead of findings")
-    a = ap.parse_args()
+    a = ap.parse_args(argv)
 
     files = list(walk(VAULT)) if a.vault else [p for p in a.paths if p.suffix == ".md"]
     if not files:
@@ -249,7 +249,7 @@ def main() -> int:
             for f, line, msg in found[code]:
                 print(f"  [{code}] {f.relative_to(VAULT)}:{line} — {msg}")
         print()
-    print(f"spine-check: {total} finding(s) across {len(files)} file(s)")
+    print(f"spine check: {total} finding(s) across {len(files)} file(s)")
     for code in sorted(found):
         print(f"  {len(found[code]):6}  {code}  {CODES.get(code, '')}")
     return 0

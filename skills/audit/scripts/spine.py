@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""spine: read a page's spine and say which of the seven shapes it is.
+"""spine: every operation on a page's spine, behind one verb.
 
 The shape is never declared — not in `.anchor`, not in frontmatter, not in a
 trait. A spine states its own kind by its geometry: whether it is a `:>>`
@@ -7,8 +7,14 @@ breadcrumb or a masthead table, which marker row that table carries, and how
 its rows are laid out. Anything that wants to know asks this module, so the
 classification lives in one place and cannot drift between callers.
 
-    spine.py <file.md> ...        # one line per file: shape, marker, children
-    spine.py --vault --census     # shape counts across the vault
+    spine shape <file> ...        name each file's shape
+    spine census [--vault]        shape counts
+    spine list --shape list       every page of one shape
+    spine check ...               the full spine + heart checks (spine_check)
+
+A verb is required. This file holds only the parse-and-classify core that every
+verb needs; each verb imports its own machinery when it runs, so the cheap verbs
+stay cheap — `spine` sits on a hot path and must not pay for `check`.
 
 Shapes, and what each says about the page's children:
 
@@ -21,7 +27,7 @@ Shapes, and what each says about the page's children:
     external     none      they are not in this folder at all
     none                   no spine yet
 
-Discipline: [[DAS spine]]. Rules: [[R-spine]]. Migration: F319.
+Discipline: [[DAS spine]]. Rules: [[R-spine]]. Roadmap: TINK319 Spine Agenda.
 """
 
 import argparse
@@ -200,37 +206,68 @@ def walk(root: Path):
         yield p
 
 
-def main() -> int:
-    ap = argparse.ArgumentParser(description="Report each page's spine shape.")
-    ap.add_argument("file", type=Path, nargs="*")
-    ap.add_argument("--vault", action="store_true", help="scan the whole vault")
-    ap.add_argument("--census", action="store_true", help="counts, not per-file lines")
-    ap.add_argument("--shape", help="list only pages of this shape")
-    args = ap.parse_args()
+def _targets(args, ap):
+    if args.vault:
+        return list(walk(VAULT))
+    if args.file:
+        return args.file
+    ap.error("give files or --vault")
 
-    paths = list(walk(VAULT)) if args.vault else args.file
-    if not paths:
-        ap.error("give files or --vault")
 
-    counts = Counter()
-    for p in paths:
+def v_shape(args, ap) -> int:
+    for p in _targets(args, ap):
         try:
             s = Spine(p)
         except OSError:
             continue
         shape = s.shape()
-        counts[shape] += 1
-        if args.census or (args.shape and shape != args.shape):
+        if args.shape and shape != args.shape:
             continue
         toc = "toc-ok" if s.toc_eligible() else "no-toc"
-        mark = s.marker or "-"
-        print(f"{shape:11} {mark:4} {toc:7} children={s.children:<4} {p}")
-
-    if args.census:
-        for shape, n in counts.most_common():
-            flag = "" if shape in TOC_ELIGIBLE else "   (never a TOC)"
-            print(f"  {shape:11} {n:6}{flag}")
+        print(f"{shape:11} {s.marker or '-':4} {toc:7} children={s.children:<4} {p}")
     return 0
+
+
+def v_census(args, ap) -> int:
+    from collections import Counter          # verb-local: the core never needs it
+    counts = Counter()
+    for p in _targets(args, ap):
+        try:
+            counts[Spine(p).shape()] += 1
+        except OSError:
+            continue
+    for shape, n in counts.most_common():
+        flag = "" if shape in TOC_ELIGIBLE else "   (never a TOC)"
+        print(f"  {shape:11} {n:6}{flag}")
+    return 0
+
+
+VERBS = {
+    "shape": (v_shape, "name each file's spine shape"),
+    "list": (v_shape, "every page of one shape (alias of shape --shape)"),
+    "census": (v_census, "shape counts"),
+}
+
+
+def main(argv=None) -> int:
+    argv = list(sys.argv[1:] if argv is None else argv)
+    if argv and argv[0] == "check":
+        # Hand the tail straight over: `check` owns a rich flag set of its own
+        # (--summary, --code, --sample) and this parser must not eat any of it.
+        import spine_check
+        return spine_check.main(argv[1:])
+
+    ap = argparse.ArgumentParser(
+        prog="spine", description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("verb", choices=sorted(VERBS) + ["check"],
+                    help="; ".join(f"{k} — {d}" for k, (_, d) in sorted(VERBS.items()))
+                         + "; check — the full spine + heart checks")
+    ap.add_argument("file", type=Path, nargs="*", default=[])
+    ap.add_argument("--vault", action="store_true", help="scan the whole vault")
+    ap.add_argument("--shape", help="restrict to this shape")
+    args = ap.parse_args(argv)
+    return VERBS[args.verb][0](args, ap)
 
 
 if __name__ == "__main__":
