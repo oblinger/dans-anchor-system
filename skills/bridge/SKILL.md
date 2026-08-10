@@ -59,7 +59,14 @@ Two design points worth keeping when editing this:
 - **Liveness is derived from the job, never asserted by the wrapper.** A ticker touching a heartbeat file proves only that the ticker lives. `bridge jobs` reads the job's own log mtime and the accumulated CPU of its **process group** — a group, because `caffeinate` burns no CPU and a shell waiting on `unzip` burns none either, so any single pid reads zero for a perfectly healthy job.
 - **The stall clock runs from the last observed PROGRESS, not the last check.** Resetting the baseline every check made the detector unfireable: polling every 15s against a 600s threshold left the gap permanently at 15s. Caught by its own fixtures the day it was written.
 
-**The invariant `--watch` buys.** For every job launched with it, the agent is interrupted **exactly once**: at DONE/FAILED, or within `stall` seconds of the job ceasing to make progress. Not once per state change — STALLED ends the watch rather than re-reporting, because a stalled job can recover (a drive wakes up) and deciding whether to re-arm is a judgement, not something a loop should make silently. A watcher that reports every transition becomes noise, and noise becomes ignored.
+**Arm BOTH watchers for an unattended job.** They answer different questions and neither substitutes for the other:
+
+- `--until stall` (the default, and what `bridge run --watch` runs) — exits at the **first** trouble: DONE, FAILED, or STALLED. This is the early warning.
+- `--until done` — **rides through a stall** and exits only when the job actually finishes, fails, or vanishes; 24 h backstop. This is the one that cannot be forgotten, because forgetting is not one of its states.
+
+Why both: a stalled job can come back. A drive gets replugged, a volume wakes, and the work completes. If the only watcher had exited at the stall, that recovery would finish **in silence** and nothing would say so — which puts you right back where a hand-rolled launch leaves you. Verified 2026-08-09: a job stalled at 31 s, sat wedged for 500 s, was thawed from outside, and the done-watcher reported `DONE … ran 562s` on its own.
+
+**Retune or dismiss a live alarm** — `bridge stall <host> --job <n> <seconds>`, and **`0` dismisses it**. A dismissed job reads `stall alarm dismissed by hand, not by evidence`, so the record never pretends the silence was earned. Re-arming resets the baseline, so the new tolerance is measured from now rather than from a stall that already happened.
 
 **Bounded probe that genuinely needs no watch?** Append `# oneshot: <why>` to the command. A stated reason, not a flag — a bare `--force` becomes reflex, a sentence does not.
 
