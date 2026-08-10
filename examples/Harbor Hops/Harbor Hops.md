@@ -15,7 +15,7 @@ description: "made-up list-spine exemplar — one machine-written row per hop"
 # Harbor Hops
 Every hop a Harbor request passes through — one page per hop, in the order they run.
 
-> [!info] Canonical list spine
+> [!note] Canonical list spine
 > A hub that ends in `---`, so **the machine writes one row per child, alphabetically, each carrying that child's own description**. Nothing below the marker is hand-written.
 > - **This is what `---` means and `...` does not.** A `...` page collapses every unlisted child into one compact row; `---` gives each child a line of its own with room for a sentence. That per-child sentence is the whole reason to choose it.
 > - **The rows above the marker are the author's**, the rows below are the machine's. `Related` is pinned by hand; the five hops are enumerated by HookAnchor from this folder.

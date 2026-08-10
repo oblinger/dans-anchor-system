@@ -14,7 +14,7 @@ The per-hop millisecond budget a Harbor request is allowed to spend, and who own
 | Egress | 20 ms | [[Bridges Studio\|Studio]] | 1 |
 | **Total** | **160 ms** | — | **15** |
 
-> [!info] Canonical breadcrumb spine
+> [!note] Canonical breadcrumb spine
 > This page is a **leaf** — nothing hangs under it — so its spine points only *upward*: a `:>>` breadcrumb as the whole spine, above the H1, with no dispatch table anywhere.
 > - **The spine is everything before the H1** — here, one breadcrumb line. Then the H1, then one sentence saying what the page is, with no blank line between them.
 > - **The budget table is the [[DAS spine#The heart|heart]]** — the entire reason the page exists. It sits *directly* under that sentence, above the fold, so the reader lands on it without scrolling. The explanation lives below it, never above.

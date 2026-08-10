@@ -63,6 +63,9 @@ MODE="ensure"
 PROFILE=""
 DRY_RUN=0
 AGENT_FLAG=""
+JOB_NAME=""
+JOB_SCRIPT=""
+STALL=600                      # F054: seconds of no output AND no CPU before STALLED
 for arg in "$@"; do
   case "$arg" in
     --session) : ;;             # value captured next loop via flag
@@ -71,6 +74,12 @@ for arg in "$@"; do
     --profile=*) PROFILE="${arg#*=}" ;;
     --agent)   : ;;             # value captured next loop
     --agent=*) AGENT_FLAG="${arg#*=}" ;;
+    --job)     : ;;
+    --job=*)   JOB_NAME="${arg#*=}" ;;
+    --script)  : ;;
+    --script=*) JOB_SCRIPT="${arg#*=}" ;;
+    --stall)   : ;;
+    --stall=*) STALL="${arg#*=}" ;;
     --viewer)  MODE="viewer" ;;
     --force)   MODE="force" ;;         # T171: window-scoped now — recreates only MY window
     --force-server) MODE="force-server" ;;  # T171: the old session-wide meaning, renamed+separated
@@ -79,6 +88,9 @@ for arg in "$@"; do
          --session) [ -z "$SESSION" ] && SESSION="$arg" ;;
          --profile) [ -z "$PROFILE" ] && PROFILE="$arg" ;;
          --agent)   [ -z "$AGENT_FLAG" ] && AGENT_FLAG="$arg" ;;
+         --job)     [ -z "$JOB_NAME" ] && JOB_NAME="$arg" ;;
+         --script)  [ -z "$JOB_SCRIPT" ] && JOB_SCRIPT="$arg" ;;
+         --stall)   STALL="$arg" ;;
        esac ;;
   esac
   PREV="$arg"
@@ -501,13 +513,150 @@ cmd_doctor() {
   return "$base_rc"
 }
 
+# ------------------------------------------------------- run / jobs (F054)
+# Launching an unattended job and arming its liveness watch are ONE action, so
+# the watch cannot be forgotten. That is the whole design: on 2026-08-09 a
+# remote verification was reported as running for 105 minutes while wedged, and
+# the rule requiring a live timer already existed and had been read.
+JOBS_DIR="$STATE_DIR/jobs"
+
+cmd_run() {
+  require_host; resolve_target; resolve_agent
+  [ -n "$JOB_NAME" ] || fail "usage: bridge run <host> --job <name> --script <local-path> [--stall <seconds>]"
+  [ -n "$JOB_SCRIPT" ] || fail "--script <local-path> required"
+  [ -f "$JOB_SCRIPT" ] || fail "no such script: $JOB_SCRIPT"
+  case "$JOB_NAME" in *[!A-Za-z0-9_-]*) fail "job name must be [A-Za-z0-9_-]: $JOB_NAME";; esac
+  preflight
+
+  # Refuse to clobber a live job's log rather than silently interleaving two
+  # runs into one file, which would make both unreadable and neither obviously
+  # wrong.
+  local existing
+  existing=$("${SSH[@]}" "head -1 \$HOME/.bridge-jobs/$JOB_NAME.status 2>/dev/null" || true)
+  case "$existing" in
+    RUNNING*) fail "job '$JOB_NAME' is already RUNNING on $HOST — pick another name, or check it: bridge jobs $HOST" ;;
+  esac
+
+  "${SSH[@]}" 'mkdir -p ~/.bridge-jobs ~/.bridge-bin' >/dev/null 2>&1
+  scp -q -o "ControlPath=$CTL" "$SCRIPT_DIR/job-wrapper.sh" "$SCRIPT_DIR/job-status.sh" \
+      "$USER@$TARGET:.bridge-bin/" || fail "could not copy the wrapper to $HOST"
+  scp -q -o "ControlPath=$CTL" "$JOB_SCRIPT" "$USER@$TARGET:.bridge-jobs/$JOB_NAME.sh" \
+      || fail "could not copy the job script to $HOST"
+
+  local win="job-$JOB_NAME"
+  "${SSH[@]}" "tmux kill-window -t '$SESSION:$win' 2>/dev/null; \
+               tmux new-window -t '$SESSION' -n '$win' -d \
+                 'bash \$HOME/.bridge-bin/job-wrapper.sh $JOB_NAME \$HOME/.bridge-jobs/$JOB_NAME.sh'" \
+    || fail "could not launch the job window on $HOST"
+
+  mkdir -p "$JOBS_DIR/$HOST"
+  # No prior sample yet -- the first `bridge jobs` establishes the baseline. A
+  # stall is a change over time, so the very first check can only say RUNNING.
+  printf 'stall=%s\nlaunched=%s\nagent=%s\n' "$STALL" "$(date +%s)" "$AGENT_SLUG" \
+    > "$JOBS_DIR/$HOST/$JOB_NAME.job"
+  rm -f "$JOBS_DIR/$HOST/$JOB_NAME.sample"
+
+  say "launched '$JOB_NAME' on $HOST (window $SESSION:$win, stall threshold ${STALL}s)"
+  say "  log:   ~/.bridge-jobs/$JOB_NAME.log   on $HOST"
+  say "  check: bridge jobs $HOST      <- do this instead of tailing the log"
+}
+
+cmd_jobs() {
+  require_host; resolve_target
+  mkdir -p "$JOBS_DIR/$HOST"
+  local raw
+  raw=$("${SSH[@]}" 'bash $HOME/.bridge-bin/job-status.sh 2>/dev/null' || true)
+  if [ -z "$raw" ]; then say "no jobs recorded on $HOST"; return 0; fi
+
+  local bad=0
+  say "== jobs on $HOST =="
+  while IFS='|' read -r name status start end lmt cpu procs now; do
+    [ -n "$name" ] || continue
+    local sfile="$JOBS_DIR/$HOST/$name.sample"
+    local jfile="$JOBS_DIR/$HOST/$name.job"
+    # A missing .job file means local state was lost (or the job was launched
+    # from another machine). Falling back silently would report a 600s default
+    # as if it were the configured threshold, so the fallback is LABELLED.
+    local stall=600 stall_src=""
+    if [ -f "$jfile" ]; then
+      stall=$(sed -n 's/^stall=//p' "$jfile" | head -1)
+    else
+      stall_src=" [default threshold — no local record of this job]"
+    fi
+    [ -n "$stall" ] || stall=600
+
+    # `since` is measured from the last time PROGRESS was seen, never from the
+    # last time anybody looked. Resetting the baseline on every check made the
+    # detector unfireable: polling every 15s against a 600s threshold left
+    # `since` permanently at 15s, so a genuinely wedged job read RUNNING for
+    # ever. Caught by the fixtures 2026-08-09, and it is the same shape as
+    # [[project_probe_that_can_never_pass]] — a check that cannot go red.
+    local p_lmt=-1 p_cpu=-1 p_at=0 p_prog=0
+    if [ -f "$sfile" ]; then
+      p_lmt=$(sed -n 's/^log_mtime=//p' "$sfile" | head -1)
+      p_cpu=$(sed -n 's/^cpu=//p' "$sfile" | head -1)
+      p_at=$(sed -n 's/^at=//p' "$sfile" | head -1)
+      p_prog=$(sed -n 's/^last_progress=//p' "$sfile" | head -1)
+    fi
+    [ -n "${p_prog:-}" ] || p_prog=0
+
+    local new_prog="$now"
+    local age=$(( now - ${start:-now} ))
+    [ -n "$end" ] && age=$(( end - ${start:-end} ))
+    local quiet=$(( now - ${lmt:-0} ))
+    local verdict detail
+
+    case "$status" in
+      DONE*)   verdict="DONE";   detail="ran ${age}s, ${status#DONE }" ;;
+      FAILED*) verdict="FAILED"; detail="ran ${age}s, ${status#FAILED }"; bad=1 ;;
+      RUNNING*)
+        if [ "${procs:-0}" -eq 0 ]; then
+          # RUNNING on disk but no process in the group: the wrapper died
+          # without reaching its trap. Distinct from a stall and reported so.
+          verdict="GONE"; detail="status says RUNNING but no process survives"; bad=1
+        elif [ "$p_at" -eq 0 ]; then
+          verdict="RUNNING"; detail="${age}s in, baseline sample taken (first check cannot judge)"
+          new_prog="$now"
+        else
+          local dcpu=$(( ${cpu:-0} - p_cpu ))
+          local moved_log=0; [ "${lmt:-0}" -gt "$p_lmt" ] && moved_log=1
+          if [ "$dcpu" -gt 0 ] || [ "$moved_log" -eq 1 ]; then
+            new_prog="$now"                      # progress observed — clock resets
+          else
+            new_prog="$p_prog"                   # nothing moved — clock keeps running
+          fi
+          local since=$(( now - new_prog ))
+          if [ "$since" -ge "$stall" ]; then
+            verdict="STALLED"
+            detail="no output and NO CPU for ${since}s (threshold ${stall}s) — $procs proc(s) present but not executing"
+            bad=1
+          else
+            verdict="RUNNING"
+            detail="${age}s in, +${dcpu}s CPU, last progress ${since}s ago, quiet ${quiet}s, $procs proc(s)"
+          fi
+        fi ;;
+      *) verdict="UNKNOWN"; detail="status file says '$status'"; bad=1 ;;
+    esac
+
+    printf '  %-8s %-22s %s%s\n' "$verdict" "$name" "$detail" "$stall_src"
+    printf 'log_mtime=%s\ncpu=%s\nat=%s\nlast_progress=%s\n' \
+      "${lmt:-0}" "${cpu:-0}" "${now:-0}" "$new_prog" > "$sfile"
+  done <<EOF
+$raw
+EOF
+  [ "$bad" -eq 0 ] || { say "== attention needed =="; return 1; }
+  return 0
+}
+
 # ------------------------------------------------------------------- verbs
 case "$VERB" in
   tmux)             cmd_tmux ;;
+  run)              cmd_run ;;
+  jobs)             cmd_jobs ;;
   install|refresh)  cmd_install ;;
   skills)           cmd_skills ;;
   sync)             cmd_sync ;;
   doctor)           cmd_doctor ;;
   help|--help|-h)   sed -n '2,48p' "$0" | sed 's/^# \{0,1\}//' ;;
-  *) fail "unknown verb '$VERB' — verbs: tmux, install (alias refresh), skills, sync, doctor" ;;
+  *) fail "unknown verb '$VERB' — verbs: tmux, run, jobs, install (alias refresh), skills, sync, doctor" ;;
 esac

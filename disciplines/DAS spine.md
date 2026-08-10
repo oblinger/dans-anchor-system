@@ -12,7 +12,17 @@ user_invocable: false
 | Examples | [[FEX Spine Examples\|made-up gallery]],  [[Harbor Runbooks]],  [[Devtools]],  [[Harbor Hops]],  [[Harbor Releases]],   |
 
 # Spine Discipline
-Everything above the H1: where this page hangs, and what hangs under it — plus the heart directly below, which is what the page is *about*.
+Everything above the H1 says where the page sits; the heart directly below says what it is about. Five spine shapes, chosen by one question and named by one marker.
+
+| Spine shape | Marker | What it says about the children | Live | Made-up | Pages |
+|---|---|---|---|---|---|
+| **[[#Breadcrumb spine\|Breadcrumb]]** | *(none)* | there are none — this page is a leaf | [[LUMEN Nudge]] | [[Harbor Latency Budget]] | 1,266 |
+| **[[#Grouped spine\|Grouped]]** | `...` | sorted under a few **plain labels**; the catchall sweeps the rest | [[Rolodex]] | [[Harbor Runbooks]] | 223 |
+| **[[#Two-level spine\|Two-level]]** | `...` + `+` | labels that are **themselves pages**, each with its own spine | [[SKA]] | [[Devtools]] | 13 |
+| **[[#List spine\|List]]** | `---` | the machine writes **one row each**, alphabetical, with descriptions | [[Disk]] | [[Harbor Hops]] | 231 |
+| **[[#Stream spine\|Stream]]** | `^^^` | the same, reversed, so **dated** children read newest-first | [[VOX]] | [[Harbor Releases]] | 23 |
+
+Counts are a vault scan of 1,234 masthead pages plus [[TINK308 - Spine: the routing zone every document opens with|F308]]'s breadcrumb census. Each shape is specified in its own section below; the examples illustrate those specs and do not replace them.
 
 ## What a spine is
 
@@ -21,80 +31,21 @@ Everything above the H1: where this page hangs, and what hangs under it — plus
 - **Upward — what this page hangs under.** The breadcrumb: `kmr → SYS → Staff → LUMEN → LUMEN Nudge`. Every page owes this.
 - **Downward — what hangs under this page.** The dispatch rows. Only a page with children owes this.
 
-Those are not two competing forms to choose between; they are the two halves of one job. **A dispatch table already contains its breadcrumb** — it is folded into the identity row, right of the `-[[Name]]-` cell — so a masthead is a breadcrumb that also points down. That is why no page carries both: the table *is* the breadcrumb, extended.
+Those are not two competing forms to choose between; they are the two halves of one job. **A dispatch table already contains its breadcrumb** — folded into the identity row, right of the `-[[Name]]-` cell — so a masthead is a breadcrumb that also points down. That is why no page carries both: the table *is* the breadcrumb, extended.
 
-So the question a page faces is not "which opening?" but **"do I have children?"**
-
-- **No children** — a leaf. Upward only. **Breadcrumb spine.**
-- **Children** — a hub. Both directions. **Dispatch spine**, in one of four shapes below.
-
-That is the whole test, and it is about the document's *position*, not its length, importance, or how much work went into it. A long, central, carefully-written document at the bottom of the tree takes a breadcrumb.
+So the question a page faces is not "which opening?" but **"do I have children?"** No children — a leaf, upward only. Children — a hub, both directions. It is a question about the document's *position*, not its length, importance, or how much work went into it: a long, central, carefully-written document at the bottom of the tree takes a breadcrumb.
 
 **The failure this exists to stop is a leaf wearing a dispatch table.** A masthead announces "I route you onward"; when the page routes nowhere, every row is empty or invented, and the reader's first impression is of a hub that turns out to be a leaf. The pull is that a masthead *looks* more finished. It isn't — it is a promise the page cannot keep.
 
-## The five shapes
+## The five shapes, specified
 
-The shape is chosen by two independent questions, not one:
+Two independent questions pick the shape. **Layout** — are the children named under labels, or given a row each? **Automation** — does the author write the rows above the marker, or the machine below it? Layout is the interesting axis; automation follows from it.
 
-- **Layout — how are the children expressed?** Under named labels, or one row each.
-- **Automation — who writes the rows?** The author, above the marker; or the machine, below it.
+### Breadcrumb spine
 
-Layout is the interesting axis; automation is a mechanical consequence. Counts are from a vault scan of 1,234 masthead pages plus [[TINK308 - Spine: the routing zone every document opens with|F308]]'s breadcrumb census.
+**Marker:** none — there is no table at all. **Use when:** the page has no children.
 
-| Shape | Marker | Downward expression | Live example | Made-up | Pages |
-|---|---|---|---|---|---|
-| **Breadcrumb** | *(none)* | nothing — this page is a leaf | [[LUMEN Nudge]] · [[HA Config]] · [[MUX Testing]] | [[Harbor Latency Budget]] | 1,266 |
-| **Grouped** | `...` | children sorted under a few **plain labels**; the catchall sweeps the rest | [[Rolodex]] · [[MY Stuff]] | [[Harbor Runbooks]] | 223 |
-| **Two-level** | `...` + `+` | labels that are **themselves pages**, each with its own spine | [[SKA]] · [[SV]] · [[OBU]] | [[Devtools]] | 13 |
-| **List** | `---` | the machine writes **one row per child**, alphabetical, each with its description | [[Disk]] · [[Career]] | [[Harbor Hops]] | 231 |
-| **Stream** | `^^^` | the same, reversed, so **dated** children read newest-first | [[VOX]] · [[EOC Log]] · [[Trips]] | [[Harbor Releases]] | 23 |
-
-A grouped spine with **zero** labels is a bare `...` catchall — the commonest shape in the vault at **577 pages**, and the right default for a folder whose children need no sentence and form no natural clusters. It is grouped with the knob at zero, not a sixth shape.
-
-**`...` and `---` are not the same list written twice.** `...` collapses every unlisted child into **one compact row**; `---` gives each child **its own row with room for a sentence**. That per-child sentence is the only reason to choose `---`, which is why a `---` page with no children below the marker is a defect rather than a style — and 94 of the 231 are exactly that. A page whose per-child rows are *hand-written above* a `...` is a grouped spine with unusually long labels, not a list spine.
-
-**A hub is normally the anchor page of its own folder** — `Harbor Hops/Harbor Hops.md` with a `.anchor` beside it — and that is what makes the machine's enumeration trustworthy: it is reading the folder, not a list someone maintained. Pages that dispatch children they do not contain exist and are not yet specified here.
-
-### Grouped is the preferred hub shape
-
-Given a folder of fifteen children, a flat list of fifteen rows and three named groups of five carry the same links — but the three groups are the ones a reader can hold in their head. [[Rolodex]] is the worked case: **Corporate**, **Professional**, **Personal**, and the reader understands the whole contact system at a glance. The same page as a fifteen-row list would be complete and unreadable.
-
-**Prefer grouped whenever natural groups exist.** Reach for a list spine when they don't, or when the per-child *description* is the point — the one thing grouping costs you, since a group row spends its right-hand cell on links rather than prose. [[Disk]] is where that trade is visibly worth paying: each drive gets its own row and its own sentence.
-
-### Grouped and two-level are different structures, not different sizes
-
-The distinction is **what the label is**, and it is easy to miss because the two render almost identically.
-
-- In a **grouped** spine the labels are *plain text*. `Incident`, `Routine`, `Recovery` name nothing you can open; every child already sits in this one folder, and the label only tells you which one you want.
-- In a **two-level** spine each label is *a link to a page* carrying its own spine and its own children, marked `+`. The members shown beside it are a hand-pinned preview, not the list.
-
-So grouped is one folder wearing headings; two-level is a node in a tree of containers. Read [[Harbor Runbooks]] and [[Devtools]] side by side — they are built to be that pair. Two-level is the **rarest** shape at 13 pages and earns its keep only past roughly fifteen children, when a preview genuinely beats a list; below that it adds a hop for nothing.
-
-### The catchall is not optional
-
-**Every hub ends in an electric marker.** Not because the page needs it today, but because of what happens tomorrow: someone adds a file to the folder and does not update the masthead. With a catchall the new child appears in the `...` row automatically — unsorted, but *visible*. Without one it is invisible, and nothing ever tells you.
-
-That is a measured failure, not a hypothetical. **36 pages in the vault front a folder that has children and carry no marker at all.** The worst is `SKA Features` — **189 children, none surfaced by its own page**. Others: `ASIO` (33), `START Ideas` (26), `Food` (23), `ATT Features` (19), `MUX Architecture` (18), `META` (14).
-
-So a hub's rows are always *author's rows first, machine's rows last*. The three markers differ only in what the machine writes below them:
-
-- **`...`** — one compact row sweeping every child not already named above. The grouped spine's ending.
-- **`---`** — one row per child, alphabetical. The list spine's ending.
-- **`^^^`** — the same, reversed, so date-named children read newest-first. The stream spine's ending.
-
-**A page that fronts no folder has nothing to sweep**, and correctly carries no marker — 121 pages sit there legitimately. The rule is not "every masthead needs a marker"; it is **"every masthead over a folder needs one."**
-
-**Never hand-author the zone below the marker** — it is recomputed, and anything typed there is silently discarded on the next rebuild. See the vault's `CLAUDE.md`.
-
-### Two markers are deliberately not shapes
-
-`+++` (alphabetical with grandchildren) and `!!!` (clip) each occur in exactly one file vault-wide — the same file, the spec that defines them. Under the standing rule that *a shape with no live exemplar is a shape you invented*, both stay out.
-
-`+` is the exception that earned promotion. It is written per-row rather than as a terminal marker, so it looked like a régime layered on the other shapes — but what it marks is a *structural* difference (the label is a page, not a word), and that difference changes how a reader navigates. It is a shape.
-
-## Breadcrumb spine — the line order is fixed
-
-Five lines, in this order, immediately after frontmatter:
+The whole spine is one line, and the lines around it are fixed:
 
 | Line | Content |
 |---|---|
@@ -104,24 +55,82 @@ Five lines, in this order, immediately after frontmatter:
 | 4 | *(blank)* |
 | 5 | **The heart** — the one main thing the document exists to hold |
 
-Line 5 is the load-bearing one and the one most often got wrong. A document about one thing has one *main* thing in it — a table, a figure, a checklist. **That goes first, directly under the summary**, before any prose explaining it. If a reader must scroll past three paragraphs to reach the table the page exists for, the spine has failed even though lines 1–4 are perfect.
+Line 5 is load-bearing and the one most often got wrong: the main thing goes **directly under the summary**, before any prose explaining it. [[LUMEN Nudge]] is the exemplar — breadcrumb, H1, one sentence, then the table of what is coming up.
 
-[[LUMEN Nudge]] is the exemplar: breadcrumb, H1, one sentence, then immediately the table of what is coming up — the entire reason the page exists.
+**A data table on a leaf is not a dispatch table.** This is the distinction a reader must make on sight, and the reason [[Harbor Latency Budget]] exists: it carries a substantial table and is still a leaf, because the table describes the page's own subject rather than routing anywhere.
+
+### Grouped spine
+
+**Marker:** `...` **Use when:** the children live in this folder and fall into a few natural groups.
+
+The labels are **plain text** — `Incident`, `Routine`, `Recovery` name nothing you can open. Every child is already in this one folder; the label only tells the reader which one they want. Below the labelled rows, the `...` sweeps up whatever has not been placed.
+
+**Grouped is the preferred hub shape.** Fifteen children as fifteen rows and as three named groups of five carry the same links, but three groups are what a reader can hold in their head. [[Rolodex]] is the worked case — **Corporate**, **Professional**, **Personal**, and the whole contact system is legible at a glance.
+
+**A grouped spine with zero labels is a bare catchall** — 577 pages, the vault's commonest shape, and the right default when the children need no sentence and form no natural clusters. That is grouped with the knob at zero, not a separate shape.
+
+### Two-level spine
+
+**Marker:** `...` with `+` on the group rows. **Use when:** the groups are large enough to deserve pages of their own — roughly past fifteen children.
+
+Each label is **a link to a page** carrying its own spine and its own children, marked `+`. The members shown beside it are a hand-pinned *preview*, not the list; the list lives on the group's page.
+
+**This is the distinction that is easy to miss**, because grouped and two-level render almost identically. Grouped is one folder wearing headings; two-level is a node in a tree of containers. Read [[Harbor Runbooks]] and [[Devtools]] side by side — they are built to be that pair. At 13 pages it is the rarest shape, and below the fifteen-child threshold it adds a hop for nothing.
+
+### List spine
+
+**Marker:** `---` **Use when:** each child needs its own sentence.
+
+The machine writes **one row per child**, alphabetically, each carrying that child's own description. Nothing below the marker is hand-written.
+
+**`...` and `---` are not the same list written twice.** `...` collapses every unplaced child into one compact row; `---` gives each child a line with room for a sentence. That per-child sentence is the only reason to choose `---` — which is why **a `---` page with no rows below the marker is a defect, not a style, and 94 of the 231 are exactly that.** Conversely, a page whose per-child rows are *hand-written above* a `...` is a grouped spine with unusually long labels, not a list spine.
+
+[[Disk]] is where the trade is visibly worth paying: two curated rows, then `---`, then a row per drive with real descriptions.
+
+### Stream spine
+
+**Marker:** `^^^` **Use when:** the children are date-named.
+
+Identical to a list spine except reversed, so reverse-alphabetical *is* reverse-chronological.
+
+**The marker follows the children, not the topic.** A page of dated children takes `^^^` whether it is a release log, a trip list, or a set of dated applications — which is why the live `^^^` pages include `Apply`, `Find`, `Guide`, `Profile`, `Survey` and `Trips` alongside `EOC Log` and `MED Log`.
+
+**A stream is not automatically a stream spine.** [[DAS stream]] is an *ordering* principle and applies at two granularities: entries as H2s **inside one file** (no children to enumerate — the page ends `...`, which is what [[DAS Log]] and the `{slug} Log` template do), or **one dated file per entry**, which is where the stream spine appears. Same ordering, different object.
+
+## Rules that cut across every shape
+
+### The catchall is not optional
+
+**Every hub ends in an electric marker.** Not because the page needs it today, but because of what happens tomorrow: someone adds a file to the folder and does not update the masthead. With a catchall the new child appears automatically — unsorted, but *visible*. Without one it is invisible, and nothing ever tells you.
+
+That is a measured failure. **36 pages front a folder that has children and carry no marker at all.** The worst is `SKA Features` — **189 children, none surfaced by its own page**. Others: `ASIO` (33), `START Ideas` (26), `Food` (23), `ATT Features` (19), `MUX Architecture` (18), `META` (14).
+
+**A page that fronts no folder has nothing to sweep**, and correctly carries no marker — 121 pages sit there legitimately. The rule is not "every masthead needs a marker"; it is **"every masthead over a folder needs one."**
+
+**A hub is normally the anchor page of its own folder** — `Harbor Hops/Harbor Hops.md` with a `.anchor` beside it — and that is what makes the enumeration trustworthy: the machine is reading the folder, not a list someone maintained. Pages that dispatch children they do not contain exist and are not yet specified here.
+
+**Never hand-author the zone below the marker** — it is recomputed, and anything typed there is silently discarded on the next rebuild. See the vault's `CLAUDE.md`.
+
+### Two markers are deliberately not shapes
+
+`+++` (alphabetical with grandchildren) and `!!!` (clip) each occur in exactly one file vault-wide — the same file, the spec that defines them. Under the standing rule that *a shape with no live exemplar is a shape you invented*, both stay out.
+
+`+` is the exception that earned promotion. It is written per-row rather than as a terminal marker, so it looked like a régime layered over the other shapes — but what it marks is a *structural* difference (the label is a page, not a word), and that difference changes how a reader navigates.
 
 ## The heart
 
-**The spine is everything above the H1. The heart is what sits directly below it.** They divide cleanly by what they talk about: the spine talks about *other pages* — what this one hangs under and what hangs beneath it; the heart talks about *this page's own substance*.
+**The spine is everything above the H1. The heart is what sits directly below it.** They divide by what they talk about: the spine talks about *other pages* — what this one hangs under and what hangs beneath it; the heart talks about *this page's own substance*.
 
 The order is fixed and the reason is the fold: **H1 → one sentence → heart**, with no blank line between the H1 and the sentence, so the heart lands on screen without scrolling. If a reader must scroll past three paragraphs to reach the table the page exists for, the page has failed even when every line above is perfect.
 
 **A heart is usually a table, sometimes a figure with a table beneath it.** Its range is wide and both ends are legitimate:
 
-- **The heart *is* the page.** [[Disk]]'s table of drives is the entire reason that page exists; the prose below it only explains what the table is.
+- **The heart *is* the page.** [[Disk]]'s table of drives is the entire reason that page exists; the prose below only explains it.
 - **The heart merely orients.** A table of contents, or a table of the page's key ideas, summarizes what follows rather than carrying it.
 
-**The heart never routes to children.** If the element under the H1 is handing the reader other pages, that is spine work wearing a different hat — and a page whose spine and content are the same table simply has no heart. [[Harbor Hops]] is that case, deliberately: a pure index's spine is its content. [[Devtools]] is the contrast, carrying both a masthead that routes and a pipeline table that does not.
+**The heart never routes to children.** If the element under the H1 is handing the reader other pages, that is spine work wearing a different hat — and a page whose spine and content are the same table simply has no heart. [[Harbor Hops]] is that case deliberately; [[Devtools]] is the contrast, carrying a masthead that routes and a pipeline table that does not.
 
-**Authored or derived, the heart is equally untouchable.** [[Disk]]'s table is hand-written and load-bearing. A table-of-contents heart is generated from the page's own headings. Same slot, opposite ownership — so a derived heart is regenerated like an electric zone and must not be hand-edited, while an authored one must not be regenerated.
+**Authored or derived, the heart is equally untouchable.** [[Disk]]'s table is hand-written and load-bearing; a table-of-contents heart is generated from the page's own headings. Same slot, opposite ownership — a derived heart is regenerated like an electric zone and must not be hand-edited, while an authored one must not be regenerated.
 
 Supporting detail — a second table for bookkeeping, the reasoning, the caveats — goes *below* the heart, never above it.
 

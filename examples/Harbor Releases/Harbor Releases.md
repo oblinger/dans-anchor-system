@@ -19,7 +19,7 @@ description: "canonical stream-spine exemplar — dated children, newest first"
 # Harbor Releases
 Every Harbor release, newest first — one page per release, dated at the filename.
 
-> [!info] Canonical stream spine
+> [!note] Canonical stream spine
 > A hub whose children are **date-named**, so the machine's reverse-alphabetical ordering *is* reverse-chronological. Read the shape:
 > - **The whole masthead is the spine, and it sits above the H1.** On a pure index page like this one the spine *is* the content, so there is no separate [[DAS spine#The heart|heart]] — the thing the reader came for and the thing that routes them onward are the same table.
 > - The rows below `^^^` are written by the machine, one per child, **newest first** — nothing here is hand-ordered, and nothing typed below the marker survives a rebuild.

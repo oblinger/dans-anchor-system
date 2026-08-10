@@ -24,7 +24,7 @@ The team's development tooling — a collection big enough to group.
 The four stages are a pipeline, not a menu — **Observe is what makes the other three trustworthy**, because a gate nobody watches is a gate that quietly stops firing. That is why it is a peer stage rather than a footnote under Ship.
 
 
-> [!info] Canonical two-level spine
+> [!note] Canonical two-level spine
 > A hub whose group rows are **themselves pages**, each with its own spine and its own children. That is the "two-level" part — this page is one node in a tree of containers, not a flat list wearing headings.
 > - **Each group-row label is a link** (`[[Devtools Build|Build]]`) *down* to that group's own page. The members beside it are a hand-pinned **preview**; the full list lives on the group's page.
 > - **`+` marks the label as an expandable container**, not a leaf. That marker is what separates this shape from a [[Harbor Runbooks|grouped spine]], where the labels are plain text and every child is already in this folder.
