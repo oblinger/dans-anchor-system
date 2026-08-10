@@ -28,6 +28,7 @@ See: [[DAS spine]] (the TOC is document content, not spine), CAB TOC Format.
 """
 
 import argparse
+import importlib.util
 import re
 import sys
 from pathlib import Path
@@ -52,6 +53,20 @@ def _selffire(path):
     if _warden_selffire is not None:
         _warden_selffire.fire_write(path)
 # ---------------------------------------------------------------------------
+
+
+# The spine shape decides whether a TOC is even a question. A list, stream or
+# external spine IS an index: its rows already answer "what is here", and its
+# H2s are entries rather than sections, so a TOC over one restates the page or
+# lists dates. That classification has exactly one implementation — spine.py in
+# the audit scripts — and a missing one is a hard error, never a quiet default.
+_SPINE_PATH = Path.home() / '.claude' / 'skills' / 'audit' / 'scripts' / 'spine.py'
+try:
+    _spec = importlib.util.spec_from_file_location('spine', _SPINE_PATH)
+    spine = importlib.util.module_from_spec(_spec)
+    _spec.loader.exec_module(spine)
+except Exception as _e:                                   # pragma: no cover
+    sys.exit(f'md-toc: cannot load the spine classifier at {_SPINE_PATH}: {_e}')
 
 
 FIG_SPACE = ' '   # figure space — does not collapse in markdown renderers
@@ -279,19 +294,23 @@ def plan(path: Path, pages: int, page_words: int, max_entries: int):
                 for h in extract_headings(text, 3)
                 if (why := unlinkable(h['title']))]
 
-    wants = words >= floor and len(headings) >= 2
-    note = f'{words} words ({words / page_words:.1f} pages), floor {floor}'
+    shape = spine.Spine(path, list(lines)).shape()
+    eligible = shape in spine.TOC_ELIGIBLE
+    wants = eligible and words >= floor and len(headings) >= 2
+    note = f'{shape} spine, {words} words ({words / page_words:.1f} pages), floor {floor}'
+    why = (f'{shape} spine is an index — never a TOC' if not eligible
+           else 'below floor')
 
     if not wants:
         if span is None:
-            return 'none', lines, note + ' — no TOC, correct'
+            return 'none', lines, note + f' — no TOC ({why}), correct', []
         out = lines[:span[0]] + lines[span[1]:]
         while out and span[0] < len(out) and not out[span[0]].strip():
             del out[span[0]]
-        return 'delete', out, note + ' — below floor, TOC removed'
+        return 'delete', out, note + f' — {why}, TOC removed', []
 
     if h1 is None:
-        return 'none', lines, note + ' — no H1, skipped'
+        return 'none', lines, note + ' — no H1, skipped', []
 
     extra, num_cols = parse_existing_toc(lines, span)
     table = generate_toc_table(headings, extra, num_cols)
@@ -347,6 +366,10 @@ def main():
         print(f'{f.name}: {action} — {note}')
         for w in warnings:
             print(f'  ! unlinkable heading: {w}')
+        if args.dry_run and action in ('insert', 'update', 'move', 'ok'):
+            s = find_toc_span(out)
+            if s:
+                print('\n'.join(out[s[0]:s[1]]))
         if action not in ('none', 'ok', 'skip') and not args.dry_run:
             f.write_text('\n'.join(out))
             _selffire(f)

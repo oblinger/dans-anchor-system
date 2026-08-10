@@ -1,0 +1,237 @@
+#!/usr/bin/env python3
+"""spine: read a page's spine and say which of the seven shapes it is.
+
+The shape is never declared — not in `.anchor`, not in frontmatter, not in a
+trait. A spine states its own kind by its geometry: whether it is a `:>>`
+breadcrumb or a masthead table, which marker row that table carries, and how
+its rows are laid out. Anything that wants to know asks this module, so the
+classification lives in one place and cannot drift between callers.
+
+    spine.py <file.md> ...        # one line per file: shape, marker, children
+    spine.py --vault --census     # shape counts across the vault
+
+Shapes, and what each says about the page's children:
+
+    breadcrumb   `:>>`     there are none — this page is a leaf
+    curated      `...`     listed by hand, one row each; the catchall is a valve
+    grouped      `...`     curated, but the rows form cohesive named groups
+    two-level    `...` `+` grouped, but each label is a page with its own spine
+    list         `---`     the machine writes one row each, alphabetical
+    stream       `^^^`     the same, reversed, so dated children read newest-first
+    external     none      they are not in this folder at all
+    none                   no spine yet
+
+Discipline: [[DAS spine]]. Rules: [[R-spine]]. Migration: F319.
+"""
+
+import argparse
+import re
+import sys
+from collections import Counter
+from pathlib import Path
+
+VAULT = Path.home() / "ob" / "kmr"
+SKIP_DIRS = {".git", ".obsidian", "node_modules", ".trash", "Yore",
+             ".stversions", "__pycache__"}
+
+MARKERS = {"...", "+++", "^^^", "!!!"}
+# Rows below the marker are machine-written; nothing here may judge their content.
+
+IDENTITY = re.compile(r"^\s*-\s*\[\[.+?\]\]\s*-\s*$")
+BREADCRUMB = re.compile(r"^\s*:>>")
+
+# Which shapes can host a table of contents.
+#
+# A dispatch spine that ENUMERATES its folder has already answered "what is
+# here and where do I go" — for the folder. A TOC answers it for the page. On
+# `list`, `stream` and `external` the answer is the page's whole job: their
+# sections are entries, not sections, so a TOC over them is a list of dates or
+# a second copy of the index. The shapes that keep a real document in the body
+# — a leaf under a breadcrumb, or an anchor page whose rows are hand-curated —
+# stay eligible, and the size floor decides from there. Ruled 2026-08-10.
+TOC_ELIGIBLE = {"breadcrumb", "curated", "grouped", "two-level", "none"}
+TOC_INELIGIBLE = {"list", "stream", "external"}
+
+
+# --------------------------------------------------------------------------
+# Cell splitting. MUST be a character scanner, never a regex.
+#
+# A table cell is delimited by an UNESCAPED '|', but wiki-links inside cells are
+# written [[Target\|Display]]. Every regex of the form [^|]* or \[\[([^\]\|#]+?)
+# either stops early or captures the trailing backslash. Three separate
+# measurements during F308 were wrong for exactly this reason, one of them
+# silently skipping 17 files. Test any replacement against [[A\|B]] first.
+# --------------------------------------------------------------------------
+def split_cells(line: str) -> list[str]:
+    out, cur, i = [], "", 0
+    while i < len(line):
+        c = line[i]
+        if c == "\\" and i + 1 < len(line):
+            cur += line[i:i + 2]
+            i += 2
+            continue
+        if c == "|":
+            out.append(cur)
+            cur = ""
+            i += 1
+            continue
+        cur += c
+        i += 1
+    out.append(cur)
+    return out
+
+
+def cell(line: str, n: int) -> str:
+    cs = split_cells(line)
+    return cs[n].strip() if len(cs) > n else ""
+
+
+class Spine:
+    """A page's spine, parsed once."""
+
+    def __init__(self, path: Path, lines: list[str] | None = None):
+        self.path = Path(path)
+        if lines is None:
+            lines = self.path.read_text(encoding="utf-8",
+                                        errors="replace").split("\n")
+        self.lines = lines
+        self.body_start = self._after_frontmatter()
+        self.h1 = self._find(lambda l: l.startswith("# "), self.body_start)
+        self.breadcrumb = self._find(lambda l: BREADCRUMB.match(l), self.body_start)
+        self.table_start = self._find_identity()
+        self.table_end = self._table_end()
+        self.marker_idx, self.marker = self._find_marker()
+        self.fronts_folder = self.path.parent.name == self.path.stem
+        self.children = self._children()
+
+    def _after_frontmatter(self) -> int:
+        if self.lines and self.lines[0].strip() == "---":
+            for j in range(1, min(len(self.lines), 80)):
+                if self.lines[j].strip() == "---":
+                    return j + 1
+        return 0
+
+    def _find(self, pred, start=0, stop=None):
+        stop = len(self.lines) if stop is None else stop
+        for j in range(start, stop):
+            if pred(self.lines[j]):
+                return j
+        return None
+
+    def _find_identity(self):
+        for j in range(self.body_start, len(self.lines)):
+            l = self.lines[j]
+            if l.strip().startswith("|") and IDENTITY.match(cell(l, 1)):
+                return j
+            if l.startswith("# BRIEF") or l.startswith("# Log"):
+                break
+        return None
+
+    def _table_end(self):
+        if self.table_start is None:
+            return None
+        j = self.table_start
+        while j < len(self.lines) and self.lines[j].strip().startswith("|"):
+            j += 1
+        return j
+
+    def _find_marker(self):
+        if self.table_start is None:
+            return None, None
+        for j in range(self.table_start + 2, self.table_end):
+            c0 = cell(self.lines[j], 1)
+            if c0 in MARKERS:
+                return j, c0
+            if re.fullmatch(r"-{3,}", c0) and not cell(self.lines[j], 2):
+                return j, "---"
+        return None, None
+
+    def _children(self) -> int:
+        if not self.fronts_folder:
+            return 0
+        try:
+            return sum(
+                1 for p in self.path.parent.iterdir()
+                if not p.name.startswith(".") and p.name not in SKIP_DIRS
+                and (p.is_dir() or p.suffix == ".md") and p != self.path
+            )
+        except OSError:
+            return 0
+
+    # -- derived -----------------------------------------------------------
+    @property
+    def has_spine(self) -> bool:
+        return self.table_start is not None or self.breadcrumb is not None
+
+    @property
+    def rows_below_marker(self) -> int:
+        if self.marker_idx is None or self.table_end is None:
+            return 0
+        return max(0, self.table_end - self.marker_idx - 1)
+
+    def shape(self) -> str:
+        stop = self.marker_idx if self.marker_idx is not None else (self.table_end or 0)
+        if self.table_start is None:
+            return "breadcrumb" if self.breadcrumb is not None else "none"
+        if self.marker == "^^^":
+            return "stream"
+        if self.marker == "---":
+            return "list"
+        if self.marker == "...":
+            for j in range(self.table_start + 2, stop):
+                if re.search(r"\[\[.+?\]\][^|]*\+\s*$", cell(self.lines[j], 1)):
+                    return "two-level"
+            labelled = sum(
+                1 for j in range(self.table_start + 2, stop)
+                if len(re.findall(r"\[\[", cell(self.lines[j], 2))) >= 2
+                and cell(self.lines[j], 1)
+            )
+            return "grouped" if labelled else "curated"
+        return "external"      # a masthead with no marker at all
+
+    def toc_eligible(self) -> bool:
+        return self.shape() in TOC_ELIGIBLE
+
+
+def walk(root: Path):
+    for p in sorted(root.rglob("*.md")):
+        if not p.is_file() or any(d in SKIP_DIRS for d in p.parts):
+            continue
+        yield p
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description="Report each page's spine shape.")
+    ap.add_argument("file", type=Path, nargs="*")
+    ap.add_argument("--vault", action="store_true", help="scan the whole vault")
+    ap.add_argument("--census", action="store_true", help="counts, not per-file lines")
+    ap.add_argument("--shape", help="list only pages of this shape")
+    args = ap.parse_args()
+
+    paths = list(walk(VAULT)) if args.vault else args.file
+    if not paths:
+        ap.error("give files or --vault")
+
+    counts = Counter()
+    for p in paths:
+        try:
+            s = Spine(p)
+        except OSError:
+            continue
+        shape = s.shape()
+        counts[shape] += 1
+        if args.census or (args.shape and shape != args.shape):
+            continue
+        toc = "toc-ok" if s.toc_eligible() else "no-toc"
+        mark = s.marker or "-"
+        print(f"{shape:11} {mark:4} {toc:7} children={s.children:<4} {p}")
+
+    if args.census:
+        for shape, n in counts.most_common():
+            flag = "" if shape in TOC_ELIGIBLE else "   (never a TOC)"
+            print(f"  {shape:11} {n:6}{flag}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

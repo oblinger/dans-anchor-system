@@ -28,149 +28,20 @@ import re
 import sys
 from pathlib import Path
 
-VAULT = Path.home() / "ob" / "kmr"
-SKIP_DIRS = {".git", ".obsidian", "node_modules", ".trash", "Yore", ".stversions", "__pycache__"}
+# The spine classifier itself lives in spine.py, so this checker and md-toc.py
+# read shape from ONE implementation. Adding a second copy here is how the two
+# would drift into disagreeing about what a page is.
+from spine import (  # noqa: E402
+    VAULT, SKIP_DIRS, MARKERS, IDENTITY, BREADCRUMB,
+    split_cells, cell, Spine,
+)
 
-MARKERS = {"...", "+++", "^^^", "!!!"}
-# Rows below the marker are machine-written; nothing here may judge their content.
-
-IDENTITY = re.compile(r"^\s*-\s*\[\[.+?\]\]\s*-\s*$")
-BREADCRUMB = re.compile(r"^\s*:>>")
 FIGURE = re.compile(r"!\[\[[^\]]+\]\]|<img\s|\.svg\)|\.png\)")
 TOC = re.compile(r"^\|\s*(\*\*)?Table of Contents", re.I)
 
 
-# --------------------------------------------------------------------------
-# Cell splitting. MUST be a character scanner, never a regex.
-#
-# A table cell is delimited by an UNESCAPED '|', but wiki-links inside cells are
-# written [[Target\|Display]]. Every regex of the form [^|]* or \[\[([^\]\|#]+?)
-# either stops early or captures the trailing backslash. Three separate
-# measurements during F308 were wrong for exactly this reason, one of them
-# silently skipping 17 files. Test any replacement against [[A\|B]] first.
-# --------------------------------------------------------------------------
-def split_cells(line: str) -> list[str]:
-    out, cur, i = [], "", 0
-    while i < len(line):
-        c = line[i]
-        if c == "\\" and i + 1 < len(line):
-            cur += line[i:i + 2]
-            i += 2
-            continue
-        if c == "|":
-            out.append(cur)
-            cur = ""
-            i += 1
-            continue
-        cur += c
-        i += 1
-    out.append(cur)
-    return out
-
-
-def cell(line: str, n: int) -> str:
-    cs = split_cells(line)
-    return cs[n].strip() if len(cs) > n else ""
-
-
-class Page:
-    """Everything the checks need, parsed once."""
-
-    def __init__(self, path: Path):
-        self.path = path
-        self.lines = path.read_text(encoding="utf-8", errors="replace").split("\n")
-        self.body_start = self._after_frontmatter()
-        self.h1 = self._find(lambda l: l.startswith("# "), self.body_start)
-        self.breadcrumb = self._find(lambda l: BREADCRUMB.match(l), self.body_start)
-        self.table_start = self._find_identity()
-        self.table_end = self._table_end()
-        self.marker_idx, self.marker = self._find_marker()
-        self.fronts_folder = path.parent.name == path.stem
-        self.children = self._children()
-
-    def _after_frontmatter(self) -> int:
-        if self.lines and self.lines[0].strip() == "---":
-            for j in range(1, min(len(self.lines), 80)):
-                if self.lines[j].strip() == "---":
-                    return j + 1
-        return 0
-
-    def _find(self, pred, start=0, stop=None):
-        stop = len(self.lines) if stop is None else stop
-        for j in range(start, stop):
-            if pred(self.lines[j]):
-                return j
-        return None
-
-    def _find_identity(self):
-        for j in range(self.body_start, len(self.lines)):
-            l = self.lines[j]
-            if l.strip().startswith("|") and IDENTITY.match(cell(l, 1)):
-                return j
-            if l.startswith("# BRIEF") or l.startswith("# Log"):
-                break
-        return None
-
-    def _table_end(self):
-        if self.table_start is None:
-            return None
-        j = self.table_start
-        while j < len(self.lines) and self.lines[j].strip().startswith("|"):
-            j += 1
-        return j
-
-    def _find_marker(self):
-        if self.table_start is None:
-            return None, None
-        for j in range(self.table_start + 2, self.table_end):
-            c0 = cell(self.lines[j], 1)
-            if c0 in MARKERS:
-                return j, c0
-            if re.fullmatch(r"-{3,}", c0) and not cell(self.lines[j], 2):
-                return j, "---"
-        return None, None
-
-    def _children(self) -> int:
-        if not self.fronts_folder:
-            return 0
-        try:
-            return sum(
-                1 for p in self.path.parent.iterdir()
-                if not p.name.startswith(".") and p.name not in SKIP_DIRS
-                and (p.is_dir() or p.suffix == ".md") and p != self.path
-            )
-        except OSError:
-            return 0
-
-    # -- derived -----------------------------------------------------------
-    @property
-    def has_spine(self) -> bool:
-        return self.table_start is not None or self.breadcrumb is not None
-
-    @property
-    def rows_below_marker(self) -> int:
-        if self.marker_idx is None or self.table_end is None:
-            return 0
-        return max(0, self.table_end - self.marker_idx - 1)
-
-    def shape(self) -> str:
-        stop = self.marker_idx if self.marker_idx is not None else (self.table_end or 0)
-        if self.table_start is None:
-            return "breadcrumb" if self.breadcrumb is not None else "none"
-        if self.marker == "^^^":
-            return "stream"
-        if self.marker == "---":
-            return "list"
-        if self.marker == "...":
-            for j in range(self.table_start + 2, stop):
-                if re.search(r"\[\[.+?\]\][^|]*\+\s*$", cell(self.lines[j], 1)):
-                    return "two-level"
-            labelled = sum(
-                1 for j in range(self.table_start + 2, stop)
-                if len(re.findall(r"\[\[", cell(self.lines[j], 2))) >= 2 and cell(self.lines[j], 1)
-            )
-            return "grouped" if labelled else "curated"
-        return "external"      # a masthead with no marker at all
+class Page(Spine):
+    """A spine, plus the heart analysis only this checker needs."""
 
     def orientation_line(self):
         """The one sentence under the H1, if present."""
