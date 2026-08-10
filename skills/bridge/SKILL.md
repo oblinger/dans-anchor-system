@@ -48,6 +48,20 @@ The umbrella skill for connecting this Mac to another machine — a packaged dis
 
 **Anti-pattern — one-shot SSH remote-control.** `ssh <host> '<cmd>'` to drive remote work is the wrong tool (no state, no TCC inheritance, no observability, nohup hacks for anything long) — this skill's persistent tmux is the sanctioned control plane. A live Warden rule ([[R-ob-remote-ops]]-01, F183) denies one-shot SSH at `tool:pre:Bash` and redirects here; bare attaches, `scp`/`rsync`, and in-bridge `tmux` commands pass.
 
+## Unattended remote work goes through `bridge run` — and a Warden rule enforces it
+
+**Never hand-roll `tmux new-window -d` on a remote.** `R-ob-remote-ops-02` denies it at `tool:pre:Bash` and redirects here. Foreground `tmux` verbs (`list-windows`, `capture-pane`, `send-keys`, `kill-window`), `scp` and `rsync` all pass untouched — the hazard is *starting something and walking away*, not talking to a remote.
+
+**Why it exists (ATT F054, 2026-08-09).** A remote archive verification was reported as running for **105 minutes while it was wedged**. `disksleep 10` spun the drive down during an idle wait the `caffeinate` assertion did not cover, and the next `stat` blocked in uninterruptible wait. Polling did happen — every poll read a log whose last line said `drive free, starting` and concluded work was underway. **A log that exists is not a job that is running.**
+
+Two design points worth keeping when editing this:
+
+- **Liveness is derived from the job, never asserted by the wrapper.** A ticker touching a heartbeat file proves only that the ticker lives. `bridge jobs` reads the job's own log mtime and the accumulated CPU of its **process group** — a group, because `caffeinate` burns no CPU and a shell waiting on `unzip` burns none either, so any single pid reads zero for a perfectly healthy job.
+- **The stall clock runs from the last observed PROGRESS, not the last check.** Resetting the baseline every check made the detector unfireable: polling every 15s against a 600s threshold left the gap permanently at 15s. Caught by its own fixtures the day it was written.
+
+**Bounded probe that genuinely needs no watch?** Append `# oneshot: <why>` to the command. A stated reason, not a flag — a bare `--force` becomes reflex, a sentence does not.
+
+
 ## Heartbeat discipline — MANDATORY whenever a bridge is active
 
 **Rule (user, 2026-06-12): while ANY bridge is active — a control session, a sync, a remote agent, or a background workflow driving the remote — you MUST keep a running heartbeat that verifies *actual progress*, not just "still waiting."**
@@ -69,6 +83,8 @@ See the `devops` skill for the general heartbeat/watcher discipline; this sectio
 | `bridge install <host>` (alias `refresh`) | **goal — converge** | **Idempotent "make it so."** Env files via claude-provision (`~/.claude`, `~/.config` includes, `bin` utilities like ctrl), skills-repo wiring, launchd-durable Syncthing on the remote, provision stamp (remote + local cache). First run installs; re-run reconverges (subsumes F262's refresh). |
 | `bridge sync [host]` | mechanism — **data** | Syncthing status/revive. Full share creation stays in `syncthing-helper.py` (move-aside confirmation gate). |
 | `bridge skills <host>` | **goal** | Ensure the remote's `~/.claude/skills` tracks the skills repo named in config (`skills_repo`) — symlink into the vault-synced copy when present; clone from `url` only for non-twin machines (never alongside a sync-covered path). Bridge stays generic; only the user's config names the repo (F279 D1). |
+| `bridge run <host> --job <n> --script <p>` | mechanism — **unattended work** | **Launch a long job so it cannot be silently lost.** Wraps the WHOLE job in `caffeinate -dims`, runs it detached in `job-<n>`, and records the job's process group — arming the liveness watch as *part of* starting it, so there is no separate step to forget. Refuses to clobber a live job's log. |
+| `bridge jobs <host>` | **check** | **The check you run instead of tailing a log.** RUNNING / STALLED / DONE / FAILED / GONE per job; exits non-zero on STALLED or FAILED so it works as a gate. STALLED needs *both* no output **and** no CPU since the last observed progress — a silent `unzip` burns CPU and reads RUNNING, a wedged read burns none and reads STALLED. |
 | `bridge doctor <host>` | **diagnose** | **Read-only deep check** — reach / Aqua launch-context / TCC caps / sync daemon / launchd / stamp / ctrl / local session. Never mutates (that's install's job). The slow, careful backup to the automatic preflight. |
 | `bridge claude [host]` | **goal** | Make the remote a Claude environment-twin. *Composes* `sync` (content) + `~/.claude` provisioning. Now the provisioning core that `install` wraps. |
 | `bridge agent <host>` | **goal** | Deploy a working Claude *agent* on the remote with a brief. *Composes* `claude` (env-twin) + tmux launch + status-doc + heartbeat. See F007. |

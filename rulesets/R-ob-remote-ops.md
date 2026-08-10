@@ -78,10 +78,37 @@ def body(ctx):
     cmd = inp.get("command") or ""
     if "tmux" not in cmd:
         return []
+    import shlex
+    try:
+        _words = shlex.split(cmd)
+    except ValueError:
+        _words = cmd.split()
+
+    def _tokens(ws):
+        # Nested quoted payloads (`ssh host "tmux new-window -d ..."`) are ONE
+        # token after the outer split; retokenize them so the inner words are
+        # visible whichever quoting form was used.
+        out = list(ws)
+        for w in ws:
+            if " " in w and ("tmux" in w or "job-wrapper" in w):
+                try:
+                    out.extend(shlex.split(w))
+                except ValueError:
+                    out.extend(w.split())
+        return out
+
+    _flat = _tokens(_words)
     # The launcher itself launches detached -- that is its job. It identifies
-    # itself by the wrapper it invokes, so the exemption cannot be spoofed by
-    # simply naming a window "job-something".
-    if "job-wrapper.sh" in cmd:
+    # itself by the wrapper it invokes, matched as a whole PATH TOKEN.
+    #
+    # A substring test (`"job-wrapper.sh" in cmd`) is what this first shipped
+    # with and it was wrong within the hour: a command whose `echo` text merely
+    # MENTIONED job-wrapper.sh exempted the entire compound command, detached
+    # launch and all (caught 2026-08-09 by a test whose spoof case quietly
+    # passed). Same failure R-ob-remote-ops-01 already had to fix for prose
+    # containing "; ssh ..." -- a rule that reads prose as code is a rule with
+    # a hole in it that widens every time someone writes about the rule.
+    if any(w.endswith("job-wrapper.sh") and "/" in w for w in _flat):
         return []
     # Stated-reason escape. A bare --force becomes reflex; a sentence does not.
     # Same shape as --why-ask / --why-user / --why-user-action elsewhere in the
@@ -89,20 +116,7 @@ def body(ctx):
     import re
     if re.search(r"#\s*oneshot:\s*\S", cmd):
         return []
-    import shlex
-    try:
-        words = shlex.split(cmd)
-    except ValueError:
-        words = cmd.split()
-    # Retokenize any single quoted blob (`ssh host "tmux new-window -d ..."`),
-    # so the subcommand is visible whichever quoting form was used.
-    flat = list(words)
-    for w in words:
-        if "tmux" in w and " " in w:
-            try:
-                flat.extend(shlex.split(w))
-            except ValueError:
-                flat.extend(w.split())
+    flat = _flat
     detached = False
     for k, w in enumerate(flat):
         if w != "tmux":
