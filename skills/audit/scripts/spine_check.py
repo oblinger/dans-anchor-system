@@ -159,10 +159,16 @@ def check(path: Path) -> list[tuple[str, int, str]]:
         out.append(("S03", p.h1 + 1, CODES["S03"]))
 
     if p.table_start is not None:
+        # Compare SEGMENTS, not character offsets. `c.find(":")` matches the
+        # colon inside `hook://p/Name`, so a breadcrumb-only cell — one with no
+        # description at all, and therefore nothing to lead with — scored as
+        # breadcrumb-first. That over-count was the whole of this code's
+        # population on inspection (measured 2026-08-10).
         body = split_cells(p.lines[p.table_start])
-        c = body[2] if len(body) > 2 else ""
-        a, b = c.find(":"), c.find("→")
-        if a >= 0 and b >= 0 and b < a:
+        segs = [s.strip() for s in (body[2] if len(body) > 2 else "").split("<br>") if s.strip()]
+        d = next((i for i, s in enumerate(segs) if s.startswith(":")), None)
+        b = next((i for i, s in enumerate(segs) if "→" in s), None)
+        if d is not None and b is not None and b < d:
             out.append(("S04", p.table_start + 1, CODES["S04"]))
 
     if p.h1 is not None:

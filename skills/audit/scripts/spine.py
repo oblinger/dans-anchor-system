@@ -341,11 +341,14 @@ def main(argv=None) -> int:
         # (--summary, --code, --sample) and this parser must not eat any of it.
         import spine_check
         return spine_check.main(argv[1:])
+    if argv and argv[0] == "fix":
+        import spine_fix
+        return spine_fix.main(argv[1:])
 
     ap = argparse.ArgumentParser(
         prog="spine", description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("verb", choices=sorted(VERBS) + ["check"],
+    ap.add_argument("verb", choices=sorted(VERBS) + ["check", "fix"],
                     help="; ".join(f"{k} — {d}" for k, (_, d) in sorted(VERBS.items()))
                          + "; check — the full spine + heart checks")
     ap.add_argument("file", type=Path, nargs="*", default=[])
