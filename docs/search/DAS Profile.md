@@ -2,7 +2,7 @@
 description: "skim → click into the rule that applies"
 ---
 # DAS Profile
-| -[[DAS Profile]]- | → [[DAS]] → [docs](hook://docs) → [DAS Profile](hook://p/DAS%20Profile)<br>: skim → click into the rule that applies |
+| -[[DAS Profile]]- | : skim → click into the rule that applies<br>→ [[DAS]] → [docs](hook://docs) → [DAS Profile](hook://p/DAS%20Profile)  |
 | --- | --- |
 | Related | [[skills/profile/SKILL.md\|SKILL]],   |
 | Describe rules (any type) | [[SRCH rules/profile\|describe.md]],   |

@@ -2,7 +2,7 @@
 description: "skim → click into the rule that applies"
 ---
 # DAS Survey
-| -[[DAS Survey]]- | → [[DAS]] → [docs](hook://docs) → [DAS Survey](hook://p/DAS%20Survey)<br>: skim → click into the rule that applies |
+| -[[DAS Survey]]- | : skim → click into the rule that applies<br>→ [[DAS]] → [docs](hook://docs) → [DAS Survey](hook://p/DAS%20Survey)  |
 | --- | --- |
 | Related | [[skills/survey/SKILL.md\|SKILL]],   |
 | Survey rules (any type) | [[SRCH rules/survey\|survey.md]],   |

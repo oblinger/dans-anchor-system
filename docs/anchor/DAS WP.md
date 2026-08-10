@@ -4,7 +4,7 @@ description: "`/wp <name>` creates a new dated **work product** folder inside th
 # DAS WP
 `/wp <name>` creates a new dated **work product** folder inside the current anchor's `{slug} WP/` folder. Work products are the polished outputs of human+agent collaboration — papers, reports, analyses, presentations, spreadsheets — distinct from agent-generated Outputs and informal Log notes. Use it when you say "new work product," "new wp," or "create a wp."
 
-| -[[DAS WP]]- | → [[DAS]] → [docs](hook://docs) → [DAS WP](hook://p/DAS%20WP)<br>: `/wp <name>` creates a new dated **work product** folder inside the current anchor's `{slug} WP/` folder. |
+| -[[DAS WP]]- | : `/wp <name>` creates a new dated **work product** folder inside the current anchor's `{slug} WP/` folder.<br>→ [[DAS]] → [docs](hook://docs) → [DAS WP](hook://p/DAS%20WP)  |
 | --- | --- |
 | Related | [[skills/wp/SKILL.md\|SKILL]],   |
 | [[DAS WP Design\|Design]]  |  |

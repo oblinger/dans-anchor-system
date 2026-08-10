@@ -3,7 +3,7 @@ description: "SKA skill anchor for `/architect`"
 ---
 # Architect
 
-| -[[Architect]]- | → [[DAS]] → [[SKL]] → [Architect](hook://p/Architect)<br>: SKA skill anchor for `/architect` |
+| -[[Architect]]- | : SKA skill anchor for `/architect`<br>→ [[DAS]] → [[SKL]] → [Architect](hook://p/Architect)  |
 | --- | --- |
 | Skill | [[architect/SKILL\|SKILL.md]],  [[DAS Architect\|User Docs]],   |
 | [[DAS Architect Design\|Design]]  | [[DAS Architect PRD\|PRD]],   |

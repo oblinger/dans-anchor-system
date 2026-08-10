@@ -4,7 +4,7 @@ description: "the Bundle facet definition"
 # FEX Bundle
 The Bundle facet — one snapshot, captured as a dated directory. A worked example of a **folder-detected, cardinality-many** facet (the facet is a directory, not a file).
 
-| -[[FEX Bundle]]- | → [[DAS]] → [[examples]] → [[FEX Repo]] → [FEX Bundle](hook://p/FEX%20Bundle)<br>: the Bundle facet definition |
+| -[[FEX Bundle]]- | : the Bundle facet definition<br>→ [[DAS]] → [[examples]] → [[FEX Repo]] → [FEX Bundle](hook://p/FEX%20Bundle)  |
 | --- | --- |
 | Anchor | [[FEX Repo]] (parent) |
 | Related | [[FEX Snapshot]] (creates it),  [[FEX Manifest]] (it carries),  [[FEX Pin]] (protects it),  [[DAS Facet]] (the facet spec), |

@@ -2,7 +2,7 @@
 description: "high-rigor three-stage form of /survey for high-stakes comparisons"
 ---
 # DAS Meta Survey
-| -[[DAS Meta Survey]]- | → [[DAS]] → [docs](hook://docs) → [DAS Meta Survey](hook://p/DAS%20Meta%20Survey)<br>: high-rigor three-stage form of /survey for high-stakes comparisons |
+| -[[DAS Meta Survey]]- | : high-rigor three-stage form of /survey for high-stakes comparisons<br>→ [[DAS]] → [docs](hook://docs) → [DAS Meta Survey](hook://p/DAS%20Meta%20Survey)  |
 | --- | --- |
 | Runbook | [[survey/meta-survey\|meta-survey.md]],   |
 | Standard /survey | [[DAS Survey]],   |

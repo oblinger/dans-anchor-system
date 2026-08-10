@@ -1,10 +1,10 @@
 ---
-description: "The full purchasing lifecycle — research a product category, narrow to an item, buy, and reorder consumables via web search + browser automation"
+description: "The full purchasing lifecycle — research, narrow, buy, reorder."
 ---
 # DAS Purchase
 The Product skill handles the full purchasing lifecycle: researching a product category, narrowing down to a specific item, executing the purchase, and reordering consumables. It uses web search and browser automation to gather information and navigate to purchase pages.
 
-| -[[DAS Purchase]]- | → [[DAS]] → [docs](hook://docs) → [DAS Purchase](hook://p/DAS%20Purchase)<br>: The full purchasing lifecycle — research a product category, narrow to an item, buy, and reorder consumables via web search + browser automation |
+| -[[DAS Purchase]]- | : The full purchasing lifecycle — research a product category, narrow to an item, buy, and reorder consumables via web search + browser automation<br>→ [[DAS]] → [docs](hook://docs) → [DAS Purchase](hook://p/DAS%20Purchase) |
 | --- | --- |
 | Related | [[skills/buy/SKILL.md\|SKILL]],   |
 | [[DAS Purchase Design\|Design]]  |  |

@@ -10,7 +10,7 @@ The catalog of skills — the `/`-invocable runbooks — organized by the nine s
 
 
 
-| -[[DAS Skills]]- | → [[DAS]] → [[SKL]] → [DAS Skills](hook://p/DAS%20Skills)<br>: Skills — the `/`-invocable runbooks |
+| -[[DAS Skills]]- | : Skills — the `/`-invocable runbooks<br>→ [[DAS]] → [[SKL]] → [DAS Skills](hook://p/DAS%20Skills)  |
 | --- | --- |
 | Related | [[DAS Facets\|Facets]],  [[DAS Disciplines\|Disciplines]],  [[DAS Traits\|Traits]],  [[DAS Examples\|Examples]],  [[DAS Rulesets\|Rulesets]],  [[DAS\|dans-anchor-system]],   |
 |  |  |
@@ -78,6 +78,7 @@ The catalog of skills — the `/`-invocable runbooks — organized by the nine s
 | [[CRAFT]]  |  |
 | [[ctrl/SKILL]]  | Local environment control — browser automation, persistent shell sessions, and system interaction. Subcommands: box, outbox, surf, search, navigate, shell. Most subcommands are mapped to trigger words in CLAUDE.md. |
 | [[daybreak/SKILL]]  | Morning routine — the day's opening sequence. Run each morning to set up what the day looks like. Use when the user says "daybreak", "/daybreak", or asks to start the day. |
+| [[disk/SKILL]]  | Reconcile a mirror drive (10T / 8T / BLACK) against its catalog, in both directions, plus two capacity questions. Use when the user says "check the drive for stray files", "does the drive match the catalog", "is there anything unexpected on 8T", "will BLACK still hold the master if we resync", "what would a refresh actually copy/delete", "reconcile 10T against the catalog". Not a hash checker — pairs with the existing three-drive SHA-256 verify system, doesn't replace it. |
 | [[Drawing Wisdom]]  | Accumulated judgment about drawing pictures — when a figure earns its place, what makes one readable, and the mistakes that keep recurring. The companion to the `viz` skill's mechanical instruction. |
 | [[dupes/SKILL]]  | Vault hygiene — scan for duplicate filenames; emit a confidence-ranked natural-language edit list; user instructs verbally, agent executes |
 | [[excalidraw-examples]]  |  |

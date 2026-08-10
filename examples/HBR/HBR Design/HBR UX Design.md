@@ -1,10 +1,10 @@
 ---
-description: "viewer-facing UX"
+description: "sibling — human CLI surface"
 ---
 # HBR UX Design
 What a household viewer sees: browse the catalog, then play a title — on whatever device is in hand.
 
-| -[[HBR UX Design]]- | → [[DAS]] → [[examples]] → [[HBR\|HARBOR]] → [[HBR Design\|HARBOR DESIGN]] → [HBR UX Design](hook://p/HBR%20UX%20Design)<br>: viewer-facing UX |
+| -[[HBR UX Design]]- | : viewer-facing UX<br>→ [[DAS]] → [[examples]] → [[HBR\|HARBOR]] → [[HBR Design\|HARBOR DESIGN]] → [HBR UX Design](hook://p/HBR%20UX%20Design) |
 | --- | --- |
 | Anchor | [[HBR Design]] (parent) |
 | Related | [[HBR API Design]],  [[HBR CLI]],  [[HBR Architecture]],  [[HBR PRD]],   |

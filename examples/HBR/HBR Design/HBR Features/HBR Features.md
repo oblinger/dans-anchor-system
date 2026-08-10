@@ -4,7 +4,7 @@ description: "feature index — one row per F-numbered feature doc, newest first
 # HBR Features
 The feature index for Harbor — one row per F-numbered feature doc, reverse chronological.
 
-| -[[HBR Features]]- | → [[DAS]] → [[examples]] → [[HBR\|HARBOR]] → [[HBR Design\|HARBOR DESIGN]] → [HBR Features](hook://p/HBR%20Features)<br>: Harbor Features — feature index |
+| -[[HBR Features]]- | : Harbor Features — feature index<br>→ [[DAS]] → [[examples]] → [[HBR\|HARBOR]] → [[HBR Design\|HARBOR DESIGN]] → [HBR Features](hook://p/HBR%20Features)  |
 | --- | --- |
 | Anchor | [[HBR Design]] (parent) |
 | Related | [[HBR Backlog]],  [[HBR Roadmap]],   |

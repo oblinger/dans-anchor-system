@@ -40,7 +40,7 @@ The defining property is **what the content describes**: User docs describe *use
 
 # CAE User Docs
 
-| -[[HBR User Docs]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Dispatch]] → [DAS User Dispatch](hook://p/DAS%20User%20Dispatch)<br>: end-user / consumer documentation |
+| -[[HBR User Docs]]- | : end-user / consumer documentation<br>→ [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Dispatch]] → [DAS User Dispatch](hook://p/DAS%20User%20Dispatch) |
 | --- | --- |
 | [[HBR Guide\|Guide]] | getting started and usage |
 | [[CAE Installation\|Installation]] | installation instructions (when applicable) |

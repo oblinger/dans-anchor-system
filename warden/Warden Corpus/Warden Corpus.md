@@ -2,7 +2,7 @@
 ---
 # Warden Corpus
 
-| -[[Warden Corpus]]- | → [[DAS]] → [[WARD]] → [Warden Corpus](hook://p/Warden%20Corpus)<br>: the golden corpus — recorded expected verdicts that pin engine behavior |
+| -[[Warden Corpus]]- | : the golden corpus — recorded expected verdicts that pin engine behavior<br>→ [[DAS]] → [[WARD]] → [Warden Corpus](hook://p/Warden%20Corpus)  |
 | --- | --- |
 
 The **golden corpus** is the shared behavioral record of the rule system: each case pairs a fixture (an input document or anchor tree) with the **canonical verdicts** an engine must produce on it. Any engine that implements the adapter contract — today the shipped `audit-plan.py`, later the Python reference ([[F212 — Python reference implementation|F212]]) and Rust ([[F213 — Rust performance implementation + ms budget|F213]]) implementations — runs the same cases; the corpus is also the shared input set for the Python↔Rust differential harness. Full regime design: [[F214 — Rule-system testing regime]].

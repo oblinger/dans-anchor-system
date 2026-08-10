@@ -6,7 +6,7 @@ description: User guides for anchor-lifecycle skills — creating, installing, m
 
 User guides for anchor-lifecycle skills — creating, installing, migrating, moving, and shipping anchor folders.
 
-| -[[SKL Anchor]]- | → [[DAS]] → [[skill-docs]] → [SKL Anchor](hook://p/SKL%20Anchor)<br>: User guides for anchor-lifecycle skills — creating, installing, migrating, moving, and shipping anchor folders. |
+| -[[SKL Anchor]]- | : User guides for anchor-lifecycle skills — creating, installing, migrating, moving, and shipping anchor folders.<br>→ [[DAS]] → [[skill-docs]] → [SKL Anchor](hook://p/SKL%20Anchor)  |
 | --- | --- |
 |  |  |
 |  |  |

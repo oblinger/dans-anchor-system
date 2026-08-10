@@ -1,11 +1,11 @@
 ---
-description: "a leaf component — the ingest importer"
+description: "probes each file, extracts metadata, writes catalog rows"
 ---
 
 # HBR Importer
 The second stage of ingest — turns a candidate path into a catalog entry with metadata.
 
-| -[[HBR Importer]]- | → [[DAS]] → [[examples]] → [[HBR\|HARBOR]] → [[HBR Ingest\|HARBOR INGEST]] → [HBR Importer](hook://p/HBR%20Importer)<br>: a leaf component — the ingest importer |
+| -[[HBR Importer]]- | : a leaf component — the ingest importer<br>→ [[DAS]] → [[examples]] → [[HBR\|HARBOR]] → [[HBR Ingest\|HARBOR INGEST]] → [HBR Importer](hook://p/HBR%20Importer) |
 | --- | --- |
 | Anchor | [[HBR Ingest]] (parent) |
 | Related | [[HBR Scanner]] (prior stage),  [[HBR Deduper]] (next stage), |

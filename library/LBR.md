@@ -5,7 +5,7 @@ description: "reference material — not invocable"
 # LBR - Library
 Reference material the rest of the repo *consumes* — versioned bundles, lookup tables, canonical sets — a third kind of citizen alongside skills (verbs) and facets (anchor-structure specs). Not invocable; pulled into anchors or read by audit scripts as needed.
 
-| -[[LBR]]- | → [[DAS]] → [[library]] → [LBR](hook://p/LBR)<br>: reference material — not invocable |
+| -[[LBR]]- | : reference material — not invocable<br>→ [[DAS]] → [[library]] → [LBR](hook://p/LBR)  |
 | --- | --- |
 | Related | [[DAS Skills\|Skills]],  [[DAS Facets\|Facets]],  [[DAS Disciplines\|Disciplines]],   |
 | Library | [[DAS Rulesets]],  [[figures]],   |

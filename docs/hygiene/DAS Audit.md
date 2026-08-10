@@ -6,7 +6,7 @@ How auditing works — the rule-driven engine, the tool chain that runs it, and 
 
 ## Philosophy
 
-| -[[DAS Audit]]- | → [[DAS]] → [docs](hook://docs) → [DAS Audit](hook://p/DAS%20Audit)<br>: How auditing works — design rationale, tool chain, and examples |
+| -[[DAS Audit]]- | : How auditing works — design rationale, tool chain, and examples<br>→ [[DAS]] → [docs](hook://docs) → [DAS Audit](hook://p/DAS%20Audit)  |
 | --- | --- |
 | Related | [[skills/audit/SKILL.md\|SKILL]],   |
 | [[DAS Audit Design\|Design]]  |  |

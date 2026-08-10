@@ -4,7 +4,7 @@ description: system design — PRD, UX Design, Testing
 # DAS Bridge Design
 System design for the bridge skill — PRD and design docs.
 
-| -[[DAS Bridge Design]]- | → [[DAS]] → [design](hook://design) → [DAS Bridge Design](hook://p/DAS%20Bridge%20Design)<br>: system design — PRD, UX Design, Testing |
+| -[[DAS Bridge Design]]- | : system design — PRD, UX Design, Testing<br>→ [[DAS]] → [design](hook://design) → [DAS Bridge Design](hook://p/DAS%20Bridge%20Design)  |
 | --- | --- |
 | [[DAS Bridge PRD\|PRD]]  | what bridge produces; the three kinds of bridging (control / sync / claude); mechanism-vs-goal; config-is-the-recipe |
 | [[DAS Bridge UX Design\|UX Design]]  | the subskill command surface — every verb, its arguments, output shape, confirmation gates |

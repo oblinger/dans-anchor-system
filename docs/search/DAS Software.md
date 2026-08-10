@@ -2,7 +2,7 @@
 description: "skim → click into the rule that applies"
 ---
 # DAS Software
-| -[[DAS Software]]- | → [[DAS]] → [docs](hook://docs) → [DAS Software](hook://p/DAS%20Software)<br>: skim → click into the rule that applies |
+| -[[DAS Software]]- | : skim → click into the rule that applies<br>→ [[DAS]] → [docs](hook://docs) → [DAS Software](hook://p/DAS%20Software)  |
 | --- | --- |
 | Software rules (any verb) | [[SRCH rules/software\|software.md]],   |
 | Verbs | [[SRCH rules/find-software\|find-software]],  [[SRCH rules/profile-software\|describe-software]],  [[SRCH rules/survey-software\|survey-software]],   |

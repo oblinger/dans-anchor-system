@@ -8,7 +8,7 @@ CAE is a single-process CLI scheduler. A submitted task carries a deadline, a re
 
 CLI submits tasks to the **Scheduler**, which dispatches to the **Worker Pool**, persists state in **TaskStore**, and consults **RetryManager** on failure. The injectable **Clock** (not shown — passed by reference at construction) is the time source every component reads from.
 
-| -[[FEX Architecture]]- | → [[DAS]] → [[examples]] → [FEX Architecture](hook://p/FEX%20Architecture)<br>: CAE system architecture — worked example of the DAS Architecture facet |
+| -[[FEX Architecture]]- | : CAE system architecture — worked example of the DAS Architecture facet<br>→ [[DAS]] → [[examples]] → [FEX Architecture](hook://p/FEX%20Architecture)  |
 | --- | --- |
 | [[FEX Scheduler]]  | priority queue engine + worker dispatch. Source: `src/execution/scheduler.rs`. |
 | [CAE-Store] | SQLite-backed task persistence; load/save/mark-done. (subsystem doc not yet authored) |
@@ -39,21 +39,23 @@ CLI submits tasks to the **Scheduler**, which dispatches to the **Worker Pool**,
 | [[FEX Facet]]  | canonical facet exemplar |
 | [[FEX Figure Page]]  | the figure-bearing anchor-page layout |
 | [[FEX Files]]  | repository file tree (audit-generated) |
-| [[FEX Grouped Dispatch]]  | canonical grouped-dispatch exemplar |
 | [[FEX Icebox]]  | cold-storage / someday-maybe |
 | [[FEX Inbox]]  | raw input to process |
-| [[FEX List Dispatch]]  | canonical list-dispatch exemplar |
 | [[FEX Minimal Facet]]  | the leanest complete file set for a facet, with a live instance |
 | [[FEX Minimal Skill]]  | the leanest complete file set for a skill, with a live instance |
 | [[FEX Project Root]]  | canonical project-root exemplar |
-| [[FEX queries]]  | CAE queries — mechanically rendered from the backlog by `queries-render.py` (Verifications / Ready+Next / Questions). Do not hand-edit; edit the backlog rows. |
 | [[FEX Repo]]  | **FEX Repo** — a fake skills repository tying the loose examples together: a skill ( |
 | [[FEX Roadmap]]  | sequencing-design — milestones + ordering (moved from Track 2026-06-10) |
 | [[FEX Rules]]  | CAE's anchor-local ruleset — rules truly specific to this example anchor |
 | [[FEX Skill]]  | canonical skill exemplar |
+| [[FEX Spine Examples]]  | made-up worked examples of the five spine shapes |
 | [[FEX Stories]]  | three user stories — index for US-CAE-1..3 (folder-form per |
 | [[FEX System Design]]  | worked System Design for the FEX scheduler — a detailed technical spec sitting under FEX Architecture, with rulings kept in their own file |
 | [[Forum Stories]]  | User stories for the Forum debate platform. |
+| [[Harbor Hops]]  | made-up list-spine exemplar — one machine-written row per hop |
+| [[Harbor Latency Budget]]  | canonical breadcrumb-spine exemplar — a leaf whose primary entity is a table |
+| [[Harbor Releases]]  | canonical stream-spine exemplar — dated children, newest first |
+| [[Harbor Runbooks]]  | canonical grouped-spine exemplar — direct children sorted under plain labels |
 | [[HBR]]  | **Common Anchor Example** — the fully-wired worked-example anchor (PRD / UX / API / Architecture / Decisions / Testing / Roadmap / Features), cited by the DAS facet specs as the **minimal** reference instance. Relocated here from `CAB/` 2026-06-27. |
 | [[HBR PRD User Stories]]  | audited excerpt — the inline `## User Stories` section of HBR PRD (inline-subsection form, US-HBR-1..5) |
 | [[HWP]]  | a short whitepaper on the Harbor media server — the worked Paper anchor example |
@@ -61,6 +63,9 @@ CLI submits tasks to the **Scheduler**, which dispatches to the **Worker Pool**,
 | [[Mini]]  | tiny example project — the MINIMAL design-docs world for F178 |
 | [[Snap]]  |  |
 | [[Viz Bench]]  | figure-drafting techniques compared across a fixed reference set |
+| [[FEX Grouped Dispatch]]  | canonical grouped-dispatch exemplar |
+| [[FEX List Dispatch]]  | canonical list-dispatch exemplar |
+| [[FEX queries]]  | CAE queries — mechanically rendered from the backlog by `queries-render.py` (Verifications / Ready+Next / Questions). Do not hand-edit; edit the backlog rows. |
 | [[CAE Architecture]]  | CAE system architecture — entry-point doc for the {slug} Architecture/ folder anchor. Worked example of the CAB Architecture facet (section spine, visual-only diagrams, subsystem dispatch with link convention, API content lives elsewhere). |
 | [[CAE Decisions]]  | load-bearing rules & invariants |
 | [[CAE PRD]]  | product requirements for the CAE Example CLI scheduler |

@@ -6,7 +6,7 @@ description: User guides for search-shaped skills — query the open web, find s
 
 User guides for search-shaped skills — query the open web, find skills others have built, surface product information.
 
-| -[[SKL Search]]- | → [[DAS]] → [[skill-docs]] → [SKL Search](hook://p/SKL%20Search)<br>: User guides for search-shaped skills — query the open web, find skills others have built, surface product information. |
+| -[[SKL Search]]- | : User guides for search-shaped skills — query the open web, find skills others have built, surface product information.<br>→ [[DAS]] → [[skill-docs]] → [SKL Search](hook://p/SKL%20Search)  |
 | --- | --- |
 | [[DAS Search Overview\|Overview]]  | How the search skill family combines knowledge and rules — the mental model behind find/profile/survey. |
 | Actions | [[DAS Find]],  [[DAS Profile]],  [[DAS Survey]],   |

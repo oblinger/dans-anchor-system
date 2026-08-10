@@ -1,7 +1,7 @@
 # Mini PRD
 description:: Product requirements for Mini — the minimal example project.
 
-| -[[Mini PRD]]- | → [[DAS]] → [[examples]] → [[Mini]] → [Mini PRD](hook://p/Mini%20PRD)<br>: Product requirements for Mini. |
+| -[[Mini PRD]]- | : Product requirements for Mini.<br>→ [[DAS]] → [[examples]] → [[Mini]] → [Mini PRD](hook://p/Mini%20PRD)  |
 | --- | --- |
 | [[Mini Stories]]  | one user story — index for US-MINI-1 (folder-form per [[DAS Stories]]) |
 | ... |  |

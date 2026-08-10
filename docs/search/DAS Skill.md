@@ -2,7 +2,7 @@
 description: "skim → click into the rule that applies"
 ---
 # DAS Skill
-| -[[DAS Skill]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Search]] → [SKL Skill](hook://p/DAS%20Skill)<br>: skim → click into the rule that applies|
+| -[[DAS Skill]]- | : skim → click into the rule that applies<br>→ [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Search]] → [SKL Skill](hook://p/DAS%20Skill)|
 | --- | --- |
 | Skill rules (any verb) | [[SRCH rules/skill\|skill.md]],   |
 | Verbs | [[SRCH rules/find-skill\|find-skill]],  [[SRCH rules/profile-skill\|describe-skill]],  [[SRCH rules/survey-skill\|survey-skill]],   |

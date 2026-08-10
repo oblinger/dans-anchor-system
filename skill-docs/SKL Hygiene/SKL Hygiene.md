@@ -6,7 +6,7 @@ description: User guides for hygiene skills — keep anchors clean, conformant, 
 
 User guides for hygiene skills — keep anchors clean, conformant, and well-linked. Diagnose drift, repair structure, sweep dead links.
 
-| -[[SKL Hygiene]]- | → [[DAS]] → [[skill-docs]] → [SKL Hygiene](hook://p/SKL%20Hygiene)<br>: User guides for hygiene skills — keep anchors clean, conformant, and well-linked. Diagnose drift, repair structure, sweep dead links. |
+| -[[SKL Hygiene]]- | : User guides for hygiene skills — keep anchors clean, conformant, and well-linked. Diagnose drift, repair structure, sweep dead links.<br>→ [[DAS]] → [[skill-docs]] → [SKL Hygiene](hook://p/SKL%20Hygiene)  |
 | --- | --- |
 | [[DAS Audit\|Audit]]  | How auditing works — design rationale, tool chain, and examples |
 | [[DAS Dupes\|Dupes]]  | `/dupes` sweeps the vault for duplicate `.md` filenames — files with the same basename in two or more places — and emits a confidence-ranked **edit list** (`E1`, `E2`, ...) of proposed fixes: delet… |

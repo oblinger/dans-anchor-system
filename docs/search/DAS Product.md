@@ -2,7 +2,7 @@
 description: "skim → click into the rule that applies"
 ---
 # DAS Product
-| -[[DAS Product]]- | → [[DAS]] → [docs](hook://docs) → [DAS Product](hook://p/DAS%20Product)<br>: skim → click into the rule that applies |
+| -[[DAS Product]]- | : skim → click into the rule that applies<br>→ [[DAS]] → [docs](hook://docs) → [DAS Product](hook://p/DAS%20Product)  |
 | --- | --- |
 | Product rules (any verb) | [[SRCH rules/product\|product.md]],   |
 | Verbs | [[SRCH rules/find-product\|find-product]],  [[SRCH rules/profile-product\|describe-product]],  [[SRCH rules/survey-product\|survey-product]],   |

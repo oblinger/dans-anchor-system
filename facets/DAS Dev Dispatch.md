@@ -33,7 +33,7 @@ The `{slug} Dev Docs.md` dispatch page inside the root-level `{slug} Dev Docs/` 
 
 # CAE Dev Docs
 
-| -[[HBR Dev Docs]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Dispatch]] → [DAS Dev Dispatch](hook://p/DAS%20Dev%20Dispatch)<br>: developer documentation |
+| -[[HBR Dev Docs]]- | : developer documentation<br>→ [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Dispatch]] → [DAS Dev Dispatch](hook://p/DAS%20Dev%20Dispatch) |
 | --- | --- |
 | [[FEX Files\|Files]] | repository file tree (audit-generated) |
 | **engine/** |  |

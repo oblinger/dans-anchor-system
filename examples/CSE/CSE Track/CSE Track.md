@@ -3,7 +3,7 @@ description: planning surface for the CSE example skill anchor
 ---
 # CSE Plan
 
-| -[[CSE Track]]- | → [[DAS]] → [[examples]] → [[CSE]] → [CSE Track](hook://p/CSE%20Track)<br>: planning surface for the CSE example skill anchor |
+| -[[CSE Track]]- | : planning surface for the CSE example skill anchor<br>→ [[DAS]] → [[examples]] → [[CSE]] → [CSE Track](hook://p/CSE%20Track)  |
 | --- | --- |
 | [[CSE PRD]]  | product requirements — what the skill does and why |
 | [[CSE Backlog]]  | deferred work — items in flight or queued |

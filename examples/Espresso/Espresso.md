@@ -4,7 +4,7 @@ description: "Espresso — example topic collection (≤ 15 members) — notes o
 # ESP - Espresso
 Working notes on pulling espresso — the variables, the gear, and what to do when the shot goes wrong.
 
-| -[[Espresso]]- | → [[DAS]] → [[examples]] → [Espresso](hook://p/Espresso)<br>: Espresso — example topic collection (≤ 15 members) — notes on pulling espresso |
+| -[[Espresso]]- | : Espresso — example topic collection (≤ 15 members) — notes on pulling espresso<br>→ [[DAS]] → [[examples]] → [Espresso](hook://p/Espresso)  |
 | --- | --- |
 | Related | [[Bridges]] (list variant),  [[DAS Dispatch Table]],  [[DAS Examples]], |
 | ~~[[Espresso Beans\|Beans]]~~  | choosing roast, freshness, and origin for espresso |

@@ -5,7 +5,7 @@ description: "example grouped-dispatch collection (> 15 members)"
 # HBR Components
 The component tree of the Harbor media server — grouped into three pipelines, the worked grouped-dispatch example.
 
-| -[[HBR Components]]- | → [[DAS]] → [[examples]] → [[HBR\|HARBOR]] → [HBR Components](hook://p/HBR%20Components)<br>: example grouped-dispatch collection (> 15 members) |
+| -[[HBR Components]]- | : example grouped-dispatch collection (> 15 members)<br>→ [[DAS]] → [[examples]] → [[HBR\|HARBOR]] → [HBR Components](hook://p/HBR%20Components)  |
 | --- | --- |
 | Anchor | [[HBR]] (parent) |
 | Related | [[Devtools]] (grouped variant),  [[DAS Dispatch Table]],  [[DAS progressive-disclosure]], |

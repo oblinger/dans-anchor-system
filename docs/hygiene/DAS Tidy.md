@@ -4,7 +4,7 @@ description: "`/tidy` validates an anchor's folder structure against its CAB typ
 # DAS Tidy
 `/tidy` validates an anchor's folder structure against its CAB type spec and fixes the structural issues it finds — naming compliance (every file and folder prefixed with `{slug}`), broken links from the anchor page, roadmap-vs-detail separation, slug index entries, marker file consistency, and CLAUDE.md headers. Use it when you say "tidy this," "fix the structure," or "validate the anchor."
 
-| -[[DAS Tidy]]- | → [[DAS]] → [docs](hook://docs) → [DAS Tidy](hook://p/DAS%20Tidy)<br>: `/tidy` validates an anchor's folder structure against its CAB type spec and fixes the structural issues it finds — naming compliance (every file and folder prefixed with `{slug}`), broken links fr… |
+| -[[DAS Tidy]]- | : `/tidy` validates an anchor's folder structure against its CAB type spec and fixes the structural issues it finds — naming compliance (every file and folder prefixed with `{slug}`), broken links fr…<br>→ [[DAS]] → [docs](hook://docs) → [DAS Tidy](hook://p/DAS%20Tidy)  |
 | --- | --- |
 | Related | [[skills/tidy/SKILL.md\|SKILL]],   |
 | [[DAS Tidy Design\|Design]]  |  |

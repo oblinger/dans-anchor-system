@@ -4,7 +4,7 @@ description: "the `/ask` skill"
 # DAS Ask
 The **`/ask` skill** is the universal asking subroutine.
 
-| -[[DAS Ask]]- | → [[DAS]] → [docs](hook://docs) → [DAS Ask](hook://p/DAS%20Ask)<br>: the `/ask` skill |
+| -[[DAS Ask]]- | : the `/ask` skill<br>→ [[DAS]] → [docs](hook://docs) → [DAS Ask](hook://p/DAS%20Ask)  |
 | --- | --- |
 | Related | [[skills/ask/SKILL.md\|SKILL]],  [[DAS ask-inline]],   |
 | [[Query PRD\|Design]]  |  |

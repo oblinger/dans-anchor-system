@@ -31,7 +31,7 @@ Below is a condensed reference example.
 
 # CAE Design
 
-| -[[HBR Design]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Dispatch]] → [DAS Design Dispatch](hook://p/DAS%20Design%20Dispatch)<br>: design — system spec, UX, interface, data, principles |
+| -[[HBR Design]]- | : design — system spec, UX, interface, data, principles<br>→ [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Dispatch]] → [DAS Design Dispatch](hook://p/DAS%20Design%20Dispatch) |
 | --- | --- |
 | [[FEX Architecture\|Architecture]] | system-architecture story — a Design child (`{slug} Architecture`) |
 | [[HBR UX Design\|UX Design]] | user-interaction shape — screens, commands, output formats |

@@ -5,7 +5,7 @@ description: "a group container page — the Operate pipeline's three modules"
 # HBR Operate
 The operate pipeline — backs up the catalog and watches the server's health.
 
-| -[[HBR Operate]]- | → [[DAS]] → [[examples]] → [[HBR\|HARBOR]] → [HBR Operate](hook://p/HBR%20Operate)<br>: a group container page — the Operate pipeline's three modules |
+| -[[HBR Operate]]- | : a group container page — the Operate pipeline's three modules<br>→ [[DAS]] → [[examples]] → [[HBR\|HARBOR]] → [HBR Operate](hook://p/HBR%20Operate)  |
 | --- | --- |
 | Anchor | [[HBR Components]] (parent) |
 | Related | [[HBR Ingest]] (sibling group),  [[HBR Serve]] (sibling group), |

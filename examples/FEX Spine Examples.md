@@ -1,40 +1,45 @@
 ---
-description: "made-up worked examples of the four spine shapes"
+description: "made-up worked examples of the five spine shapes"
 ---
+
+| -[[FEX Spine Examples]]- | : made-up worked examples of the five spine shapes<br>→ [[DAS]] → [[examples]] → [FEX Spine Examples](hook://p/FEX%20Spine%20Examples)  |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Spec | [[DAS spine]],  [[DAS Dispatch Table]],   |
+| Shapes | [[Harbor Latency Budget\|breadcrumb]],  [[Harbor Runbooks\|grouped]],  [[Devtools\|two-level]],  [[Harbor Hops\|list]],  [[Harbor Releases\|stream]],   |
+| Related | [[FEX Dispatch Examples]],  [[DAS progressive-disclosure]],   |
+| ... | [[_{{DISK_LABEL}} Template]],  [[_{{PURCHASE_DATE}} {{HOSTNAME}} Template]],  [[Bridges]],  [[Clarifier]],  [[CSE]],  [[DAS Examples]],  [[DAS US-CAE-1 — Schedule a Task]],  [[DAS US-CAE-2 — Monitor Task Status]],  [[DAS US-CAE-3 — Retry Failed Tasks]],  [[ESP]],  [[Espresso]],  [[FEX Agenda]],  [[FEX API]],  [[FEX API Design]],  [[FEX Architecture]],  [[FEX Claude]],  [[FEX Completed Roadmap]],  [[FEX CSE]],  [[FEX Decisions]],  [[FEX Decisions Details]],  [[FEX Facet]],  [[FEX Figure Page]],  [[FEX Files]],  [[FEX Icebox]],  [[FEX Inbox]],  [[FEX Minimal Facet]],  [[FEX Minimal Skill]],  [[FEX Project Root]],  [[FEX Repo]],  [[FEX Roadmap]],  [[FEX Rules]],  [[FEX Scheduler]],  [[FEX Skill]],  [[FEX Stories]],  [[FEX System Design]],  [[Forum Stories]],  [[HBR PRD User Stories]],  [[HWP]],  [[Knots]],  [[Mini]],  [[Snap]],  [[Viz Bench]],   |
 
 # FEX Spine Examples
 One invented page per spine shape — each *is* the shape it teaches, so it can be opened and read rather than described.
 
-| -[[FEX Spine Examples]]- | → [[DAS]] → [[examples]] → [FEX Spine Examples](hook://p/FEX%20Spine%20Examples)<br>: made-up worked examples of the four spine shapes |
-| --- | --- |
-| Spec | [[DAS spine]],  [[DAS Dispatch Table]],   |
-| Shapes | [[FEX Breadcrumb Spine\|breadcrumb]],  [[FEX Grouped Dispatch\|grouped]],  [[FEX List Dispatch\|list]],  [[FEX Stream Spine\|stream]],   |
-| Related | [[FEX Dispatch Examples]],  [[DAS progressive-disclosure]],   |
-| ... | [[_{{DISK_LABEL}} Template]],  [[_{{PURCHASE_DATE}} {{HOSTNAME}} Template]],  [[Bridges]],  [[Clarifier]],  [[CSE]],  [[DAS Examples]],  [[DAS US-CAE-1 — Schedule a Task]],  [[DAS US-CAE-2 — Monitor Task Status]],  [[DAS US-CAE-3 — Retry Failed Tasks]],  [[Devtools]],  [[ESP]],  [[Espresso]],  [[FEX Agenda]],  [[FEX API]],  [[FEX API Design]],  [[FEX Architecture]],  [[FEX Claude]],  [[FEX Completed Roadmap]],  [[FEX CSE]],  [[FEX Decisions]],  [[FEX Decisions Details]],  [[FEX Facet]],  [[FEX Figure Page]],  [[FEX Files]],  [[FEX Icebox]],  [[FEX Inbox]],  [[FEX Minimal Facet]],  [[FEX Minimal Skill]],  [[FEX Project Root]],  [[FEX Repo]],  [[FEX Roadmap]],  [[FEX Rules]],  [[FEX Scheduler]],  [[FEX Skill]],  [[FEX Stories]],  [[FEX System Design]],  [[Forum Stories]],  [[HBR PRD User Stories]],  [[HWP]],  [[Knots]],  [[Mini]],  [[Snap]],  [[Viz Bench]],   |
-
-These pages are **deliberately made up**. The vault's own pages are the right exemplars for a *live* shape — click one and watch HookAnchor render it — but this repo ships publicly, so a teaching gallery built from real vault content would leak it. The [[HBR]] / Harbor world these all inhabit is invented for exactly that reason, and the four pages below are coherent within it.
-
-## The four shapes
-
-| Shape | The page's question | Made-up example | Live counterpart |
+| Spine shape | The question the page is answering | Made-up example | Live counterpart |
 |---|---|---|---|
-| **Breadcrumb** | I am a leaf — where do I hang? | [[FEX Breadcrumb Spine]] | [[LUMEN Nudge]] |
-| **Grouped** | My children sort into a few named groups | [[FEX Grouped Dispatch]] | [[Rolodex]] |
-| **List** | My children each need their own sentence | [[FEX List Dispatch]] | [[Disk]] |
-| **Stream** | My children are dated, so newest goes first | [[FEX Stream Spine]] | [[VOX]] |
+| **[[DAS spine#The five shapes\|Breadcrumb]]** | I am a leaf — where do I hang? | [[Harbor Latency Budget]] | [[LUMEN Nudge]] |
+| **[[DAS spine#The five shapes\|Grouped]]** | My children sort under a few plain labels | [[Harbor Runbooks]] | [[Rolodex]] |
+| **[[DAS spine#The five shapes\|Two-level]]** | My groups are themselves pages, with `+` | [[Devtools]] | [[SKA]] |
+| **[[DAS spine#The five shapes\|List]]** | My children each need their own sentence | [[Harbor Hops]] | [[Disk]] |
+| **[[DAS spine#The five shapes\|Stream]]** | My children are dated, so newest goes first | [[Harbor Releases]] | [[VOX]] |
+
+## Overview
+
+These pages are **deliberately made up**. The vault's own pages are the right exemplars for a *live* shape — click one and watch HookAnchor render it — but this repo ships publicly, so a teaching gallery built from real vault content would leak it. The [[HBR]] / Harbor world they inhabit is invented for exactly that reason.
+
+**Each example is named for what it is, not for what it teaches.** The identity cell and the H1 always agree — `Harbor Runbooks` is a page about runbooks that *happens* to be the grouped exemplar. Only this gallery carries an `FEX` name, because a gallery is what it is.
 
 ## What each one is there to show
 
-**[[FEX Breadcrumb Spine]] — that a table on a leaf is not a dispatch table.** The hardest call in practice is a leaf whose main content happens to *be* a table: it looks like a hub and is not one. This page carries a latency-budget table as its overview entity, directly under the one-line summary, with no masthead anywhere — the shape [[DAS spine]] § Breadcrumb spine specifies line by line.
+**[[Harbor Latency Budget]] — that a table on a leaf is not a dispatch table.** The hardest call in practice is a leaf whose main content *is* a table: it looks like a hub and is not one. Breadcrumb, H1, one sentence, then the budget table as the heart, with no masthead anywhere.
 
-**[[FEX Grouped Dispatch]] — that groups beat lists when groups exist.** Sixteen tools under four named group rows. The reader holds four things, not sixteen. It also shows the `+` régime: each group label links *down* to that group's own page, so the row is a container preview rather than the whole list.
+**[[Harbor Runbooks]] — that three groups beat eight rows.** Eight runbooks under `Incident` / `Routine` / `Recovery`. The labels are plain text, not links: every child is already in this folder, and the grouping only tells you which one you want.
 
-**[[FEX List Dispatch]] — that a description is what you buy by giving up grouping.** Five machines, one row each, each with a sentence. A group row spends its right cell on links; a list row spends it on prose. When the prose is the point, that is the trade.
+**[[Devtools]] — that a group label can be a page.** Sixteen tools under four `+` rows, each row a container with its own spine. This is the shape [[Harbor Runbooks]] is *not*, and the pair is meant to be read side by side. It also carries a heart — the pipeline table — so it shows a masthead and a heart on one page without them being confused.
 
-**[[FEX Stream Spine]] — that the marker follows the children, not the topic.** Four dated release pages under `^^^`. The same shape serves a trip list or a set of dated applications; and conversely a *stream* kept as H2s inside one file has no children at all and correctly ends `...`.
+**[[Harbor Hops]] — that `---` is not `...` written longer.** Five hops, and the machine writes one row per hop with its own description. `...` would collapse all five into a single compact row; the per-child sentence is the entire reason to choose `---`. It deliberately has **no heart**: a pure index's spine is its content.
 
-## The one thing all four share
+**[[Harbor Releases]] — that the marker follows the children, not the topic.** Four dated release pages under `^^^`. The same shape serves a trip list or dated applications; a *stream* kept as H2s inside one file has no children at all and correctly ends `...`.
 
-**Every hub ends in an electric marker, and none of them hand-writes below it.** `...`, `---`, and `^^^` differ only in what the machine writes underneath — a single sweeping row, one row per child, or one row per child reversed. The reason is staleness, not tidiness: without a marker a newly-added child is invisible and nothing ever says so. In the live vault that failure is currently 36 pages deep, worst at 189 hidden children ([[DAS spine]] § The catchall is not optional).
+## The one thing they share
 
-A breadcrumb page is the exception that proves it — it has no children, so there is nothing to go stale, which is why it carries no table at all.
+**Every hub ends in an electric marker, and none of them hand-writes below it.** `...`, `---`, and `^^^` differ only in what the machine writes underneath — one sweeping row, one row per child, or one row per child reversed. The reason is staleness: without a marker a newly-added child is invisible and nothing says so. In the live vault that failure is currently 36 pages deep, worst at 189 hidden children ([[DAS spine]] § The catchall is not optional).
+
+A breadcrumb page is the exception that proves it — no children, so nothing to go stale, which is why it carries no table at all.

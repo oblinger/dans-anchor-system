@@ -2,7 +2,7 @@
 description: "skim → click into the rule that applies"
 ---
 # DAS Book
-| -[[DAS Book]]- | → [[DAS]] → [docs](hook://docs) → [DAS Book](hook://p/DAS%20Book)<br>: skim → click into the rule that applies |
+| -[[DAS Book]]- | : skim → click into the rule that applies<br>→ [[DAS]] → [docs](hook://docs) → [DAS Book](hook://p/DAS%20Book)  |
 | --- | --- |
 | Book rules (any verb) | [[SRCH rules/book\|book.md]],   |
 | Verbs | [[SRCH rules/find-book\|find-book]],  [[SRCH rules/profile-book\|describe-book]],  [[SRCH rules/survey-book\|survey-book]],   |

@@ -4,7 +4,7 @@ description: "the /groom concept dossier"
 # DAS Groom
 The concept dossier for **`/groom`** — everything published about the frontier-planning skill: the user guide, its PRD, the shared resolution-layer design, and the runtime spec.
 
-| -[[DAS Groom]]- | → [[DAS]] → [docs](hook://docs) → [DAS Groom](hook://p/DAS%20Groom)<br>: the /groom concept dossier |
+| -[[DAS Groom]]- | : the /groom concept dossier<br>→ [[DAS]] → [docs](hook://docs) → [DAS Groom](hook://p/DAS%20Groom)  |
 | --- | --- |
 | Related | [[ASG Groom\|Groom User Guide]],  [[skills/groom/SKILL.md\|SKILL]] (runtime) |
 | [[DAS Groom Design\|Design]]  | [[DAS Groom PRD\|PRD]],  [[Query PRD\|resolution-layer PRD]],   |

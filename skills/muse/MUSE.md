@@ -5,7 +5,7 @@ description: Voice-memo ingestion + review-and-do pipeline — watch/phone recor
 # MUSE
 The service that turns spoken thought into acted-on knowledge. A ~~[[skills|Claude skill]]~~ with two entry points: **`muse ingest`** runs headlessly when a new voice recording lands (via `launchd`) — transcribes it, writes an item file to the permanent archive at `~/ob/kmr/Log/MUSE/`, and prepends a bullet to the [[Quick]] pane. **`/muse do <path>`** runs in Claude Code when typed with an item path — reads the item and proposes an action for the user to approve.
 
-| -[[MUSE]]- | → [[DAS]] → [[SKL]] → [MUSE](hook://p/MUSE)<br>: Voice-memo ingestion + review-and-do pipeline |
+| -[[MUSE]]- | : Voice-memo ingestion + review-and-do pipeline<br>→ [[DAS]] → [[SKL]] → [MUSE](hook://p/MUSE)  |
 | --- | --- |
 |  | [[Log Muse\|Log]],  [[WIRE Muse\|Wire]],   |
 | [[DAS MUSE Architecture\|Design]]  | → [[DAS MUSE Architecture\|Architecture]] — flows, action space, safety, config, build order |

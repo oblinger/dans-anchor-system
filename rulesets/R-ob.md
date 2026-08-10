@@ -4,7 +4,7 @@ applies-when: every project Dan owns (cross-cutting, not trait-scoped).
 set-id: OB
 ---
 
-| -[[R-ob]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [R-ob](hook://p/R-ob)<br>: Umbrella folder-file for Ob's rulesets — applies to every project Dan owns regardless of trait. Children listed in the dispatch table below and rolled up via `include::`. Commit-discipline and em-dash rules pending capture as separate rulesets. |
+| -[[R-ob]]- | : Umbrella folder-file for Ob's rulesets — applies to every project Dan owns regardless of trait. Children listed in the dispatch table below and rolled up via `include::`. Commit-discipline and em-dash rules pending capture as separate rulesets.<br>→ [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [R-ob](hook://p/R-ob) |
 | --- | --- |
 | [[R-ob-cmd-proc]] | Ob's opinionated take on the command-processor / event-driven architecture pattern — single dispatcher routes events from sensors through engines to effectors. Use this set for applications with a clear input→process→output flow that benefits from a central routing layer, unified event log, and clean concurrency story. Other architectures (direct calls, async tasks, actor model, CQRS) work fine for different problems; this set captures Dan's specific approach when the dispatcher pattern fits. |
 | [[R-ob-observability]] | Ob's opinionated take on observability — failures don't disappear silently, and every OS-bridge call is instrumented. Reflects a "log everything, gate by tier" philosophy; other schools prefer minimal logging and richer error context. This set captures Dan's specific approach. |

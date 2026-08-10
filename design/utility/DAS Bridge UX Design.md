@@ -4,7 +4,7 @@ description: "the command surface that realizes these requirements"
 
 # DAS Bridge UX Design
 
-| -[[DAS Bridge UX Design]]- | → [[DAS]] → [design](hook://design) → [DAS Bridge UX Design](hook://p/DAS%20Bridge%20UX%20Design)<br>: user-facing command surface |
+| -[[DAS Bridge UX Design]]- | : user-facing command surface<br>→ [[DAS]] → [design](hook://design) → [DAS Bridge UX Design](hook://p/DAS%20Bridge%20UX%20Design)  |
 | --- | --- |
 | [[DAS Bridge PRD\|PRD]]  | the requirements these verbs satisfy |
 | [[DAS Bridge Testing\|Testing]]  | how each verb is exercised |

@@ -4,7 +4,7 @@ description: "design-pipeline docs for the Architect skill"
 
 # DAS Architect Design
 
-| -[[DAS Architect Design]]- | → [[DAS]] → [design](hook://design) → [DAS Architect Design](hook://p/DAS%20Architect%20Design)<br>: design-pipeline docs for the Architect skill |
+| -[[DAS Architect Design]]- | : design-pipeline docs for the Architect skill<br>→ [[DAS]] → [design](hook://design) → [DAS Architect Design](hook://p/DAS%20Architect%20Design)  |
 | --- | --- |
 | [[DAS Architect PRD\|PRD]]  | product requirements — what `/architect` produces and for whom |
 

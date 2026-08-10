@@ -49,7 +49,7 @@ Work Products — polished, dated outputs of human+agent collaboration. Papers, 
 ```markdown
 # {slug} WP
 
-| -[[{slug} WP]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Output]] → [DAS WP](hook://p/DAS%20WP)<br>: work products |
+| -[[{slug} WP]]- | : work products<br>→ [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Output]] → [DAS WP](hook://p/DAS%20WP) |
 | --- | --- |
 | [[2026-04-15 Security Audit]] |  |
 | [[2026-03-28 Architecture Review]] |  |

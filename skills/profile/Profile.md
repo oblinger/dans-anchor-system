@@ -3,7 +3,7 @@ description: Profile — skill anchor for building thorough structured descripti
 ---
 # Profile
 
-| -[[Profile]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [Profile](hook://p/Profile)<br>: one-entity profile / dossier — structured description with sources |
+| -[[Profile]]- | : one-entity profile / dossier — structured description with sources<br>→ [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [Profile](hook://p/Profile) |
 | --- | --- |
 | Skill | [[profile/SKILL\|SKILL.md]],  [[DAS Profile\|User Docs]],   |
 | Methodology | [[profile/SKILL\|SKILL.md § Runbook]],   |

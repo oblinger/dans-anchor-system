@@ -2,7 +2,7 @@
 description: "How to read from and write to external services — Google Workspace, email, file sync"
 ---
 
-| -[[DAS IO]]- | → [[DAS]] → [docs](hook://docs) → [DAS IO](hook://p/DAS%20IO)<br>: How to read from and write to external services — Google Workspace, email, file sync |
+| -[[DAS IO]]- | : How to read from and write to external services — Google Workspace, email, file sync<br>→ [[DAS]] → [docs](hook://docs) → [DAS IO](hook://p/DAS%20IO)  |
 | --- | --- |
 | Skill anchor | [[SKA io]],   |
 | Runtime | [[io/SKILL\|io SKILL.md]],   |

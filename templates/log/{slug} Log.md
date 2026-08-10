@@ -1,7 +1,7 @@
 # {slug} Log
 description:: >>
 
-| -[[{slug} Log]]- | → [[DAS]] → [[Templates]] → [{slug} Log](hook://p/{slug}%20Log)<br>: >> |
+| -[[{slug} Log]]- | : >><br>→ [[DAS]] → [[Templates]] → [{slug} Log](hook://p/{slug}%20Log)  |
 | --- | --- |
 | [[{{YYYY-MM-DD short topic}}]]  | {{one-line summary — newest entry first}} |
 | ... |  |

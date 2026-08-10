@@ -1,11 +1,11 @@
 ---
-description: "code facets — source files and their module docs"
+description: "How to use the development workflow — from planning through implementation and release."
 ---
 
 # Code
 The code facets — a repo's actual source files and the per-module docs they link into.
 
-| -[[DAS Code]]- | → [[DAS]] → [[FCT]] → [DAS Code](hook://p/DAS%20Code)<br>: code facets — source files and their module docs |
+| -[[DAS Code]]- | : code facets — source files and their module docs<br>→ [[DAS]] → [[FCT]] → [DAS Code](hook://p/DAS%20Code) |
 | --- | --- |
 | Facets | [[DAS All Files\|All Files]],  [[DAS Module Doc\|Module Doc]],   |
 | Rules | [[R-code-surface]],   |

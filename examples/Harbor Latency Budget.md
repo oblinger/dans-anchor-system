@@ -1,7 +1,7 @@
 ---
 description: "canonical breadcrumb-spine exemplar — a leaf whose primary entity is a table"
 ---
-:>> [[DAS]] → [[examples]] → [FEX Breadcrumb Spine](hook://p/FEX%20Breadcrumb%20Spine) 
+:>> [[DAS]] → [[examples]] → [Harbor Latency Budget](hook://p/Harbor%20Latency%20Budget) 
 # Harbor Latency Budget
 The per-hop millisecond budget a Harbor request is allowed to spend, and who owns each hop.
 
@@ -14,10 +14,11 @@ The per-hop millisecond budget a Harbor request is allowed to spend, and who own
 | Egress | 20 ms | [[Bridges Studio\|Studio]] | 1 |
 | **Total** | **160 ms** | — | **15** |
 
-> **Canonical breadcrumb spine.** This page is a **leaf** — nothing hangs under it — so its spine points only *upward*: a `:>>` breadcrumb as the first body line, no dispatch table anywhere. Read the shape:
-> - **Line 1 is the breadcrumb**, line 2 the H1 with **no blank line between them**, line 3 one sentence saying what the page is.
-> - **Line 5 is the overview entity** — the budget table, which is the entire reason the page exists. It sits *directly* under the summary; the explanation lives below it, never above.
-> - **The table is content, not navigation.** A primary data table on a leaf is not a dispatch table and does not make this page a hub — which is exactly the distinction a reader has to be able to make on sight. Compare [[FEX List Dispatch]], where a table of the same visual weight *is* the routing surface.
+> [!info] Canonical breadcrumb spine
+> This page is a **leaf** — nothing hangs under it — so its spine points only *upward*: a `:>>` breadcrumb as the whole spine, above the H1, with no dispatch table anywhere.
+> - **The spine is everything before the H1** — here, one breadcrumb line. Then the H1, then one sentence saying what the page is, with no blank line between them.
+> - **The budget table is the [[DAS spine#The heart|heart]]** — the entire reason the page exists. It sits *directly* under that sentence, above the fold, so the reader lands on it without scrolling. The explanation lives below it, never above.
+> - **The heart is content, not navigation.** A primary data table on a leaf is not a dispatch table and does not make this page a hub — exactly the distinction a reader must make on sight. Compare [[Bridges]], where a table of the same visual weight *is* the routing surface.
 >
 > The live counterpart is [[LUMEN Nudge]]: breadcrumb, H1, one sentence, then the table it exists for.
 

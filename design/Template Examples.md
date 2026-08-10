@@ -413,7 +413,7 @@ SYS/SYS Catalog/Computer/
 **Example T6.b** — `prj/ClaudiMux/Docket/DKT Track/DKT Track.md` — the same table with a member zone below a second separator
 
 <!-- begin example T6.b -->
-| -[[DKT Track]]- | → [[kmr]] → [[prj]] → [[ClaudiMux]] → [[DKT]] → [DKT Track](hook://p/DKT%20Track)<br>: work tracking + planning |
+| -[[DKT Track]]- | : work tracking + planning<br>→ [[kmr]] → [[prj]] → [[ClaudiMux]] → [[DKT]] → [DKT Track](hook://p/DKT%20Track) |
 | --- | --- |
 | [[DKT Backlog Archive\|Backlog]]  | workflow-state backlog |
 | [[DKT Features\|Features]]  | dated feature specs (F-numbered) |

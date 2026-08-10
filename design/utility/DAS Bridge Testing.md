@@ -4,7 +4,7 @@ description: "how each kind of bridging is verified"
 
 # DAS Bridge Testing
 
-| -[[DAS Bridge Testing]]- | → [[DAS]] → [design](hook://design) → [DAS Bridge Testing](hook://p/DAS%20Bridge%20Testing)<br>: testing strategy + tests |
+| -[[DAS Bridge Testing]]- | : testing strategy + tests<br>→ [[DAS]] → [design](hook://design) → [DAS Bridge Testing](hook://p/DAS%20Bridge%20Testing)  |
 | --- | --- |
 | [[DAS Bridge PRD\|PRD]]  | the requirements each test verifies |
 | [[DAS Bridge UX Design\|UX Design]]  | the verbs under test |

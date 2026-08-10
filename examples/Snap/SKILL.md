@@ -7,7 +7,7 @@ user_invocable: true
 # Snap — capture + file a screenshot
 Grab a screenshot, name it from its content, file it under `~/ob/kmr/Log/SNAP/`.
 
-| -[[Snapper Dapper]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [Snap](hook://p/Snap)<br>: example skill anchor — a `SKILL.md` |
+| -[[Snapper Dapper]]- | : example skill anchor — a `SKILL.md`<br>→ [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [Snap](hook://p/Snap) |
 | --- | --- |
 | Related | [[Clarifier]] (example project),  [[DAS Skill]] (the skill facet),  [[DAS Examples]] |
 | ... |  |

@@ -6,7 +6,7 @@ description: "the design pipeline — per-skill design docs + PRDs, grouped by g
 
 The **design internals** — the `{skill} Design` / `{skill} PRD` pages that specify how each skill works, filed under `design/<group>/`. Only skills with real design work appear here; the user-facing counterparts live under [[DAS Docs]].
 
-| -[[DAS Design]]- | → [[DAS]] → [design](hook://design) → [DAS Design](hook://p/DAS%20Design)<br>: the design pipeline — per-skill design docs + PRDs, grouped by group |
+| -[[DAS Design]]- | : the design pipeline — per-skill design docs + PRDs, grouped by group<br>→ [[DAS]] → [design](hook://design) → [DAS Design](hook://p/DAS%20Design)  |
 | --- | --- |
 | Related | [[DAS Docs\|Docs]],  [[DAS Skills\|Skills]],  [[DAS Design Folder\|Design (facet)]],  [[DAS\|dans-anchor-system]],   |
 |  | **SKILL GROUPS** |

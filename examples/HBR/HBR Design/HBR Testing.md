@@ -5,7 +5,7 @@ status:: drafting
 # HBR Testing
 How Harbor is verified: the kinds of test, how much of each, and the concrete inventory consistent with that strategy.
 
-| -[[HBR Testing]]- | → [[DAS]] → [[examples]] → [[HBR\|HARBOR]] → [[HBR Design\|HARBOR DESIGN]] → [HBR Testing](hook://p/HBR%20Testing)<br>: test strategy + proposed tests |
+| -[[HBR Testing]]- | : test strategy + proposed tests<br>→ [[DAS]] → [[examples]] → [[HBR\|HARBOR]] → [[HBR Design\|HARBOR DESIGN]] → [HBR Testing](hook://p/HBR%20Testing)  |
 | --- | --- |
 | Anchor | [[HBR Design]] (parent) |
 | Related | [[HBR Architecture]],  [[HBR PRD]],  [[DAS verification]],   |

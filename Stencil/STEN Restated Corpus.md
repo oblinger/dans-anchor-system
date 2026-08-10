@@ -5,7 +5,7 @@ description: "F303 M5 — restating the corpus and measuring the fit"
 # STEN Restated Corpus
 M5: the vault's existing templates and facets, restated in Stencil and checked with `sten_match`/`sten_generate` against real files — not the seven-case M1 corpus, but the population M1 was built to eventually cover.
 
-| -[[STEN Restated Corpus]]- | → [[DAS]] → [[STEN]] → [STEN Restated Corpus](hook://p/STEN%20Restated%20Corpus)<br>: F303 M5 — restating the corpus and measuring the fit |
+| -[[STEN Restated Corpus]]- | : F303 M5 — restating the corpus and measuring the fit<br>→ [[DAS]] → [[STEN]] → [STEN Restated Corpus](hook://p/STEN%20Restated%20Corpus)  |
 | --- | --- |
 | Corpus | [[Template Examples]] — the seven-case grammar-derivation corpus (M1); this document is a *different* corpus — the real population, not the cases that derived the grammar |
 | Language | [[STEN Language]] — the grammar this restatement is written in |
