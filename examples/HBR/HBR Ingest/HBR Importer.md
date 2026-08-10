@@ -2,7 +2,7 @@
 description: "probes each file, extracts metadata, writes catalog rows"
 ---
 
-| -[[HBR Importer]]- | : a leaf component — the ingest importer<br>→ [[DAS]] → [[examples]] → [[HBR\|HARBOR]] → [[HBR Ingest\|HARBOR INGEST]] → [HBR Importer](hook://p/HBR%20Importer) |
+| -[[HBR Importer]]- | : a leaf component — the ingest importer<br>→ [[DAS]] → [[examples]] → [[HBR\|HARBOR]] → [[HBR Ingest\|HARBOR INGEST]] → [HBR Importer](hook://p/HBR%20Importer)  |
 | --- | --- |
 | Anchor | [[HBR Ingest]] (parent) |
 | Related | [[HBR Scanner]] (prior stage),  [[HBR Deduper]] (next stage), |

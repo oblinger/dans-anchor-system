@@ -1,5 +1,5 @@
 ---
-description: "the command surface that realizes these requirements"
+description: "the subskill command surface — every verb, its arguments, output shape, confirmation gates"
 ---
 
 | -[[DAS Bridge UX Design]]- | : user-facing command surface<br>→ [[DAS]] → [design](hook://design) → [DAS Bridge UX Design](hook://p/DAS%20Bridge%20UX%20Design)  |

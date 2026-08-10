@@ -1,5 +1,5 @@
 ---
-description: "how each kind of bridging is verified"
+description: "testing strategy + proposed integration tests, grouped by bridge kind"
 ---
 
 | -[[DAS Bridge Testing]]- | : testing strategy + tests<br>→ [[DAS]] → [design](hook://design) → [DAS Bridge Testing](hook://p/DAS%20Bridge%20Testing)  |

@@ -2,7 +2,7 @@
 description: "The full purchasing lifecycle — research, narrow, buy, reorder."
 ---
 
-| -[[DAS Purchase]]- | : The full purchasing lifecycle — research a product category, narrow to an item, buy, and reorder consumables via web search + browser automation<br>→ [[DAS]] → [docs](hook://docs) → [DAS Purchase](hook://p/DAS%20Purchase) |
+| -[[DAS Purchase]]- | : The full purchasing lifecycle — research a product category, narrow to an item, buy, and reorder consumables via web search + browser automation<br>→ [[DAS]] → [docs](hook://docs) → [DAS Purchase](hook://p/DAS%20Purchase)  |
 | --- | --- |
 | Related | [[skills/buy/SKILL.md\|SKILL]],   |
 | [[DAS Purchase Design\|Design]]  |  |

@@ -2,7 +2,7 @@
 description: "The \"go\" button."
 ---
 
-| -[[DAS Crank]]- | : The \"go\" button.<br>→ [[DAS]] → [docs](hook://docs) → [DAS Crank](hook://p/DAS%20Crank) |
+| -[[DAS Crank]]- | : The \"go\" button.<br>→ [[DAS]] → [docs](hook://docs) → [DAS Crank](hook://p/DAS%20Crank)  |
 | --- | --- |
 | Related | [[ASG Crank\|Crank User Guide]],  [[skills/crank/SKILL.md\|SKILL]] (runtime) |
 | [[DAS Crank Design\|Design]]  | [[DAS Crank PRD\|PRD]],   |

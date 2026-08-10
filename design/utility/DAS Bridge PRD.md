@@ -1,5 +1,5 @@
 ---
-description: "product requirements — the kinds of bridging"
+description: "what bridge produces; the three kinds of bridging (control / sync / claude); mechanism-vs-goal; config-is-the-recipe"
 ---
 
 | -[[DAS Bridge PRD]]- | : product requirements — the kinds of bridging<br>→ [[DAS]] → [design](hook://design) → [DAS Bridge PRD](hook://p/DAS%20Bridge%20PRD)  |
