@@ -1776,9 +1776,16 @@ def chk_facet_dispatch_top(target, anchor_root, args):
             break
     if summary_idx is None:
         return "fail", "no one-line summary after H1"
-    # require a breadcrumb dispatch table within ~12 lines of the summary
+    # The masthead sits ABOVE the H1 — that is the convention every facet spec in
+    # the corpus follows, and the one DAS Anchor Page specifies. Searching only
+    # BELOW the summary meant the table was always behind the cursor, so this
+    # `(checked)` rule failed 100% of the corpus while reading as real coverage.
+    bc = re.compile(r"^ {0,3}\|\s*-\[\[.+?\]\]-\s*\|")
+    if any(bc.search(l) for l in lines[:h1_idx]):
+        return "pass", "breadcrumb table above the H1 (masthead convention)"
+    # ...and still accept it below, for any doc laid out the other way round.
     for i in range(summary_idx + 1, min(summary_idx + 12, len(lines))):
-        if re.search(r"^ {0,3}\|\s*-\[\[.+?\]\]-\s*\|", lines[i]):
+        if bc.search(lines[i]):
             return "pass", "H1 -> summary -> breadcrumb table"
     return "fail", "no breadcrumb dispatch table (missing masthead)"
 
@@ -5574,12 +5581,22 @@ def chk_rocks_member_ranked(target, anchor_root, args):
     f, folder, slug, done = _rocks_gate(target, anchor_root, True)
     if done:
         return done
-    note = _rocks_note(folder)
-    if not note.is_file():
+    # Under DAS Stone the ranking lives in the CONTROL file (`{slug} Rock.md`,
+    # in Track beside the folder), not on the folder page — an anchor page's top
+    # is machine-maintained and the ranking must stay hand-arranged. Read it when
+    # present and fall back to the folder page for groups not yet migrated.
+    control = folder.parent / f"{slug} Rock.md"
+    source = control if control.is_file() else _rocks_note(folder)
+    if not source.is_file():
         return "pass", "no folder-note — R-rocks-01 owns that finding"
-    ranked = {_rocks_link_target(m.group(1)).casefold()
-              for _, line in _rocks_below_table(note)
-              for m in _WIKILINK_RE.finditer(line)}
+    if source == control:
+        ranked = {_rocks_link_target(m.group(1)).casefold()
+                  for line in source.read_text(encoding="utf-8").splitlines()
+                  for m in _WIKILINK_RE.finditer(line)}
+    else:
+        ranked = {_rocks_link_target(m.group(1)).casefold()
+                  for _, line in _rocks_below_table(source)
+                  for m in _WIKILINK_RE.finditer(line)}
     missing = [p.stem for p in _rocks_members(folder) if p.stem.casefold() not in ranked]
     if not missing:
         return "pass", ""

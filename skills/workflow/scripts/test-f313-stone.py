@@ -358,6 +358,111 @@ try:
 
     (root / "A" / ".anchor").write_text("slug: A\nfeeds:\n", encoding="utf-8")  # undo for cleanliness
 
+    # ============================================================
+    # J. a duplicate slug elsewhere in the tree is fatal only when REFERENCED
+    # ============================================================
+    # The real vault has 8 slug collisions across 1,377 anchors, three of them
+    # Warden's own fixtures reusing `FX1` on purpose. Failing at discovery made
+    # every stone operation impossible in the vault the tool ships inside.
+    print("== J: a duplicate slug is fatal only where it is referenced ==")
+    jroot = TMP / "j"
+    mkanchor(jroot, "SOLO", [])
+    for nest in ("one", "two"):
+        d = jroot / "dupes" / nest / "DUP"
+        d.mkdir(parents=True, exist_ok=True)
+        (d / ".anchor").write_text("feeds:\n", encoding="utf-8")  # slug from folder name
+
+    anchors, ambiguous = st.discover_anchors(jroot)
+    if "SOLO" in anchors and list(ambiguous) == ["DUP"] and len(ambiguous["DUP"]) == 2:
+        ok("discovery separates the ambiguous slug out instead of raising")
+    else:
+        no(f"discovery mis-split: anchors={sorted(anchors)} ambiguous={ambiguous}")
+
+    err = io.StringIO()
+    with contextlib.redirect_stderr(err):
+        rc = run(jroot, "rock", "new", "SOLO", "--line", "unblocked by the collision")
+    if rc == 0 and stone_path(jroot, "SOLO", "R0001").is_file():
+        ok("mint into an unrelated anchor succeeds despite the collision")
+    else:
+        no(f"mint blocked by an unrelated collision (rc={rc}) {err.getvalue()!r}")
+
+    out = io.StringIO()
+    with contextlib.redirect_stdout(out):
+        rc = run(jroot, "rock", "update")
+    if rc == 0 and "ambiguous slug(s) skipped: DUP" in out.getvalue():
+        ok("update runs and NAMES the skipped ambiguous slug (no silent skip)")
+    else:
+        no(f"update did not report the skip: rc={rc} {out.getvalue()!r}")
+
+    # Referenced as a feed endpoint → loud.
+    (jroot / "SOLO" / ".anchor").write_text("slug: SOLO\nfeeds: DUP\n", encoding="utf-8")
+    err = io.StringIO()
+    with contextlib.redirect_stderr(err):
+        rc = run(jroot, "rock", "update")
+    if rc != 0 and "ambiguous" in err.getvalue() and "SOLO's feeds:" in err.getvalue():
+        ok("a feeds: edge naming an ambiguous slug fails loudly, naming both paths")
+    else:
+        no(f"ambiguous feed endpoint not caught: rc={rc} {err.getvalue()!r}")
+    (jroot / "SOLO" / ".anchor").write_text("slug: SOLO\nfeeds:\n", encoding="utf-8")
+
+    # Carrying real stone data → loud, because skipping it would lose work.
+    write_control(control_path(jroot / "dupes" / "one", "DUP"), "DUP", [])
+    err = io.StringIO()
+    with contextlib.redirect_stderr(err):
+        rc = run(jroot, "rock", "update")
+    if rc != 0 and "carries stone data" in err.getvalue():
+        ok("an ambiguous anchor holding stone data fails rather than being skipped")
+    else:
+        no(f"ambiguous anchor with stone data was skipped silently: rc={rc} {err.getvalue()!r}")
+    shutil.rmtree(jroot / "dupes" / "one" / "DUP" / "DUP Track")
+
+    # Named as the mint target → loud.
+    err = io.StringIO()
+    with contextlib.redirect_stderr(err):
+        rc = run(jroot, "rock", "new", "DUP", "--line", "which one?")
+    if rc != 0 and "ambiguous" in err.getvalue() and "mint target" in err.getvalue():
+        ok("minting INTO an ambiguous slug is refused, naming every candidate")
+    else:
+        no(f"mint into an ambiguous slug was not refused: rc={rc} {err.getvalue()!r}")
+
+    # ============================================================
+    # K. the group's own anchor page is not a stone
+    # ============================================================
+    # `{slug} Rocks.md` lives inside `{slug} Rocks/` and begins `{slug} R`, so a
+    # `{slug} {PREFIX}*` glob matches it in EVERY rock group that exists. Loading
+    # it as a stone prepends a key block to the anchor page and mints a control
+    # line pointing at it — which is what happened to MED, AIS and HBR at once
+    # on 2026-08-10, in the vault, before this test existed.
+    print("== K: the stone group's own anchor page is never loaded as a stone ==")
+    kroot = TMP / "k"
+    mkanchor(kroot, "GRP", [])
+    run(kroot, "rock", "new", "GRP", "--line", "a real stone")
+    page = kroot / "GRP" / "GRP Track" / "GRP Rocks" / "GRP Rocks.md"
+    page_text = "---\ndescription: GRP's rocks\n---\n\n# GRP Rocks\nThe folder's own anchor page.\n"
+    page.write_text(page_text, encoding="utf-8")
+
+    out = io.StringIO()
+    with contextlib.redirect_stdout(out):
+        rc = run(kroot, "rock", "update")
+
+    if page.read_text(encoding="utf-8") == page_text:
+        ok("the group's anchor page is left byte-identical by an update pass")
+    else:
+        no(f"the group's anchor page was rewritten as a stone:\n{page.read_text(encoding='utf-8')!r}")
+
+    ctrl = control_path(kroot, "GRP").read_text(encoding="utf-8")
+    if "[[GRP Rocks" not in ctrl:
+        ok("no control line was minted pointing at the anchor page")
+    else:
+        no(f"control file references the anchor page as a stone:\n{ctrl!r}")
+
+    # And the mint must count the same set, or the next number collides.
+    run(kroot, "rock", "new", "GRP", "--line", "the next one")
+    if stone_path(kroot, "GRP", "R0002").is_file():
+        ok("numbering ignores the anchor page and mints R0002, not a collision")
+    else:
+        no("mint mis-numbered after the anchor page was present")
+
 finally:
     shutil.rmtree(TMP, ignore_errors=True)
 

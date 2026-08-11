@@ -68,8 +68,8 @@ The discipline is deliberately silent on four things, because its two known memb
 | The facet declares | Why it cannot be shared |
 |---|---|
 | **Its parameter vocabulary** — which `key::`s are legal, which required | A rock has commitment; an item has tempo and a last-raised time. No overlap worth unifying. |
-| **Its identity scheme** | [[DAS Rocks\|Rocks]] uses a human abbreviation (`HBR HR`) *because the link text is read in a narrow line* — `R-rocks-04`. Items want a short opaque ID because they are numerous and tracked as they move. |
-| **Its presentation** | A rock's link text is the information: `[[HBR HR]]: gather stats`. An item hides its ID behind a star so the roster reads as a plain bullet. Applying either uniformly breaks the other. |
+| **Its identity scheme** | [[DAS Rocks\|Rocks]] numbers its stones (`HBR R0001`) and carries the readable half in the link's display text, *because that text is read in a narrow line* — `R-stone-02`. Items want a short opaque ID because they are numerous and tracked as they move. |
+| **Its presentation** | A rock's link text is the information: `[[HBR R0001|HBR:]] gather stats`. An item hides its ID behind a star so the roster reads as a plain bullet. Applying either uniformly breaks the other. |
 | **What the export group means** | For Rocks it is a commitment level; for items it is likely tempo or urgency. |
 
 **The identity and presentation rows are the two places the members genuinely diverge**, and both are load-bearing. A discipline that fixed either would kill a shipped rule.

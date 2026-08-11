@@ -34,26 +34,30 @@ Four rungs of the planning ladder, coarse to fine. Each exists because the one a
 
 The rung Rocks occupies is the one where **a chunk can be named without being committed to**. A Roadmap milestone is a promise about order; a Backlog row is a promise about now. Neither can hold *"this is real, it matters, and nobody has agreed to do it."* That state is most of what long-range planning actually consists of, and Rocks is where it lives.
 
-## Rock names are abbreviations
+## Rock names are numbers
 
-A rock file is named `{slug} {ABBR}.md` — the anchor slug, then **one word or an acronym**, expanded inside the file itself. `HBR HR`, not `HBR Historical Retrospective`.
+A rock file is named `{slug} R{NNNN}.md` — the anchor slug, then a monotonic number that is **never recycled**. `HBR R0001`, and what it stands for is the file's own H1 (*Historical retrospective*).
 
-The reason is not filesystem tidiness — it is that **the wiki-link is the reusable unit**, and it gets reused somewhere narrow. Rocks are cited from the documents that organize execution, in a line of this form:
+**This supersedes the abbreviation scheme** (`HBR HR`), which named rocks by a one-word acronym expanded inside the file. The abbreviation read better in a line, and that was a real advantage — but the name was also the identifier, so improving a rock's name silently re-pointed every line that cited it, including copies already propagated into other anchors. Numbering separates the two: the number is an opaque handle nothing has to keep in sync, and the readable half moved into the control line's display text.
 
-- [[HBR HR]]: gather stats
+Rocks are cited from the documents that organize execution, in a line of this form:
 
-Link, colon, then a few words naming *the slice being worked right now*. Almost never is a whole rock in flight; what enters an execution list is a piece of one, and the words after the colon are the only part carrying today's information. `HBR HR: gather stats` reads at a glance. `HBR Historical Retrospective: gather stats` pushes the informative half off the end of the line.
+- `[[HBR R0001|HBR:]] gather stats` — which renders as `HBR: gather stats`
 
-This is `R-rocks-04`, and it is the rule most likely to be lost when someone "improves" a rock's name for readability.
+Link, colon, then a few words naming *the slice being worked right now*. Almost never is a whole rock in flight; what enters an execution list is a piece of one, and the words after the colon are the only part carrying today's information. The display half names the **source anchor** rather than the rock, so the same line reads correctly after it is copied downstream — which is what makes propagation line-copying instead of rendering.
 
-## The folder-note
+The governing rule is now `R-stone-02` in [[DAS Stone]]; `R-rocks-04` is retired.
 
-`{slug} Rocks.md` inside the folder. Two jobs:
+## The two files
 
-1. **A dispatch table with a `...` catch-all**, so a rock file dropped into the folder is surfaced without being hand-listed (`R-rocks-09`).
-2. **Below it, the ranked list** — the rocks grouped by how committed the anchor is to them.
+A rock group is two things, and keeping them apart is the point:
 
-The tier vocabulary and layout are **deliberately unspecified here**, and differ by anchor and by level. [[HBR Rocks]] is the normative demonstration. What the spec does pin is that grouping expresses **commitment, not sequence** (`R-rocks-11`) — the moment tier lines grow dates and dependency arrows, the anchor has quietly acquired a second Roadmap.
+1. **`{slug} Rocks.md`** — the folder's anchor page, with a dispatch table and a `...` catch-all, so a rock file dropped into the folder is surfaced without being hand-listed (`R-rocks-09`).
+2. **`{slug} Rock.md`** — the **control file**, in `{slug} Track/` beside the folder, holding the ranked list grouped by how committed the anchor is.
+
+**The ranking used to live on the folder page and no longer can.** An anchor page's top is machine-maintained, and the ranking is the one thing that must stay hand-arranged — so they are separate files. [[HBR Rocks]] and [[HBR Rock]] are the normative pair.
+
+The tier vocabulary and layout are **deliberately unspecified here**, and differ by anchor and by level. What the spec does pin is that grouping expresses **commitment, not sequence** (`R-rocks-11`) — the moment tier lines grow dates and dependency arrows, the anchor has quietly acquired a second Roadmap.
 
 The catch-all is load-bearing: it is what lets `R-rocks-05` *warn* about an unranked rock rather than erroring on a lost one.
 

@@ -37,21 +37,27 @@ At most one Rocks folder exists under any one anchor. No sub-Rocks for sub-activ
 
 **Why:** two ranked lists for one anchor means two answers to "what are the big chunks here" with nothing to say which governs. When an activity splits, the sub-activities get their own anchors, and each gets its own single Rocks folder.
 
-### RULE R-rocks-04 — Rock names are short, and the abbreviation is expanded in the file (checked)
+### RULE R-rocks-04 — Rock names are short, and the abbreviation is expanded in the file (retired)
 check:: rock_name_short_and_expanded
+
+**Retired 2026-08-10, superseded by `R-stone-02`** — a rock file is named `{slug} R{NNNN}.md`, monotonic and never recycled, and its expansion is simply the file's H1. The checker stays wired because it self-disables on a numbered name (*"not an abbreviation, nothing to expand"*) and still judges the abbreviated files that have not been migrated. It becomes genuinely inert once the last group converts, and should be unwired then rather than left reading as coverage.
+
+The superseded rule follows, for the anchors still shaped that way.
 
 A rock file is named `{slug} {ABBR}.md`, where `{ABBR}` is **at most two words** — normally one word, or an acronym when the rock's real name is multi-word. The expansion appears in the file's H1 orientation line or its `description:` frontmatter.
 
 **Check pattern:** for each member file other than the folder-note, strip the `{slug} ` prefix and assert the remainder is ≤ 2 whitespace-separated words — an error. Then, when the remainder is all-caps or mixed-caps of ≤ 5 characters, assert the `description:` or the orientation line under the H1 **opens with a gloss** — a short phrase ahead of an em dash, saying something other than the rock's own name — and warn when it does not. Whether that phrase is the *correct* expansion is deliberately not mechanized: `HR` → *historical retrospective* is an acronym, but `TX` → *transcode*, `OBS` → *observability* and `LEX` → *life expectancy* are contractions, and no initials, prefix or subsequence test admits all four (`transcode` has no `x`). That half is a reader's judgment, and the warning is where it gets raised.
 
-**Why:** the wiki-link is the reusable unit and it is reused in a narrow line — `[[HBR HR]]: gather stats`, where the words after the colon carry the only current information. A long link crowds them out. The expansion requirement is the price of the abbreviation: a reader who does not recognize `HR` must be able to learn it by opening the file, and nowhere else.
+**Why:** the wiki-link is the reusable unit and it is reused in a narrow line — `[[HBR R0001|HBR:]] gather stats`, where the words after the colon carry the only current information. A long link crowds them out. The expansion requirement is the price of the abbreviation: a reader who does not recognize `HR` must be able to learn it by opening the file, and nowhere else.
 
 ### RULE R-rocks-05 — Every member appears on a tier line (checked)
 check:: rocks_member_ranked
 
-Every rock file in the folder is named on some line of the folder-note's ranked list, below the dispatch table. Emitted as a **warning**, not an error.
+Every rock file in the folder is named on some line of the ranked list. Emitted as a **warning**, not an error.
 
-**Check pattern:** collect member basenames; collect wiki-link targets appearing below the folder-note's dispatch table; assert every member is among them.
+**Where the ranked list is:** the **control file** `{slug} Rock.md`, in `{slug} Track/` beside the folder (per [[DAS Stone]]). It used to be the folder-note itself; the checker reads the control file when one exists and falls back to the folder-note for groups not yet migrated, so both shapes are judged correctly during the changeover.
+
+**Check pattern:** collect member basenames; collect wiki-link targets in the control file (or, absent one, below the folder-note's dispatch table); assert every member is among them.
 
 **Why:** a rock nobody has ranked is a real state and a transient one — the file lands first, the ranking follows. The warning is the cleanup pressure, not a gate. This is also why the folder-note carries a `...` catch-all: an unranked rock must still be reachable.
 
@@ -60,7 +66,7 @@ check:: rocks_tier_links_resolve
 
 Every wiki-link on a tier line in the folder-note resolves to a file that exists.
 
-**Check pattern:** for each tier line below the dispatch table — a line opening with a wiki-link, the `[[HBR HR]]: gather stats` form — assert that leading link's target resolves. Leading only: a promotion marker (`**Elevated to [[Rocks]]**`, R-rocks-13) and any commentary below the ranked list carry links that point outside the anchor, which a local resolver cannot see and must not fail the file for.
+**Check pattern:** for each tier line below the dispatch table — a line opening with a wiki-link, the `[[HBR R0001|HBR:]] gather stats` form — assert that leading link's target resolves. Leading only: a promotion marker (`**Elevated to [[Rocks]]**`, R-rocks-13) and any commentary below the ranked list carry links that point outside the anchor, which a local resolver cannot see and must not fail the file for.
 
 **Why:** the ranked list is the surface people read and cite from; a link that goes nowhere makes the list untrustworthy at exactly the moment someone is trying to act on it. The vault-wide [[Rocks]] page carried five such rows for months, which is the failure this rule generalizes.
 
@@ -101,7 +107,7 @@ No anchor is required to have a Rocks folder, and `/create anchor` never scaffol
 
 ### RULE R-rocks-11 — Tier grouping expresses commitment, not sequence (stated)
 
-The ranked list groups rocks by **commitment level**. Ordering within a group carries no promise, and the list is not a plan. The specific tier vocabulary and layout are deliberately unspecified — [[HBR Rocks]] is the normative demonstration.
+The ranked list groups rocks by **commitment level**. Ordering within a group carries no promise, and the list is not a plan. The specific tier vocabulary and layout are deliberately unspecified — [[HBR Rock]] is the normative demonstration.
 
 **Check pattern:** stated; dates, dependency arrows, or an explicit ordinal sequence appearing on tier lines are a smell to flag.
 

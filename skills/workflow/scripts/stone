@@ -128,21 +128,67 @@ def _anchor_feeds(anchor_dir: Path) -> list:
     return []
 
 
-def discover_anchors(root: Path) -> dict:
-    """slug -> SimpleNamespace(slug, path, feeds), every `.anchor` under root."""
+def discover_anchors(root: Path):
+    """(anchors, ambiguous) — slug -> SimpleNamespace(slug, path, feeds) for every
+    unambiguously-named `.anchor` under root, plus slug -> [paths] for those that
+    collide.
+
+    A collision is deliberately NOT fatal here. This walk covers the whole vault,
+    so any unrelated pair of same-named folders would otherwise make every stone
+    operation impossible — including a mint that touches exactly one anchor. And
+    some collisions are correct: Warden's corpus reuses `FX1` across independent
+    test cases on purpose, because each fixture is a self-contained mini-vault.
+    Ambiguity is an error only when a slug is actually *referenced* — as a mint
+    target, a feed endpoint, or the owner of real stone data — which is where
+    `_ambiguous_error` and `_reject_ambiguous_use` raise.
+    """
     anchors = {}
+    ambiguous: dict = {}
     for dirpath, dirnames, filenames in os.walk(root):
         dirnames[:] = [d for d in dirnames if not d.startswith(".")]
         if ".anchor" in filenames:
             p = Path(dirpath)
             slug = _anchor_slug(p)
-            if slug in anchors:
-                raise StoneError(
-                    f"duplicate anchor slug {slug!r}: {anchors[slug].path} "
-                    f"and {p} — every anchor must resolve to one slug"
-                )
-            anchors[slug] = SimpleNamespace(slug=slug, path=p, feeds=_anchor_feeds(p))
-    return anchors
+            if slug in ambiguous:
+                ambiguous[slug].append(p)
+            elif slug in anchors:
+                ambiguous[slug] = [anchors.pop(slug).path, p]
+            else:
+                anchors[slug] = SimpleNamespace(slug=slug, path=p, feeds=_anchor_feeds(p))
+    return anchors, ambiguous
+
+
+def _ambiguous_error(slug: str, paths: list, why: str) -> StoneError:
+    listing = "\n  ".join(str(p) for p in paths)
+    return StoneError(
+        f"anchor slug {slug!r} is ambiguous — {why}, but {len(paths)} "
+        f"directories resolve to it:\n  {listing}\n"
+        "Give all but one a distinct `slug:` in its .anchor."
+    )
+
+
+def _reject_ambiguous_use(anchors: dict, ambiguous: dict, cfg: dict) -> None:
+    """Raise if any ambiguous slug is actually reachable by the update walk.
+
+    Two ways it can be: something `feeds:` from it, or one of the colliding
+    directories carries real stone data that the walk would otherwise skip in
+    silence — the exact shape the no-silent-empty invariant exists to catch.
+    """
+    if not ambiguous:
+        return
+    for a in anchors.values():
+        for src in a.feeds:
+            if src in ambiguous:
+                raise _ambiguous_error(src, ambiguous[src], f"{a.slug}'s feeds: names it")
+    for slug, paths in sorted(ambiguous.items()):
+        carrying = [
+            p for p in paths
+            if _stone_folder(p, slug, cfg).is_dir() or _control_path(p, slug, cfg).is_file()
+        ]
+        if carrying:
+            raise _ambiguous_error(
+                slug, paths, "it carries stone data that would otherwise be skipped"
+            )
 
 
 def _track_dir(anchor_path: Path, slug: str) -> Path:
@@ -155,6 +201,25 @@ def _stone_folder(anchor_path: Path, slug: str, cfg: dict) -> Path:
 
 def _control_path(anchor_path: Path, slug: str, cfg: dict) -> Path:
     return _track_dir(anchor_path, slug) / (cfg["control"].format(slug=slug) + ".md")
+
+
+def _stone_number_re(slug: str, cfg: dict):
+    """Matches EXACTLY `{slug} {PREFIX}{NNNN}` — the full stone name, digits and all.
+
+    Not a `{slug} {PREFIX}*` glob, and the difference is not cosmetic: for the
+    `rock` kind the prefix is `R`, so that glob matches the stone group's own
+    anchor page — `HBR Rocks.md` inside `HBR Rocks/` — for **every rock group
+    that exists**. Loading it as a stone gives it a `line::` block and a sid of
+    `Rocks`, then writes a control line pointing at it. Observed live 2026-08-10
+    against MED, AIS and HBR at once.
+    """
+    return re.compile(rf"^{re.escape(slug)} {re.escape(cfg['prefix'])}(\d{{{cfg.get('digits', 4)}}})$")
+
+
+def _stone_files(folder: Path, slug: str, cfg: dict) -> list:
+    """Every file in `folder` that is genuinely a stone of this kind."""
+    num_re = _stone_number_re(slug, cfg)
+    return [f for f in folder.glob("*.md") if f.is_file() and num_re.match(f.stem)]
 
 
 # --------------------------------------------------------------------------
@@ -664,8 +729,10 @@ def _default_control_lines(slug: str, cfg: dict) -> list:
 
 
 def cmd_new(kind: str, cfg: dict, root: Path, args) -> int:
-    anchors = discover_anchors(root)
+    anchors, ambiguous = discover_anchors(root)
     slug = args.anchor
+    if slug in ambiguous:
+        raise _ambiguous_error(slug, ambiguous[slug], "it is the mint target")
     if slug not in anchors:
         raise StoneError(f"no anchor {slug!r} (.anchor) found under {root}")
     a = anchors[slug]
@@ -675,18 +742,14 @@ def cmd_new(kind: str, cfg: dict, root: Path, args) -> int:
     archive_dir = folder / "archive"
     prefix = cfg["prefix"]
     digits = cfg.get("digits", 4)
-    num_re = re.compile(rf"^{re.escape(slug)} {re.escape(prefix)}(\d{{{digits}}})$")
+    num_re = _stone_number_re(slug, cfg)
 
-    nums = []
-    for f in folder.glob(f"{slug} {prefix}*.md"):
-        m = num_re.match(f.stem)
-        if m:
-            nums.append(int(m.group(1)))
+    # Numbering and loading must agree on what a stone file IS, so both go
+    # through `_stone_files`. When they disagreed, `update` ingested files the
+    # mint had never counted.
+    nums = [int(num_re.match(f.stem).group(1)) for f in _stone_files(folder, slug, cfg)]
     if archive_dir.is_dir():
-        for f in archive_dir.glob(f"{slug} {prefix}*.md"):
-            m = num_re.match(f.stem)
-            if m:
-                nums.append(int(m.group(1)))
+        nums += [int(num_re.match(f.stem).group(1)) for f in _stone_files(archive_dir, slug, cfg)]
     next_num = (max(nums) + 1) if nums else 1
     sid = f"{prefix}{str(next_num).zfill(digits)}"
     stone_path = folder / f"{slug} {sid}.md"
@@ -713,26 +776,24 @@ def cmd_new(kind: str, cfg: dict, root: Path, args) -> int:
 
 
 def cmd_update(kind: str, cfg: dict, root: Path, args) -> int:
-    anchors = discover_anchors(root)
+    anchors, ambiguous = discover_anchors(root)
     if not anchors:
         raise StoneError(f"no anchors (.anchor) found under {root}")
+    _reject_ambiguous_use(anchors, ambiguous, cfg)
 
     stones: dict = {}
     control: dict = {}
     for slug, a in anchors.items():
         folder = _stone_folder(a.path, slug, cfg)
-        prefix = cfg["prefix"]
         if folder.is_dir():
-            for f in sorted(folder.glob(f"{slug} {prefix}*.md")):
-                if f.is_file():
-                    st = _load_stone(f, slug, live=True)
-                    stones[(slug, st.sid)] = st
+            for f in sorted(_stone_files(folder, slug, cfg)):
+                st = _load_stone(f, slug, live=True)
+                stones[(slug, st.sid)] = st
             archive_dir = folder / "archive"
             if archive_dir.is_dir():
-                for f in sorted(archive_dir.glob(f"{slug} {prefix}*.md")):
-                    if f.is_file():
-                        st = _load_stone(f, slug, live=False)
-                        stones[(slug, st.sid)] = st
+                for f in sorted(_stone_files(archive_dir, slug, cfg)):
+                    st = _load_stone(f, slug, live=False)
+                    stones[(slug, st.sid)] = st
 
         cpath = _control_path(a.path, slug, cfg)
         exists = cpath.is_file()
@@ -766,10 +827,13 @@ def cmd_update(kind: str, cfg: dict, root: Path, args) -> int:
             n_stones += 1
 
     # F312 Inv. "no silent empty" — a pass always says what it did, even zero.
+    # Ambiguous slugs are named rather than dropped: they carry no stone data
+    # (`_reject_ambiguous_use` proved that above), but the walk did skip them.
+    skipped = f", {len(ambiguous)} ambiguous slug(s) skipped: {', '.join(sorted(ambiguous))}" if ambiguous else ""
     print(
         f"stone: {kind} update — {n_files} control file(s) written, "
         f"{n_stones} stone file(s) written ({stats['archived']} archived), "
-        f"across {len(anchors)} anchor(s)"
+        f"across {len(anchors)} anchor(s){skipped}"
     )
     return 0
 

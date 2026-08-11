@@ -1,33 +1,24 @@
 ---
-description: "Harbor's big chunks of work, ranked by commitment"
+description: "Harbor's big chunks of work — one file per rock, ranked from HBR Rock"
 ---
 
 | -[[HBR Rocks]]- | → [[DAS]] → [[examples]] → [[HBR\|HARBOR]] → [[HBR Track\|HARBOR TRACK]] → [HBR Rocks](hook://p/HBR%20Rocks)  |
 | --- | --- |
-| Related | [[DAS Rocks]],  [[HBR Roadmap]],  [[HBR Backlog]],   |
-| ... |  |
+| Control | [[HBR Rock]] — the ranked list, |
+| Related | [[DAS Stone]],  [[DAS Rocks]],  [[HBR Roadmap]],  [[HBR Backlog]],   |
+| ... | [[HBR R0002]],   |
 
 # HBR Rocks
-The big chunks Harbor is trying to move — ranked by commitment, not by sequence.
-
-ACTIVE
-[[HBR HR]]: gather stats
-[[HBR TX]]: settle the codec matrix
-
-SOON
-[[HBR OBS]]:  pick a metrics backend
-
-
-
-
+The big chunks Harbor is trying to move — one file each. The **ranking** lives next door in [[HBR Rock]]; this folder just holds the rocks.
 
 ✂ ──── example notes ──── ✂
 
-Nothing below this line is part of the example. Above it is a Rocks folder-note that could sit in a real anchor unchanged; below it is commentary about why it looks that way.
+Nothing below this line is part of the example. Above it is a stone-group folder page that could sit in a real anchor unchanged; below it is commentary about why the group looks the way it does.
 
-- **The names are the point.** `HR`, `TX`, `OBS` — one token each, expanded only inside their own files (*historical retrospective*, *transcode*, *observability*). The whole reason is the line shape: `[[HBR HR]]: gather stats` is what gets written into whatever document is organizing execution that week, and the few words after the colon are the only part carrying today's information. Spell the rock out and they get crowded off the end. This is `R-rocks-04`.
-- **The words after each colon are a slice, not the rock.** "Gather stats" is not the historical retrospective; it is the piece of it in flight right now. A rock is weeks-to-a-quarter of work and almost never enters a list whole.
-- **The ranked list is bare lines, not a bullet list.** Plain tier label, then one `[[link]]: phrase` per line. Dan authored this block by hand on 2026-08-06, and the form is the same one the root [[Rocks]] uses — which is the point: the line you read here is the line that gets promoted upward, unchanged.
-- **Two groups, and no sequence inside either.** The grouping says how committed Harbor is, not what order things happen in. Ordering belongs to [[HBR Roadmap]]; the moment tier lines grow dates and dependency arrows, the anchor has quietly acquired a second roadmap (`R-rocks-11`).
-- **[[HBR OBS]] is deliberately uncommitted.** It is real, named, worth doing, and nobody has promised it. That state is exactly what Rocks exists to hold and what neither a Roadmap milestone nor a backlog row can express.
-- **The `...` catch-all is load-bearing.** A rock file dropped into this folder shows up there even before anyone ranks it, which is what lets `R-rocks-05` warn about an unranked rock instead of erroring on a lost one.
+- **The list moved out of this page, and that is the whole shape of [[DAS Stone]].** This folder page used to carry the ranked tiers itself. It cannot any more: an anchor page is machine-maintained at the top and the ranking is the one thing that must stay hand-arranged, so the two are now separate files — the rocks here, the arrangement in [[HBR Rock]]. `R-stone-01` puts the group at `{slug} Track/{slug} {Kind}s/`; the control file sits beside it in Track.
+- **Stones are numbered, not abbreviated.** `HBR R0001`, not `HBR HR` — `R-stone-02`, monotonic forever and never recycled. The abbreviation used to carry the meaning, which made a rename touch every line that referenced it; now **the expansion is simply the file's H1** (*Historical retrospective*), and the number is an opaque handle that nothing has to keep in sync.
+- **The control line is one string doing two jobs.** `[[HBR R0001|HBR:]] gather stats` renders as `HBR: gather stats` for a human and resolves to the stone for the machine. Because the display half carries the *source* anchor, that exact line can be pasted into a downstream anchor's control file and still reads correctly *and* still points home — which is why propagation is line-copying rather than rendering, and why a downstream file stays hand-editable.
+- **The words after the colon are a slice, not the rock.** "Gather stats" is not the historical retrospective; it is the piece of it in flight this week. That string lives in the stone's own `line::` key, so every copy of it anywhere in the feed graph is rendered from one place.
+- **Two groups, and no sequence inside either.** `ACTIVE` and `SOON` say how committed Harbor is, not what order things happen in. Ordering belongs to [[HBR Roadmap]]; the moment tier lines grow dates and dependency arrows, the anchor has quietly acquired a second roadmap.
+- **[[HBR R0003]] is deliberately uncommitted.** Real, named, worth doing, and nobody has promised it — exactly what a rock list exists to hold and what neither a roadmap milestone nor a backlog row can express.
+- **Position is the data.** Which tier a line sits under, what order it is in, and whether it is above or below the self-section marker `-HBR-` (which is what publishes it downstream) are all expressed by *arranging* rather than by fields. That is why the stone files carry so few keys — see [[DAS Stone Keys]] § the arrangement test.
