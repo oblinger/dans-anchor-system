@@ -133,15 +133,79 @@ def resolve_anchor(anchor_arg):
     if p.is_dir() and (p / ".anchor").exists():
         p = p.resolve()
         return _slug_from_anchor_path(p), p
-    # Mode 2: slug
-    backlog = be.find_backlog(anchor_arg)
+    # Mode 2: slug. `find_backlog` RAISES on not-found rather than returning
+    # None, so the diagnostic below is only reachable if that raise is caught —
+    # the first cut of this fix left it uncaught and the new branch could never
+    # run, which is the shape of a probe that can never pass.
+    try:
+        backlog = be.find_backlog(anchor_arg)
+    except be.BacklogEditError as not_found:
+        backlog = None
+        mode2_error = not_found
+    else:
+        mode2_error = None
     if backlog is not None:
         anchor_path = backlog.parent.parent  # backlog is at {anchor}/{anchor} Track/
         return anchor_arg, anchor_path
-    raise be.BacklogEditError(
+    # Before failing, ask the question the old message could not: is there an
+    # anchor that DECLARES this slug while its files are named something else?
+    # `find_backlog` matches a filename prefix and never reads `.anchor`, so a
+    # declared slug and an operative one can disagree indefinitely with nothing
+    # reporting it — and the bare not-found names the missing file rather than
+    # the disagreement it actually hit.
+    #
+    # Measured by ATT 2026-08-11 mid-rename: `state drop PROS …` failed while
+    # `.anchor` still said `slug: PROS`, and `state drop BOONE …` worked. So an
+    # agent doing exactly the right thing — read `Staff.md`, see `[[PROS]]`,
+    # drop to PROS — got an error suggesting nothing, and only folder-listing
+    # found the working name. ATT: "An agent less stubborn than a /crank pass
+    # files the message somewhere else or drops it entirely, and you never
+    # learn it existed." This is `state`'s resolution order, not a Warden
+    # quirk (cf. F318): it recurs on any anchor whose `.anchor` and filenames
+    # drift, including every mid-migration.
+    #
+    # Diagnostic only. WHICH side is authoritative is T203 Q1 and unresolved;
+    # this changes no resolution, it just says what it found. Runs on the
+    # failure path alone, so the vault walk costs nothing on the normal path.
+    declared = _anchors_declaring_slug(anchor_arg)
+    if declared:
+        where = ", ".join(str(d) for d in declared[:3])
+        raise be.BacklogEditError(
+            f"anchor {anchor_arg!r}: no '{anchor_arg} Backlog.md' in vault, but "
+            f"the anchor at {where} DECLARES `slug: {anchor_arg}` while its "
+            f"files are named otherwise. `state` resolves by filename and "
+            f"`ha -p` resolves by the declared slug, so the two disagree here. "
+            f"Retry with the filename prefix its tracking actually uses, and "
+            f"see TINK T202/T203 for which side should win."
+        )
+    raise mode2_error if mode2_error is not None else be.BacklogEditError(
         f"anchor {anchor_arg!r}: not a directory with .anchor, and no "
         f"'{anchor_arg} Backlog.md' found in vault"
     )
+
+
+def _anchors_declaring_slug(slug):
+    """Every anchor whose `.anchor` declares exactly `slug: <slug>`.
+
+    Failure-path only — a full walk, deliberately not cached, because it runs
+    once per failed resolution and never on a successful one."""
+    hits = []
+    for root, dirs, files in os.walk(be.VAULT_ROOT, followlinks=True):
+        if any(frag in root + "/" for frag in be.SKIP_PATH_FRAGMENTS):
+            dirs[:] = []
+            continue
+        if ".anchor" not in files:
+            continue
+        try:
+            txt = (Path(root) / ".anchor").read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        for ln in txt.splitlines():
+            m = _ANCHOR_SLUG_RE.match(ln.strip())
+            if m and m.group(1) == slug:
+                hits.append(Path(root))
+                break
+    return hits
 
 
 _ANCHOR_SLUG_RE = re.compile(r"^slug:\s*(\S+)\s*$")
