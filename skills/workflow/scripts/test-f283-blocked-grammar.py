@@ -13,6 +13,12 @@ preference for a structural gate over one more rule to remember.
 
 Run: python3 test-f283-blocked-grammar.py
 """
+# T170: several of these scripts are extensionless, so the import machinery
+# caches them under a mangled name (`stonecpython-312.pyc`) that was seen
+# serving code no longer on disk — a green run vouching for a source it had
+# not read. Must precede every load in this file, hence the top.
+import sys as _sys; _sys.dont_write_bytecode = True
+
 import importlib.util
 import sys
 from pathlib import Path

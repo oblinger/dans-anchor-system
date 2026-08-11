@@ -30,6 +30,12 @@ lengths (so even a same-second write can't alias on (mtime, size)).
 Self-contained: scratch anchors live in tempdirs; nothing under `~/ob/kmr`
 is touched, and neither is HA's real (live, two-agent-owned) Inbox.
 """
+# T170: several of these scripts are extensionless, so the import machinery
+# caches them under a mangled name (`stonecpython-312.pyc`) that was seen
+# serving code no longer on disk — a green run vouching for a source it had
+# not read. Must precede every load in this file, hence the top.
+import sys as _sys; _sys.dont_write_bytecode = True
+
 import importlib.machinery
 import importlib.util
 import shutil
@@ -187,6 +193,7 @@ STUB_WRONGTAG = '''#!/usr/bin/env python3
 """ {pad} """
 import re
 import sys
+
 # Deliberately broken: writes an UNSANCTIONED tag instead of the one asked for.
 inbox_path, date, topic, _tag = sys.argv[1:5]
 p = sys.argv[1]

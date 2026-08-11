@@ -13,6 +13,12 @@ Covers the two pieces that carry the logic:
 
 Self-contained: imports the `state` module in-process, stubs the audit-q
 subprocess + helpers so the real vault / audit-q is never touched."""
+# T170: several of these scripts are extensionless, so the import machinery
+# caches them under a mangled name (`stonecpython-312.pyc`) that was seen
+# serving code no longer on disk — a green run vouching for a source it had
+# not read. Must precede every load in this file, hence the top.
+import sys as _sys; _sys.dont_write_bytecode = True
+
 import contextlib
 import importlib.machinery
 import importlib.util

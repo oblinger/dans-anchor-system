@@ -37,6 +37,12 @@ Each behaviour above was red-checked by hand during development (broken,
 confirmed the corresponding section fails, restored, confirmed green again);
 see the implementation report for the specific breaks used.
 """
+# T170: several of these scripts are extensionless, so the import machinery
+# caches them under a mangled name (`stonecpython-312.pyc`) that was seen
+# serving code no longer on disk — a green run vouching for a source it had
+# not read. Must precede every load in this file, hence the top.
+import sys as _sys; _sys.dont_write_bytecode = True
+
 import contextlib
 import importlib.machinery
 import importlib.util
@@ -462,6 +468,50 @@ try:
         ok("numbering ignores the anchor page and mints R0002, not a collision")
     else:
         no("mint mis-numbered after the anchor page was present")
+
+    # ============================================================
+    # L. a slug that cannot round-trip is refused AT THE MINT, not at discovery
+    # ============================================================
+    # A control line is parsed back into (owner, number) from its link target
+    # alone, so an owner slug needs letters and digits with no spaces. `HUD 1`
+    # mints fine and writes a line that LOOKS right, then classifies as 'other'
+    # forever — no propagation, no read-back, and no pass says a word. But a
+    # consuming-only node may legitimately carry such a slug, which is why the
+    # check lives at the mint and not in discover_anchors.
+    print("== L: a slug that cannot round-trip is refused at the mint only ==")
+    lroot = TMP / "l"
+    mkanchor(lroot, "POOL", [])
+    (lroot / "SCREEN").mkdir(parents=True, exist_ok=True)
+    (lroot / "SCREEN" / ".anchor").write_text("slug: HUD 1\nfeeds: POOL\n", encoding="utf-8")
+    run(lroot, "rock", "new", "POOL", "--line", "a real stone")
+    # below POOL's own self-section marker, so it publishes downstream
+    write_control(control_path(lroot, "POOL"), "POOL",
+                  [header_line("POOL"), stone_line("POOL", "R0001", "a real stone")])
+
+    err = io.StringIO()
+    with contextlib.redirect_stderr(err):
+        rc = run(lroot, "rock", "new", "HUD 1", "--line", "would never propagate")
+    if rc != 0 and "cannot own a stone" in err.getvalue():
+        ok("minting into a spaced slug is refused loudly instead of failing silently")
+    else:
+        no(f"spaced-slug mint was not refused: rc={rc} {err.getvalue()!r}")
+
+    if not list((lroot / "SCREEN").rglob("HUD 1 R*.md")):
+        ok("the refused mint left no orphan stone file behind")
+    else:
+        no("a stone file was written for a slug that can never be read back")
+
+    # The same slug must still CONSUME — that is the whole reason for the seam.
+    screen_ctrl = lroot / "SCREEN" / "HUD 1 Track" / "HUD 1 Rock.md"
+    screen_ctrl.parent.mkdir(parents=True, exist_ok=True)
+    screen_ctrl.write_text("# HUD 1 Rock\n\n[[HUD 1 Rock|-HUD 1-]]\n\n[[POOL Rock|-POOL-]]\n", encoding="utf-8")
+    out = io.StringIO()
+    with contextlib.redirect_stdout(out):
+        run(lroot, "rock", "update")
+    if "[[POOL R0001|POOL:]] a real stone" in screen_ctrl.read_text(encoding="utf-8"):
+        ok("a spaced slug still receives stones along feeds: — only minting is barred")
+    else:
+        no(f"spaced slug failed to consume:\n{screen_ctrl.read_text(encoding='utf-8')!r}")
 
 finally:
     shutil.rmtree(TMP, ignore_errors=True)

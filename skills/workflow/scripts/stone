@@ -103,7 +103,14 @@ def _control_suffix(cfg: dict) -> str:
 # --------------------------------------------------------------------------
 # Anchor discovery — `.anchor` carries `slug:` and `feeds:` (DAS feed, F312)
 
-_SLUG_RE = re.compile(r"^slug:\s*(\S+)\s*$")
+# `.+?` and not `\S+`: a slug may contain a space (`HUD 1`, `Career Track`).
+# Under `\S+` such a line matched nothing, so the declaration was silently
+# ignored and the slug fell back to the folder name — which happened to agree
+# in every case in the corpus, so the bug was invisible. Verified 2026-08-10:
+# no `.anchor` anywhere carries a spaced `slug:` that differs from its folder
+# name, so widening this changes no anchor's identity. A slug that cannot own
+# a stone is refused at the mint (`_reject_unroundtrippable_owner`), not here.
+_SLUG_RE = re.compile(r"^slug:\s*(.+?)\s*$")
 _FEEDS_RE = re.compile(r"^feeds:\s*(.*)$")
 
 
@@ -189,6 +196,29 @@ def _reject_ambiguous_use(anchors: dict, ambiguous: dict, cfg: dict) -> None:
             raise _ambiguous_error(
                 slug, paths, "it carries stone data that would otherwise be skipped"
             )
+
+
+def _reject_unroundtrippable_owner(slug: str, cfg: dict) -> None:
+    """Refuse to mint a stone whose own control line could never be read back.
+
+    `_is_stone_target` requires an owner slug of `[A-Za-z][A-Za-z0-9]*` — no
+    spaces, no punctuation — because a control line has to be split back into
+    (owner, number) from the link target alone. A slug like `HUD 1` mints
+    fine and writes a control line that LOOKS right, and then classifies as
+    'other' forever: it never propagates, never reads back, and no pass ever
+    says so. Consuming-only nodes may carry such a slug safely — `HUD 1` draws
+    from `HUD` and owns nothing — so this is checked at the mint, where the
+    slug first has to round-trip, and not at discovery, where it would ban a
+    perfectly good screen.
+    """
+    if _is_stone_target(f"{slug} {cfg['prefix']}{'0' * cfg.get('digits', 4)}", cfg) is None:
+        raise StoneError(
+            f"anchor slug {slug!r} cannot own a stone — a control line is parsed "
+            f"back into (owner, number) from its link target, which requires a "
+            f"slug of letters and digits with no spaces. Such an anchor can still "
+            f"CONSUME stones via feeds:; only minting into it is refused. Give it "
+            f"a one-word `slug:` in its .anchor to mint here."
+        )
 
 
 def _track_dir(anchor_path: Path, slug: str) -> Path:
@@ -735,6 +765,7 @@ def cmd_new(kind: str, cfg: dict, root: Path, args) -> int:
         raise _ambiguous_error(slug, ambiguous[slug], "it is the mint target")
     if slug not in anchors:
         raise StoneError(f"no anchor {slug!r} (.anchor) found under {root}")
+    _reject_unroundtrippable_owner(slug, cfg)
     a = anchors[slug]
 
     folder = _stone_folder(a.path, slug, cfg)

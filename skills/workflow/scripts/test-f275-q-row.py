@@ -21,6 +21,12 @@ stubbed (mirrors test-f247 / test-f270):
      *doc* (not Backlog) still routes to the doc's Open Questions.
 
 Self-contained: loads `state` in-process, stubs the vault I/O, tmp files only."""
+# T170: several of these scripts are extensionless, so the import machinery
+# caches them under a mangled name (`stonecpython-312.pyc`) that was seen
+# serving code no longer on disk — a green run vouching for a source it had
+# not read. Must precede every load in this file, hence the top.
+import sys as _sys; _sys.dont_write_bytecode = True
+
 import contextlib
 import importlib.machinery
 import importlib.util
@@ -232,6 +238,7 @@ ok("doc-scoped Q+ still lands in the doc's Open Questions (no Backlog collision)
     else no(f"doc-scoped Q regressed:\nOUT={out!r}\nERR={err!r}\nTXT={dtxt}")
 
 import shutil
+
 shutil.rmtree(TMP, ignore_errors=True)
 print("-" * 40)
 print(f"F275 Q-row test: {PASS} passed, {FAIL} failed")

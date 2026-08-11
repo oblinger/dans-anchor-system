@@ -6,6 +6,12 @@ extraction / guard / fail-open / parse / log AND the enforce path (fire-budget +
 surfaced-check + block) without a real model call. Set F267_LIVE=1 to additionally
 run one real Haiku classification.
 """
+# T170: several of these scripts are extensionless, so the import machinery
+# caches them under a mangled name (`stonecpython-312.pyc`) that was seen
+# serving code no longer on disk — a green run vouching for a source it had
+# not read. Must precede every load in this file, hence the top.
+import sys as _sys; _sys.dont_write_bytecode = True
+
 import importlib.util
 import json
 import os
