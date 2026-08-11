@@ -1,5 +1,5 @@
 ---
-description: "made-up worked examples of the five spine shapes"
+description: "made-up worked examples of the seven spine shapes"
 ---
 
 | -[[FEX Spine Examples]]- | : made-up worked examples of the seven spine shapes<br>→ [[DAS]] → [[examples]] → [FEX Spine Examples](hook://p/FEX%20Spine%20Examples)  |
@@ -46,6 +46,6 @@ These pages are **deliberately made up**. The vault's own pages are the right ex
 
 ## The one thing they share
 
-**Every hub ends in an electric marker, and none of them hand-writes below it.** `...`, `---`, and `^^^` differ only in what the machine writes underneath — one sweeping row, one row per child, or one row per child reversed. The reason is staleness: without a marker a newly-added child is invisible and nothing says so. In the live vault that failure is currently 36 pages deep, worst at 189 hidden children ([[DAS spine]] § The catchall is not optional).
+**Every hub ends in an electric marker, and none of them hand-writes below it.** `...`, `---`, and `^^^` differ only in what the machine writes underneath — one sweeping row, one row per child, or one row per child reversed. The reason is staleness: without a marker a newly-added child is invisible and nothing says so. In the live vault that failure is currently **16 pages deep, 44 hidden children**, worst at 14 ([[DAS spine]] § The catchall is not optional — which also records why the figure used to read 36/189, and what the checker was counting instead).
 
 A breadcrumb page is the exception that proves it — no children, so nothing to go stale, which is why it carries no table at all.

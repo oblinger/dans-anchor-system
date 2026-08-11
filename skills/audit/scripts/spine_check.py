@@ -245,7 +245,27 @@ def check(path: Path) -> list[tuple[str, int, str]]:
 
     if p.table_start is not None:
         if p.marker is None and p.fronts_folder and p.children > 0:
-            out.append(("S07", (p.table_end or 1), f"{CODES['S07']} ({p.children} hidden)"))
+            # Count only members the page does not ALREADY link, exactly as S08
+            # does eleven lines below. Without the filter this reported folder
+            # SIZE and called it hidden: 39 pages / 242 children vault-wide, of
+            # which 21 pages hid nothing at all and the true count was 18 / 51
+            # (measured 2026-08-11, twice — [[ATT|Atticus]] and again here).
+            # Both worked examples in [[DAS spine]] § The catchall is not
+            # optional were among the false ones: `ASIO` 33 members / 0
+            # unlinked, `META` 14 / 0. Their mastheads are one hand-written row
+            # per child — a curated spine doing its job, not a page hiding
+            # anything, and adding the `...` they were told to add would have
+            # surfaced nothing, because F081 body-mention suppression omits
+            # every child the page already links. A message asserting "children
+            # are invisible" about children linked three rows above the marker
+            # it demands is the shape that trains readers to discount the
+            # checker.
+            body = "\n".join(p.lines)
+            hidden = [c for c in p.child_names() if f"[[{c}" not in body]
+            if hidden:
+                out.append(("S07", (p.table_end or 1),
+                            f"{CODES['S07']} ({len(hidden)} hidden, "
+                            f"e.g. {hidden[0]})"))
         mi = p.marker_idx if p.marker_idx is not None else 0
         # Degenerate means the machine SHOULD have written rows and did not —
         # so the folder has to exist and hold members. A `---` over an empty

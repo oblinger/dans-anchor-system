@@ -26,6 +26,6 @@ Every Harbor runbook, sorted by when you reach for it — eight procedures in th
 > - **The group labels are not links.** `Incident`, `Routine`, `Recovery` are headings, not destinations. There is no `Harbor Runbooks Incident` page, and there should not be: the eight runbooks are siblings in one folder, and the labels only tell you which one you want.
 > - **No `+` marker**, because no row expands. `+` means "this label is itself a container"; here nothing is.
 > - **Three groups beat eight rows.** The reader holds *when do I reach for this* — an incident, a chore, a cleanup — rather than eight filenames. That is the whole argument for grouping, and it is why grouped is the preferred hub shape whenever natural groups exist.
-> - **The `...` is load-bearing.** A ninth runbook dropped into this folder appears there automatically. Without it the page would look complete while being wrong — the failure that is currently 36 pages deep in the live vault.
+> - **The `...` is load-bearing.** A ninth runbook dropped into this folder appears there automatically. Without it the page would look complete while being wrong — the failure that is currently 16 pages deep in the live vault.
 >
 > The live counterpart is [[Rolodex]]: **Corporate**, **Professional**, **Personal** over contact groups that all sit under one folder, ending `...`.
