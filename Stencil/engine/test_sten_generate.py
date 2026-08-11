@@ -305,6 +305,31 @@ def unit_specimen_map_matches_corpus():
 
 UNITS.append(unit_specimen_map_matches_corpus)
 
+def unit_single_brace_vars_is_forwarded_to_the_parser():
+    """F303 M5 Finding 5. Every shipped template in `templates/*` uses the
+    single-brace `{slug}` convention; `match` has supported it all along and
+    `generate` did not forward the flag, so the parser read `{slug}` as literal
+    text and emitted an H1 reading literally `# {slug} Backlog`.
+
+    Both directions are asserted, and the SECOND is the one that matters: the
+    original round-trip test passed while the generator did nothing, because
+    match was re-run with single_brace_vars=True and accepted the
+    un-substituted `{slug}` as a literal matching itself. Asserting the emitted
+    TEXT is what closes that hole — a round-trip cannot."""
+    stencil = "# {slug} Backlog\n{slug} Track is the dispatch page.\n"
+    out = G.generate(stencil, {"slug": "WGT"}, name="unit",
+                     single_brace_vars=True)
+    assert out == "# WGT Backlog\nWGT Track is the dispatch page.\n", repr(out)
+    assert "{slug}" not in out, "the variable survived un-substituted"
+    # Default OFF stays off: `{...}` is ordinary prose in most documents, and
+    # flipping the default would make every brace in the corpus a hole.
+    off = G.generate(stencil, {"slug": "WGT"}, name="unit")
+    assert off == stencil, repr(off)
+
+
+UNITS.append(unit_single_brace_vars_is_forwarded_to_the_parser)
+
+
 # Which of SPECIMEN_OF's pairs get checked, and how — T1.A is EXCLUDED even
 # though T1.a exists: measured above, none of ENV_T1A's values occur in it,
 # so there is nothing of the specimen for generated text to reproduce.

@@ -271,15 +271,30 @@ def _emit_anchor(anchor: M.Anchor, ctx: dict, env: dict, out: list, name: str) -
     _emit_level(anchor.body, ctx, env, out, name)
 
 
-def generate(stencil_text: str, env: dict, *, name: str = "<stencil>") -> str:
+def generate(stencil_text: str, env: dict, *, name: str = "<stencil>",
+             single_brace_vars: bool = False) -> str:
     """Generate a document conforming to `stencil_text` from `env`.
 
     `env` maps a `{{NAME}}` to a string (bound once) or a list of strings
     (bound once per repetition of the group it lives in — see module
     docstring).  Raises `StencilError`, naming `name` and the offending
     variable, rather than emitting a partial document.
+
+    `single_brace_vars` mirrors `sten_match.match`'s flag of the same name and
+    must be forwarded, not defaulted away: every shipped template in
+    `templates/*` uses the single-brace `{slug}` convention, and without this
+    the parser reads `{slug}` as literal text, so `generate(S, {"slug": "WGT"})`
+    emits an H1 reading literally `# {slug} Backlog`.
+
+    The two directions disagreeing about what the grammar IS is the defect —
+    F303 M5's Finding 5, a gap in M4 that M4's own suite could not see. The
+    round-trip test passed anyway, because match was re-run with
+    `single_brace_vars=True` and accepted the un-substituted `{slug}` as a
+    literal matching itself. It was not proof the generator handled `{slug}`;
+    it was proof the check never asked it to.
     """
-    items, notes = M.parse_stencil(stencil_text)
+    items, notes = M.parse_stencil(stencil_text,
+                                   single_brace_vars=single_brace_vars)
     if notes:
         raise StencilError(
             f"{name}: refusing to generate from a malformed stencil — "
