@@ -4,7 +4,7 @@ include::
 import:: skills/audit/scripts/audit-plan.py
 where:: `file:{anchor}/**/* Rocks/**, !**/DAS *.md`
 exclusion-note:: `!**/DAS *.md` exempts the facet-spec catalog (a `DAS <Name>.md` is the SPEC for the facet, not an instance; specs are governed by [[R-facet-spec]]). The vault-wide `LST/Rocks/` is **not** an instance of this facet — it is the top-level compilation surface across life-areas, has no owning `{slug} Track/`, and is governed by its own Brief; the `{anchor}/**/` prefix in the `where::` excludes it because its folder is not named `{slug} Rocks`.
-description:: Structural rules for the Rocks facet folder; enforces location, folder-note presence, the catch-all, short abbreviation-style rock names with their expansions, tier-line integrity, and the no-work-rows discipline.
+description:: Structural rules for the Rocks facet folder; enforces location, folder-note presence, the catch-all, tier-line integrity in the control file, and the no-work-rows discipline. Rock naming moved up to [[R-stone]]-02.
 
 Ruleset for the Rocks facet — spec: [[DAS Rocks]]. Adopted via the `R-facet` umbrella. Sibling of [[R-agenda]] / [[R-backlog]] / [[R-status]] in the Tracking group.
 
@@ -68,11 +68,15 @@ Every rock file in the folder is named on some line of the ranked list. Emitted 
 ### RULE R-rocks-06 — No dead tier lines (checked)
 check:: rocks_tier_links_resolve
 
-Every wiki-link on a tier line in the folder-note resolves to a file that exists.
+Every tier line naming one of **this group's** rocks resolves to a file that exists.
 
-**Check pattern:** for each tier line below the dispatch table — a line opening with a wiki-link, the `[[HBR R0001|HBR:]] gather stats` form — assert that leading link's target resolves. Leading only: a promotion marker (`**Elevated to [[Rocks]]**`, R-rocks-13) and any commentary below the ranked list carry links that point outside the anchor, which a local resolver cannot see and must not fail the file for.
+**Where the ranked list is:** the **control file** `{slug} Rock.md`, exactly as in R-rocks-05 — read when present, falling back to the folder-note for groups not yet migrated.
+
+**Check pattern:** for each tier line — a line opening with a wiki-link, the `[[HBR R0001|HBR:]] gather stats` form — assert that leading link's target resolves. Leading only, and this group's own only. Three shapes are deliberately not judged, each because a local resolver cannot see it: a promotion marker (`**Elevated to [[Rocks]]**`, R-rocks-13), a **header** whose leading link targets a control file (R-stone-04), and a line naming **another anchor's** stone, which under [[DAS feed]] is what a propagated line is.
 
 **Why:** the ranked list is the surface people read and cite from; a link that goes nowhere makes the list untrustworthy at exactly the moment someone is trying to act on it. The vault-wide [[Rocks]] page carried five such rows for months, which is the failure this rule generalizes.
+
+**This rule judged nothing at all between the Stone migration and 2026-08-11.** [[DAS Stone]] moved the ranking to the control file and R-rocks-05's checker moved with it; this one kept opening the folder-note, found **0 tier lines where 12 existed**, and reported pass on all four live groups. Green because it was reading the wrong file is indistinguishable from green because the links resolve — and it is the **third** silent stop in this ruleset, after the two parser folds R-rocks-04's note records. Fixed with a fire test, `test-f312-rocks-tier-control-file.py`, whose import-site case caught the fix's own landmine: judging propagated foreign lines would have traded a vacuous pass for a false failure on the first anchor to actually use the feed DAG.
 
 ### RULE R-rocks-07 — No work rows inside a rock file (checked)
 check:: rocks_no_work_rows

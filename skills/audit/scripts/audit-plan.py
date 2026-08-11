@@ -5659,18 +5659,66 @@ def chk_rocks_member_ranked(target, anchor_root, args):
                       "pressure, not a gate")
 
 
+def _stone_control_suffixes() -> set:
+    """`{" Rock", " Pebble"}` — the fixed WORD half of every kind's `control`
+    template, which `DAS Stone Kinds.json` guarantees is of the shape
+    `{slug} WORD`. `stone` derives its own header detection the same way, so the
+    two cannot drift apart."""
+    out = set()
+    for cfg in _stone_kinds().values():
+        tmpl = cfg.get("control")
+        if isinstance(tmpl, str) and "{slug}" in tmpl:
+            out.add(tmpl.replace("{slug}", ""))
+    return out
+
+
 def chk_rocks_tier_links_resolve(target, anchor_root, args):
-    """R-rocks-06: no dead tier lines — every tier line's rock link resolves."""
+    """R-rocks-06: no dead tier lines — every tier line's rock link resolves.
+
+    Reads the CONTROL file (`{slug} Rock.md`, in Track beside the folder) when
+    one exists, exactly as `chk_rocks_member_ranked` does, falling back to the
+    folder-note for groups not yet migrated. **Measured 2026-08-11: without this
+    the rule was a vacuous pass across the whole live corpus** — all four rock
+    groups had migrated their ranking to a control file, so the folder-note held
+    0 tier lines while 12 sat unjudged one directory up, and the rule reported
+    green on every group having evaluated nothing. That is the third time this
+    ruleset has silently stopped judging (see R-rocks-04's note for the two
+    parser folds), and the first where the cause was a migration the sibling
+    checker made and this one did not.
+
+    Two kinds of leading link are skipped, and both exclusions are what keep the
+    migration from trading a vacuous pass for a false failure:
+
+    - **A header** — a line whose leading link targets a CONTROL file
+      (R-stone-04). The self-section header opens every control file.
+      R-stone-05 reserves control-file names against stone names, so nothing
+      real is skipped.
+    - **Another anchor's stone.** Propagation under [[DAS feed]] is
+      line-copying, so a control file legitimately carries lines naming stones
+      owned elsewhere — and `_resolve_doc` searches at most four ancestor anchor
+      roots, so it cannot see them. Judging them would fail a correct file for
+      doing exactly what the feed DAG exists to do. Their deadness is the owning
+      anchor's finding, per R-rocks-12 (every rock is owned by this anchor) and
+      R-rocks-13's here-side-only scoping. No live group imports rocks yet, so
+      this fires on nothing today; it is the landmine that would have armed
+      itself the first time one did.
+    """
     f, folder, slug, done = _rocks_gate(target, anchor_root, True)
     if done:
         return done
-    note = _rocks_note(folder)
+    control = folder.parent / f"{slug} Rock.md"
+    note = control if control.is_file() else _rocks_note(folder)
     if not note.is_file():
         return "pass", "no folder-note — R-rocks-01 owns that finding"
+    headers = _stone_control_suffixes()
     dead = []
     for ln, name in _rocks_tier_links(note):
         if not name:
             continue
+        if any(name.endswith(h) for h in headers):
+            continue        # a header (R-stone-04), not a ranked stone
+        if not name.startswith(f"{slug} "):
+            continue        # another anchor's stone, propagated in by line-copy
         if (folder / f"{name}.md").is_file():
             continue
         if _resolve_doc(name, folder) is not None:
@@ -5678,10 +5726,10 @@ def chk_rocks_tier_links_resolve(target, anchor_root, args):
         dead.append(f"line {ln}: [[{name}]]")
     if not dead:
         return "pass", ""
-    return "fail", ("tier line(s) linking a file that does not exist — "
-                    + "; ".join(dead[:5]) + " — the ranked list is the surface "
-                    "people act on, and a dead link makes it untrustworthy at "
-                    "exactly that moment")
+    return "fail", (f"tier line(s) in {note.name} linking a file that does not "
+                    "exist — " + "; ".join(dead[:5]) + " — the ranked list is "
+                    "the surface people act on, and a dead link makes it "
+                    "untrustworthy at exactly that moment")
 
 
 # The bracket vocabulary is one list, not two: R-agenda-07 and R-rocks-07 forbid
