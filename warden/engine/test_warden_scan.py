@@ -26,7 +26,11 @@ def write(root, rel, text):
 def scan(root, index, rescan=False):
     prior_bearing, prior_seen = warden_scan.load_index(index)
     files, seen, stats = warden_scan.build_index(root, prior_bearing, prior_seen, rescan)
-    obj = {"root": root, "hash": warden_scan.index_hash(files), "files": files, "seen": seen}
+    # Mirrors main()'s index write — `schema` included, without which
+    # load_index treats the index as stale and every freshen re-reads
+    # everything. Keep in step with main() when the index gains a field.
+    obj = {"root": root, "schema": warden_scan.INDEX_SCHEMA,
+           "hash": warden_scan.index_hash(files), "files": files, "seen": seen}
     import json
     with open(index, "w", encoding="utf-8") as fh:
         json.dump(obj, fh)

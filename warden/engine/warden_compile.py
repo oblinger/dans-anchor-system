@@ -136,6 +136,37 @@ def extract_ruleset_block(lines: list[str], name: str) -> tuple[int, int, int] |
     return start, end, level
 
 
+_MEND_RE = re.compile(r"^(#+)\s+MEND\s+([\w-]+)\s*$")
+
+
+def parse_mend_blocks(text: str, source: str) -> dict[str, dict]:
+    """Every `### MEND <slug>` block in one file → {slug: {text, source}} (F280).
+
+    The block runs to the next heading of the same or shallower level — the
+    same sentinel grammar rulesets use. A blank-line terminator was considered
+    and rejected: it breaks the moment a message wants a list followed by a
+    sentence, which targeted fix instructions do constantly.
+    """
+    lines = text.splitlines()
+    mask = fence_mask(lines)
+    heads = [(i, len(m.group(1)), m.group(2))
+             for i, ln in enumerate(lines)
+             if not mask[i] and (m := _MEND_RE.match(ln))]
+    out: dict[str, dict] = {}
+    for start, level, slug in heads:
+        end = len(lines)
+        for j in range(start + 1, len(lines)):
+            if mask[j]:
+                continue
+            hm = re.match(r"^(#+)\s+\S", lines[j])
+            if hm and len(hm.group(1)) <= level:
+                end = j
+                break
+        out[slug] = {"text": "\n".join(lines[start + 1:end]).strip(),
+                     "source": source}
+    return out
+
+
 def _extract_py(body_lines: list[str], rid: str = "") -> str | None:
     """Return the source of the rule's fenced ```python block.
 
@@ -175,6 +206,97 @@ def _extract_py(body_lines: list[str], rid: str = "") -> str | None:
     return blocks[0]
 
 
+def _checker_names(root: Path, rel: str) -> dict:
+    """What a corpus-declared module registers (F289): {"check": …, "fix": …}.
+
+    Loaded by corpus-root-relative path with no assumption about where it sits —
+    that assumption is precisely what this feature removed from the engine. A
+    module that cannot be loaded warns ONCE, by path, rather than turning into
+    one warning per ref that names it.
+
+    The two registries are kept apart because conflating them produces false
+    ghosts: the first cut of this check reported `R-doc-structure-01 — fix::
+    breadcrumb_position` as registered nowhere, when it is a perfectly good
+    FIXER. `FIXERS` is optional — plenty of rulesets check without repairing."""
+    key = (str(root), rel)
+    if key in _CHECKER_NAMES:
+        return _CHECKER_NAMES[key]
+    import importlib.util
+    p = (root / rel).resolve()
+    names: dict = {"check": set(), "fix": set()}
+    if not p.is_file():
+        print(f"warden: WARNING — import:: {rel} — no such file under {root}; "
+              f"every check:: ref it was meant to supply now resolves nowhere",
+              file=sys.stderr)
+    else:
+        try:
+            spec = importlib.util.spec_from_file_location(f"_warden_ck_{abs(hash(rel))}", p)
+            mod = importlib.util.module_from_spec(spec)  # type: ignore[arg-type]
+            spec.loader.exec_module(mod)  # type: ignore[union-attr]
+            reg = getattr(mod, "CHECKERS", None)
+            if isinstance(reg, dict):
+                names["check"] = set(reg)
+            else:
+                print(f"warden: WARNING — import:: {rel} defines no CHECKERS dict",
+                      file=sys.stderr)
+            fx = getattr(mod, "FIXERS", None)
+            if isinstance(fx, dict):
+                names["fix"] = set(fx)
+        except Exception as e:
+            print(f"warden: WARNING — import:: {rel} failed to load — "
+                  f"{type(e).__name__}: {e}", file=sys.stderr)
+    _CHECKER_NAMES[key] = names
+    return names
+
+
+_CHECKER_NAMES: dict = {}
+
+
+def _warn_checker_registration(root: Path, rs_imports: dict, rs_refs: dict) -> None:
+    """Verify each ruleset's `check::`/`fix::` refs against its OWN imports (F289).
+
+    Execution uses one merged environment — refs are global names against a flat
+    registry — but a purely global model lets a ruleset's refs resolve BY
+    ACCIDENT, satisfied by an import a neighbouring ruleset declared. That is
+    harmless inside one corpus and precisely the failure when the ruleset is
+    extracted into a new one: it breaks, because its dependency was covered by a
+    file it never named. Runtime is unchanged here; the declaration merely loses
+    the ability to lie.
+
+    A ref registered NOWHERE is the worse case and fails quietly by design: the
+    doc-fire path decides mechanical-vs-agent with a membership test, so an
+    unregistered name misses, the rule is promoted to agent judgment, and the
+    `unknown checker` error never runs because the rule never reaches it. One
+    typo turns a free deterministic check into a billed non-deterministic one
+    that reports nothing."""
+    if not any(rs_imports.values()):
+        return  # a corpus that declares no checker modules has nothing to verify
+    own: dict = {}
+    everywhere: dict = {"check": set(), "fix": set()}
+    for name, rels in rs_imports.items():
+        s: dict = {"check": set(), "fix": set()}
+        for rel in rels:
+            got = _checker_names(root, rel)
+            for k in ("check", "fix"):
+                s[k] |= got[k]
+                everywhere[k] |= got[k]
+        own[name] = s
+    for name, refs in sorted(rs_refs.items()):
+        for rid, field, ref in refs:
+            if ref in own.get(name, {}).get(field, ()):
+                continue
+            if ref in everywhere[field]:
+                print(f"warden: WARNING — {rid}: {field}:: {ref} resolves only "
+                      f"through another ruleset's import:: — {name} declares no "
+                      f"module that defines it, so it breaks if extracted",
+                      file=sys.stderr)
+            else:
+                print(f"warden: WARNING — {rid}: {field}:: {ref} is registered by "
+                      f"no imported module — the rule silently becomes agent "
+                      f"judgment rather than reporting an unknown checker",
+                      file=sys.stderr)
+
+
 def parse_ruleset(text: str, name: str, source: str) -> dict | None:
     """Parse `# RULESET <name>` into {name, where, description, includes, rules[]}.
 
@@ -191,7 +313,7 @@ def parse_ruleset(text: str, name: str, source: str) -> dict | None:
     bmask = fence_mask(block)
 
     rs = {"name": name, "where": None, "description": None,
-          "includes": [], "rules": [], "source": source}
+          "includes": [], "imports": [], "rules": [], "source": source}
     # Header fields: contiguous `field::` lines before the first rule/blank body.
     i = 1
     while i < len(block):
@@ -210,6 +332,12 @@ def parse_ruleset(text: str, name: str, source: str) -> dict | None:
                 # in DAS Ruleset but previously dropped silently (F232 A6).
                 targets = [t.strip() for t in val.split(",") if t.strip()]
             rs["includes"] = targets
+        elif key == "import":
+            # F289 — corpus-root-relative Python providing this ruleset's
+            # `check::` implementations. A distinct key from `include::`: one
+            # flattens rules into a trait, the other executes code, and a reader
+            # should not have to inspect a file extension to know which.
+            rs["imports"].extend(t for t in re.split(r"[,\s]+", val) if t.strip())
         elif key == "where":
             rs["where"] = strip_ticks(val) or None
         elif key == "description":
@@ -254,7 +382,7 @@ def parse_ruleset(text: str, name: str, source: str) -> dict | None:
             "id": rm.group(2), "title": rm.group(3).strip(), "paren": paren,
             "when": None, "where": None, "ifs": [], "tier": None, "check": None,
             "fix": None, "py_src": _extract_py(body, rm.group(2)),
-            "py_kind": None, "py_kinds": [],
+            "py_kind": None, "py_kinds": [], "mend": None,
         }
         # Paren is a tier or an executable `when::`.
         if paren in _TIERS:
@@ -283,6 +411,11 @@ def parse_ruleset(text: str, name: str, source: str) -> dict | None:
                 rule["check"] = val
             elif key == "fix":
                 rule["fix"] = val
+            elif key == "mend":
+                # F280: the slug of the MEND block that teaches this rule's
+                # remediation. The reference lives INSIDE the rule so it
+                # travels with a renumber — nothing ever points at a rule id.
+                rule["mend"] = strip_ticks(val)
         if rule["py_src"]:
             # ALL entry defs present, not just the first (F232 A4 — a rule
             # authoring both `def guard` and `def body` used to wire only the
@@ -361,6 +494,7 @@ def compile_rule(rule: dict, ruleset: dict) -> dict:
         "tier": rule["tier"],
         "phase": None, "moment": None, "where": None,
         "guards": [], "guard_py": None, "action": None, "body_py": None,
+        "mend": rule.get("mend"),
     }
     if rule["when"] is not None and not rule["when"].strip():
         # F232 A8: an empty `when::` used to silently reclassify the rule as
@@ -694,30 +828,111 @@ ANCHOR_BASE_TRAITS = ("audit-on-write", "ob-remote-ops", "state-region", "ios",
                       "code-mirror", "pathguard")
 
 
-def declared_anchor_traits(vault: Path) -> list[str]:
-    """Every trait some `.anchor` under the vault declares, plus the implicit
-    `anchor-base` — the ground truth the F219 reachability self-audit checks the
-    compiled trait index against. One walk per compile (~0.5 s vault-wide).
-    Warns on stderr when a `.anchor` explicitly declares `anchor-base` — it is
-    applied by construction and must never be written into a traits list."""
+def anchor_trait_map(vault: Path) -> dict[Path, list[str]]:
+    """Every anchor root under the vault → the traits its `.anchor` declares.
+    One walk (~0.5 s vault-wide), shared by `declared_anchor_traits` (F219) and
+    `governed_paths` (F297) so a compile never walks the vault twice."""
     import warden_fire as wf
-    declared = {"anchor-base", *ANCHOR_BASE_TRAITS}
+    out: dict[Path, list[str]] = {}
     try:
         for dot in vault.rglob(".anchor"):
             try:
-                traits = wf.read_anchor_traits(dot.parent)
-                # read_anchor_traits appends the implicit trait itself; a
-                # DOUBLE occurrence means the file declares it explicitly.
-                if traits.count("anchor-base") > 1:
-                    print(f"warden: WARNING — {dot} declares `anchor-base`; "
-                          "it is implicit (applied by construction) — remove it",
-                          file=sys.stderr)
-                declared.update(traits)
+                out[dot.parent] = wf.read_anchor_traits(dot.parent)
             except OSError:
                 continue
     except OSError:
         pass
+    return out
+
+
+def declared_anchor_traits(vault: Path, amap: dict | None = None) -> list[str]:
+    """Every trait some `.anchor` under the vault declares, plus the implicit
+    `anchor-base` — the ground truth the F219 reachability self-audit checks the
+    compiled trait index against. Pass `amap` to reuse an already-walked
+    `anchor_trait_map`. Warns on stderr when a `.anchor` explicitly declares
+    `anchor-base` — it is applied by construction and must never be written
+    into a traits list."""
+    declared = {"anchor-base", *ANCHOR_BASE_TRAITS}
+    for root, traits in (anchor_trait_map(vault) if amap is None else amap).items():
+        # read_anchor_traits appends the implicit trait itself; a DOUBLE
+        # occurrence means the file declares it explicitly.
+        if traits.count("anchor-base") > 1:
+            print(f"warden: WARNING — {root / '.anchor'} declares `anchor-base`; "
+                  "it is implicit (applied by construction) — remove it",
+                  file=sys.stderr)
+        declared.update(traits)
     return sorted(declared)
+
+
+# F297 leg 2 — the governed-path list, so a SCRIPT's writes are seen.
+#
+# Claude Code hooks fire on tool calls. A `PostToolUse` for Bash carries the
+# command string and nothing about which files ran through it, so
+# `python3 make_diagram.py` is invisible: there is no hook that reports "the
+# agent wrote this file, by whatever means". Covering a generator's output means
+# diffing the filesystem after Bash, and only one of the three ways to do that
+# is affordable — measured on this vault, `git status --porcelain` costs
+# 160-180 ms per Bash call and a live `rglob("*.svg")` costs 228 ms, while an
+# mtime sweep over a KNOWN list of 124 paths costs 0.5 ms.
+#
+# What makes the cheap one possible is that discovery does not have to happen at
+# fire time: the compile already walks the vault for `.anchor` files, so it
+# resolves the governed set once and stamps it into the IR. The hook then only
+# stats. The trade is that a file created after the last compile is not governed
+# until the next one — an mtime sweep over a list cannot see a path that is not
+# in the list.
+
+_GLOB_EXT = re.compile(r"\*\.([A-Za-z0-9]+)")
+
+
+def governed_extensions(traits: dict, rules: dict, doc_rules: list) -> dict[str, set[str]]:
+    """trait → the non-markdown file extensions its doc-rules govern. A rule's
+    `where` glob is the only declaration of what file types it reaches; markdown
+    needs no entry, since the write hook has always seen markdown."""
+    docset = set(doc_rules)
+    out: dict[str, set[str]] = {}
+    for trait, ids in traits.items():
+        exts = {"." + e.lower()
+                for rid in ids if rid in docset
+                for e in _GLOB_EXT.findall((rules.get(rid) or {}).get("where") or "")
+                if e.lower() not in ("md", "markdown")}
+        if exts:
+            out[trait] = exts
+    return out
+
+
+def governed_paths(vault: Path, amap: dict, traits: dict, rules: dict,
+                   doc_rules: list) -> list[str]:
+    """Every existing file a *declared* non-markdown doc-rule governs. A file is
+    governed when the nearest anchor above it declares a trait whose doc-rules
+    name its extension — the same ownership the fire path resolves, decided here
+    once instead of per Bash call."""
+    by_trait = governed_extensions(traits, rules, doc_rules)
+    if not by_trait:
+        return []
+    per_anchor: dict[Path, set[str]] = {}
+    for root, declared in amap.items():
+        exts: set[str] = set()
+        for t in {*declared, *ANCHOR_BASE_TRAITS, "anchor-base"}:
+            exts |= by_trait.get(t, set())
+        if exts:
+            per_anchor[root] = exts
+    if not per_anchor:
+        return []
+    roots = set(amap)
+    found: set[str] = set()
+    for ext in sorted(set().union(*per_anchor.values())):
+        try:
+            for p in vault.rglob("*" + ext):
+                # `parents` is nearest-first, so the first anchor above the file
+                # is the one that owns it — a sub-anchor's declaration wins over
+                # its parent's, exactly as `find_anchor` resolves at fire time.
+                owner = next((c for c in p.parents if c in roots), None)
+                if owner is not None and ext in per_anchor.get(owner, ()):
+                    found.add(str(p))
+        except OSError:
+            continue
+    return sorted(found)
 
 
 def compile_corpus(root: Path, index: dict, anchor: str = "all",
@@ -736,6 +951,9 @@ def compile_corpus(root: Path, index: dict, anchor: str = "all",
     rs_includes: dict = {}   # ruleset name → include:: target ruleset names
     rs_rule_ids: dict = {}   # ruleset name → its own rule ids
     rs_has_rules: dict = {}  # ruleset name → carries rules (vs a catalog stub)
+    rs_imports: dict = {}    # F289: ruleset name → import:: module paths
+    rs_refs: dict = {}       # F289: ruleset name → [(rule id, field, checker name)]
+    mend: dict = {}          # F280: mend slug → {text, source}
     files = errors = 0
     for entry in index.get("files", []):
         path = root / entry["path"]
@@ -745,6 +963,17 @@ def compile_corpus(root: Path, index: dict, anchor: str = "all",
             errors += 1
             continue
         files += 1
+        if entry.get("mend_names"):
+            for slug, block in parse_mend_blocks(text, entry["path"]).items():
+                if slug in mend:
+                    # A slug is the join key rules point at, so two blocks
+                    # answering to one name means some rule silently gets the
+                    # wrong lesson. First wins, loudly (F280).
+                    print(f"warden: WARNING — duplicate mend block '{slug}' in "
+                          f"{entry['path']}; first definition "
+                          f"({mend[slug]['source']}) wins", file=sys.stderr)
+                    continue
+                mend[slug] = block
         for name in entry.get("ruleset_names", []):
             rs = parse_ruleset(text, name, entry["path"])
             if rs is None:
@@ -769,6 +998,31 @@ def compile_corpus(root: Path, index: dict, anchor: str = "all",
             trait = name[2:] if name.startswith("R-") else name
             rs_includes[name] = [_include_target(t) for t in rs["includes"]]
             rs_rule_ids[name] = [r["id"] for r in rs["rules"]]
+            rs_imports[name] = list(rs["imports"])
+            # F289 registration is only meaningful for a `fix::` `compile_rule`
+            # actually wires into the IR — and it wires `row["fix"]` ONLY when
+            # the SAME rule also carries `check::` (see `compile_rule` below:
+            # the `fix` assignment sits inside the `if rule["check"]:` branch).
+            # A `fix::`-only rule (no `check::` on that rule — a resolution
+            # move documented for an iterative repair loop, not a doc-fire
+            # mechanical fixer) never reaches that branch; its `fix::` is
+            # dead at compile time regardless of registration, so verifying
+            # it here manufactured a warning against a value that could never
+            # do anything either way (T172 — 5 ghost warnings on R-svg-jiggle).
+            rs_refs[name] = [(r["id"], f, r[f].split()[0])
+                             for r in rs["rules"] for f in ("check", "fix")
+                             if r.get(f) and (f == "check" or r.get("check"))]
+            # T175: the T172 exclusion above (a `fix::` with no `check::` on the
+            # SAME rule never reaches `compile_rule`'s `row["fix"]` assignment)
+            # is correct about the IR, but it left the authoring mistake itself
+            # unflagged — a `fix::` declared alone reads as a wired auto-repair
+            # and silently does nothing. Warn distinctly from the registration
+            # warning above: this is never-wired, not merely unregistered.
+            for rule in rs["rules"]:
+                if rule.get("fix") and not rule.get("check"):
+                    print(f"warden: WARNING — {rule['id']} declares fix:: "
+                          f"{rule['fix'].split()[0]} with no check:: on the "
+                          f"same rule; the ref is never wired", file=sys.stderr)
             for rule in rs["rules"]:
                 if rule["id"] in merged_rules:
                     # First occurrence wins (stable) — but never silently
@@ -826,7 +1080,10 @@ def compile_corpus(root: Path, index: dict, anchor: str = "all",
                 flat.append(rid)
         if flat:
             traits[trait] = flat
-    declared = declared_anchor_traits(vault_root(root))
+    _warn_checker_registration(root, rs_imports, rs_refs)
+    vault = vault_root(root)
+    amap = anchor_trait_map(vault)
+    declared = declared_anchor_traits(vault, amap)
     # T002: trait matching is exact-string, case-sensitive, and the identifier
     # convention is lowercase kebab. Two near-miss shapes are silent foot-guns:
     # (1) a declared trait matching a corpus key only case-insensitively
@@ -849,6 +1106,43 @@ def compile_corpus(root: Path, index: dict, anchor: str = "all",
                   f"casings across .anchor files ({', '.join(sorted(variants))}); "
                   f"matching is case-sensitive — normalize all to `{low}`",
                   file=sys.stderr)
+    # F280 mend integrity. The whole point of pointing rule → slug (rather than
+    # a mend block naming rule ids) is that a renumber cannot orphan a message;
+    # what CAN still rot is a typo or a renamed/retired slug, so both directions
+    # are checked here and nowhere else.
+    # A mend slug is named for WHAT IT TELLS YOU, never numbered. A numbered
+    # slug invites mirroring the rule's own number, and then two number spaces
+    # drift against each other — harmless to the machine, wrong to read, and a
+    # standing invitation to assume `mend-07` teaches `R-x-07`. Semantic names
+    # also make the duplicate check useful: colliding on a phrase means two
+    # authors described the same fix, which is worth knowing.
+    for slug in sorted(mend):
+        if re.match(r"^R-[\w-]+-\d+$", slug) or re.search(r"-\d+$", slug):
+            print(f"warden: WARNING — mend block '{slug}' "
+                  f"({mend[slug]['source']}) is numbered; name it for what it "
+                  f"tells the reader to do (`log-location`, not `log-01`) so it "
+                  f"never drifts against rule numbering", file=sys.stderr)
+
+    referenced: set[str] = set()
+    for rid, row in sorted(merged_rules.items()):
+        slug = row.get("mend")
+        if not slug:
+            continue
+        if slug in mend:
+            referenced.add(slug)
+        else:
+            # A rule promising a lesson the corpus cannot produce would emit a
+            # `mend` marker the agent then cannot cash in — the one failure the
+            # marker must never have.
+            print(f"warden: WARNING — {rid} declares `mend:: {slug}` but no "
+                  f"MEND block defines it — the marker would be unresolvable",
+                  file=sys.stderr)
+            row["mend"] = None
+    for slug in sorted(set(mend) - referenced):
+        print(f"warden: WARNING — mend block '{slug}' ({mend[slug]['source']}) "
+              f"is referenced by no rule — dead teaching material",
+              file=sys.stderr)
+
     active_hash = hashlib.sha256("|".join(sorted(merged_rules)).encode()).hexdigest()[:16]
     ir = {
         "schema": IR_SCHEMA,
@@ -866,6 +1160,14 @@ def compile_corpus(root: Path, index: dict, anchor: str = "all",
         # anchor's effective traits with these, so base membership is compiled
         # policy, not per-hook hardcoding.
         "base_traits": list(ANCHOR_BASE_TRAITS),
+        # F297 leg 2: the non-markdown files a declared doc-rule governs. The
+        # post-Bash sweep stats this list to catch a file a SCRIPT wrote, which
+        # no tool-call hook can see. Discovery is the expensive half and it is
+        # paid here, once.
+        "governed_paths": governed_paths(vault, amap, traits, merged_rules, doc_rules),
+        # F280: remediation messages, keyed by hand-chosen slug. Rules carry
+        # `mend:: <slug>`; `warden mend <rule-id>` resolves rule → slug → text.
+        "mend": mend,
     }
     module_src = emit_module(anchor, py_rules)
     stats = {"files": files, "read_errors": errors, "rulesets": sum(

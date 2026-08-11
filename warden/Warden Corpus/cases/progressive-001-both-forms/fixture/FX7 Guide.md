@@ -1,12 +1,10 @@
 ---
 description: ">> [[kmr]] → [[FX7]]"
 ---
-
-| -[[FX7 Guide]]- | : >> [[kmr]] → [[FX7]]<br>→ [[DAS]] → [[WARD]] → [[Warden Corpus]] → [FX7](hook://FX7) → [FX7 Guide](hook://p/FX7%20Guide)  |
-| --- | --- |
-
 # FX7 Guide
 
+| -[[FX7 Guide]]- | → [[DAS]] → [[WARD]] → [[Warden Corpus]] → [FX7](hook://FX7) → [FX7 Guide](hook://p/FX7%20Guide)<br>: >> [[kmr]] → [[FX7]]  |
+| --- | --- |
 
 :>> [[DAS]] → [[WARD]] → [[Warden Corpus]] → [FX7](hook://FX7) → [FX7 Guide](hook://p/FX7%20Guide)
 

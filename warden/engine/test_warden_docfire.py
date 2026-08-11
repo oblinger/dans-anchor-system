@@ -212,12 +212,106 @@ def test_audit_ir_cache():
     print(f"PASS  audit_ir_cache (F232 B3 — cold {cold_ms:.0f} ms, warm {warm_ms:.2f} ms)")
 
 
+SVG_FIXTURE = """<svg xmlns="http://www.w3.org/2000/svg" width="400" height="200">
+  <rect x="40" y="40" width="160" height="60" fill="none" stroke="#333"/>
+  <rect x="240" y="40" width="120" height="60" fill="none" stroke="#333"/>
+  <path d="M200 70 L240 70" stroke="#333" fill="none"/>
+  <text x="150" y="75" font-size="12">spilled label text</text>
+</svg>
+"""
+
+
+def _svg_anchor(traits: str) -> Path:
+    """A throwaway anchor declaring `traits`, holding one deliberately-bad svg."""
+    d = Path(tempfile.mkdtemp(prefix="warden-f297-"))
+    (d / ".anchor").write_text(f"slug: F297T\ntitle: f297 probe\ntraits: [{traits}]\n",
+                               encoding="utf-8")
+    (d / "probe.svg").write_text(SVG_FIXTURE, encoding="utf-8")
+    return d
+
+
+def test_non_markdown_rules_reachable():
+    """F297: a `.svg` write in an anchor declaring `svg-jiggle` puts that
+    ruleset — and ONLY that ruleset — in play, and the same file in an anchor
+    that declares nothing puts nothing in play.
+
+    This is the T106 regression: every part of R-svg-jiggle was correct
+    (written, compiled, registered, declared) and the fire path still could not
+    reach it, because rule selection was hardcoded to one markdown umbrella."""
+    declared = _svg_anchor("svg-jiggle")
+    try:
+        rows = wd.rows_for(declared / "probe.svg")
+        ids = sorted(r["id"] for r, _ in rows)
+        assert ids, "declared svg-jiggle selected no rules — T106 regression"
+        assert all(i.startswith("R-svg-jiggle-") for i in ids), ids
+        # the checkers actually run and report through the normal message shape
+        report = wd.fire_on_write(declared / "probe.svg")
+        assert report["messages"], report
+        assert all(m["rule"].startswith("R-svg-jiggle-") for m in report["messages"])
+    finally:
+        shutil.rmtree(declared, ignore_errors=True)
+
+    bare = _svg_anchor("topic")
+    try:
+        assert wd.rows_for(bare / "probe.svg") == [], "undeclared anchor selected rules"
+        assert wd.fire_on_write(bare / "probe.svg") == {"fixed": [], "messages": []}
+    finally:
+        shutil.rmtree(bare, ignore_errors=True)
+    print(f"PASS  non_markdown_rules_reachable (F297 — {len(ids)} svg rules in play)")
+
+
+def test_markdown_selection_unchanged():
+    """The markdown path still flattens the `R-doc` umbrella — F297 widened what
+    a non-markdown write reaches without touching what a markdown write does."""
+    d = Path(tempfile.mkdtemp(prefix="warden-f297-md-"))
+    try:
+        (d / ".anchor").write_text("slug: F297T\ntitle: f297 probe\n", encoding="utf-8")
+        assert wd.rows_for(d / "x.md") == wd.compile_audit_ir("R-doc")
+    finally:
+        shutil.rmtree(d, ignore_errors=True)
+    print("PASS  markdown_selection_unchanged (F297)")
+
+
+def test_governed_sweep_sees_a_script_write():
+    """F297 leg 2: the post-Bash mtime sweep reports a governed file whose bytes
+    changed with no tool call to attribute it to — and reports nothing on a
+    baseline pass, an unchanged pass, or a recompile."""
+    import os
+    home = Path(tempfile.mkdtemp(prefix="warden-f297-home-"))
+    anchor = _svg_anchor("svg-jiggle")
+    svg = anchor / "probe.svg"
+    prev_home = os.environ.get("WARDEN_HOME")
+    os.environ["WARDEN_HOME"] = str(home)
+    try:
+        import warden_hook as wh
+        ir = {"source_hash": "h1", "governed_paths": [str(svg)]}
+        assert wh._governed_moved(ir) == [], "baseline pass fired"
+        assert wh._governed_moved(ir) == [], "unchanged pass fired"
+        os.utime(svg, (0, 0))                      # a generator rewrote it
+        assert wh._governed_moved(ir) == [svg], "script write not seen"
+        assert wh._governed_moved(ir) == [], "same write reported twice"
+        os.utime(svg, (1, 1))
+        assert wh._governed_moved({**ir, "source_hash": "h2"}) == [], \
+            "a recompile re-reported the list instead of re-baselining"
+    finally:
+        if prev_home is None:
+            os.environ.pop("WARDEN_HOME", None)
+        else:
+            os.environ["WARDEN_HOME"] = prev_home
+        shutil.rmtree(home, ignore_errors=True)
+        shutil.rmtree(anchor, ignore_errors=True)
+    print("PASS  governed_sweep_sees_a_script_write (F297 leg 2)")
+
+
 def main():
     test_docfire_matches_audit_plan_on_every_case()
     test_signature_matches_audit_plan()
     test_fire_on_write_fixer_parity()
     test_fire_on_write_preserves_dispatch_body()
     test_audit_ir_cache()
+    test_non_markdown_rules_reachable()
+    test_markdown_selection_unchanged()
+    test_governed_sweep_sees_a_script_write()
     print("\nall warden_docfire tests passed")
     return 0
 

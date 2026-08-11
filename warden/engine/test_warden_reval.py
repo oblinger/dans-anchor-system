@@ -59,6 +59,33 @@ def _compile_fixture(tmp: Path):
     return ir, module_src, mod
 
 
+# Same shape as test_warden_compile.py — these take the fixture's outputs as
+# plain arguments so `main()` can call them, which under pytest reads as fixture
+# requests that nothing satisfied (Tink T094).
+import pytest  # noqa: E402
+
+
+@pytest.fixture(scope="module")
+def _fixture():
+    with tempfile.TemporaryDirectory() as td:
+        yield _compile_fixture(Path(td))
+
+
+@pytest.fixture(scope="module")
+def ir(_fixture):
+    return _fixture[0]
+
+
+@pytest.fixture(scope="module")
+def module_src(_fixture):
+    return _fixture[1]
+
+
+@pytest.fixture(scope="module")
+def mod(_fixture):
+    return _fixture[2]
+
+
 def test_compile_marks_and_emits(ir, module_src):
     """The gated rule is file_bearing, keeps guard_py, and the synthesised
     guard function is actually EMITTED (the pre-F215 gap: name, no function)."""

@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import importlib.util
 import sys
+import threading
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -48,6 +49,63 @@ def _load_audit_plan():
 
 
 ap = _load_audit_plan()
+
+# ── keeping `ap` fresh in a resident daemon ──────────────────────────────────
+#
+# The IR reloads on mtime (`Corpus.fresh`) and the audit rulesets are read from
+# SOURCE on every fire (`compile_audit_ir`), so both of those self-heal. The
+# checker *code* did not: `ap` was bound once at import, and the daemon holds
+# this module warm for hours. So editing `audit-plan.py` — adding a checker,
+# registering a fixer — changed nothing until someone happened to restart the
+# daemon, and the rules that needed the new code reported `error`, which the
+# write path deliberately never surfaces. It fails silent and it fails clean.
+#
+# That is exactly how R-spine-04..08 sat dead: the rules were live, the
+# checkers were registered, and the daemon was executing a copy of the file
+# from before they existed (F319, 2026-08-10).
+#
+# The stamp covers the whole scripts directory, not just `audit-plan.py`,
+# because the checkers import siblings (`spine.py`, `spine_check.py`,
+# `spine_fix.py`) — a fix landing in one of those must reload too. ~40 stats,
+# measured at 0.1 ms, against a per-fire budget in the tens of ms.
+_AP_STAMP: dict = {"ns": None}
+_AP_LOCK = threading.Lock()
+
+
+def _scripts_stamp() -> int:
+    try:
+        return max((p.stat().st_mtime_ns for p in _AUDIT_PLAN.parent.glob("*.py")),
+                   default=0)
+    except OSError:
+        return 0
+
+
+def refresh_audit_plan() -> bool:
+    """Re-exec audit-plan IN PLACE when it or a sibling changed. True if reloaded.
+
+    In place matters: `exec_module` into the *existing* module object rebinds
+    its globals, so every `ap.<name>` reference already written in this file
+    picks up the new value without a single call site changing. Rebinding a new
+    module object instead would leave any `from ap import x` alias stale — the
+    same class of bug this exists to fix.
+    """
+    ns = _scripts_stamp()
+    if ns == _AP_STAMP["ns"]:
+        return False
+    with _AP_LOCK:
+        if ns == _AP_STAMP["ns"]:           # another thread won the race
+            return False
+        spec = importlib.util.spec_from_file_location("audit_plan", _AUDIT_PLAN)
+        if spec is not None and spec.loader is not None:
+            try:
+                spec.loader.exec_module(ap)
+            except Exception:               # a half-saved file must not kill the write
+                return False
+        _AP_STAMP["ns"] = ns
+    return True
+
+
+_AP_STAMP["ns"] = _scripts_stamp()
 
 
 # ── compile: audit-plan rulesets → Warden doc-rule IR rows ───────────────────
@@ -99,6 +157,92 @@ def compile_audit_ir(umbrella: str) -> list[tuple[dict, dict]]:
     _AUDIT_IR_CACHE[umbrella] = {
         "sources": sources, "stamp": _sources_stamp(sources), "rows": rows}
     return rows
+
+
+# ── rule selection by file kind (F297) ───────────────────────────────────────
+#
+# The markdown doc-fire flattens one fixed umbrella (`R-doc`). That is what made
+# a non-markdown document rule unreachable: `R-svg-jiggle` is a correct,
+# compiled, registered ruleset that no umbrella includes, so no selector it
+# carries was ever evaluated (T106 — a deliberately-bad `.svg` fired the write
+# hook with the svg rules not even *considered*).
+#
+# For any other kind the selector is the anchor's own declared traits: the
+# compiled IR already maps trait → rule ids and records which of those are
+# where-major doc-rules, so an anchor that declares `svg-jiggle` is asking for
+# exactly those rules on exactly the files their `where` names. The IR row is
+# used only to decide WHICH rulesets are in play; the rows themselves come back
+# through the same `compile_audit_ir` flatten the markdown path uses, so a
+# non-markdown fire carries the full `why` / `fix` / `check_pattern` an audit-
+# plan rule dict has and behaves identically from there down.
+
+_MD_SUFFIXES = (".md", ".markdown")
+_IR_CACHE: dict = {}
+
+
+def _compiled_ir() -> dict:
+    """The live compiled IR, mtime-cached (this module stays resident in the
+    daemon across writes; a `warden compile` moves the file's mtime)."""
+    import json
+    import warden_hook as wh  # lazy — warden_hook imports this module back
+    p = wh.warden_home() / "rules-ir.json"
+    try:
+        # Key on the PATH as well as the mtime. `warden_home()` is read from
+        # $WARDEN_HOME, so it can point somewhere else between two calls in one
+        # process; an mtime-only key would then serve one home's IR under
+        # another home's name whenever the two files' mtimes happened to match.
+        stamp = (str(p), p.stat().st_mtime_ns)
+    except OSError:
+        return {}
+    if _IR_CACHE.get("stamp") != stamp:
+        try:
+            _IR_CACHE.update(stamp=stamp, ir=json.loads(p.read_text(encoding="utf-8")))
+        except (OSError, ValueError):
+            return {}
+    return _IR_CACHE.get("ir") or {}
+
+
+def _ruleset_of(source: str) -> str:
+    """The ruleset name from an IR row's `source` (`rulesets/R-x.md#RULESET R-x`)."""
+    return wc._include_target(source) if "#" in source else ""
+
+
+def trait_rows(target: Path) -> list[tuple[dict, dict]]:
+    """The doc-rule rows a non-markdown write puts in play — the anchor's
+    effective traits, narrowed to the rules whose `where` actually names this
+    file. Narrowing first is what keeps the fire cheap: a file no declared glob
+    names flattens nothing at all and costs one selector match per candidate."""
+    import warden_fire as wf
+    ir = _compiled_ir()
+    if not ir:
+        return []
+    anchor_root, scope_files = ap.enumerate_scope(target, "doc", None)
+    doc_ids = set(ir.get("doc_rules") or [])
+    index = ir.get("traits") or {}
+    eligible = {rid for t in wf.effective_traits(ir, anchor_root)
+                for rid in index.get(t, []) if rid in doc_ids}
+    rules = ir.get("rules") or {}
+    names: set[str] = set()
+    for rid in eligible:
+        row = rules.get(rid) or {}
+        kind, arg = ap.parse_selector(row.get("where") or "always")
+        if kind == "anchor":
+            continue
+        if ap.match_targets(kind, arg, scope_files, anchor_root):
+            names.add(_ruleset_of(row.get("source") or ""))
+    rows: list[tuple[dict, dict]] = []
+    for name in sorted(n for n in names if n):
+        rows.extend((row, rs) for row, rs in compile_audit_ir(name)
+                    if row["id"] in eligible)
+    return rows
+
+
+def rows_for(target: Path) -> list[tuple[dict, dict]]:
+    """The rows a write of `target` fires — umbrella for markdown, declared
+    traits for every other kind."""
+    if target.suffix.lower() in _MD_SUFFIXES:
+        return compile_audit_ir("R-doc")
+    return trait_rows(target)
 
 
 # ── fire: execute the check-action rows over a target scope ──────────────────
@@ -159,9 +303,16 @@ def fire_on_write(target: Path, rows: list[tuple[dict, dict]] | None = None) -> 
     behavior parity with the bespoke F177 hook holds by construction. Returns
     audit-plan's report shape: {fixed: [...], messages: [...]}.
 
+    Which rules are in play is chosen by the file's kind (F297 — `rows_for`):
+    markdown fires the `R-doc` umbrella; every other kind fires the doc-rules
+    the file's anchor declares by trait.
+
     `rows` overrides the umbrella compile for tests (inject fixture rules)."""
+    refresh_audit_plan()
     if rows is None:
-        rows = compile_audit_ir("R-doc")
+        rows = rows_for(target)
+    if not rows:
+        return {"fixed": [], "messages": []}
     anchor_root, scope_files = ap.enumerate_scope(target, "doc", None)
 
     plan_rules = []

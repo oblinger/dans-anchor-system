@@ -1,5 +1,5 @@
-# [A]  FX1  -  Runnable 1    User 0   |   Now 1    Next 0    Later 0    Verify 0    Icebox 0
+# [A]  FX1  -  Ready 1    User 0   |   Now 1    Next 0    Later 0   |   Parked 0    Waiting 0    Icebox 0
 
-## Questions
+## Immediate Questions
 
 1. Should we do the thing?

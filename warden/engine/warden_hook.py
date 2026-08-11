@@ -363,31 +363,108 @@ def dispatch(data: dict) -> list[str]:
 
     # Doc-fire on write (F222 / F229 A′): governed by the FILE's anchor — the
     # `audit-on-write` trait now rides `anchor-base` (ir.base_traits), so every
-    # anchored markdown file is audited on write; an un-anchored file is not
+    # anchored file is audited on write; an un-anchored file is not
     # (no anchor, no audit).
-    if anchor_file is not None and any(m.startswith("write:markdown") for m in moments):
+    #
+    # F297: ANY typed write kind, not just `write:markdown` — the narrow
+    # condition was what made a non-markdown document rule unreachable. Rule
+    # selection per kind happens in `warden_docfire.rows_for`.
+    write_moment = next((m for m in moments if m.startswith("write:")), None)
+    if anchor_file is not None and write_moment and event_fp:
         if "audit-on-write" in wf.effective_traits(ir, anchor_file):
-            aow_started = time.perf_counter()
-            aow = audit_on_write(Path(event_fp)) if event_fp else []
-            aow_ms = (time.perf_counter() - aow_started) * 1000.0
-            # F232 B3: the doc-fire is timed into the budget advisory like any
-            # moment fire (it owes Python by construction — the audit import).
-            warn = over_budget("write:markdown", aow_ms, owed_python=True)
-            if warn:
-                _log_perf("doc-fire " + warn)
-            if aow:
-                _log(f"AUDIT-ON-WRITE {Path(event_fp).name} @ {anchor_file.name} → {len(aow)} issue steer(s)"
-                     + _indent_steers(aow))
-                _fire_record({
-                    "ts": round(time.time(), 3), "engine": "py", "moment": "doc-fire",
-                    "anchor": anchor_file.name, "traits": [],
-                    "tool": data.get("tool_name") or "", "file": event_fp or "",
-                    "considered": ["audit-on-write"],
-                    "fires": [{"rule": "audit-on-write", "steer": s} for s in aow],
-                    "ms": round(aow_ms, 1),
-                })
-                steers.extend(aow)
+            steers.extend(_doc_fire(Path(event_fp), anchor_file,
+                                    _str(data.get("tool_name")), write_moment))
+
+    # F297 leg 2 — a file a SCRIPT wrote. A Bash event carries the command
+    # string and nothing about what it touched, so `python3 make_diagram.py` is
+    # invisible to every file-keyed moment. After the call, stat the governed
+    # paths the compile resolved and doc-fire whatever moved (mirror of
+    # `hook.rs`'s sweep).
+    if ir.get("governed_paths") and "tool:post:Bash" in moments:
+        for moved in _governed_moved(ir):
+            owner = find_anchor(moved.parent)
+            if owner is None or "audit-on-write" not in wf.effective_traits(ir, owner):
+                continue
+            steers.extend(_doc_fire(moved, owner, "Bash", "tool:post:Bash"))
     return steers
+
+
+def _doc_fire(file: Path, owner: Path, tool: str, budget_moment: str) -> list[str]:
+    """One doc-fire — the audit pass over `file`, owned by anchor `owner`.
+    Shared by the on-write path and the F297 post-Bash sweep so a script's write
+    and a direct write produce the same steers and the same fire record."""
+    started = time.perf_counter()
+    aow = audit_on_write(file)
+    aow_ms = (time.perf_counter() - started) * 1000.0
+    # F232 B3: the doc-fire is timed into the budget advisory like any moment
+    # fire (it owes Python by construction — the audit import).
+    warn = over_budget(budget_moment, aow_ms, owed_python=True)
+    if warn:
+        _log_perf("doc-fire " + warn)
+    if not aow:
+        return []
+    _log(f"AUDIT-ON-WRITE {file.name} @ {owner.name} → {len(aow)} issue steer(s)"
+         + _indent_steers(aow))
+    _fire_record({
+        "ts": round(time.time(), 3), "engine": "py", "moment": "doc-fire",
+        "anchor": owner.name, "traits": [], "tool": tool, "file": str(file),
+        "considered": ["audit-on-write"],
+        "fires": [{"rule": "audit-on-write", "steer": s} for s in aow],
+        "ms": round(aow_ms, 1),
+    })
+    return aow
+
+
+def _governed_moved(ir: dict) -> list[Path]:
+    """The governed paths whose mtime moved since the last sweep (F297 leg 2).
+
+    The snapshot lives beside the compiled state and is keyed on the IR's
+    `source_hash`: a recompile re-baselines rather than reporting the entire
+    list as changed, and a path stat-able but absent from the previous snapshot
+    is adopted silently for the same reason. Both directions fail quiet — a
+    sweep that cannot read or write its snapshot reports nothing rather than
+    firing on everything."""
+    snap_path = warden_home() / "governed.json"
+    stamp = ir.get("source_hash") or ""
+    try:
+        prev = json.loads(snap_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        prev = {}
+    rebased = prev.get("source_hash") != stamp
+    prev_m = prev.get("mtimes") or {}
+    now_m: dict[str, int] = {}
+    moved: list[Path] = []
+    for p in ir["governed_paths"]:
+        try:
+            ns = os.stat(p).st_mtime_ns
+        except OSError:
+            continue
+        was = prev_m.get(p)
+        if was is not None and not rebased and was != ns:
+            moved.append(Path(p))
+        now_m[p] = ns
+    if rebased or now_m != prev_m:
+        try:
+            snap_path.write_text(
+                json.dumps({"source_hash": stamp, "mtimes": now_m}), encoding="utf-8")
+        except OSError:
+            pass
+    return moved
+
+
+def _mendable_rules() -> set[str]:
+    """Rule ids the compiled corpus can teach a remediation for (F280).
+
+    Derived from the IR, never hand-declared on the rule: a marker that is
+    computed cannot promise a lesson the corpus does not have, and adding a
+    mend block never requires touching the rules it teaches."""
+    try:
+        ir = json.loads((warden_home() / "rules-ir.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return set()
+    have = ir.get("mend") or {}
+    return {rid for rid, row in (ir.get("rules") or {}).items()
+            if isinstance(row, dict) and row.get("mend") in have}
 
 
 def audit_on_write(file_path: Path) -> list[str]:
@@ -410,11 +487,17 @@ def audit_on_write(file_path: Path) -> list[str]:
     fixed, messages = report.get("fixed", []), report.get("messages", [])
     if not fixed and not messages:
         return []
+    mendable = _mendable_rules()
     lines = [f"  ✓ fixed {f['rule']} — {f.get('detail') or ''}".rstrip() for f in fixed]
     for m in messages:
         line = f"  · {m['rule']}: {m.get('detail') or 'fail'}"
         if m.get("why"):
             line += f"  [why: {m['why']}]"
+        # F280: a bare marker, never a topic. The rule id is already on the
+        # line, so a confused agent runs `warden mend <rule-id>`; one that
+        # knows the convention reads past five characters.
+        if m.get("rule") in mendable:
+            line += "  mend"
         lines.append(line)
     head = f"[warden audit-on-write] {file_path.name}: " \
            f"{len(fixed)} auto-fixed, {len(messages)} issue(s) to fix by hand:" \

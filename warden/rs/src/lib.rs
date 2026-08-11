@@ -45,6 +45,16 @@ pub struct Ir {
     /// these (mirror of `warden_fire.effective_traits`).
     #[serde(default)]
     pub base_traits: Vec<String>,
+    /// F297 leg 2: the non-markdown files a declared doc-rule governs, resolved
+    /// at compile time. The post-Bash sweep stats these to catch a write no
+    /// tool-call hook can attribute to a file (a script's output).
+    #[serde(default)]
+    pub governed_paths: Vec<String>,
+    /// The scan-index content hash — the sweep re-baselines its mtime snapshot
+    /// whenever this moves, so a recompile never reports the whole list as
+    /// changed.
+    #[serde(default)]
+    pub source_hash: Option<String>,
     #[serde(default)]
     pub schema: u32,
 }

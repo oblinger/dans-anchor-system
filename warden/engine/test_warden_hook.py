@@ -198,28 +198,10 @@ def test_audit_on_write():
     print("PASS  audit_on_write (F229 A′ — base-implied, file-anchored)")
 
 
-def _redirects_to(deny: str, *tokens: str) -> bool:
-    """Does this DENY name every one of `tokens`?
-
-    Assert what a redirect must TELL the agent — the tool, and the surface it
-    owns — rather than one spelling of the sentence. Two assertions here were
-    pinned to literal fragments (`"state Backlog"`, `"state <doc>"`) that
-    stopped appearing when the messages adopted the
-    `state <verb> <anchor> <doc> <label>` grammar; the DENYs kept firing
-    correctly, but the suite read red until someone re-read it.
-    """
-    return all(t in deny for t in tokens)
-
-
 def test_pathguard_veto():
     """F131: the veto path — R-pathguard denies the agent's Edit/Write on
-    script-owned surfaces (backlog, queries, feature-doc Q regions, Atlas).
-
-    F264 (2026-07-18) moved `pathguard` into the anchor base, so it now fires
-    vault-wide rather than only where the trait is declared — the point of that
-    change being that NO anchor had adopted the opt-in trait, so the DENY had
-    never once fired. The final block therefore asserts base-implied firing,
-    the same shape `test_audit_on_write` pins for F229 A'."""
+    script-owned surfaces (backlog, queries, feature-doc Q regions, Atlas) in
+    an anchor declaring `pathguard`, and stays inert without the trait."""
     home = _compiled_home()
     old = os.environ.get("WARDEN_HOME")
     os.environ["WARDEN_HOME"] = str(home)
@@ -231,11 +213,18 @@ def test_pathguard_veto():
                 return wh.dispatch({"hook_event_name": "PreToolUse", "tool_name": tool,
                                     "tool_input": ti, "cwd": str(anchor)})
 
-            # 01 — backlog Edit denied with the state-task redirect
+            # 01 — backlog Edit denied with the state-task redirect. The message
+            # must name `state` AND the doc to address it with. This assertion
+            # pinned the pre-F293 `state Backlog` word order; when the grammar
+            # went verb-first the message was rewritten to `state <verb> <verb>`
+            # — the doc dropped, the verb stamped twice, so the deny handed the
+            # agent a command it could not run. The test failing was the only
+            # thing that ever said so (Tink T094).
             denies = [s for s in pre("Edit", file_path=str(anchor / "FX Backlog.md"),
                                      old_string="a", new_string="b")
                       if s.startswith(wh.DENY_SENTINEL)]
-            assert len(denies) == 1 and _redirects_to(denies[0], "state", "Backlog"), denies
+            assert len(denies) == 1, denies
+            assert "state <define|set|resolve|remove> <anchor> Backlog" in denies[0], denies
             # 01 — queries page Edit denied with the renderer redirect
             denies = [s for s in pre("Edit", file_path=str(anchor / "FX queries.md"),
                                      old_string="a", new_string="b")
@@ -250,15 +239,39 @@ def test_pathguard_veto():
                                      old_string="- **Q1 — pick one?** ^F001-Q1",
                                      new_string="- answered")
                       if s.startswith(wh.DENY_SENTINEL)]
-            assert len(denies) == 1 and _redirects_to(denies[0], "state", "Open Questions"), denies
+            # R-pathguard-02's message WAS carried across to the F293 verb-first
+            # grammar correctly; only this assertion stayed on `state <doc>`.
+            assert len(denies) == 1, denies
+            assert "state <define|resolve|remove> <anchor> <doc>" in denies[0], denies
             # ...but an edit elsewhere in the same doc passes
             clean = pre("Edit", file_path=str(fdoc), old_string="prose", new_string="better prose")
             assert not [s for s in clean if s.startswith(wh.DENY_SENTINEL)], clean
-            # 03 — wholesale Write of the backlog denied too (the bypass)
-            denies = [s for s in pre("Write", file_path=str(anchor / "FX Backlog.md"),
-                                     content="# rewritten")
-                      if s.startswith(wh.DENY_SENTINEL)]
-            assert len(denies) == 1 and "script-owned" in denies[0], denies
+            # 03 — wholesale Write of the backlog denied too (the bypass).
+            # R-pathguard-03 discriminates a real STORE from a mere namesake on
+            # two signals, either sufficient: the `state:backlog` stamp, or the
+            # canonical `{slug} Track/` home. This assertion predated that
+            # discrimination and wrote an unstamped file into the anchor root —
+            # which is a namesake being CREATED, not a store being clobbered, and
+            # is correctly allowed. It failed for a month saying the veto had a
+            # hole; the veto was right and the fixture was not a backlog.
+            store = anchor / "FX Track"
+            store.mkdir()
+            (store / "FX Backlog.md").write_text(
+                "<!-- state:backlog -->\n# FX Backlog\n", encoding="utf-8")
+            for why, path, content in (
+                    ("stamped + in Track", store / "FX Backlog.md", "# rewritten"),
+                    ("stamp only in the incoming content",
+                     anchor / "FX Backlog.md", "<!-- state:backlog -->\n# new"),
+            ):
+                denies = [s for s in pre("Write", file_path=str(path), content=content)
+                          if s.startswith(wh.DENY_SENTINEL)]
+                assert len(denies) == 1 and "script-owned" in denies[0], (why, denies)
+            # ...and a bare namesake with no stamp and no Track home is NOT a
+            # store: creating one must stay legal, or every doc named
+            # `X Backlog.md` anywhere in the vault becomes unwritable.
+            clean = pre("Write", file_path=str(anchor / "Old FX Backlog.md"),
+                        content="# just a doc that mentions backlogs")
+            assert not [s for s in clean if s.startswith(wh.DENY_SENTINEL)], clean
             # 04 — Atlas
             atlas = anchor / "Atlas" / "Atlas.md"
             denies = [s for s in pre("Edit", file_path=str(atlas), old_string="x", new_string="y")
@@ -274,31 +287,38 @@ def test_pathguard_veto():
                                     "old_string": "a", "new_string": "b"},
                      "cwd": elsewhere})
                     if s.startswith(wh.DENY_SENTINEL)]
-                assert len(denies) == 1 and _redirects_to(denies[0], "state", "Backlog"), denies
+                assert len(denies) == 1, denies
+                assert "state <define|set|resolve|remove> <anchor> Backlog" in denies[0], denies
 
-        # trait UNDECLARED → still denied, because pathguard rides the anchor
-        # base (F264). This assertion read `not [...]` until 2026-08-02, which
-        # was the pre-F264 contract; it kept passing only while the rule was
-        # inert, and the whole reason F264 landed is that the rule was inert.
+        # trait OFF → the same event fires nothing. Since F264 put `pathguard`
+        # on `anchor-base` it rides every anchor, so "off" is no longer the
+        # absence of a declaration — it is an explicit opt-out via `traits-`
+        # (F285). Both subtraction shapes must reach it: the member named
+        # directly, and the umbrella that expands to it.
+        for optout in ("pathguard", "anchor-base"):
+            with tempfile.TemporaryDirectory() as td:
+                anchor = _anchor(Path(td), "Commit")
+                (anchor / ".anchor").write_text(
+                    f"slug: FX\ntraits: [Commit]\ntraits-: [{optout}]\n", encoding="utf-8")
+                steers = wh.dispatch({"hook_event_name": "PreToolUse", "tool_name": "Edit",
+                                      "tool_input": {"file_path": str(anchor / "FX Backlog.md"),
+                                                     "old_string": "a", "new_string": "b"},
+                                      "cwd": str(anchor)})
+                assert not [s for s in steers
+                            if s.startswith(wh.DENY_SENTINEL)], (optout, steers)
+
+        # ...but opting out of the umbrella while declaring the member keeps
+        # it: `traits-` subtracts only what an anchor gets implicitly, never
+        # what it declares.
         with tempfile.TemporaryDirectory() as td:
-            anchor = _anchor(Path(td), "Commit")  # no pathguard declared
+            anchor = _anchor(Path(td), "Commit")
+            (anchor / ".anchor").write_text(
+                "slug: FX\ntraits: [pathguard]\ntraits-: [anchor-base]\n", encoding="utf-8")
             steers = wh.dispatch({"hook_event_name": "PreToolUse", "tool_name": "Edit",
                                   "tool_input": {"file_path": str(anchor / "FX Backlog.md"),
                                                  "old_string": "a", "new_string": "b"},
                                   "cwd": str(anchor)})
-            denies = [s for s in steers if s.startswith(wh.DENY_SENTINEL)]
-            assert len(denies) == 1 and _redirects_to(denies[0], "state", "Backlog"), steers
-
-        # ...but an UN-ANCHORED file has no anchor to carry the base, so nothing
-        # fires — the boundary that keeps "vault-wide" from meaning "everywhere".
-        with tempfile.TemporaryDirectory() as td:
-            loose = Path(td) / "FX Backlog.md"
-            loose.write_text("rows\n", encoding="utf-8")
-            steers = wh.dispatch({"hook_event_name": "PreToolUse", "tool_name": "Edit",
-                                  "tool_input": {"file_path": str(loose),
-                                                 "old_string": "a", "new_string": "b"},
-                                  "cwd": str(td)})
-            assert not [s for s in steers if s.startswith(wh.DENY_SENTINEL)], steers
+            assert [s for s in steers if s.startswith(wh.DENY_SENTINEL)], steers
     finally:
         os.environ["WARDEN_HOME"] = old if old else str(home)
     print("PASS  pathguard_veto (F131)")
@@ -335,6 +355,37 @@ def test_bridge_guard():
             assert not denied("ssh haorui.local tmux send-keys -t bridge 'ls' Enter"), \
                 "in-bridge tmux control wrongly denied"
             assert not denied("which ssh"), "ssh-as-argument wrongly denied"
+
+            # T181: a quoted remote command is ONE token after the outer
+            # shlex.split — retokenize it to find its real first word rather
+            # than comparing the whole blob to "tmux".
+            assert not denied(
+                "ssh oblinger@haorui.local \"tmux send-keys -t 'bridge-haorui:agent-att' "
+                "'ls -la' Enter\""
+            ), "quoted send-keys (Drive-printed form) wrongly denied"
+            assert not denied(
+                "ssh oblinger@haorui.local \"tmux capture-pane -t 'bridge-haorui:agent-att' -p\""
+            ), "quoted capture-pane (Read-printed form) wrongly denied"
+            assert not denied("ssh haorui.local tmux capture-pane -t x -p"), \
+                "unquoted tmux control wrongly denied"
+            assert not denied("ssh haorui.local 'tmux send-keys -t x y Enter'"), \
+                "single-quoted tmux remote command wrongly denied"
+            assert not denied("ssh -p 2222 -o BatchMode=yes haorui.local tmux capture-pane -t x -p"), \
+                "argful flags before host wrongly denied"
+            assert not denied('state --body "context: IR; ssh one-shot workflow is discouraged"'), \
+                "prose mentioning IR; ssh one-shot wrongly denied"
+
+            # T181: the fix must not widen the hole — non-tmux remote commands,
+            # quoted or not, still deny; the smuggle attempt `tmux; curl evil`
+            # (first word is "tmux;", not "tmux") must still die.
+            assert denied('ssh haorui.local "df -h /Volumes/BLACK"'), \
+                "quoted non-tmux remote command wrongly passed"
+            assert denied("ssh haorui.local 'rm -rf /tmp/x'"), \
+                "single-quoted non-tmux remote command wrongly passed"
+            assert denied('ssh haorui.local "tmux; curl evil"'), \
+                "smuggled tmux; separator wrongly passed"
+            assert denied('ssh haorui.local "nohup ./long.sh &"'), \
+                "quoted nohup backgrounding wrongly passed"
     finally:
         os.environ["WARDEN_HOME"] = old if old else str(home)
     print("PASS  bridge_guard (F183)")

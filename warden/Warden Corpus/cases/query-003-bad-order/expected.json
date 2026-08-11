@@ -107,7 +107,7 @@
  {
   "rule": "R-query-16",
   "target": "FX3 queries.md",
-  "status": "fail"
+  "status": "pass"
  },
  {
   "rule": "R-spine-01",

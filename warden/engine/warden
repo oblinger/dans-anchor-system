@@ -36,6 +36,7 @@ REPO = corpus_root()                         # …/dans-anchor-system (the rule-
 import warden_compile as wc      # noqa: E402
 import warden_fire as wf         # noqa: E402
 import warden_hook as wh         # noqa: E402
+import warden_hookgen as hg      # noqa: E402
 import warden_scan as ws         # noqa: E402
 
 # shlex.quote the path — the repo path contains a space ("Skill Agent"), and an
@@ -164,6 +165,27 @@ def _warn_undeliverable(out: Path) -> None:
                   file=sys.stderr)
 
 
+def _generate_hooks(out: Path) -> None:
+    """F299 hook fan-in: derive the hook manifest from `# warden-hook:`
+    declarations plus the user's `config.yaml` `hooks:` block, and generate one
+    entrypoint per moment.
+
+    Isolated from the rule compile on purpose. `rules_all.py` is executed by
+    every tool call in a live session, so a fault in this much younger stage
+    must never be able to abort the write of the artifacts the running session
+    depends on — it warns and the compile stands."""
+    try:
+        stats = hg.generate(out, REPO)
+    except Exception as e:  # noqa: BLE001 — never abort a rule compile over hooks
+        print(f"warden: WARNING — hook fan-in failed ({type(e).__name__}: {e}); "
+              "rules compiled, hook entrypoints unchanged", file=sys.stderr)
+        return
+    for w in stats["warnings"]:
+        print(f"warden: WARNING — hook declaration: {w}", file=sys.stderr)
+    print(f"warden: {stats['hooks']} hook(s) across {stats['moments']} moment(s) "
+          f"→ {stats['manifest'].name}")
+
+
 def cmd_compile(_args) -> int:
     out = warden_home()
     stats = _compile_corpus(REPO, out)
@@ -171,6 +193,7 @@ def cmd_compile(_args) -> int:
     print(f"warden: compiled {stats['rules']} rules from {stats['rulesets']} rulesets "
           f"/ {stats['files']} files — {stats['moments']} moment(s), "
           f"{stats['doc_rules']} doc-rule(s), {stats['py_rules']} python → {out}")
+    _generate_hooks(out)
     _warn_undeliverable(out)
     return 0
 
@@ -417,9 +440,35 @@ def cmd_fire(args) -> int:
     return 0
 
 
+def cmd_mend(args) -> int:
+    """F280 — print the remediation message for a rule id.
+
+    An agent sees `mend` at the end of a steer line and cashes it in here.
+    Resolution is rule → `mend::` slug → block text; the slug is a corpus
+    authoring convenience and never reaches the caller."""
+    home = warden_home()
+    if not (home / "rules-ir.json").is_file():
+        raise SystemExit("warden: not compiled — run `warden compile` first")
+    ir = json.loads((home / "rules-ir.json").read_text(encoding="utf-8"))
+    rid = args.rule.strip()
+    row = (ir.get("rules") or {}).get(rid)
+    if row is None:
+        raise SystemExit(f"warden: no such rule `{rid}`")
+    slug = row.get("mend")
+    block = (ir.get("mend") or {}).get(slug) if slug else None
+    if block is None:
+        raise SystemExit(f"warden: `{rid}` has no mend message — nothing to teach "
+                         "(a steer would not have carried the marker)")
+    print(block["text"])
+    return 0
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="warden", description="Warden control CLI (F220).")
     sub = ap.add_subparsers(dest="cmd", required=True)
+    pm = sub.add_parser("mend", help="print the remediation message for a rule id (F280)")
+    pm.add_argument("rule", help="rule id as printed in the steer, e.g. R-log-01")
+    pm.set_defaults(fn=cmd_mend)
     sub.add_parser("on", help="clear the kill switch").set_defaults(fn=cmd_on)
     sub.add_parser("off", help="set the global kill switch").set_defaults(fn=cmd_off)
     sub.add_parser("compile", help="scan + compile the corpus → ~/.warden/").set_defaults(fn=cmd_compile)

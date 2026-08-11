@@ -63,6 +63,24 @@ def _anchor(tmp: Path, traits: str) -> Path:
     return a
 
 
+# The first seven tests below talk to a daemon that `main()` starts for them.
+# Under pytest nothing did, so all seven failed with FileNotFoundError on the
+# socket — not a daemon bug, a missing harness (Tink T094). This mirrors `main()`
+# exactly: same shared home, same start, same kill in a finally. The four tests
+# after `test_shutdown` bring up their own daemons, as they already do standalone.
+import pytest  # noqa: E402
+
+
+@pytest.fixture(scope="module", autouse=True)
+def _serving_daemon():
+    _start_daemon(_compiled_home())
+    try:
+        yield
+    finally:
+        if _PROC and _PROC.poll() is None:
+            _PROC.kill()
+
+
 def test_ping():
     home = _compiled_home()
     resp = _request(home, {"op": "ping"})

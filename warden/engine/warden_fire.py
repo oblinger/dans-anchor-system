@@ -56,39 +56,82 @@ def load_compiled(warden_dir: Path, anchor: str) -> tuple[dict, types.ModuleType
 
 # ── anchor sensing (active-set + ctx inputs) ────────────────────────────────
 
+def _read_trait_list(text: str, key: str) -> list[str]:
+    """One `.anchor` trait-valued key in either YAML shape (flow or block).
+    `key` is matched literally at line start, so `traits:` and `traits-:` never
+    catch each other."""
+    k = re.escape(key)
+    m = re.search(rf"^{k}:\s*\[(.*?)\]", text, re.MULTILINE)
+    if m:
+        return [t.strip().strip("'\"") for t in m.group(1).split(",") if t.strip()]
+    block = re.search(rf"^{k}:\s*\n((?:\s*-\s*.+\n?)+)", text, re.MULTILINE)
+    if block:
+        return [ln.split("-", 1)[1].strip()
+                for ln in block.group(1).splitlines() if ln.strip().startswith("-")]
+    return []
+
+
+def _read_anchor_text(anchor_root: Path) -> str:
+    dot = anchor_root / ".anchor"
+    if not dot.is_file():
+        return ""
+    try:
+        # errors="replace": a non-UTF-8 `.anchor` degrades to whatever parses,
+        # never aborts the dispatch (F232 C3).
+        return dot.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return ""
+
+
 def read_anchor_traits(anchor_root: Path) -> list[str]:
     """The `.anchor` `traits:` list (YAML flow or block), plus the implicit base
-    trait every anchor carries without declaring it ([[Warden Semantics]])."""
-    traits: list[str] = []
-    dot = anchor_root / ".anchor"
-    if dot.is_file():
-        try:
-            # errors="replace": a non-UTF-8 `.anchor` degrades to whatever
-            # parses, never aborts the dispatch (F232 C3).
-            text = dot.read_text(encoding="utf-8", errors="replace")
-        except OSError:
-            return ["anchor-base"]
-        m = re.search(r"^traits:\s*\[(.*?)\]", text, re.MULTILINE)
-        if m:
-            traits = [t.strip().strip("'\"") for t in m.group(1).split(",") if t.strip()]
-        else:
-            block = re.search(r"^traits:\s*\n((?:\s*-\s*.+\n?)+)", text, re.MULTILINE)
-            if block:
-                traits = [ln.split("-", 1)[1].strip()
-                          for ln in block.group(1).splitlines() if ln.strip().startswith("-")]
-    return traits + ["anchor-base"]
+    trait every anchor carries without declaring it ([[Warden Semantics]]).
+    The raw declaration read — opt-outs are applied by `effective_traits`."""
+    return _read_trait_list(_read_anchor_text(anchor_root), "traits") + ["anchor-base"]
+
+
+def read_anchor_optouts(anchor_root: Path) -> list[str]:
+    """The `.anchor` `traits-:` list — traits this anchor opts OUT of (F285).
+
+    Declared, never inherited: `traits-` governs only the anchor whose
+    `.anchor` carries it. That keeps an anchor's meaning a property of the
+    anchor, so moving one never silently changes which rules govern it — and it
+    avoids reintroducing the unbounded upward walk that caused F285."""
+    return _read_trait_list(_read_anchor_text(anchor_root), "traits-")
 
 
 def effective_traits(ir: dict, anchor_root: Path) -> list[str]:
     """The anchor's declared traits + `anchor-base` + the base trait's members
     (`ir["base_traits"]`, stamped by the compiler per F229 A′ — e.g.
-    `audit-on-write` rides every anchor). This is the trait set live dispatch
-    gates on; `read_anchor_traits` alone is the raw declaration read."""
+    `audit-on-write` rides every anchor), less anything the anchor opts out of
+    via `traits-` (F285). This is the trait set live dispatch gates on;
+    `read_anchor_traits` alone is the raw declaration read.
+
+    Two subtraction semantics, both load-bearing:
+
+    - **Subtracting an umbrella subtracts its members** — `traits-:
+      [anchor-base]` drops the base traits too. Otherwise the opt-out would
+      itself be an enumerated list that decays as base members are added, which
+      is the failure mode the design exists to avoid.
+    - **An explicit `traits:` entry always wins** — `traits-` subtracts only
+      what the anchor gets implicitly, so `traits: [pathguard]` with `traits-:
+      [anchor-base]` yields exactly `pathguard`. This is what makes "an exact
+      rule set" expressible as a composition instead of needing its own key.
+    """
+    declared = _read_trait_list(_read_anchor_text(anchor_root), "traits")
     traits = read_anchor_traits(anchor_root)
     for t in ir.get("base_traits", []):
         if t not in traits:
             traits.append(t)
-    return traits
+
+    optouts = read_anchor_optouts(anchor_root)
+    if not optouts:
+        return traits
+    drop = set(optouts)
+    if "anchor-base" in drop:
+        drop.update(ir.get("base_traits", []))
+    drop -= set(declared)
+    return [t for t in traits if t not in drop]
 
 
 def anchor_name(anchor_root: Path) -> str:

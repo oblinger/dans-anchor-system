@@ -97,12 +97,12 @@
  {
   "rule": "R-spine-04",
   "target": "FX7 Guide.md",
-  "status": "pass"
+  "status": "fail"
  },
  {
   "rule": "R-spine-05",
   "target": "FX7 Guide.md",
-  "status": "pass"
+  "status": "fail"
  },
  {
   "rule": "R-spine-06",

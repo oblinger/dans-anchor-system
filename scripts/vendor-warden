@@ -1,21 +1,39 @@
 #!/bin/bash
 # vendor-warden — copy the Warden engine from its source repo into dans-anchor-system.
 #
-# Warden's live source lives at ~/ob/proj/warden (T008 extraction, 2026-07-13).
-# dans-anchor-system carries a vendored copy of engine/, rs/, and Warden Corpus/
-# so the published repo is self-contained. The dependency is one-directional
-# (Warden never imports from dans-anchor-system code), so a plain rsync at
-# publish time is the whole mechanism — no subtree, no two-way merge.
+# Warden's docs live here, in the WARD anchor; its code lives in a separate repo
+# and dans-anchor-system carries a vendored copy of engine/, rs/, and Warden
+# Corpus/ so the published repo is self-contained. The dependency is
+# one-directional (Warden never imports from dans-anchor-system code), so a
+# plain rsync at publish time is the whole mechanism — no subtree, no two-way
+# merge. rsync --delete makes this authoritative: the vendored copy is an
+# output, never a place to edit.
 #
 # Run from anywhere. The W2 stale-path self-check in warden itself surfaces
 # any drift between the vendored copy and the installed live engine.
+#
+# The source path is READ FROM `warden/.anchor`'s `code:` key rather than
+# written here. It used to be hardcoded to ~/ob/proj/warden, and when the repo
+# moved to ~/ob/grove/warden that line became the only thing still pointing at
+# the old path: the guard below fired, the script exited 1, and because nothing
+# runs it on a schedule the failure was silent. The vendored copy then sat a
+# week behind — missing whole modules, not merely stale — while the anchor's
+# own `code:` key had the right path the entire time. One fact, one place.
 
 set -euo pipefail
 
-SRC="${WARDEN_SRC:-$HOME/ob/proj/warden}"
 DST="$(cd "$(dirname "$0")/.." && pwd)/warden"
+ANCHOR="$DST/.anchor"
 
-[ -d "$SRC/engine" ] || { echo "vendor-warden: no engine/ under $SRC" >&2; exit 1; }
+if [ -n "${WARDEN_SRC:-}" ]; then
+    SRC="$WARDEN_SRC"
+else
+    SRC="$(sed -n 's/^code:[[:space:]]*//p' "$ANCHOR" | head -1)"
+    SRC="${SRC/#\~/$HOME}"
+    [ -n "$SRC" ] || { echo "vendor-warden: no 'code:' key in $ANCHOR" >&2; exit 1; }
+fi
+
+[ -d "$SRC/engine" ] || { echo "vendor-warden: no engine/ under $SRC (from ${WARDEN_SRC:+\$WARDEN_SRC}${WARDEN_SRC:-$ANCHOR})" >&2; exit 1; }
 
 for part in engine rs "Warden Corpus"; do
     rsync -a --delete \

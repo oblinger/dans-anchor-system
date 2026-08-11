@@ -35,6 +35,40 @@ def _compile_pilot(tmp: Path):
     return ir, module_src, stats, mod
 
 
+# The tests below take the pilot's outputs as plain arguments so `main()` can
+# call them directly. Under pytest those argument names are fixture requests, and
+# with nothing supplying them the tests ERRORED at setup rather than running
+# (Tink T094). Compiling once per module keeps both entry points honest — the
+# fixtures hand out exactly what `main()` hands out.
+import pytest  # noqa: E402
+
+
+@pytest.fixture(scope="module")
+def _pilot():
+    with tempfile.TemporaryDirectory() as td:
+        yield _compile_pilot(Path(td))
+
+
+@pytest.fixture(scope="module")
+def ir(_pilot):
+    return _pilot[0]
+
+
+@pytest.fixture(scope="module")
+def module_src(_pilot):
+    return _pilot[1]
+
+
+@pytest.fixture(scope="module")
+def stats(_pilot):
+    return _pilot[2]
+
+
+@pytest.fixture(scope="module")
+def mod(_pilot):
+    return _pilot[3]
+
+
 def test_ir_row_matches_worked_example(ir):
     """The R-query-14 IR row is exactly the F211 § IR schema worked example."""
     row = ir["rules"]["R-query-14"]
@@ -339,10 +373,27 @@ def test_include_flatten():
     ir, _, _ = wc.compile_corpus(
         REPO, {"root": str(REPO), "files": files, "seen": seen}, "all")
     t = ir["traits"]
+    # Assert WHICH RULESETS flatten into each umbrella, not how many rules they
+    # currently hold. The rule counts were pinned exactly (arch 15, process 14)
+    # as a proxy for "no leak" — but they also move every time any member
+    # ruleset gains a rule, so `process` drifted to 20 and the test sat red for
+    # a month reporting growth as breakage. The composition is the invariant
+    # `include::` actually promises; it is stable under authoring and still
+    # fails loudly on a leak, which the count could only do by accident.
+    import re
+
+    def rulesets(trait):
+        return {re.sub(r"-\d+$", "", r) for r in t[trait]}
+
     assert "R-single-source-of-truth-01" in t["arch"], t.get("arch")
     assert "R-ownership-03" in t["arch"]
-    assert len(t["arch"]) == 15, len(t["arch"])
-    assert "R-design-gate-01" in t["process"] and len(t["process"]) == 14
+    assert rulesets("arch") == {"R-factory-pegboard", "R-interfaces-folder",
+                                "R-one-path", "R-ownership",
+                                "R-single-source-of-truth"}, sorted(rulesets("arch"))
+    assert "R-design-gate-01" in t["process"]
+    assert rulesets("process") == {"R-design-gate", "R-exception-discipline",
+                                   "R-stable-ids", "R-wrapper-cli"}, sorted(rulesets("process"))
+    assert not rulesets("arch") & rulesets("process"), "cross-umbrella leak"
     assert "R-design-gate-01" not in t["arch"], "cross-umbrella leak"
     assert "R-diagram-geometry-01" in t["diagram"], "pre-existing umbrella not flattened"
     # include-target parsing: embedded form + bare form
@@ -574,11 +625,77 @@ def test_recompile_cache():
     print("PASS  recompile_cache")
 
 
+def test_mend_blocks():
+    """F280 — MEND block parsing and the rule → slug reference."""
+    text = (
+        "# Doc\n\n"
+        "### MEND log-location\n"
+        "Fix line one.\n\n"
+        "- a list item\n\n"
+        "Closing sentence after a blank line.\n\n"
+        "### MEND other\n"
+        "second block.\n\n"
+        "## A shallower heading ends the block\n"
+        "not part of any mend.\n"
+    )
+    blocks = wc.parse_mend_blocks(text, "doc.md")
+    assert set(blocks) == {"log-location", "other"}, blocks
+    # blank lines inside a block are preserved — the reason a blank-line
+    # terminator was rejected in favour of the heading sentinel
+    body = blocks["log-location"]["text"]
+    assert "a list item" in body and "Closing sentence" in body, body
+    assert "second block" not in body, body
+    # a shallower heading terminates
+    assert "not part of any mend" not in blocks["other"]["text"], blocks["other"]
+
+    # fenced MEND headings are shown examples, never declarations (F232 A1)
+    fenced = "# Doc\n\n```\n### MEND fake\n```\n\n### MEND real\nreal one.\n"
+    assert set(wc.parse_mend_blocks(fenced, "d.md")) == {"real"}, "fence-blind parse"
+
+    # `mend::` is read off the rule, so the reference travels with a renumber
+    rs = wc.parse_ruleset(
+        "# RULESET R-z\n\n### RULE R-z-01 — t (checked)\ncheck:: c\nmend:: log-location\n\nbody\n",
+        "R-z", "z.md")
+    assert rs["rules"][0]["mend"] == "log-location", rs["rules"][0]
+    assert wc.compile_rule(rs["rules"][0], rs)["mend"] == "log-location"
+    print("PASS  mend_blocks (F280)")
+
+
 def test_stats(stats):
     assert stats["when_rules"] == 1, stats
     assert stats["py_rules"] == 1, stats
     assert stats["doc_rules"] == 15, stats
     print("PASS  stats")
+
+
+def test_governed_paths():
+    """F297 leg 2: the compile resolves which non-markdown files a DECLARED
+    doc-rule governs, so the post-Bash sweep only ever stats a known list.
+
+    Three properties, each one a way the sweep could go wrong: a trait nobody
+    declares governs nothing (no cost for a compiled-but-unused ruleset); the
+    extension comes from the rule's own `where`, never a hardcoded list; and a
+    nested anchor's declaration wins over its parent's, matching how the fire
+    path resolves the owner at write time."""
+    traits = {"svg-jiggle": ["R-x-01"], "dormant": ["R-y-01"]}
+    rules = {"R-x-01": {"where": "{anchor}/**/*.svg"},
+             "R-y-01": {"where": "{anchor}/**/*.dmg"}}
+    doc_rules = ["R-x-01", "R-y-01"]
+    assert wc.governed_extensions(traits, rules, doc_rules) == {
+        "svg-jiggle": {".svg"}, "dormant": {".dmg"}}
+
+    with tempfile.TemporaryDirectory() as td:
+        vault = Path(td)
+        (vault / "on" / "sub").mkdir(parents=True)
+        (vault / "off").mkdir()
+        for p, t in (("on", "svg-jiggle"), ("off", "topic"), ("on/sub", "topic")):
+            (vault / p / ".anchor").write_text(f"traits: [{t}]\n", encoding="utf-8")
+        for p in ("on/a.svg", "on/sub/b.svg", "off/c.svg", "on/d.dmg"):
+            (vault / p).write_text("x", encoding="utf-8")
+        amap = wc.anchor_trait_map(vault)
+        got = wc.governed_paths(vault, amap, traits, rules, doc_rules)
+    assert got == [str(vault / "on" / "a.svg")], got
+    print("PASS  governed_paths (F297 leg 2)")
 
 
 def main():
@@ -598,6 +715,8 @@ def main():
     test_duplicate_rule_id_first_wins()
     test_compile_robustness_batch()
     test_recompile_cache()
+    test_mend_blocks()
+    test_governed_paths()
     print("\nall warden_compile tests passed")
     return 0
 

@@ -34,8 +34,12 @@ Fail-safe like every Warden surface: a request that raises returns
 artifacts auto-reload when `rules-ir.json` / `rules_all.py` change on disk
 (`warden compile` refreshes them; the daemon notices on the next request).
 The daemon exits after `--idle-exit` seconds without a request (default 30
-min) — the Rust hook respawns it on demand, so a stale process never lingers
-and engine-code changes are picked up within one idle window.
+min) — the Rust hook respawns it on demand, so a stale process never lingers.
+It **also** exits when the engine's own `*.py` change under it and go quiet
+(`engine_stale`), because idle-exit alone only collects engine edits during a
+30-minute lull — which never happens while someone is working, the exact
+window in which engine edits are made. Two staleness paths, two mechanisms:
+`audit-plan.py` reloads in place (it is a leaf); the engine restarts.
 
 Concurrency (F232 B1, T013): the server is THREAD-PER-CONNECTION — one slow
 request (an `audit` op, a rule body calling `ask_oracle` with its 60 s
@@ -122,6 +126,158 @@ class Corpus:
     def fresh(self) -> None:
         if self._artifact_stamp() != self._stamp:
             self.reload()
+
+
+# ── the compile sweep: dirty + quiet → recompile ─────────────────────────────
+#
+# A ruleset edited and never compiled leaves `rules-ir.json` behind its sources.
+# The doc-fire path does not care (it flattens the rulesets from SOURCE on every
+# write), but two surfaces do: the **moment** rules — the `tool:pre` deny rules
+# that fire before a Bash or an Edit — and `warden mend <rule-id>`, both of which
+# read only the compiled IR. So a rule can be authored, be live on writes, and
+# still be invisible at the moment it was written for.
+#
+# Dan's design, 2026-08-10, and the debounce is the load-bearing half: scan on a
+# slow interval, but only recompile once the newest edit has gone QUIET. Without
+# the quiet window an agent mid-edit would trigger a compile per save; with it, a
+# burst of edits costs exactly one compile after the burst ends. Same shape as
+# HookAnchor's ~30 s settle, for the same reason.
+#
+# Both knobs are config, in ~/.config/anchor-system/warden/config.yaml:
+#     compile_scan_minutes: 10     # how often to look; 0 disables the sweep
+#     compile_quiet_minutes: 2     # how long the newest edit must have been still
+_SWEEP_DEFAULTS = {"compile_scan_minutes": 10.0, "compile_quiet_minutes": 2.0}
+
+
+def _sweep_config() -> dict:
+    cfg = dict(_SWEEP_DEFAULTS)
+    p = Path.home() / ".config/anchor-system/warden/config.yaml"
+    try:
+        for line in p.read_text(encoding="utf-8").splitlines():
+            line = line.split("#", 1)[0].strip()
+            for k in _SWEEP_DEFAULTS:
+                if line.startswith(k + ":"):
+                    try:
+                        cfg[k] = float(line.split(":", 1)[1].strip())
+                    except ValueError:
+                        pass
+    except OSError:
+        pass
+    return cfg
+
+
+def _rulesets_newest_ns() -> int:
+    """Newest mtime across the rule sources. ~0.3 ms for 117 files, and it only
+    runs once per scan interval, so the sweep's cost is not worth measuring."""
+    try:
+        import warden_root
+        root = warden_root.corpus_root() / "rulesets"
+        return max((p.stat().st_mtime_ns for p in root.rglob("*.md")), default=0)
+    except Exception:
+        return 0
+
+
+def _engine_newest_ns() -> int:
+    """Newest mtime across the engine's OWN Python — the modules this process
+    imported at start and holds for its whole life.
+
+    Tests are excluded deliberately: the daemon never imports them, so saving a
+    test file must not bounce a live daemon. ~14 stats, once per scan interval.
+    """
+    try:
+        return max((p.stat().st_mtime_ns for p in HERE.glob("*.py")
+                    if not p.name.startswith("test_") and p.name != "conftest.py"),
+                   default=0)
+    except OSError:
+        return 0
+
+
+def engine_stale(loaded_ns: int) -> str | None:
+    """Has the engine's own code changed under the running process?
+
+    `audit-plan.py` reloads in place (warden_docfire.refresh_audit_plan) because
+    it is a leaf: a dict of checkers and fixers with no threads, no sockets and
+    no module-level state anyone holds a reference to. **The engine modules are
+    the opposite** — `warden_daemon` holds the accept loop, `warden_fire` the
+    dedup ring, `warden_agent` the session registry, each behind its own lock,
+    and handler threads are running against all of them. Re-exec'ing those in
+    place would leave live threads split across two copies of the same module.
+
+    So the engine's answer to staleness is to **exit** and let the Rust hook
+    respawn — a genuinely fresh interpreter, which is what `--idle-exit` already
+    relied on. The only thing that changes here is *when*: idle-exit needs 30
+    quiet minutes, which never arrive during a working session, so engine edits
+    could sit unloaded indefinitely for exactly as long as someone was using
+    the system. That is how F319's spine checkers were live on disk and dead in
+    the daemon. Dan, 2026-08-10: *"the Python should also be reloaded by the
+    daemon — both should be checked."*
+
+    The quiet window is shared with the compile sweep and is load-bearing for a
+    second reason here: restarting into a half-written `.py` would fail to boot,
+    and the hook would respawn into the same broken file every time.
+    """
+    try:
+        newest = _engine_newest_ns()
+        if not newest or newest <= loaded_ns:
+            return None
+        quiet_ns = _sweep_config()["compile_quiet_minutes"] * 60 * 1e9
+        if (time.time_ns() - newest) < quiet_ns:
+            return None                              # still being edited
+        return (f"engine code changed {(newest - loaded_ns) / 1e9:.0f}s after this "
+                f"process loaded it — exiting so the next hook respawns fresh")
+    except Exception as e:                           # noqa: BLE001 — accept loop
+        # A non-None return EXITS the daemon, so a broken check must answer
+        # None — never bounce the process on its own bug. Loud, but not fatal.
+        wh._log(f"DAEMON ENGINE-STALE CHECK ERROR ({type(e).__name__}: {e})")
+        return None
+
+
+def compile_sweep(home: Path) -> str | None:
+    """One tick. Returns a log line when it recompiled, else None.
+
+    Deliberately reports NOTHING when clean — a sweep that narrates every quiet
+    tick is a sweep people turn off. **Total by construction**: this runs on the
+    daemon's accept loop, so anything it raised would take the whole hook
+    surface down with it. A housekeeping task must never be able to do that.
+    """
+    try:
+        return _compile_sweep(home)
+    except Exception as e:                       # noqa: BLE001 — see the docstring
+        return f"COMPILE-SWEEP ERROR ({type(e).__name__}: {e})"
+
+
+def _compile_sweep(home: Path) -> str | None:
+    cfg = _sweep_config()
+    if cfg["compile_scan_minutes"] <= 0:
+        return None
+    newest = _rulesets_newest_ns()
+    if not newest:
+        return None
+    try:
+        compiled = (home / "rules-ir.json").stat().st_mtime_ns
+    except OSError:
+        compiled = 0
+    if newest <= compiled:
+        return None                                  # not dirty
+    quiet_ns = cfg["compile_quiet_minutes"] * 60 * 1e9
+    if (time.time_ns() - newest) < quiet_ns:
+        return None                                  # dirty, but still being edited
+    try:
+        import warden_compile as wc
+        import warden_scan as ws
+        import warden_root
+        root = warden_root.corpus_root()
+        files, seen, _ = ws.build_index(str(root), {}, {}, rescan=True)
+        index = {"root": str(root), "files": files, "seen": seen}
+        ir, module_src, _ = wc.compile_corpus(root, index, "all", ws.index_hash(files))
+        wc._write_artifacts(home, "all", ir, module_src)
+    except Exception as e:
+        # Fail OPEN and say so. A sweep that cannot compile must not take the
+        # daemon down with it — the artifacts on disk still serve, just stale,
+        # which is exactly the state this whole mechanism exists to make loud.
+        return f"COMPILE-SWEEP FAILED ({type(e).__name__}: {e}) — IR left stale"
+    return (f"COMPILE-SWEEP recompiled {len(ir.get('rules') or {})} rules — sources were "
+            f"{(newest - compiled) / 1e9:.0f}s ahead of the compiled IR")
 
 
 # ── request handlers ─────────────────────────────────────────────────────────
@@ -334,6 +490,13 @@ def serve(idle_exit: float) -> int:
     stop_evt = threading.Event()
     in_flight = {"n": 0, "lock": threading.Lock()}
     last = time.monotonic()
+    # First sweep one full interval after start, not at start: a daemon that
+    # compiles the moment it comes up would fire on every hook-triggered spawn.
+    last_sweep = time.monotonic()
+    # What the engine's code looked like when THIS process imported it. Taken
+    # here rather than at module scope so it reflects the running interpreter,
+    # not whenever the module happened to be first read.
+    engine_loaded_ns = _engine_newest_ns()
     # Audit 2026-07-12 W3: the socket is bound (and about to be pid-stamped) before this
     # point — everything that can fail from here on (the pid-file write, the
     # corpus load, the accept loop) must run INSIDE this try so the `finally`
@@ -372,6 +535,23 @@ def serve(idle_exit: float) -> int:
                 elif idle_exit > 0 and time.monotonic() - last > idle_exit:
                     wh._log("DAEMON idle-exit")
                     return 0
+                # The compile sweep rides the loop that was already waking once
+                # a second, so it costs one float compare per tick until the
+                # interval is up. Only then does it stat the rulesets.
+                scan_s = _sweep_config()["compile_scan_minutes"] * 60
+                if scan_s > 0 and time.monotonic() - last_sweep >= scan_s:
+                    last_sweep = time.monotonic()
+                    note = compile_sweep(home)
+                    if note:
+                        wh._log(f"DAEMON {note}")
+                        corpus.fresh()          # adopt what we just wrote
+                    # Second staleness path, same tick: the engine's own code.
+                    # `busy` is already false in this branch — exiting with a
+                    # request in flight would drop it on the floor.
+                    note = engine_stale(engine_loaded_ns)
+                    if note:
+                        wh._log(f"DAEMON {note}")
+                        return 0
                 continue
             last = time.monotonic()
             with in_flight["lock"]:

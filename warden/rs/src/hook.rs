@@ -297,58 +297,76 @@ pub fn mirror_route_anchor(file_path: &Path) -> Option<PathBuf> {
     mirror_route_anchor_in(file_path, &routes)
 }
 
-/// The `.anchor` `traits:` list (YAML flow or block) + the implicit `anchor-base`
-/// trait (mirror of `warden_fire.read_anchor_traits`).
-pub fn read_anchor_traits(anchor_root: &Path) -> Vec<String> {
+/// One `.anchor` trait-valued key in either YAML shape (mirror of
+/// `warden_fire._read_trait_list`). `key` carries its own colon and is matched
+/// at line start, so `traits:` and `traits-:` never catch each other.
+fn read_trait_list(text: &str, key: &str) -> Vec<String> {
     let mut traits: Vec<String> = Vec::new();
-    // from_utf8_lossy mirrors Python's errors="replace": a stray non-UTF-8
-    // byte degrades to whatever parses instead of dropping every trait.
-    if let Ok(bytes) = std::fs::read(anchor_root.join(".anchor")) {
-        let text = String::from_utf8_lossy(&bytes);
-        let lines: Vec<&str> = text.lines().collect();
-        // Mirror the Python reference's TWO regex passes exactly (F232 C2):
-        // the whole-file FLOW search runs first — a flow-style `traits: […]`
-        // line wins wherever it appears, even below a block-style one; only
-        // when no flow line exists anywhere does the block search run.
-        let mut flow: Option<&str> = None;
-        for line in &lines {
-            // the Python regexes anchor `traits:` at line start (no indent)
-            let Some(rest) = line.strip_prefix("traits:") else { continue };
-            let rest = rest.trim_start();
-            if rest.starts_with('[') && rest.contains(']') {
-                flow = rest.strip_prefix('[').and_then(|r| r.split(']').next());
-                break;
-            }
-        }
-        if let Some(inner) = flow {
-            traits = inner
-                .split(',')
-                .map(|t| t.trim().trim_matches(|c| c == '\'' || c == '"').to_string())
-                .filter(|t| !t.is_empty())
-                .collect();
-        } else {
-            for (i, line) in lines.iter().enumerate() {
-                let Some(rest) = line.strip_prefix("traits:") else { continue };
-                if !rest.trim().is_empty() {
-                    continue; // `traits: foo` — matches neither Python regex
-                }
-                for ln in &lines[i + 1..] {
-                    let t = ln.trim();
-                    if t.is_empty() {
-                        continue; // blank inside the block list (Python `\s*`)
-                    }
-                    if let Some(item) = t.strip_prefix('-') {
-                        traits.push(item.trim().to_string());
-                    } else {
-                        break;
-                    }
-                }
-                break;
-            }
+    let lines: Vec<&str> = text.lines().collect();
+    // Mirror the Python reference's TWO regex passes exactly (F232 C2):
+    // the whole-file FLOW search runs first — a flow-style `traits: […]`
+    // line wins wherever it appears, even below a block-style one; only
+    // when no flow line exists anywhere does the block search run.
+    let mut flow: Option<&str> = None;
+    for line in &lines {
+        // the Python regexes anchor the key at line start (no indent)
+        let Some(rest) = line.strip_prefix(key) else { continue };
+        let rest = rest.trim_start();
+        if rest.starts_with('[') && rest.contains(']') {
+            flow = rest.strip_prefix('[').and_then(|r| r.split(']').next());
+            break;
         }
     }
+    if let Some(inner) = flow {
+        return inner
+            .split(',')
+            .map(|t| t.trim().trim_matches(|c| c == '\'' || c == '"').to_string())
+            .filter(|t| !t.is_empty())
+            .collect();
+    }
+    for (i, line) in lines.iter().enumerate() {
+        let Some(rest) = line.strip_prefix(key) else { continue };
+        if !rest.trim().is_empty() {
+            continue; // `traits: foo` — matches neither Python regex
+        }
+        for ln in &lines[i + 1..] {
+            let t = ln.trim();
+            if t.is_empty() {
+                continue; // blank inside the block list (Python `\s*`)
+            }
+            if let Some(item) = t.strip_prefix('-') {
+                traits.push(item.trim().to_string());
+            } else {
+                break;
+            }
+        }
+        break;
+    }
+    traits
+}
+
+/// from_utf8_lossy mirrors Python's errors="replace": a stray non-UTF-8 byte
+/// degrades to whatever parses instead of dropping every trait.
+fn read_anchor_text(anchor_root: &Path) -> String {
+    match std::fs::read(anchor_root.join(".anchor")) {
+        Ok(bytes) => String::from_utf8_lossy(&bytes).into_owned(),
+        Err(_) => String::new(),
+    }
+}
+
+/// The `.anchor` `traits:` list (YAML flow or block) + the implicit `anchor-base`
+/// trait (mirror of `warden_fire.read_anchor_traits`). The raw declaration read —
+/// opt-outs are applied where effective traits are computed.
+pub fn read_anchor_traits(anchor_root: &Path) -> Vec<String> {
+    let mut traits = read_trait_list(&read_anchor_text(anchor_root), "traits:");
     traits.push("anchor-base".into());
     traits
+}
+
+/// The `.anchor` `traits-:` list — traits this anchor opts OUT of (F285;
+/// mirror of `warden_fire.read_anchor_optouts`). Declared, never inherited.
+pub fn read_anchor_optouts(anchor_root: &Path) -> Vec<String> {
+    read_trait_list(&read_anchor_text(anchor_root), "traits-:")
 }
 
 /// The git-aspect string a rule reads, from the anchor's traits (mirror of
@@ -602,6 +620,20 @@ pub fn dispatch(data: &Value) -> Vec<String> {
                 ts.push(t.clone());
             }
         }
+        // F285: subtract what the anchor opts out of. Subtracting an umbrella
+        // subtracts its members (else the opt-out is itself a decaying list),
+        // but an explicitly declared trait always survives — `traits-` removes
+        // only what the anchor gets implicitly.
+        let optouts = read_anchor_optouts(root);
+        if optouts.is_empty() {
+            return ts;
+        }
+        let declared = read_trait_list(&read_anchor_text(root), "traits:");
+        let mut drop: Vec<String> = optouts.clone();
+        if optouts.iter().any(|t| t == "anchor-base") {
+            drop.extend(ir.base_traits.iter().cloned());
+        }
+        ts.retain(|t| !drop.contains(t) || declared.contains(t));
         ts
     };
 
@@ -748,54 +780,128 @@ pub fn dispatch(data: &Value) -> Vec<String> {
 
     // F222 / F229 A′ audit-on-write — the doc-fire runs warm in the daemon,
     // governed by the FILE's anchor (`audit-on-write` rides `anchor-base` via
-    // ir.base_traits, so every anchored markdown file is audited on write; an
+    // ir.base_traits, so every anchored file is audited on write; an
     // un-anchored file is not).
-    if let Some(afile) = anchor_file.as_ref() {
-        if moments.iter().any(|m| m.starts_with("write:markdown"))
-            && effective(afile).iter().any(|t| t == "audit-on-write")
-            && !event_fp.is_empty()
-        {
-            if let Some(resp) =
-                daemon_request(&json!({"op": "audit", "file_path": event_fp}),
-                               daemon_timeout("write:markdown"))
-            {
-                if resp.get("ok").and_then(Value::as_bool) != Some(true) {
-                    // Audit 2026-07-12 W4: log an errored doc-fire response too.
-                    let err = resp.get("error").and_then(Value::as_str).unwrap_or("?");
-                    log(&format!("daemon ERROR at doc-fire: {err} — audit skipped this call"));
-                }
-                if resp.get("ok").and_then(Value::as_bool) == Some(true) {
-                    if let Some(aow) = resp.get("steers").and_then(Value::as_array) {
-                        if !aow.is_empty() {
-                            let aow_texts: Vec<String> =
-                                aow.iter().filter_map(Value::as_str).map(String::from).collect();
-                            log(&format!(
-                                "AUDIT-ON-WRITE {} @ {} → {} issue steer(s){}",
-                                Path::new(event_fp).file_name().map(|n| n.to_string_lossy()).unwrap_or_default(),
-                                afile.file_name().map(|n| n.to_string_lossy()).unwrap_or_default(),
-                                aow.len(),
-                                indent_steers(&aow_texts)
-                            ));
-                            // F231: doc-fire steers land in the fire record too.
-                            fire_record(&json!({
-                                "ts": (now_ts() * 1000.0).round() / 1000.0, "engine": "rs",
-                                "moment": "doc-fire",
-                                "anchor": afile.file_name().map(|n| n.to_string_lossy()).unwrap_or_default(),
-                                "traits": [], "tool": str_field(data, "tool_name"),
-                                "file": event_fp, "considered": ["audit-on-write"],
-                                "fires": aow.iter().filter_map(Value::as_str)
-                                    .map(|s| json!({"rule": "audit-on-write", "steer": s}))
-                                    .collect::<Vec<_>>(),
-                                "ms": 0.0,
-                            }));
-                        }
-                        steers.extend(aow.iter().filter_map(Value::as_str).map(String::from));
-                    }
-                }
+    //
+    // F297: ANY typed write kind, not just `write:markdown`. The moment
+    // vocabulary already distinguished them (`content_kind` maps `.svg` → svg),
+    // so the narrow condition here was the whole reason a non-markdown document
+    // rule could compile, register, and be declared on an anchor and still
+    // never be considered. Which rules a kind puts in play is decided
+    // downstream, in `warden_docfire.rows_for` — a file no declared glob names
+    // flattens nothing and costs nothing.
+    let write_moment = moments.iter().find(|m| m.starts_with("write:"));
+    if let (Some(afile), Some(wm)) = (anchor_file.as_ref(), write_moment) {
+        if !event_fp.is_empty() && effective(afile).iter().any(|t| t == "audit-on-write") {
+            steers.extend(doc_fire(event_fp, afile, str_field(data, "tool_name"), wm));
+        }
+    }
+
+    // F297 leg 2 — a file a SCRIPT wrote. A Bash event carries the command
+    // string and nothing about what it touched, so `python3 make_diagram.py`
+    // is invisible to every file-keyed moment. After the call, stat the
+    // governed paths the compile resolved and doc-fire whatever moved: 0.5 ms
+    // over the vault's SVGs, against 228 ms to rediscover them live.
+    if !ir.governed_paths.is_empty() && moments.iter().any(|m| m == "tool:post:Bash") {
+        for moved in governed_moved(&ir) {
+            let p = PathBuf::from(&moved);
+            let Some(a) = p.parent().and_then(find_anchor) else { continue };
+            if !effective(&a).iter().any(|t| t == "audit-on-write") {
+                continue;
             }
+            steers.extend(doc_fire(&moved, &a, "Bash", "tool:post:Bash"));
         }
     }
     steers
+}
+
+/// One doc-fire — the daemon's audit pass over `file`, owned by anchor `afile`.
+/// Shared by the on-write path and the F297 post-Bash sweep so a script's write
+/// and a direct write produce the same steers and the same fire record.
+fn doc_fire(file: &str, afile: &Path, tool: &str, timeout_moment: &str) -> Vec<String> {
+    let Some(resp) = daemon_request(&json!({"op": "audit", "file_path": file}),
+                                    daemon_timeout(timeout_moment))
+    else {
+        return vec![];
+    };
+    if resp.get("ok").and_then(Value::as_bool) != Some(true) {
+        // Audit 2026-07-12 W4: log an errored doc-fire response too.
+        let err = resp.get("error").and_then(Value::as_str).unwrap_or("?");
+        log(&format!("daemon ERROR at doc-fire: {err} — audit skipped this call"));
+        return vec![];
+    }
+    let Some(aow) = resp.get("steers").and_then(Value::as_array) else {
+        return vec![];
+    };
+    let aow_texts: Vec<String> = aow.iter().filter_map(Value::as_str).map(String::from).collect();
+    if !aow_texts.is_empty() {
+        let anchor_name = afile
+            .file_name()
+            .map(|n| n.to_string_lossy().into_owned())
+            .unwrap_or_default();
+        log(&format!(
+            "AUDIT-ON-WRITE {} @ {anchor_name} → {} issue steer(s){}",
+            Path::new(file).file_name().map(|n| n.to_string_lossy()).unwrap_or_default(),
+            aow_texts.len(),
+            indent_steers(&aow_texts)
+        ));
+        // F231: doc-fire steers land in the fire record too.
+        fire_record(&json!({
+            "ts": (now_ts() * 1000.0).round() / 1000.0, "engine": "rs",
+            "moment": "doc-fire", "anchor": anchor_name,
+            "traits": [], "tool": tool,
+            "file": file, "considered": ["audit-on-write"],
+            "fires": aow_texts.iter()
+                .map(|s| json!({"rule": "audit-on-write", "steer": s}))
+                .collect::<Vec<_>>(),
+            "ms": 0.0,
+        }));
+    }
+    aow_texts
+}
+
+/// The governed paths whose mtime moved since the last sweep (F297 leg 2).
+///
+/// The snapshot lives beside the compiled state and is keyed on the IR's
+/// `source_hash`: a recompile re-baselines rather than reporting the entire
+/// list as changed, and a path that is stat-able but absent from the previous
+/// snapshot is adopted silently for the same reason. Both directions fail
+/// quiet — a sweep that cannot read or write its snapshot reports nothing
+/// rather than firing on everything.
+fn governed_moved(ir: &Ir) -> Vec<String> {
+    let snap_path = warden_home().join("governed.json");
+    let stamp = ir.source_hash.clone().unwrap_or_default();
+    let prev: Value = std::fs::read_to_string(&snap_path)
+        .ok()
+        .and_then(|t| serde_json::from_str(&t).ok())
+        .unwrap_or_else(|| json!({}));
+    let rebased = prev.get("source_hash").and_then(Value::as_str) != Some(stamp.as_str());
+    let empty = serde_json::Map::new();
+    let prev_m = prev.get("mtimes").and_then(Value::as_object).unwrap_or(&empty);
+    let mut now_m = serde_json::Map::new();
+    let mut moved: Vec<String> = Vec::new();
+    for p in &ir.governed_paths {
+        let Ok(md) = std::fs::metadata(p) else { continue };
+        let ns = md
+            .modified()
+            .ok()
+            .and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok())
+            .map(|d| d.as_nanos() as u64)
+            .unwrap_or(0);
+        if let Some(was) = prev_m.get(p).and_then(Value::as_u64) {
+            if !rebased && was != ns {
+                moved.push(p.clone());
+            }
+        }
+        now_m.insert(p.clone(), json!(ns));
+    }
+    if rebased || now_m != *prev_m {
+        let snap = json!({"source_hash": stamp, "mtimes": now_m});
+        if let Ok(text) = serde_json::to_string(&snap) {
+            let _ = std::fs::write(&snap_path, text);
+        }
+    }
+    moved
 }
 
 /// The F131 deny sentinel — a steer carrying this prefix is a veto, converted
@@ -907,6 +1013,34 @@ mod tests {
         assert_eq!(read_anchor_traits(&td), vec!["a", "b", "anchor-base"]);
         std::fs::write(td.join(".anchor"), "slug: FX\n").unwrap();
         assert_eq!(read_anchor_traits(&td), vec!["anchor-base"]);
+        let _ = std::fs::remove_dir_all(&td);
+    }
+
+    /// F285 — `traits-` parses in both YAML shapes and never collides with
+    /// `traits:` in either direction. The subtraction semantics themselves are
+    /// exercised through dispatch; this pins the read that feeds them.
+    #[test]
+    fn optouts_parse_without_colliding_with_traits() {
+        let td = std::env::temp_dir().join(format!("warden-rs-optout-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&td);
+        std::fs::create_dir_all(&td).unwrap();
+
+        // flow shape, both keys present — each reads only its own
+        std::fs::write(td.join(".anchor"),
+                       "slug: FX\ntraits: [track]\ntraits-: [anchor-base]\n").unwrap();
+        assert_eq!(read_anchor_traits(&td), vec!["track", "anchor-base"]);
+        assert_eq!(read_anchor_optouts(&td), vec!["anchor-base"]);
+
+        // block shape
+        std::fs::write(td.join(".anchor"),
+                       "slug: FX\ntraits-:\n  - pathguard\n  - ios\nother: x\n").unwrap();
+        assert_eq!(read_anchor_optouts(&td), vec!["pathguard", "ios"]);
+        assert_eq!(read_anchor_traits(&td), vec!["anchor-base"]);
+
+        // absent → empty, and today's anchors are unaffected
+        std::fs::write(td.join(".anchor"), "slug: FX\ntraits: [track]\n").unwrap();
+        assert!(read_anchor_optouts(&td).is_empty());
+
         let _ = std::fs::remove_dir_all(&td);
     }
 

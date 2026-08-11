@@ -92,7 +92,7 @@
  {
   "rule": "R-query-03",
   "target": "FX2 Track/FX2 queries.md",
-  "status": "pass"
+  "status": "fail"
  },
  {
   "rule": "R-query-05",
@@ -107,7 +107,7 @@
  {
   "rule": "R-query-16",
   "target": "FX2 Track/FX2 queries.md",
-  "status": "fail"
+  "status": "pass"
  },
  {
   "rule": "R-spine-01",

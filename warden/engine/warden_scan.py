@@ -37,6 +37,10 @@ import time
 
 
 RULESET_RE = re.compile(r"^#+\s+RULESET\s+(\S+)")
+# F280: `### MEND <slug>` declares a remediation message. Slugs are
+# hand-chosen and never numbered — rules point AT them via `mend:: <slug>`,
+# so a rule renumber can never orphan a message.
+MEND_RE = re.compile(r"^#+\s+MEND\s+([\w-]+)\s*$")
 
 # Directories never worth walking for authored rulesets. `.claude/worktrees`
 # is skipped so sibling worktree checkouts are not double-counted (a known
@@ -59,12 +63,12 @@ def iter_markdown(root):
                 yield os.path.join(dirpath, name)
 
 
-def extract_ruleset_names(text):
-    """Return the ruleset ids declared by `# RULESET <name>` headings, in
-    document order, deduplicated. Fence-aware (F232 A1): a heading inside a
-    ``` code fence is a *shown example* (facet/discipline docs teach the sentinel
-    grammar by quoting it), never a live declaration — the fence-blind scan
-    was how phantom rulesets (R-sample, R-wp) reached the production IR."""
+def _extract_by(text, pattern):
+    """Ids declared by a sentinel heading, in document order, deduplicated.
+    Fence-aware (F232 A1): a heading inside a ``` code fence is a *shown
+    example* (facet/discipline docs teach the sentinel grammar by quoting it),
+    never a live declaration — the fence-blind scan was how phantom rulesets
+    (R-sample, R-wp) reached the production IR."""
     seen = []
     in_fence = False
     for ln in text.splitlines():
@@ -73,10 +77,20 @@ def extract_ruleset_names(text):
             continue
         if in_fence:
             continue
-        m = RULESET_RE.match(ln)
+        m = pattern.match(ln)
         if m and m.group(1) not in seen:
             seen.append(m.group(1))
     return seen
+
+
+def extract_ruleset_names(text):
+    """The ruleset ids declared by `# RULESET <name>` headings."""
+    return _extract_by(text, RULESET_RE)
+
+
+def extract_mend_names(text):
+    """The mend slugs declared by `### MEND <slug>` headings (F280)."""
+    return _extract_by(text, MEND_RE)
 
 
 def read_entry(abspath, root, st):
@@ -84,13 +98,14 @@ def read_entry(abspath, root, st):
     or changed files — the expensive half of the sweep."""
     with open(abspath, "rb") as fh:
         data = fh.read()
-    names = extract_ruleset_names(data.decode("utf-8", "replace"))
+    text = data.decode("utf-8", "replace")
     return {
         "path": os.path.relpath(abspath, root),
         "mtime_ns": st.st_mtime_ns,
         "size": st.st_size,
         "hash": hashlib.sha256(data).hexdigest(),
-        "ruleset_names": names,
+        "ruleset_names": extract_ruleset_names(text),
+        "mend_names": extract_mend_names(text),
     }
 
 
@@ -105,17 +120,29 @@ def index_hash(files):
         h.update(entry["hash"].encode("utf-8"))
         h.update(b"\0")
         h.update("\0".join(entry["ruleset_names"]).encode("utf-8"))
+        h.update(b"\0")
+        h.update("\0".join(entry.get("mend_names", [])).encode("utf-8"))
         h.update(b"\n")
     return h.hexdigest()
 
 
+# Bump when an index entry gains or loses a field. A stored index at a
+# different schema is discarded, which forces one full re-read — without
+# that, a file whose mtime has not moved keeps its old entry forever and any
+# newly-indexed construct inside it stays invisible (F280: `mend_names`).
+INDEX_SCHEMA = 2
+
+
 def load_index(index_path):
     """Load a prior index. Returns (bearing_by_path, seen) — the ruleset
-    entries keyed by path, and the all-files stat map — both {} if none."""
+    entries keyed by path, and the all-files stat map — both {} if none, or
+    if the stored index predates the current schema."""
     try:
         with open(index_path, "r", encoding="utf-8") as fh:
             prior = json.load(fh)
     except (FileNotFoundError, ValueError):
+        return {}, {}
+    if prior.get("schema") != INDEX_SCHEMA:
         return {}, {}
     bearing = {e["path"]: e for e in prior.get("files", [])}
     return bearing, prior.get("seen", {})
@@ -144,7 +171,10 @@ def build_index(root, prior_bearing, prior_seen, rescan):
         else:
             read += 1
             entry = read_entry(abspath, root, st)
-            if entry["ruleset_names"]:
+            # "Bearing" now means carrying rulesets OR mend blocks (F280) —
+            # a mend-only file must survive into the index or its messages
+            # never reach the compiler.
+            if entry["ruleset_names"] or entry["mend_names"]:
                 files.append(entry)
     files.sort(key=lambda e: e["path"])
     return files, seen, {"read": read, "reused": reused,
@@ -178,6 +208,7 @@ def main(argv=None):
 
     index = {
         "root": root,
+        "schema": INDEX_SCHEMA,
         "hash": index_hash(files),
         "files": files,
         "seen": seen,
