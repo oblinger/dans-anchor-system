@@ -681,6 +681,66 @@ def _q_home_link(r: "Row", vault_index: dict, backlog_file: Path) -> Optional[st
     return _feature_doc_link(r, vault_index, backlog_file)
 
 
+def _doc_q_anchor(qdoc, q_entries: list) -> Optional[str]:
+    """The in-document anchor a Q-bearing link must carry, or None.
+
+    T216 (Dan, 2026-08-11, on F312, the **second** report of the same
+    complaint): *"It says F312, one question. But when I click on it, it
+    doesn't go to the questions."* T211 had fixed the half it could see — the
+    question renders — and left the half nobody had named: the emitted handle
+    is `[[TINK312 - …|F312]]`, an unanchored link, so it lands at the top of
+    the doc. F312's `## Open Questions` is 33 lines down behind a 28-row Table
+    of Contents, so the first screen is entirely TOC and the question is
+    invisible *at the place the link delivers you to*. The render already
+    holds everything needed to aim better — it prints the question's own text
+    beside the link — so the anchor is recoverable, not new information.
+
+    Prefer the exact `^F<n>-Q<n>` block when the row has exactly one pending
+    question (lands ON the question), else the `## Open Questions` heading.
+    Verified against the doc's real text both times: an anchor that does not
+    resolve is worse than none, since Obsidian silently drops the reader at
+    the top again with no indication the aim was wrong.
+    """
+    if not qdoc or not q_entries:
+        return None
+    try:
+        text = qdoc.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return None
+    if len(q_entries) == 1:
+        m = re.search(r"\^([A-Za-z0-9]+-" + re.escape(q_entries[0][0]) + r")(?!\S)",
+                      text)
+        if m:
+            return "#^" + m.group(1)
+    if re.search(r"^##\s+Open Questions\s*$", text, re.M):
+        return "#Open Questions"
+    return None
+
+
+def _with_anchor(link: str, anchor: Optional[str]) -> str:
+    """Splice an in-document anchor into an already-emitted wiki-link (T216).
+
+    Kept separate from the link builders because every one of them
+    (`_bullet_link`, `_q_home_link`, `_feature_doc_link`) resolves a *target*
+    and none of them knows whether the row has questions — the anchor is a
+    property of the row's Q state, not of its link. An already-anchored link
+    and a plain-text fallback are both returned untouched: aiming a non-link is
+    meaningless, and re-aiming a hand-authored `→ [[X#Y]]` would override the
+    author.
+    """
+    if not anchor or not link.startswith("[[") or not link.endswith("]]"):
+        return link
+    inner = link[2:-2]
+    target = inner.split("|", 1)[0]
+    if "#" in target:
+        return link
+    if "|" in inner:
+        return f"[[{target}{anchor}|{inner.split('|', 1)[1]}]]"
+    # No pipe: add one, so the anchor does not leak into the displayed text
+    # as Obsidian's `Doc > Open Questions` form.
+    return f"[[{inner}{anchor}|{inner}]]"
+
+
 def _row_q_count(r: "Row", vault_index: dict, backlog_file=None) -> int:
     """Pending-question count for a `[Questions]` row — the `(NQ)` the user sees.
     Recount from the linked doc when one resolves (T012 — the bracket can be
@@ -1387,11 +1447,15 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
             body.append("")
         body.append(title)
 
-    def _q_affordance(r) -> tuple[str, list[str]]:
-        """The `**(NQ)**` badge and the indented question preview, as a pair.
+    def _q_affordance(r) -> tuple[str, list[str], Optional[str]]:
+        """The `**(NQ)**` badge, the indented question preview, and the anchor.
 
-        Returns `(badge, preview_lines)` so a caller can splice the badge into
-        its own bullet and append the preview under it. `## Questions` and
+        Returns `(badge, preview_lines, anchor)` so a caller can splice the
+        badge into its own bullet, append the preview under it, and aim its
+        link at the questions with `_with_anchor` (T216 — the badge, the
+        preview and the anchor are three views of the same pending-Q state, and
+        computing them anywhere but together is how the link came to point at a
+        doc whose top is a table of contents). `## Questions` and
         `## Blockers` both call it, and that sharing is the point: promotion
         moves a `[Questions]` row OUT of `## Questions` (one row, one section),
         so a question that is holding other work up used to render with its
@@ -1456,7 +1520,7 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
             # (recommendation) on every render of this generated file.
             lines.append(f"    - {qid} — {_truncate_body(qtext, qlimit)}"
                          f"{opt_txt}{rec_txt}")
-        return badge, lines
+        return badge, lines, _doc_q_anchor(qdoc, q_entries)
 
     # F283 — Blockers first. Computed, never authored: these rows are here only
     # because something else names them. Each bullet says WHAT it holds up, which
@@ -1484,9 +1548,10 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
             # the ONLY place it renders — so it carries the same badge and
             # question preview `## Questions` would have given it. Without this
             # the bullet said "[Questions]" and showed none.
-            badge, qlines = (_q_affordance(r)
-                             if _member(r, lambda m: "Questions" in m)
-                             else ("", []))
+            badge, qlines, qanchor = (_q_affordance(r)
+                                      if _member(r, lambda m: "Questions" in m)
+                                      else ("", [], None))
+            link = _with_anchor(link, qanchor)
             body.append(f"- {link}{badge} — {btxt} **gates {waiters}**{parked}"
                         + (f" — {txt}" if txt else ""))
             body.extend(qlines)
@@ -1512,7 +1577,8 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
             # the 2026-07-18 rule that the queue must SHOW its questions, and
             # both are fixed by calling the one affordance rather than
             # reimplementing it per section.
-            badge, qlines = _q_affordance(r)
+            badge, qlines, qanchor = _q_affordance(r)
+            link = _with_anchor(link, qanchor)
             body.append(f"- {link}{badge} — **Next:** {na_txt}")
             body.extend(qlines)
     # Questions — the one pile the user personally unsticks. Kept separate from
@@ -1527,7 +1593,7 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
             # feature needs at a glance (`[[F181 …]] **(5Q)**`). Per /query North
             # Star. Shared with `## Blockers`, which renders promoted `[Questions]`
             # rows and needs the identical affordance.
-            cnt, qlines = _q_affordance(r)
+            cnt, qlines, qanchor = _q_affordance(r)
             # The Q-bearing doc is the entry's home — link it first, demote the
             # backlog-row link to a parenthesized `(row)` pointer (same shape as
             # the F235 Verify entries). Inline T-/B-rows keep the row link: the
@@ -1535,9 +1601,13 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
             doclink = _q_home_link(r, vault_index, backlog_file)
             if doclink:
                 rowlink = re.sub(r"\|[^\]|]*\]\]$", "|row]]", link) if link.rstrip().endswith("]]") else link
+                # Anchor the DOC link only. The `(row)` pointer deliberately
+                # keeps aiming at the backlog row — that is what it is for.
+                doclink = _with_anchor(doclink, qanchor)
                 body.append(f"- {doclink}{cnt} ({rowlink})" + (f" — {txt}" if txt else ""))
             else:
-                body.append(f"- {link}{cnt}" + (f" — {txt}" if txt else ""))
+                body.append(f"- {_with_anchor(link, qanchor)}{cnt}"
+                            + (f" — {txt}" if txt else ""))
             body.extend(qlines)
     # F283 — the visibility ledger. Scanned, not worked: "if it's legitimately
     # blocked on something else, then I don't really want to see it, I just wanna
