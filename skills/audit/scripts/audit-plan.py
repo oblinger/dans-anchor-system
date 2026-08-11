@@ -5753,6 +5753,323 @@ def chk_rocks_folder_note_catchall(target, anchor_root, args):
                     "gate; without it an unranked rock is genuinely invisible")
 
 
+# -- R-stone (T164 wire-up) ---------------------------------------------------
+# The Stone facet is `R-rocks` generalised: a pebble and a rock are the same
+# shape of thing at two sizes, so these checkers are parameterised by KIND
+# rather than written once per kind. Nothing below names `pebble` or `rock` —
+# every per-kind fact (folder name, control-file name, stone prefix, digit
+# count, the two display aliases) is read from the file `stone` itself reads,
+# `facets/DAS Stone Kinds.json`. A third kind therefore needs no code change
+# here; it needs its folder glob added to `R-stone`'s `where::`, which is the
+# one remaining place a kind is named twice.
+#
+# Why this cannot reuse `_rocks_gate`: that helper hardcodes `_ROCKS_SUFFIX`,
+# so it reads a `{slug} Pebbles/` group as "not inside a `* Rocks/` folder" and
+# returns a PASS. Wired that way, the four live pebble groups would have been
+# silently exempt from a ruleset reporting itself as covering them — the same
+# vacuous-green shape this whole task exists to end.
+
+_STONE_KINDS_PATH = (
+    Path(__file__).resolve().parents[3] / "facets" / "DAS Stone Kinds.json"
+)
+_STONE_KINDS_CACHE: dict | None = None
+
+
+def _stone_kinds() -> dict:
+    """`{kind: cfg}` from the DAS kind config — the same file `stone` reads.
+
+    An unreadable or malformed config yields `{}`, and every checker below then
+    returns an explicit `error` rather than a quiet pass. A stone rule that
+    cannot see its kinds has verified nothing and must not report that it has;
+    a silent pass here is precisely the instrument-reads-zero failure that
+    `R-rocks-03` shipped for a day.
+    """
+    global _STONE_KINDS_CACHE
+    if _STONE_KINDS_CACHE is None:
+        try:
+            data = json.loads(_STONE_KINDS_PATH.read_text(encoding="utf-8"))
+            _STONE_KINDS_CACHE = {
+                k: v for k, v in data.items()
+                if not k.startswith("_") and isinstance(v, dict) and "folder" in v
+            }
+        except (OSError, ValueError):
+            _STONE_KINDS_CACHE = {}
+    return _STONE_KINDS_CACHE
+
+
+def _stone_kind_suffixes() -> dict:
+    """`{" Rocks": ("rock", cfg)}` — a folder-name suffix to the kind it declares.
+
+    Derived from each kind's `folder` template by deleting the `{slug}` token,
+    so the suffix and the name `stone` mints cannot drift apart."""
+    out = {}
+    for kind, cfg in _stone_kinds().items():
+        tmpl = cfg.get("folder")
+        if isinstance(tmpl, str) and "{slug}" in tmpl:
+            out[tmpl.replace("{slug}", "")] = (kind, cfg)
+    return out
+
+
+def _stone_owner(start: Path) -> Path:
+    """The project anchor that owns a stone group.
+
+    Same walk as `_rocks_owner`, over a suffix list that is computed rather than
+    literal. A rock group carries its own `.anchor` and so does the `{slug}
+    Track/` above it, so a checker is handed an anchor_root one or two facet
+    sub-anchors below the anchor whose slug the rules mean. A pebble group
+    carries no `.anchor` at all, and this walk is a no-op for it — which is
+    correct, since its anchor_root is already the owning anchor."""
+    sufs = _AGENDA_FACET_SUFFIXES + tuple(_stone_kind_suffixes())
+    d = start if start.is_dir() else start.parent
+    while any(d.name.endswith(s) for s in sufs) and d.parent != d:
+        d = d.parent
+    return d
+
+
+def _stone_group(f: Path):
+    """`(folder, kind, cfg)` for the nearest enclosing stone-group folder.
+
+    `(None, None, None)` when the target is not inside one — the belt to the
+    `where::` glob's braces, and what makes an anchor-scope invocation (where
+    `_as_file` hands back some unrelated entry page) a pass rather than a wrong
+    finding."""
+    sufs = _stone_kind_suffixes()
+    for d in (f if f.is_dir() else f.parent, *f.parents):
+        for suf, (kind, cfg) in sufs.items():
+            if d.name.endswith(suf):
+                return d, kind, cfg
+    return None, None, None
+
+
+def _stone_is_instance(folder: Path, slug: str, cfg: dict) -> bool:
+    """Is this folder an instance of the (elective) Stone facet?
+
+    Both halves are load-bearing, exactly as in `_rocks_is_instance`: the name
+    test is what lets the location rule fire on a group filed under Design, and
+    the location test is what lets the name rule fire on a `{slug} Big Rocks/`
+    sitting correctly under Track."""
+    return (folder.name == cfg["folder"].format(slug=slug)
+            or folder.parent.name == f"{slug} Track")
+
+
+def _stone_control(folder: Path, slug: str, cfg: dict) -> Path:
+    """The control file, `{slug} Track/{slug} {Word}.md`.
+
+    It sits BESIDE the group folder, not inside it, so it is never itself
+    selected by the `where::` glob — a folder-scope rule reads it, and reports
+    against the group."""
+    return folder.parent / (cfg["control"].format(slug=slug) + ".md")
+
+
+def _stone_number_rx(slug: str, cfg: dict):
+    """Matches EXACTLY `{slug} {PREFIX}{NNNN}` — digits and all, never a glob.
+
+    `stone` carries the same regex and the same warning: for the rock kind the
+    prefix is `R`, so a `{slug} {PREFIX}*` glob matches the group's own anchor
+    page (`HBR Rocks.md` inside `HBR Rocks/`) for every rock group that exists.
+    """
+    return re.compile(
+        rf"^{re.escape(slug)} {re.escape(cfg['prefix'])}(\d{{{cfg.get('digits', 4)}}})$")
+
+
+def _stone_members(folder: Path, slug: str, cfg: dict) -> list[Path]:
+    """Every `*.md` directly in the group folder that is meant to be a stone.
+
+    The group's own anchor page is excluded under both spellings it can take —
+    the folder's name and the owning slug's — so a misnamed folder collects one
+    finding rather than also reading as a malformed stone."""
+    skip = {f"{folder.name}.md", f"{cfg['folder'].format(slug=slug)}.md"}
+    try:
+        return sorted(p for p in folder.glob("*.md")
+                      if p.is_file() and p.name not in skip)
+    except OSError:
+        return []
+
+
+def _stone_spokesfile(folder: Path, slug: str, cfg: dict) -> Path | None:
+    """The one member a FOLDER-scope verdict is reported against.
+
+    The group's anchor page when there is one — that is the document a
+    folder-wide finding is about. Otherwise the alphabetically first `*.md`,
+    which is stable across runs and always present when the selector matched
+    anything: the four live pebble groups have no anchor page, and without this
+    fallback every folder-scope rule would go silent on exactly them."""
+    page = folder / f"{folder.name}.md"
+    if page.is_file():
+        return page
+    try:
+        cands = sorted(p for p in folder.glob("*.md") if p.is_file())
+    except OSError:
+        return None
+    return cands[0] if cands else None
+
+
+def _stone_gate(target, anchor_root, folder_scope: bool):
+    """Shared preamble for every R-stone checker.
+
+    Returns `(file, folder, slug, cfg, None)` when the checker should run, or
+    `(None, None, None, None, verdict)` when it should not."""
+    if not _stone_kinds():
+        return None, None, None, None, ("error", (
+            f"no readable kind config at {_STONE_KINDS_PATH} — R-stone is "
+            "parameterised by kind and cannot judge anything without it"))
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return None, None, None, None, ("error", "no file")
+    folder, _kind, cfg = _stone_group(f)
+    if folder is None:
+        return None, None, None, None, ("pass", "not inside a stone-group folder")
+    slug = _anchor_slug(_stone_owner(folder))
+    if not _stone_is_instance(folder, slug, cfg):
+        return None, None, None, None, ("pass", "not a Stone-facet instance "
+                                                "(elective facet, not adopted here)")
+    if folder_scope:
+        spokes = _stone_spokesfile(folder, slug, cfg)
+        if spokes is None:
+            return None, None, None, None, ("pass", "empty stone group")
+        if f != spokes:
+            return None, None, None, None, ("pass", "folder-scope rule — judged "
+                                                    f"once, on '{spokes.name}'")
+    return f, folder, slug, cfg, None
+
+
+def chk_stone_group_located(target, anchor_root, args):
+    """R-stone-01: the group is `{slug} Track/{slug} {Kind}s/` with its control file."""
+    f, folder, slug, cfg, done = _stone_gate(target, anchor_root, True)
+    if done:
+        return done
+    want = cfg["folder"].format(slug=slug)
+    problems = []
+    if folder.name != want:
+        problems.append(f"folder is {folder.name!r}, expected {want!r} — the kind's "
+                        "`folder` template for this anchor's slug, no qualifier and "
+                        "no singular form")
+    if folder.parent.name != f"{slug} Track":
+        problems.append(f"it sits in {folder.parent.name!r}, not '{slug} Track' — a "
+                        "stone group is Track content, not Design content and not "
+                        "an anchor-root folder")
+    control = _stone_control(folder, slug, cfg)
+    if not control.is_file():
+        problems.append(f"no control file '{control.name}' beside it in Track — the "
+                        "hand-arranged ordering is the half of the group a folder "
+                        "of stone files cannot supply")
+    if problems:
+        return "fail", "; ".join(problems)
+    return "pass", f"{folder.name}/ under {slug} Track/, control {control.name}"
+
+
+def chk_stone_members_numbered(target, anchor_root, args):
+    """R-stone-02: every stone file is `{slug} {PREFIX}{NNNN}`."""
+    f, folder, slug, cfg, done = _stone_gate(target, anchor_root, False)
+    if done:
+        return done
+    page = folder / f"{folder.name}.md"
+    if f == page or f.name == f"{cfg['folder'].format(slug=slug)}.md":
+        return "pass", "the group's own anchor page, not a stone"
+    rx = _stone_number_rx(slug, cfg)
+    if rx.match(f.stem):
+        return "pass", f"{f.stem} — numbered"
+    digits = cfg.get("digits", 4)
+    return "fail", (
+        f"{f.stem!r} is not `{slug} {cfg['prefix']}{'N' * digits}` — a stone is "
+        "identified by a monotonic number that is never recycled, because a "
+        "recycled number silently re-points every stale cross-anchor reference "
+        "and a copied control line is indistinguishable from a fresh one. "
+        "(Non-recycling itself is a claim about history and is not checkable "
+        "from a snapshot; this is the half a file can evidence.)")
+
+
+_STONE_FIRST_LINK_RX = re.compile(r"^\s*\[\[([^\]|]+)(?:\|([^\]]*))?\]\]")
+
+
+def chk_stone_header_by_target(target, anchor_root, args):
+    """R-stone-04: in the control file, what a line RENDERS as matches what its
+    first link TARGETS — a header is a header by target, never by appearance."""
+    f, folder, slug, cfg, done = _stone_gate(target, anchor_root, True)
+    if done:
+        return done
+    control = _stone_control(folder, slug, cfg)
+    if not control.is_file():
+        return "pass", "no control file — R-stone-01 owns that finding"
+    ctrl_word = cfg["control"].format(slug="").strip()
+    num_rx = re.compile(
+        rf"^([A-Za-z][A-Za-z0-9]*) {re.escape(cfg['prefix'])}"
+        rf"\d{{{cfg.get('digits', 4)}}}$")
+    # The two display shapes, taken from the kind's own alias templates rather
+    # than spelled out here: `-{slug}-` renders a header, `{slug}:` a stone.
+    hdr_shape = re.compile("^" + re.escape(cfg["header_alias"]).replace(
+        r"\{slug\}", r".+") + "$")
+    stn_shape = re.compile("^" + re.escape(cfg["stone_alias"]).replace(
+        r"\{slug\}", r".+") + "$")
+    problems = []
+    for n, line in enumerate(_strip_fenced(_read(control)).splitlines(), 1):
+        m = _STONE_FIRST_LINK_RX.match(line)
+        if not m:
+            continue                      # a tier label or prose — neither, by design
+        tgt = m.group(1).strip()
+        disp = (m.group(2) if m.group(2) is not None else tgt).strip()
+        is_hdr = tgt.endswith(f" {ctrl_word}")
+        is_stn = bool(num_rx.match(tgt))
+        if hdr_shape.match(disp) and not is_hdr:
+            problems.append(f"line {n} renders as a header ({disp!r}) but its first "
+                            f"link targets {tgt!r}, which is not a `… {ctrl_word}` "
+                            "control file")
+        elif stn_shape.match(disp) and not is_stn:
+            problems.append(f"line {n} renders as a stone ({disp!r}) but its first "
+                            f"link targets {tgt!r}, which is not a numbered stone")
+        elif is_hdr and not hdr_shape.match(disp):
+            problems.append(f"line {n} targets the control file {tgt!r} — so it IS a "
+                            f"header — but renders as {disp!r}, not "
+                            f"{cfg['header_alias'].format(slug='…')!r}")
+        elif is_stn and not stn_shape.match(disp):
+            problems.append(f"line {n} targets the stone {tgt!r} but renders as "
+                            f"{disp!r}, not {cfg['stone_alias'].format(slug='…')!r}")
+    if problems:
+        return "fail", (f"{control.name}: " + "; ".join(problems[:4])
+                        + (f" (+{len(problems) - 4} more)" if len(problems) > 4 else "")
+                        + " — identity comes from the link target, and a line whose "
+                          "appearance disagrees with its target misleads every reader "
+                          "who scans the list instead of resolving it")
+    return "pass", f"{control.name}: rendering agrees with targets"
+
+
+_STONE_KEY_RX = re.compile(r"^[A-Za-z][A-Za-z0-9_-]*::(\s|$)")
+
+
+def chk_stone_keys_above_prose(target, anchor_root, args):
+    """R-stone-06: a stone's `key:: value` lines all precede its prose."""
+    f, folder, slug, cfg, done = _stone_gate(target, anchor_root, False)
+    if done:
+        return done
+    if f == folder / f"{folder.name}.md" or not _stone_number_rx(slug, cfg).match(f.stem):
+        return "pass", "not a stone file — R-stone-02 owns any naming finding"
+    lines = _read(f).splitlines()
+    i, in_fm = 0, False
+    if lines and lines[0].strip() == "---":         # frontmatter is not prose
+        in_fm = True
+        i = 1
+        while i < len(lines) and lines[i].strip() != "---":
+            i += 1
+        i += 1
+    prose_at = None
+    for n, line in enumerate(lines[i:], i + 1):
+        if not line.strip():
+            continue
+        if _STONE_KEY_RX.match(line):
+            if prose_at is not None:
+                return "fail", (
+                    f"`{line.split('::')[0]}::` is at line {n}, below prose that "
+                    f"starts at line {prose_at} — keys sit at the top of a stone, "
+                    "above the body, so a reader (and the parser) can take the whole "
+                    "key block without scanning the file")
+            continue
+        if prose_at is None:
+            prose_at = n
+    keys = sum(1 for ln in lines[i:] if _STONE_KEY_RX.match(ln))
+    note = f"{keys} key line(s) above the body" if keys else "no key lines"
+    return "pass", note + (" (after frontmatter)" if in_fm else "")
+
+
 # -- R-md-03 / R-code-repository-02 / R-versions-01 (T071 wire-up) -------------
 
 def chk_no_git_probe_fallback(target, anchor_root, args):
@@ -6229,6 +6546,14 @@ CHECKERS = {
     "rocks_no_work_rows": chk_rocks_no_work_rows,
     "rocks_dispatch_linked": chk_rocks_dispatch_linked,
     "rocks_folder_note_catchall": chk_rocks_folder_note_catchall,
+    # R-stone (T164) — the kind-generic four; the other two rules of the six
+    # stay `stated` on purpose (R-stone-03 is a claim about how a value was
+    # CHOSEN, R-stone-05 about what the mint REFUSES — neither is content of a
+    # file, and a `check::` on either would report coverage it cannot have)
+    "stone_group_located": chk_stone_group_located,
+    "stone_members_numbered": chk_stone_members_numbered,
+    "stone_header_by_target": chk_stone_header_by_target,
+    "stone_keys_above_prose": chk_stone_keys_above_prose,
     # T071 — the two other inert refs
     "no_git_probe_fallback": chk_no_git_probe_fallback,
     "regex_basename": chk_regex_basename,
