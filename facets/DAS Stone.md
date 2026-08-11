@@ -61,7 +61,13 @@ A stone carries `key:: value` parameters, **at the top of the file, above the pr
 
 ## Rules
 
-The ruleset is below. **Every rule is `stated`, not `checked`, and that is deliberate** — a folder-shaped facet's `where::` currently selects nothing, so a `check::` here would read as enforced and enforce nothing. That is the defect this project has hit three times in two days; it is not shipping a fourth. The rules convert to `checked` when the selector is fixed.
+The ruleset is below. **Every rule is `stated`, not `checked`, and that is deliberate** — a `check::` here would read as enforced and enforce nothing until the rules are genuinely wired. That is the defect this project has hit three times in two days; it is not shipping a fourth.
+
+**The original blocker is gone, measured 2026-08-11 — what remains is the wiring itself.** This paragraph used to say a folder-shaped facet's `where::` *"currently selects nothing"*. It selects correctly now: a `--batch` sweep over `Topic/MED` visits `MED Rocks` **as its own anchor** and emits 13 `R-rocks-*` verdicts. The earlier zero came from scoping on the *owning* anchor, which by design cannot see a facet sub-anchor ([[DAS Facet]] § folder facets) — and `--batch` is how the corpus is actually swept. So the precondition this note set has been met; converting these six to `checked` now waits only on someone writing the six checkers.
+
+**The live corpus is 8 groups across 2 kinds, and all 8 already conform** — measured the same day. Rocks: `AIS` 3, `HBR` 3, `MED` 1, `VEC` 1. Pebbles: `SV` 3, `SYS` 2, `NJ` 2, `MED` 1. Sixteen stone files, sixteen matching `{slug} {PREFIX}{NNNN}`, zero abbreviation-named, and a control file present beside every one. **That uniformity is a trap for whoever arms these rules**: a ruleset that passes 100% on its first run has demonstrated nothing about whether it can fail. Verify by making a deliberately malformed fixture group and seeing each rule **fire**, per the BRIEF below — not by watching the clean corpus go green.
+
+**Two of the six are not file-checkable and should stay `stated`.** `R-stone-05` asserts what *the mint refuses*, which is behaviour of the `stone` script rather than content of any document; it wants a guard test, the shape [[R-exception-discipline]]-03 already uses. `R-stone-03` forbids *deriving* a prefix from a kind's name — a claim about how a value was chosen, which no file can evidence.
 
 # RULESET R-stone
 
