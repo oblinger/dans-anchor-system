@@ -92,9 +92,13 @@ mend:: spine-position
 
 The identity row's right-hand cell carries `<br>`-delimited segments. The **description** — the `: `-led one — comes first, and the `→ ` breadcrumb sits beneath it, so the first line reads *name + what this is*. User direction 2026-08-09: *"that's the way I want to do all of the tables."*
 
-**Check pattern:** in the identity row's third cell, a `→ ` appears before a `: ` → warn.
+**Check pattern:** in the identity row's third cell, a `→ ` appears before a `: ` → fail (`fix:: spine_position` flips it on the write).
 
-**Why:** the name alone does not say what a thing is, and the breadcrumb repeats what the page's location already tells you. Leading with the description makes the row answer the reader's actual question first. **Verified safe against the daemon** 2026-08-10: a description-first cell survives a HookAnchor rebuild byte-identical, on two spine shapes — the order is not re-imposed.
+**Why:** the name alone does not say what a thing is, and the breadcrumb repeats what the page's location already tells you. Leading with the description makes the row answer the reader's actual question first.
+
+**What the daemon does, read out of `sections.rs` rather than inferred from a sample** (2026-08-10, [[TINK Backlog#^T192|T192]]). `merge_desc_into_header_right` splits the cell on `<br>` and looks for the `: `-led segment. When it finds one it replaces that segment **in place**, so a cell that already pairs description and breadcrumb keeps whatever order it has — which is why a description-first cell survives a rebuild byte-identical, and equally why the 712 legacy breadcrumb-first cells are not self-healing: the daemon preserves them just as faithfully. Flipping those is the sweep's job, not the daemon's.
+
+The one branch that **chose** an order is the one nobody sampled: a cell holding a breadcrumb and no description yet. There the merge appended, minting `→ breadcrumb<br>: description` — breadcrumb-first, against this rule, on a page the daemon had just touched. **254 vault cells are in that state**, so a sweep run before this was fixed would have been re-seeded page by page as descriptions landed, and would have read as a sweep that silently failed on a quarter of its work. Corrected in HookAnchor 2026-08-10 to emit the description first; pinned by `t017_merge_desc_preserves_breadcrumb_segment`, which now also asserts that a `→` breadcrumb rides along untouched — the reorder must not depend on recognising a marker `breadcrumb_marker_pos` deliberately does not match.
 
 ### RULE R-spine-06 — no blank line between the H1 and its orientation line (checked)
 check:: orientation_line_adjoins_h1
