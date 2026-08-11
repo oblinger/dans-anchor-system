@@ -64,7 +64,7 @@ Every other rule here asks *which* shape the spine is and whether its parts are 
 **Scope is entry pages only, deliberately.** For a folder's front door a spine is unambiguously required. For everything else the scope is a live question — [[TINK308 - Spine: the routing zone every document opens with|F308]] Q6, 4,941 files — and a write-time fail on an unsettled scope would land on every agent who touched any of them, which is how a rule teaches people to ignore it. 153 of 1,275 entry pages fail this today.
 
 ### RULE R-spine-10 — a spine is followed by an H1 (checked)
-check:: h1_present
+check:: spine_h1_present
 fix:: spine_h1
 mend:: spine-position
 

@@ -6045,7 +6045,7 @@ def _is_pointer_stub(p) -> bool:
     return len(rest) == 1 and "[[" in rest[0]
 
 
-def chk_h1_present(target, anchor_root, args):
+def chk_spine_h1_present(target, anchor_root, args):
     """A page that has a spine must also have an H1 beneath it.
 
     The spine says *where you are*; the H1 says *what this is called*. Every
@@ -6257,7 +6257,7 @@ CHECKERS = {
     # `error`, which `execute_on_write` deliberately never surfaces. Silent in
     # both directions: the rules looked shipped and the writes looked clean.
     "valid_spine": chk_valid_spine,
-    "h1_present": chk_h1_present,
+    "spine_h1_present": chk_spine_h1_present,
     "identity_cell_description_first": chk_identity_cell_description_first,
     "orientation_line_adjoins_h1": chk_orientation_line_adjoins_h1,
     "masthead_over_folder_has_marker": chk_masthead_over_folder_has_marker,
@@ -6926,7 +6926,7 @@ def fix_spine_position(target, anchor_root, args):
 
 
 def fix_spine_h1(target, anchor_root, args):
-    """Insert `# {stem}` directly beneath the spine. Paired to `h1_present`.
+    """Insert `# {stem}` directly beneath the spine. Paired to `spine_h1_present`.
 
     The title is the file's stem — not a guess, and not the `.anchor`'s
     `title:`: the stem is what every `[[wiki-link]]` to this page already

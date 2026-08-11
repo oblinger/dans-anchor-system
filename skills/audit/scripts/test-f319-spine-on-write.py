@@ -86,6 +86,18 @@ for name in ("spine_above_h1", "identity_cell_description_first",
              "marker_has_rows_below", "valid_spine"):
     chk(f"`{name}` is in CHECKERS", name in ap.CHECKERS)
 chk("`spine_position` is in FIXERS", "spine_position" in ap.FIXERS)
+chk("`spine_h1_present` is in CHECKERS", "spine_h1_present" in ap.CHECKERS)
+chk("`spine_h1` is in FIXERS", "spine_h1" in ap.FIXERS)
+# The F319 H1 checker was FIRST written as `chk_h1_present` — a name T093/T101
+# already owned. Python takes the later definition and the dict took the later
+# key, so a tested rule was silently replaced by a different one asking a
+# different question, and only T093's own suite noticed. Both must survive, and
+# they must not be the same function.
+chk("T093's `h1_present` still exists and still means head-H1",
+    "h1_present" in ap.CHECKERS
+    and "head H1" in (ap.CHECKERS["h1_present"].__doc__ or ""))
+chk("...and it is NOT the spine checker wearing its name",
+    ap.CHECKERS["h1_present"] is not ap.CHECKERS["spine_h1_present"])
 
 # ---- B: the grades — only a `fail` reaches the writer -----------------------
 print("== B: grade — `warn` is invisible on write, so the fixable ones are `fail` ==")
@@ -134,6 +146,30 @@ d7, p7 = anchor(page_name="Real",
                 body="# Real\nOne real sentence of content that is not a link.\n")
 chk("a short page with real content is NOT treated as a stub",
     ap.run_checker("valid_spine", p7, d7)[0] == "fail")
+
+# ---- C2: the H1 that every other rule was blind to --------------------------
+print("== C2: R-spine-10 — a spine with no H1 beneath it ==")
+d8, p8 = anchor(page_name="Eli Yoto",
+                body="| -[[Eli Yoto]]- | : audio<br>→ [[kmr]] → [Eli Yoto](hook://p/x) |\n"
+                     "| --- | --- |\n| ... |  |\n\nSome prose, but no H1 anywhere.\n")
+st, _ = ap.run_checker("spine_h1_present", p8, d8)
+chk("a spine with no H1 fails", st == "fail")
+ok_, note = ap.run_fixer("spine_h1", p8, d8)
+after = p8.read_text()
+chk("the fixer inserts the stem as the title", ok_ and "# Eli Yoto" in after)
+chk("directly beneath the spine, not at the top",
+    after.index("-[[Eli Yoto]]-") < after.index("# Eli Yoto"))
+chk("above the prose that was already there",
+    after.index("# Eli Yoto") < after.index("Some prose"))
+chk("and the check now passes",
+    ap.run_checker("spine_h1_present", p8, d8)[0] == "pass")
+chk("nothing but the title was added — the original survives verbatim",
+    all(l in after for l in ("Some prose, but no H1 anywhere.", "| ... |  |")))
+# A page with no spine belongs to R-spine-09, not this rule — otherwise the two
+# both fire on the same file and the writer is told the same thing twice.
+d9, p9 = anchor(page_name="Bare", body="Just prose, no spine and no H1.\n")
+st, detail = ap.run_checker("spine_h1_present", p9, d9)
+chk("a page with NO spine is left to R-spine-09", st == "pass" and "R-spine-09" in detail)
 
 # ---- D: the floor — a rearranging fixer needs an order-FREE floor ----------
 print("== D: the never-delete floor, and why `spine_position` needs its own ==")
