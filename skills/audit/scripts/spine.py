@@ -33,7 +33,6 @@ Discipline: [[DAS spine]]. Rules: [[R-spine]]. Roadmap: TINK319 Spine Agenda.
 import argparse
 import re
 import sys
-from collections import Counter
 from pathlib import Path
 
 VAULT = Path.home() / "ob" / "kmr"
@@ -48,6 +47,45 @@ BREADCRUMB = re.compile(r"^\s*:>>")
 
 _ANCHOR_KEY = re.compile(r"^\s*(slug|title)\s*:\s*(.+?)\s*$")
 _entry_names: dict[Path, set[str]] = {}
+
+_ap_mod = None
+
+
+def _head_h1(text: str):
+    """The document's HEAD H1 line index, via the ONE definition of that (F296).
+
+    This used to be `l.startswith("# ")` scanned from the body start, which is
+    the pattern F296 replaced everywhere else and T093 renamed off `_first_h1`
+    for the reason that bites here: `# BRIEF` / `# LOG` / `# MEETINGS` opening a
+    body section below an earlier `##` is a widespread user convention, not a
+    head. Scanning for the first `# ` hands back a "head" hundreds of lines into
+    the body, and every check anchored on it then reports a real line number for
+    a defect that is not there. Measured 2026-08-11: **215** in-scope pages were
+    handed a head H1 the primitive says does not exist, and 3 more had a legally
+    indented one missed because the hand-spelled pattern demanded column zero.
+
+    Loaded lazily and short-circuited to an already-live module, per the same
+    reasoning as `_load_checker_module`: `audit-plan` loads `spine` through
+    `_spine_sibling`, so re-executing it from disk here would give this module a
+    second, divergent copy of 7,000 lines the rest of the process is not using.
+    """
+    global _ap_mod
+    if _ap_mod is None:
+        here = Path(__file__).resolve().parent
+        target = here / "audit-plan.py"
+        for m in list(sys.modules.values()):
+            f = getattr(m, "__file__", None)
+            if f and Path(f).resolve() == target and hasattr(m, "_head_h1"):
+                _ap_mod = m
+                break
+        else:
+            import importlib.util
+            spec = importlib.util.spec_from_file_location("_spine_ap", target)
+            if spec is None or spec.loader is None:
+                raise RuntimeError(f"cannot load audit-plan.py beside {here}")
+            _ap_mod = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(_ap_mod)
+    return _ap_mod._head_h1(text)[0]
 
 
 def entry_names(folder: Path) -> set[str]:
@@ -163,7 +201,7 @@ class Spine:
         self.lines = lines
         self.fenced = self._fenced()
         self.body_start = self._after_frontmatter()
-        self.h1 = self._find(lambda l: l.startswith("# "), self.body_start)
+        self.h1 = _head_h1("\n".join(lines))
         self.breadcrumb = self._find(lambda l: BREADCRUMB.match(l), self.body_start)
         self.table_start = self._find_identity()
         self.table_end = self._table_end()
