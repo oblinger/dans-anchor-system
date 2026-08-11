@@ -40,6 +40,11 @@
   "status": "pass"
  },
  {
+  "rule": "R-dispatch-table-15",
+  "target": "FX7 Backlog.md",
+  "status": "pass"
+ },
+ {
   "rule": "R-doc-structure-01",
   "target": "FX7 Backlog.md",
   "status": "pass"
@@ -95,27 +100,62 @@
   "status": "fail"
  },
  {
-  "rule": "R-progressive-01",
-  "target": "FX7 Backlog.md",
-  "status": "pass"
- },
- {
   "rule": "R-progressive-02",
   "target": "FX7 Backlog.md",
   "status": "pass"
  },
  {
-  "rule": "R-progressive-03",
-  "target": "FX7 Backlog.md",
-  "status": "fail"
- },
- {
-  "rule": "R-progressive-04",
+  "rule": "R-progressive-05",
   "target": "FX7 Backlog.md",
   "status": "pass"
  },
  {
-  "rule": "R-progressive-05",
+  "rule": "R-spine-01",
+  "target": "FX7 Backlog.md",
+  "status": "pass"
+ },
+ {
+  "rule": "R-spine-02",
+  "target": "FX7 Backlog.md",
+  "status": "fail"
+ },
+ {
+  "rule": "R-spine-03",
+  "target": "FX7 Backlog.md",
+  "status": "pass"
+ },
+ {
+  "rule": "R-spine-04",
+  "target": "FX7 Backlog.md",
+  "status": "pass"
+ },
+ {
+  "rule": "R-spine-05",
+  "target": "FX7 Backlog.md",
+  "status": "pass"
+ },
+ {
+  "rule": "R-spine-06",
+  "target": "FX7 Backlog.md",
+  "status": "pass"
+ },
+ {
+  "rule": "R-spine-07",
+  "target": "FX7 Backlog.md",
+  "status": "pass"
+ },
+ {
+  "rule": "R-spine-08",
+  "target": "FX7 Backlog.md",
+  "status": "pass"
+ },
+ {
+  "rule": "R-spine-09",
+  "target": "FX7 Backlog.md",
+  "status": "pass"
+ },
+ {
+  "rule": "R-spine-10",
   "target": "FX7 Backlog.md",
   "status": "pass"
  }

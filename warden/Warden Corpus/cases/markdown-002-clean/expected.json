@@ -10,6 +10,11 @@
   "status": "pass"
  },
  {
+  "rule": "R-dispatch-table-15",
+  "target": "FX8 Notes.md",
+  "status": "pass"
+ },
+ {
   "rule": "R-doc-structure-01",
   "target": "FX8 Notes.md",
   "status": "pass"
@@ -65,27 +70,62 @@
   "status": "pass"
  },
  {
-  "rule": "R-progressive-01",
-  "target": "FX8 Notes.md",
-  "status": "pass"
- },
- {
   "rule": "R-progressive-02",
   "target": "FX8 Notes.md",
   "status": "pass"
  },
  {
-  "rule": "R-progressive-03",
-  "target": "FX8 Notes.md",
-  "status": "pass"
- },
- {
-  "rule": "R-progressive-04",
-  "target": "FX8 Notes.md",
-  "status": "pass"
- },
- {
   "rule": "R-progressive-05",
+  "target": "FX8 Notes.md",
+  "status": "pass"
+ },
+ {
+  "rule": "R-spine-01",
+  "target": "FX8 Notes.md",
+  "status": "pass"
+ },
+ {
+  "rule": "R-spine-02",
+  "target": "FX8 Notes.md",
+  "status": "pass"
+ },
+ {
+  "rule": "R-spine-03",
+  "target": "FX8 Notes.md",
+  "status": "pass"
+ },
+ {
+  "rule": "R-spine-04",
+  "target": "FX8 Notes.md",
+  "status": "pass"
+ },
+ {
+  "rule": "R-spine-05",
+  "target": "FX8 Notes.md",
+  "status": "pass"
+ },
+ {
+  "rule": "R-spine-06",
+  "target": "FX8 Notes.md",
+  "status": "pass"
+ },
+ {
+  "rule": "R-spine-07",
+  "target": "FX8 Notes.md",
+  "status": "pass"
+ },
+ {
+  "rule": "R-spine-08",
+  "target": "FX8 Notes.md",
+  "status": "pass"
+ },
+ {
+  "rule": "R-spine-09",
+  "target": "FX8 Notes.md",
+  "status": "pass"
+ },
+ {
+  "rule": "R-spine-10",
   "target": "FX8 Notes.md",
   "status": "pass"
  }
