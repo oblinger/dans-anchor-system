@@ -5945,9 +5945,39 @@ def chk_inbox_status_tags(target, anchor_root, args):
 _SPINE_CACHE: dict = {}
 
 
+def _spine_sibling(name):
+    """Load one of the spine modules sitting beside this file, once.
+
+    `spine.py` is the classifier, `spine_check.py` the detector, `spine_fix.py`
+    the mover — three files, one implementation of what a spine IS. Loading
+    them here rather than re-deriving shape inside audit-plan is the whole
+    reason the audit and the `spine` CLI cannot drift into disagreeing.
+    """
+    import importlib.util
+    key = "__mod__:" + name
+    mod = _SPINE_CACHE.get(key)
+    if mod is not None:
+        return mod
+    here = Path(__file__).resolve().parent
+    import sys as _sys
+    if str(here) not in _sys.path:
+        _sys.path.insert(0, str(here))
+    spec = importlib.util.spec_from_file_location(name, here / f"{name}.py")
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"cannot load {name}.py beside {here}")
+    mod = importlib.util.module_from_spec(spec)
+    _sys.modules[name] = mod          # spine_fix imports spine_check by name
+    spec.loader.exec_module(mod)
+    _SPINE_CACHE[key] = mod
+    return mod
+
+
+def _spine_module():
+    return _spine_sibling("spine")
+
+
 def _spine_findings(f):
     """Every spine finding for one file, computed once per (path, mtime)."""
-    import importlib.util
     global _SPINE_CACHE
     try:
         key = (str(f), f.stat().st_mtime_ns)
@@ -5956,26 +5986,28 @@ def _spine_findings(f):
     hit = _SPINE_CACHE.get(key)
     if hit is not None:
         return hit
-    mod = _SPINE_CACHE.get("__mod__")
-    if mod is None:
-        here = Path(__file__).resolve().parent
-        spec = importlib.util.spec_from_file_location(
-            "spine_check", here / "spine_check.py")
-        if spec is None or spec.loader is None:
-            raise RuntimeError(f"cannot load the spine checker beside {here}")
-        import sys as _sys
-        if str(here) not in _sys.path:
-            _sys.path.insert(0, str(here))
-        mod = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(mod)
-        _SPINE_CACHE["__mod__"] = mod
-    out = mod.check(f)
+    out = _spine_sibling("spine_check").check(f)
     _SPINE_CACHE[key] = out
     return out
 
 
-def _spine_rule(code, ok_msg):
-    """Build a checker that reports one spine code as an advisory."""
+def _spine_rule(code, ok_msg, grade="warn"):
+    """Build a checker that reports one spine code.
+
+    `grade` is what the rule COSTS the writer, and the two values mean very
+    different things on write. `warn` never reaches the agent at all —
+    `execute_on_write` surfaces only `fail` — so an advisory rule is invisible
+    at the moment the page is being made, which is the moment it could have
+    been fixed for free. That is not a hypothetical: [[Stones]] was created
+    2026-08-10 with its H1 above the spine and a breadcrumb-first identity
+    cell, and every one of these checks stayed silent (F319 § Why the write
+    hook said nothing).
+
+    So a code gets `fail` **once it has a `fix::`** — then the write repairs
+    itself and the agent is told what was done, at zero cost to them. A code
+    with no safe automatic repair stays `warn` until the corpus is clean,
+    because a fail nobody can act on cheaply is the audit-noise trap.
+    """
     def _chk(target, anchor_root, args):
         f = _as_file(target, anchor_root)
         if f is None:
@@ -5984,16 +6016,85 @@ def _spine_rule(code, ok_msg):
         if not hits:
             return "pass", ok_msg
         ln, msg = hits[0]
-        return "warn", f"line {ln}: {msg}"
+        return grade, f"line {ln}: {msg}"
     return _chk
 
 
+def _is_pointer_stub(p) -> bool:
+    """Is this page a marker that just points at the real anchor page?
+
+    46 anchor folders vault-wide hold TWO files matching the entry name — the
+    anchor page and a one-line marker for the other name, so both `ESP.md` and
+    `Espresso.md` resolve. Only one is the anchor page; the other is a pointer
+    (`# ESP` / `(See Anchor [[Espresso]])`) and wants no spine at all.
+
+    **Which one is the stub is not positional**, so there is no rule like "the
+    slug file is the marker": in `examples/Espresso/` the slug file `ESP.md` is
+    the stub, and in `Areas of Thought/` the folder-named file is, with `AOT.md`
+    carrying the real page. Nor is it a phrase — matching *"Slug marker for"*
+    would break the moment someone words it differently. So the test is
+    structural: below the frontmatter there is an H1 and at most one other
+    non-blank line, and that line points somewhere with a wiki-link. A page with
+    real content never matches, however short.
+    """
+    # `p.h1` is the classifier's OWN, fence-aware answer to where the H1 is.
+    # Re-spelling it as `startswith("# ")` here is the exact defect T099's
+    # ratchet exists to catch, and it caught this one.
+    rest = [l.strip() for i, l in enumerate(p.lines[p.body_start:], p.body_start)
+            if l.strip() and i != p.h1]
+    return len(rest) == 1 and "[[" in rest[0]
+
+
+def chk_valid_spine(target, anchor_root, args):
+    """Does this page open with a spine AT ALL — the one question under the
+    eight shapes.
+
+    Every other spine rule asks *which* shape and whether its parts are in
+    order. This one asks only whether there is anything above the H1 to orient
+    from: a `:>>` breadcrumb, or a dispatch table's identity row. A page with
+    neither has no answer to "where am I", and no amount of shape-checking
+    applies to it.
+
+    **Scoped to anchor ENTRY pages**, i.e. a page that fronts its own folder.
+    For those a spine is unambiguously required — the page IS the folder's
+    front door. For everything else the scope is a live question (F308 Q6,
+    4,941 files), and a write-time fail on an unsettled scope would land on
+    every agent touching any of them. 153 of 1,275 entry pages fail this
+    today, measured 2026-08-10.
+    """
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    try:
+        mod = _spine_module()
+        p = mod.Spine(f)
+    except Exception as e:
+        return "error", f"cannot classify: {e}"
+    if not p.fronts_folder:
+        return "pass", "not an anchor entry page — spine scope is F308 Q6"
+    # has_spine FIRST. A page that is nothing but a `:>>` breadcrumb passes on
+    # its spine, and also matches the stub shape — reporting it as "a pointer
+    # stub" would be a true verdict for a false reason, which is worse in a log
+    # than a wrong verdict, because nobody re-checks a pass. 200 pages read that
+    # way before this order was fixed.
+    if p.has_spine:
+        return "pass", f"opens with a {p.shape()} spine"
+    if _is_pointer_stub(p):
+        return "pass", "a pointer stub, not the anchor page it points at"
+    return "fail", ("no spine at all — an anchor entry page must open with a "
+                    "`:>>` breadcrumb or a dispatch-table identity row above "
+                    "its H1, so a reader lands knowing where they are")
+
+
+# The three that `fix_spine_position` repairs grade `fail`, so the write heals
+# itself and says so. The two that need a judgment call stay `warn` until the
+# corpus is clean (F319 M6 promotes them).
 chk_spine_above_h1 = _spine_rule(
-    "S03", "spine sits above the H1")
+    "S03", "spine sits above the H1", grade="fail")
 chk_identity_cell_description_first = _spine_rule(
-    "S04", "identity cell leads with its description")
+    "S04", "identity cell leads with its description", grade="fail")
 chk_orientation_line_adjoins_h1 = _spine_rule(
-    "S05", "orientation line sits directly under the H1")
+    "S05", "orientation line sits directly under the H1", grade="fail")
 chk_masthead_over_folder_has_marker = _spine_rule(
     "S07", "no folder children are hidden")
 chk_marker_has_rows_below = _spine_rule(
@@ -6124,6 +6225,15 @@ CHECKERS = {
     "doc_head_orientation_line": chk_doc_head_orientation_line,
     # R-spine (F319 M2) — advisory until the corpus is clean
     "spine_above_h1": chk_spine_above_h1,
+    # Defined 2026-08-09 and left OUT of this dict until 2026-08-10 — so four
+    # of the five spine rules resolved to no checker at all and reported
+    # `error`, which `execute_on_write` deliberately never surfaces. Silent in
+    # both directions: the rules looked shipped and the writes looked clean.
+    "valid_spine": chk_valid_spine,
+    "identity_cell_description_first": chk_identity_cell_description_first,
+    "orientation_line_adjoins_h1": chk_orientation_line_adjoins_h1,
+    "masthead_over_folder_has_marker": chk_masthead_over_folder_has_marker,
+    "marker_has_rows_below": chk_marker_has_rows_below,
     "identity_cell_description_first": chk_identity_cell_description_first,
     "orientation_line_adjoins_h1": chk_orientation_line_adjoins_h1,
     "masthead_over_folder_has_marker": chk_masthead_over_folder_has_marker,
@@ -6534,6 +6644,34 @@ def _alnum_subseq(orig: str, new: str) -> bool:
     return all(c in it for c in _alnum(orig))
 
 
+# A fixer whose CONTRACT is to move a block cannot satisfy an ordered floor:
+# reordering is precisely what it does, so `_alnum_subseq` rejects every correct
+# run of it. That is not a reason to exempt it from a floor — it is a reason to
+# use the order-insensitive one. `_alnum_multiset` still catches the failure the
+# floor exists to catch (a letter or digit deleted, or invented), and stays blind
+# only to position, which the fixer's own proof covers instead: `spine_fix`
+# asserts the link multiset, the H1 text, the table-row multiset, the description
+# text, no lost non-blank line, and the sibling `.anchor`, and REFUSES to write
+# on any mismatch. Registering a fixer here without that kind of proof would be
+# a real weakening; this list is not a convenience hatch.
+_REARRANGING_FIXERS = {"spine_position"}
+
+
+def _alnum_multiset(orig: str, new: str) -> bool:
+    """True iff `new` holds exactly the same alphanumeric characters as `orig`,
+    counted — order free. The no-delete floor for a fixer that relocates text."""
+    from collections import Counter
+    return Counter(_alnum(orig)) == Counter(_alnum(new))
+
+
+def _content_floor_holds(fix: str, orig: str, new: str) -> bool:
+    """The never-delete floor, chosen by what the fixer is allowed to do."""
+    name = fix.split()[0] if fix else ""
+    if name in _REARRANGING_FIXERS:
+        return _alnum_multiset(orig, new)
+    return _alnum_subseq(orig, new)
+
+
 # T178: a frozen specimen region — `<!-- begin {body} --> ... <!-- end {body} -->`
 # — is a document quoting bytes verbatim on purpose (a Stencil test corpus, a
 # spec's worked example). No fixer may rewrite a byte inside one, no matter how
@@ -6727,7 +6865,40 @@ def fix_md_svg_embed_width(target, anchor_root, args):
     return (new != text), ("added |3000 width hint to bare SVG embed(s)" if new != text else "")
 
 
+def fix_spine_position(target, anchor_root, args):
+    """Repair the three mechanical spine rearrangements in place, by delegating
+    to `spine_fix` — the same self-verified mover `spine fix --vault` runs.
+
+    S03 move the masthead above the H1 · S04 flip the identity cell to
+    description-first · S05 close the blank between H1 and orientation line.
+
+    **This fixer invents nothing and delegates everything.** Re-implementing
+    the moves here would put a second, unproven copy of them on the write path,
+    and the moves are exactly the class that fails silently: three separate
+    measurements during F308 were wrong from regex-splitting table cells. So
+    `spine_fix` keeps its own per-file proof — link multiset, H1 text, row
+    multiset, description text, no lost line, and the sibling `.anchor` — and
+    **refuses rather than writing** on any mismatch. A refusal here returns
+    False, which lands the finding in the message bucket for a human, which is
+    the correct outcome: the page needed a judgment the machine does not have.
+    """
+    if not target.is_file():
+        return False, "not a file"
+    try:
+        sfx = _spine_sibling("spine_fix")
+        action, note, new = sfx.plan_file(target)
+    except Exception as e:
+        return False, f"{type(e).__name__}: {e}"
+    if action != "fixed" or new is None:
+        # `refused` carries a real reason (a diverging `.anchor`, a proof that
+        # did not hold); surface it rather than swallowing it as "no change".
+        return False, note if action == "refused" else ""
+    target.write_text(new, encoding="utf-8")
+    return True, f"spine rearranged ({note})"
+
+
 FIXERS = {
+    "spine_position": fix_spine_position,
     "md_table_blank_lines": fix_table_blank_lines,
     "md_table_pipe_escape": fix_md_table_pipe_escape,
     "md_em_dash": fix_md_em_dash,
@@ -6783,7 +6954,7 @@ def execute_on_write(plan: dict, cdir: Path | None) -> dict:
                     changed, fdetail = run_fixer(fx, tp, anchor_root)
                     if changed:
                         new = tp.read_text(encoding="utf-8")
-                        if not _alnum_subseq(orig, new):
+                        if not _content_floor_holds(fx, orig, new):
                             tp.write_text(orig, encoding="utf-8")  # never delete content
                             messages.append({"rule": r["id"], "target": disp,
                                              "detail": (detail or "") + " — auto-fix SUPPRESSED (would alter content); fix by hand",

@@ -51,8 +51,21 @@ A doc that is its folder's **same-named index** (`Foo/Foo.md`), or that carries 
 
 **Why:** absence, not staleness, is the primary failure here — the rule was long stated in prose and largely unfollowed because nothing in the write path forced the check. A folder index with no member links makes the reader open the folder to learn what is in it, defeating the point of having an index at all.
 
+### RULE R-spine-09 — an anchor entry page opens with a spine at all (checked)
+check:: valid_spine
+mend:: spine-absent
+
+Every other rule here asks *which* shape the spine is and whether its parts are in order. This one asks the prior question: **is there anything above the H1 to orient from** — a `:>>` breadcrumb, or a dispatch table's identity row. A page with neither has no answer to *where am I*, and no shape rule applies to it.
+
+**Check pattern:** the page fronts its own folder (it is that folder's `{slug}.md` entry page, read from `.anchor`, not by basename) and carries neither a `:>>` breadcrumb nor an identity row → fail.
+
+**Why:** this is the rule that would have caught [[Stones]]. It was created 2026-08-10 with its H1 above the spine and a breadcrumb-first identity cell, and **nothing said a word** — four separate failures stacked, each on its own enough to keep the writer in the dark (§ Why this set was silent). Asking one blunt question first, and asking it where the answer is unambiguous, is what makes the check survivable at write time.
+
+**Scope is entry pages only, deliberately.** For a folder's front door a spine is unambiguously required. For everything else the scope is a live question — [[TINK308 - Spine: the routing zone every document opens with|F308]] Q6, 4,941 files — and a write-time fail on an unsettled scope would land on every agent who touched any of them, which is how a rule teaches people to ignore it. 153 of 1,275 entry pages fail this today.
+
 ### RULE R-spine-04 — the spine sits above the H1, never below it (checked)
 check:: spine_above_h1
+fix:: spine_position
 mend:: spine-position
 
 A masthead is the **spine**: it states where the page sits before the page says what it is. So it goes *above* the `# H1`, in the same position the `:>>` breadcrumb occupies on a leaf. A page whose H1 comes first has put its title above its position, which reads as content-then-routing and breaks the head's disclosure order.
@@ -63,6 +76,7 @@ A masthead is the **spine**: it states where the page sits before the page says 
 
 ### RULE R-spine-05 — the identity cell leads with its description (checked)
 check:: identity_cell_description_first
+fix:: spine_position
 mend:: spine-position
 
 The identity row's right-hand cell carries `<br>`-delimited segments. The **description** — the `: `-led one — comes first, and the `→ ` breadcrumb sits beneath it, so the first line reads *name + what this is*. User direction 2026-08-09: *"that's the way I want to do all of the tables."*
@@ -73,6 +87,7 @@ The identity row's right-hand cell carries `<br>`-delimited segments. The **desc
 
 ### RULE R-spine-06 — no blank line between the H1 and its orientation line (checked)
 check:: orientation_line_adjoins_h1
+fix:: spine_position
 mend:: spine-position
 
 The orientation line sits **directly** under the H1. A blank line between them separates the title from the sentence that explains it, and lets the two drift apart as the page grows.
@@ -101,13 +116,20 @@ A `---` or `^^^` marker declares that the machine writes the rows beneath it. Wh
 
 **Why:** a degenerate list or stream reads as "there is nothing here" when the truth is usually "this page has the wrong shape". 103 vault instances.
 
-## The grade — these five ship advisory, and why that is not softness
+## Why this set was silent, and what changed on 2026-08-10
 
-`R-spine-04` … `-08` grade **`warn`**, not `error`, and `R-spine-01` … `-03` are unchanged. That is a deliberate, temporary state with a stated end.
+**A rule nobody hears is not a rule.** [[Stones]] was created on 2026-08-10 with its H1 above the spine and a breadcrumb-first identity cell — the exact two shapes `R-spine-04` and `-05` exist to catch — and the write hook said nothing. Four failures were stacked, each on its own sufficient:
 
-Turning them hard today puts **~900 pages** into violation at once. Every anchor's audit goes red, the finding stops carrying information, and agents learn to scroll past it — which would defeat the lazy-accrual step that depends on the check being *noticed*. The promotion to `error` is [[TINK319 - Spine Agenda|F319]] M6, gated on the corpus being clean rather than on anyone's confidence.
+- **Warden had never been recompiled** after this ruleset gained `-04` … `-08`, so those rules were not in the compiled set at all. `warden mend R-spine-04` answered *"no such rule"* while the remediation text sat finished on disk.
+- **Four of the five `check::` names resolved to no registered checker.** They were written and left out of `audit-plan.py`'s `CHECKERS` dict, so they reported `error` — and `error` means *the rule's plumbing is broken*, which the write hook deliberately never shows the writer. Silent in both directions: the rules looked shipped, the writes looked clean.
+- **The one checker that was registered graded `warn`**, and `execute_on_write` surfaces only `fail`. Advisory is invisible at the moment of writing, which is the one moment the page could have been fixed for free.
+- **And no rule asked the blunt question** — *is there a spine at all* — so a page could be malformed in a way none of the shape rules matched.
 
-**Two codes are deliberately absent from this set.** `S01` (no spine at all, 5,094 files) has no rule here because its scope is unsettled — [[TINK308 - Spine: the routing zone every document opens with|F308]] Q6 reopened it after the previous ruling turned out to select the entire vault. `S09` (a marker on a page that fronts no folder, 581 files) has none because whether sweeping siblings is legitimate has not been decided. **Shipping a rule against an unsettled number is how a checker teaches the wrong thing**, so both stay as detector codes until they are answered.
+**The fix is auto-repair, not a louder warning.** `R-spine-04`, `-05` and `-06` now carry `fix:: spine_position` and grade `fail`. A fail *with* a `fix::` is repaired in place by the write hook and reported as `✓ fixed`, so the cost to the writer is zero and the corpus converges on every touch instead of on a campaign. The fixer delegates to `spine_fix`, which keeps its own per-file proof — link multiset, H1 text, row multiset, description text, no lost line, and the sibling `.anchor` — and **refuses rather than writing** when any of them fails; a refusal falls through to a message for a human, which is the correct outcome for a page that needed judgment.
+
+**`R-spine-07` and `-08` stay `warn`**, because neither has a safe automatic repair — choosing a marker and diagnosing a degenerate one are judgment calls. Promotion is [[TINK319 - Spine Agenda|F319]] M6, gated on the corpus being clean rather than on anyone's confidence. **A `fail` nobody can act on cheaply is the audit-noise trap**; a `fail` that fixes itself is not.
+
+**One code stays deliberately absent.** `S09` (a marker on a page that fronts no folder, 581 files) has no rule because whether sweeping siblings is legitimate has not been decided. `S01` (no spine at all) is now `R-spine-09`, but **scoped to anchor entry pages only** — 153 files, where the requirement is unambiguous — leaving the other 4,941 to [[TINK308 - Spine: the routing zone every document opens with|F308]] Q6. **Shipping a rule against an unsettled number is how a checker teaches the wrong thing.**
 
 ## Position in the catalog
 
@@ -150,6 +172,22 @@ Move the piece into its place, then re-run the write. Three rearrangements, all 
 **Orientation line adjoining** (`R-spine-06`): delete the blank line between the H1 and the sentence under it. Machine-written stamps (`<!-- state:backlog XX -->`) legitimately sit between the two and stay where they are.
 
 For the model, read [[DAS spine]]; exemplar: [[HBR]] carries all three.
+
+### MEND spine-absent
+
+The page fronts a folder but opens with nothing above its `# H1`, so a reader lands with no idea where they are. Give it one of the two spines — this is not auto-fixed, because which one it wants is a real choice.
+
+**A dispatch table** is right when the page is a front door with children to route to. Write the identity row, the separator, then any hand-curated rows, then the electric marker:
+
+| -[[Name]]- | : what this is<br>→ [[kmr]] → [[Parent]] → [Name](hook://p/Name) |
+| --- | --- |
+| ... |  |
+
+Description first, breadcrumb beneath (`R-spine-05`). The `...` catch-all sweeps whatever is in the folder and is not already linked in the body; everything below it is an electric zone HookAnchor recomputes, so never hand-author those rows.
+
+**A `:>>` breadcrumb** is right when the page is a leaf that happens to sit in its own folder — one row directly above the H1, orientation line below it.
+
+Both go **above** the H1 and below the frontmatter. For the model read [[DAS spine]]; the worked instance is [[HBR]].
 
 ### MEND spine-marker
 
