@@ -701,7 +701,7 @@ def compute_published(slug: str, cf, stones: dict, cfg: dict) -> list:
     return out
 
 
-def reconcile_own(slug: str, stones: dict, control: dict, cfg: dict, stats: dict):
+def reconcile_own(slug: str, stones: dict, control: dict, cfg: dict, stats: dict, dry: bool = False):
     """A stone is always present in its own control file — except once: gone
     from THERE (not merely absent) is the archive signal (§ A stone always
     appears in its own control file — except once)."""
@@ -715,7 +715,14 @@ def reconcile_own(slug: str, stones: dict, control: dict, cfg: dict, stats: dict
         if present:
             continue
         if slug in st.appears:
-            _archive_stone(st)
+            if dry:
+                # _archive_stone MOVES the file — a dry run that archived would be
+                # the loudest possible violation of the word "dry".
+                print(f"  would archive {st.path}")
+                st.live = False
+                st.appears = set()
+            else:
+                _archive_stone(st)
             stats["archived"] += 1
         else:
             _add_to_own_top(cf, slug, sid, st, cfg)
@@ -838,32 +845,43 @@ def cmd_update(kind: str, cfg: dict, root: Path, args) -> int:
     stats = {"archived": 0}
     published: dict = {}
     for slug in order:
-        reconcile_own(slug, stones, control, cfg, stats)
+        reconcile_own(slug, stones, control, cfg, stats, dry=getattr(args, "dry_run", False))
         propagate_in(slug, anchors, stones, control, published, cfg)
         published[slug] = compute_published(slug, control[slug], stones, cfg)
+
+    dry = getattr(args, "dry_run", False)
 
     n_files = 0
     for cf in control.values():
         original = cf.path.read_text(encoding="utf-8") if cf.exists else None
         new_text = "\n".join(cf.lines) + ("\n" if cf.lines else "")
         if new_text != (original or ""):
-            cf.path.parent.mkdir(parents=True, exist_ok=True)
-            cf.path.write_text(new_text, encoding="utf-8")
+            if not dry:
+                cf.path.parent.mkdir(parents=True, exist_ok=True)
+                cf.path.write_text(new_text, encoding="utf-8")
+            else:
+                print(f"  would write {cf.path}")
             n_files += 1
 
     n_stones = 0
     for st in stones.values():
         if st.live != st.orig_live or st.line != st.orig_line or set(st.appears) != st.orig_appears:
-            _write_stone(st)
+            if not dry:
+                _write_stone(st)
+            else:
+                print(f"  would write {st.path}")
             n_stones += 1
 
     # F312 Inv. "no silent empty" — a pass always says what it did, even zero.
     # Ambiguous slugs are named rather than dropped: they carry no stone data
     # (`_reject_ambiguous_use` proved that above), but the walk did skip them.
     skipped = f", {len(ambiguous)} ambiguous slug(s) skipped: {', '.join(sorted(ambiguous))}" if ambiguous else ""
+    verb = "would be written" if dry else "written"
+    arch = "would be archived" if dry else "archived"
     print(
-        f"stone: {kind} update — {n_files} control file(s) written, "
-        f"{n_stones} stone file(s) written ({stats['archived']} archived), "
+        f"stone: {kind} update{' — DRY RUN, nothing changed' if dry else ''} — "
+        f"{n_files} control file(s) {verb}, "
+        f"{n_stones} stone file(s) {verb} ({stats['archived']} {arch}), "
         f"across {len(anchors)} anchor(s){skipped}"
     )
     return 0
@@ -894,6 +912,9 @@ def build_parser(cfg_all: dict) -> argparse.ArgumentParser:
 
         up = verb_subs.add_parser("update", help="reconcile + propagate along feeds:")
         up.add_argument("--root", default=None, help="scan root (default: $ANCHOR_VAULT_ROOT or ~/ob/kmr)")
+        up.add_argument("--dry-run", action="store_true",
+                        help="report every write and archive without performing any of them "
+                             "— `--root` defaults to the whole vault, so this is how you look first")
     return p
 
 

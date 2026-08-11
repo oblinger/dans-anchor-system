@@ -32,6 +32,18 @@ vault: every call passes `--root <tempdir>` explicitly.
                         every projection equals the stone afterward.
   I. cycle → path,    — a deliberately introduced cycle in feeds: is reported
      no writes            as an arrow path and the pass writes nothing.
+  J. duplicate slugs  — a colliding slug is fatal only where it is REFERENCED
+                        (mint target, feed endpoint, carrier of stone data);
+                        elsewhere the walk skips it and says so.
+  K. the group's own  — `{slug} Rocks.md` sits inside `{slug} Rocks/` and
+     page is not a       begins `{slug} R`, so a prefix glob matched it in
+     stone               every group; it must never load as a stone.
+  L. un-round-trippable — an owner slug needs letters and digits with no
+     slug → mint          spaces, since a control line is parsed back into
+     refused              (owner, number) from its link target. Refused at the
+                        mint; still allowed to CONSUME via feeds:.
+  M. --dry-run        — reports every write AND every archive (a file MOVE),
+                        performs none of them, and the wet pass still does.
 
 Each behaviour above was red-checked by hand during development (broken,
 confirmed the corresponding section fails, restored, confirmed green again);
@@ -512,6 +524,66 @@ try:
         ok("a spaced slug still receives stones along feeds: — only minting is barred")
     else:
         no(f"spaced slug failed to consume:\n{screen_ctrl.read_text(encoding='utf-8')!r}")
+
+    # ============================================================
+    # M. --dry-run reports every write and archive, and performs none
+    # ============================================================
+    # `update` has no confirmation and `--root` defaults to the whole vault, so
+    # its first invocation anywhere is a vault-wide write. The dry run is how
+    # you look first — which means it must be inert including the ARCHIVE path,
+    # where the mutation is a file MOVE rather than a write.
+    print("== M: --dry-run reports, and changes nothing ==")
+    mroot = TMP / "m"
+    mkanchor(mroot, "UP", [])
+    mkanchor(mroot, "DOWN", ["UP"])
+    run(mroot, "rock", "new", "UP", "--line", "original text")
+    write_control(control_path(mroot, "UP"), "UP",
+                  [header_line("UP"), stone_line("UP", "R0001", "original text")])
+    write_control(control_path(mroot, "DOWN"), "DOWN", [header_line("UP")])
+    run(mroot, "rock", "update")
+
+    def _tree_bytes(root):
+        return {str(p): p.read_bytes() for p in sorted(root.rglob("*.md"))}
+
+    before = _tree_bytes(mroot)
+    # an edit downstream (propagates back + out) AND a deletion from the owner's
+    # own file (archives) — both mutation kinds in one pass
+    rewrite_line_text(control_path(mroot, "DOWN"), "UP R0001", "edited downstream")
+    drop_line(control_path(mroot, "UP"), "UP R0001")
+    staged = _tree_bytes(mroot)
+
+    out = io.StringIO()
+    with contextlib.redirect_stdout(out):
+        rc = run(mroot, "rock", "update", "--dry-run")
+    report = out.getvalue()
+
+    if rc == 0 and "DRY RUN" in report:
+        ok("--dry-run exits 0 and says so in its summary line")
+    else:
+        no(f"dry run summary missing: rc={rc} {report!r}")
+
+    if "would write" in report or "would archive" in report:
+        ok("--dry-run names the writes it is declining to make")
+    else:
+        no(f"dry run reported no intended work: {report!r}")
+
+    if _tree_bytes(mroot) == staged:
+        ok("--dry-run left every file byte-identical, including the archive move")
+    else:
+        changed = [k for k, v in _tree_bytes(mroot).items() if staged.get(k) != v]
+        no(f"dry run mutated the tree: {changed}")
+
+    if stone_path(mroot, "UP", "R0001").is_file() and not archived_stone_path(mroot, "UP", "R0001").is_file():
+        ok("--dry-run did not move the stone into archive/")
+    else:
+        no("dry run archived a stone — a file MOVE performed by a run that promised not to")
+
+    # and the real pass still does all of it, so the dry run is not just a no-op verb
+    run(mroot, "rock", "update")
+    if _tree_bytes(mroot) != staged and archived_stone_path(mroot, "UP", "R0001").is_file():
+        ok("the same pass without --dry-run performs the writes and the archive")
+    else:
+        no("the wet run did not do what the dry run promised")
 
 finally:
     shutil.rmtree(TMP, ignore_errors=True)
