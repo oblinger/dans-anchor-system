@@ -5,6 +5,16 @@ description:: per-module source documentation — one doc per source module unde
 
 What `/audit module-doc` checks on a module doc. Cardinality: many — one per source module, mirroring the repo tree. Format of this set: [[DAS Ruleset]].
 
+> **Not armed 2026-08-11 ([[TINK Backlog#^T212|T212]]), and the blocker is three independent unsatisfiabilities stacked on one selector.** Measured against the real corpus — **443 module docs across 14 anchors**, the largest single population any dormant ruleset claims.
+>
+> **(1) The folder name is a generation stale.** The selector says `{slug} Dev/`; the corpus and [[DAS Dev Dispatch]] both say `{slug} Dev Docs/` (*"root-level folder, Gen-3"*). Zero folders in the vault are named `* Dev` — 14 are named `* Dev Docs`. [[R-dev-dispatch]] already spells it the current way; this set was never updated with it.
+>
+> **(2) Every one of those 14 folders carries its own `.anchor`**, so `sub_anchor_roots` drops the entire folder from the parent anchor's scope. The selector is written from the parent's point of view (`{anchor}/**/{slug} Dev Docs/**`) and is therefore unsatisfiable from **both** ends at once — out of scope from the parent, and from the folder itself `{anchor}` *is* the Dev Docs folder, so the pattern demands a second one nested inside. This is [[TINK Backlog#^T164|T164]]'s folder-shaped-facet defect exactly; `_match_file_glob`'s own-directory-name candidate was added for it, and does not reach this case, because —
+>
+> **(3) `{slug}` resolves to the wrong slug there.** None of the 14 `.anchor` files declares `slug:`, so `_anchor_name` falls back to the basename and `{slug}` expands to `DKT Dev Docs`, not `DKT`. The pattern becomes `DKT Dev Docs *.md` while every real file is `DKT Something.md`. Verified on DKT, OBU and DMUX: **0 targets, from every direction tried.**
+>
+> Fixing (1) alone would look like a repair and change nothing — which is what makes this worth writing down rather than patching. The set is blocked on a decision it cannot make for itself: either the Dev Docs folders declare their parent's slug, or folder-shaped facets get a selector form that names the parent. [[R-dev-dispatch]], [[R-all-files]] and [[R-code-surface]] sit behind the same three, and are counted separately in T212's 37 only because they are separate files.
+
 ### RULE R-module-doc-01 — Doc tree mirrors the source tree under `{slug} Dev/` (checked)
 
 Every source directory gets a parallel `{slug} {dir}/` folder under `{slug} Dev/`; every source file with public API gets a `{slug} {ClassName}.md` named after its **primary class**, not the filename. All files/folders carry the `{slug}` prefix.
