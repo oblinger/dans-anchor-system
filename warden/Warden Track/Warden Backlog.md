@@ -2,7 +2,7 @@
 description: "deferred work — roadmap milestones M0–M5"
 ---
 # Warden Backlog
-<!-- state:backlog fk -->
+<!-- state:backlog wm -->
 
 ## Active
 
@@ -32,6 +32,9 @@ _None._
 
 - **T020 — Backtick 4 single-letter placeholders in Warden Backlog (handed over from Tink T084)** [Ready] — Q002 (Dan, 2026-08-01) removed the single-letter exemption from `R-markdown-13`: `<n>` and `<m>` are no longer tolerated bare, because a bare angle placeholder parses as an unknown HTML element and silently VANISHES from the rendered page. Tink swept every site it owns; these four sit in Warden's backlog and are Warden's to fix. All four are on `[Done]` rows, so this is cosmetic and safe. ^T020
   - **Next:** Backtick the placeholder tokens at `Warden Backlog.md` lines 132, 135, 136 (two on 136) — route through `state set Warden Backlog <row> --next/--body`, never a hand edit. Then confirm with `chk_md_stray_angle_tag` (in `skills/audit/scripts/audit-plan.py`) that the file passes. CAUTION carried over from the sweep: do NOT bulk-substitute — a backtick between a word and `s` is often a real code span followed by a possessive, and a blind pass severed one on Tink's backlog before it was caught.
+
+- **T022 — chk_md_table_pipe_escape passes a doubled backslash that renders as a broken row** [Ready] — R-markdown-01 is a `checked` rule with an auto-heal `fix::`, and both halves share one predicate: `re.search(r"(?<!\\)\|", ...)` (`audit-plan.py:4261` and `:6661`). That predicate treats **any** single preceding backslash as an escape, so a doubled backslash — `[[Target\\|alias]]` — reads as escaped to both check and fix. Markdown disagrees: `\\` is an escaped backslash rendering as a literal backslash, which leaves the pipe bare, so the cell terminates and the row's tail is discarded. The correct predicate is **an odd number of preceding backslashes = escaped**; even, including zero, is not. Verified against the real checker on four forms — `[[A\|b]]` pass / 2 cells (correct), `[[A\\|b]]` **pass / 3 cells (WRONG)**, `[[A\   |b]]` fail / 3 (correct), `[[A|b]]` fail / 3 (correct). Found by Lumen 2026-08-10 draining Tink's 2026-08-09 inbox drop about six [[LUMEN Nudge]] rows losing their tail. Five were already repaired; the survivor had **whitespace padding between the escape and the pipe** — that form the checker *does* catch, so the Nudge damage was the rule never running on the file rather than a miss. The doubled-backslash hole is the separate, silent one, and it is exactly the shape a repair pass produces when it escapes an already-escaped pipe. ^T022
+  - **Next:** replace the `(?<!\\)` lookbehind in both `chk_md_table_pipe_escape` and `fix_md_table_pipe_escape` with an odd-backslash-run test, add `[[A\\|b]]` to the `markdown-001-dirty` corpus case so the regression is pinned, and check whether the same lookbehind was copied into any sibling checker — `fix_md_svg_embed_width` writes `\|3000` into table rows off the same idea.
 
 ## Next
 

@@ -177,13 +177,11 @@ For the model, read [[DAS spine]]; exemplar: [[HBR]] carries all three.
 
 The page fronts a folder but opens with nothing above its `# H1`, so a reader lands with no idea where they are. Give it one of the two spines — this is not auto-fixed, because which one it wants is a real choice.
 
-**A dispatch table** is right when the page is a front door with children to route to. Write the identity row, the separator, then any hand-curated rows, then the electric marker:
-
-| -[[Name]]- | : what this is<br>→ [[kmr]] → [[Parent]] → [Name](hook://p/Name) |
-| --- | --- |
-| ... |  |
+**A dispatch table** is right when the page is a front door with children to route to. Four parts in order: an **identity row** whose left cell is the page's own name in initiator form (`-`, `[[Name]]`, `-`) and whose right cell holds a `: ` description then a `<br>` then the `→ ` breadcrumb; the **separator row**; any **hand-curated rows**; and last the **electric marker** row, `...` in the left cell and the right cell empty.
 
 Description first, breadcrumb beneath (`R-spine-05`). The `...` catch-all sweeps whatever is in the folder and is not already linked in the body; everything below it is an electric zone HookAnchor recomputes, so never hand-author those rows.
+
+*A live specimen is deliberately not printed here.* A masthead written out on this page would be read as **this ruleset's own** identity row — by the spine classifier, which reported it as an `S03` within a minute of being written, and by HookAnchor's harvest, which would take the specimen's description as this file's and sync it into a sibling `.anchor`. Copy the shape from [[HBR]] instead, which is a real one.
 
 **A `:>>` breadcrumb** is right when the page is a leaf that happens to sit in its own folder — one row directly above the H1, orientation line below it.
 
