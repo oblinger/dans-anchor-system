@@ -61,11 +61,54 @@ class Page(Spine):
             return j
         return None
 
+    def _heart_element(self, j: int):
+        """`(line, why)` if line `j` opens a heart-worthy element, else None.
+
+        A non-trivial table (>=4 body rows) or a figure — never the masthead,
+        never a TOC. Returns the line it starts on so the caller can report it.
+        """
+        if j >= len(self.lines):        # a heading with nothing after it
+            return None
+        l = self.lines[j]
+        if FIGURE.search(l):
+            return j, "figure"
+        if l.strip().startswith("|"):
+            k = j
+            while k < len(self.lines) and self.lines[k].strip().startswith("|"):
+                k += 1
+            is_toc = TOC.match(l.strip()) is not None
+            is_masthead = IDENTITY.match(cell(l, 1)) is not None
+            if not is_toc and not is_masthead and k - j >= 6:
+                return j, f"table, {k - j - 2} rows"
+        return None
+
+    def _next_content(self, j: int) -> int:
+        """Index of the next non-blank line at or after `j` (len(lines) if none)."""
+        while j < len(self.lines) and not self.lines[j].strip():
+            j += 1
+        return j
+
     def heart_candidate(self):
         """(line, why) of the element that looks like this page's heart, or None.
 
         Condition 1 of F319's four: a non-trivial table (>=4 body rows) or a
         figure, below the H1, that is not the masthead and not a TOC.
+
+        The heart zone runs from the H1 to the first H2 that opens a real
+        SECTION — not merely to the first H2. A heading whose section begins
+        immediately with a table or figure, before any prose has intervened, is
+        a *labelled heart*: the author named their heart instead of leaving it
+        bare, which is better writing, not a different structure. Treating every
+        heading as the end of the zone made those hearts invisible — 40 pages
+        vault-wide, [[Stones]] among them, which Dan put forward on 2026-08-10 as
+        the exemplar of what a page with a heart should look like. The detector
+        returned None on it.
+
+        Invisibility was the real cost, and it is not cosmetic: H01 fires when a
+        heart sits buried under prose, so a page whose heart the detector cannot
+        see has no protection against its heart being buried later. Verified by
+        pushing four prose lines above [[Stones]]'s map table on a scratch copy —
+        H01 stayed silent, because the zone had already ended at the heading.
         """
         if self.h1 is None:
             return None
@@ -76,24 +119,29 @@ class Page(Spine):
             l = self.lines[j]
             if l.startswith("# BRIEF") or l.startswith("# Log"):
                 break
-            # The heart sits above the first H2. A table under a later heading is
-            # that section's content, not the page's buried heart — without this,
-            # the check fired on every spec table in the corpus (F319 M2 calibration,
-            # 2026-08-09: 100 hits -> the genuine ones).
-            # Any heading below H1 ends the heart zone — a table under a later
-            # heading is that section's content (F319 M2 calibration).
             if re.match(r"#{2,}\s", l) and j > start:
+                # A heading that leads STRAIGHT into a table/figure labels the
+                # heart rather than ending the zone — and this must not depend on
+                # whether prose appeared above it, because "prose above the heart"
+                # is the very thing H01 reports. Gating on that made a buried
+                # labelled heart invisible, i.e. silent in exactly the case the
+                # check exists for.
+                #
+                # Only the FIRST heading below the H1 gets this reading, since the
+                # loop breaks either way: a table under a later heading is still
+                # that section's content, which is the F319 M2 calibration that
+                # took this check from 100 hits to the genuine few.
+                hit = self._heart_element(self._next_content(j + 1))
+                if hit:
+                    return hit
                 break
-            if FIGURE.search(l):
-                return j, "figure"
+            hit = self._heart_element(j)
+            if hit:
+                return hit
             if l.strip().startswith("|"):
                 k = j
                 while k < len(self.lines) and self.lines[k].strip().startswith("|"):
                     k += 1
-                is_toc = TOC.match(l.strip()) is not None
-                is_masthead = IDENTITY.match(cell(l, 1)) is not None
-                if not is_toc and not is_masthead and k - j >= 6:
-                    return j, f"table, {k - j - 2} rows"
                 j = k - 1                          # skip the WHOLE table, not one row
         return None
 
