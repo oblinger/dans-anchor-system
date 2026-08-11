@@ -44,10 +44,20 @@ vault: every call passes `--root <tempdir>` explicitly.
                         mint; still allowed to CONSUME via feeds:.
   M. --dry-run        — reports every write AND every archive (a file MOVE),
                         performs none of them, and the wet pass still does.
+  N. unresolvable     — a `feeds:` name matching no anchor refuses the pass,
+     feed edge            quotes the offending name, and writes nothing.
+  O. zero-work pass   — a run with nothing to do still prints its counts.
 
 Each behaviour above was red-checked by hand during development (broken,
 confirmed the corresponding section fails, restored, confirmed green again);
 see the implementation report for the specific breaks used.
+
+**N and O were added 2026-08-11, with F312 M1.** They are the two of that
+feature's three feed-graph invariants that shipped implemented and unasserted —
+only acyclicity (case I) had a guard. Both untested ones fail *quietly* by
+nature: an unresolvable source supplies zero stones and looks exactly like an
+empty one, and a silent pass looks exactly like a pass that never ran. A
+ruleset was about to claim all three, so they were measured before it did.
 """
 # T170: several of these scripts are extensionless, so the import machinery
 # caches them under a mangled name (`stonecpython-312.pyc`) that was seen
@@ -584,6 +594,73 @@ try:
         ok("the same pass without --dry-run performs the writes and the archive")
     else:
         no("the wet run did not do what the dry run promised")
+
+    # ============================================================
+    # N. an unresolvable name in `feeds:` is named, not ignored
+    #    ([[DAS feed]] invariant 2, R-feed-03)
+    #
+    # Case I covers acyclicity and case J covers a DUPLICATE slug; a name that
+    # matches NO anchor was implemented and never asserted. It is the invariant
+    # whose failure is the least visible of the three: an unresolvable source
+    # supplies zero stones and is indistinguishable from a source that happens
+    # to be empty, so a typo'd feed edge stays invisible forever.
+    # ============================================================
+    print("== N: a feeds: name matching no anchor is reported by name ==")
+    nroot = TMP / "n"
+    mkanchor(nroot, "SRC", [])
+    mkanchor(nroot, "DST", ["SRC", "TYPPO"])
+    run(nroot, "rock", "new", "SRC", "--line", "a real stone")
+    write_control(control_path(nroot, "DST"), "DST", [header_line("SRC")])
+    before_n = _tree_bytes(nroot)
+
+    err = io.StringIO()
+    with contextlib.redirect_stderr(err):
+        rc = run(nroot, "rock", "update")
+    msg = err.getvalue()
+
+    if rc != 0:
+        ok(f"an unresolvable feed edge refuses the pass (rc={rc})")
+    else:
+        no("an unresolvable feed edge was tolerated — a typo'd source is a silent zero")
+
+    if "TYPPO" in msg:
+        ok(f"...and the offending name is quoted: {msg.strip()!r}")
+    else:
+        no(f"...but the message does not name TYPPO: {msg!r}")
+
+    if _tree_bytes(nroot) == before_n:
+        ok("...and nothing was written, as with a cycle")
+    else:
+        no("an unresolvable edge aborted the pass but still wrote files")
+
+    # ============================================================
+    # O. a pass with nothing to do SAYS so ([[DAS feed]] invariant 3, R-feed-04)
+    #
+    # "No silent empty" is the vault's most repeated defect shape, and the one
+    # place it is least detectable is a run that legitimately has no work: a
+    # pass that printed nothing would be indistinguishable from a pass that
+    # never looked. The counts are the evidence, so they are asserted.
+    # ============================================================
+    print("== O: a zero-work pass still reports its counts ==")
+    oroot = TMP / "o"
+    mkanchor(oroot, "QUIET", [])
+    write_control(control_path(oroot, "QUIET"), "QUIET", [header_line("QUIET")])
+    (oroot / "QUIET" / "QUIET Track" / "QUIET Rocks").mkdir(parents=True, exist_ok=True)
+
+    out = io.StringIO()
+    with contextlib.redirect_stdout(out):
+        rc = run(oroot, "rock", "update")
+    report = out.getvalue()
+
+    if rc == 0 and report.strip():
+        ok(f"a no-op pass exits 0 and still prints: {report.strip()!r}")
+    else:
+        no(f"a no-op pass said nothing — a zero nobody can distinguish from not looking: {report!r}")
+
+    if "0 control file(s) written" in report and "anchor(s)" in report:
+        ok("...naming both the zero it wrote and the scope it covered")
+    else:
+        no(f"...but the report carries no count of what it looked at: {report!r}")
 
 finally:
     shutil.rmtree(TMP, ignore_errors=True)

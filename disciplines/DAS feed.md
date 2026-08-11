@@ -2,33 +2,32 @@
 name: feed
 description: >
   Discipline — the second DAG over anchors. `feeds:` in `.anchor` names the
-  anchors that feed into this one; out-edges are computed by inversion. A feed
-  facet materializes as a folder of one-file-per-item with a roster on top,
-  each item carrying `key::` parameters and a `line::` rendering. The top group
-  of a roster is the export set, and it propagates to every anchor declaring
-  this one as a source. Members: Rocks, and the item register. DRAFT — the
-  facet-side naming is pending TINK F312 Q1.
+  anchors that feed into this one; out-edges are computed by inversion. Items
+  published by a source appear in every anchor drawing from it, by copying the
+  control line rather than by rendering a block. The discipline owns the graph
+  and its three invariants — acyclic, every edge resolves, no silent empty; what
+  travels the edges is a stone, and its shape is DAS Stone's.
 tools: Read
 user_invocable: false
 ---
 
 # DAS Feeds
 
-**Feed is an information flow discipline for aggregating information across anchors.** An anchor holds its own planning surfaces; a feed is the declaration that another anchor draws from them, and the machinery that carries the top of one roster into the next.
+**Feed is an information flow discipline for aggregating information across anchors.** An anchor holds its own planning surfaces; a feed is the declaration that another anchor draws from them, and the machinery that carries what one anchor publishes into the next.
 
-**DRAFT, 2026-08-06.** Commissioned in [[TINK312 - Feed: a second DAG over anchors, and the facets that travel it|TINK F312]] and written ahead of its open questions. The naming landed 2026-08-06 (F312 Q5): the concept is **Feed** and the key is `feeds:`. What remains unwritten is the second member facet — that page is deliberately unwritten until F312 Q1 lands, because its filename and every one of its rule IDs depend on the answer.
+**Live since 2026-08-09**, implemented by `stone` ([[TINK313 - Stone: one script for every kind of stone, its control file, and the feeds between them|TINK F313]]). Eight `.anchor` files declare `feeds:` today. Commissioned in [[TINK312 - Feed: a second DAG over anchors, and the facets that travel it|TINK F312]] and drafted 2026-08-06 ahead of its open questions; § What the implementation changed records where the draft was overtaken.
 
 ## The second DAG
 
 [[DAS anchor-dag]] describes the vault's **containment** graph: every anchor has a place, a breadcrumb up, dispatch links down. Feed is a **different graph over the same nodes** — supply rather than containment — and the two must never be merged.
 
-The proof they are different is the case that motivated feeds at all: [[Vector]] sits at the top of the rocks feed and [[LUMEN|Lumen]] at the top of the item feed, and **neither is the parent of the anchors that feed them.** [[MED]] lives under `Topic/`. Reusing `parents:` for feed would either relocate MED or make its breadcrumb lie.
+The proof they are different is the case that motivated feeds at all: [[Vector]] sits at the top of the rocks feed and [[LUMEN|Lumen]] at the top of the pebble feed, and **neither is the parent of the anchors that feed them.** [[MED]] lives under `Topic/`. Reusing `parents:` for feed would either relocate MED or make its breadcrumb lie.
 
-`anchor-dag` names itself a *global, corpus-level* discipline — a property of all the anchors together, verified by walking the whole graph rather than by authoring any one artifact — and explicitly opens a shelf for siblings of that shape. **Feed is the first genuine sibling**: same nodes, different edges, its own invariants (acyclic, every named source resolves, every item owned).
+`anchor-dag` names itself a *global, corpus-level* discipline — a property of all the anchors together, verified by walking the whole graph rather than by authoring any one artifact — and explicitly opens a shelf for siblings of that shape. **Feed is the first genuine sibling**: same nodes, different edges, its own invariants.
 
 ## Declaring an edge — `feeds:` in `.anchor`
 
-An anchor names the anchors it draws from. Nothing declares the other direction; consumers are computed by inverting the graph.
+An anchor names the anchors it draws from. Nothing declares the other direction; consumers are computed by inverting the graph. Registered as a field in [[DAS Dot Anchor]]; enforced by [[R-feed]]-01.
 
 - On [[Vector]]'s `.anchor` — `feeds: MED, CMX, NJ, SV, AIS`
 - On `MED`'s `.anchor` — nothing
@@ -42,57 +41,68 @@ An anchor names the anchors it draws from. Nothing declares the other direction;
 
 The plural noun is what makes `feeds:` safe as a key where `flows:` was not. *Your* feeds are what you subscribe to, not what you nourish — the subscriber reading is the dominant one in ordinary use, and a colon followed by a list cues it unambiguously.
 
-## What a feed facet looks like
+## What travels — and what this discipline does not own
 
-Every feed facet materializes the same way. This is the whole of what the discipline owns:
+What moves along a feed edge is a **stone**: one unit of work-worth-naming, held one-file-per-item in a folder, ordered by a hand-arranged **control file**. Its folder, its numbering, its keys, its control file and its display forms all belong to [[DAS Stone]] and are **not restated here**.
 
-- **A folder** at `{anchor}/{slug} Track/{slug} {Facet}s/`, elective, cardinality 0-or-1.
-- **One file per item**, plain markdown, named by the facet's own identity scheme.
-- **`key:: value` parameters** in each item file — the double-colon form used throughout this repo, which works anywhere in the file rather than only in a frontmatter block.
-- **`line::`** — the item's canonical one-line rendering, stored on the item. This is what every roster displays, so editing it changes the item everywhere it appears.
-- **A roster** carrying a `...` catch-all so no item is ever lost, and grouped lines below it. **The top group is the export set**: those items, and only those, travel the outbound edges.
-- **A link at the head of every roster line**, so the item is one click away. What the link is *named* and how it *renders* belongs to the facet, not here — see § What the facet declares.
+That boundary is not where the original design put it, and the move is the single most useful thing [[TINK313 - Stone: one script for every kind of stone, its control file, and the feeds between them|F313]] settled. F312 proposed *feed as a discipline with two member facets*, Rocks and Pebbles, sharing storage machinery the discipline would own. What shipped is **one facet parameterised by kind** — pebble and rock are kinds in a JSON config, not facets — so the shared machinery has a single home in [[DAS Stone]] rather than a home in a discipline plus two facets that must not diverge from it.
 
-## Propagation, and who may write
+**The discipline is therefore smaller than drafted, and correctly so.** What is left here is exactly what is a property of the *graph*: who declares an edge, what travels one, and the three invariants any pass over the graph must hold. Nothing in this page names a kind.
 
-An item that sits in the export group of anchor `A`'s roster appears in the roster of every anchor whose `.anchor` lists `A` among its feeds.
+## Propagation is line-copying, not rendering
 
-**An item is written where it is owned, and read everywhere else.** The roster in the item's own anchor is the write surface — edit a line there and the next pass stores it back to `line::`. Every roster downstream of a `feeds:` edge is a **rendered copy**, machine-owned in the sense [[DAS Dispatch Table]]'s electric zones already establish: hand-edits are discarded on the next pass, and the zone says so.
+A stone that its owning anchor **publishes** appears in the control file of every anchor whose `.anchor` lists that owner among its feeds. Reach is **transitive** — if Vector declares `feeds: MED` and MED declares `feeds: X`, then X's stones reach Vector — while the **declaration is not**: only the direct edge is written, and reach is computed. A top that saw only its direct children would not be a top, and re-declaring the subtree at every intermediate anchor is the duplication § Declaring an edge rejects.
 
-This is not a restriction chosen for safety; it falls out of the structure. Each item has exactly one owning anchor, so exactly one roster can hold an authoritative edit. The alternative — reconciling edits made to the same line in two anchors — is the merge problem feed exists to remove, reintroduced one layer down.
+**The unit that travels is the control line itself, copied verbatim.** A control line opens with a link whose *target* is a numbered stone and whose *display* is a short provenance label — `[[VEC R0001|VEC:]] decide Aria`, reading `VEC: decide Aria`. Because the display carries the source anchor, that exact line is correct in any anchor and still resolves to the original stone, so it can simply be copied.
 
-## What the facet declares
+**This is what keeps a downstream control file hand-editable.** A rendered block would have to be machine-owned — an electric zone, hand-edits discarded — because a render has no way to accept an edit. A copied line has: it is ordinary text in an ordinary file, and the human who arranges the file arranges the imported lines along with their own. Where an import lands is the consumer's choice, expressed by writing a header for the source ([[R-stone]]-04).
 
-The discipline is deliberately silent on four things, because its two known members disagree on all of them and each is right for itself:
+## Who may write — and where the design changed under the implementation
 
-| The facet declares | Why it cannot be shared |
-|---|---|
-| **Its parameter vocabulary** — which `key::`s are legal, which required | A rock has commitment; an item has tempo and a last-raised time. No overlap worth unifying. |
-| **Its identity scheme** | [[DAS Rocks\|Rocks]] numbers its stones (`HBR R0001`) and carries the readable half in the link's display text, *because that text is read in a narrow line* — `R-stone-02`. Items want a short opaque ID because they are numerous and tracked as they move. |
-| **Its presentation** | A rock's link text is the information: `[[HBR R0001|HBR:]] gather stats`. An item hides its ID behind a star so the roster reads as a plain bullet. Applying either uniformly breaks the other. |
-| **What the export group means** | For Rocks it is a commitment level; for items it is likely tempo or urgency. |
+**F312 resolved this as single-owner: written where it is owned, read everywhere else, every downstream copy a rendered artifact whose hand-edits are discarded.** That is not what shipped, and the difference is a real one rather than a wording drift.
 
-**The identity and presentation rows are the two places the members genuinely diverge**, and both are load-bearing. A discipline that fixed either would kill a shipped rule.
+What `stone update` actually does: a control line differing from its stone is treated as an **edit of the stone** wherever it is found — the edit travels up to the stone, and every projection is then rewritten to match. Convergence is guaranteed (every projection equals its stone at the end of a pass); **conflict resolution is last-writer-wins within the pass, with no merge and no conflict report.**
+
+So every control file is a write surface, not only the owner's. The benefit is exactly what F312 wanted and thought it had to give up — the downstream file stays a plain hand-arranged file with no electric zone in it. The cost is the one F312 named when it chose against this: two edits to the same stone's line in different anchors within one pass, and one is silently discarded.
+
+**Whether that cost is acceptable is Dan's call and has not been made.** In practice the user arranges control files ([[DAS Stone]] § Who edits what) and agents edit stone files, so simultaneous edits to one line in two anchors are unlikely rather than impossible — which is an argument that the exposure is small, not that it is absent. Recorded here rather than quietly reconciled, because F312's § Resolved states the opposite as settled, and a resolved entry that the implementation contradicts is worse than an open question.
+
+## The three invariants
+
+Any pass that walks the feed DAG holds all three. They are stated as rules in [[R-feed]] and guard-tested in `test-f313-stone.py`.
+
+- **Acyclic, reported as a path.** A cycle makes ownership circular, and ownership is what write-back rests on. Reported as `A → B → C → A` and the pass aborts before writing anything — never as a boolean, because a cycle you cannot locate is a cycle nobody fixes. (`R-feed`-02, case I.)
+- **Every edge resolves.** A name matching no anchor refuses the pass and is quoted. This is the least visible of the three and the reason the others are not enough: an unresolvable source supplies zero stones and is *indistinguishable from a source that happens to be empty*, so a typo'd edge would otherwise stay invisible forever. (`R-feed`-03, case N.)
+- **No silent empty.** A pass reports its counts on a run with nothing to do exactly as on a busy one — a pass that prints nothing when it does nothing cannot be told apart from a pass that never ran. (`R-feed`-04, case O.)
 
 ## Members
 
-| Facet | Item | Root of its feed |
+| Kind | Item | Root of its feed |
 |---|---|---|
-| [[DAS Rocks]] | a multi-week-to-quarter chunk of work | [[Vector]] — the global [[Rocks]] |
-| *(pending F312 Q1)* | a small thing the user owes | [[LUMEN\|Lumen]] |
+| `rock` ([[DAS Rocks]]) | a multi-week-to-quarter chunk of work | [[Vector]] — the global [[Rocks]] |
+| `pebble` | a small thing the user owes | [[LUMEN\|Lumen]] |
 
-The roots are **convention, not mechanism** — nothing in this discipline privileges Vector or Lumen. They are the anchors that happen to declare everyone else as a source, and either could be replaced by editing one `.anchor`.
+Both are kinds of [[DAS Stone]], declared in `DAS Stone Kinds.json`; a third needs no code. The roots are **convention, not mechanism** — nothing here privileges Vector or Lumen. They are the anchors that happen to declare everyone else as a source, and either could be replaced by editing one `.anchor`.
+
+## What the implementation changed
+
+Four things the 2026-08-06 draft asserted, and what 2026-08-09 shipped instead. Each is recorded rather than silently overwritten, because three of them were *resolved decisions* in F312 and one of them was a prediction this page made about itself.
+
+- **Discipline-plus-two-facets → one facet, two kinds.** See § What travels. The shared machinery has one home instead of three.
+- **A roster (the folder-note) → a separate control file.** F312 Q3 chose the one-file form and recorded a reservation: two files *"become genuinely safer once propagation writes downstream rosters."* The reservation fired, and the two-file form shipped — the ranking must stay hand-arranged and an anchor page's top is machine-maintained, so they cannot be the same file.
+- **Rendering → line-copying**, and with it the write model. See § Who may write.
+- **The two "measured asymmetries" collapsed.** This page argued that identity and presentation could never be shared between the members, and warned that "a discipline that fixed either would kill a shipped rule." A facet fixed **both** — every kind uses `{slug} {PREFIX}{NNNN}` and the same `{slug}:` display — and it did kill a shipped rule: `R-rocks-04` is retired. The prediction was right about the mechanism and wrong about the conclusion. The rule it protected existed because a rock's readable name was also its identifier, which turned out to be the defect: improving a name silently re-pointed every line citing it, including copies already propagated downstream. Numbering separates the two, and the readable half moved into the control line's display text, where it is still short and still read in a narrow line.
 
 ## Relationship to other disciplines
 
 - **[[DAS anchor-dag]]** — the containment graph. Same nodes, different edges; see § The second DAG.
-- **[[DAS stream]]** — the other multi-facet mechanism discipline, and the model this one follows: shared machinery here, per-facet specifics declared by the member. A feed facet's items may each carry a stream.
-- **[[DAS file-association]]** — owns the general folder-attaches-to-a-parent placement; a feed folder is one shape of it, specialized by having a roster and an export semantics.
+- **[[DAS stream]]** — the other multi-facet mechanism discipline, and the model this one was drafted after. The model turned out to fit Stream and not Feed: Stream's members genuinely differ in their entry skeletons, where Feed's turned out to differ in nothing structural at all, which is why they became kinds rather than facets.
+- **[[DAS file-association]]** — owns the general folder-attaches-to-a-parent placement; a stone folder is one shape of it.
 
 # BRIEF
 
-- **What this is** — the discipline owning the feed DAG (`feeds:` in `.anchor`) and the shared shape of a feed facet: folder, one file per item, `key::` parameters, `line::`, a roster whose top group exports.
-- **Status: DRAFT.** Written 2026-08-06 alongside [[TINK312 - Feed: a second DAG over anchors, and the facets that travel it|TINK F312]], ahead of its remaining questions. Q3 could split the roster out of the folder-note; Q4 could change the identity scheme. None of those change the shape above, which is why it was safe to write.
-- **The second member facet is deliberately unwritten.** Its name is F312 Q1, and the name is its filename, its folder name, and every one of its rule IDs. Scaffolding it now would mean rewriting all three — [[feedback_lazy_file_creation]] applies exactly.
-- **The two asymmetries are the part most likely to be lost.** A later reader will want to hoist identity and presentation up into this discipline for uniformity. Doing so deletes `R-rocks-04`, which exists because the wiki-link is read in a narrow line. § What the facet declares says why, and should survive any rewrite.
-- **No ruleset yet.** `R-feed` is M1 of F312 and waits on Q3, since half its rules would assert the file count. The key name is settled.
+- **What this is** — the discipline owning the feed DAG: the `feeds:` key, its consumer-only declaration, propagation by line-copy, and the three invariants. Ruleset: [[R-feed]].
+- **This page is deliberately small, and shrinking it was the work.** Everything about how an item is *stored* belongs to [[DAS Stone]]. If you find yourself writing a folder name, a numbering scheme, a `key::` or a display alias into this page, it belongs there. The one test: this page names no kind.
+- **§ Who may write is an open divergence, not a description.** F312's § Resolved says single-owner; `stone` implements last-writer-wins across all projections. Do not "tidy" either side into agreement — the reconciliation is Dan's, and the pair is the record of what was decided versus what was built.
+- **The three invariants are `stated`, not `checked`, and that is not a gap to close.** No `where::`-selected file can evidence "the graph is acyclic". They are enforced at run time in `stone` and held by named guard tests; arming them as `checked` would buy a coverage claim and no coverage — the failure [[DAS Stone]]'s BRIEF warns about at length.
+- **Two of the three invariants shipped untested and were caught here.** Only acyclicity had a guard; resolvability and no-silent-empty were implemented, cited in the code by F312 invariant number, and asserted by nothing — added as cases N and O on 2026-08-11, before this ruleset was allowed to claim them.

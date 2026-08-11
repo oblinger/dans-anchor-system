@@ -28,6 +28,7 @@ A YAML file named `.anchor` at the root of an anchor folder. Two jobs: (1) its m
 | `traits-` | traits the anchor opts OUT of, including the implicit ones every anchor carries | [[DAS Traits]] |
 | `description` | one-line description (mirrors the anchor page's) | this facet |
 | `parents` | up-edges in the anchor DAG | [[DAS anchor-dag]] |
+| `feeds` | the anchors this one draws work from — in-edges of the **feed** DAG, a second graph over the same nodes. Declared only by the consumer; out-edges are computed by inverting | [[DAS feed]] |
 | `code` | path to the associated code repository | [[DAS Code Repository]] |
 | `mirror` | doc-mirror routes (`here:`/`there:`/`direction:`) — local two-folder sync, independent of `code` | [[DAS Code Repository]] |
 | `now` / `backlog` / `inbox` / `rules` | paths to work-surface files | [[DAS Track]] |
