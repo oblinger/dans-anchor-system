@@ -7804,6 +7804,60 @@ def main(argv):
         plans = []
         for a in anchors:
             plans.append(plan_one(a, "anchor", cdir, [], sub_anchor_roots(a), stats))
+
+        # ATT bug, 2026-08-11: this branch used to `return 0` here, BEFORE the
+        # `if args.run:` below — so `--batch DIR --run` accepted the flag,
+        # printed thousands of recipe lines and a tidy footer, and executed not
+        # one check. Not zero findings for one ruleset: zero verdicts for every
+        # rule in the corpus, silently, in the direction that manufactures
+        # confidence. It had already produced one published wrong measurement
+        # (`DAS Stone` read 13 RECIPE lines as 13 executed `R-rocks` verdicts).
+        #
+        # Wiring it is repair, not a new capability: `--run`'s help promises it
+        # unconditionally, [[F001]] § What done looks like specifies "a `--batch`
+        # run over a directory of anchors produces the same per-anchor reports",
+        # and `test-t098-batch-harness.py` exists precisely because
+        # `--batch ~/ob/kmr --run` "had never once completed" — T098 fixed the
+        # decode crash that stopped it and left it returning early anyway.
+        #
+        # The corpus TOTAL is the point of a sweep, so it is printed last and
+        # separately from the per-anchor blocks. A per-anchor total alone is
+        # what you can already get by auditing anchors one at a time.
+        if args.run or args.judge or args.report:
+            mech_total = {"pass": 0, "fail": 0, "warn": 0,
+                          "except": 0, "error": 0, "cached": 0}
+            per_anchor = []
+            for a, pl in zip(anchors, plans):
+                entry: dict = {"anchor": str(a)}
+                if args.run or args.report:
+                    rep = execute_plan(pl, cdir)
+                    for k in mech_total:
+                        mech_total[k] += rep["counts"].get(k, 0)
+                    entry["mechanical"] = rep
+                if args.judge or args.report:
+                    entry["judgment"] = judge_manifest(pl, cdir, args.model)
+                per_anchor.append(entry)
+            if args.json:
+                print(json.dumps({"batch": str(root), "stats": stats,
+                                  "totals": mech_total, "anchors": per_anchor},
+                                 indent=2))
+            else:
+                for a, pl, entry in zip(anchors, plans, per_anchor):
+                    if args.report:
+                        print(render_report(pl, entry["mechanical"], entry["judgment"]))
+                    elif args.run:
+                        print(f"# {a}")
+                        print(render_verdicts(entry["mechanical"]))
+                    else:
+                        print(render_manifest(entry["judgment"]))
+                    print("\n" + "=" * 72 + "\n")
+                if args.run or args.report:
+                    print(f"batch total: {len(anchors)} anchors  ·  "
+                          + "  ".join(f"{k} {v}" for k, v in mech_total.items()))
+            # A sweep that found real failures exits non-zero, so a caller can
+            # gate on it without parsing the report.
+            return 1 if mech_total["fail"] or mech_total["error"] else 0
+
         if args.json:
             print(json.dumps({"batch": str(root), "stats": stats, "plans": plans}, indent=2))
         else:
