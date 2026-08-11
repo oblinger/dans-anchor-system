@@ -1377,6 +1377,77 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
             body.append("")
         body.append(title)
 
+    def _q_affordance(r) -> tuple[str, list[str]]:
+        """The `**(NQ)**` badge and the indented question preview, as a pair.
+
+        Returns `(badge, preview_lines)` so a caller can splice the badge into
+        its own bullet and append the preview under it. `## Questions` and
+        `## Blockers` both call it, and that sharing is the point: promotion
+        moves a `[Questions]` row OUT of `## Questions` (one row, one section),
+        so a question that is holding other work up used to render with its
+        bracket and its waiters but **no question anywhere** — the most urgent
+        kind of question was the one kind the user could not read. Dan,
+        2026-08-11, on F312: *"you list 312 as a blocker with questions. But if
+        I click on 312, I don't see a question there."* The 2026-07-18 rule that
+        the queue must SHOW the questions rather than a bare badge was being
+        silently exempted by the promotion, which is why this lives in one
+        function instead of two.
+        """
+        n = _row_q_count(r, vault_index)
+        badge = f" **({n}Q)**" if n else ""
+        # Inline each pending question's TEXT under the row. A doc-backed row
+        # reads its feature doc's `## Open Questions`; a doc-less T-/B-row reads
+        # its OWN sub-bullets (F233 inline form) — the latter used to be skipped,
+        # which left the question invisible everywhere the user looks (Dan,
+        # 2026-08-02).
+        qdoc = _row_q_doc_path(r, vault_index)
+        q_entries = (_read_open_questions(qdoc) if qdoc
+                     else _read_row_inline_questions(backlog_file, r))
+        # A doc-backed Q is a PREVIEW — the answerable form (options, block-id,
+        # Recommendation) lives one click away in the feature doc, so its
+        # QUESTION alone is enough to identify it. An inline row Q has no such
+        # home: this render is the only place the user will read it, so it must
+        # carry its `**(A)**`/`**(B)**` options or it is unanswerable (North
+        # Star 2 — everything needed to answer is in the entry).
+        qlimit = 200 if qdoc else 420
+        lines: list[str] = []
+        for qid, qtext, qrec, qopts in q_entries:
+            if not qtext:
+                continue
+            # Q005 (Dan, 2026-08-08, on F311's four questions: *"see how
+            # unreadable these questions are… the options are just jammed
+            # together"*). Every part of the ask — stem, options, lean — shared
+            # one markdown line, so Obsidian wrapped them into a run-on
+            # paragraph in which nothing was distinguishable and each part was
+            # cut mid-sentence. A doc-backed Q now renders as its handle plus its
+            # question sentence and NOTHING else; the `(NQ)` link beside the row
+            # is what the reader clicks for the answerable form.
+            #
+            # T130 survives intact, by suppressing MORE rather than less. Its
+            # rule is that a lean must never name an option the reader cannot
+            # see (2026-08-05 on F305 Q1: *"you're telling me you lean B on
+            # what?"*) — dropping the options and the recommendation together
+            # honours it; dropping only the options would reintroduce exactly
+            # that defect.
+            if qdoc:
+                lines.append(f"    - {qid} — {_question_sentence(qtext, qlimit)}")
+                continue
+            opt_txt = ""
+            if qopts:
+                opt_txt = " · " + " · ".join(
+                    f"**({lab})** {gloss}" for lab, gloss in qopts)
+            rec_txt = f" · *{_truncate_body(qrec, 90)}*" if qrec else ""
+            # DISPLAY PREVIEW, not a formal ask-format Q entry. The answerable Qs
+            # (block-IDs, Recommendations, option bullets) live in the source
+            # feature doc's `## Open Questions`, which audit-q enforces there.
+            # This inline copy is a dashboard preview only, so it deliberately
+            # does NOT lead with `- **Q<n>` — that shape is parsed by audit-q's
+            # Q_HEADER_RE as a formal Q and would trip C6 (block-id)/C9
+            # (recommendation) on every render of this generated file.
+            lines.append(f"    - {qid} — {_truncate_body(qtext, qlimit)}"
+                         f"{opt_txt}{rec_txt}")
+        return badge, lines
+
     # F283 — Blockers first. Computed, never authored: these rows are here only
     # because something else names them. Each bullet says WHAT it holds up, which
     # is the whole point — the `[Blocked <handle>]` edge was previously readable
@@ -1399,8 +1470,16 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
             # without the horizon the row reads as ordinary pending work.
             parked = "" if _row_should_render(r) else f" · parked in **{r.horizon}**"
             txt = _truncate_body(r.body, 160)
-            body.append(f"- {link} — {btxt} **gates {waiters}**{parked}"
+            # A promoted `[Questions]` row is still a question, and this is now
+            # the ONLY place it renders — so it carries the same badge and
+            # question preview `## Questions` would have given it. Without this
+            # the bullet said "[Questions]" and showed none.
+            badge, qlines = (_q_affordance(r)
+                             if _member(r, lambda m: "Questions" in m)
+                             else ("", []))
+            body.append(f"- {link}{badge} — {btxt} **gates {waiters}**{parked}"
                         + (f" — {txt}" if txt else ""))
+            body.extend(qlines)
     # Ready first among the working sections: it is short, it is what the agent
     # can act on with no user involvement, and it orients everything below it.
     if ready:
@@ -1420,9 +1499,10 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
             link = _bullet_link(r, name, vault_index, block_ids, h3_headings)
             txt = _truncate_body(r.body, 160)
             # Pending-Q count in bold parens — the user sees how many answers the
-            # feature needs at a glance (`[[F181 …]] **(5Q)**`). Per /query North Star.
-            n = _row_q_count(r, vault_index)
-            cnt = f" **({n}Q)**" if n else ""
+            # feature needs at a glance (`[[F181 …]] **(5Q)**`). Per /query North
+            # Star. Shared with `## Blockers`, which renders promoted `[Questions]`
+            # rows and needs the identical affordance.
+            cnt, qlines = _q_affordance(r)
             # The Q-bearing doc is the entry's home — link it first, demote the
             # backlog-row link to a parenthesized `(row)` pointer (same shape as
             # the F235 Verify entries). Inline T-/B-rows keep the row link: the
@@ -1433,62 +1513,7 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
                 body.append(f"- {doclink}{cnt} ({rowlink})" + (f" — {txt}" if txt else ""))
             else:
                 body.append(f"- {link}{cnt}" + (f" — {txt}" if txt else ""))
-            # Inline each pending question's TEXT under the row (user 2026-07-18:
-            # the queue must SHOW the questions, not just a (NQ) badge). Mirrors
-            # the Verifications section. A doc-backed row reads its feature doc's
-            # `## Open Questions`; a doc-less T-/B-row reads its OWN sub-bullets
-            # (F233 inline form) — the latter used to be skipped, which left the
-            # question invisible everywhere the user looks (Dan, 2026-08-02).
-            qdoc = _row_q_doc_path(r, vault_index)
-            q_entries = (_read_open_questions(qdoc) if qdoc
-                         else _read_row_inline_questions(backlog_file, r))
-            # A doc-backed Q is a PREVIEW — the answerable form (options,
-            # block-id, Recommendation) lives one click away in the feature doc,
-            # so its QUESTION alone is enough to identify it. An inline row Q has
-            # no such home: this render is the only place the user will read it,
-            # so it must carry its `**(A)**`/`**(B)**` options or it is
-            # unanswerable (North Star 2 — everything needed to answer is in the
-            # entry).
-            qlimit = 200 if qdoc else 420
-            if q_entries:
-                for qid, qtext, qrec, qopts in q_entries:
-                    if not qtext:
-                        continue
-                    # Q005 (Dan, 2026-08-08, on F311's four questions: *"see how
-                    # unreadable these questions are… the options are just jammed
-                    # together"*). Every part of the ask — stem, options, lean —
-                    # shared one markdown line, so Obsidian wrapped them into a
-                    # run-on paragraph in which nothing was distinguishable and
-                    # each part was cut mid-sentence. A doc-backed Q now renders
-                    # as its handle plus its question sentence and NOTHING else;
-                    # the `(NQ)` link beside the row is what the reader clicks
-                    # for the answerable form.
-                    #
-                    # T130 survives intact, by suppressing MORE rather than less.
-                    # Its rule is that a lean must never name an option the
-                    # reader cannot see (2026-08-05 on F305 Q1: *"you're telling
-                    # me you lean B on what?"*) — dropping the options and the
-                    # recommendation together honours it; dropping only the
-                    # options would reintroduce exactly that defect.
-                    if qdoc:
-                        body.append(f"    - {qid} — "
-                                    f"{_question_sentence(qtext, qlimit)}")
-                        continue
-                    opt_txt = ""
-                    if qopts:
-                        opt_txt = " · " + " · ".join(
-                            f"**({lab})** {gloss}" for lab, gloss in qopts)
-                    rec_txt = f" · *{_truncate_body(qrec, 90)}*" if qrec else ""
-                    # DISPLAY PREVIEW, not a formal ask-format Q entry. The
-                    # answerable Qs (block-IDs, Recommendations, option bullets)
-                    # live in the source feature doc's `## Open Questions`, which
-                    # audit-q enforces there. This inline copy is a dashboard
-                    # preview only, so it deliberately does NOT lead with
-                    # `- **Q<n>` — that shape is parsed by audit-q's Q_HEADER_RE
-                    # as a formal Q and would trip C6 (block-id)/C9 (recommendation)
-                    # on every render of this generated file.
-                    body.append(f"    - {qid} — {_truncate_body(qtext, qlimit)}"
-                                f"{opt_txt}{rec_txt}")
+            body.extend(qlines)
     # F283 — the visibility ledger. Scanned, not worked: "if it's legitimately
     # blocked on something else, then I don't really want to see it, I just wanna
     # work on the thing that it's blocked by." It renders anyway so that nothing
