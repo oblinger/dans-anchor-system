@@ -527,6 +527,67 @@ def all_corpus_rulesets() -> list[dict]:
     return out
 
 
+def inert_umbrellas(reachable: set[str], roots: tuple[str, ...]) -> list[str]:
+    """Umbrellas that aggregate rulesets but are themselves outside the closure.
+
+    T208. `audit-plan.py` resolves a FIXED umbrella — `R-doc` in doc mode,
+    `R-anchor` in anchor mode — and nothing reads a per-anchor ruleset
+    declaration, so an `include::` in any other umbrella arms nothing. `R-facet`
+    spent its whole life documenting itself as the thing an anchor "adopts";
+    three separate defects each began with an agent following that and
+    concluding, reasonably, that a facet was covered. The tell is invisible from
+    every surface that would normally show it: the recipe lists the rules, the
+    tier reads `(checked)`, and the sweep runs green because no rule ran.
+
+    The number that matters is not "is this umbrella reachable" — a pure catalog
+    whose members are all armed elsewhere is harmless and should not nag. It is
+    **how many rulesets this umbrella is the SOLE route to**, since those are
+    armed by nothing at all. That count falls to zero as the sets get named in
+    `R-doc`/`R-anchor`, so the report converges instead of becoming furniture.
+    """
+    out: list[str] = []
+    seen: set[str] = set()
+    warns: list[str] = []
+    for p in sorted(REPO_ROOT.rglob("*.md")):
+        if "/.git/" in str(p):
+            continue
+        try:
+            text = p.read_text(encoding="utf-8")
+        except OSError:
+            continue
+        if "RULESET " not in text:
+            continue
+        for ln in _code_masked_lines(text):
+            m = _RULESET_RE.match(ln)
+            if not m or m.group(2) in seen:
+                continue
+            name = m.group(2)
+            seen.add(name)
+            if name in roots or name in reachable:
+                continue
+            blk = extract_ruleset_block(text, name)
+            if blk is None:
+                continue
+            rs = parse_ruleset_block(blk[0], p)
+            if not rs["includes"]:
+                continue
+            members = {r["name"] for r in flatten_umbrella(name, warns)}
+            orphaned = sorted(members - reachable)
+            if not members:
+                out.append(f"{name} — outside the closure, and its include:: reaches "
+                           f"nothing that carries rules; an empty umbrella")
+                continue
+            if not orphaned:
+                out.append(f"{name} — outside the closure, but every one of its "
+                           f"{len(members)} rulesets is armed by another route; "
+                           f"a catalog, costing nothing")
+                continue
+            out.append(f"{name} — outside the closure and the SOLE route to "
+                       f"{len(orphaned)} ruleset(s), which are therefore armed by "
+                       f"nothing: {', '.join(orphaned)}")
+    return out
+
+
 def verify_registrations(rulesets: list[dict]) -> dict:
     """Check the `check::`↔registry mapping in both directions.
 
@@ -7788,6 +7849,7 @@ def main(argv):
                     seen.add(rs["name"])
                     rulesets.append(rs)
         reachable = len(rulesets)
+        seen_reachable = set(seen)  # snapshot before the corpus sweep widens `seen`
         for rs in all_corpus_rulesets():
             if rs["name"] not in seen:
                 seen.add(rs["name"])
@@ -7795,6 +7857,7 @@ def main(argv):
         rep = verify_registrations(rulesets)
         rep["reachable"] = reachable
         rep["total"] = len(rulesets)
+        rep["inert_umbrellas"] = inert_umbrellas(seen_reachable, ("R-doc", "R-anchor"))
         if args.json:
             print(json.dumps(rep, indent=2))
             return 1 if rep["ghosts"] else 0
@@ -7806,6 +7869,12 @@ def main(argv):
             print(f"\n{label}: {len(rep[key])}")
             for line in rep[key]:
                 print(f"  {line}")
+        print(f"\ninert umbrellas (aggregate rules, arm none — T208): "
+              f"{len(rep['inert_umbrellas'])}")
+        print("  `audit-plan.py` resolves R-doc and R-anchor and nothing else; an "
+              "include:: anywhere out here looks exactly like adoption and is not")
+        for line in rep["inert_umbrellas"]:
+            print(f"  {line}")
         print(f"\norphan checkers (registered, invoked by no rule): {len(rep['orphans'])}")
         print("  each is either a rule waiting to be written or dead code — "
               "only reading it tells you which")

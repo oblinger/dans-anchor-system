@@ -3,7 +3,7 @@ include:: [[R-stream]]
 where:: `sentinel: ^#+ Discussion`
 description:: planning trade-offs
 
-Embedded ruleset for the Discussion facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Adopted via [[R-facet]] umbrella.
+Embedded ruleset for the Discussion facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Armed by **both** executing umbrellas: [[R-doc]], which `/audit doc` and the on-write doc-fire resolve, and [[R-anchor]], which `/audit anchor` resolves. Being named by [[R-facet]] is catalog membership, not adoption — that umbrella sits outside the `R-doc`/`R-anchor` closure `audit-plan.py` resolves, so an `include::` there arms nothing ([[TINK Backlog#^T208|T208]]).
 
 **Delegation.** Five placement-shape rules from the prior version moved into [[R-stream]] (preface, naming, one-form-per-parent, reverse-chronological, dispatch linkage). This ruleset retains only the rules that are Discussion-specific.
 
@@ -55,7 +55,7 @@ Sits under [[R-facet]] (per-facet umbrella). **First doc-scoped facet** — dist
 
 ## Adoption
 
-Pulled automatically via the [[R-facet]] umbrella; an anchor adopting `include:: [[R-facet]]` gets R-discussion for free. No explicit `include:: [[R-discussion]]` needed.
+Armed by **both** executing umbrellas: [[R-doc]], which `/audit doc` and the on-write doc-fire resolve, and [[R-anchor]], which `/audit anchor` resolves. Being named by [[R-facet]] is catalog membership, not adoption — that umbrella sits outside the `R-doc`/`R-anchor` closure `audit-plan.py` resolves, so an `include::` there arms nothing ([[TINK Backlog#^T208|T208]]).
 
 ## See also
 

@@ -4,7 +4,7 @@ import:: skills/audit/scripts/audit-plan.py
 where:: `file:{anchor}/**/* Roadmap.md`
 description:: facet spec for the project sequencing-design doc — milestones, shapes, and numbering
 
-Ruleset for this facet — spec: [[DAS Roadmap]] (extracted from the spec 2026-07-12). Adopted via `R-facet` umbrella.
+Ruleset for this facet — spec: [[DAS Roadmap]] (extracted from the spec 2026-07-12). Armed by [[R-anchor]]'s `include::` — the umbrella `/audit anchor` resolves. Being named by [[R-facet]] is catalog membership, not adoption — that umbrella sits outside the `R-doc`/`R-anchor` closure `audit-plan.py` resolves, so an `include::` there arms nothing ([[TINK Backlog#^T208|T208]]).
 
 ### RULE R-roadmap-01 — Location is `{slug} Design/{slug} Roadmap.md` (checked)
 

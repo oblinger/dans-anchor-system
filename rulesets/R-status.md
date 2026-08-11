@@ -4,7 +4,7 @@ import:: skills/audit/scripts/audit-plan.py
 where:: `file:{anchor}/**/* Status.md`
 description:: Structural rules for the {slug} Status.md facet doc; enforces the per-facet dataview-line shape and cell ladder.
 
-Ruleset for the Status facet — spec: [[DAS Status]] (extracted from the spec 2026-07-12). Adopted via `R-facet` umbrella.
+Ruleset for the Status facet — spec: [[DAS Status]] (extracted from the spec 2026-07-12). Armed by [[R-anchor]]'s `include::` — the umbrella `/audit anchor` resolves. Being named by [[R-facet]] is catalog membership, not adoption — that umbrella sits outside the `R-doc`/`R-anchor` closure `audit-plan.py` resolves, so an `include::` there arms nothing ([[TINK Backlog#^T208|T208]]).
 
 ### RULE R-status-01 — File name `{slug} Status.md` (checked)
 check:: status_filename_valid

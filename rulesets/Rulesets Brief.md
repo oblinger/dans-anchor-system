@@ -50,7 +50,7 @@ See [[DAS Ruleset]] for the prescriptive RULESET format (H1 sentinel + `include:
 1. Create `Rulesets/R-<name>/R-<name>.md` (with `.anchor` marker).
 2. Use the prescriptive RULESET format per [[DAS Ruleset]].
 3. Add a row to [[DAS Rulesets]] dispatch table under the appropriate category.
-4. If the set should auto-aggregate under R-facet / R-trait / R-skill, also add to that umbrella's `include::`.
+4. **Arm it by naming it in [[R-doc]] or [[R-anchor]] — those are the only two umbrellas `audit-plan.py` resolves.** `R-doc` for a set that fires on a document kind (`/audit doc` and the on-write doc-fire ride it); `R-anchor` for a set that fires on an anchor's shape. Adding it to [[R-facet]] / [[R-trait]] / [[R-skill]] records catalog membership and arms nothing: those umbrellas are outside the closure, and there is no per-anchor adoption mechanism for an `include::` in a `{slug} Decisions.md` to reach ([[TINK Backlog#^T208|T208]]). Measure the blast radius before arming — a dormant set meeting the live corpus for the first time is where the finding count comes from.
 
 ## Related
 

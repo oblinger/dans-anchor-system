@@ -2,7 +2,13 @@
 include:: [[R-testing]], [[R-status]], [[R-log]], [[R-stories]], [[R-prd]], [[R-design]], [[R-naming]], [[R-roadmap]], [[R-completed-roadmap]], [[R-ux]], [[R-api]], [[R-discussion]], [[R-cli]], [[R-code-repository]], [[R-anchor-group]], [[R-code-surface]], [[R-module-doc]], [[R-design-docs-group]], [[R-dev-dispatch]], [[R-dispatch-group]], [[R-doc-facet]], [[R-cards]], [[R-documentation-site]], [[R-output-group]], [[R-wp]], [[R-skill-md]], [[R-track-group]], [[R-ruleset]], [[R-backlog]], [[R-rocks]], [[R-stone]] 
 description:: Umbrella ruleset aggregating the per-facet rulesets embedded in DAS facet spec files.
 
-Per the 2026-06-09 design decision, each DAS facet spec file (`CAB <facet>.md`) contains a `# RULESET R-<facet>` second-H1 block with the facet's structural rules — co-located with the prose that explains the facet. This file is the catalog-side umbrella that walks all those embedded rulesets via `include::` so adopters get a single name to pull. An anchor that adopts R-facet commits to following every materialized DAS facet's structural rules.
+Per the 2026-06-09 design decision, each DAS facet spec file (`CAB <facet>.md`) contains a `# RULESET R-<facet>` second-H1 block with the facet's structural rules — co-located with the prose that explains the facet. This file walks all those embedded rulesets via `include::`, so it is the one place to read what the per-facet layer *contains*.
+
+> **This umbrella is a catalog. It arms nothing, and for most of its life it claimed otherwise.** `audit-plan.py` resolves a **fixed** umbrella — [[R-doc]] in doc mode, [[R-anchor]] in anchor mode — and **nothing reads a per-anchor ruleset declaration**, so `include:: [[R-facet]]` in a `{slug} Decisions.md` has no reader and never had one. Adding a set to the `include::` line above therefore changes nothing that runs. Measured 2026-08-11 ([[TINK Backlog#^T208|T208]], `--verify-registry`): of the **33** rulesets this file flattens to, **16 are armed by another route** and **17 are armed by nothing at all** — `R-api`, `R-ux`, `R-cli`, `R-cards`, `R-module-doc`, `R-code-surface`, `R-code-repository`, `R-skill-md`, `R-doc-facet`, `R-documentation-site`, `R-dev-dispatch`, `R-completed-roadmap`, and the five facet-group sets. Those 17 carry rules, some read `(checked)`, and not one has ever entered a plan.
+>
+> **The failure mode is that this looks exactly like adoption.** The recipe lists the rules, the tier reads `(checked)`, the audit runs green, and no rule fires — so a green sweep is evidence of nothing. [[R-anchor]] § records the same diagnosis from the T164 side, and [[DAS Stone]] § is the worked example: `R-stone` was added here, measured, and found inert, then armed for real by naming it in `R-anchor`.
+>
+> **To arm a set, name it in [[R-doc]] or [[R-anchor]]** — `R-doc` when it fires on a document kind, `R-anchor` when it fires on an anchor's shape — and measure the blast radius first. A dormant set meeting the live corpus is where a finding count comes from, not where it stays.
 
 **Materialization progress.** The `include::` line above grows as each facet's RULESET block lands. Currently:
 
@@ -24,19 +30,17 @@ Pending — each lands as its DAS facet's RULESET block is drafted: R-architectu
 
 ## Adoption
 
-```markdown
-# {slug} Decisions
-include:: [[R-facet]]
-```
+**There is no adoption.** This section used to document a one-liner — `include:: [[R-facet]]` in an anchor's `{slug} Decisions.md` — as the way a new anchor became CAB-conformant in one move. No code has ever read that line. It is removed rather than corrected in place, because a documented recipe that quietly does nothing is worse than an absent one: three separate defects ([[TINK Backlog#^T164|T164]], [[DAS Stone]]'s inert arming, [[TINK Backlog#^T208|T208]]) each began with an agent following it and reasonably concluding the facet was covered.
 
-This single include pulls in every DAS facet's structural rules. Audit walks the included sets and verifies the anchor's facet files satisfy them. Use cases:
+What the three use cases it advertised actually need today:
 
-- A new anchor that wants to be CAB-conformant: one-liner adoption.
-- An audit pass that checks every facet file's structure in one walk.
-- Cherry-pick override: include `R-facet` AND override individual facet rules in the anchor's `{slug} Rules.md`.
+- **A new anchor that wants every facet rule** — nothing to do, and nothing available to do. Whatever [[R-anchor]] names applies to every anchor already; whatever it does not name applies to none of them. Anchor-selective rule adoption is not a feature this engine has.
+- **An audit pass over every facet file** — `/audit anchor`, which resolves [[R-anchor]]. Its coverage is exactly `R-anchor`'s closure, not this file's list.
+- **Cherry-pick override** — still real, and still through the anchor's `{slug} Rules.md`; it overrides rules that are already firing, so it is unaffected by any of this.
 
 ## See also
 
 - [[DAS Ruleset]] — meta-spec for the RULESET format; carries the embedded `R-ruleset` block (the self-applying format ruleset), now in the umbrella.
-- [[DAS Decisions]] — the master adoption file in an anchor; this is where `include:: [[R-facet]]` belongs.
+- [[R-anchor]] — the umbrella `/audit anchor` resolves, and the only place adding a set arms it for an anchor. Carries the T164 statement of this same defect.
+- [[R-doc]] — the umbrella `/audit doc` and the on-write doc-fire resolve; the doc-kind half of the same answer.
 - [[DAS Rulesets]] — parent catalog.

@@ -4,7 +4,7 @@ import:: skills/audit/scripts/audit-plan.py
 where:: `file:{anchor}/**/{slug} Stories.md, {anchor}/**/US-*.md`
 description:: Structural rules for the {slug} Stories facet — folder shape, story file naming, dispatch table, bidirectional linking.
 
-Embedded ruleset for the Stories facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Adopted via `R-facet` umbrella. All rules below authored in the new `<H> RULE R-<slug>-NN` sentinel form per CAB Rules.
+Embedded ruleset for the Stories facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Armed by **both** executing umbrellas: [[R-doc]], which `/audit doc` and the on-write doc-fire resolve, and [[R-anchor]], which `/audit anchor` resolves. Being named by [[R-facet]] is catalog membership, not adoption — that umbrella sits outside the `R-doc`/`R-anchor` closure `audit-plan.py` resolves, so an `include::` there arms nothing ([[TINK Backlog#^T208|T208]]). All rules below authored in the new `<H> RULE R-<slug>-NN` sentinel form per CAB Rules.
 
 ### RULE R-stories-01 — Folder form lives at `{slug} Design/{slug} PRD/` (checked)
 
@@ -105,7 +105,7 @@ Neither a `US-<slug>-<N> — <Title>.md` story file nor the `{slug} Stories.md` 
 
 ## Adoption
 
-Adopted transitively via [[R-facet]].
+Armed by **both** executing umbrellas: [[R-doc]], which `/audit doc` and the on-write doc-fire resolve, and [[R-anchor]], which `/audit anchor` resolves. Being named by [[R-facet]] is catalog membership, not adoption — that umbrella sits outside the `R-doc`/`R-anchor` closure `audit-plan.py` resolves, so an `include::` there arms nothing ([[TINK Backlog#^T208|T208]]).
 
 ## See also
 

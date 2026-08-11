@@ -2,7 +2,7 @@
 include::
 description:: facet spec this doc follows
 
-Embedded ruleset for the API Design facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Adopted via [[R-facet]] umbrella.
+Embedded ruleset for the API Design facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. **Not armed.** [[R-facet]] names it, and that umbrella is outside the `R-doc`/`R-anchor` closure `audit-plan.py` resolves, so no rule in this set has ever entered a plan (measured 2026-08-11, [[TINK Backlog#^T208|T208]]). Arming it means naming it in [[R-doc]] or [[R-anchor]] — and measuring the blast radius before doing so, per [[R-doc]]'s own record of what activating a dormant set costs.
 
 ### RULE R-api-01 — Preface zone carries TLDR (figure recommended) (checked)
 
@@ -88,7 +88,7 @@ Sits under [[R-facet]] (per-facet umbrella). Paired peer to [[R-ux]] — both fi
 
 ## Adoption
 
-Pulled automatically via the [[R-facet]] umbrella; an anchor adopting `include:: [[R-facet]]` gets R-api for free. No explicit `include:: [[R-api]]` needed.
+**Not armed.** [[R-facet]] names it, and that umbrella is outside the `R-doc`/`R-anchor` closure `audit-plan.py` resolves, so no rule in this set has ever entered a plan (measured 2026-08-11, [[TINK Backlog#^T208|T208]]). Arming it means naming it in [[R-doc]] or [[R-anchor]] — and measuring the blast radius before doing so, per [[R-doc]]'s own record of what activating a dormant set costs.
 
 ## See also
 

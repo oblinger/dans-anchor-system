@@ -3,7 +3,7 @@ include::
 import:: skills/audit/scripts/audit-plan.py
 description:: file-naming facet — `{slug} <X>.md` default + explicit exception allowlist
 
-Embedded ruleset for the Naming facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Adopted via `R-facet` umbrella. Vault-wide application — every anchor's files are subject to this set, no explicit `include::` needed.
+Embedded ruleset for the Naming facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Armed by [[R-anchor]]'s `include::` — the umbrella `/audit anchor` resolves. Being named by [[R-facet]] is catalog membership, not adoption — that umbrella sits outside the `R-doc`/`R-anchor` closure `audit-plan.py` resolves, so an `include::` there arms nothing ([[TINK Backlog#^T208|T208]]). Vault-wide application — every anchor's files are subject to this set, no explicit `include::` needed.
 
 ### RULE R-naming-01 — A file prefix, if present, is the anchor's slug (checked)
 check:: name_slug_prefixed

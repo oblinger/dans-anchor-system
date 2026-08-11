@@ -4,7 +4,7 @@ import:: skills/audit/scripts/audit-plan.py
 where:: `anchor`
 description:: design facet — the `{slug} Design/` folder marks an anchor as following the designed-lifecycle convention; folder presence IS the signal (no trait field required)
 
-Embedded ruleset for the Design facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Adopted via `R-facet` umbrella.
+Embedded ruleset for the Design facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Armed by [[R-anchor]]'s `include::` — the umbrella `/audit anchor` resolves. Being named by [[R-facet]] is catalog membership, not adoption — that umbrella sits outside the `R-doc`/`R-anchor` closure `audit-plan.py` resolves, so an `include::` there arms nothing ([[TINK Backlog#^T208|T208]]).
 
 ### RULE R-design-01 — Folder presence IS the gate (checked)
 
@@ -74,7 +74,7 @@ The `{slug} Design/` folder exists **iff** the anchor has real design content �
 
 ## Adoption
 
-Adopted transitively via [[R-facet]].
+Armed by [[R-anchor]]'s `include::` — the umbrella `/audit anchor` resolves. Being named by [[R-facet]] is catalog membership, not adoption — that umbrella sits outside the `R-doc`/`R-anchor` closure `audit-plan.py` resolves, so an `include::` there arms nothing ([[TINK Backlog#^T208|T208]]).
 
 ## See also
 
