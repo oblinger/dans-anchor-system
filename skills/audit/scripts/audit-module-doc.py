@@ -144,7 +144,24 @@ def find_block_id_references(text: str) -> list[tuple[int, str]]:
 # Checks
 # ============================================================
 
-def check_top_of_doc(lines: list[str], text: str) -> list[Finding]:
+def _has_masthead(doc_path: Path, lines: list[str]) -> bool:
+    """Does this page open with a dispatch masthead?
+
+    Delegates to the shared spine classifier (`spine.py`, the one implementation
+    `spine_check.py` and `md-toc.py` also read shape from) so this checker and
+    R-spine-01 cannot disagree. Fails CLOSED — if the classifier is unavailable
+    the answer is "no masthead", which restores C4's old advisory behaviour
+    rather than silently suppressing a real finding.
+    """
+    try:
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        from spine import Spine  # noqa: PLC0415 — optional, resolved at call time
+        return Spine(doc_path, list(lines)).table_start is not None
+    except Exception:  # noqa: BLE001
+        return False
+
+
+def check_top_of_doc(lines: list[str], text: str, doc_path: Path) -> list[Finding]:
     findings = []
     # C1: YAML frontmatter present
     if not text.startswith('---'):
@@ -208,14 +225,28 @@ def check_top_of_doc(lines: list[str], text: str) -> list[Finding]:
                     fixable=True,
                 ))
 
-    # C4: breadcrumb (informational only)
-    has_breadcrumb = any(line.startswith(':>>') for line in lines)
-    if not has_breadcrumb:
-        findings.append(Finding(
-            "C4", 0,
-            "no `:>>` breadcrumb line found (optional but recommended)",
-            suggest="Add `:>> [[anchor]] → [[Docs]] → [[Dev]] → [[Architecture]]` line above the H1.",
-        ))
+    # C4: breadcrumb (informational only) — SUPPRESSED on a masthead page.
+    #
+    # A page uses ONE navigation form: a masthead when it is the container's own
+    # page, a `:>>` breadcrumb everywhere else (R-spine-01, R-doc-structure-02).
+    # C4 used to fire on every masthead module doc and suggest adding the
+    # breadcrumb, which the on-write Warden then rejected under those two rules —
+    # so the finding could not be satisfied in either direction, and the only
+    # correct response was to ignore a checker. Reported from the HookAnchor side
+    # 2026-08-10 after acting on C4's advice in `HA Commands.md` and being
+    # bounced by the write hook.
+    #
+    # The masthead test is asked of the spine classifier rather than restated
+    # here: `Spine.table_start` is the same computation R-spine-01 makes, so the
+    # two cannot drift into disagreeing about what a masthead is.
+    if not _has_masthead(doc_path, lines):
+        has_breadcrumb = any(line.startswith(':>>') for line in lines)
+        if not has_breadcrumb:
+            findings.append(Finding(
+                "C4", 0,
+                "no `:>>` breadcrumb line found (optional but recommended)",
+                suggest="Add `:>> [[anchor]] → [[Docs]] → [[Dev]] → [[Architecture]]` line above the H1.",
+            ))
 
     return findings
 
@@ -853,7 +884,7 @@ def audit_file(path: Path, fix: bool = False) -> tuple[list[Finding], bool]:
     lines = parse_lines(text)
 
     findings: list[Finding] = []
-    findings.extend(check_top_of_doc(lines, text))
+    findings.extend(check_top_of_doc(lines, text, path))
     findings.extend(check_figure(lines, path))
     sec_findings, sections_rows = check_sections_table(lines, text)
     findings.extend(sec_findings)
