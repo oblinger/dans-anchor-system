@@ -35,7 +35,7 @@ Read from and write to external services. Each sub-skill is an access card with 
 
 **One credential store, two clients.** `gsa` and `workspace-mcp` both read `~/.google_workspace_mcp/credentials/{user}@gmail.com.json`. There are not two OAuth paths to repair — one consent fixes both. When re-consenting, **tick "Select all"**: the permission checkboxes default to unchecked, and clicking straight through grants `email`/`profile`/`openid` only, which then fails as HTTP 403 *insufficient scopes* rather than as an auth error.
 
-**The one measured exception to local-first.** Searching mail is a Google job, not a local one: Apple Mail scripting against the user's 236,962-message archive timed out at ~40 minutes, and Mail's SQLite index is TCC-blocked to the shell. Use local `imail` for reading and composing; reach for the Gmail API when the task is *search over the whole archive*.
+**The one measured exception to local-first.** Searching the whole archive is a Google job, not a local one — but the local path does work, contrary to what this line used to claim. Re-measured 2026-08-10: one combined `whose` clause over ~253k All Mail messages across three accounts finished in **~10 minutes** and returned its hits. The earlier "timed out at ~40 minutes" was a query with **no `with timeout of N seconds` wrapper**, dying at the 120-second Apple Event default and reporting nothing. Mail's SQLite index is still TCC-blocked to the shell, so there is no filesystem shortcut. Use local `imail` for reading, composing, and any search worth ten minutes; reach for the Gmail API — **once `/io gmail` is wired, which it is not today** — when archive search must be fast or repeated. Measured table and the pitfalls: [[io-imail]] § Performance.
 
 ## Actions
 

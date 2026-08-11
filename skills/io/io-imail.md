@@ -187,9 +187,29 @@ set cutoff to date "Tuesday, May 12, 2026 at 12:00:00 AM"
 
 Day-of-week in the date string is optional but the full long format (with `at` and time) is most reliable across locales.
 
-### Performance
+### Performance — re-measured 2026-08-10, the earlier "in seconds" was wrong
 
-Single combined `whose` clause searches across 235k+ All Mail messages return in seconds — Mail's local Spotlight index does the heavy lifting. **Combine all filters into one `whose` clause** rather than fetching all messages then filtering in AppleScript; the latter can take many minutes.
+**Combine all filters into one `whose` clause** rather than fetching all messages and filtering in AppleScript. That part holds. What does *not* hold is the old claim that a combined `whose` over a 235k-message All Mail "returns in seconds" — it does not, and [[io/SKILL]] separately recorded the same search "timing out at ~40 minutes." Both were describing a run with **no explicit timeout**. Measured numbers, one combined clause (date cutoff + six `subject contains` disjuncts):
+
+| Scope | Messages | Wall clock |
+|---|---|---|
+| All *labeled* folders, three accounts | ~19,000 | **25 s** |
+| Gmail `All Mail`, three accounts | ~253,000 | **~10 min** |
+
+So: seconds for labeled folders, **ten minutes** for the archive — slow but entirely usable, and *not* the 40-minute wall. Two things make the difference between those two outcomes:
+
+- **Wrap every archive-scale query in `with timeout of N seconds`.** The default Apple Event timeout is **120 seconds**; anything longer dies with `AppleEvent timed out. (-1712)` and returns nothing, which reads as a failed search rather than a slow one. This alone explains the "40 minute timeout" folklore.
+- **Run it in the background and poll the output file**, per the section below. Ten minutes is longer than any foreground tool call should hold.
+
+### Do not scope to labeled folders to save time
+
+Gmail archives everything into `All Mail` and a message keeps a labeled folder only if it *has* a label. Measured on the same corpus and the same query: **all labeled folders across three accounts returned 1 hit; `All Mail` returned 739.** Searching INBOX and the user's own folders and calling that a search of their mail is a ~99% miss that looks like a clean result. If the answer must be complete, pay the ten minutes.
+
+**Believe a zero only after a control test.** A "no results" is a claim about the query as much as about the mailbox — re-run with a term *known* to be present and confirm it comes back. Cheap, and it separates "never happened" from "my query was broken."
+
+### There is no filesystem shortcut
+
+`~/Library/Mail`, `~/Library/Containers/com.apple.mail/…` and the Mail group container all **exist but list as empty** to a shell without Full Disk Access, and `mdfind -onlyin` over them returns **0 for every term** — including terms that are definitely present. It fails silently and looks exactly like an empty mailbox. Everything must go through Mail.app via AppleScript.
 
 ### Output strategy for long searches
 
