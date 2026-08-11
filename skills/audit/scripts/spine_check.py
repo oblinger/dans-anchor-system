@@ -123,7 +123,16 @@ class Page(Spine):
         while j + 1 < len(self.lines):
             j += 1
             l = self.lines[j]
-            if l.startswith("# BRIEF") or l.startswith("# Log"):
+            # ANY second level-1 heading ends the heart zone, not just the two
+            # that used to be named here. The heart is what sits directly below
+            # THE H1; a further `# ` opens a new top-level section, and anything
+            # under it is that section's content by definition. `# BRIEF` and
+            # `# Log` were only the two instances someone happened to hit, and a
+            # two-name list is the shape that manufactures an invisible miss —
+            # the corpus also carries `# MEETINGS`, `# Quotes`, `# TOPICS` and,
+            # on this very repo, `# What the classification found`, whose verdict
+            # table was nominated as the page's buried heart (2026-08-11).
+            if j > self.h1 and re.match(r"#\s", l):
                 break
             if re.match(r"#{2,}\s", l) and j > start:
                 # A heading that leads STRAIGHT into a table/figure labels the

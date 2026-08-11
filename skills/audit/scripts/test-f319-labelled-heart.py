@@ -131,6 +131,22 @@ def main():
         print(f"      raised {type(e).__name__}: {e}")
     check(ok, "heading at end of file → no crash, no candidate")
 
+    # 7 — ANY second H1 ends the zone, not only `# BRIEF` / `# Log`. Those two
+    #     were hardcoded, so a table under any other top-level section read as
+    #     this page's buried heart. Found 2026-08-11 on [[DAS Disciplines]],
+    #     whose `# What the classification found` verdict table was nominated.
+    #     Named-instance lists are the shape that manufactures an invisible
+    #     miss; the corpus also carries `# MEETINGS`, `# Quotes`, `# TOPICS`.
+    for h1 in ("# BRIEF", "# Log", "# What the classification found", "# MEETINGS"):
+        c, hc = codes(m, HEAD + PROSE + f"\n{h1}\nintro prose under it.\n" + TABLE)
+        check(hc is None, f"a table under a second H1 ({h1!r}) is that section's, not the heart")
+
+    # 8 — and the control: the SAME table with no second H1 above it is still
+    #     nominated, so test 7 cannot pass by having broken the detector.
+    c, hc = codes(m, HEAD + PROSE + TABLE)
+    check(hc is not None and "H01" in c,
+          "control — remove the second H1 and the buried heart is found again")
+
     print("-" * 40)
     print(f"F319 labelled-heart test: {PASS} passed, {FAIL} failed")
     return 1 if FAIL else 0
