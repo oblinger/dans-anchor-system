@@ -130,10 +130,23 @@ def insertion_point(lines: list[str], h1: int) -> int:
     Skips `key:: value` inline fields (skill pages carry `requires::` there) and
     steps over a masthead table still sitting below the H1 — the pre-migration
     position — so the TOC never lands between a spine and the page it labels.
+
+    Machine-written stamps (`<!-- state:backlog XX -->`, `<!-- state:q XX -->`)
+    are skipped for the same reason `chk_orientation_line` skips them: `state`
+    writes them directly under the H1 on every state-managed doc, so they sit
+    between the H1 and the orientation line on every backlog and every queries
+    page in the vault. Without this they are neither blank nor a field, so the
+    scan stops on one and — since a comment does not start with `|` — consumes
+    it AS the orientation line, landing the TOC above the real one. That puts
+    the file in permanent violation of `R-spine-02`, whose checker skips the
+    stamp and then finds a table where prose must be. Found 2026-08-11 by
+    running this script on [[TINK Backlog]] and watching the rule go red.
     """
+    comment = re.compile(r'^\s*<!--.*-->\s*$')
     i = h1 + 1
     while i < len(lines) and (not lines[i].strip()
-                              or re.match(r'^\w[\w-]*::', lines[i])):
+                              or re.match(r'^\w[\w-]*::', lines[i])
+                              or comment.match(lines[i])):
         i += 1
     if i < len(lines) and not lines[i].startswith('|'):
         i += 1                                    # consume the orientation line
