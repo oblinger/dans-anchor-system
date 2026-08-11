@@ -25,7 +25,7 @@ The service that turns spoken thought into acted-on knowledge. A ~~[[skills|Clau
 MUSE owns the whole path from "voice recording arrives on disk" to "the world reflects what the recording asked for." Split into two entry points so the machine work is fast and unattended, but the *interpretation* work always has a human watching:
 
 - **Machine side** (`muse ingest`) — headless, tool-less. Strips quarantine, transcribes via `_transcribe`, derives a short title via `_askAI`, files the item into the Quick pane + Log Muse index, fires a macOS notification. Safe to leave automatic.
-- **Human side** (`/muse do`) — invoked when the user hits a hotkey in [[HUD]]. The wrapper activates the terminal and injects the slash command into the SYS tmux session; Claude Code becomes the review UI, proposing action and asking approval before touching anything.
+- **Human side** (`/muse do`) — invoked when the user hits a hotkey in ~~[[WIRE HUD|HUD]]~~. The wrapper activates the terminal and injects the slash command into the SYS tmux session; Claude Code becomes the review UI, proposing action and asking approval before touching anything.
 
 MUSE is **not** a recording app — that's [[MACAPP Just Press Record]] on the watch/phone/Mac. MUSE is **not** an autonomous agent — every action Claude proposes goes through a normal Claude Code tool-call approval prompt.
 
@@ -34,5 +34,5 @@ Full flows, action space, safety analysis, config surface, and implementation or
 
 ## History
 
-- **2026-06-30** — Named MUSE. Emerged from a "did the watch recording sync?" debug session that surfaced two adjacent problems: (a) iCloud sync working end-to-end, (b) Gatekeeper quarantine impeding downstream use of every arriving `.m4a`. Same day: architecture converged from "shell script + custom TUI" through "second-vault review surface" to the current **skill + demon + tmux-inject** design, with the second-vault concept split off into its own anchor [[HUD]]. Design captured in [[DAS MUSE Architecture|MUSE Architecture]].
+- **2026-06-30** — Named MUSE. Emerged from a "did the watch recording sync?" debug session that surfaced two adjacent problems: (a) iCloud sync working end-to-end, (b) Gatekeeper quarantine impeding downstream use of every arriving `.m4a`. Same day: architecture converged from "shell script + custom TUI" through "second-vault review surface" to the current **skill + demon + tmux-inject** design, with the second-vault concept split off into its own anchor ~~[[WIRE HUD|HUD]]~~. Design captured in [[DAS MUSE Architecture|MUSE Architecture]].
 - **2026-07-15** — Canonical page migrated from `SYS/WIRE/MUSE/MUSE.md` to `~/.claude/skills/muse/MUSE.md`. Wire folder collapsed into a single [[WIRE Muse]] facet doc (iCloud + launchd plumbing only). MUSE stands as its own anchor rather than a sub-anchor of [[WIRE]]. Motivation: MUSE outgrew the "wire integration" framing — it's a full service (transcription pipeline + archive + review skill) that happens to be *triggered* by a wire event, not defined by it. Same pass: MUSE Inbox.md renamed to [[Log Muse]] (avoids two files named `MUSE`).

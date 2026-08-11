@@ -7,7 +7,7 @@ description: "Harbor's tracking — backlog and feature state"
 | Anchor | [[HBR]] (parent) |
 | Related | [[HBR Design]],  [[DAS Track]],   |
 | Members | [[HBR Backlog\|Backlog]],  [[HBR Rocks\|Rocks]],   |
-| ... | [[HBR Messages]],  [[HBR queries]],  [[HBR Status]],   |
+| ... | [[HBR Messages]],  [[HBR queries]],  [[HBR Rock]],  [[HBR Status]],   |
 
 # HBR Track
 Where Harbor's work is tracked.

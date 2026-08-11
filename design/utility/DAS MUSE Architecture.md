@@ -25,7 +25,7 @@ Two pipelines, both terminating at user-visible surfaces. The § Ingest flow and
 
 **Ingest pipeline:** `launchd` (WatchPaths + StartInterval backstop) → `_trust muse-sweep` (FDA-carrying wrapper) → `muse ingest` → strip `com.apple.quarantine` → `brctl download` (iCloud materialize) → `_transcribe` (whisper.cpp) → `_askAI` (title) → write item `.md` → prepend Quick bullet → prepend Log Muse bullet → macOS notification.
 
-**Do pipeline:** Obsidian hotkey (in [[HUD]]) → `~/bin/_muse_do "{{file_path}}"` → `osascript` activate Terminal → `tmux send-keys` inject `/muse do <path>` into SYS session → Claude Code parses slash command → MUSE skill reads item + action space → proposes action → user approves → tool-call executes.
+**Do pipeline:** Obsidian hotkey (in [[WIRE HUD|HUD]]) → `~/bin/_muse_do "{{file_path}}"` → `osascript` activate Terminal → `tmux send-keys` inject `/muse do <path>` into SYS session → Claude Code parses slash command → MUSE skill reads item + action space → proposes action → user approves → tool-call executes.
 
 ## Subsystems
 
@@ -75,7 +75,7 @@ MUSE is a **~~[[skills|Claude skill]]~~** at `~/.claude/skills/muse/` with two s
 - **Ingest path** (headless — safe to be automatic):
   `launchd` → `muse ingest <audio-path>` → strip quarantine → `_transcribe` → `_askAI` for title → write `MUSE MMDD X <title>.md` in `LST/Quick/` → prepend bullet to `Quick.md` → macOS notification.
 - **Do path** (user-triggered — user watches Claude work):
-  Obsidian hotkey (in [[HUD]]) → `~/bin/_muse_do "{{file_path}}"` → activate terminal + `tmux send-keys -t SYS:0 "/muse do <path>" Enter` → Claude in SYS session receives the slash command → MUSE skill reads file, consults action space, proposes action, waits for approval, executes.
+  Obsidian hotkey (in [[WIRE HUD|HUD]]) → `~/bin/_muse_do "{{file_path}}"` → activate terminal + `tmux send-keys -t SYS:0 "/muse do <path>" Enter` → Claude in SYS session receives the slash command → MUSE skill reads file, consults action space, proposes action, waits for approval, executes.
 
 
 ## Ingest flow — headless, mechanical
@@ -94,7 +94,7 @@ MUSE is a **~~[[skills|Claude skill]]~~** at `~/.claude/skills/muse/` with two s
 
 ## Do flow — user-triggered, LLM-mediated
 
-1. **User in [[HUD]]** with cursor inside a MUSE item file (opened from a Quick.md bullet).
+1. **User in [[WIRE HUD|HUD]]** with cursor inside a MUSE item file (opened from a Quick.md bullet).
 2. **User hits Cmd+Opt+D.** Obsidian [Shell commands](https://github.com/Taitava/obsidian-shellcommands) community plugin (one-time install in HUD's vault) runs `~/bin/_muse_do "{{file_path}}"`.
 3. **`_muse_do` wrapper** (~10 lines of shell) does exactly two things:
     - `osascript -e 'tell application "Terminal" to activate'` — brings the terminal window to the front so the user watches what happens next. Configurable via `MUSE_ACTIVATE_APP`.
@@ -188,7 +188,7 @@ Voice content is untrusted input. A recording could contain instructions ("*igno
 
 Cheapest → riskiest. Each step is testable before the next.
 
-1. **Build [[HUD]] first.** The Obsidian Shell commands plugin installs into HUD's vault (not the primary), so the hotkey path only exists after HUD is up. Full HUD design: [[HUD Architecture]].
+1. **Build [[WIRE HUD|HUD]] first.** The Obsidian Shell commands plugin installs into HUD's vault (not the primary), so the hotkey path only exists after HUD is up. Full HUD design: [[HUD Architecture]].
 2. **Move `LST/Quick.md` → `LST/Quick/Quick.md`.** Mechanical; wiki-links resolve by basename, so nothing external breaks. Confirm heads-up-view pane still renders in both vaults.
 3. **Write `~/bin/_askAI`** — small primitive, useful outside MUSE too (title derivation, quick classification, one-shot summarization). Smoke-test with a hardcoded transcript.
 4. **Skill skeleton at `~/.claude/skills/muse/SKILL.md`** — sub-verbs described, action space in prose, prompt-injection defense instruction baked in. No behavior yet.
@@ -203,7 +203,7 @@ Cheapest → riskiest. Each step is testable before the next.
 
 - **2026-06-30** — Named MUSE. Sub-anchor created under [[WIRE]]. Emerged from a "did the watch recording sync?" debug session that surfaced two adjacent problems: (a) iCloud sync working end-to-end, (b) Gatekeeper quarantine impeding downstream use of every arriving `.m4a`. Same day: architecture converged from "shell script + custom TUI" through "second-vault review surface" to the current **skill + demon + tmux-inject** design. Key steps in the convergence:
     - Universal-inbox / no-headless-LLM principle established (safety envelope).
-    - Two-Obsidian-windows-don't-isolate rejected based on user's prior experience → second-viewer concept split off into [[HUD]].
+    - Two-Obsidian-windows-don't-isolate rejected based on user's prior experience → second-viewer concept split off into [[WIRE HUD|HUD]].
     - Shared `_transcribe` primitive built and smoke-tested (works, ~2.7 s for a short clip).
     - Skill shape chosen — action space lives in `SKILL.md`, not shell code; Claude Code IS the review UI.
     - `/muse do` invoked via `tmux send-keys` from an Obsidian hotkey; terminal activated so the user watches. Inbox drops into the existing [[Quick]] pane rather than a new surface.
