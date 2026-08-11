@@ -40,10 +40,17 @@ Each rule is a heading of the form `<H> RULE R-<slug>-NN[ — name][ (tier)]`.
 **Check pattern:** collect every `R-<slug>-NN`; assert each `NN` is `\d{2}` and there are no duplicates within the set.
 
 ### RULE R-ruleset-06 — every rule has a tier annotation (checked)
+check:: all_rules_have_tier
 
-Each rule title ends with `(tracked)` / `(stated)` / `(sampled)` / `(checked)`.
+Each rule title ends with one of the six tiers: `(checked)` / `(sampled)` / `(stated)` / `(tracked)` / `(retired)` / `(governing)`.
 
-**Check pattern:** each `RULE` heading matches `\((tracked|stated|sampled|checked)\)\s*$`.
+**Why this is the load-bearing rule of this ruleset, and not a tidiness one.** A heading whose tier `_RULE_RE` does not admit is **skipped**, and a skipped heading does not terminate the rule above it — so the `check::` line beneath it **folds onto its predecessor**, which then runs a checker that is not its own and reports that verdict as its own. `R-rocks-03` (cardinality) spent its life running `R-rocks-04`'s name-expansion checker and answering *"name is 'R0001' — not an abbreviation, nothing to expand"*: green on every rock group in the vault, never once evaluated. That was the **second** occurrence in the same ruleset — T156 records `(checked, warn)` folding rule 05 onto rule 04 five days earlier.
+
+It recurs because **a malformed tier makes a rule invisible to the very checks that would catch it.** Every other consumer reads *parsed* rules, where the offending heading has already vanished; this rule is the only one that reads raw headings, and it was declared `(checked)` while carrying no `check::` of its own — its implementation `chk_all_rules_have_tier` sat registered and invoked by nothing since T099. Wired 2026-08-11 after [[ATT|Atticus]] traced the chain end to end.
+
+**Two families share the `RULE` sentinel, and only one is in scope.** An audit rule ends in a tier; a **Warden hook rule** ends in `(when:: <moment>)` and carries `mend::` instead of `check::` — 31 of those exist, `audit-plan` does not model them at all, and they cannot fold because the field beneath them is not `check::`. They are exempt, and the exemption is in the checker rather than in prose.
+
+**Check pattern:** every `RULE` heading outside a fence either matches `_RULE_RE` or ends `(when:: …)`.
 
 ### RULE R-ruleset-07 — `checked` / `sampled` rules carry a Check pattern (checked)
 

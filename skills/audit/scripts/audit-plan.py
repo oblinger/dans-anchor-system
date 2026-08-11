@@ -102,8 +102,22 @@ def resolve_file(name: str) -> Path | None:
 # ── ruleset parsing ────────────────────────────────────────────────────────
 
 _RULESET_RE = re.compile(r"^(#+)\s+RULESET\s+(R-[\w-]+)\s*$")
+# Six tiers, not four. `retired` and `governing` were admitted 2026-08-11 because
+# both are live in the corpus and neither parsed: a heading this regex rejects is
+# SKIPPED, and a skipped heading does not end the rule above it, so the `check::`
+# beneath it folds onto its predecessor. That is not hypothetical — it silently
+# disabled `R-rocks-03`, which ran `R-rocks-04`'s checker and reported that
+# verdict as its own, passing green on every rock group without ever being
+# evaluated. It was the SECOND occurrence in the same ruleset (T156 records
+# `(checked, warn)` folding rule 05 onto rule 04), and it recurs because a
+# malformed tier makes a rule invisible to the very checks that would catch it —
+# every other consumer reads PARSED rules, where the offending heading is gone.
+# Admitting a tier is only half: `_needs_judgment` is a membership test, so both
+# new tiers are excluded there too, or every retired rule starts billing agent
+# judgment on every audit. `R-ruleset-06` is now wired as the standing guard.
 _RULE_RE = re.compile(
-    r"^#+\s+RULE\s+(R-[\w-]+-\d+)\s+[—-]\s+(.*?)\s*\((checked|sampled|stated|tracked)\)\s*$"
+    r"^#+\s+RULE\s+(R-[\w-]+-\d+)\s+[—-]\s+(.*?)\s*"
+    r"\((checked|sampled|stated|tracked|retired|governing)\)\s*$"
 )
 _FIELD_RE = re.compile(r"^([a-z][a-z_-]*)::\s*(.*)$")
 # One wiki-link span, for the whole file. `group(0)` is the span, `group(1)` its
@@ -1915,17 +1929,57 @@ def chk_rule_numbers_unique(target, anchor_root, args):
 
 
 def chk_all_rules_have_tier(target, anchor_root, args):
-    """Every RULE heading ends with a (tracked|stated|sampled|checked) tier."""
+    """Every RULE heading carries a tier `_RULE_RE` admits, or is a hook rule.
+
+    Wired to `R-ruleset-06` on 2026-08-11, having sat registered-and-invoked-by-
+    nothing since T099. It is the standing guard against the fold: a heading
+    `_RULE_RE` rejects is skipped, and a skipped heading does not terminate the
+    rule above it, so the `check::` beneath folds onto its predecessor and that
+    rule silently runs someone else's checker. `R-rocks-03` did exactly this,
+    twice. Every other consumer reads PARSED rules and therefore cannot see the
+    heading at all — which is why the guard has to read raw lines.
+
+    **Two families share the `RULE` sentinel and only one is ours.** An audit
+    rule runs a `check::` and must declare a tier; a **Warden rule** is
+    declarative — `when::` / `if::` / `mend::` — and has no tier by design,
+    because tiers describe *this* engine's execution model and Warden has its
+    own. 37 Warden rules live in the corpus and flagging them would be this
+    checker going red for the wrong reason. They also cannot fold: the field
+    beneath them is not `check::`.
+
+    **A Warden rule is spelled two ways and both must count**, which took two
+    passes to get right. `R-pathguard` / `R-ios` / `R-ob-remote-ops` /
+    `R-code-mirror` put the moment in the heading parenthetical
+    (`… (when:: tool:pre:Bash)`); `R-fct-claude` and the `FEX Repo` example
+    rulesets put `when::` / `if::` on a body line instead. Keying on the
+    heading alone flagged 11 headings that were all Warden rules; keying on the
+    body alone flagged 8 of the other spelling. Neither number was a defect
+    count — each was a measure of which spelling the checker had not learned.
+    """
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
-    headings = [ln for ln in _strip_fenced(_read(f)).splitlines()
-                if re.match(r"^#+\s+RULE\s+", ln)]
-    if not headings:
+    lines = _strip_fenced(_read(f)).splitlines()
+    idx = [i for i, ln in enumerate(lines) if re.match(r"^#+\s+RULE\s+", ln)]
+    if not idx:
         return "pass", "no rules found"
-    for h in headings:
-        if not re.search(r"\((tracked|stated|sampled|checked)\)\s*$", h):
-            return "fail", f"rule missing tier: {h[:60]}"
+    bad = []
+    for n, i in enumerate(idx):
+        if _RULE_RE.match(lines[i]):
+            continue
+        end = idx[n + 1] if n + 1 < len(idx) else len(lines)
+        body = lines[i:end]
+        warden = (bool(re.search(r"\(when::[^)]*\)\s*$", lines[i]))
+                  or any(re.match(r"^(when|if|mend)::", b) for b in body))
+        declares_check = any(b.startswith("check::") for b in body)
+        if warden and not declares_check:
+            continue                      # a Warden rule — not this engine's
+        bad.append(lines[i])
+    if bad:
+        return "fail", (f"{len(bad)} rule heading(s) carry no tier "
+                        f"`_RULE_RE` admits, so the parser skips them and the "
+                        f"next `check::` folds onto the rule above: "
+                        f"{bad[0].strip()[:70]}")
     return "pass", ""
 
 
@@ -7106,8 +7160,19 @@ def _judge_body_hash(rule: dict) -> str:
 
 def _needs_judgment(rule: dict) -> bool:
     """A rule needs the agent iff it isn't mechanically executable and isn't
-    awareness-only (`tracked`). Mechanical = a `check::` naming a known checker."""
-    if rule["tier"] == "tracked":
+    awareness-only (`tracked`). Mechanical = a `check::` naming a known checker.
+
+    `retired` and `governing` join `tracked` here, and the exclusion is the
+    load-bearing half of admitting them to `_RULE_RE` (2026-08-11). This is a
+    MEMBERSHIP test, not a lookup: any rule that parses without a runnable
+    `check::` is promoted to billed agent judgment. So admitting the two tiers
+    alone would have started charging an LLM call for every retired rule on
+    every audit, forever — a fix whose cost shows up only on the invoice.
+    Neither tier wants judging: a retired rule is one deliberately no longer
+    enforced, and a governing rule states how its siblings resolve rather than
+    making a claim about any target.
+    """
+    if rule["tier"] in {"tracked", "retired", "governing"}:
         return False
     chk = rule.get("check")
     if chk and chk.split()[0] in registry():
