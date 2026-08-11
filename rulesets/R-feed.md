@@ -10,7 +10,9 @@ It is the **first ruleset for a corpus-level graph**. [[DAS anchor-dag]] — the
 
 **Every rule here is `stated`, and that is the honest tier rather than a delay.** All four are properties of a **pass over the whole corpus**, not of any one document — no `where::`-selected file can evidence "the graph is acyclic", because acyclicity is not a fact about a file. They are enforced where they are enforceable, at run time in `stone`, and each rule below names the guard test that holds it. This is the [[R-exception-discipline]]-03 shape, and it is deliberately **not** the shape [[DAS Stone]]'s BRIEF warns against: arming these as `checked` would buy a coverage claim and no coverage.
 
-**Not adopted by [[R-facet]]**, and it must not be — that umbrella pulls per-facet rulesets, and this is a discipline ruleset with no facet instances to select.
+**Not adopted by any umbrella**, and it must not be: the rules below select no file, so there is nothing for an umbrella to bind them to.
+
+Note for whoever later decides otherwise — **[[R-facet]] is not the umbrella that arms anything.** Measured 2026-08-11 (`--verify-registry`): 94 rulesets carry rules and only 34 are reachable from the `R-doc`/`R-anchor` closure that `/audit anchor` actually resolves; `R-facet` is among the other 60. A corpus sweep over `Topic/MED` bears this out — `R-rocks` and `R-stone` emit verdicts because [[R-anchor]] names them directly, not because `R-facet` includes them. Several facet BRIEFs still instruct agents to "add it to `R-facet`'s `include::`", which arms nothing while looking exactly like adoption.
 
 ### RULE R-feed-01 — `feeds:` is declared by the consumer, and only by the consumer (stated)
 

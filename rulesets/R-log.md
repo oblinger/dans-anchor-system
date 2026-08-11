@@ -53,11 +53,17 @@ check:: log_dispatch_newest_first
 
 The `{slug} Log.md` dispatch table lists entries with the **newest entry at top**, working backwards in time.
 
-**Check pattern:** parse dispatch-row wiki-links to extract dates from `[[YYYY-MM-DD ...]]`; assert monotonically non-increasing.
+**Check pattern:** parse dispatch-row wiki-links **above the separator** to extract dates from `[[YYYY-MM-DD ...]]`; assert monotonically non-increasing. Rows below the separator are the electric zone and are not judged.
 
 **Why:** the reader's primary query is "what happened recently?" Reverse-chronological ordering puts the answer first; chronological ordering buries it.
 
-**This applies [[R-stream]]-01's ordering invariant to a surface `R-stream-01` cannot see.** `R-stream-01` counts `## YYYY-MM-DD —` H2 headings *inside* a document; a folder-form log keeps its entries in separate files, so its dispatch page has no dated H2s and `R-stream-01` returns *"no dated entries found"* on every one of them. This rule reads the dispatch table's wiki-links instead, and finds 4 out-of-order dispatch tables today. One rule orders the ledger, this one orders the index to it — deleting it as a duplicate was refused on that measurement 2026-08-08.
+**This applies [[R-stream]]-01's ordering invariant to a surface `R-stream-01` cannot see.** `R-stream-01` counts `## YYYY-MM-DD —` H2 headings *inside* a document; a folder-form log keeps its entries in separate files, so its dispatch page has no dated H2s and `R-stream-01` returns *"no dated entries found"* on every one of them. This rule reads the dispatch table's wiki-links instead. One rule orders the ledger, this one orders the index to it — deleting it as a duplicate was refused on that basis 2026-08-08.
+
+**Scoped to hand-authored rows 2026-08-11 (T209, reported by CFO), and the measurement that forced it also tells you this rule is now nearly vacuous.** It had been judging the whole table, including the `...` catch-all — the electric zone HookAnchor recomputes in **alphabetical** order. So on any log whose entries are dated files, the generator and this rule disagreed *by construction*, and the finding named links no agent is permitted to reorder. It fired on every write to `FIN Log.md`, could not be cleared by anyone who saw it, and the correct response was to do nothing — which is indistinguishable from ignoring a real warning.
+
+The earlier justification above used to cite *"finds 4 out-of-order dispatch tables today"* as proof the rule earned its place. **That count was measuring machine-owned rows.** Re-measured across all 98 log dispatch pages in the vault: 5 failed unscoped, and **all 5 had zero or one dated link above the separator** — not one was ever agent-fixable. After scoping, the rule judges **2 pages of 98** and finds nothing.
+
+**Two of 98 is not coverage, and this rule should not be read as providing any.** The honest reading is that its real subject was always the electric zone, which means the ordering it exists to enforce can only be delivered by the generator: teaching the catch-all to sort date-prefixed children newest-first is the fix that makes the page actually read correctly, and it belongs to HookAnchor rather than here. Filed as [[TINK Backlog#^T209|T209]]. Scoping stops the false alarm; it does not achieve the rule's purpose, and retiring the rule outright is the right move if that generator change is declined.
 
 ### RULE R-log-06 — Dispatch table is append-only (stated)
 
