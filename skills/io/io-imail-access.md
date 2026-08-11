@@ -5,7 +5,7 @@ Email can be reached more than one way. This page is the dispatch over **how** `
 | Method | Reaches | Auth | Status |
 |---|---|---|---|
 | **Local — Apple Mail** | every account configured in Mail.app (iCloud, Gmail, work, …), already-downloaded messages | none — Mail.app holds the credentials; we drive it via AppleScript | **✅ working** |
-| **Cloud — Gmail API** | a specific Google account's mail server-side (search the full mailbox, not just what's downloaded) | the existing Google OAuth at `~/.google_workspace_mcp/credentials/{user}@gmail.com.json` (same one `/io gsheet` etc. use) | **🔶 available, not yet wired** |
+| **Cloud — Gmail API** | a specific Google account's mail server-side (search the full mailbox, not just what's downloaded) | the existing Google OAuth at `~/.google_workspace_mcp/credentials/{user}@gmail.com.json` (same one `/io gsheet` etc. use) — **Gmail scopes already granted** | **🔶 CLI works (`gsa gmail`); no skill verb** |
 | **IMAP (direct)** | any IMAP server directly | per-account app-password | ⚪ not planned (Apple Mail already aggregates these) |
 
 ## Local — Apple Mail (default, working)
@@ -16,7 +16,11 @@ Recipes live in [[io-imail]] (read recent, read body, search). Limits: only mess
 
 ## Cloud — Gmail API (available via existing Google auth)
 
-Goes to Google's servers directly — searches the **full** mailbox (including mail not downloaded locally), one Google account at a time. Uses the **same Google OAuth** already in place for Sheets/Slides/Docs/Drive, so no new credential is needed — it just needs the Gmail scope added and a `/io gmail` verb wired. Best for: deep server-side search, very large mailboxes, or scripting against a single Gmail account. **Not yet implemented** — the auth path exists; the verb doesn't.
+Goes to Google's servers directly — searches the **full** mailbox (including mail not downloaded locally), one Google account at a time. Uses the **same Google OAuth** already in place for Sheets/Slides/Docs/Drive, so no new credential is needed. Best for: deep server-side search, very large mailboxes, or scripting against a single Gmail account.
+
+**Less is missing than this page used to claim** (measured 2026-08-11). The scope half is done: `gsa gmail accounts` reports `oblinger@gmail.com` holding `gmail.readonly`, `gmail.modify`, `gmail.labels`, `gmail.send`, `gmail.compose` and `gmail.settings.basic` from the 2026-08-05 re-consent. The CLI half is done too — `gsa gmail search <query>` / `read <msg-id>` / `accounts` / `auth <email>` all work today, take `--account` and `--limit`, and `auth` onboards **additional** mailboxes rather than only the default one. What is missing is *only the `/io gmail` skill card*, so nothing routes to any of it and the surface reads as absent.
+
+**This is the fast path, and its absence has a measured cost.** The local route's honest archive search is **~10 min** over ~253k messages (§ Performance in [[io-imail]]), and scoping narrower to save time is a ~99% miss. Every "search all my mail" question pays that until the verb exists. It also matters per-account: a high-volume feed mailbox is best reached this way and left out of Mail.app entirely, since anything synced locally taxes every unrelated local query.
 
 ## Which to use
 
