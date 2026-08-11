@@ -6045,6 +6045,33 @@ def _is_pointer_stub(p) -> bool:
     return len(rest) == 1 and "[[" in rest[0]
 
 
+def chk_h1_present(target, anchor_root, args):
+    """A page that has a spine must also have an H1 beneath it.
+
+    The spine says *where you are*; the H1 says *what this is called*. Every
+    other rule in this set governs the order of those two and the sentence
+    under them — and none of them noticed a page that simply never states its
+    name, because they all key off an H1 that is not there. 417 pages
+    vault-wide carry a spine with no H1, measured 2026-08-10.
+
+    Auto-fixed, because the title is not a guess: it is the file's own stem,
+    which is also what every `[[wiki-link]]` to this page already says.
+    """
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    try:
+        p = _spine_module().Spine(f)
+    except Exception as e:
+        return "error", f"cannot classify: {e}"
+    if not p.has_spine:
+        return "pass", "no spine — R-spine-09 owns this page"
+    if p.h1 is not None:
+        return "pass", "H1 present under the spine"
+    return "fail", ("a spine with no `# H1` beneath it — the page states where "
+                    "it sits but never what it is called")
+
+
 def chk_valid_spine(target, anchor_root, args):
     """Does this page open with a spine AT ALL — the one question under the
     eight shapes.
@@ -6230,6 +6257,7 @@ CHECKERS = {
     # `error`, which `execute_on_write` deliberately never surfaces. Silent in
     # both directions: the rules looked shipped and the writes looked clean.
     "valid_spine": chk_valid_spine,
+    "h1_present": chk_h1_present,
     "identity_cell_description_first": chk_identity_cell_description_first,
     "orientation_line_adjoins_h1": chk_orientation_line_adjoins_h1,
     "masthead_over_folder_has_marker": chk_masthead_over_folder_has_marker,
@@ -6897,8 +6925,48 @@ def fix_spine_position(target, anchor_root, args):
     return True, f"spine rearranged ({note})"
 
 
+def fix_spine_h1(target, anchor_root, args):
+    """Insert `# {stem}` directly beneath the spine. Paired to `h1_present`.
+
+    The title is the file's stem — not a guess, and not the `.anchor`'s
+    `title:`: the stem is what every `[[wiki-link]]` to this page already
+    displays, so the H1 and the links agree by construction.
+
+    Placement follows the head's disclosure order. A masthead is a block, so
+    the H1 goes after the table with a blank line between; a `:>>` breadcrumb
+    sits **directly** above its H1 with no blank (`R-doc` / `breadcrumb_position`).
+    Only ever an insertion — the assertion below is that the original text
+    survives verbatim, so this can add a title but never edit a page.
+    """
+    if not target.is_file():
+        return False, "not a file"
+    try:
+        p = _spine_module().Spine(target)
+    except Exception as e:
+        return False, f"{type(e).__name__}: {e}"
+    if not p.has_spine or p.h1 is not None:
+        return False, ""
+    lines = list(p.lines)
+    h1 = f"# {target.stem}"
+    if p.table_end is not None:
+        at, block = p.table_end, [""] + [h1]
+    elif p.breadcrumb is not None:
+        at, block = p.breadcrumb + 1, [h1]
+    else:
+        return False, ""
+    out = lines[:at] + block + lines[at:]
+    # An insertion and nothing else: drop the lines we added and the file must
+    # be byte-identical. That is stronger than the shared alnum floor, and it is
+    # what makes "add a title" unable to become "rewrite a page".
+    if [l for i, l in enumerate(out) if i not in range(at, at + len(block))] != lines:
+        return False, "would have changed more than the inserted title"
+    target.write_text("\n".join(out), encoding="utf-8")
+    return True, f"inserted `{h1}` beneath the spine"
+
+
 FIXERS = {
     "spine_position": fix_spine_position,
+    "spine_h1": fix_spine_h1,
     "md_table_blank_lines": fix_table_blank_lines,
     "md_table_pipe_escape": fix_md_table_pipe_escape,
     "md_em_dash": fix_md_em_dash,

@@ -63,6 +63,17 @@ Every other rule here asks *which* shape the spine is and whether its parts are 
 
 **Scope is entry pages only, deliberately.** For a folder's front door a spine is unambiguously required. For everything else the scope is a live question — [[TINK308 - Spine: the routing zone every document opens with|F308]] Q6, 4,941 files — and a write-time fail on an unsettled scope would land on every agent who touched any of them, which is how a rule teaches people to ignore it. 153 of 1,275 entry pages fail this today.
 
+### RULE R-spine-10 — a spine is followed by an H1 (checked)
+check:: h1_present
+fix:: spine_h1
+mend:: spine-position
+
+The spine says *where you are*; the `# H1` says *what this is called*. A page carrying one without the other has published half a head.
+
+**Check pattern:** the page has a spine (breadcrumb or masthead) and no H1 anywhere → fail, auto-fixed.
+
+**Why:** every other rule in this set keys off the H1 — its position, the line under it, the blank between them — so **none of them could see a page that has no H1 at all**. 417 vault pages were in that state when this rule was written, and the whole set had been reporting them clean. Auto-fixing is safe here because the title is not a guess: it is the file's own stem, which is already what every `[[wiki-link]]` to the page displays.
+
 ### RULE R-spine-04 — the spine sits above the H1, never below it (checked)
 check:: spine_above_h1
 fix:: spine_position
