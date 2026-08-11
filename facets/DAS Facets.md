@@ -19,6 +19,12 @@ description: "the per-doc structural specs"
 | Derived, not hand-kept | this row is the include DAG: a facet is a stream iff its ruleset carries `include:: [[R-stream]]`. Six today, armed 2026-08-08, |
 | Attaches, not a stream | [[DAS Brief\|Brief]] — undated, two forms; cites [[DAS file-association]] directly, |
 |  |  |
+|  | **GROUPS** — cross-cutting: what each facet *attaches to*. Not a subsystem; these live in their subsystem groups above. Definitions: [[DAS Facet]] § Facet groups |
+| File facets | `where::` selects **files** — the bulk of the rows above: [[DAS Backlog\|Backlog]],  [[DAS Query\|Query]],  [[DAS PRD\|PRD]],  [[DAS Log\|Log]],  … |
+| Folder facets | the selector reaches a **folder** by globbing its contents (trailing `/**`): [[DAS Rocks\|Rocks]],  [[DAS WP\|WP]].  Characteristic failure is a *vacuous zero* — see [[DAS Facet]] § Folder facets fire only if…, |
+| Slot facets | the selector picks out a **region inside a file**, in documents of many kinds: [[DAS Dispatch Table\|Dispatch Table]],  [[DAS Brief\|Brief]] (inline `# BRIEF` form),  [[DAS spine\|spine]],  [[DAS heart\|heart]], |
+| Discipline facets | **no selector of their own** — they ride on what the other groups select. Cataloged separately at [[DAS Disciplines]], |
+|  |  |
 |  |  |
 |  | **TEMPLATES** — same groups; each template pairs with its facet above |
 | [[DAS Anchor Design\|Anchor]]+ | [[anchor-page\|Anchor Page]],  [[project-page\|Project Page]],  [[folder\|Folder]],  [[anchor-tree\|Anchor Tree]],  [[naming\|Naming]],  [[claude\|Claude]],  [[interface\|Interface]],  [[move\|Move]],  [[dot-anchor\|Dot Anchor]],  [[dispatch-table\|Dispatch Table]],  [[design-dispatch\|Design Dispatch]],  [[dev-dispatch\|Dev Dispatch]],  [[user-dispatch\|User Dispatch]],   |

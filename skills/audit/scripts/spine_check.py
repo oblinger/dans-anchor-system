@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
-"""spine_check — validate a page's spine and heart against [[DAS spine]].
+"""spine_check — validate a page's spine and heart against [[DAS spine]] + [[DAS heart]].
+
+Two specs, one checker, on purpose: a page's opening is graded once, not twice,
+so [[R-spine]] owns both zones and the heart never got an R-heart of its own.
+Both are slot facets (a region inside a file) rather than disciplines — see
+[[DAS Facet]] § Facet groups; they live under `disciplines/` because the folder
+predates the taxonomy, not because it decides it.
 
 This is F319 M2's detector, brought forward. It reports; it never edits.
 

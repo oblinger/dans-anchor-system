@@ -149,18 +149,9 @@ That is a measured failure. **36 pages front a folder that has children and carr
 
 The order is fixed and the reason is the fold: **H1 → one sentence → heart**, with no blank line between the H1 and the sentence, so the heart lands on screen without scrolling. If a reader must scroll past three paragraphs to reach the table the page exists for, the page has failed even when every line above is perfect.
 
-**A heart is usually a table, sometimes a figure with a table beneath it.** Its range is wide and both ends are legitimate:
+**The heart is specified at [[DAS heart]]** — its two forms (bare and labelled), its range from carries-the-page to merely-orients, why a page may legitimately have none, and how `H01` checks it. It earned its own page 2026-08-11, having been documented here only because the two zones are comprehensible as a pair. **Keep this section a pointer:** detail restated here is detail that drifts.
 
-- **The heart *is* the page.** [[Disk]]'s table of drives is the entire reason that page exists; the prose below only explains it.
-- **The heart merely orients.** A table of contents, or a table of the page's key ideas, summarizes what follows rather than carrying it.
-
-**The heart never routes to children.** If the element under the H1 is handing the reader other pages, that is spine work wearing a different hat — and a page whose spine and content are the same table simply has no heart. [[Harbor Hops]] is that case deliberately; [[Devtools]] is the contrast, carrying a masthead that routes and a pipeline table that does not.
-
-**Authored or derived, the heart is equally untouchable.** [[Disk]]'s table is hand-written and load-bearing; a table-of-contents heart is generated from the page's own headings. Same slot, opposite ownership — a derived heart is regenerated like an electric zone and must not be hand-edited, while an authored one must not be regenerated.
-
-Supporting detail — a second table for bookkeeping, the reasoning, the caveats — goes *below* the heart, never above it.
-
-*(The heart may eventually earn its own discipline page. It is documented here because the two zones are only comprehensible as a pair, and because the spine examples cannot be authored correctly without it.)*
+One rule stays, because the spine examples cannot be authored correctly without it. **The heart never routes to children.** If the element under the H1 is handing the reader other pages, that is spine work wearing a different hat — and a page whose spine and content are the same table simply has no heart. [[Harbor Hops]] is that case deliberately; [[Devtools]] is the contrast, carrying a masthead that routes and a pipeline table that does not.
 
 ## Dispatch spine
 
@@ -188,11 +179,14 @@ Grading is the user's act either way, and the grade is a scale: `A`–`C` suppre
 
 The live case is `Agent Purview`, `Agent Conventions` and `Agent Roster` — [[Agent Memory]]'s own siblings — which open frontmatter → H1 → summary, with neither a breadcrumb nor a masthead. That is a third opening this rule says should not exist. Whether they are a legitimate variant or three documents needing a breadcrumb is a real question, not a formality; either way the answer gets written where the audit can see it.
 
-## Why this is a discipline rather than a facet
+## Why this is a slot facet
+A spine is a **region inside a file** — everything above the H1 — with a start, an end, and a template on each of its shapes. That is the slot group's definition ([[DAS Facet]] § Facet groups).
 
-A facet describes one *kind* of document. The spine governs the opening of **every** document of every kind, so it cannot be owned by any facet — which is exactly how the routing rules ended up scattered across `R-progressive` and `R-dispatch-table` with no single home.
+**The earlier reading on this page was that a spine "cannot be owned by any facet, because it governs every kind of document."** That rested on a definition of *facet* which has since been sharpened (2026-08-11): a **file** facet describes one kind of document, a **slot** facet describes one region *in* documents of any kind. Applying to everything was never disqualifying — it is precisely what makes the spine a slot rather than a file. What the old reading got right stands: the rules could not be owned by any one document kind, which is how they ended up scattered across `R-progressive` and `R-dispatch-table` with no single home.
 
-**[[R-spine]] is that home, extracted 2026-08-08 (F308 M2).** It owns the choice of opening — `R-spine-01` (never both forms), `-02` (breadcrumb → H1 → orientation line), `-03` (an index doc fronting a folder carries a dispatch table) — and `R-progressive` now mentions routing nowhere. [[R-dispatch-table]] keeps the masthead's internals and is deliberately not folded in: those rules govern the *content* of one spine form, not which form a page gets, and merging them would put two authorities over one table.
+It still reads as a discipline in the `where::` grammar, because that grammar cannot express a **positional** region — `sentinel:` matches a region announcing itself with a marker, and a spine is defined by where it sits. So [[R-spine]] falls back to `` `always` ``, and the group is carried by this declaration instead. The file stays in `disciplines/` beside [[DAS heart]]; the folder is not the taxonomy.
+
+**[[R-spine]] is the home those rules needed, extracted 2026-08-08 (F308 M2).** It owns the choice of opening — `R-spine-01` (never both forms), `-02` (breadcrumb → H1 → orientation line), `-03` (an index doc fronting a folder carries a dispatch table) — and `R-progressive` now mentions routing nowhere. [[R-dispatch-table]] keeps the masthead's internals and is deliberately not folded in: those rules govern the *content* of one spine form, not which form a page gets, and merging them would put two authorities over one table.
 
 # Log
 
