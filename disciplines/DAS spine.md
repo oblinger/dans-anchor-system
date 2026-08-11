@@ -1,10 +1,10 @@
 ---
 name: spine
-description: "Discipline. The spine is everything above the H1 — the page's position in the structure, in one of five shapes; the heart is what comes directly below."
+description: "Slot facet. The spine is everything above the H1 — the page's position in the structure, in whichever shape its children call for; the heart is what comes directly below."
 user_invocable: false
 ---
 
-| -[[DAS spine]]- | : Discipline. The spine is everything above the H1 — the page's position in the structure, in one of five shapes; the heart is what comes directly below.<br>→ [[DAS]] → [[disciplines]] → [DAS spine](hook://p/DAS%20spine)  |
+| -[[DAS spine]]- | : Slot facet. The spine is everything above the H1 — the page's position in the structure, in whichever shape its children call for; the heart is what comes directly below.<br>→ [[DAS]] → [[disciplines]] → [DAS spine](hook://p/DAS%20spine)  |
 | --- | --- |
 | Related | [[DAS Dispatch Table]],  [[DAS progressive-disclosure]],  [[DAS Disciplines\|Disciplines]],  [[DAS\|dans-anchor-system]],   |
 | Rules | [[R-spine]],  [[R-dispatch-table]],  [[R-exception-discipline]],   |
@@ -12,7 +12,7 @@ user_invocable: false
 | Examples | [[FEX Spine Examples\|made-up gallery]],  [[Harbor Runbooks]],  [[Devtools]],  [[Harbor Hops]],  [[Harbor Releases]],   |
 
 # Spine Discipline
-Everything above the H1 says where the page sits; the heart directly below says what it is about. Five spine shapes, chosen by one question and named by one marker.
+Everything above the H1 says where the page sits; the heart directly below says what it is about. One question picks the shape — does this page have children? — and one marker names it.
 
 | Spine shape | Marker | What it says about the children | Live | Made-up | Pages |
 |---|---|---|---|---|---|
@@ -39,7 +39,7 @@ So the question a page faces is not "which opening?" but **"do I have children?"
 
 **The failure this exists to stop is a leaf wearing a dispatch table.** A masthead announces "I route you onward"; when the page routes nowhere, every row is empty or invented, and the reader's first impression is of a hub that turns out to be a leaf. The pull is that a masthead *looks* more finished. It isn't — it is a promise the page cannot keep.
 
-## The five shapes, specified
+## The shapes, specified
 
 Two independent questions pick the shape. **Layout** — are the children named under labels, or given a row each? **Automation** — does the author write the rows above the marker, or the machine below it? Layout is the interesting axis; automation follows from it.
 
