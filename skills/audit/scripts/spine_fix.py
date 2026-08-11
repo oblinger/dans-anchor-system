@@ -23,7 +23,13 @@ Every write is gated on a per-file proof rather than on trust:
   * the identity cell's description TEXT is unchanged — load-bearing, because
     HookAnchor harvests that text into the sibling `.anchor`, so altering it
     would silently rewrite a second file this script never opened,
-  * no non-blank line is lost.
+  * no non-blank line is lost,
+  * and the sibling `.anchor` ALREADY AGREES with that description. Leaving the
+    description alone is not enough: the harvest fires on the touch, not on the
+    edit, so a page whose `.anchor` already disagrees has its `.anchor`
+    rewritten by the mere act of saving it — and reverting the page does not
+    undo it, because the page still says something different. That second file
+    would change while every assertion above passed.
 
 On any mismatch the file is left alone and the reason is printed. Three
 measurements during F308 were wrong from regex-splitting table cells, so cells
@@ -37,7 +43,7 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-from spine import Spine, split_cells, expand, walk, VAULT
+from spine import Spine, split_cells, expand, walk, entry_names, VAULT
 
 LINK = re.compile(r"\[\[([^\]]+?)\]\]|\]\(([^)]+)\)")
 
@@ -62,6 +68,141 @@ def desc_segment(cell_text: str) -> str | None:
         if s.startswith(":"):
             return s[1:].strip()
     return None
+
+
+_ANCHOR_DESC = re.compile(r"^\s*description\s*:\s*(.*?)\s*$")
+
+
+def _unquote(v: str) -> str:
+    """A YAML scalar, read the way a YAML parser reads it.
+
+    Only a value that opens AND closes with the same quote is quoted; then its
+    `\\"` and `\\\\` escapes are real escapes. Naive `.strip('"')` is what a
+    first draft does, and it is wrong in both directions here: it ate the
+    closing quote of `… sections A, B, C in order"` (an UNquoted value whose
+    text merely ends in a quotation mark) and left `Personal \\"Quick\\"
+    Projects` half-escaped. Both then read as divergences that do not exist.
+    """
+    v = v.strip()
+    if len(v) >= 2 and v[0] == v[-1] and v[0] in "\"'":
+        inner = v[1:-1]
+        if v[0] == '"':
+            return inner.replace('\\"', '"').replace("\\\\", "\\")
+        return inner.replace("''", "'")
+    return v
+
+
+def anchor_desc(folder: Path) -> str | None:
+    """The sibling `.anchor`'s declared description, or None if it declares
+    none (536 of them do vault-wide; the rest have nothing to diverge from)."""
+    a = folder / ".anchor"
+    if not a.is_file():
+        return None
+    try:
+        for ln in a.read_text(encoding="utf-8", errors="replace").split("\n"):
+            m = _ANCHOR_DESC.match(ln)
+            if m:
+                return _unquote(m.group(1)) or None
+    except OSError:
+        return None
+    return None
+
+
+def norm(s: str) -> str:
+    """Compare descriptions on their words, not their spacing. The harvest
+    round-trips text through a table cell, so a run of spaces on one side and a
+    single space on the other is not a divergence — and treating it as one
+    would refuse pages that are in fact already in sync."""
+    return re.sub(r"\s+", " ", s).strip()
+
+
+# What the harvest ACTUALLY stores, mirrored from HookAnchor rather than
+# guessed. The first draft of this check compared the raw cell text and refused
+# 107 files where the true count of at-risk pages is 55 — the two normalisations
+# below are the whole of that gap, and both were read out of the Rust before
+# being written here (`sections.rs`, `extract_dispatch_descriptions` +
+# `strip_own_name_prefixes`). A mover that refuses twice as often as it must
+# teaches its operator to wave refusals through, so over-refusing is not the
+# safe direction it looks like.
+OWN_NAME_DELIM = " — "                       # space EM-DASH space
+
+
+def _unescape_pipes(s: str) -> str:
+    """`\\|` inside a cell is emit-side escaping; the store holds the raw `|`."""
+    return s.replace("\\|", "|")
+
+
+def _strip_own_name_prefixes(raw: str, folder: Path, stem: str) -> str:
+    """Drop the leading `{own name} — ` the masthead prepends.
+
+    `build_desc_with_name` puts the anchor's display name in front of its own
+    description for the `: ` line, and the harvest strips it symmetrically, so
+    `MUX.md` reading `MuxUX — Tauri GUI overlay…` against an `.anchor` reading
+    `Tauri GUI overlay…` is a round-trip, not drift. Only names this script can
+    read locally are stripped — folder, stem, `slug:`, `title:`. HookAnchor also
+    strips ALIASES, which need the command store; a page whose prefix is a prior
+    name therefore still refuses here, which is the correct direction for the
+    one case that stays uncertain.
+    """
+    names = {folder.name, stem} | entry_names(folder)
+    s = raw.strip()
+    while OWN_NAME_DELIM in s:
+        prefix, rest = s.split(OWN_NAME_DELIM, 1)
+        if prefix.strip() in names:
+            s = rest.strip()
+        else:
+            break
+    return s
+
+
+def harvested_desc(page_desc: str | None, folder: Path, stem: str) -> str | None:
+    """What HookAnchor would write into `.anchor` from this page's cell.
+
+    None means it would write NOTHING — the harvest is gated on
+    `if !text.is_empty()`, so a cell carrying a bare `: ` with no text is not a
+    description that overwrites anything. 40-odd `{slug} Track` / `{slug}
+    Features` pages are in exactly that state and the first draft refused every
+    one of them.
+    """
+    if page_desc is None:
+        return None
+    text = _strip_own_name_prefixes(_unescape_pipes(page_desc), folder, stem)
+    return text or None
+
+
+def anchor_would_change(path: Path, page_desc: str | None) -> str | None:
+    """The reason writing this page would also rewrite its sibling `.anchor`,
+    or None if it would not.
+
+    Bi-directional desc-sync makes the PAGE the harvest authority, so touching
+    it propagates its identity-cell description into `{folder}/.anchor`. That
+    is by design and is NOT revertible while the two disagree: restoring the
+    `.anchor` from git and waiting for the rebuild reproduces the overwrite
+    (measured on `examples/HBR/.anchor`, F319 M1 probes). 55 pages vault-wide
+    are in that state today. They are a deliberate reconciliation, not a
+    side effect of a spine sweep, so this script refuses them.
+    """
+    declared = anchor_desc(path.parent)
+    if declared is None:
+        return None                      # nothing on the `.anchor` to overwrite
+    would_write = harvested_desc(page_desc, path.parent, path.stem)
+    if would_write is None:
+        return None                      # the harvest writes nothing at all
+    if norm(declared) == norm(would_write):
+        return None
+    # Two very different things end up here, and lumping them makes the refusal
+    # list unactionable. FOSSIL: the `.anchor` carries an own-name prefix the
+    # harvest strips symmetrically (`Hook Anchor — universal command launcher`
+    # vs `universal command launcher`), so the touch would only heal a
+    # round-trip artefact — HookAnchor's own doc calls this healing by design.
+    # DIVERGENCE: the two texts genuinely say different things, and one of them
+    # is about to win silently. 9 fossils and 50 divergences vault-wide.
+    kind = ("fossil own-name prefix on the .anchor — the touch would heal it"
+            if norm(_strip_own_name_prefixes(declared, path.parent, path.stem))
+            == norm(would_write)
+            else "sibling .anchor would be rewritten by the touch")
+    return (f"{kind} (.anchor says {declared[:48]!r}, harvest would write "
+            f"{would_write[:48]!r})")
 
 
 def row_bag(lines: list[str], identity_idx: int | None) -> Counter:
@@ -210,6 +351,13 @@ def plan_file(path: Path):
         after_desc = desc_segment(cs[2] if len(cs) > 2 else "")
     if after_desc != before_desc:
         return "refused", "identity description text changed (would rewrite .anchor)", None
+    # The one assertion that reads a file OTHER than the page. Only the entry
+    # page is the harvest authority, so a non-fronting page cannot trigger it.
+    if sp0.fronts_folder:
+        why = anchor_would_change(path, before_desc)
+        if why:
+            return "refused", why, None
+
     after_solid = Counter(l for l in lines if l.strip())
     if after_solid != before_solid:
         # the identity row legitimately changes under S04 — allow exactly that
