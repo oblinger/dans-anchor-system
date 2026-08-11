@@ -12,6 +12,14 @@ It is the **first ruleset for a corpus-level graph**. [[DAS anchor-dag]] — the
 
 **Not adopted by any umbrella**, and it must not be: the rules below select no file, so there is nothing for an umbrella to bind them to.
 
+> **Reviewed and left dormant 2026-08-11 ([[TINK Backlog#^T212|T212]]) — the disposition above is right, and the `where::` line above it is right by accident.**
+>
+> This set's `where:: file:**/.anchor` is the class-(a) unmatchable form measured on [[R-code-repository]] (anchor-mode scope is `target.rglob("*.md")`, so a `file:` selector naming a non-`.md` path resolves to the empty set). Everywhere else that form is a defect. **Here the empty set is the correct answer** — the header two paragraphs up says plainly that these rules select no file — so the ruleset behaves exactly as intended, for a reason that has nothing to do with what it wrote.
+>
+> **It cannot be repaired, because the selector grammar has no way to say "selects no file."** Deleting the line is strictly worse, not neutral: `_selector_of` falls back `rule → ruleset → "always"`, and `always` is *every file in scope*, so a set whose whole thesis is that no file can evidence its rules would suddenly select all of them. The two available spellings fail in opposite directions and neither says the true thing. R-feed is the first corpus-level ruleset in the repo, so it is the first to need that spelling; [[DAS anchor-dag]], the sibling graph, avoided the problem by carrying no ruleset at all.
+>
+> Left exactly as written. Anyone adding a selector kind for corpus-level rules should start here, and should not "fix" this line in the meantime — the accident is currently load-bearing.
+
 Note for whoever later decides otherwise — **[[R-facet]] is not the umbrella that arms anything.** Measured 2026-08-11 (`--verify-registry`): 94 rulesets carry rules and only 34 are reachable from the `R-doc`/`R-anchor` closure that `/audit anchor` actually resolves; `R-facet` is among the other 60. A corpus sweep over `Topic/MED` bears this out — `R-rocks` and `R-stone` emit verdicts because [[R-anchor]] names them directly, not because `R-facet` includes them. Several facet BRIEFs still instruct agents to "add it to `R-facet`'s `include::`", which arms nothing while looking exactly like adoption.
 
 ### RULE R-feed-01 — `feeds:` is declared by the consumer, and only by the consumer (stated)
