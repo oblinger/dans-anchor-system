@@ -20,6 +20,8 @@ One sentence, directly under the H1, saying what this file is — the hinge betw
 | **Owed by** | every page | **every page with an H1** | only a page with substance to lead with |
 | **Form** | seven shapes | **none — a place, not a shape** | two — bare or labelled |
 
+**Cardinality: one** — exactly one per document, under the head H1; a second sentence there is body, not a second orientation line.
+
 It is the third layer of [[DAS progressive-disclosure]]: the title names the thing, the orientation line says what the thing *is*, and only then does the page say what it contains. A reader who stops after this line should still be able to say what they just opened.
 
 ## A place with a role and no fixed form
