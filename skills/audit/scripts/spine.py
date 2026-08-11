@@ -199,7 +199,7 @@ class Spine:
             lines = self.path.read_text(encoding="utf-8",
                                         errors="replace").split("\n")
         self.lines = lines
-        self.fenced = self._fenced()
+        self.quoted = self._quoted()
         self.body_start = self._after_frontmatter()
         self.h1 = _head_h1("\n".join(lines))
         self.breadcrumb = self._find(lambda l: BREADCRUMB.match(l), self.body_start)
@@ -209,18 +209,48 @@ class Spine:
         self.fronts_folder = self.path.stem in entry_names(self.path.parent)
         self.children = self._children()
 
-    def _fenced(self) -> list[bool]:
-        """Which lines sit inside a code fence.
+    def _quoted(self) -> list[bool]:
+        """Which lines are QUOTED content rather than this page's own.
 
-        A spec page shows the house head as a fenced TEMPLATE — frontmatter,
-        a `:>>` breadcrumb, an H1 — and without this every such page reads as
-        carrying a real breadcrumb on top of its real masthead. Fences open
-        with three-or-more backticks and close on a run at least as long, so
-        a ````markdown block containing ``` is handled.
+        A spec page shows the house head as a TEMPLATE — frontmatter, a `:>>`
+        breadcrumb, an H1 — and without this every such page reads as carrying
+        a real breadcrumb on top of its real masthead. Two ways to quote:
+
+        - **A code fence.** Opens with three-or-more backticks and closes on a
+          run at least as long, so a ````markdown block containing ``` works.
+        - **A delimited block**, `<!-- begin example X -->` … `<!-- end example
+          X -->` and its `proposal` sibling. `design/Template Examples.md`
+          quotes real pages VERBATIM AND UNFENCED on purpose — the corpus's own
+          § names that as an accepted cost — so the fence test alone cannot see
+          them. BOTH keywords are load-bearing: covering only `example` left the
+          page's detected identity row on line 428, a `| -[[{{TITLE}}]]- |`
+          masthead inside a `proposal` block, which is the same defect one
+          delimiter over. Found by re-running the classifier after the fix
+          rather than by trusting it.
+
+        The second delimiter was added 2026-08-11 after both readers of this
+        mask got a quoted masthead wrong at once, on the one file in the vault
+        that uses the convention. A spine sweep HOISTED T1.a's quoted
+        `[[HERMES Backlog]]` masthead out of its block and installed it as
+        `Template Examples.md`'s own identity row — the page then declared
+        itself to be a different page, which is what `R-spine` warns about in
+        its own text — and the `S04` fixer rewrote T6.b's quoted `[[DKT Track]]`
+        identity cell to lead with its description while the REAL `DKT Track.md`
+        it quotes still leads with its breadcrumb. It repaired the evidence and
+        left the defect. Caught by T177's manifest hashes, not by either
+        checker; both specimens were restored to bytes the hashes confirm.
         """
-        out, depth = [], 0
+        out, depth, in_example = [], 0, False
         for l in self.lines:
             s = l.lstrip()
+            if re.match(r"^<!--\s*begin (example|proposal)\b", s):
+                in_example = True
+                out.append(True)
+                continue
+            if re.match(r"^<!--\s*end (example|proposal)\b", s):
+                in_example = False
+                out.append(True)
+                continue
             m = re.match(r"^(`{3,}|~{3,})", s)
             if m:
                 tick = m.group(1)
@@ -232,7 +262,7 @@ class Spine:
                     depth = 0
                     out.append(True)
                     continue
-            out.append(depth > 0)
+            out.append(in_example or depth > 0)
         return out
 
     def _after_frontmatter(self) -> int:
@@ -245,7 +275,7 @@ class Spine:
     def _find(self, pred, start=0, stop=None):
         stop = len(self.lines) if stop is None else stop
         for j in range(start, stop):
-            if self.fenced[j]:
+            if self.quoted[j]:
                 continue
             if pred(self.lines[j]):
                 return j
@@ -253,7 +283,7 @@ class Spine:
 
     def _find_identity(self):
         for j in range(self.body_start, len(self.lines)):
-            if self.fenced[j]:
+            if self.quoted[j]:
                 continue
             l = self.lines[j]
             if l.strip().startswith("|") and IDENTITY.match(cell(l, 1)):
