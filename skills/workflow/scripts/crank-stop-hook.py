@@ -430,6 +430,38 @@ def _normalize_cover(raw):
     return re.split(r"\s+[—–-]\s+", s, maxsplit=1)[0].strip()[:80] or None
 
 
+def _headless_env(extra=None):
+    """Environment for a headless `claude -p` spawned from inside a hook.
+
+    Two inherited variables have to go. Both were found 2026-08-10; both made
+    the child misbehave in a way that was invisible from the child's own output.
+
+    `TMUX_PANE` — a hook runs in the agent's own tmux pane, so the child
+    inherits it and its OWN Claude Code hooks then publish occupant records
+    against the PARENT's pane: `SessionStart → ready`, `UserPromptSubmit →
+    working`, landing 1-2s after the parent's Stop hook already published
+    `wait.continue`. The tab strip reads the last writer, so the parent's "turn
+    ended, it wants you" state was overwritten and the tab sat stale gray until
+    MuxUX's 15s silence backstop demoted it (found from the MUX side root-causing
+    MUX T094). The child has no business claiming a pane.
+
+    `ANTHROPIC_API_KEY` — set in this environment for other tooling, and headless
+    `claude -p` PREFERS it over the claude.ai login that the interactive session
+    is using. So the classifier authenticated as a pay-as-you-go account with no
+    credit and every call returned "Credit balance is too low", while the very
+    same command run by hand in a normal session worked. That is the whole reason
+    F267 stage 2 recorded no verdict between 2026-08-06 and 2026-08-10 despite
+    being armed in ENFORCE mode: not dormant, VACUOUS. The child should
+    authenticate the way its parent does, so drop the override. If some machine
+    genuinely has only an API key, the call fails, the failure is logged with its
+    stderr, and the gate fails open — loudly, which is the point.
+    """
+    env = {**os.environ, **(extra or {})}
+    env.pop("TMUX_PANE", None)
+    env.pop("ANTHROPIC_API_KEY", None)
+    return env
+
+
 def _llm_ask_check(payload, anchor, anchor_path):
     """Stage-2 (F267 + F275 M1 cover-check): on a work-armed, clean-worklist
     stop, ask an LLM whether the agent's final message is WAITING ON THE USER
@@ -452,6 +484,10 @@ def _llm_ask_check(payload, anchor, anchor_path):
     summary = ""
     covered_by = None
     got_verdict = False
+    open_qs = []
+    msg = ""
+    raw_out = ""
+    err = None
     try:
         msg = _last_assistant_text(payload.get("transcript_path", ""))
         if len(msg) < 15:
@@ -480,10 +516,10 @@ def _llm_ask_check(payload, anchor, anchor_path):
             "\"<the specific ask in <=15 words, or ''>\", \"covered_by\": "
             "\"<handle or none>\"}.\n\n"
             "AGENT FINAL MESSAGE:\n" + msg[:6000])
-        env = {**os.environ, LLM_RECURSION_ENV: "1"}
         r = subprocess.run(["claude", "-p", prompt, "--model", LLM_MODEL],
                            capture_output=True, text=True, timeout=LLM_TIMEOUT,
-                           env=env)
+                           env=_headless_env({LLM_RECURSION_ENV: "1"}))
+        raw_out = ((r.stdout or "") + (r.stderr or "")).strip()
         out = (r.stdout or "").strip()
         if "```" in out or not out.startswith("{"):
             mm = re.search(r"\{.*\}", out, re.S)
@@ -494,13 +530,29 @@ def _llm_ask_check(payload, anchor, anchor_path):
         summary = str(verdict.get("summary", ""))[:200]
         covered_by = _normalize_cover(verdict.get("covered_by"))
         got_verdict = True
+    except Exception as exc:  # noqa: BLE001 — the check must never break the stop
+        err = f"{type(exc).__name__}: {exc}"[:200]
+    # Log the outcome — verdict OR failure. The write lives OUTSIDE the try that
+    # runs the check, and a failure records `error` + what the subprocess
+    # actually said, because a check that FAILED and a check that never RAN used
+    # to be indistinguishable: both left no line at all. That is how F267 stage 2
+    # sat vacuous from 2026-08-06 to 2026-08-10 — `claude -p` was answering
+    # "Credit balance is too low", `json.loads` raised, and the bare handler
+    # swallowed the exception and the log write with it. Silence now means the
+    # check did not run; a failure is on the record. Never breaks the stop.
+    try:
         rec = {"ts": datetime.now(timezone.utc).isoformat(), "anchor": anchor,
                "asking": asking, "summary": summary, "covered_by": covered_by,
                "open_q_count": len(open_qs), "msg_excerpt": msg[:200]}
+        if err is not None:
+            rec["error"] = err
+            rec["out_excerpt"] = raw_out[:200]
         GATE_DIR.mkdir(parents=True, exist_ok=True)
         with open(LLM_CHECK_LOG, "a", encoding="utf-8") as fh:
             fh.write(json.dumps(rec) + "\n")
-    except Exception:  # noqa: BLE001 — the check must never break the stop
+    except Exception:  # noqa: BLE001
+        pass
+    if err is not None:
         return None
     # Enforce decision — block only when the agent is asking AND no open queue
     # question covers it. Fail-safe = allow (a `covered_by` naming any handle,

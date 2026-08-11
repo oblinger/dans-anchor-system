@@ -45,7 +45,15 @@ def _warden(env: dict, *args: str) -> subprocess.CompletedProcess:
 
 
 def drive_agent(anchor: Path, env: dict, prompt: str, model: str) -> str:
-    """Run one real headless claude session in `anchor`; return its stdout."""
+    """Run one real headless claude session in `anchor`; return its stdout.
+
+    `TMUX_PANE` is stripped: run this harness from a tmux pane and the driven
+    agent's own hooks would publish occupant records against THAT pane, so the
+    tab strip would report the harness's throwaway sessions as the state of the
+    real agent sitting there. Same defect as the stop-gate classifier's, fixed
+    2026-08-10 — any headless `claude -p` we spawn drops the variable.
+    """
+    env = {k: v for k, v in env.items() if k != "TMUX_PANE"}
     out = subprocess.run(
         ["claude", "-p", prompt, "--permission-mode", "bypassPermissions", "--model", model],
         cwd=str(anchor), env=env, capture_output=True, text=True, timeout=300)

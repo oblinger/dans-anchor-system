@@ -60,6 +60,7 @@ class _Mock:
     def run(self, *a, **k):
         class R:
             stdout = self._stdout
+            stderr = ""      # capture_output=True always sets it; the double must too
             returncode = 0
         return R()
 
@@ -106,7 +107,13 @@ def main():
           "recursion guard (env set) → no log, no block")
     del os.environ[m.LLM_RECURSION_ENV]
 
-    # 3 — fail-open when the LLM call raises
+    # 3 — fail-open when the LLM call raises, AND the failure is on the record.
+    # This test used to assert `not LLM_CHECK_LOG.exists()`; that expectation is
+    # exactly the defect. A failing check and a check that never ran left the
+    # same empty log, so F267 stage 2 was a vacuous pass from 2026-08-06 to
+    # 2026-08-10 (`claude -p` answering "Credit balance is too low") with nothing
+    # anywhere to say so. Fail-open is still the contract — never block — but it
+    # is now a LOUD fail-open.
     clear()
 
     class _Raise:
@@ -117,8 +124,10 @@ def main():
             raise OSError("no claude")
     m.subprocess = _Raise()
     r = m._llm_ask_check({"transcript_path": str(tx)}, "T", empty_anchor)
-    check(r is None and not m.LLM_CHECK_LOG.exists(),
-          "fail-open (LLM raises) → no crash, no log, no block")
+    lines = m.LLM_CHECK_LOG.read_text().splitlines() if m.LLM_CHECK_LOG.exists() else []
+    rec = json.loads(lines[0]) if lines else {}
+    check(r is None and len(lines) == 1 and "no claude" in rec.get("error", ""),
+          "fail-open (LLM raises) → no block, but the failure IS logged")
 
     # 4 — short message skipped
     clear()
@@ -144,6 +153,73 @@ def main():
     lines = m.LLM_CHECK_LOG.read_text().splitlines() if m.LLM_CHECK_LOG.exists() else []
     check(len(lines) == 1 and json.loads(lines[-1]).get("asking") is False,
           "fenced ```json``` output is parsed")
+
+    # 6b — the spawned classifier must NOT inherit TMUX_PANE.
+    #
+    # A hook runs in the agent's own pane, so the child inherited it and its own
+    # Claude Code hooks published occupant records against the PARENT's pane —
+    # `ready` then `working`, landing after the Stop hook had already published
+    # `wait.continue`. The tab strip reads the last writer, so the parent's
+    # "turn ended, it wants you" state was overwritten and the tab sat stale
+    # gray for ~20s (found from the MUX side 2026-08-10, MUX T094). Nothing here
+    # asserted on the child's ENVIRONMENT, which is why it went unseen: every
+    # verdict was correct, and the damage was entirely off to the side.
+    clear()
+
+    class _CaptureEnv:
+        SubprocessError = real_subprocess.SubprocessError
+        TimeoutExpired = real_subprocess.TimeoutExpired
+
+        def __init__(self):
+            self.env = None
+
+        def run(self, *a, **k):
+            self.env = k.get("env")
+
+            class R:
+                stdout = '{"asking": false, "summary": ""}'
+                stderr = ""
+                returncode = 0
+            return R()
+
+    cap = _CaptureEnv()
+    m.subprocess = cap
+    os.environ["TMUX_PANE"] = "%5"
+    try:
+        m._llm_ask_check({"transcript_path": str(tx)}, "T", empty_anchor)
+    finally:
+        del os.environ["TMUX_PANE"]
+    check(cap.env is not None and "TMUX_PANE" not in cap.env
+          and cap.env.get(m.LLM_RECURSION_ENV) == "1",
+          "spawned classifier drops TMUX_PANE, keeps the recursion guard")
+
+    # 6c — the classifier must not inherit ANTHROPIC_API_KEY either. Headless
+    # `claude -p` prefers the key over the claude.ai login, so the child
+    # authenticated as an API account with no credit and returned "Credit
+    # balance is too low" on every call — the reason the ENFORCE-armed gate
+    # logged nothing from 2026-08-06 to 2026-08-10.
+    clear()
+    cap = _CaptureEnv()
+    m.subprocess = cap
+    os.environ["ANTHROPIC_API_KEY"] = "sk-test-should-not-reach-the-child"
+    try:
+        m._llm_ask_check({"transcript_path": str(tx)}, "T", empty_anchor)
+    finally:
+        del os.environ["ANTHROPIC_API_KEY"]
+    check(cap.env is not None and "ANTHROPIC_API_KEY" not in cap.env,
+          "spawned classifier drops ANTHROPIC_API_KEY (uses the parent's login)")
+
+    # 6d — the helper itself, independent of the check that calls it.
+    os.environ["TMUX_PANE"] = "%9"
+    os.environ["ANTHROPIC_API_KEY"] = "sk-test"
+    try:
+        e = m._headless_env({"X": "1"})
+    finally:
+        del os.environ["TMUX_PANE"]
+        del os.environ["ANTHROPIC_API_KEY"]
+    check("TMUX_PANE" not in e and "ANTHROPIC_API_KEY" not in e
+          and e.get("X") == "1" and "PATH" in e,
+          "_headless_env strips both, keeps extras and the rest of env")
 
     # 7 — ENFORCE budget=1, asking=true, empty queue (covered_by defaults none)
     #     → BLOCK + spend a fire
