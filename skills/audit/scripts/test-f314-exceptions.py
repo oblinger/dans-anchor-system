@@ -323,6 +323,38 @@ with tempfile.TemporaryDirectory() as td:
     check("an ungraded row against an ordinary rule is fine — the agent may "
           "propose freely where the rule does not demand a conversation", status, "pass")
 
+# 6. The report RENDERS. `--report` is the unified view F314's own accepted-
+# deviations section lives in, and it crashed with `NameError: report` the moment
+# any exception row existed — the one condition that opens that section. Fixed
+# 2026-08-11 (TINK T212); the 47 assertions above all passed while it was broken,
+# because every one of them called a checker and none of them called the renderer.
+with tempfile.TemporaryDirectory() as td:
+    root, doc, other = build_anchor(
+        td, "| EX001 | R-spine-02 | FIX Thing.md | ? | proposed by the agent. |\n")
+    plan = {"umbrella": "R-anchor", "target": str(root), "anchor_root": str(root),
+            "scope_file_count": 2, "groupings": []}
+    mech = {"counts": {"pass": 1, "fail": 0, "warn": 1, "except": 1,
+                       "error": 0, "cached": 0},
+            "results": [{"rule": "R-spine-02", "target": "FIX Thing.md",
+                         "status": "except", "detail": ""}],
+            "stale_exceptions": ["EX009"],
+            "unsuppressable_exceptions": ["EX007"],
+            "declined_exceptions": [{"handle": "EX001", "rule": "R-spine-02",
+                                     "target": "FIX Thing.md",
+                                     "declined": "ungraded"}],
+            "exception_problems": []}
+    man = {"task_count": 0, "cached_count": 0, "tasks": []}
+    try:
+        out = ap.render_report(plan, mech, man)
+        rendered = True
+    except Exception as exc:
+        out, rendered = f"{type(exc).__name__}: {exc}", False
+    check("--report renders when the accepted-deviations section is non-empty",
+          rendered, True)
+    check("the unsuppressable row is named in the report", "EX007" in out, True)
+    check("the declined row is named in the report", "EX001" in out, True)
+    check("the stale row is named in the report", "EX009" in out, True)
+
 
 print(f"test-f314-exceptions: {passed} passed, {failed} failed")
 sys.exit(1 if failed else 0)

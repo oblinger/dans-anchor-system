@@ -7759,7 +7759,7 @@ def render_report(plan: dict, mech: dict, man: dict) -> str:
         # is well-formed, in scope, and aimed at a rule that really fired — as a
         # `warn`, which `execute_plan` does not rewrite. Reported as stale it
         # sends the reader to look for a defect in their own row.
-        for h in report.get("unsuppressable_exceptions", []):
+        for h in mech.get("unsuppressable_exceptions", []):
             out.append(f"- ~ {h} — the rule fired as a **warning**, a severity "
                        "this table cannot suppress. The row is not stale and "
                        "needs no repair; see [[R-exception-discipline]]-08.")
