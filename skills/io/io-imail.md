@@ -1,6 +1,6 @@
 # imail — Apple Mail (read & search)
 
-Read, search, and access email through Apple Mail using AppleScript. No OAuth tokens, no API keys — Mail.app handles all authentication natively. (`imail` = the local Apple-Mail surface; the future server-side Gmail-API surface is `/io gmail`.)
+Read, search, and access email through Apple Mail using AppleScript. No OAuth tokens, no API keys — Mail.app handles all authentication natively. (`imail` = the local Apple-Mail surface; the server-side Gmail-API surface is [[io-gmail|`/io gmail`]], wired 2026-08-11.)
 
 **Access methods comparison:** See [[io-imail-access]] for trade-offs between Apple Mail, IMAP, Gmail API, and other approaches.
 
