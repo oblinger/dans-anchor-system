@@ -5,6 +5,8 @@
 # Stencil Backlog
 <!-- state:backlog 0l -->
 
+Work in flight and queued for [[STEN|Stencil]] — the pattern language the anchor system is written in, one notation that both generates a document and tests whether a document fits.
+
 ## Active
 
 ## Ready

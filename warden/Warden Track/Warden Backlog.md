@@ -4,6 +4,8 @@ description: "deferred work — roadmap milestones M0–M5"
 # Warden Backlog
 <!-- state:backlog wm -->
 
+Work in flight and queued for [[Warden]] — the rule engine that fires declarative rules at agent moments and steers the agent with the results; the roadmap milestones M0–M5 live here.
+
 ## Active
 
 _None._
