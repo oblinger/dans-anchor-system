@@ -681,7 +681,7 @@ def _q_home_link(r: "Row", vault_index: dict, backlog_file: Path) -> Optional[st
     return _feature_doc_link(r, vault_index, backlog_file)
 
 
-def _row_q_count(r: "Row", vault_index: dict) -> int:
+def _row_q_count(r: "Row", vault_index: dict, backlog_file=None) -> int:
     """Pending-question count for a `[Questions]` row — the `(NQ)` the user sees.
     Recount from the linked doc when one resolves (T012 — the bracket can be
     stale or corrupted; the doc is ground truth). Fall back to an explicit
@@ -707,8 +707,18 @@ def _row_q_count(r: "Row", vault_index: dict) -> int:
     m = re.match(r"(\d+)\s+Questions", r.bracket)
     if m:
         return int(m.group(1))
-    # Bare [Questions] with no resolvable doc (T-/B-row inline form) means
-    # exactly 1 pending Q by bracket discipline (C24 maintains it).
+    # Last resort: count the row's OWN inline Qs (F233 form). This used to read
+    # `1 if "Questions" in r.bracket else 0` — a bracket test, which made the
+    # count disagree with the preview beside it the moment a row carried
+    # questions under some other bracket. T213: a `[Ready]` row rendered its
+    # question text with NO `(NQ)` badge, because the preview asks the row and
+    # the badge asked the bracket. Counting the sub-bullets keeps this function
+    # doing what its own docstring says throughout — recount from ground truth,
+    # and treat the bracket as the weakest evidence rather than the deciding
+    # one. It also stops overstating: a `[Questions]` row whose Qs have all
+    # resolved reported 1 forever, since the bracket outlives the questions.
+    if backlog_file is not None:
+        return len([q for q in _read_row_inline_questions(backlog_file, r) if q[1]])
     return 1 if "Questions" in r.bracket else 0
 
 
@@ -1393,7 +1403,7 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
         silently exempted by the promotion, which is why this lives in one
         function instead of two.
         """
-        n = _row_q_count(r, vault_index)
+        n = _row_q_count(r, vault_index, backlog_file)
         badge = f" **({n}Q)**" if n else ""
         # Inline each pending question's TEXT under the row. A doc-backed row
         # reads its feature doc's `## Open Questions`; a doc-less T-/B-row reads
@@ -1489,7 +1499,22 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
             na = next_actions.get(r.identifier)
             na_txt = (_truncate_body(na, 200) if na
                       else "⚠ none declared — not really Ready; add a no-user next-action or rebracket")
-            body.append(f"- {link} — **Next:** {na_txt}")
+            # A `[Ready]` row can hold pending questions without being a
+            # `[Questions]` row — its agent work is genuinely runnable AND its
+            # doc is waiting on an answer, which is a normal state for a feature
+            # mid-flight. The bracket is a SET but the render picks one section,
+            # so before this the questions rendered nowhere: F303 gained Q3 and
+            # Q5 on 2026-08-11 and the queue file showed the row under `## Ready`
+            # with its Next and no hint that two answers were owed. Same defect
+            # T211 fixed for promoted `[Questions]` rows, reached by the other
+            # side — there the bracket was right and the section moved, here the
+            # section is right and the bracket is something else. Both violate
+            # the 2026-07-18 rule that the queue must SHOW its questions, and
+            # both are fixed by calling the one affordance rather than
+            # reimplementing it per section.
+            badge, qlines = _q_affordance(r)
+            body.append(f"- {link}{badge} — **Next:** {na_txt}")
+            body.extend(qlines)
     # Questions — the one pile the user personally unsticks. Kept separate from
     # Blocked (F283 Q2 (A)): the axis that earns a section break is "can the user
     # act on it", not "is it stopped".
