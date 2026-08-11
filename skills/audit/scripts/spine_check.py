@@ -196,6 +196,7 @@ CODES = {
     "S07": "fronts a folder with children but carries no marker — children are invisible",
     "S08": "marker present but nothing below it — a degenerate list/stream",
     "S09": "carries a marker but fronts no folder — it can only sweep siblings",
+    "S10": "fronts a folder with children but opens with a breadcrumb — a hub wearing a leaf's spine",
     "H01": "a substantial element sits below prose; it looks like the buried heart",
 }
 
@@ -247,9 +248,11 @@ def check(path: Path) -> list[tuple[str, int, str]]:
         if p.marker is None and p.fronts_folder and p.children > 0:
             # Count only members the page does not ALREADY link, exactly as S08
             # does eleven lines below. Without the filter this reported folder
-            # SIZE and called it hidden: 39 pages / 242 children vault-wide, of
-            # which 21 pages hid nothing at all and the true count was 18 / 51
-            # (measured 2026-08-11, twice — [[ATT|Atticus]] and again here).
+            # SIZE and called it hidden: 37 pages / 230 children vault-wide, of
+            # which 21 pages hid nothing at all and the true count was 16 / 44
+            # (measured 2026-08-11, twice — [[ATT|Atticus]] and again here; the
+            # two runs came back 39/242 and 37/230 minutes apart because other
+            # agents were editing the corpus, so treat these as a snapshot).
             # Both worked examples in [[DAS spine]] § The catchall is not
             # optional were among the false ones: `ASIO` 33 members / 0
             # unlinked, `META` 14 / 0. Their mastheads are one hand-written row
@@ -287,6 +290,40 @@ def check(path: Path) -> list[tuple[str, int, str]]:
                             f"e.g. {unlisted[0]})"))
         if p.marker is not None and not p.fronts_folder:
             out.append(("S09", mi + 1, CODES["S09"]))
+
+    # ---- fitness: is this the RIGHT spine, not just a well-formed one? ------
+    # Every code above is CONFORMANCE — given that the page took form X, is X
+    # well-formed. This one asks the prior question, and the inputs sit on disk
+    # beside the file rather than in it (F320). A page that fronts a folder with
+    # children is a hub; a breadcrumb says "there are none below me".
+    #
+    # The qualifier is S07's, applied to the other form: count the members the
+    # page does NOT link, and require two of them. One rule across S07, S08 and
+    # here, no threshold invented for this code — F081 body-mention suppression,
+    # which is also why "all linked" is silent rather than reported (the
+    # masthead would render an empty electric zone).
+    #
+    # Measured 2026-08-11 over 8,149 in-scope pages. Naive `breadcrumb + has
+    # children` fires on 206; a further 109 carry no spine at all and are S01's,
+    # not this code's. Of the 206: 29 link every child, 66 link some, 111 link
+    # none. `hidden >= 2` keeps 84.
+    #
+    # F320's design named a different qualifier — "links NONE of its children",
+    # which scores 37 — and this fixture test is what found it wrong at the
+    # tails. `Corp.md` hides 114 of its 132 members and links 18, so the
+    # zero-linked rule missed the single most obvious hub-in-denial in the
+    # vault; `Presentations.md` hides 31 of 32. In the other direction a page
+    # linking 5 of 6 is routing by hand and must stay silent, which a
+    # some-unlinked rule would have broken. Counting HIDDEN members lands both
+    # ends with the floor already in the design (>=2) and no second threshold.
+    if p.table_start is None and p.breadcrumb is not None and in_anchor(path):
+        if p.fronts_folder:
+            body = "\n".join(p.lines)
+            hidden = [c for c in p.child_names() if f"[[{c}" not in body]
+            if len(hidden) >= 2:
+                out.append(("S10", p.breadcrumb + 1,
+                            f"{CODES['S10']} ({len(hidden)} of {p.children} "
+                            f"hidden, e.g. {hidden[0]})"))
 
     # ---- heart: the four conditions, all of which must hold ----------------
     cand = p.heart_candidate()                                   # condition 1
