@@ -116,7 +116,7 @@ def unit_open_world_permits_extra_content():
 
 
 def unit_adjacent_variables_are_flagged():
-    _, notes = M.parse_stencil("x {{A}}{{B}}\n")
+    _, notes, _ = M.parse_stencil("x {{A}}{{B}}\n")
     assert notes and "adjacent variables" in notes[0]
 
 

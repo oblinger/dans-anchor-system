@@ -347,12 +347,27 @@ SPECIMEN_EQUALITY = [
 ]
 
 
+def _machine_owned_dropped(text: str) -> str:
+    """The specimen is a REAL VAULT PAGE, so it carries the lines the daemon
+    wrote into it; generated text cannot carry those and must not pretend to.
+
+    This is a raw-text comparison, not a `match` — so it is the one place that
+    has to say out loud what `normalize_lines` says for matching: the identity
+    cell's `→ …` trail is HookAnchor's, not the author's. T6.a's cell is trail
+    and nothing else, so dropping it leaves `| -[[SCOUT Track]]- |  |` on both
+    sides. Everything else stays byte-exact — this deliberately does NOT run
+    the full normalization, because whitespace and NFC differences between
+    generated text and a real page ARE defects and this check exists to catch
+    them."""
+    return "\n".join(M.drop_masthead_breadcrumb(l) for l in text.split("\n"))
+
+
 def run_specimen_equality(generated: dict):
     print("\n=== specimen equality: generate(S, env) vs the corpus's own specimen ===")
     bad = []
     for stencil_label, specimen_label, mode in SPECIMEN_EQUALITY:
         gen = generated[stencil_label]
-        specimen = B[specimen_label]
+        specimen = _machine_owned_dropped(B[specimen_label])
         if mode == "specimen-is-prefix":
             ok = gen.startswith(specimen)
         elif mode == "generated-is-prefix":

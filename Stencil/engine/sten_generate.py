@@ -293,8 +293,13 @@ def generate(stencil_text: str, env: dict, *, name: str = "<stencil>",
     literal matching itself. It was not proof the generator handled `{slug}`;
     it was proof the check never asked it to.
     """
-    items, notes = M.parse_stencil(stencil_text,
-                                   single_brace_vars=single_brace_vars)
+    # `fold_quoting=False` — see `unquote_description`: unquoting is a MATCH
+    # normalization, and a generator that applied it would emit frontmatter no
+    # YAML parser reads. `drops` is discarded rather than fatal: a dropped
+    # breadcrumb is a line the daemon writes moments after the file lands.
+    items, notes, _drops = M.parse_stencil(stencil_text,
+                                           single_brace_vars=single_brace_vars,
+                                           fold_quoting=False)
     if notes:
         raise StencilError(
             f"{name}: refusing to generate from a malformed stencil — "

@@ -59,8 +59,85 @@ def normalize_line(s: str) -> str:
     return unicodedata.normalize("NFC", s).translate(_SPACE_MAP).rstrip()
 
 
-def normalize_lines(text: str) -> list[str]:
-    return [normalize_line(l) for l in text.split("\n")]
+# The identity cell's breadcrumb SEGMENT is machine-owned, exactly as the `:>>`
+# LINE is (see BREADCRUMB_RE below) — one column over, same daemon, same proof:
+# holing it in `templates/{slug} Rocks.md` and `templates/{slug} Track.md` was
+# reverted by HookAnchor within seconds on both, back to the trail to the
+# template itself. But unlike `:>>` it does not own the whole line: the cell
+# holds two `<br>`-delimited segments, a `: description` the author owns (it is
+# mirrored from frontmatter, and holing THAT survived the same experiment) and
+# a `→ …` trail the author does not. Dropping the line would throw away the
+# half the stencil legitimately asserts.
+#
+# So the drop is symmetric — the segment leaves the stencil AND the target,
+# which is why it lives in normalization rather than in `parse_stencil`. Both
+# live orders are covered, and measuring them is what made the symmetric form
+# obvious: 656 pages vault-wide write the trail first (`→ …<br>: desc`) and 76
+# write it last (`: desc<br>→ …`). Neither order is machine-owned — HookAnchor
+# rewrote the trail in place and left the order alone — so a stencil in one
+# order and an instance in the other are the same page, and after this both
+# normalize to `| -[[X]]- | : desc |` and match. Ordering was never content.
+IDENTITY_CELL_RE = re.compile(r"^\|\s*-\[\[")
+_UNESCAPED_PIPE_RE = re.compile(r"(?<!\\)\|")
+
+
+def drop_masthead_breadcrumb(line: str) -> str:
+    """Strip the `→ …` segment from an identity cell, in either order."""
+    if not IDENTITY_CELL_RE.match(line):
+        return line
+    cells = _UNESCAPED_PIPE_RE.split(line)
+    if len(cells) < 4:
+        return line
+    segs = [s.strip() for s in cells[2].split("<br>")]
+    kept = [s for s in segs if s and not s.startswith("→")]
+    if len(kept) == len([s for s in segs if s]):
+        return line
+    cells[2] = f" {'<br>'.join(kept)} "
+    return "|".join(cells).rstrip()
+
+
+# Frontmatter `description:` QUOTING is machine-owned too, and this one is
+# settled by reading the writer rather than by watching it: HookAnchor's
+# `write_frontmatter_description` (HookAnchorApp `src/capabilities/description.rs`)
+# routes every inline value through `yaml_encode_inline`, which unconditionally
+# wraps it in double quotes. So a page is quoted if and only if the daemon has
+# rewritten its description since it was authored — which is an accident of
+# history, not a property of the page. Measured across the vault: 1083 pages are
+# quoted with no YAML need and 1426 are bare with no YAML need, so neither form
+# is even the majority convention, and any page can flip to quoted tomorrow.
+#
+# A stencil cannot pick a side, and it cannot abstain either: a hole opening
+# with `{` (`description: {{one line …}}`) is a YAML flow mapping, so a template
+# that holes its own description MUST quote to stay parseable. Unquoting both
+# sides is what lets the quoted template match the 1426 bare pages.
+#
+# Block scalars (`description: |-`) are deliberately out of scope — that form
+# spans lines, and this normalization is line-wise.
+#
+# Unlike the two breadcrumb drops this one is MATCH-ONLY (`fold_quoting`), and
+# the asymmetry is the point: a breadcrumb is text the generator legitimately
+# omits, because the daemon writes it moments later — but quoting is not text,
+# it is how a value the generator DOES emit gets spelled, and emitting
+# `description: some value: with a colon` unquoted is not a page HookAnchor
+# will fix, it is frontmatter no YAML parser will read. `generate` therefore
+# parses with `fold_quoting=False` and keeps the stencil's quotes.
+_FM_DESC_QUOTED_RE = re.compile(r'^(description): "(.*)"$')
+
+
+def unquote_description(line: str) -> str:
+    """Strip HookAnchor's YAML quoting from a `description:` line."""
+    m = _FM_DESC_QUOTED_RE.match(line)
+    if not m:
+        return line
+    return f"{m.group(1)}: " + m.group(2).replace('\\"', '"').replace("\\\\", "\\")
+
+
+def normalize_lines(text: str, *, fold_quoting: bool = True) -> list[str]:
+    out = []
+    for l in text.split("\n"):
+        l = drop_masthead_breadcrumb(normalize_line(l))
+        out.append(unquote_description(l) if fold_quoting else l)
+    return out
 
 
 # ---------------------------------------------------------------------- parsing
@@ -146,10 +223,22 @@ def _is_pure_var(segs) -> bool:
 
 
 def parse_stencil(text: str, *, extent: str = "line",
-                  single_brace_vars: bool = False):
-    """Return (items, notes).  `items` is a nested list of Blank/Hole/Pat/Anchor."""
+                  single_brace_vars: bool = False,
+                  fold_quoting: bool = True):
+    """Return (items, notes, drops).
+
+    `items` is a nested list of Blank/Hole/Pat/Anchor. The two report channels
+    are SEPARATE because they mean opposite things to a caller: `notes` are
+    malformations — the stencil says something no reading can honour, and
+    `generate` refuses to run — while `drops` are lines a well-formed stencil is
+    simply not allowed to own. Folding them into one list is what made `generate`
+    refuse `templates/icebox.md`, `inbox.md` and `testing.md` outright: all three
+    open with a `:>>` breadcrumb, so all three produced a note, and a note was
+    fatal. The drop is still reported rather than silent — a stencil author who
+    writes a breadcrumb expecting it to be asserted must be told it wasn't."""
     notes: list[str] = []
-    lines = normalize_lines(text)
+    drops: list[str] = []
+    lines = normalize_lines(text, fold_quoting=fold_quoting)
     while lines and lines[-1] == "":
         lines.pop()
     while lines and lines[0] == "":
@@ -161,7 +250,7 @@ def parse_stencil(text: str, *, extent: str = "line",
             flat.append(Blank(i))
             continue
         if BREADCRUMB_RE.match(line):
-            notes.append(f"line {i}: `:>>` breadcrumb dropped from the stencil "
+            drops.append(f"line {i}: `:>>` breadcrumb dropped from the stencil "
                          f"— machine-owned, no stencil can assert one")
             continue
         am = ANCHOR_RE.match(line)
@@ -200,7 +289,7 @@ def parse_stencil(text: str, *, extent: str = "line",
             continue
         flat.append(pat)
 
-    return _nest(flat), notes
+    return _nest(flat), notes, drops
 
 
 def _nest(flat: list) -> list:
@@ -418,11 +507,12 @@ def match(stencil_text: str, target_text: str, *, env: dict | None = None,
           extent: str = "line", multiplicity: str = "min1",
           single_brace_vars: bool = False) -> Result:
     """Match one stencil against one document."""
-    items, notes = parse_stencil(stencil_text, extent=extent,
-                                 single_brace_vars=single_brace_vars)
+    items, notes, drops = parse_stencil(stencil_text, extent=extent,
+                                        single_brace_vars=single_brace_vars)
     lines = normalize_lines(target_text)
     ctx = _Ctx(env, multiplicity)
     ctx.notes.extend(notes)
+    ctx.notes.extend(drops)
     ok, _ = _match_body(items, lines, 0, len(lines), ctx, None, None)
     for k in list(ctx.b):
         if ctx.b[k] == "" and k not in ctx.env_keys:
