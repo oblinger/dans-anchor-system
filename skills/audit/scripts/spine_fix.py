@@ -48,7 +48,8 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-from spine import Spine, split_cells, expand, walk, entry_names, VAULT
+from spine import (Spine, split_cells, expand, walk, entry_names,
+                   is_description_home, VAULT)
 
 LINK = re.compile(r"\[\[([^\]]+?)\]\]|\]\(([^)]+)\)")
 
@@ -114,11 +115,27 @@ def anchor_desc(folder: Path) -> str | None:
 
 
 def norm(s: str) -> str:
-    """Compare descriptions on their words, not their spacing. The harvest
-    round-trips text through a table cell, so a run of spaces on one side and a
-    single space on the other is not a divergence — and treating it as one
-    would refuse pages that are in fact already in sync."""
-    return re.sub(r"\s+", " ", s).strip()
+    """Compare descriptions on their meaning, not their punctuation.
+
+    Three folds, each because the difference it hides cannot carry information:
+
+    * **whitespace** — the harvest round-trips text through a table cell, so a
+      run of spaces on one side and a single space on the other is not a
+      divergence, and treating it as one refuses pages that are in fact in sync.
+    * **a trailing full stop** — some descriptions end in a period and some do
+      not, and no reader learns anything from which. Measured 2026-08-12: of the
+      30 divergences the guard reported, **four differed by nothing else** —
+      `Roots`, `SV Features`, `_` and `DKT System Design` — so a fifth of the
+      list was punctuation the operator had to read and dismiss one page at a
+      time. A guard that refuses on nothing teaches its operator to wave
+      refusals through, which is how the one real divergence gets written.
+    * **the case of the first character only** — sentence-casing an opening word
+      is a house style, not a claim. Deliberately *only* the first character:
+      folding case throughout would hide `DKT` against `dkt`, and a slug's case
+      is meaning.
+    """
+    t = re.sub(r"\s+", " ", s).strip().rstrip(".")
+    return t[:1].lower() + t[1:]
 
 
 # What the harvest ACTUALLY stores, mirrored from HookAnchor rather than
@@ -365,9 +382,13 @@ def plan_file(path: Path):
         after_desc = desc_segment(cs[2] if len(cs) > 2 else "")
     if after_desc != before_desc:
         return "refused", "identity description text changed (would rewrite .anchor)", None
-    # The one assertion that reads a file OTHER than the page. Only the entry
-    # page is the harvest authority, so a non-fronting page cannot trigger it.
-    if sp0.fronts_folder:
+    # The one assertion that reads a file OTHER than the page. Only the page
+    # whose description HOME is the `.anchor` can rewrite it — which is the
+    # slug-keyed question `is_description_home` asks, NOT the union
+    # `fronts_folder` answers. Gating on the union refused three marker stubs
+    # (`Atticus.md`, `Munger.md`, `Areas of Thought.md`) that HookAnchor's own
+    # T051 routing makes incapable of touching an `.anchor` at all.
+    if is_description_home(path):
         why = anchor_would_change(path, before_desc)
         if why:
             return "refused", why, None

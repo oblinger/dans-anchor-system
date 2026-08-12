@@ -26,6 +26,7 @@ import textwrap
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
+import spine as sp                                                # noqa: E402
 import spine_fix as sf                                            # noqa: E402
 
 PASS = 0
@@ -164,6 +165,33 @@ build("the   worked\texample", "the worked example")
 a, n, _ = sf.plan_file(page)
 chk("a whitespace-only difference is not a divergence", a == "fixed")
 
+# The three norm() folds, each pinned separately — and the two cases that must
+# still refuse, because a fold is only safe if it hides exactly what it claims.
+# Measured 2026-08-12: 4 of 30 reported divergences differed by nothing but a
+# trailing period or a first-letter capital, which is a fifth of the list the
+# operator had to read and dismiss by hand.
+build("the worked example.", "the worked example")
+a, n, _ = sf.plan_file(page)
+chk("a trailing full stop is not a divergence", a == "fixed")
+
+build("The worked example", "the worked example")
+a, n, _ = sf.plan_file(page)
+chk("the case of the FIRST character is not a divergence", a == "fixed")
+
+build("The worked example.", "the worked example")
+a, n, _ = sf.plan_file(page)
+chk("both folds at once still agree", a == "fixed")
+
+build("the worked Example", "the worked example")
+a, n, _ = sf.plan_file(page)
+chk("case AFTER the first character still refuses — a slug's case is meaning",
+    a == "refused")
+
+build("the worked example. it does two things", "the worked example")
+a, n, _ = sf.plan_file(page)
+chk("an INTERIOR full stop is not stripped — only a trailing one",
+    a == "refused")
+
 (h / ".anchor").write_text("slug: HBR\n")
 a, n, _ = sf.plan_file(page)
 chk("an `.anchor` declaring no description has nothing to lose", a == "fixed")
@@ -175,6 +203,52 @@ other = h / "HBR Log.md"
 other.write_text(page.read_text().replace("[[HBR]]", "[[HBR Log]]"))
 a, n, _ = sf.plan_file(other)
 chk("a non-fronting page is not gated on its folder's `.anchor`", a == "fixed")
+
+# ---- E: the two-page anchor — only ONE page can rewrite the `.anchor` -------
+# A folder whose slug differs from its name holds two pages that BOTH front it:
+# the slug-named anchor page and a folder-named marker stub pointing at it.
+# HookAnchor routes the harvest on the slug-keyed question (T051), so the stub
+# cannot touch the `.anchor` — and a guard that refuses it is protecting a write
+# that will not happen. Measured 2026-08-12: three of the vault's 30 reported
+# divergences were exactly this (`Atticus.md`, `Munger.md`, `Areas of Thought.md`).
+print("== E: two pages front the folder; only the slug-named one owns .anchor ==")
+g = Path(tempfile.mkdtemp()) / "Atticus"
+g.mkdir()
+(g / ".anchor").write_text(
+    "slug: ATT\ndescription: the Quartermaster's identity home\n")
+
+
+def two_page(stem: str, cell_desc: str) -> Path:
+    p = g / f"{stem}.md"
+    p.write_text(textwrap.dedent(f"""\
+        # {stem}
+        Orientation.
+
+        | -[[{stem}]]- | : {cell_desc}<br>→ [[kmr]] → [{stem}](hook://p/{stem}) |
+        | --- | --- |
+        | [[ATT Log]] | a child |
+        """))
+    return p
+
+
+stub = two_page("Atticus", "Character/persona name for the agent at [[ATT]]")
+real = two_page("ATT", "a description that disagrees too")
+
+chk("the slug-named page IS the description home", sp.is_description_home(real))
+chk("the folder-named marker stub is NOT", not sp.is_description_home(stub))
+chk("but BOTH still front the folder — the union is a different question",
+    sp.Spine(real).fronts_folder and sp.Spine(stub).fronts_folder)
+
+a, n, _ = sf.plan_file(stub)
+chk("so the stub is fixed despite disagreeing with the `.anchor`", a == "fixed")
+a, n, _ = sf.plan_file(real)
+chk("while the real anchor page still refuses on the same disagreement",
+    a == "refused")
+
+# No slug declared → the folder namesake is the home, exactly as before T051.
+(g / ".anchor").write_text("description: the Quartermaster's identity home\n")
+chk("with no slug, the folder namesake is the description home",
+    sp.is_description_home(stub) and not sp.is_description_home(real))
 
 print(f"\n{PASS} passed, {FAIL} failed")
 sys.exit(1 if FAIL else 0)

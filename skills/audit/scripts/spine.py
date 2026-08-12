@@ -114,6 +114,76 @@ def entry_names(folder: Path) -> set[str]:
     _entry_names[folder] = names
     return names
 
+
+def _slug_page_stem(folder: Path) -> str | None:
+    """The stem of the folder's slug-named page, when `.anchor` declares a slug
+    and a `.md` for it actually exists.
+
+    Mirrors HookAnchor's `anchor_slug_page_stem` (`capabilities/description.rs`)
+    including its trap: the stem is the one the directory walk REPORTED, never
+    the one we asked with. On a case-insensitive filesystem `(folder /
+    "Scout.md").exists()` answers true for a real `SCOUT.md`, so an `exists()`
+    probe invents a page that is not there and then compares against the wrong
+    spelling. The slug is matched case- and whitespace-insensitively (Rust
+    `display::exact_match`); the stem it yields is then compared exactly.
+    """
+    a = folder / ".anchor"
+    if not a.is_file():
+        return None
+    slug = None
+    try:
+        for ln in a.read_text(encoding="utf-8", errors="replace").split("\n"):
+            m = re.match(r"^\s*slug\s*:\s*(.+?)\s*$", ln)
+            if m:
+                slug = m.group(1).strip().strip('"').strip("'")
+                break
+    except OSError:
+        return None
+    if not slug:
+        return None
+    key = "".join(slug.lower().split())
+    try:
+        for p in sorted(folder.iterdir()):
+            if p.suffix == ".md" and "".join(p.stem.lower().split()) == key:
+                return p.stem
+    except OSError:
+        return None
+    return None
+
+
+def is_description_home(path: Path) -> bool:
+    """True when THIS page's identity-cell description is the one that lands in
+    the folder's `.anchor` — the narrow, EXCLUSIVE question, not `fronts_folder`.
+
+    The two differ and the difference is load-bearing. `fronts_folder` is a
+    union (folder name ∪ slug ∪ title) and is right for its own question: whose
+    catchall sweeps this folder. But an anchor whose slug differs from its
+    folder name holds **two** pages that both front it — the slug-named anchor
+    page (`Staff/Atticus/ATT.md`) and a folder-named marker stub
+    (`Staff/Atticus/Atticus.md`) whose whole body is a pointer at it — and only
+    one of them can own the `.anchor`.
+
+    HookAnchor already answers this, and answers it exclusively: `persist_
+    description` routes on `is_anchor_description_home`, which is slug-keyed
+    (T051). Its own comment names `SYS/Staff/Boone` and `SYS/Staff/Atticus` as
+    the folders where routing on the anchor flag instead let the stub's
+    *"Character/persona name for the agent whose identity anchor is [[PROS]]"*
+    silently replace the real description on every rescan since 2026-07. So a
+    marker stub **cannot** rewrite its folder's `.anchor`, and a guard that
+    refuses one is protecting against a write that will not happen.
+
+    Mirrored rather than modelled, which is the discipline this checker keeps
+    having to relearn: the first draft of the `.anchor` assertion refused 107
+    files against a true 55 entirely by guessing at the Rust.
+    """
+    folder = path.parent
+    if not (folder / ".anchor").is_file():
+        return False
+    slug_stem = _slug_page_stem(folder)
+    if slug_stem is not None:
+        return path.stem == slug_stem
+    return path.stem == folder.name
+
 # Which shapes can host a table of contents.
 #
 # A dispatch spine that ENUMERATES its folder has already answered "what is
