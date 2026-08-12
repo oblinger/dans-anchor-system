@@ -206,8 +206,17 @@ def anchor_would_change(path: Path, page_desc: str | None) -> str | None:
             if norm(_strip_own_name_prefixes(declared, path.parent, path.stem))
             == norm(would_write)
             else "sibling .anchor would be rewritten by the touch")
-    return (f"{kind} (.anchor says {declared[:48]!r}, harvest would write "
-            f"{would_write[:48]!r})")
+    # NOT truncated, deliberately. F319 makes "resolve the divergences
+    # deliberately rather than letting the sweep absorb them" a prerequisite of
+    # the sweep, and both texts were clipped to 48 characters — long enough to
+    # see that two descriptions differ, never long enough to see HOW, so on
+    # 2026-08-12 the prerequisite could not be performed from the output that
+    # names it. Most of the clipped pairs diverge past character 48; several are
+    # identical for their whole visible prefix and read as false alarms. The
+    # refusal list is 37 lines against 8,043 files scanned, so nothing is being
+    # protected by the clip.
+    return (f"{kind} (.anchor says {declared!r}, harvest would write "
+            f"{would_write!r})")
 
 
 def row_bag(lines: list[str], identity_idx: int | None) -> Counter:
