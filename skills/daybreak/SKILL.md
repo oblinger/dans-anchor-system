@@ -21,9 +21,9 @@ Every row is one thing Lumen does in the morning, in order. Detail follows below
 | --- | --- |
 | **Messages** | Read what the user dictated into the watch since the watermark. Do the reversible ones; hold the rest for a yes/no. |
 | **Questions** | Pull user-gated decisions out of `~/ob/kmr/Q.md` — every anchor's open questions in one file. |
-| **Calendar** | Fetch today's events, so nothing time-bound gets missed. |
+| **Calendar** | Fetch today's events. Necessary but **not sufficient** — see Mail, below. |
 | **Dates** | Read `MY Dates.md` for birthdays and anniversaries coming up. Card rows need six weeks, not two. |
-| **Mail** | Surface only messages matching `LUMEN Watchlist.md`. Skip entirely if it is empty. |
+| **Mail** | Surface only messages matching `LUMEN Watchlist.md`. Skip entirely if it is empty. Then run `appointment-scan.py` — some appointments never reach a calendar and live only in mail. |
 | **Hot** | Read [[Rocks]] — the live block only — for what the user has declared currently matters. |
 | **Loose** | Scan [[Quick]] and Lumen's own `## Now` for anything captured since the last run. |
 | **Today** | Choose 3–5 items *across* domains and put them on screen, decisions first. |
@@ -110,6 +110,14 @@ Read `~/ob/kmr/MY/MY Dates.md` — the register of recurring annual dates. It si
 Mail goes through the `google_workspace_mcp` server registered per [[WIRE Claude Google MCP]] (Calendar + Gmail included; Daybreak uses only the Gmail half now that calendar is local). If the server is not running, **say so and continue** — a missing mail channel degrades the briefing, it does not abort the run.
 
 Mail is filtered through `LUMEN Design/LUMEN Watchlist.md` — a definition list of senders, subjects, and patterns worth surfacing. It starts empty and grows when the user says "flag this kind of thing." **Do not invent watchlist entries**; an unearned watchlist trains the user to ignore the channel.
+
+**Some appointments exist only inside an email, so the Calendar step cannot see them.** Sutter's reminders are a single `text/html` part — no `text/calendar`, no `.ics` — so nothing ever reaches a calendar to be read back. On 2026-08-11 that cost a 2:30 PM video visit: the briefing would have shown a clear afternoon, and the user found it himself twenty-nine minutes ahead. **So run the scan every morning, as part of Mail:**
+
+    python3 ~/.claude/skills/daybreak/appointment-scan.py --days 3
+
+It reads its senders from the Watchlist — never its own copy — and prints one line per appointment, soonest first, or nothing when there is nothing. **Anything it prints goes into Today with its clock time**, ranked by the hard-clock-first rule, exactly as a calendar event would be. Treat silence as a real answer: it is quiet on days with no appointment, verified against 2026-08-05.
+
+**Do not treat the calendar as complete on its own.** The class is *senders who mail appointments without an `.ics`*, and Sutter is only the instance that exposed it — when another one turns up, it goes in the Watchlist rather than into the script.
 
 ## What goes on screen
 
