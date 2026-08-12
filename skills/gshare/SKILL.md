@@ -29,7 +29,7 @@ Default lifetime is 30 days. `gshare <same path>` again **refreshes the existing
 
     drive_folder_id: <the Drive folder that receives shares>    # required
     credentials:     <OAuth client json with a drive scope>     # required
-    register:        <path to the register page>                # default: {vault_root}/SYS/SYS Catalog/GShare.md
+    register:        <path to the register page>                # default: {skill_data_root}/gshare/gshare register.md
     default_days:    30
 
 The Google Cloud project this user's credentials belong to is in Testing mode, so the refresh token expires every 7 days; `gshare` prints the re-auth command when that happens.

@@ -16,7 +16,7 @@ id is recovered from the URL in the Weblink cell, so there is no sidecar and no 
 Config: ~/.config/anchor-system/gshare/config.yaml (per F080).
   drive_folder_id: <Drive folder that receives shares>   (required)
   credentials:     <OAuth client json with a drive scope> (required)
-  register:        <path to the register page>            (default: {vault_root}/SYS/SYS Catalog/GShare.md)
+  register:        <path to the register page>            (default: {skill_data_root}/gshare/gshare register.md)
   default_days:    30
 
 Per F325.
@@ -87,7 +87,14 @@ def config():
             f"create that file with drive_folder_id (the Drive folder that receives "
             f"shares) and credentials (an OAuth client json with a drive scope)")
 
-    register = Path(str(get("register", vault_root / "SYS/SYS Catalog/GShare.md"))).expanduser()
+    # Durable, skill-owned, in-vault data goes under skill_data_root/<skill>/ —
+    # the key global.yaml already defines for exactly this, and which `dupes`
+    # already occupies. NOT the Catalog: CAT's own rule 2 is "sub-catalogs
+    # route, they don't warehouse", so a register of live URLs is data the
+    # Catalog should point AT, never hold.
+    data_root = Path(str(get("skill_data_root",
+                             glob.get("skill_data_root", vault_root / "SYS/anchor-system")))).expanduser()
+    register = Path(str(get("register", data_root / SKILL / f"{SKILL} register.md"))).expanduser()
     return {
         "vault_root": vault_root,
         "drive_folder_id": str(folder),
@@ -292,9 +299,7 @@ def drive_name(path, text, override):
 HEAD = """---
 description: "Every document currently published out of the vault to a link-shared Google Doc — the register `gshare` keeps."
 ---
-
-:>> [[kmr]] → [[SYS]] → [[CAT]] → [GShare](hook://p/GShare) 
-# GShare
+# gshare register
 Every document currently published out of the vault as a link-shared Google Doc, and when each one comes back down.
 
 Machine-written by `gshare` (per [[TINK325 - gshare: publish markdown to link-shared Google Docs that expire|F325]]) — **do not hand-edit below this line.** To publish, run `gshare <path>`; to take something down early, `gshare rm <path>`. Every link here is viewable by anyone holding it and is not searchable. Anything in the Drive folder that this table does not list was not put there by `gshare`, and `gshare clean` reports it rather than touching it.
