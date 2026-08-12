@@ -9,7 +9,7 @@ group: slot
 | --- | --- |
 | Related | [[DAS Dispatch Table]],  [[DAS progressive-disclosure]],  [[DAS Disciplines\|Disciplines]],  [[DAS\|dans-anchor-system]],   |
 | Rules | [[R-spine]],  [[R-dispatch-table]],  [[R-exception-discipline]],   |
-| Shapes | [[LUMEN Nudge\|breadcrumb]],  [[Rolodex\|grouped]],  [[SKA\|two-level]],  [[Disk\|list]],  [[VOX\|stream]],   |
+| Shapes | [[LUMEN Nudge\|breadcrumb]],  [[Rolodex\|custom]],  [[Disk\|list]],  [[VOX\|stream]],  [[AI Safety\|exception]],   |
 | Examples | [[FEX Spine Examples\|made-up gallery]],  [[Harbor Runbooks]],  [[Devtools]],  [[Harbor Hops]],  [[Harbor Releases]],   |
 
 # Spine Discipline
@@ -18,14 +18,16 @@ Everything above the H1 says where the page sits; the heart directly below says 
 | Spine shape | Marker | What it says about the children | Live | Made-up | Pages |
 |---|---|---|---|---|---|
 | **[[#Breadcrumb spine\|Breadcrumb]]** | `:>>` | there are none — this page is a leaf | [[LUMEN Nudge]] | [[Harbor Latency Budget]] | 1,266 |
-| **[[#Curated spine\|Curated]]** | `...` | listed by hand, one row each; the catchall is a safety valve | [[Legal]] | [[Bridges]] | 578 |
-| **[[#Grouped spine\|Grouped]]** | `...` | curated, but the rows form cohesive named groups | [[Rolodex]] | [[Harbor Runbooks]] | 223 |
-| **[[#Two-level spine\|Two-level]]** | `...` `+` | grouped, but each label is itself a page with its own spine | [[SKA]] | [[Devtools]] | 13 |
+| **[[#Custom spine\|Custom]]** | `...` | named by hand, one row each, in whatever arrangement suits them | [[Legal]] · [[Rolodex]] · [[SKA]] | [[Bridges]] · [[Harbor Runbooks]] · [[Devtools]] | 814 |
 | **[[#List spine\|List]]** | `---` | the machine writes one row each, alphabetical, with descriptions | [[Disk]] | [[Harbor Hops]] | 231 |
 | **[[#Stream spine\|Stream]]** | `^^^` | the same, reversed, so dated children read newest-first | [[VOX]] | [[Harbor Releases]] | 23 |
-| **[[#External spine\|External]]** | none | they are not in this folder at all — the rows point outside | [[STARTUPPER]] | ~~[[Harbor Retrospectives]]~~ | 22+ |
+| *[[#Exceptions\|Exception]]* | *n/a* | *not a spine — see § Exceptions* | [[AI Safety]] · [[STARTUPPER]] | ~~[[Harbor Retrospectives]]~~ | 108+ |
 
-**The middle four are a refinement ladder, not four unrelated options:** curated ⊃ grouped ⊃ two-level, each adding one constraint to the one above; list is what you take instead when no grouping exists *and* each child needs its own sentence. External sits outside the ladder entirely, because it is the one shape whose rows leave the folder. Counts are a vault scan of 1,234 masthead pages plus [[TINK308 - Spine: the routing zone every document opens with|F308]]'s breadcrumb census; the curated/bare-catchall boundary is a judgement, so that row's figure is the `...` population net of grouped and two-level. Each shape is specified in its own section below; the examples illustrate those specs and do not replace them.
+**Four shapes and one exception list. The question is who writes the rows** — you, or the machine. Custom is the author's: every row hand-written above a `...`, arranged however the material wants (flat, under plain-text group labels, or with `+` handing a group's members to the machine). List and stream are the machine's: it writes one row per child below the marker, alphabetical or reversed. Breadcrumb is the leaf case, where there are no rows because there are no children.
+
+**Anything that is not one of the four is an exception, enumerated by name** rather than derived from a rule — the redirect page and the external masthead are the two known kinds, and § Exceptions holds them. Dan, 2026-08-12, on the redirect: *"it's not really a spine, but redirect files are a valid exception case… for the exception cases, we should probably just list them out."*
+
+Counts are a vault scan of 1,234 masthead pages plus [[TINK308 - Spine: the routing zone every document opens with|F308]]'s breadcrumb census; custom is the `...` population entire, which is why it absorbs the three figures the earlier cut split it into (578 + 223 + 13). Each shape is specified in its own section below; the examples illustrate those specs and do not replace them.
 
 ## What a spine is
 
@@ -42,7 +44,7 @@ So the question a page faces is not "which opening?" but **"do I have children?"
 
 ## The shapes, specified
 
-Two independent questions pick the shape. **Layout** — are the children named under labels, or given a row each? **Automation** — does the author write the rows above the marker, or the machine below it? Layout is the interesting axis; automation follows from it.
+**One question picks the shape: who writes the rows?** No children — breadcrumb. You write them — custom, in whichever of its three arrangements suits the material. The machine writes them — list, or stream when the children are dated. Layout is the author's business *inside* the custom shape and does not select between shapes; that was the mistake the seven-shape cut made, splitting one shape into three by how its rows happened to be arranged.
 
 ### Breadcrumb spine
 
@@ -62,33 +64,21 @@ Line 5 is load-bearing and the one most often got wrong: the main thing goes **d
 
 **A data table on a leaf is not a dispatch table.** This is the distinction a reader must make on sight, and the reason [[Harbor Latency Budget]] exists: it carries a substantial table and is still a leaf, because the table describes the page's own subject rather than routing anywhere.
 
-### Curated spine
+### Custom spine
 
-**Marker:** `...` **Use when:** you are listing the children by hand and no grouping suggests itself.
+**Marker:** `...`, always. **Use when:** you are naming the children yourself.
 
-Every entry gets its own hand-written row above the marker. **The `...` is a safety valve, not the content** — it exists so a child you forgot, or one added later, still surfaces rather than vanishing. On a well-kept curated page it is nearly empty, and that is the point.
+Every entry gets its own hand-written row above the marker, and the machine sweeps whatever is left into the zone below. **Every dispatch spine has hand-written rows** — everything above the marker is always the author's; what makes *this* shape custom is that those rows carry essentially all the content, with automation demoted to a backstop.
 
-This is the honest shape for a hodgepodge. [[Legal]] is the live case: about a hundred hand-listed contracts, invoices and disclosures that genuinely do not sort into three tidy piles. Forcing groups onto that would invent structure the material does not have.
+**The `...` is mandatory even when your rows already name every child.** Dan, 2026-08-12: *"you always put the dot, dot, dot at the end, because you wanna make sure that you see all the files. So even if you have a custom entry and you cover every one of them, you still want the dot, dot, dot, just so that if somebody adds one, it's not going to get lost."* A complete list is complete *today*; the marker is what keeps it complete tomorrow. So completeness is never a reason to omit it, and on a well-kept custom page the electric zone is nearly empty — that is the point, not a sign the marker is doing nothing. § The catchall is not optional carries the measured cost of leaving it off.
 
-**Every dispatch spine has curated rows** — everything above the marker is always the author's. What makes *this* shape curated is that those rows carry essentially all the content, with automation demoted to a backstop.
+**Three arrangements, one shape.** How the rows are laid out is the author's business and does not change what the page is:
 
-### Grouped spine
+- **Flat** — a row per child, no grouping. The honest shape for a hodgepodge: [[Legal]] hand-lists about a hundred contracts, invoices and disclosures that genuinely do not sort into three tidy piles, and forcing groups onto that would invent structure the material does not have. With **zero** rows and nothing but the marker it is a *bare catchall* — the vault's commonest shape at 577 pages, and the right default when the children need no sentence and form no natural clusters.
+- **Grouped** — the rows sit under a few plain-text labels. `Incident`, `Routine`, `Recovery` name nothing you can open; every child is already in this one folder, so the label only tells the reader which one they want. Fifteen children as fifteen rows and as three named groups of five carry the same links, but three groups are what a reader can hold in their head. [[Rolodex]] is the worked case — **Corporate**, **Professional**, **Personal**, and the whole contact system legible at a glance. Prefer it whenever the groups are real; fall back to flat when they are not, rather than inventing them.
+- **Two-level** — the label is itself **a page**, marked `+`, carrying its own spine and its own children. The members shown beside it are a hand-pinned *preview*, not the list; the list lives on the group's page. Reach for it when the groups are large enough to deserve pages of their own — roughly past fifteen children; below that it adds a hop for nothing, which is why it is the rarest arrangement at 13 pages.
 
-**Marker:** `...` **Use when:** the children live in this folder and fall into a few natural groups.
-
-The labels are **plain text** — `Incident`, `Routine`, `Recovery` name nothing you can open. Every child is already in this one folder; the label only tells the reader which one they want. Below the labelled rows, the `...` sweeps up whatever has not been placed.
-
-**Grouped is a special case of curated** — the case where cohesive groupings exist. Fifteen children as fifteen rows and as three named groups of five carry the same links, but three groups are what a reader can hold in their head. [[Rolodex]] is the worked case — **Corporate**, **Professional**, **Personal**, and the whole contact system is legible at a glance. Prefer grouped whenever the groups are real, and fall back to curated when they are not, rather than inventing them.
-
-**A grouped spine with zero labels is a bare catchall** — 577 pages, the vault's commonest shape, and the right default when the children need no sentence and form no natural clusters. That is grouped with the knob at zero, not a separate shape.
-
-### Two-level spine
-
-**Marker:** `...` with `+` on the group rows. **Use when:** the groups are large enough to deserve pages of their own — roughly past fifteen children.
-
-Each label is **a link to a page** carrying its own spine and its own children, marked `+`. The members shown beside it are a hand-pinned *preview*, not the list; the list lives on the group's page.
-
-**This is the distinction that is easy to miss**, because grouped and two-level render almost identically. Grouped is one folder wearing headings; two-level is a node in a tree of containers. Read [[Harbor Runbooks]] and [[Devtools]] side by side — they are built to be that pair. At 13 pages it is the rarest shape, and below the fifteen-child threshold it adds a hop for nothing.
+**Grouped and two-level render almost identically and are not the same thing.** Grouped is one folder wearing headings; two-level is a node in a tree of containers. Read [[Harbor Runbooks]] and [[Devtools]] side by side — they are built to be that pair. The distinction is real and worth teaching, but it is a distinction *within* the custom spine rather than two more shapes: in all three arrangements the author writes the rows, the marker is `...`, and the machine sweeps the remainder.
 
 ### List spine
 
@@ -96,9 +86,9 @@ Each label is **a link to a page** carrying its own spine and its own children, 
 
 The machine writes **one row per child**, alphabetically, each carrying that child's own description. Nothing below the marker is hand-written.
 
-**`...` and `---` are not the same list written twice.** `...` collapses every unplaced child into one compact row; `---` gives each child a line with room for a sentence. That per-child sentence is the only reason to choose `---` — which is why **a `---` page with no rows below the marker is a defect, not a style, and 94 of the 231 are exactly that.** Conversely, a page whose per-child rows are *hand-written above* a `...` is a grouped spine with unusually long labels, not a list spine.
+**`...` and `---` are not the same list written twice.** `...` collapses every unplaced child into one compact row; `---` gives each child a line with room for a sentence. That per-child sentence is the only reason to choose `---` — which is why **a `---` page with no rows below the marker is a defect, not a style, and 94 of the 231 are exactly that.** Conversely, a page whose per-child rows are *hand-written above* a `...` is a custom spine with unusually long labels, not a list spine.
 
-[[Disk]] is where the trade is visibly worth paying: two curated rows, then `---`, then a row per drive with real descriptions.
+[[Disk]] is where the trade is visibly worth paying: two hand-written rows, then `---`, then a row per drive with real descriptions.
 
 ### Stream spine
 
@@ -110,19 +100,35 @@ Identical to a list spine except reversed, so reverse-alphabetical *is* reverse-
 
 **A stream is not automatically a stream spine.** [[DAS stream]] is an *ordering* principle and applies at two granularities: entries as H2s **inside one file** (no children to enumerate — the page ends `...`, which is what [[DAS Log]] and the `{slug} Log` template do), or **one dated file per entry**, which is where the stream spine appears. Same ordering, different object.
 
-### External spine
+## Exceptions
 
-**Marker:** none, and that is load-bearing. **Use when:** the pages this one organizes are deliberately not in its folder.
+**A page that is none of the four shapes is an exception, and exceptions are listed by name.** Dan, 2026-08-12: *"for the exception cases, we should probably just list them out."* This is deliberately a roster rather than a rule — the four shapes are meant to cover everything an authored page does, so a fifth kind should have to be written down and looked at, not derived from a definition loose enough to admit it quietly.
 
-Every other shape describes children the file tree already holds. An external spine points at material that lives elsewhere — because it is grouped by a *property* rather than by a place. [[STARTUPPER]] is the live case: thirty members whose `@Name` pages sit all over `AT/`, gathered here because they are startup-affiliated, not because they share a directory.
+Two kinds are known. Both are legitimate; neither is a spine.
 
-**It must carry no marker at all.** An electric marker can only ever compute the folder, so on a page whose rows deliberately leave the folder it would compute the wrong set — sweeping in unrelated neighbours while adding nothing to the curated list. This is the one shape where the absence of automation is part of the definition rather than an omission, and the general rule already covers why: *a page that fronts no folder has nothing to sweep.*
+### Redirect page
 
-**The rows are therefore fully manual, and nothing can verify them.** Every other shape can be diffed against its folder; this one cannot, because there is no folder to diff against. That is the cost of the shape, and the reason to reach for it only when the grouping really is by property.
+**A single `(See …)` line below the H1, and no table.** The page organizes nothing and owes two or three named destinations — or *is* a slug marker standing in for its anchor page. Live: [[AI Safety]], [[MED Food]], [[@Peter Hui]], [[Flashcards]], [[Self Attention]]; the slug-marker sub-form is [[VEC]], [[FCT]], [[CFO]], [[ANC]].
 
-An external spine can otherwise be laid out however suits it — [[STARTUPPER]] happens to be grouped (**People**, **Companies**, **Related pages**). Layout and externality are independent.
+**It is not a spine, and the sharp edge is where it sits.** Every shape above sits at or above the H1; a redirect sits *below* it, which is body content's position. Dan, 2026-08-12: *"it's kind of an exception… it's not really a spine, but I think redirect files are a valid exception case."* Ruled as [[TINK308 - Spine: the routing zone every document opens with|F308]] Q5, which had carried it as a seventh shape (S2) through three census passes.
 
-**This page is an external spine.** `disciplines/DAS spine.md` fronts no folder, and its rows point at [[LUMEN Nudge]], [[Rolodex]], [[Disk]], [[VOX]] and the Harbor examples — 93% of them outside `disciplines/`. It carries no marker, correctly.
+**86 pages, plus 16 more riding alongside a breadcrumb.** They are exceptions, not defects: a page that exists to hand the reader onward and nothing else is a real thing the vault does, and giving it a masthead would be a promise it cannot keep.
+
+### External masthead
+
+**No marker at all, and that is what makes it an exception.** Every shape above ends in an electric marker; this one cannot, and so it sits here rather than among them. Use it when the pages it organizes are deliberately not in its folder.
+
+Every shape describes children the file tree already holds. An external masthead points at material that lives elsewhere — because it is grouped by a *property* rather than by a place. [[STARTUPPER]] is the live case: thirty members whose `@Name` pages sit all over `AT/`, gathered here because they are startup-affiliated, not because they share a directory.
+
+**It must carry no marker at all.** An electric marker can only ever compute the folder, so on a page whose rows deliberately leave the folder it would compute the wrong set — sweeping in unrelated neighbours while adding nothing to the hand-written list. This is the one case where the absence of automation is part of the definition rather than an omission, and the general rule already covers why: *a page that fronts no folder has nothing to sweep.*
+
+**The rows are therefore fully manual, and nothing can verify them.** Every shape can be diffed against its folder; this exception cannot, because there is no folder to diff against. That is the cost of the shape, and the reason to reach for it only when the grouping really is by property.
+
+An external masthead can otherwise be laid out however suits it — [[STARTUPPER]] happens to be grouped (**People**, **Companies**, **Related pages**). Layout and externality are independent.
+
+**This page is an external masthead.** `disciplines/DAS spine.md` fronts no folder, and its rows point at [[LUMEN Nudge]], [[Rolodex]], [[Disk]], [[VOX]] and the Harbor examples — 93% of them outside `disciplines/`. It carries no marker, correctly.
+
+**Why it is an exception and not a fifth shape.** The mandatory `...` is the load-bearing rule of the custom spine, and this is the one page kind that must not carry one — so it does not narrow the rule, it stands outside it. Listing it by name keeps the four shapes exceptionless.
 
 ## Rules that cut across every shape
 
@@ -132,7 +138,7 @@ An external spine can otherwise be laid out however suits it — [[STARTUPPER]] 
 
 That is a measured failure, and the size of it is **16 pages hiding 44 children** (2026-08-11) — pages that front a folder, carry no marker, and hold at least one member they link nowhere. The worst is [[EMBER Log]] at 14 of 14; then [[Atticus]] (6 of 7), [[SV Track]] (4), [[Warden Corpus]] (3 of 3). Treat the figure as a snapshot: three passes over the same afternoon read 39, 37 and 37 pages as the corpus moved under them.
 
-**The figure this section used to carry — 36 pages, with `ASIO` (33) and `META` (14) as its worked examples — was wrong, and wrong in a way worth keeping.** `S07` fired on folder *size* and reported it as hidden, never asking whether the page already linked its members. Re-measured 2026-08-11 (by [[ATT|Atticus]], then independently here): **37 pages / 230 children** as the rule was written, **16 / 44** once the already-linked filter `S08` had used all along is applied — and **21 of the 37 hid nothing whatsoever.** `ASIO` has 33 members and 0 unlinked; `META` 14 and 0. Both hand-write one masthead row per child, which is a curated spine doing exactly its job.
+**The figure this section used to carry — 36 pages, with `ASIO` (33) and `META` (14) as its worked examples — was wrong, and wrong in a way worth keeping.** `S07` fired on folder *size* and reported it as hidden, never asking whether the page already linked its members. Re-measured 2026-08-11 (by [[ATT|Atticus]], then independently here): **37 pages / 230 children** as the rule was written, **16 / 44** once the already-linked filter `S08` had used all along is applied — and **21 of the 37 hid nothing whatsoever.** `ASIO` has 33 members and 0 unlinked; `META` 14 and 0. Both hand-write one masthead row per child, which is a custom spine doing exactly its job.
 
 The remedy this section prescribes could not have helped them either: [[DAS Dispatch Table]]'s F081 body-mention suppression omits every child the page already links, so the `...` they were told to add would have rendered an **empty zone** — the fix would have looked like it silently failed. A rule whose message asserts children are invisible, about children linked three rows above the marker it demands, teaches a reader to discount the checker; that is why the correction went into `S07` (`test-s07-already-linked.py` pins both directions) rather than into this prose.
 
@@ -146,7 +152,7 @@ The remedy this section prescribes could not have helped them either: [[DAS Disp
 
 `+++` (alphabetical with grandchildren) and `!!!` (clip) each occur in exactly one file vault-wide — the same file, the spec that defines them. Under the standing rule that *a shape with no live exemplar is a shape you invented*, both stay out.
 
-`+` is the exception that earned promotion. It is written per-row rather than as a terminal marker, so it looked like a régime layered over the other shapes — but what it marks is a *structural* difference (the label is a page, not a word), and that difference changes how a reader navigates.
+**`+` is not a shape either, and it was one for three days.** It is written per-row rather than as a marker, and on 2026-08-09 it was promoted out of régime and into its own shape (*two-level*) on the argument that the label being a page rather than a word is a structural difference. That argument still holds and the distinction is still taught — but it distinguishes two *arrangements of a custom spine*, not two shapes, because the thing that selects a shape is who writes the rows and `+` does not change the answer. Demoted 2026-08-12 with the rest of the re-cut; see § Custom spine.
 
 ## The heart
 
@@ -162,7 +168,7 @@ One rule stays, because the spine examples cannot be authored correctly without 
 
 The row vocabulary, the identity cell, and the fixed row order are [[DAS Dispatch Table]]'s; the automation semantics are summarized above but owned there. Do not restate either here.
 
-**This page is itself an [[#External spine|external spine]]** — see that section; it fronts no folder and its rows point outward, so carrying no marker is correct rather than an omission.
+**This page is itself an [[#External masthead|external masthead]]** — see § Exceptions; it fronts no folder and its rows point outward, so carrying no marker is correct rather than an omission.
 
 ### Where the examples live, and why not in a folder here
 
@@ -194,6 +200,16 @@ It still reads as a discipline in the `where::` grammar, because that grammar ca
 **[[R-spine]] is the home those rules needed, extracted 2026-08-08 (F308 M2).** It owns the choice of opening — `R-spine-01` (never both forms), `-02` (breadcrumb → H1 → orientation line), `-03` (an index doc fronting a folder carries a dispatch table) — and `R-progressive` now mentions routing nowhere. [[R-dispatch-table]] keeps the masthead's internals and is deliberately not folded in: those rules govern the *content* of one spine form, not which form a page gets, and merging them would put two authorities over one table.
 
 # Log
+
+**2026-08-12 — seven shapes became four and an exception list, and the shape set stopped living in two places.** Dan resolved [[TINK308 - Spine: the routing zone every document opens with|F308]] Q5 and Q6, and the ruling was larger than either question asked.
+
+- **Curated, grouped and two-level are one shape, `custom`.** All three are hand-authored rows above a `...`; what separated them was how those rows happened to be arranged, which is the author's business and not a property of the page. Both distinctions are kept and taught inside § Custom spine — they were worth writing down, they were just not shapes.
+- **`+` was demoted back to a régime**, three days after this page promoted it. Recorded rather than quietly reverted, because the argument that promoted it was sound and is still in the text.
+- **The `...` is mandatory, and completeness is not an excuse.** Dan: *"even if you have a custom entry and you cover every one of them, you still want the dot, dot, dot, just so that if somebody adds one, it's not going to get lost."*
+- **Redirect pages and external mastheads are exceptions, listed by name** in a new § Exceptions at the end. The redirect had been carried as a seventh shape through three census passes of F308 and appeared nowhere on this page; the external masthead was a shape here and is the one page kind that must not carry the mandatory marker.
+- **Scope and rollout settled (Q6):** every markdown file under an anchor owes a spine — 7,644 of 7,651 — with liberal exceptions allowed and no exceptions table built yet. The rollout is **lazy**: a page gets its spine when an agent saves it. Dan: *"we're not gonna scan through the whole repository, we're just gonna do this as the agent modifies a file. Later, we'll do the whole thing."* So the 5,088 spineless pages are a backlog depth, not a migration to schedule.
+
+**And the shape set now lives here alone.** Dan: *"we're getting multiple sources of truth here… what we should be doing is not doing this in the feature document, but actually putting the exemplars into the DAS documentation."* F308 had been carrying its own six-shape table while this page carried a different seven, and neither knew about the other. F308's table becomes a pointer; [[TINK326 - Spine Update|F326]] is where the work is tracked, and F308 closes when Dan agrees with this page and [[FEX Spine Examples]].
 
 **2026-08-09 — the six shapes became four, and the axis was wrong.** The first cut of this page keyed six shapes (S1–S6) on "the terminal separator," which was wrong in three ways the user caught by reading the exemplars:
 
