@@ -4,5 +4,5 @@ mode: doc
 target: FX3 Track/FX3 queries.md
 provenance: synthetic
 engine: audit-plan
-blessed_against: 907a770d3373-78d4bfa91c7a
+blessed_against: 907a770d3373-fbf10893e03e
 note: R-query-03 fail twin — two allowed sections in the wrong order (Verifications before Agent Resolutions); pins the section-subsequence check's fail path

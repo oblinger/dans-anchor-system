@@ -1333,6 +1333,56 @@ def _table_data_rows(block: list[str]) -> list[str]:
     return block[1:]
 
 
+def _unescaped_pipe_positions(s: str) -> list[int]:
+    """Indices of every `|` in `s` that markdown reads as a LIVE character — i.e.
+    one preceded by an EVEN number of backslashes (zero included).
+
+    The one place this file answers "is this pipe escaped?". Three call sites each
+    spelled it `(?<!\\\\)\\|` — a lookbehind that asks only whether *some* backslash
+    precedes the pipe — and all three were wrong on the same form: `[[A\\\\|b]]`.
+    There `\\\\` is an ESCAPED BACKSLASH that renders as one literal backslash, which
+    leaves the pipe bare, so the cell terminates and the row's tail is discarded.
+    The lookbehind saw a backslash and called it escaped. Escaping is a parity
+    property, not a presence one; only an ODD run escapes.
+
+    Measured on the real checker before the fix (T224): `[[A\\|b]]` pass / 2 cells
+    (correct), `[[A\\\\|b]]` **pass / 3 cells (WRONG)**, `[[A|b]]` fail / 3 cells
+    (correct). The wrong one is exactly the shape a repair pass produces when it
+    escapes an already-escaped pipe, so the fixer could manufacture the defect its
+    own checker was blind to. Found by Lumen 2026-08-10 on six [[LUMEN Nudge]] rows
+    that had lost their tails.
+
+    Written as a shared primitive under the T099 rule that a helper is speculation
+    until a defect names it: `_row_cells`, `chk_md_table_pipe_escape` and
+    `fix_md_table_pipe_escape` are three independent defects naming it.
+    """
+    out = []
+    for m in re.finditer(r"\|", s):
+        i, n = m.start(), 0
+        while i - 1 - n >= 0 and s[i - 1 - n] == "\\":
+            n += 1
+        if n % 2 == 0:
+            out.append(m.start())
+    return out
+
+
+def _split_unescaped_pipes(s: str) -> list[str]:
+    """`s` split on live pipes only; escaping backslashes stay with their cell."""
+    out, prev = [], 0
+    for p in _unescaped_pipe_positions(s):
+        out.append(s[prev:p])
+        prev = p + 1
+    out.append(s[prev:])
+    return out
+
+
+def _escape_unescaped_pipes(s: str) -> str:
+    """Escape every live pipe in `s`. Right-to-left so earlier indices stay valid."""
+    for p in reversed(_unescaped_pipe_positions(s)):
+        s = s[:p] + "\\" + s[p:]
+    return s
+
+
 def _row_cells(line: str) -> list[str]:
     """Interior cells of a GFM table row, split on UNESCAPED pipes only.
 
@@ -1356,7 +1406,7 @@ def _row_cells(line: str) -> list[str]:
     if not _is_table_row(line):
         return []
     s = line.strip()
-    parts = re.split(r"(?<!\\)\|", s)[1:]
+    parts = _split_unescaped_pipes(s)[1:]
     if parts and parts[-1] == "":
         parts = parts[:-1]
     return [c.strip() for c in parts]
@@ -4443,7 +4493,8 @@ def chk_md_table_pipe_escape(target, anchor_root, args):
         if not masked.lstrip().startswith("|"):
             continue
         for m in _WIKILINK_RE.finditer(masked):
-            if re.search(r"(?<!\\)\|", m.group(0)):
+            # Parity, via the one shared predicate — never a local lookbehind (T224).
+            if _unescaped_pipe_positions(m.group(0)):
                 hits.append(f"line {ln}")
                 break
     if hits:
@@ -4606,9 +4657,99 @@ def _mask_code(text: str) -> str:
       `skills/audit/audit-markdown.md`, where it exposed 13 lines of Python to
       the prose checks and produced a phantom R-markdown-13 finding.
     """
-    blank = lambda m: re.sub(r"[^\n]", " ", m.group(0))
-    masked = _FENCE_RE.sub(blank, text)
-    return _SPAN_RE.sub(blank, masked)
+    return _blank_regions(text, _code_regions(text))
+
+
+_BULLET_RE = re.compile(r"^\s*(?:[-*+]|\d+[.)])\s")
+
+
+def _indented_code_regions(text: str) -> list[tuple[int, int]]:
+    """Char ranges of CommonMark INDENTED code blocks — 4+ spaces of indent,
+    opened after a blank line, at top level.
+
+    T222 defect 1. Neither `_mask_code` nor `_repl_outside_code` knew this block
+    kind existed, so `fix_md_em_dash` rewrote a spaced double-hyphen INSIDE one —
+    turning a git pathspec separator into an em-dash and leaving a valid-looking
+    but broken command that would have shipped to another agent as instructions.
+    R-markdown-05's own text scopes the rule to "a definition-list bullet (or
+    prose)", so a `<pre>` block was always outside its stated intent.
+
+    Top level is load-bearing and is why this is a scanner rather than a regex.
+    CommonMark measures the four spaces from the CONTAINING BLOCK's content
+    column, so a nested bullet legitimately carries four spaces of list indent and
+    is prose, not code. Masking those would make the em-dash check silently blind
+    across most of the corpus — a silent green, the worse failure direction. So a
+    run qualifies only when the nearest preceding non-blank line is itself
+    unindented and is not a bullet, which is the one case needing no block parser
+    to decide.
+
+    Measured over the vault: 1,983 lines in 132 files, 34 of them carrying
+    ` -- `. Spot-checked, they are legacy notes written wholly at four spaces —
+    documents markdown really does render as one `<pre>`, where an em-dash
+    rewrite is both invisible and wrong. The permissive variant (drop the
+    top-level test) claimed 10,333 lines and swept up ordinary nested bullets.
+    """
+    lines = text.split("\n")
+    starts, pos = [], 0
+    for ln in lines:
+        starts.append(pos)
+        pos += len(ln) + 1
+    out, i, n = [], 0, len(lines)
+    while i < n:
+        if re.match(r"^ {4,}\S", lines[i]) and i > 0 and lines[i - 1].strip() == "":
+            j = i - 1
+            while j >= 0 and lines[j].strip() == "":
+                j -= 1
+            prev = lines[j] if j >= 0 else ""
+            top_level = j < 0 or (not prev.startswith((" ", "\t")) and not _BULLET_RE.match(prev))
+            k = i
+            while k < n and (lines[k].strip() == "" or re.match(r"^ {4,}", lines[k])):
+                k += 1
+            while k > i and lines[k - 1].strip() == "":
+                k -= 1
+            if top_level:
+                out.append((starts[i], starts[k - 1] + len(lines[k - 1])))
+            i = k
+        else:
+            i += 1
+    return out
+
+
+def _code_regions(text: str) -> list[tuple[int, int]]:
+    """THE answer to "which bytes of `text` are code" — fenced blocks, indented
+    blocks, and inline spans, in that precedence.
+
+    T222 defect 2. `chk_md_em_dash` masked with `_mask_code` while
+    `fix_md_em_dash` replaced through `_repl_outside_code`, and the two spelled
+    the inline-span class differently — the checker's excluded only newline, the
+    replacer's excluded newline AND backtick. On a line with several spans they
+    masked different regions, so the checker could report clean while the fixer
+    still rewrote, and no test caught it because each was internally consistent.
+
+    One predicate, three callers, no second derivation. This is the same
+    "port, don't re-derive" discipline already written into
+    `_ends_with_terminal_link`, and `_repl_outside_code` is a textbook chokepoint
+    that had been bypassed by its own paired checker.
+    """
+    fill = "\x00"
+    blank = lambda m: re.sub(r"[^\n]", fill, m.group(0))
+    masked = _FENCE_RE.sub(blank, text.replace(fill, " "))
+    masked = _blank_regions(masked, _indented_code_regions(masked), fill)
+    masked = _SPAN_RE.sub(blank, masked)
+    return [(m.start(), m.end()) for m in re.finditer(fill + "+", masked)]
+
+
+def _blank_regions(text: str, regions, fill: str = " ") -> str:
+    """`text` with every char in `regions` replaced by `fill`, newlines kept.
+    Length-preserving, so masked and raw line up index-for-index."""
+    if not regions:
+        return text
+    out = list(text)
+    for a, b in regions:
+        for i in range(a, b):
+            if out[i] != "\n":
+                out[i] = fill
+    return "".join(out)
 
 
 # A code-span delimiter is a backtick run matched by a run of EXACTLY the same
@@ -7354,29 +7495,76 @@ def _frozen_preserved(orig: str, new: str) -> bool:
 
 
 def _repl_outside_code(text: str, repl):
-    """Apply `repl` to the parts of `text` outside fenced blocks and inline code spans."""
+    """Apply `repl` to the parts of `text` outside code \u2014 fenced blocks, indented
+    blocks, and inline spans, as `_code_regions` defines them. Reading and writing
+    are different operations over the SAME structure, and the structure is shared
+    (T222 defect 2); this function no longer re-derives any part of it."""
     out, i = [], 0
-    for m in _FENCE_RE.finditer(text):
-        out.append(_repl_outside_inline(text[i:m.start()], repl)); out.append(m.group(0)); i = m.end()
-    out.append(_repl_outside_inline(text[i:], repl))
+    for a, b in _code_regions(text):
+        out.append(repl(text[i:a]))
+        out.append(text[a:b])
+        i = b
+    out.append(repl(text[i:]))
     return "".join(out)
 
 
 def _repl_outside_inline(seg: str, repl):
+    """Per-line sibling of `_repl_outside_code`, for callers that have already
+    excluded fences themselves via `_code_masked_lines`. Spans come from
+    `_SPAN_RE` \u2014 the same pattern the maskers use \u2014 never a local re-roll."""
     out, i = [], 0
-    for m in re.finditer(r"(`+)[^`\n]*?\1", seg):
+    for m in _SPAN_RE.finditer(seg):
         out.append(repl(seg[i:m.start()])); out.append(m.group(0)); i = m.end()
     out.append(repl(seg[i:]))
     return "".join(out)
 
 
 def fix_md_em_dash(target, anchor_root, args):
+    """Convert a spaced ` -- ` to ` \u2014 ` outside code, and REFUSE any line whose
+    masking cannot be trusted.
+
+    T222 defect 3. A code span whose CONTENT contains a backtick \u2014 unavoidable
+    when documenting regexes, markdown, or nested shell \u2014 breaks paired-delimiter
+    matching, and everything after it on that line silently loses its masking. The
+    proof is that the first draft of T222's own backlog row was corrupted by the
+    rule it describes: a span reading backtick-space-double-hyphen-space-backtick
+    became an em-dash *despite being inside backticks*, because the line carried
+    19 backticks. So "put it in backticks" is a good convention but NOT a
+    sufficient defence.
+
+    Odd backtick parity in the masked line is the detectable form of that: it
+    means the pairing did not consume every delimiter, so this function does not
+    know where code sits on that line. It skips the line and reports it. A fixer
+    that cannot determine masking with certainty must refuse and report rather
+    than rewrite content it does not understand \u2014 silence beats corruption,
+    especially on a fix that runs unattended on every write. The paired check
+    still reads the line, so the finding reaches a human instead of being quietly
+    "fixed".
+    """
     text = _read(target)
-    new = _repl_outside_code(text, lambda s: s.replace(" -- ", " \u2014 "))
-    if new != text:
-        target.write_text(new, encoding="utf-8")
-        return True, "converted spaced ` -- ` to ` \u2014 `"
-    return False, ""
+    raw_lines = text.split("\n")
+    masked_lines = _mask_code(text).split("\n")
+    out, skipped, changed = [], [], False
+    for i, raw in enumerate(raw_lines):
+        m = masked_lines[i] if i < len(masked_lines) else ""
+        if m.count("`") % 2:
+            skipped.append(i + 1)
+            out.append(raw)
+            continue
+        # Decide on the masked line, edit the real one. `_mask_code` is
+        # length-preserving, so the indices carry over exactly.
+        for p in reversed([h.start() for h in re.finditer(r" -- ", m)]):
+            raw = raw[:p] + " \u2014 " + raw[p + 4:]
+            changed = True
+        out.append(raw)
+    note = ""
+    if skipped:
+        note = ("declined %d line(s) with unpaired backticks (masking unreliable): %s"
+                % (len(skipped), ", ".join(str(n) for n in skipped[:5])))
+    if changed:
+        target.write_text("\n".join(out), encoding="utf-8")
+        return True, "converted spaced ` -- ` to ` \u2014 `" + (" \u2014 " + note if note else "")
+    return False, note
 
 
 def fix_md_trailing_ws(target, anchor_root, args):
@@ -7450,7 +7638,7 @@ def fix_md_table_pipe_escape(target, anchor_root, args):
             continue
         newline = _repl_outside_inline(
             raw, lambda s: _WIKILINK_RE.sub(
-                lambda m: re.sub(r"(?<!\\)\|", r"\\|", m.group(0)), s))
+                lambda m: _escape_unescaped_pipes(m.group(0)), s))
         if newline != raw:
             lines[i] = newline; changed = True
     if changed:
