@@ -113,7 +113,7 @@ Mail is filtered through `LUMEN Design/LUMEN Watchlist.md` — a definition list
 
 **Some appointments exist only inside an email, so the Calendar step cannot see them.** Sutter's reminders are a single `text/html` part — no `text/calendar`, no `.ics` — so nothing ever reaches a calendar to be read back. On 2026-08-11 that cost a 2:30 PM video visit: the briefing would have shown a clear afternoon, and the user found it himself twenty-nine minutes ahead. **So run the scan every morning, as part of Mail:**
 
-    python3 ~/.claude/skills/daybreak/appointment-scan.py --days 3
+    python3 ~/.claude/skills/daybreak/scripts/appointment-scan.py --days 3
 
 It reads its senders from the Watchlist — never its own copy — and prints one line per appointment, soonest first, or nothing when there is nothing. **Anything it prints goes into Today with its clock time**, ranked by the hard-clock-first rule, exactly as a calendar event would be. Treat silence as a real answer: it is quiet on days with no appointment, verified against 2026-08-05.
 
