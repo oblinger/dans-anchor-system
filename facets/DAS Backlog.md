@@ -13,6 +13,8 @@ description: "Organizes a backlog along two independent axes — *when* the user
 The work queue — one `{slug} Backlog.md` per anchor, every unit of work as a row carrying bracket × horizon, F/T-numbered and block-anchored.
 
 **TLDR** — `{slug} Track/{slug} Backlog.md` is the anchor's workflow-state core: one bullet row per unit of work (`- **F<n> — Title** [Status] — body ^F<n>`) under horizon H2s (`## Now` / `## Next` / `## Later`) plus workflow H2s (`## Ready` / `## Active` / `## Verify` / `## Done`). Row ids are monotonic, zero-padded, never reused (F = feature, T = task, C = OpenSpec change); brackets carry the groomed state ([Ready] rows must name a `- **Next:**` step). Mutations go through `state`, never hand-edits; the render propagates each anchor's section into the vault-wide `Q.md`. **Cardinality: one per anchor.**
+
+**Site-specific extensions.** A vault may specialize this facet for its own user in that vault's agent-conventions page, in a section keyed to this facet's exact name. Nothing here assumes one exists; when it does, it refines this spec and never overrides a declared pointer. In this vault that page is [[Agent Conventions]] § DAS Backlog — which adds two rules worth knowing before you file anything: **work found while working a feature becomes a section in that feature's doc under a `## Roadmap`, not a new row**, and **an anchor whose work only ever passes through one agent does not get its own backlog** (its rows live on that agent's queue). The second one bends the cardinality line above: one queue per anchor is the default, not a law.
 |  |  |
 | **Table of Contents** |  |
 | [[#Reference Example]] |  |
