@@ -70,6 +70,25 @@ SINGLE_VAR_RE = re.compile(r"(?<!\{)\{([^{}]+)\}(?!\})")
 HEADING_RE = re.compile(r"^(#{1,6})\s+(.*)$")
 ANCHOR_RE = re.compile(r"^(#{1,6})\s+(\.\.\.|==)\s+(.*)$")
 
+# A `:>>` breadcrumb line is never part of a stencil, in either direction.
+#
+# Measured 2026-08-12 (F303): holing the breadcrumb in `templates/icebox.md`,
+# `inbox.md` and `testing.md` was reverted by HookAnchor within seconds on all
+# three — the daemon owns that line in every registered file, and a template
+# file is a registered file. So a stencil literally CANNOT state its own
+# breadcrumb: whatever an author writes there, the machine replaces with the
+# trail to the template itself, which is the one trail no instance will ever
+# have. Requiring it made every one of those templates unmatchable against
+# every real instance, forever, for a line no author controls.
+#
+# Dropping it is not a fourth construct. Open-world already permits a target to
+# carry lines the stencil does not name, so the instance's own breadcrumb passes
+# either way; this only stops the stencil from ASSERTING a line it cannot own.
+# Verified against the pinned corpus: all three suites stay green and no
+# specimen verdict moves, which is what distinguishes a repair from a language
+# change.
+BREADCRUMB_RE = re.compile(r"^\s*:>>\s")
+
 
 @dataclass
 class Blank:
@@ -140,6 +159,10 @@ def parse_stencil(text: str, *, extent: str = "line",
     for i, line in enumerate(lines, 1):
         if line.strip() == "":
             flat.append(Blank(i))
+            continue
+        if BREADCRUMB_RE.match(line):
+            notes.append(f"line {i}: `:>>` breadcrumb dropped from the stencil "
+                         f"— machine-owned, no stencil can assert one")
             continue
         am = ANCHOR_RE.match(line)
         if am:
