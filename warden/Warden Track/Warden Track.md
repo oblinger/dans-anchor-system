@@ -2,7 +2,7 @@
 description: execution state — backlog + feature specs for the Warden engine
 ---
 
-| -[[Warden Track]]- | → [[DAS]] → [[WARD]] → [Warden Track](hook://p/Warden%20Track)  |
+| -[[Warden Track]]- | → [[DAS]] → [[Warden]] → [Warden Track](hook://p/Warden%20Track)  |
 | --- | --- |
 | [[Warden Backlog]]  | deferred work — roadmap milestones M0–M5 |
 | [[Warden Features]]  | dated feature specs (F209–F217, F017) |

@@ -5,18 +5,19 @@ severity: warning
 
 # Heading spacing
 
-ATX headings (`#`, `##`, `###`, …) should have a blank line both **before** and **after**. Many markdown renderers tolerate missing blanks, but the lack of them defeats outline navigation in Obsidian and breaks the visual scan pattern of the file.
+ATX headings (`#`, `##`, `###`, …) should have a blank line **before** them. Many markdown renderers tolerate a missing blank, but its absence defeats outline navigation in Obsidian and breaks the visual scan pattern of the file.
 
-Exception: a heading on line 1 (with no preceding content) and a heading immediately after frontmatter (lines `---` … `---`) don't need a blank line *before* — the document or frontmatter terminator implicitly separates them.
+Exception: a heading on line 1 (with no preceding content) and a heading immediately after frontmatter (lines `---` … `---`) don't need a blank line before — the document or frontmatter terminator implicitly separates them.
 
-Exception: **an H1 followed directly by its orientation line** doesn't need a blank line *after*. [[DAS spine]] requires exactly that shape — *H1 → one sentence → heart, with no blank line between the H1 and the sentence, so the heart lands on screen without scrolling* — and `R-spine`'s `S05` reports the blank line as the defect, while `spine fix` actively deletes it. Without this exception the two checkers demand opposite things about the same line, and running `spine fix` is what *creates* this rule's warning: **1,787 pages** vault-wide carry the mandated shape and each earned one false finding. Since `audit-markdown` is Stop-hook wired (F081 Q3), that warning fired in normal use on pages that had just become correct — which trains agents to discount the checker. Reported by [[ATT|Atticus]] 2026-08-11 from the `Topic/MGR/Hire` spine pass; fixed the same day.
+## There is no blank-line-**after** check, and there will not be one
 
-Scoped to **level-1 headings followed by prose**, deliberately, and to nothing wider. Two narrowings were measured rather than assumed:
+Retired 2026-08-11 by Dan's answer to [[TINK Backlog#^T205|T205]] Q1: *"for number two, let's just lean A. We might change that later, but for now, A is good."* His standing instruction (2026-04-28, held as a durable agent memory) is that **a heading followed by prose, a list, or a table takes its content on the very next line** — no blank between them. This rule's blank-after half enforced the exact opposite, so every heading written the way he asked for earned a warning, and `audit-markdown` is Stop-hook wired (F081 Q3), so it fired in normal use.
 
-- **Prose, not any follower.** A first cut exempted an H1 followed by anything non-heading and suppressed 3,254 findings against the ~1,787 the discipline mandates; the extra ~1,467 were H1s jammed against a table, list, fence or quote, which the spine promises nothing about. Narrowed to the same `_prose` predicate `chk_orientation_line` uses, so the two agree by construction.
-- **`##` and deeper still report — and that is now an open question, not a settled call.** This was written as *"a tight `##` against its body text is ordinary crowding and the rule should keep saying so"*, calibrated against Atticus's count and **not** against the standard. Dan's standing instruction (2026-04-28) is the opposite: a heading followed by prose, list or table takes its content on the very next line. So the residual **19,245** findings are not leftover scope — they are this same contradiction one heading level down. Carried as [[TINK Backlog#^T205|T205]] Q1 with the corpus measured (22,456 tight against 43,074 blank, 66% of the vault on the other side); do not narrow or widen this rule again until that is answered.
+**The count at retirement was 19,245**, and it had already survived one narrowing that failed to reach the cause. On 2026-08-11 [[ATT|Atticus]] reported that `R-spine`'s `S05` and this rule demanded opposite things about the H1's orientation line — `spine fix` deletes the blank the rule then asks for — so an H1-followed-by-prose exception was added, taking 22,146 → 19,245. That exception was written up as *"a tight `##` against its body text is ordinary crowding and the rule should keep saying so"*, which contradicts the standing instruction and was calibrated against Atticus's finding count rather than against the standard. The residual was never leftover scope; it was the same contradiction one heading level down, which is why the fix is a deletion rather than a third narrowing.
 
-Measured effect: **22,146 → 19,245** `blank line after` findings vault-wide. That is ~2,901 rather than the 1,787 Atticus counted, and the gap is honest scope: the exception keys on *a* level-1 heading, not on *the head* H1, so a `# BRIEF` or `# Log` that opens a body section with prose is exempted too. Locating the head would mean reaching for the `_head_h1` primitive, which a standalone rule body cannot import. Left as-is: those are body-section heads whose following line is prose, which is the same shape for the same reason.
+**The corpus did not settle it and was not allowed to.** Measured across every markdown file in the vault: 22,456 headings are tight and 43,074 carry a blank — 66% against the stated preference, unevenly by level (H2 15% tight, H3 43%, H4 67%, H1 42%). Pointing the rule at the majority would have made the user's own house style the finding set. Option (B) — inverting the rule to *require* tight — was available and was not taken: it would have converted 43,074 conforming-by-accident headings into findings and forced a migration nobody asked for. **The rule now permits both shapes and polices neither.** The blank-*before* check is untouched: nothing in the preference concerns the line above a heading, and a heading glued to the previous paragraph is a genuine outline defect.
+
+Do not re-add a blank-after check, in either direction, without a new answer from Dan on T205. The `S05` / `spine fix` contradiction the H1 exception existed to resolve is resolved a fortiori — the check it contradicted no longer exists.
 
 ```python
 HEADING_RE = re.compile(r"^#{1,6}\s+\S")
@@ -38,41 +39,14 @@ def check(file_path):
     for i, line in enumerate(lines):
         if not HEADING_RE.match(line):
             continue
-        # Check blank-before (skip if line 0 or immediately after frontmatter end)
+        # Blank-BEFORE only. The blank-after check was deleted 2026-08-11 (T205
+        # Q1 answer (A)) because it enforced the opposite of the user's stated
+        # heading style, 19,245 times. Do not restore it; see the section above.
         if i > 0 and i != fm_end + 1:
             if lines[i - 1].strip() != "":
                 findings.append({
                     "line": i + 1,
                     "message": f"heading needs blank line before: {line[:60].rstrip()}",
-                })
-        # Check blank-after (skip if last line of file, or if this is an H1
-        # followed directly by its orientation line — the shape [[DAS spine]]
-        # mandates and `spine fix` produces. Without this the two checkers
-        # contradict each other on 1,787 pages and conforming to one guarantees
-        # a finding from the other. H1 only: the promise is about the head.)
-        # PROSE only, matching `chk_orientation_line`'s own predicate. A first
-        # cut skipped any non-heading follower and suppressed 3,254 findings
-        # against the 1,787 the discipline actually mandates — the extra 1,467
-        # were H1s jammed against a table, list, fence or quote, which the spine
-        # promises nothing about and which is ordinary crowding.
-        # NB: the fence marker is built with chr(96) rather than written out,
-        # and must NEVER be written out even inside a comment. This rule's body
-        # lives inside a fenced block, so a literal triple-backtick anywhere in
-        # it closes the fence early. Both failure modes were hit while writing
-        # this exception: cut mid-statement it fails to compile and the runner
-        # drops to 3 rules; cut after the last append it still compiles, loses
-        # `return findings`, returns None, and reports ZERO findings vault-wide
-        # while looking perfectly healthy. The second is the dangerous one.
-        NOT_PROSE = ("|", "#", "- ", "* ", "+ ", ">", "![", chr(96) * 3, ":>>")
-        nxt = lines[i + 1].strip() if i + 1 < len(lines) else ""
-        is_head_orientation = (
-            line.startswith("# ") and bool(nxt) and not nxt.startswith(NOT_PROSE)
-        )
-        if i < len(lines) - 1 and not is_head_orientation:
-            if lines[i + 1].strip() != "":
-                findings.append({
-                    "line": i + 1,
-                    "message": f"heading needs blank line after: {line[:60].rstrip()}",
                 })
     return findings
 ```

@@ -2,25 +2,25 @@
 description: "deferred work — roadmap milestones M0–M5"
 ---
 # Warden Backlog
-<!-- state:backlog wm -->
+<!-- state:backlog ua -->
 
 > **This queue is RETIRED — 2026-08-11. Every open row moved to [[TINK Backlog]]; nothing new is filed here.**
 > Dan's direction: *"I wonder whether or not we should have a backlog for Warden. You're the only person really working that backlog, and I think it really can cause things to get gummed up when there's this other backlog out there. Why don't we pull everything from the warden backlog into your backlog?"* Warden's work is [[TINK|Tink]]'s work and always has been, so a second queue only split the view of what is live.
 >
 > **The 12 open rows were re-minted under TINK numbers** — every one of the old ids collided with an existing TINK row, so none could carry its number across; each new row records its old `WARD` id in its first sentence. The map:
 >
-> - `WARD F236` → [[TINK Backlog#^F321|F321]]
-> - `WARD F237` → [[TINK Backlog#^F322|F322]]
-> - `WARD T019` → [[TINK Backlog#^T222|T222]]
-> - `WARD T020` → [[TINK Backlog#^T223|T223]]
-> - `WARD T022` → [[TINK Backlog#^T224|T224]]
-> - `WARD T009` → [[TINK Backlog#^T225|T225]]
-> - `WARD T018` → [[TINK Backlog#^T226|T226]]
-> - `WARD F230` → [[TINK Backlog#^F323|F323]]
-> - `WARD T002` → [[TINK Backlog#^T227|T227]]
-> - `WARD T014` → [[TINK Backlog#^T228|T228]]
-> - `WARD T016` → [[TINK Backlog#^T229|T229]]
-> - `WARD F234` → [[TINK Backlog#^F324|F324]]
+> - `WARD F236` → [[TINK Backlog#^F321|F321]] 
+> - `WARD F237` → [[TINK Backlog#^F322|F322]] 
+> - `WARD T019` → [[TINK Backlog#^T222|T222]] 
+> - `WARD T020` → [[TINK Backlog#^T223|T223]] 
+> - `WARD T022` → [[TINK Backlog#^T224|T224]] 
+> - `WARD T009` → [[TINK Backlog#^T225|T225]] 
+> - `WARD T018` → [[TINK Backlog#^T226|T226]] 
+> - `WARD F230` → [[TINK Backlog#^F323|F323]] 
+> - `WARD T002` → [[TINK Backlog#^T227|T227]] 
+> - `WARD T014` → [[TINK Backlog#^T228|T228]] 
+> - `WARD T016` → [[TINK Backlog#^T229|T229]] 
+> - `WARD F234` → [[TINK Backlog#^F324|F324]] 
 >
 > **What remains below is history**: the 27 rows already Done when the queue closed, kept in place so their records stay where every link in the corpus already points. Read them here; file nothing here.
 
@@ -32,11 +32,13 @@ _None._
 
 ## Ready
 
-- **B-QFix — QFix** [Ready] — audit q findings routed by --fix; each sub-bullet is a residual on Warden's tree needing the 100%-fix discipline (per the audit skill's Governing principle). ^B-QFix
-  - **Next:** Fix the next residual below at its source (repoint a renamed link, de-link a retired one, correct the flagged doc), then re-run `/audit q` to clear it — per the 100%-fix discipline.
-  - **C48** SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Design/Warden Features/F237 — Golden corpus exists in two diverged copies — the drift oracle cannot be trusted.md:8 — '## Open Questions' integrity stamp mismatch (stored `v8`, computed `a9`) — the block was hand-edited past the state script's ask-format gates. Re-issue the change through `state`, or run `state "F237 — Golden corpus exists in two diverged copies — the drift oracle cannot be trusted" revalidate` to validate-then-restamp (F241).
-
 ## Now
+
+## Next
+
+## Later
+
+## Done
 
 - **F236 — R-cards-04 width (≤69) not enforced on write; scope it to the Obsidian-SR plugin default** [Done 2026-08-11] — **Moved to [[TINK Backlog#^F321|TINK F321]] 2026-08-11** when this queue was retired; the live record and all further work are there. Original body preserved on the new row. ^F236
   - **Next:** Two parts. (1) **Enforcement gap:** R-cards-04 (≤69-char card lines) does NOT fire on markdown save — a live edit to `RR/STAT/stat/stat distributions.md` created an 80-char card TITLE and the Warden on-write hook reported only the R-markdown-14 trailing-ws auto-fix + "0 issues to fix by hand"; a repo scan finds multiple card-region lines >69 that never steered (python unittest.md 90–93, python core.md 74/81, numpy estimation.md 71, python debug.md 71). Wire R-cards-04 into the audit-on-write path so width violations steer on save like R-markdown does. (2) **Scope the limit:** 69 is the DEFAULT render width of the Obsidian spaced-repetition plugin — gate the check on that plugin being in use so a deck/vault not using Obsidian-SR is not held to ≤69; record that provenance in R-cards-04 prose. Found live 2026-07-23 during MLI card authoring.
@@ -58,8 +60,6 @@ _None._
 - **T022 — chk_md_table_pipe_escape passes a doubled backslash that renders as a broken row** [Done 2026-08-11] — **Moved to [[TINK Backlog#^T224|TINK T224]] 2026-08-11** when this queue was retired; the live record and all further work are there. Original body preserved on the new row. ^T022
   - **Next:** replace the `(?<!\\)` lookbehind in both `chk_md_table_pipe_escape` and `fix_md_table_pipe_escape` with an odd-backslash-run test, add `[[A\\|b]]` to the `markdown-001-dirty` corpus case so the regression is pinned, and check whether the same lookbehind was copied into any sibling checker — `fix_md_svg_embed_width` writes `\|3000` into table rows off the same idea.
 
-## Next
-
 - **T009 — R-naming on-write activation — catalog prefixes need a ruling first** [Done 2026-08-11] — **Moved to [[TINK Backlog#^T225|TINK T225]] 2026-08-11** when this queue was retired; the live record and all further work are there. Original body preserved on the new row. ^T009
   - **Q1 — how do catalog-prefix files become R-naming-conformant?** [[DAS Naming]] R-naming-01 requires the anchor-slug prefix, but the catalog trees (`disciplines/`, `facets/`, `skill-docs/`, `traits/`) use their CATALOG prefix instead — which is why adding [[R-naming]] to the R-doc umbrella had to be reverted (376 fails). ^T009-Q1
     - **(A)** Declare slugs on the catalog anchors (`facets/.anchor` gets `slug: FCT`, and so on) and add the FEX/role- patterns to the R-naming-03 allowlist — makes the existing rule true rather than weakening it.
@@ -69,8 +69,6 @@ _None._
 
 - **T018 — Enforcement rollout — fire-once, then rate-limit the re-fires** [Done 2026-08-11] — **Moved to [[TINK Backlog#^T226|TINK T226]] 2026-08-11** when this queue was retired; the live record and all further work are there. Original body preserved on the new row. ^T018
   - **Next:** Implement the graduated rollout the user described in a 2026-07-18 voice capture (routed here by [[LUMEN]] T001). **(a) Ship at fire-once.** Do not flip full enforcement on: allow a rule to fire exactly once, then go quiet. Blast radius is one nudge per agent, and it buys the evidence needed to judge whether the firing was correct at all — user: *"the worst that happens is it just bugged the agent one time before it gave up."* **(b) Rate-limit by progress, not by count alone.** When a rule fires at an agent that stopped early, check whether the agent then made real progress — a state change, something reportable. If it did, stop. If it did not, escalate once more with a sharper message; after 3–4 unproductive fires, give up and let the agent stop. **(c) Why the cap is load-bearing:** without it, an agent that genuinely *cannot* proceed gets told to proceed forever — an infinite loop — and worse, user: *"it also might cause the agent to become chaotic and just try to do something crazy at that point."* A stuck agent being nagged is a hazard, not a fix. **(d)** Raise the fire limit only as confidence in a given rule grows; make the cap per-rule configurable rather than global.
-
-## Later
 
 - **F230 — Anchors over the coding tree (~/ob/proj)** [Done 2026-08-11] — **Moved to [[TINK Backlog#^F323|TINK F323]] 2026-08-11** when this queue was retired; the live record and all further work are there. Original body preserved on the new row. ^F230
 
@@ -83,8 +81,6 @@ _None._
 
 - **F234 — Fable scan: Warden engine** [Done 2026-08-11] — **Moved to [[TINK Backlog#^F324|TINK F324]] 2026-08-11** when this queue was retired; the live record and all further work are there. Original body preserved on the new row. ^F234
   - **Next:** assess prior Fable coverage + ROI, then run the scoped scan
-
-## Done
 
 - **F229 — Retire bespoke vault-wide hooks — M4 completion** [Done] — **Q1 answered (A′) + built + LIVE 2026-07-06 — roadmap M4 complete.** The implicit base trait went **first-class**: renamed `anchor-base`, documented at [[anchor-base]] (`traits/`), members compiled policy (`ANCHOR_BASE_TRAITS` → `ir.base_traits`, expanded by `effective_traits` in both dispatchers; compile warns on explicit declaration) — **`audit-on-write` is its first member**, so every anchor audits markdown on write. The **vault-root `.anchor` first-classed** (kmr — every un-anchored vault path resolves to it; `root: false` DAG key preserved). **File-anchor governance**: `write:`/`read:` moments + the doc-fire are governed by the written FILE's anchor (cwd fallback for moment rules; doc-fire strictly file-anchored) — the file's anchor owns the file, wherever the session sits. **Retired**: `audit-on-write.sh` (settings.json entry, script, test, `__VAULT__` roots file; settings backup kept). Live-verified through the installed dispatcher: base-implied audit in a non-declaring anchor; un-anchored vault path audited `@ kmr` from a session cwd'd outside the vault; `warden off` → silence; single-fire everywhere. All suites + cargo + differentials + corpus + perf green. → [[F229 — Retire bespoke vault-wide hooks — M4 completion|F229]] 
 

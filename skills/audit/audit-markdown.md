@@ -82,7 +82,7 @@ If a rule file lacks the python block or `check` function, the loader prints a w
 |---|---|---|
 | `trailing-whitespace` | warning | No trailing spaces / tabs on any line. |
 | `final-newline` | warning | File ends with exactly one `\n`. |
-| `heading-spacing` | warning | ATX headings have blank line both before and after (except line-1 / immediately-post-frontmatter). |
+| `heading-spacing` | warning | ATX headings have a blank line **before** (except line-1 / immediately-post-frontmatter). The blank-*after* half was deleted 2026-08-11 — it enforced the opposite of Dan's stated heading style, 19,245 times; see the rule file and [[TINK Backlog#^T205\|T205]]. |
 
 ## Adding a user rule
 

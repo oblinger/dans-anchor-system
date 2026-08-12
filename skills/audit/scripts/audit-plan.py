@@ -6475,7 +6475,7 @@ def chk_regex_basename(target, anchor_root, args):
 
 _VAULT_MARKERS = (
     # live project slugs, word-bounded so prose like "a mux of things" is safe
-    r"\b(?:DMUX|MUX|DKT|OBU|SKA|SKL|SYS|UCM|SVP|VEC|LUMEN|ATT|ATL|STEN|SONAR|WARD|MED|AIS|HA)\b",
+    r"\b(?:DMUX|MUX|DKT|OBU|SKA|SKL|SYS|UCM|SVP|VEC|LUMEN|ATT|ATL|STEN|SONAR|Warden|MED|AIS|HA)\b",
     # product / org names
     r"DictaMUX|DictaMux|MuxUX|HookAnchor|Docket|ob-utils|SportsVisio",
     # personal identifiers
@@ -7129,6 +7129,10 @@ _EXC_GRADES = frozenset("ABCDEF")
 # which made the column decorative and left the user no way to say "recorded,
 # and no" short of deleting the row and losing why it was ever proposed.
 _EXC_PASSING = frozenset("ABC")
+# The verdicts an A-C row may rewrite to `except`. `warn` joined `fail` on
+# 2026-08-11 (T201 Q1 (A)); `error` never will — a crashed checker is a bug, and
+# a table that could hide one would be a way to make bugs invisible by hand.
+_EXC_SUPPRESSIBLE = frozenset({"fail", "warn"})
 _EXC_HANDLE_RX = re.compile(r"^EX\d{3,}$")
 _EXC_RULE_RX = re.compile(r"^R-[a-z0-9-]+-\d{2}$")
 _RULESET_OF_RULE_RX = re.compile(r"^(R-[a-z0-9-]+)-\d{2}$")
@@ -7316,32 +7320,31 @@ def execute_plan(plan: dict, cdir: Path | None) -> dict:
                     status, detail = run_checker(r["check"], tp, anchor_root)
                     if cdir:
                         _verdict_cache_put(cdir, key, {"status": status, "detail": detail})
-                # Only a `fail` is excepted. An `error` is a checker that crashed
-                # — a bug, not a deviation — and no table entry may bury one.
-                if status == "fail" and excs:
+                # A `fail` and a `warn` are both excepted (T201 Q1 (A), Dan
+                # 2026-08-11: "audit grades A through C should suppress
+                # warnings, because we've already decided that that exception
+                # is okay"). The warning tier is where judgment calls live, so
+                # it is where accepted deviations cluster — restricting
+                # suppression to `fail` meant the tier most likely to hold a
+                # real acceptance was the one tier that could not record it.
+                # ATT hit this on R-spine-07 / Atticus.md, a deviation Dan had
+                # personally graded `A`, and WITHDREW the row rather than leave
+                # it reporting stale forever.
+                #
+                # An `error` is still never excepted: it is a checker that
+                # crashed — a bug, not a deviation — and no table entry may
+                # bury one. A row aimed at one is reported as unsuppressable
+                # rather than stale, because "your row did no work" sends the
+                # reader to look for a defect in the row when the defect is in
+                # the checker.
+                if status in _EXC_SUPPRESSIBLE and excs:
                     e = _exception_for(excs, r["id"], tp, anchor_root)
                     if e:
                         used.add(e["handle"])
                         status = "except"
                         detail = f"{e['handle']} (grade {e['grade']}) — {e['why']}" + (
                             f"  [was: {detail}]" if detail else "")
-                elif status == "warn" and excs:
-                    # A `warn` is NOT suppressed — only `fail` is, and whether
-                    # that should change is the user's call on their own grade
-                    # table, not this function's. But a row aimed at a warning
-                    # used to fall through to `stale`, which is a MISDIAGNOSIS:
-                    # the rule is in scope, the row is well-formed, and the
-                    # target is right. Reported as stale it reads "you excepted
-                    # something that isn't firing" when the truth is "you
-                    # excepted something this engine structurally cannot
-                    # except". ATT hit this on R-spine-07 / Atticus.md — a
-                    # deviation Dan had personally graded `A` — and WITHDREW the
-                    # row rather than leave it reporting stale forever, so the
-                    # acceptance now survives only in that file's Log where no
-                    # instrument reads it. Naming the case is what makes that a
-                    # decision instead of a mystery. The warning tier is where
-                    # judgment calls live, so this is where accepted deviations
-                    # cluster.
+                elif status == "error" and excs:
                     e = _exception_for(excs, r["id"], tp, anchor_root)
                     if e:
                         unsuppressable.add(e["handle"])
@@ -7376,9 +7379,9 @@ def render_verdicts(report: dict) -> str:
         out.append(f"~ {d['handle']} ({d['rule']}) — {d['declined']}")
     unsup = report.get("unsuppressable_exceptions", [])
     if unsup:
-        out.append("~ exception(s) whose rule DID fire, as a warning this table "
-                   "cannot suppress — not stale, and not your row's fault: "
-                   f"{', '.join(unsup)}")
+        out.append("~ exception(s) whose rule ERRORED — the checker crashed, so "
+                   "there is no verdict to suppress. Not stale, and not your "
+                   f"row's fault; fix the checker: {', '.join(unsup)}")
     stale = report.get("stale_exceptions", [])
     if stale:
         out.append("~ exception(s) that did no work this run (stale, or the rule "
@@ -8007,13 +8010,14 @@ def render_report(plan: dict, mech: dict, man: dict) -> str:
             out.append(f"- ~ {d['handle']} ({d['rule']} on `{d['target']}`) — "
                        f"{d['declined']}")
         # Distinct from stale, and the distinction is the whole point: this row
-        # is well-formed, in scope, and aimed at a rule that really fired — as a
-        # `warn`, which `execute_plan` does not rewrite. Reported as stale it
-        # sends the reader to look for a defect in their own row.
+        # is well-formed, in scope, and aimed at a rule that really ran — and
+        # CRASHED, so there was no verdict for it to rewrite. Reported as stale
+        # it sends the reader to look for a defect in their own row.
         for h in mech.get("unsuppressable_exceptions", []):
-            out.append(f"- ~ {h} — the rule fired as a **warning**, a severity "
-                       "this table cannot suppress. The row is not stale and "
-                       "needs no repair; see [[R-exception-discipline]]-08.")
+            out.append(f"- ~ {h} — the rule **errored**: the checker crashed, so "
+                       "there is no verdict to suppress. The row is not stale "
+                       "and needs no repair — fix the checker; see "
+                       "[[R-exception-discipline]]-08.")
         if stale:
             out.append("- ~ did no work this run (stale, or the rule was out of "
                        f"scope): {', '.join(stale)}")
