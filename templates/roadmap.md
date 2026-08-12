@@ -18,7 +18,6 @@ description:: {{Shape A milestone-as-feature-group | Shape B milestone-as-task-c
 {{One-line description of what this sub-item accomplishes.}}
 
 - [ ] {{atomic task}}
-- ...
 
 ### ...
 

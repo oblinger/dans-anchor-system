@@ -13,11 +13,9 @@ description: "{{one-sentence description of what this product is}}"
 
 ## Goals
 - {{concrete, verifiable outcome — what the product will accomplish (outcome-shaped, not feature-shaped)}}
-- ...
 
 ## Non-Goals
 - {{what the product explicitly will NOT do — deferred to a future version, out of scope by design, or an environmental constraint}}
-- ...
 
 ## User Stories
 ### US-{slug}-{{N}}: {{Title}}

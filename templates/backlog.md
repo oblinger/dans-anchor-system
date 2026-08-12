@@ -13,7 +13,6 @@
 
 ## Now
 - **F{{NNN}} — {{title}}** [{{state}}] — {{description}}
-- ...
 
 ## Next
 - **F{{NNN}} — {{title}}** [ ] — {{description}}
