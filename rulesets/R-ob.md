@@ -13,7 +13,7 @@ set-id: OB
 | --- | |
 
 # RULESET R-ob
-description:: Umbrella folder-file for Ob's rulesets — applies to every anchor Dan owns. Children rolled up via `include::` below. The markdown rule formerly here (D-OB01) moved to [[R-md]] under [[R-doc]] (2026-06-09) since it's not Ob-specific. Commit-discipline and em-dash rules pending capture as their own rulesets.
+description:: Umbrella folder-file for Ob's rulesets — applies to every anchor Dan owns. Children rolled up via `include::` below. The markdown rule formerly here (D-OB01) moved out in 2026-06-09 since it's not Ob-specific; it now lives in [[R-markdown]] under [[R-doc]] (via the interim `R-md`, deleted 2026-08-11). Commit-discipline and em-dash rules pending capture as their own rulesets.
 include:: [[R-ob-cmd-proc]], [[R-ob-observability]], [[R-ob-state-mgt]], [[R-ob-remote-ops]]
 
 

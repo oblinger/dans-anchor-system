@@ -30,7 +30,7 @@ Doc is the authoring subsystem: its verbs shape a document's structure (`/md`), 
 | **`excalidraw_to_svg.py` / `svg-jiggle.py`** | The figure toolchain — excalidraw → SVG/PNG export; deterministic geometric repair.                     |
 | **`gsa` CLI**                              | Google Suite Access — the engine under `/io` (never called directly; `/io` is the interface).             |
 | Disciplines                                | [[DAS stream]] · [[DAS file-association]] · [[DAS technical-answer]]                          |
-| Rulesets                                   | [[R-markdown]] · [[R-md]] · [[R-doc]] · [[R-doc-facet]] · [[R-doc-structure]] · [[R-progressive]] · [[R-brief]] · [[R-cards]] · [[R-paper]] · [[R-wp]] · [[R-output-group]] · [[R-fct-outputs]] · [[R-fct-user-dispatch]] · [[R-documentation-site]] · [[R-file-association]] · [[R-stream]] · [[R-diagram]] · [[R-diagram-geometry]] · [[R-sugiyama]] · [[R-c4]] · [[R-svg-hygiene]] · [[R-svg-jiggle]] · [[R-tufte-data-ink]] · [[R-wcag-contrast]] · [[R-bringhurst-typography]] |
+| Rulesets                                   | [[R-markdown]] · [[R-doc]] · [[R-doc-facet]] · [[R-doc-structure]] · [[R-progressive]] · [[R-brief]] · [[R-cards]] · [[R-paper]] · [[R-wp]] · [[R-output-group]] · [[R-fct-outputs]] · [[R-fct-user-dispatch]] · [[R-documentation-site]] · [[R-file-association]] · [[R-stream]] · [[R-diagram]] · [[R-diagram-geometry]] · [[R-sugiyama]] · [[R-c4]] · [[R-svg-hygiene]] · [[R-svg-jiggle]] · [[R-tufte-data-ink]] · [[R-wcag-contrast]] · [[R-bringhurst-typography]] |
 
 ## Overview
 

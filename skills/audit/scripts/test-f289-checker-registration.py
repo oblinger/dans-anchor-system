@@ -255,9 +255,16 @@ check("...so it is not reported as a ghost",
 # grows: count the refs in the FILE against the ids in the report. T156 wrote all
 # nine checkers and fixed the tier, so the set was back to six — then T175 took
 # it to one.
-KNOWN_GHOSTS = {
-    "R-md-03": {"md_angle_brackets_backtick_only"},
-}
+# T212 took it to zero, 2026-08-11, by deleting the ruleset that held the last
+# one. `R-md` had been marked superseded-by-`R-markdown` since 2026-06-09 and
+# left on disk; its `R-md-03` declared `md_angle_brackets_backtick_only`, a
+# checker T071 implemented, measured at 2,514 of 7,425 files, and deliberately
+# reverted. So the survivor was not an unwritten checker awaiting an author —
+# it was a ref to a decision already made in the other direction, and four
+# separate rows (T071, T156, T172, T175) each had to pause and re-explain that.
+# An empty set is the point: the check below is now a true zero-ghost ratchet,
+# and the next `check::` naming nothing fails here instead of joining a list.
+KNOWN_GHOSTS = {}
 _got = {}
 for _line in REPORT["ghosts"]:
     _rid, _rest = _line.split(" — ", 1)
@@ -307,14 +314,16 @@ check("the live warden engine's compile-time resolver prints ZERO "
       "its own rule also carries check::)",
       _svg_engine_warnings, [])
 
-# R-md-03's `check:: md_angle_brackets_backtick_only` is a genuinely
-# unregistered checker — a real, pre-existing, unrelated gap (no fix::
-# involved at all), left exactly as found; T172 scoped this to the
-# R-svg-jiggle fix:: resolution, not a corpus-wide checker sweep. Recorded
-# so a future zero-warning ratchet does not have to rediscover it.
-check("...and the one remaining corpus warning is the known, unrelated "
-      "R-md-03 checker gap, not a regression of this fix",
-      _engine_warnings, [ln for ln in _engine_warnings if "R-md-03" in ln])
+# ...and since T212 deleted `R-md` (the superseded set whose `R-md-03` carried
+# the last unregistered `check::`), the whole corpus resolves. T172 explicitly
+# left that one as out-of-scope and predicted "a future zero-warning ratchet";
+# this is it. The assertion is now the strong form — ZERO warnings corpus-wide,
+# not "zero except the known one" — so a set landing with an unimplemented
+# checker fails here rather than being absorbed into a documented exception.
+check("...and the corpus compiles with ZERO resolution warnings of any kind — "
+      "the zero-warning ratchet T172 deferred, now that no ruleset declares a "
+      "check:: naming a checker registered nowhere",
+      _engine_warnings, [])
 
 
 print("\nA `fix::` with no `check::` on the same rule is caught at the source (T175)")

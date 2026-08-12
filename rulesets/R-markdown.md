@@ -145,7 +145,11 @@ A bare `![[x.svg]]` embed renders as a tiny fit-to-column thumbnail — the recu
 
 ## Position in the catalog
 
-Sits under [[R-doc]] (cross-cutting documentation conventions umbrella). [[R-md]] (the older "markdown rendering" ruleset under R-doc) is **superseded** by R-markdown — F139 sweeps remaining `[[R-md]]` citations.
+Sits under [[R-doc]] (cross-cutting documentation conventions umbrella).
+
+**`R-md` — the predecessor set — is deleted, 2026-08-11 ([[TINK Backlog#^T212|T212]]), finishing the fold F139 declared.** It had been marked *superseded by R-markdown* since 2026-06-09 and left on disk for two months, during which all three of its rules acquired live successors here: `R-md-02` (tables need blank lines) was a literal duplicate of `R-markdown-02` **sharing the same `md_table_blank_lines` implementation**, and `R-md-01` / `R-md-03` (angle brackets) are both subsumed by `R-markdown-13`. Nothing `include::`d it, so it fired on nothing and no finding is lost.
+
+**What kept it alive was its last rule's `check::`, and that ref is why the deletion is the fix rather than a tidy-up.** `R-md-03` read `(checked)` and declared `check:: md_angle_brackets_backtick_only` — a checker **deliberately reverted** on 2026-08-01 (T071) after it measured **2,514 of 7,425 files**, 34% of the vault, the same unactionable-corpus signature [[R-naming]]-01 records at 39%. So the corpus held a `(checked)` rule pointing at a name registered nowhere: the sole surviving entry in `test-f289-checker-registration.py`'s `KNOWN_GHOSTS` ratchet and the sole surviving `registered by no imported module` warning from the live warden compile — carried, named and re-explained across four separate backlog rows (T071, T156, T172, T175), each of which had to stop and say *that one is known, pre-existing and out of scope*. A frozen exception is a cost paid on every future reading. With the set gone the ratchet is **empty** and the corpus compiles with **zero** resolution warnings, so the next ghost fails the suite instead of joining a list.
 
 ## Adoption
 
@@ -155,6 +159,5 @@ Applies to every markdown doc in the vault — no explicit `include:: [[R-markdo
 
 - [[DAS markdown]] — discipline spec this ruleset enforces.
 - [[R-doc]] — cross-cutting documentation conventions umbrella.
-- [[R-md]] — predecessor; superseded by R-markdown per F139.
 - [[DAS progressive-disclosure]] — sibling discipline; its rules live separately (preface zone, dispatch patterns, figure placement).
 - [[DAS Rulesets]] — top-level catalog.
