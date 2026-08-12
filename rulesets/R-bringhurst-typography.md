@@ -1,6 +1,7 @@
 # RULESET R-bringhurst-typography
 description:: Bringhurst-style typographic discipline for diagrams.
 include::
+where:: `{anchor}/**/*.svg`
 
 > [!info] Provenance
 > **Robert Bringhurst**, *The Elements of Typographic Style* (1992; the modern canonical reference for typographic craft). Key principle for diagrams: restricted, well-chosen typographic scales mark professional work; many small variations in font size are amateurish, few well-chosen sizes are professional.

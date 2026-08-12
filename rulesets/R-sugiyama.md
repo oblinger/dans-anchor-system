@@ -1,6 +1,7 @@
 # RULESET R-sugiyama
 description:: Sugiyama-style graph-drawing aesthetics; quality rules below the hard-fail threshold.
 include::
+where:: `{anchor}/**/*.svg`
 
 > [!info] Provenance
 > **Kozo Sugiyama** (layered-drawing algorithm, 1981) — the canonical method for drawing directed graphs with minimized crossings + monotone layers. **Helen Purchase** (1997, 2002 empirical studies on graph-drawing aesthetics) — established edge crossings as the single largest factor in readability, ahead of grid-alignment / symmetry / bend count. **Gestalt principle of alignment** — readers infer relationships from co-aligned elements.

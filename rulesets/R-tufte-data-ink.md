@@ -1,6 +1,7 @@
 # RULESET R-tufte-data-ink
 description:: Tufte's data-ink discipline; every visual element carries information.
 include::
+where:: `{anchor}/**/*.svg`
 
 > [!info] Provenance
 > **Edward Tufte**, *The Visual Display of Quantitative Information* (1983). The **data-ink ratio** principle: every drop of ink on the page should carry information; decoration competes with content for attention; in a diagram (which is dense with meaning) that competition is always lost. "Chartjunk" is Tufte's term for the decorative cruft (gratuitous shadows, gradients, 3-D effects, ornate borders) that this discipline forbids.
