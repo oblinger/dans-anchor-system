@@ -1,8 +1,8 @@
 ---
-description: "{slug} Track — tracking artifacts"
+description: "{{one line naming what this anchor's tracking surface holds}}"
 ---
 
-| -[[{slug} Track]]- | → [[DAS]] → [[Templates]] → [{slug} Track](hook://p/{slug}%20Track)  |
+| -[[{slug} Track]]- | : {{one line naming what this anchor's tracking surface holds}}<br>→ [[DAS]] → [[Templates]] → [{slug} Track](hook://p/{slug}%20Track)  |
 | --- | --- |
 | [[{slug} Backlog\|Backlog]]  |  |
 | [[{slug} Messages\|Messages]]  |  |

@@ -1,5 +1,5 @@
 ---
-description: "strategy for {slug} — why this activity exists, what winning looks like, and how we plan to attack it"
+description: "{{why this activity exists, what winning looks like, and how we plan to attack it}}"
 ---
 # {slug} Agenda
 The strategic frame for {slug} — why this activity exists, what winning looks like, and the approach we are betting on.

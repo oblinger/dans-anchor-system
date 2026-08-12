@@ -1,5 +1,5 @@
 ---
-description: "{slug} queries — mechanically rendered from the backlog (Blockers / Ready+Next / Questions / Blocked / Verifications / User / Other), and copied verbatim into Q.md. Do not hand-edit; edit the backlog rows."
+description: {slug} queries — mechanically rendered from the backlog (Blockers / Ready+Next / Questions / Blocked / Verifications / User / Other), and copied verbatim into Q.md. Do not hand-edit; edit the backlog rows.
 ---
 
 # [{{TAG}}]  [[{slug} queries|{slug}]]  -  Ready {{N}}    User {{N}}    Inbox {{N}}   |   Now {{N}}    Next {{N}}    Later {{N}}   |   Parked {{N}}    Waiting {{N}}    Icebox {{N}}    {{{N}}}

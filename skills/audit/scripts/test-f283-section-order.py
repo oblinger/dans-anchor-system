@@ -20,6 +20,7 @@ the date and `sweep_stale_brackets` auto-Dones the row when it arrives.
 Run: python3 test-f283-section-order.py
 """
 import importlib.util
+import re
 import sys
 import tempfile
 from pathlib import Path
@@ -371,7 +372,7 @@ def main():
         fm = qf.read_text(encoding="utf-8").splitlines()
         check("the machine description is refreshed to the F283 sections",
               any("(Blockers / Ready+Next / Questions / Blocked / "
-                  "Verifications / Other)" in ln for ln in fm), True)
+                  "Verifications / User / Other)" in ln for ln in fm), True)
         check("the pre-F283 section list is gone",
               any("(Verifications / Ready+Next / Questions)" in ln for ln in fm),
               False)
@@ -404,7 +405,7 @@ def main():
                                   {"F001": "go"}, {}, bl)
             check(f"refreshed: {label}",
                   "(Blockers / Ready+Next / Questions / Blocked / "
-                  "Verifications / Other)" in qf.read_text(encoding="utf-8"), True)
+                  "Verifications / User / Other)" in qf.read_text(encoding="utf-8"), True)
 
         # A description a human rewrote into their own words is NOT ours to
         # rewrite — the prefix match is what tells the two apart.
@@ -415,6 +416,26 @@ def main():
         check("a hand-authored description is preserved",
               "description: Dan's own words about this page."
               in qf.read_text(encoding="utf-8"), True)
+
+    # The description line CLAIMS which sections the render emits, and the two
+    # drifted: `_h2("## User")` shipped while the description still listed six
+    # sections, so every queries file in the vault under-reported the render by
+    # one — found 2026-08-12 by matching `templates/query.md` against a real
+    # instance for F303, where the TEMPLATE was right and the engine was stale.
+    # The literals above pin the current wording; this pins the invariant, and
+    # it is the only one of the two that survives the next section being added.
+    src = Path(qr.__file__ or "").read_text(encoding="utf-8")
+    emitted = list(dict.fromkeys(re.findall(r'_h2\("##\s+([A-Za-z]+)"\)', src)))
+    desc_m = re.search(r"mechanically rendered from the backlog\s+\"?\s*\n?\s*"
+                       r"\"?\(([^)]*)\)", src)
+    claimed = desc_m.group(1) if desc_m else ""
+    for sec in emitted:
+        # `Ready` is claimed as `Ready+Next`, which names the same section plus
+        # the horizon it folds in — the claim is present, the spelling differs.
+        check(f"the description claims the `## {sec}` section it emits",
+              sec in claimed, True)
+    check("the render emits every section it claims",
+          all(c.split("+")[0].strip() in emitted for c in claimed.split("/")), True)
 
     print()
     if FAILURES:

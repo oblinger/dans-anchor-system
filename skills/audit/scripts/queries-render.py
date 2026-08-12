@@ -1774,8 +1774,16 @@ def render_queries_doc(name: str, banner: Optional[str], rows: list[Row],
         h1 = banner.replace(f"[[{name} queries|{name}]]", f"[[{anchor_page_name}|{name}]]")
         body = built
     # Preserve existing frontmatter; else write a default.
+    # The section list must be the one `_render_body` actually emits, in its
+    # order: Blockers / Ready / Questions / Blocked / Verifications / User /
+    # Other. `User` was missing here while `_h2("## User")` shipped, so this
+    # line under-reported the render by one section — found 2026-08-12 by
+    # matching `templates/query.md` against a real instance for F303, where the
+    # template turned out to be RIGHT and this string stale. Whenever a section
+    # is added or dropped, this string moves with it; that is the whole reason
+    # the refresh below exists.
     desc = (f"description: {name} queries — mechanically rendered from the backlog "
-            "(Blockers / Ready+Next / Questions / Blocked / Verifications / Other), "
+            "(Blockers / Ready+Next / Questions / Blocked / Verifications / User / Other), "
             "and copied verbatim into Q.md. "
             "Do not hand-edit; edit the backlog rows.")
     fm = ["---", desc, "---"]

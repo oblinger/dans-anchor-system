@@ -1,7 +1,7 @@
 ---
-description: "cold storage for {slug} — frozen ideas and someday-maybe items the user wants to remember but is not actively considering; the counterpart to {slug} Backlog."
+description: cold-storage backlog for {slug} — parked items not in scope for the active horizons.
 ---
-:>> [[DAS]] → [[Templates]] → [icebox](hook://p/icebox) 
+:>> [[DAS]] → [[Templates]] → [icebox](hook://p/icebox)
 # {slug} Icebox
 Cold storage for {slug} — distant-future ideas and parked features the user wants to remember but is not actively considering; the frozen counterpart to [[{slug} Backlog]].
 

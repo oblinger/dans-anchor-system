@@ -1,8 +1,8 @@
 ---
-description: ">>"
+description: "{{one line naming the big chunks of work this file tracks}}"
 ---
 
-| -[[{slug} Rocks]]- | : >><br>→ [[DAS]] → [[Templates]] → [{slug} Rocks](hook://p/{slug}%20Rocks)  |
+| -[[{slug} Rocks]]- | : {{one line naming the big chunks of work this file tracks}}<br>→ [[DAS]] → [[Templates]] → [{slug} Rocks](hook://p/{slug}%20Rocks)  |
 | --- | --- |
 | Anchor | [[{slug} Track]] (parent) |
 | Related | [[DAS Rocks]],   |
