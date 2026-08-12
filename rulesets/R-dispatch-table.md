@@ -1,12 +1,10 @@
----
-description: The shape every dispatch table must take — masthead-placement law, member-zone mechanics, and pipe-escaped cell links.
-where: "file: {anchor}/**/*.md"
----
-
 # RULESET R-dispatch-table
 include::
 import:: skills/audit/scripts/audit-plan.py
-The shape every dispatch table must take — masthead-placement law, member-zone mechanics, and pipe-escaped cell links.
+where:: `file:{anchor}/**/*.md`
+description:: The shape every dispatch table must take — masthead-placement law, member-zone mechanics, and pipe-escaped cell links.
+
+> **The selector moved out of YAML frontmatter into the body 2026-08-11 ([[TINK Backlog#^T217|T217]]), and the delta was measured before the move rather than assumed.** `parse_ruleset_block` reads only body `field::` lines, so the frontmatter `where:` was invisible to both engines — `audit-plan` and `warden compile` each carried all **15** of these rules as `where=None`, which falls through to the `always` default. **For markdown that turned out to cost nothing**, and the reason is worth writing down: `enumerate_scope` in anchor mode enumerates `*.md` only, so `always` and `{anchor}/**/*.md` select the identical **905** files in this repo, and the on-write doc-fire routes non-markdown away from [[R-doc]] entirely (F297's `rows_for`: markdown fires the umbrella, every other kind fires only what its anchor declares by trait). **The one path where it bit is `/audit doc` named at a non-markdown file.** Measured on `skills/audit/scripts/queries-render.py`: all 15 masthead rules were in play, **15 of the 31** rule-target pairs the audit produced — half the run — and the three that carry a `check::` each answered `pass` on a Python file, a green verdict about a masthead the file cannot have. That is the whole finding delta, and it is now zero.
 
 ### RULE R-dispatch-table-01 — Masthead rows appear in a fixed order (checked)
 mend:: dispatch-rebuild

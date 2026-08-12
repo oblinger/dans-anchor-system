@@ -1,6 +1,3 @@
----
-description: "example ruleset — the rules a snapshot manifest.txt must satisfy"
----
 # RULESET R-fex-manifest
 include::
 where:: `**/manifest.txt`

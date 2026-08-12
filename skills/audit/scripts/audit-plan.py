@@ -2127,23 +2127,47 @@ def chk_checked_rules_have_pattern(target, anchor_root, args):
 
 
 def chk_ruleset_no_frontmatter(target, anchor_root, args):
-    """Standalone ruleset file (# RULESET first non-blank) has no YAML frontmatter."""
+    """Standalone ruleset file (# RULESET first non-blank BELOW any frontmatter)
+    has no YAML frontmatter.
+
+    Decide kind on the body, not on line 1 (T217, 2026-08-11). The previous form
+    asked whether the file's *first non-blank line* was `# RULESET` and, if not,
+    answered `('pass', 'not a standalone ruleset file')`. On a file that opens
+    with frontmatter that line is the frontmatter's own `---`, so **every file
+    this rule exists to catch exempted itself for carrying the very thing being
+    forbidden** — the violation was its own defense. `R-dispatch-table.md` sat
+    that way long enough for its `where:` to go unread by both engines and all
+    15 of its rules to run at `always`.
+
+    Frontmatter is leading by definition, so the presence question is answered by
+    the strip and nothing else. The old code instead scanned the WHOLE file for a
+    line starting `---` once it judged the file standalone, which can only add
+    false positives (a `---` thematic break in the body) and cannot add a true
+    one. Measured before replacing it: across all 122 vault files carrying a
+    `# RULESET R-` block, exactly one verdict changes — `examples/FEX Repo/
+    R-fex-manifest.md`, a real violation in the file whose stated job is to be
+    the worked example of the ruleset format.
+    """
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
-    # The `---` scan is the fence-sensitive half, and it is the whole verdict: once
-    # the file is judged a standalone ruleset, ANY later line starting `---` fails
-    # it. A fenced YAML sample or a `---` thematic break shown as markup therefore
-    # reports frontmatter on a file that has none — and real frontmatter is never
-    # fenced, so stripping cannot hide the case this is for. Orphan today (T099).
     lines = _strip_fenced(_read(f)).splitlines()
+    i = 0
+    while i < len(lines) and not lines[i].strip():
+        i += 1
+    had_frontmatter = False
+    if i < len(lines) and lines[i].strip() == "---":
+        for j in range(i + 1, len(lines)):
+            if lines[j].strip() == "---":
+                lines = lines[j + 1:]
+                had_frontmatter = True
+                break
     first = next((ln for ln in lines if ln.strip()), None)
     if first is None:
         return "pass", "empty file"
     if re.match(r"^#+\s+RULESET\s+R-", first):
-        for ln in lines:
-            if ln.strip().startswith("---"):
-                return "fail", "standalone ruleset file has YAML frontmatter"
+        if had_frontmatter:
+            return "fail", "standalone ruleset file has YAML frontmatter"
         return "pass", ""
     return "pass", "not a standalone ruleset file"
 
