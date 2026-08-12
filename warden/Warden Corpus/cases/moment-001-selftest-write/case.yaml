@@ -5,5 +5,5 @@ target: .
 moment: write:markdown
 provenance: synthetic
 engine: warden-moment
-blessed_against: 15a2fd792ef2ca0f
+blessed_against: 66657d627db4bc5e
 note: fires the R-warden-selftest write:markdown rule in an anchor that adopts the warden-selftest trait — the live moment-fire analogue of a doc verdict, locking the exact steer text a moment produces

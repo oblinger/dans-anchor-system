@@ -165,27 +165,21 @@ _dt_parsed = ap.parse_ruleset_block(
     ap.extract_ruleset_block(_dt_text, "R-dispatch-table")[0], _dt)
 
 check("the set parses a real selector — `where=None` was the whole defect",
-      _dt_parsed.get("where"), "file:{anchor}/**/*.md")
+      bool(_dt_parsed.get("where")), True)
 
 # Read it back the way the ENGINE does, `or "always"` and all (plan_one,
 # warden_docfire.fire_audit). Two reasons: a re-hidden selector then produces a
-# failing assertion here instead of an AttributeError three lines down, and the
+# failing assertion here instead of an AttributeError further down, and the
 # measurement block below measures what would actually run rather than what the
 # file happens to say.
 _where = _dt_parsed.get("where") or "always"
 
-# Not a restatement of the line above: this reads the spelling off two OTHER
-# sets, so a corpus-wide convention change is caught here rather than silently
-# leaving this one set behind in an abandoned form.
-_sibling_prefixes = set()
-for _name in ("R-backlog", "R-query"):
-    _p = ap.REPO_ROOT / "rulesets" / f"{_name}.md"
-    _w = ap.parse_ruleset_block(
-        ap.extract_ruleset_block(_p.read_text(encoding="utf-8"), _name)[0], _p)["where"]
-    _sibling_prefixes.add(_w.split("{anchor}")[0])
-check("...spelled the way its `{anchor}`-rooted siblings spell it (R-backlog / "
-      "R-query), read off those files rather than restated here",
-      {_where.split("{anchor}")[0]}, _sibling_prefixes)
+# T212, same day: the selector moved a SECOND time, from `file:{anchor}/**/*.md`
+# to a sentinel. Every rule in this set is about the contents of a dispatch
+# table and none asserts a page must have one, so every-markdown asked an LLM,
+# of every file in every anchor, about a masthead most of them do not have.
+check("...and it is the sentinel, not the every-markdown glob it briefly held",
+      ap.parse_selector(_where)[0], "sentinel")
 check("...and all 15 rules are still there, so the move rescoped nothing away",
       len(_dt_parsed["rules"]), 15)
 check("no rule overrides it with a narrower own `where::`",
@@ -193,33 +187,72 @@ check("no rule overrides it with a narrower own `where::`",
 check("the file no longer opens with frontmatter",
       _dt_text.splitlines()[0], "# RULESET R-dispatch-table")
 
-print("\nThe measurement — markdown is untouched, non-markdown is dropped")
+print("\nThe measurement — the sentinel keeps every masthead and every finding")
 
 _, _scope = ap.enumerate_scope(ap.REPO_ROOT, "anchor")
 _kind, _arg = ap.parse_selector(_where)
-_glob_targets = ap.match_targets(_kind, _arg, _scope, ap.REPO_ROOT)
-_always_targets = ap.match_targets(*ap.parse_selector("always"), _scope, ap.REPO_ROOT)
+_targets = ap.match_targets(_kind, _arg, _scope, ap.REPO_ROOT)
+_always = ap.match_targets(*ap.parse_selector("always"), _scope, ap.REPO_ROOT)
 
-check("anchor-mode scope is markdown-only, so the declared glob and the `always` "
-      "default select the identical set — this is why the move cost nothing",
-      len(_glob_targets), len(_always_targets))
-check("...and that set is every markdown file in the scope, none excluded",
-      len(_glob_targets), len(_scope))
+check("the sentinel selects a strict subset of every-markdown — the `always` "
+      "default and the every-markdown glob were the same set here, which is why "
+      "the T217 move alone changed nothing",
+      len(_always), len(_scope))
+check("...and the subset is a real narrowing, not a no-op",
+      len(_targets) < len(_scope), True)
 
-# Doc mode is the path where the two differ: `enumerate_scope` returns whatever
-# single file was named, whatever its suffix.
+# The load-bearing safety property, and the reason the union form was chosen over
+# either half: dropping a file must never drop a FINDING. Run this set's
+# mechanical rules over every markdown file in the repo and assert that every
+# non-pass verdict sits on a file the sentinel keeps.
+_wired = [(r["id"], r["check"]) for r in _dt_parsed["rules"]
+          if r.get("check") and r["check"].split()[0] in ap.CHECKERS]
+check("the set still has mechanical rules to lose findings from",
+      len(_wired) >= 3, True)
+
+_kept = set(_targets)
+_lost, _nonpass = [], 0
+for _f in _scope:
+    for _rid, _chk in _wired:
+        _name, *_args = _chk.split()
+        try:
+            _st, _dt_detail = ap.CHECKERS[_name](_f, ap.REPO_ROOT, _args)
+        except Exception:
+            _st = "error"
+        if _st != "pass":
+            _nonpass += 1
+            if _f not in _kept:
+                _lost.append((_rid, str(_f.relative_to(ap.REPO_ROOT)), _st))
+check("...and the corpus actually produces some, so the next assertion is not "
+      "vacuously true",
+      _nonpass > 0, True)
+check("NO mechanical finding sits on a file the sentinel drops — the property "
+      "that makes narrowing safe rather than a silent green",
+      _lost, [])
+
+# Doc mode: the file kind that started T217. A Python file cannot carry a
+# masthead, and the sentinel says so structurally rather than by suffix.
 _py = ap.REPO_ROOT / "skills" / "audit" / "scripts" / "queries-render.py"
 _root, _one = ap.enumerate_scope(_py, "doc")
-check("named at a Python file, the declared glob selects nothing",
+check("named at a Python file, the selector still selects nothing",
       ap.match_targets(_kind, _arg, _one, _root), [])
 check("...where `always` would have selected it — the 15 masthead rules that "
       "used to run there, three of them returning a green check:: verdict",
       len(ap.match_targets(*ap.parse_selector("always"), _one, _root)), 1)
 
-_md = ap.REPO_ROOT / "DAS.md"
-_mroot, _mone = ap.enumerate_scope(_md, "doc")
-check("while a markdown doc-fire still selects the file, unchanged",
-      len(ap.match_targets(_kind, _arg, _mone, _mroot)), 1)
+# An anchor page IS selected — the sentinel must not have narrowed to nothing.
+_anchor_page = ap.REPO_ROOT / "DAS.md"
+_aroot, _aone = ap.enumerate_scope(_anchor_page, "doc")
+check("while an anchor page carrying a masthead is still selected",
+      len(ap.match_targets(_kind, _arg, _aone, _aroot)), 1)
+
+# ...and a markdown file WITHOUT one is not. This is the assertion that fails if
+# someone reverts to the every-markdown glob, which would otherwise look fine.
+_plain = ap.REPO_ROOT / "rulesets" / "R-c4.md"
+_proot, _pone = ap.enumerate_scope(_plain, "doc")
+check("...and a markdown file with no masthead is not — the 300 TINK judgment "
+      "tasks (911 -> 611) that came off this one line",
+      ap.match_targets(_kind, _arg, _pone, _proot), [])
 
 print("\nThe rule text — the unsatisfiable Check pattern is replaced")
 

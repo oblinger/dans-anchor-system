@@ -50,6 +50,11 @@
   "status": "pass"
  },
  {
+  "rule": "R-markdown-11",
+  "target": "FX7 Guide.md",
+  "status": "pass"
+ },
+ {
   "rule": "R-markdown-13",
   "target": "FX7 Guide.md",
   "status": "pass"

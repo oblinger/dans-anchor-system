@@ -1,10 +1,16 @@
 # RULESET R-dispatch-table
 include::
 import:: skills/audit/scripts/audit-plan.py
-where:: `file:{anchor}/**/*.md`
+where:: `sentinel: ^\|\s*(?:-\[\[[^\]]+\]\]-|~~\[\[[^\]]+\]\]~~)\s*\||^\|[^\n]*hook://[^\n]*\|\s*$`
 description:: The shape every dispatch table must take — masthead-placement law, member-zone mechanics, and pipe-escaped cell links.
 
 > **The selector moved out of YAML frontmatter into the body 2026-08-11 ([[TINK Backlog#^T217|T217]]), and the delta was measured before the move rather than assumed.** `parse_ruleset_block` reads only body `field::` lines, so the frontmatter `where:` was invisible to both engines — `audit-plan` and `warden compile` each carried all **15** of these rules as `where=None`, which falls through to the `always` default. **For markdown that turned out to cost nothing**, and the reason is worth writing down: `enumerate_scope` in anchor mode enumerates `*.md` only, so `always` and `{anchor}/**/*.md` select the identical **905** files in this repo, and the on-write doc-fire routes non-markdown away from [[R-doc]] entirely (F297's `rows_for`: markdown fires the umbrella, every other kind fires only what its anchor declares by trait). **The one path where it bit is `/audit doc` named at a non-markdown file.** Measured on `skills/audit/scripts/queries-render.py`: all 15 masthead rules were in play, **15 of the 31** rule-target pairs the audit produced — half the run — and the three that carry a `check::` each answered `pass` on a Python file, a green verdict about a masthead the file cannot have. That is the whole finding delta, and it is now zero.
+>
+> **Then the selector moved a second time, from every-markdown to a `sentinel:`, and that one was the expensive defect ([[TINK Backlog#^T212|T212]], same day).** Every rule in this set is about the *contents* of a dispatch table — row order, cell links, the catch-all marker; **not one asserts that a page must have one**. So scoping to `{anchor}/**/*.md` asked an LLM, of every markdown file in every anchor, whether its masthead rows appeared in the fixed order. Measured on TINK's judgment manifest: **336 of 911 tasks — 37% of the entire bill — were this one set**, 12 judged rules across 28 files of which **3** carry a masthead. Vault-wide the sentinel selects **1,332 of 8,055** markdown files, a 6× reduction.
+>
+> **The regex is deliberately a union of two independent tests, because the failure directions are not symmetric.** Over-inclusion costs one judgment call on a feature doc that quotes a masthead; under-inclusion is a *silent green* over a real dispatch table, which is the exact defect this row exists to name. The two tests — the identity cell in either live spelling (`-[[X]]-`, 1,296 files; the struck `~~[[X]]~~` the facet describes, 49) and any table row bearing a `hook://` link (1,301) — agree on 97.5% of the corpus and are unioned rather than chosen between. Their disagreements are feature docs discussing dispatch tables, so the union keeps them and judges them rather than guessing.
+>
+> **Nothing mechanical is lost, and that was measured rather than argued.** Running this set's three `check::` rules over every markdown file in three anchors produced 3,774 verdicts, 12 of them non-`pass` — and **every one of the 12 sits on a file the sentinel keeps**. On the files it drops, the checkers answered `pass`: a green verdict about a masthead the file does not have.
 
 ### RULE R-dispatch-table-01 — Masthead rows appear in a fixed order (checked)
 mend:: dispatch-rebuild
