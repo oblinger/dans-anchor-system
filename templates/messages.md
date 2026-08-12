@@ -1,5 +1,5 @@
 ---
-description: agent inbox for {slug} — append-only notifications from watchers, audits, and tools.
+description: agent inbox — background-process messages for this anchor; append-only. See [[DAS Messages]].
 ---
 
 # {slug} Messages

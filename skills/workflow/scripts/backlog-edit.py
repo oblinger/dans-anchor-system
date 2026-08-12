@@ -2529,8 +2529,17 @@ def append_messages(slug, summary, backlog_path):
     if not messages_path.exists():
         header = (
             "---\n"
-            f"description: agent inbox for {slug} — append-only notifications "
-            "from watchers, audits, and tools.\n"
+            # The corpus decides this line, not this function. Measured
+            # 2026-08-12 (F303): 38 of the vault's 44 `* Messages.md` files
+            # carry the sentence below, and exactly ONE carried the string this
+            # branch used to write — so the creator was minting a form nothing
+            # else in the vault uses, and a template mirroring it faithfully
+            # documented a corpus of one. Aligning the writer costs a line;
+            # sweeping 38 append-only files that agents write to constantly does
+            # not. `{slug}` is deliberately absent: the 38 do not name their own
+            # anchor here, and the file's own H1 already does.
+            "description: agent inbox — background-process messages for this "
+            "anchor; append-only. See [[DAS Messages]].\n"
             "---\n"
             f"\n# {slug} Messages\n\n"
         )
