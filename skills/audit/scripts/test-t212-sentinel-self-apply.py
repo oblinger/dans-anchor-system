@@ -111,6 +111,50 @@ selfmatch = sorted(
 check("exactly one sentinel-scoped ruleset matches its own sentinel",
       selfmatch, ["R-ruleset.md"])
 
+# ── chk_checked_rules_have_pattern: two defects found by wiring it ──────────
+# Both surfaced on the first real run (T212). Neither is about the rule the
+# checker enforces — they are about the checker's own honesty.
+
+import tempfile  # noqa: E402
+
+
+def pattern_verdict(body: str):
+    with tempfile.TemporaryDirectory() as td:
+        p = Path(td) / "R-fixture.md"
+        p.write_text("# RULESET R-fixture\n\n" + body, encoding="utf-8")
+        return ap.chk_checked_rules_have_pattern(p, p.parent, [])
+
+
+# (1) A QUALIFIED heading is still a Check pattern. `**Check pattern (Rust):**`
+# and `**Check pattern (queries-specific, C39):**` are real, and the literal
+# substring test rejected both — offering, as the fix, deletion of the
+# qualifier from a rule that has a pattern.
+check("a qualified `**Check pattern (…):**` heading counts",
+      pattern_verdict("### RULE R-fixture-01 — x (checked)\n\n"
+                      "**Check pattern (Rust):** something.\n")[0], "pass")
+check("a plain `**Check pattern:**` heading still counts",
+      pattern_verdict("### RULE R-fixture-01 — x (checked)\n\n"
+                      "**Check pattern:** something.\n")[0], "pass")
+check("a rule with no pattern at all still fails",
+      pattern_verdict("### RULE R-fixture-01 — x (checked)\n\nprose only.\n")[0],
+      "fail")
+check("a `(stated)` rule is not asked for one",
+      pattern_verdict("### RULE R-fixture-01 — x (stated)\n\nprose only.\n")[0],
+      "pass")
+
+# (2) The message capped at three names and said nothing about the cap, so
+# "A, B, C" read as three findings. An author fixed three, re-ran, and met
+# three more, with no way at any point to tell how far from done they were.
+many = "".join(f"### RULE R-fixture-0{n} — x (checked)\n\nprose.\n\n"
+               for n in range(1, 6))
+det = pattern_verdict(many)[1]
+check("five missing patterns still name only three", det.count("R-fixture-0"), 3)
+check("...but the message discloses how many it hid", "(+2 more)" in det, True)
+check("exactly three missing discloses nothing (no cap was applied)",
+      "more)" in pattern_verdict(
+          "".join(f"### RULE R-fixture-0{n} — x (checked)\n\nprose.\n\n"
+                  for n in range(1, 4)))[1], False)
+
 print()
 if failed:
     print(f"test-t212-sentinel-self-apply: {passed} passed, {failed} failed")

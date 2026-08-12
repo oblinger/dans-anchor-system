@@ -2080,12 +2080,23 @@ def chk_checked_rules_have_pattern(target, anchor_root, args):
             while i < len(lines) and not re.match(r"^ {0,3}#+\s+", lines[i]):
                 body += lines[i] + "\n"
                 i += 1
-            if "**Check pattern:**" not in body:
+            # A QUALIFIED heading counts. `**Check pattern (queries-specific,
+            # C39):**` and `**Check pattern (Rust):**` are the same field naming
+            # which half of the rule the pattern covers — a distinction worth
+            # writing when a rule inherits some checks and adds others. The
+            # literal-substring test rejected both, and the remediation it
+            # offered was to delete the qualifier from a rule that has a pattern
+            # (T212, 2026-08-11: 2 of the 17 findings on first wiring were this).
+            if not re.search(r"\*\*Check pattern[^*\n]*:\*\*", body):
                 missing.append(rule_id)
         else:
             i += 1
     if missing:
-        return "fail", "missing Check pattern: " + ", ".join(missing[:3])
+        # Say what the cap hid. Three names with no count reads as "three
+        # findings", so an author fixes three, re-runs, and meets three more —
+        # with no way to tell at any point how far from done they are (T212).
+        more = f" (+{len(missing) - 3} more)" if len(missing) > 3 else ""
+        return "fail", "missing Check pattern: " + ", ".join(missing[:3]) + more
     return "pass", ""
 
 

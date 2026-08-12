@@ -12,6 +12,8 @@ check:: md_table_pipe_escape
 fix:: md_table_pipe_escape
 A wiki-link in a table cell has an unescaped `|` — write it `\|` so the cell keeps its column count.
 
+**Check pattern:** on each line whose **code-masked** form starts with `|`, every `[[…]]` span is free of an unescaped `|`. Masking is length-preserving, so a fenced example of a table row is not a table row and the reported line numbers still point at the real file.
+
 **Why:** the table breaks visibly — column counts go wrong, content disappears.
 
 ### RULE R-markdown-02 — Tables have blank line before and after (checked)
@@ -19,6 +21,8 @@ description:: A markdown table is preceded and followed by a blank line so Obsid
 check:: md_table_blank_lines
 fix:: md_table_blank_lines
 A table is touching the line above or below it — add a blank line on each side so Obsidian doesn't merge it into the surrounding paragraph.
+
+**Check pattern:** a table is a `|`-leading line followed by a `|---|` delimiter row, outside any fence. The line before the header and the line after the last `|`-leading row are both blank (or the file boundary).
 
 ### RULE R-markdown-03 — No wiki-links or headings inside fenced code blocks (checked)
 description:: A fenced block holding renderable markdown ([[links]], headings, tables) the reader expects to click is a smell.
@@ -42,10 +46,14 @@ check:: md_em_dash
 fix:: md_em_dash
 A definition-list bullet (or prose) uses a spaced ` -- ` where it wants an em-dash — replace it with ` — ` so it reads right in Obsidian's reading view. `--flag` and `---` rules are untouched.
 
+**Check pattern:** no line of the code-masked text contains the space-delimited ` -- `. Only the *spaced* form is flagged, which is what leaves `--flag` and a `---` rule alone without listing them as exceptions.
+
 ### RULE R-markdown-06 — Dataview inline fields have no `::` in the value (checked)
 description:: For any key:: value line, the value carries no further :: token, which would collide with the Dataview parser.
 check:: md_inline_field_value
 A `key:: value` inline field has a second `::` in its value — Dataview will misparse it (the value truncates or the next field is eaten). Move any mention of a field name into a regular paragraph below the field line.
+
+**Check pattern:** for every line matching `^<key>:: <value>`, the `<value>` contains no further `::` token.
 
 ### RULE R-markdown-07 — Body-only preferred for vault docs (checked)
 description:: Vault docs are body-only with description:: inline as the second line; YAML frontmatter is reserved for SKILL.md.
@@ -91,11 +99,15 @@ description:: A bare <identifier> glued to a tag-name character is parsed as an 
 check:: md_stray_angle_tag
 A stray `<identifier>` (a `<` glued to a tag-name character, e.g. `<Name>` or `List<int>`) is read as an unknown HTML element and silently eats the text up to the next `>`. Fix it with intent — backtick it, escape as `&lt;`/`&gt;`, add spaces (`a < b`), or restructure. Inline code, real HTML constructs, single-letter placeholders (`F<n>`), and whitespace-surrounded comparisons are fine; `.html` files are skipped.
 
+**Check pattern:** in the code-masked text, no `</?NAME>` span survives whose `NAME` is outside the allowed-tag set. Matching the *closing* `>` is what keeps `a < b` and `F<n>` out of scope without enumerating them.
+
 ### RULE R-markdown-14 — No trailing whitespace (checked)
 description:: A line must not end in spaces or tabs; stripping trailing whitespace never removes content, so it is safe to normalize. One space after a terminal link is the R-markdown-16 pad and is exempt.
 check:: md_trailing_ws
 fix:: md_trailing_ws
 A line ends in trailing whitespace — invisible noise that pollutes diffs and can create accidental hard-breaks. Strip it.
+
+**Check pattern:** no line ends in a space or tab, **except** a line ending in a terminal link, which carries exactly one (the R-markdown-16 pad). Two or more spaces after a terminal link still fail — that is the hard-break form, not the pad.
 
 **One exemption:** exactly one space following a *terminal link* is the canonical pad required by [[#RULE R-markdown-16 — Terminal links carry one trailing space (checked)|R-markdown-16]], not noise. Without the carve-out the two rules fight each other on every write — 16 appends the space, 14 strips it back — so the fixer collapses two-or-more trailing spaces after a link down to the canonical one rather than removing them all.
 
@@ -109,6 +121,8 @@ Exactly one space, never two: two trailing spaces are a markdown `<br>` hard bre
 
 **Table rows are out of scope.** A padded cell's canonical form is two spaces before the closing `|` — one from ordinary `| cell |` spacing, one from the pad — so deciding whether a cell is already padded means inferring that table's baseline spacing, and column-aligned tables use padding for source readability that a normalizer would destroy. `ha` generates those cells and already pads them.
 
+**Check pattern:** every prose line whose last token is a wiki-link or a markdown link ends in exactly one space. Table rows are out of scope; a line ending in a `^block-anchor` or in punctuation after the link is not terminal and does not fire.
+
 **Why:** `ha` stamps this same form on the content it generates (HA F135). Two tools that rewrite the same lines must share ONE canonical form; if they disagree, each strips the other's space on every pass and the file churns forever. The checker is a direct port of HA's `ends_with_terminal_link` for exactly this reason — a re-derived predicate is how the two drift apart.
 
 ### RULE R-markdown-15 — SVG figure embeds carry an explicit width hint (checked)
@@ -116,6 +130,8 @@ description:: Every ![[name.svg]] embed carries a |width hint — |3000 for page
 check:: md_svg_embed_width
 fix:: md_svg_embed_width
 A bare `![[x.svg]]` embed renders as a tiny fit-to-column thumbnail — the recurring mistake the viz doctrine exists to kill. The auto-fix appends the page-wide default `|3000` (Obsidian caps the hint to the pane, so a large value costs nothing; the file is byte-identical at any display width). A smaller hint is legitimate only for a deliberately-inline figure — set it explicitly and the rule stays satisfied. Scope is `.svg` only: raster embeds (screenshots, photos) often legitimately render at intrinsic size. Doctrine: viz skill § page-width default.
+
+**Check pattern:** every `![[….svg]]` embed carries a `|<width>` hint. Scope is `.svg` only — raster embeds are untouched, since a screenshot at intrinsic size is usually right.
 
 **Why:** authored figures are made to be read; fit-to-column shrink makes every diagram illegible by default and the author never notices until a reader does.
 
