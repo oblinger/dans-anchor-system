@@ -4,7 +4,7 @@ include::
 import:: skills/audit/scripts/audit-plan.py
 where:: `file:{anchor}/**/* Rocks/**, !**/DAS *.md`
 exclusion-note:: `!**/DAS *.md` exempts the facet-spec catalog (a `DAS <Name>.md` is the SPEC for the facet, not an instance; specs are governed by [[R-facet-spec]]). The vault-wide `LST/Rocks/` is **not** an instance of this facet — it is the top-level compilation surface across life-areas, has no owning `{slug} Track/`, and is governed by its own Brief; the `{anchor}/**/` prefix in the `where::` excludes it because its folder is not named `{slug} Rocks`.
-description:: Structural rules for the Rocks facet folder; enforces location, folder-note presence, the catch-all, tier-line integrity in the control file, and the no-work-rows discipline. Rock naming moved up to [[R-stone]]-02.
+description:: Structural rules for the Rocks facet folder; enforces location, folder-note presence, the catch-all, short abbreviation-style rock names with their expansions, tier-line integrity, and the no-work-rows discipline.
 
 Ruleset for the Rocks facet — spec: [[DAS Rocks]]. Armed by [[R-anchor]]'s `include::` — the umbrella `/audit anchor` resolves. Being named by [[R-facet]] is catalog membership, not adoption — that umbrella sits outside the `R-doc`/`R-anchor` closure `audit-plan.py` resolves, so an `include::` there arms nothing ([[TINK Backlog#^T208|T208]]). Sibling of [[R-agenda]] / [[R-backlog]] / [[R-status]] in the Tracking group.
 

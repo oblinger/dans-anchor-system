@@ -4834,14 +4834,22 @@ def chk_svg_label_collision(target, anchor_root, args):
 
 
 def chk_svg_no_orphan_defs(target, anchor_root, args):
-    """Every id under <defs> is referenced by url(#id) or a #-bearing attribute."""
+    """Every id under <defs> is referenced by url(#id) or a #-bearing attribute.
+
+    A file that does not parse is R-svg-hygiene-03's finding, not this one — so
+    the unparseable case answers `pass` with a pointer rather than `error`. An
+    `error` verdict means *the checker malfunctioned*, and reporting one absent
+    baseline twice, once in that voice, is the fault T212 fixed in
+    `no_track_row_if_ecosystem_traits` on 2026-08-11.
+    """
     if not target.is_file() or target.suffix.lower() != ".svg":
         return "error", "not an SVG file"
     try:
         text = _read(target)
         root = _svg_root(target)
     except Exception as e:
-        return "error", f"{type(e).__name__}: {e}"
+        return "pass", (f"unparseable ({type(e).__name__}) — R-svg-hygiene-03 "
+                        f"reports that")
     defs_ids = set()
     for elem in root.iter():
         if elem.tag.split("}")[-1] == "defs":
