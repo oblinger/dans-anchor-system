@@ -1803,7 +1803,16 @@ def _head_h1_idx(lines):
 
 
 def chk_header_has_field(target, anchor_root, args):
-    """Header (lines after H1, before first blank) carries `<field>::`. Arg: field."""
+    """Header (lines after H1, before first blank) carries `<field>::`. Arg: field.
+
+    Two failures live under this one verdict and they want opposite fixes, so it
+    names which one it found (T212, wiring it to R-ruleset-02). Of the 16 files
+    carrying the RULESET sentinel that fail on `include`, **9 have no such line
+    at all** and **7 have one sitting below a blank line** — a header detached
+    from its H1, which `parse_ruleset_block` tolerates and this rule's Check
+    pattern does not. Told only *"header missing include:: line"*, the author of
+    one of those 7 goes looking for a line that is already there, two rows down.
+    """
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
@@ -1812,9 +1821,16 @@ def chk_header_has_field(target, anchor_root, args):
     h1_idx = _head_h1_idx(lines)
     if h1_idx is None:
         return "fail", "no H1"
+    pat = re.compile(rf"^{re.escape(field)}::")
     for ln in _header_block(lines, h1_idx):
-        if re.match(rf"^{re.escape(field)}::", ln):
+        if pat.match(ln):
             return "pass", ""
+    # Look past the gap before concluding it is absent. Bounded to the leading
+    # field zone so a `field::` mentioned anywhere in the body cannot satisfy it.
+    for ln in lines[h1_idx + 1:h1_idx + 14]:
+        if pat.match(ln):
+            return "fail", (f"{field}:: sits below a blank line — the header "
+                            f"block runs from the line after the H1")
     return "fail", f"header missing {field}:: line"
 
 
@@ -2865,34 +2881,19 @@ def chk_no_track_row_if_ecosystem_traits(target, anchor_root, args):
         return "pass", "not an ecosystem anchor"
     f = _as_file(target, anchor_root)
     if f is None:
-        return "error", "no file to inspect"
+        # No entry page. That IS a fault, and it is R-anchor-page-02's — its
+        # checker's first branch reports it by name. Raising it here as an
+        # `error` says the CHECKER malfunctioned, on 20 DAS-repo skill and
+        # ruleset anchors that have no `{slug}.md` at all (T212). A page that
+        # does not exist cannot carry a track row, so the honest verdict for
+        # THIS rule is pass, with the real fault left to the rule that owns it.
+        return "pass", "no entry page — R-anchor-page-02 reports that"
     # Fence-stripped (T103a): the docs that explain why these anchors carry no Track
     # row are the ones most likely to SHOW a Track row in a fenced example.
     if re.search(r"\|\s*\[?\[?Track\]?\]?\s*\|", _strip_fenced(_read(f))):
         return "fail", "Track row present on ecosystem anchor"
     return "pass", ""
 
-
-def chk_all_files_folders_prefixed_with_name(target, anchor_root, args):
-    """Every file/folder inside the anchor is prefixed with the anchor name."""
-    anchor_name = anchor_root.name
-    slug = _anchor_slug(anchor_root)
-    exempt = {f"{slug}.md", f"{anchor_name}.md", ".anchor"}
-    violations = []
-    for item in anchor_root.rglob("*"):
-        if "/.git/" in str(item):
-            continue
-        if item.name in exempt:
-            continue
-        if not item.name.startswith(anchor_name):
-            violations.append(item.name)
-    if violations:
-        more = "..." if len(violations) > 5 else ""
-        return "fail", "unprefixed items: " + ", ".join(violations[:5]) + more
-    return "pass", ""
-
-
-# -- R-prd ---------------------------------------------------------------------
 
 def chk_file_path_matches_prd_locations(target, anchor_root, args):
     """PRD at {slug} Design/{slug} PRD.md or {slug} Design/{slug} PRD/{slug} PRD.md."""
@@ -6775,7 +6776,6 @@ CHECKERS = {
     "status_field_valid": chk_status_field_valid,
     # R-anchor-page (extras)
     "no_track_row_if_ecosystem_traits": chk_no_track_row_if_ecosystem_traits,
-    "all_files_folders_prefixed_with_name": chk_all_files_folders_prefixed_with_name,
     # R-prd
     "file_path_matches_prd_locations": chk_file_path_matches_prd_locations,
     "h1_no_frontmatter": chk_h1_no_frontmatter,

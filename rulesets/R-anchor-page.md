@@ -112,6 +112,11 @@ If `{slug} Design/` exists, a `Design` row is present as the second masthead row
 The masthead carries only the breadcrumb plus the fixed-order rows **Related → type → Design → Track → User Docs → Dev Docs** (each iff it applies) — no generic `Anchor` row, no `External` row (repo / site links live in Related), and no ad-hoc rows the breadcrumb already covers. Anything enumerable beyond a sub-area's key parts drops to the member zone. Full model: [[DAS Dispatch Table]] § Masthead rows.
 
 ### RULE R-anchor-page-15 — No `track` row on skill-ecosystem anchors (checked)
+check:: no_track_row_if_ecosystem_traits
+
+Wired 2026-08-11 ([[TINK Backlog#^T212|T212]]) — **2 findings across the vault's 1,395 anchors** (`examples/CSE` and [[SKD|Skill Docket App]]), against 1,395 LLM judgments before. The checker reads the fence-stripped page, so a doc explaining why these anchors carry no Track row is not failed for showing one in an example.
+
+Wiring it also corrected the verdict it returns when an ecosystem anchor has **no entry page at all** — 20 DAS-repo skill and ruleset anchors. It answered `error`, which says the checker malfunctioned; the fault is real but belongs to `R-anchor-page-02`, whose checker names it. It now passes with a pointer there, so one absent page is reported once by the rule that owns it rather than twice in two voices.
 
 A skill / facet / discipline / example anchor carries no `track` row.
 

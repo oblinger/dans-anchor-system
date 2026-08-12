@@ -36,6 +36,12 @@ The set opens with `# RULESET R-<slug>` — the all-caps `RULESET` sentinel plus
 
 ### RULE R-ruleset-02 — `include::` line present under the header (checked)
 
+> **`header_has_field include` NOT wired 2026-08-11 ([[TINK Backlog#^T212|T212]]) — and the reason generalizes past this rule.** The primitive resolves *the header* as the run of lines under the file's **head H1**. This set is scoped by a `sentinel:`, and a sentinel matches wherever the heading occurs — so for the **7 of 123** subjects that carry their ruleset *embedded* in a larger document ([[DAS Ruleset]], `Template Examples`, [[FEX Pin]], [[FEX Bundle]], two Warden rulesets, and [[HA Rules]]), the primitive reads the **host document's** header instead of the ruleset's and reports every one of them missing. All 7 are false, and they are false as a class rather than by accident.
+>
+> **A head-H1-anchored primitive cannot serve a sentinel-scoped set.** The selector knows which heading it matched; the checker is handed only the file and starts over at the top. Any rule of the form *"the header carries `<field>::`"* in this set inherits the same defect, which is why the refusal is recorded here rather than as a note about one checker.
+>
+> **The other 9 are real, and worth keeping in view for whoever wires this properly** — [[R-spine]], [[R-examples]], [[R-dispatch-table]], [[R-progressive]] and `R-files-architecture` carry no `include::` line at all; [[R-feed]], [[R-stone]], [[R-rocks]] and [[R-stream]] carry one **below a blank line**, which `parse_ruleset_block` accepts and this rule's Check pattern does not. That second group is a live disagreement between the grammar and the rule, and it should be settled before either is mechanized. The primitive now names which of the two it found, so the distinction survives even though nothing calls it yet.
+
 An `include::` Dataview line sits in the header block — present even when empty (the empty line is the include slot).
 
 **Check pattern:** a header line (before the first blank line after the H1) matches `^include::`.
