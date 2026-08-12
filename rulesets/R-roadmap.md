@@ -24,6 +24,9 @@ The first non-blank line is `# {slug} Roadmap` (H1). No `---` YAML block precede
 **Why:** matches the vault-wide body-only convention. Frontmatter is invisible in Obsidian read view and drifts silently.
 
 ### RULE R-roadmap-03 — Every milestone heading carries a checkbox in its title (checked)
+check:: milestone_checkbox
+
+Wired 2026-08-11 ([[TINK Backlog#^T212|T212]]) — **2 findings across the vault's 41 `* Roadmap.md` files** ([[SKA Roadmap]] and [[MUX Roadmap]]), against 41 LLM judgments before. The checker reads the fence-stripped copy, so a roadmap that shows a milestone heading in an example does not demand a checkbox of it.
 
 Every H1 marked as a top milestone, H2 marked as a milestone point, and H3 marked as a sub-point carries `[x]`, `[ ]`, or `[~]` in the heading text immediately after the H-marker.
 
@@ -66,6 +69,12 @@ Milestone numbers are never recycled within a level. A deprecated `M1.4` stays a
 
 ### RULE R-roadmap-09 — Milestones use `M-<Name>` form, not pure numbers (checked)
 
+> **`milestone_named_form` NOT wired 2026-08-11 ([[TINK Backlog#^T212|T212]]) — it is not this rule.** The orphan checker flags any `##`/`###` heading containing `M<digit>`; this rule is about the *identifier of a milestone heading*. Measured across the vault's 41 roadmaps: **13 files fail, and 2 of the 13 are headings that merely mention milestones** — `### Infrastructure milestones (M1, M2, M7)` and an `F229-Q1` question heading whose title carries `· M1 ·`. Neither names a milestone; both would be reported as one. The checker also never applies the named-form regex this rule's Check pattern specifies, so it cannot tell `M-Auth` from `M-x`.
+>
+> **The other 11 are true, and their remediation is not a rename.** This rule grandfathers pure numbers explicitly — *"accepted in existing roadmaps"* — through a `<!-- legacy-numbered-milestones -->` marker, and **zero of the 41 roadmaps carry one**. So the honest finding is *"11 pre-[[F144 — Completed Roadmap + named milestones|F144]] roadmaps are unmarked"*, a bookkeeping edit spread across HA, MUX, ABIO, ODC, ASP, SKD and SKA — other anchors' files, and a decision for each owner rather than a sweep from here. Wiring the checker as it stands would put that in front of them as 11 rename demands plus 2 false ones.
+>
+> **To wire it later:** narrow the checker to headings whose identifier *is* a milestone token, make it apply the named-form regex, and mark the grandfathered files first. Then the rule reports only new violations, which is what it says it is for.
+
 Top-level milestones are named with a short acronym or word: `M-Auth`, `M-WAL`, `M-Core`. Pure-number forms (`M1`, `M2`) are legacy-only — accepted in existing roadmaps but new milestones use named form.
 
 **Check pattern:** for each H2/H3 milestone heading, assert the milestone identifier matches `^M-[A-Za-z][A-Za-z0-9]{2,}(\.[0-9]+)*(-\w+)?$` (named form). Pure-numbered forms accepted only if the roadmap file carries a `<!-- legacy-numbered-milestones -->` marker comment.
@@ -103,6 +112,10 @@ Every top-level milestone name (`M-<Name>`) appears at most once within a single
 **Why:** identity is the name, not a stored ordinal (§ Names are identity; order is document position). A duplicate name means two milestones claim the same key, and every `R-<Name>` / `M-<Name>.<path>` reference becomes ambiguous. This uniqueness is the invariant the entire no-renumber / no-drift scheme depends on.
 
 ### RULE R-roadmap-08 — Section separator `### .` is used between milestones (stated)
+
+> **`milestone_section_separator` NOT wired 2026-08-11 ([[TINK Backlog#^T212|T212]]) — the tier is the answer, and it is the right one.** This rule is `(stated)` and says of itself *"Optional for very short milestones … but encouraged"*, so there is no verdict for a checker to return: an absent separator is not a violation. The orphan measures **27 of the vault's 41 roadmaps** as failing, which is the number you get when you mechanize an encouragement — 27 documents told they are defective for exercising an option the rule grants them.
+>
+> Its heuristic makes the same point from the other side: it demands a separator only when the next H2 is fewer than 20 lines away, i.e. it *guesses* at "very short" with a line count the rule never states. A rule whose subject is a matter of degree has no mechanical form, and inventing a threshold to give it one converts a style note into 27 findings. Left `(stated)`, and the checker stays orphan by design rather than by neglect.
 
 After the last body item of each milestone, before the next `## ` H2, a `### .` (H3 with literal dot) serves as a visual closer.
 
