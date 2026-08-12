@@ -1,5 +1,9 @@
 # RULESET R-arch
 description:: Architecture rulesets — patterns for code organization, module structure, dependency direction. Adopt the umbrella to pull all architecture rulesets, or cherry-pick individual sets.
-include:: [[R-single-source-of-truth]], [[R-one-path]], [[R-interfaces-folder]], [[R-factory-pegboard]], [[R-ownership]]
+include:: [[R-single-source-of-truth]], [[R-one-path]], [[R-interfaces-folder]], [[R-factory-pegboard]], [[R-ownership]] 
+
+> **All five children declare no `where::`, and that is NOT an oversight the [[TINK Backlog#^T212|T212]] sweep can fix by writing globs — 2026-08-11.** The sentence below says how these sets are meant to be scoped: *"an app opts in via its `.anchor` trait list."* The `where::` grammar has four kinds — `always`, a path glob, `anchor`, `sentinel:` — and **none of them can say that**. So each of the five currently inherits `always`: every file in every anchor, 15 rules, 11 of them wearing `(checked)` or `(sampled)`, waiting to ask an LLM whether a topic note about a recipe constructs its concretes through a factory.
+>
+> The same gap holds [[R-process]]'s four children and `R-mac` — **ten sets, 40 rules, 23 checked-or-sampled**, all trait-gated in prose and none able to declare it. Filed as [[TINK Backlog#^T218|T218]], which proposes a fifth selector kind rather than ten guessed globs. Writing a glob here would encode a guess as a durable selector, and the arming cost is already known: naming [[R-code]] in [[R-anchor]] took TINK's judgment manifest from 984 to 1,124 items.
 
 Five children, upgraded from the [[Design-Rules Catalog Proposal]] 2026-07-05 (F218 Q3 = upgrade all): [[R-single-source-of-truth]] (3 rules), [[R-one-path]] (3), [[R-interfaces-folder]] (3), [[R-factory-pegboard]] (3), [[R-ownership]] (3) — each mined with ≥3-project recurrence evidence (HA, SVP, MUX, A2X, SKD, SVAR). Adoption stays per-application: an app opts in via its `.anchor` trait list.
