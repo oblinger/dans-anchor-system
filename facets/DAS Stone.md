@@ -80,7 +80,7 @@ The rules live at **[[R-stone]]** (`rulesets/R-stone.md`), linked from the masth
 
 # BRIEF
 
-**This spec is the *shared* half only.** Anything true of every kind belongs here; anything true of one kind belongs to that kind's own facet — [[DAS Rocks]] and [[DAS Pebble]] — which declare their own `key::` vocabulary on top of this one. If you find yourself writing the word "pebble" into a rule here, it belongs there instead.
+**This spec is the *shared* half only.** Anything true of every kind belongs here; anything true of one kind belongs to that kind's own facet — [[DAS Rocks]] and ~~[[DAS Pebble]]~~ — which declare their own `key::` vocabulary on top of this one. If you find yourself writing the word "pebble" into a rule here, it belongs there instead.
 
 **[[R-stone]] is armed — added to [[R-facet]]'s `include::` 2026-08-11, four rules `checked`.** The condition this paragraph used to set has been met: the selector reaches folder-shaped instances, and the rules were verified by seeing them **fire**. Read the verification claim carefully before trusting it — the live corpus passes 8-for-8, which on its own is the failure this facet was written in the middle of (a ruleset reading `(checked)`, an audit reporting nothing, and no rule ever evaluated). What licenses the claim is the malformed fixture beside the clean twin, plus the coverage counts printed next to the zero. **Any future rule added here owes the same two things**: a fixture in which it fires, and a count of what it actually judged.
 

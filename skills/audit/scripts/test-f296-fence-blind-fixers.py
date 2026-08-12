@@ -107,12 +107,17 @@ f = write("# T\nWhat this is.\n\n"
           "std::vector<int> v;\n"
           f"{ZW}```\n"
           "```\n")
+# Probe retargeted T212: `chk_md_angle_brackets_html_or_spaced` was the SECOND
+# implementation of R-markdown-13 and is deleted (it was registered, called by
+# no rule, and measurably worse — 3 of its 5 extra findings false). The property
+# under test here is the fence masking, not that particular function, so this
+# asserts it through the surviving implementation.
 check("generic inside a zw-escaped nested fence is not flagged",
-      ap.chk_md_angle_brackets_html_or_spaced(f, f.parent, [])[0], "pass")
+      ap.chk_md_stray_angle_tag(f, f.parent, [])[0], "pass")
 
 f = write("# T\nWhat this is.\n\nA stray List<int> in prose.\n")
 check("a REAL stray generic in prose still fails",
-      ap.chk_md_angle_brackets_html_or_spaced(f, f.parent, [])[0], "fail")
+      ap.chk_md_stray_angle_tag(f, f.parent, [])[0], "fail")
 
 print("One fence pattern, shared")
 
@@ -350,8 +355,11 @@ SPANS = ("# W\nWhat this is.\n\n"
 f = write(SPANS)
 check("a backticked `<text>` after a ` ``` ` span is still masked",
       ap.chk_md_stray_angle_tag(f, f.parent, [])[0], "pass")
-check("and the spaced-angle check agrees",
-      ap.chk_md_angle_brackets_html_or_spaced(f, f.parent, [])[0], "pass")
+# The companion assertion here used to re-ask the same question of the second
+# implementation of R-markdown-13, as a cross-check. That implementation is
+# deleted (T212), and two implementations agreeing was never the property —
+# `_mask_code` returning the same masked text to every caller is, and that is
+# asserted directly further up this file.
 
 # Masking is not suppression: an UNbackticked tag on the same shape still fails.
 f = write("# W\nWhat this is.\n\na bare ` ``` ` fence, then a stray <text> in prose.\n")

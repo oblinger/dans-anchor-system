@@ -24,10 +24,13 @@ A table is touching the line above or below it — add a blank line on each side
 
 **Check pattern:** a table is a `|`-leading line followed by a `|---|` delimiter row, outside any fence. The line before the header and the line after the last `|`-leading row are both blank (or the file boundary).
 
-### RULE R-markdown-03 — No wiki-links or headings inside fenced code blocks (checked)
-description:: A fenced block holding renderable markdown ([[links]], headings, tables) the reader expects to click is a smell.
+### RULE R-markdown-03 — No wiki-links or headings inside fenced code blocks (retired)
 
-**Check pattern:** a fenced code block contains a `[[wiki-link]]`, heading, or table the reader would expect to click or navigate.
+**Retired 2026-08-11 ([[TINK Backlog#^T212|T212]]), superseded by `R-markdown-11`** — same subject, and `-11` states it with the exemption this one lacks. Both read `(checked)` with no `check::`, so this set has been asking an LLM the same question twice on every markdown file it sees, and getting **contradictory** answers by construction: a `python` fence containing `[[` in a regex fails `-03` (which scopes to *any* fenced block) and passes `-11` (which exempts language-tagged fences as literal source). Two verdicts, one file, one subject — and the wrong one is the one this rule gives.
+
+The retirement is the half that could be decided mechanically. `-11` carries the user's own framing (*show live markdown, or link a real instance*), the language-tag exemption that keeps real code out of scope, and now `check:: md_fence_no_markdown` — so retiring this rule loses no coverage and removes a judgment call that was being billed against every `.md` file in the anchor.
+
+The superseded rule follows, for anyone tracing a historical finding.
 
 A fenced code block contains a `[[wiki-link]]`, heading, or table the reader would expect to click or navigate — they render as inert literal text. If you're quoting syntax for illustration, use single backticks; if the reader should click it, move it outside the fence.
 
@@ -80,6 +83,7 @@ This per-anchor doc looks like it restates universal format rules that belong in
 
 ### RULE R-markdown-11 — Never put markdown inside a fenced code block (checked)
 description:: A fence meant to show rendered markdown ([[links]], headings, tables) defeats itself; show live markdown or link a real instance.
+check:: md_fence_no_markdown
 
 **Check pattern:** an unlabeled or `markdown`/`md`-tagged fence containing markdown meant to be read as markdown.
 
@@ -95,11 +99,15 @@ description:: A figure is an exported image embedded with a width hint; mermaid 
 This doc draws a diagram as a `mermaid` block or ASCII box-art (`┌ ─ │ └ → ╮` runs, `+---+` character art used as a figure). A figure must be a real editable artifact — an Excalidraw / D2 / matplotlib export embedded with a page-fill width hint (`![[name.svg|2400]]`), source kept alongside. Redraw it that way.
 
 ### RULE R-markdown-13 — No stray `<tag>`-like angle brackets (checked)
-description:: A bare <identifier> glued to a tag-name character is parsed as an unknown HTML element and eats text up to the next >.
+description:: A bare `<identifier>` glued to a tag-name character is parsed as an unknown HTML element and eats text up to the next `>`.
 check:: md_stray_angle_tag
-A stray `<identifier>` (a `<` glued to a tag-name character, e.g. `<Name>` or `List<int>`) is read as an unknown HTML element and silently eats the text up to the next `>`. Fix it with intent — backtick it, escape as `&lt;`/`&gt;`, add spaces (`a < b`), or restructure. Inline code, real HTML constructs, single-letter placeholders (`F<n>`), and whitespace-surrounded comparisons are fine; `.html` files are skipped.
+A stray `<identifier>` (a `<` glued to a tag-name character, e.g. `<Name>` or `List<int>`) is read as an unknown HTML element and silently eats the text up to the next `>`. Fix it with intent — backtick it, escape as `&lt;`/`&gt;` or `\<`, add spaces (`a < b`), or restructure. Inline code, real HTML constructs, and whitespace-surrounded comparisons are fine; `.html` files are skipped.
 
-**Check pattern:** in the code-masked text, no `</?NAME>` span survives whose `NAME` is outside the allowed-tag set. Matching the *closing* `>` is what keeps `a < b` and `F<n>` out of scope without enumerating them.
+**Single-letter placeholders are NOT exempt** — Q002, 2026-08-01. This rule granted `F<n>` an exemption until 2026-08-11 ([[TINK Backlog#^T212|T212]]) despite the ruling that revoked it: the feared storm was 25 occurrences in 15 files, mostly *shipped* DAS templates and skill docs where a bare `<n>` vanishes from the page a newcomer reads first, and T084 swept every site. The checker has never implemented the exemption, so for ten days the rule text and its docstring both offered an author a way to argue with a true finding. Stated here rather than left implicit because the exemption is the thing a reader will remember.
+
+**Check pattern:** in the code-masked text, no `</?NAME …>` span survives whose `NAME` is outside the allowed-tag set. Two things are load-bearing. Matching the *closing* `>` is what keeps `a < b` out of scope without enumerating exceptions. Admitting **anything between the name and that `>`** is what brings `Box<dyn Error>` and `<the actual question, in prose>` into scope — the generic this rule's own text names, and the multi-word placeholder that is the commonest form of the fault; a matcher requiring `<WORD>` with nothing after the word passed both. A backslash-escaped `\<` is exempt on either end, because it is one of the fixes offered above.
+
+**This rule had two implementations, and the second is deleted.** `md_angle_brackets_html_or_spaced` sat registered and called by nothing — the older design, which flags any surviving `<` followed by `[A-Za-z!/]` and masks a *curated* tag list of its own rather than reading `_HTML_ALLOW`. Measured over the 910 DAS-repo docs before deletion: it failed 20 to the wired checker's 15, and of the five extra, **three were false** — the regex lookbehind `(?<!` in this repo's own `R-query` check pattern, and `<span style="…">` in two `md` skill docs (`span` is real HTML the wired allow-list admits and the curated one omits). The other two, `<the actual question>` and `<full name>`, were true — and are exactly what the widening above now catches. So it is fully subsumed: everything it found correctly the wired checker finds, and the rest it found wrongly. Keeping a second implementation of one rule is how a corpus acquires two answers to one question.
 
 ### RULE R-markdown-14 — No trailing whitespace (checked)
 description:: A line must not end in spaces or tabs; stripping trailing whitespace never removes content, so it is safe to normalize. One space after a terminal link is the R-markdown-16 pad and is exempt.

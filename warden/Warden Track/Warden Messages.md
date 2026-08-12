@@ -246,3 +246,5 @@ description: agent inbox — background-process messages for this anchor; append
 [2026-08-10 17:15:38] [INFO] Warden: added T022 in Now [Ready] (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
 [2026-08-10 17:15:38] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
 [2026-08-10 17:15:40] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
+[2026-08-11 10:31:37] [INFO] Warden: inbox drop → Warden Inbox 'R-markdown-05 breaks wiki-links containing ' -- '' (from atticus) — inbox created (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-08-11 11:39:13] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited

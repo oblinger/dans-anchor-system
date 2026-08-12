@@ -4305,43 +4305,6 @@ def chk_folder_marker_exists(target, anchor_root, args):
 
 # -- R-md ----------------------------------------------------------------------
 
-def chk_md_angle_brackets_html_or_spaced(target, anchor_root, args):
-    """An angle bracket is allowed only when it is (a) inside an inline code span or
-    fenced code block, (b) part of a valid HTML construct — an HTML comment
-    `<!-- … -->` or a curated inline tag (br/hr/ins/del/sub/sup/kbd/mark/u/wbr/s/q/
-    abbr/cite) — or (c) a comparison/operator with whitespace on the inner side
-    (`a < b`). The failure mode this targets is a stray `<identifier>` glued to a
-    tag-name character: the viewer parses it as an unknown HTML element and silently
-    eats text up to the next `>` (LLMs emit these constantly for placeholders and
-    generics, e.g. `<Name>`, `List<int>`). Masks code, comments, and sanctioned tags,
-    then flags any surviving `<` immediately followed by `[A-Za-z!/]`. `.html`/`.htm`
-    files are real HTML and are skipped. Masking preserves newlines for line numbers."""
-    if not target.is_file():
-        return "pass", "not a file"
-    if target.suffix.lower() in (".html", ".htm"):
-        return "pass", "html file"
-    text = _read(target)
-    blank = lambda m: re.sub(r"[^\n]", " ", m.group(0))      # mask, keep line count
-    masked = _mask_code(text)                                # fences + inline spans (F296)
-    masked = re.sub(r"<!--[\s\S]*?-->", blank, masked)       # HTML comments (valid)
-    masked = re.sub(                                         # curated valid inline HTML tags
-        r"(?i)</?(?:br|hr|ins|del|sub|sup|kbd|mark|u|wbr|s|q|abbr|cite)(?:\s[^<>\n]*?)?/?>",
-        blank, masked)
-    hits = []
-    for ln, raw in enumerate(masked.splitlines(), 1):
-        line = re.sub(r"^\s*(?:>\s?)+", "", raw)             # drop blockquote / callout `>` markers
-        m = re.search(r"<[A-Za-z!/]", line)                 # tag-like opener that survived masking
-        if m:
-            c = m.start()
-            hits.append(f"line {ln}: …{line[max(0, c - 12):c + 13].strip()}…")
-            if len(hits) >= 5:
-                break
-    if hits:
-        return "fail", ("tag-like `<…>` angle bracket(s) — backtick, escape "
-                        "(&lt;/&gt;), or space them — " + "; ".join(hits))
-    return "pass", ""
-
-
 def chk_md_table_blank_lines(target, anchor_root, args):
     """Markdown tables need blank lines before the header and after the table."""
     if not target.is_file():
@@ -4721,16 +4684,39 @@ _HTML_ALLOW = {
 # notation preference. All sites now carry backticks; T084 did the sweep.
 
 
+_STRAY_TAG_RE = re.compile(
+    # A `\<` is markdown's own escape and renders as a literal `<`, so it is one
+    # of the remediations R-markdown-13 offers. Matching it would fail an author
+    # for having taken the fix — the lookbehind is why `\<keep where, delete
+    # which\>` in SKA F069 is not a finding.
+    r"(?<!\\)</?([A-Za-z][A-Za-z0-9_-]*)"
+    # Everything after the name up to `>`. Without this the checker saw only
+    # single-token tags, so `Box<dyn Error>` and `<the actual question>` — the
+    # generic named in R-markdown-13's own text, and the multi-word placeholder
+    # that is the commonest form of the defect — both PASSED. The trailing
+    # `[^<>\n\\]` keeps the escaped CLOSING `\>` out too, so an author who
+    # escaped both ends is not half-flagged. 20 more vault docs, 0 regressions
+    # (T212, measured over 8,158).
+    r"(?:\s[^<>\n]*[^<>\n\\])?>")
+
+
 def chk_md_stray_angle_tag(target, anchor_root, args):
     """R-markdown-13: a bare `<Identifier>` glued to a tag-name character is
     parsed as an unknown HTML element and silently disappears (often eating
-    text). Known HTML tags render; code spans are literal; single-letter
-    placeholders (`F<n>`) are entrenched notation and pass."""
+    text). Known HTML tags render; code spans are literal.
+
+    Single-letter placeholders are NOT exempt — see the Q002 note above
+    `_HTML_ALLOW`. This docstring claimed they were, five lines under the
+    comment recording that Dan revoked the exemption on 2026-08-01 and that
+    T084 swept the sites; the code has never implemented it. A docstring that
+    promises an exemption the code refuses teaches an author to argue with a
+    true finding, which is the R-markdown-13 rule text's defect too (T212).
+    """
     if not target.is_file() or target.suffix.lower() in (".html", ".htm"):
         return "pass", "not applicable"
     hits = []
     for ln, raw in enumerate(_mask_code(_read(target)).splitlines(), 1):
-        for m in re.finditer(r"</?([A-Za-z][A-Za-z0-9_-]*)>", raw):
+        for m in _STRAY_TAG_RE.finditer(raw):
             name = m.group(1)
             if name.lower() in _HTML_ALLOW:
                 continue
@@ -6862,7 +6848,6 @@ CHECKERS = {
     "facet_cardinality_declared": chk_facet_cardinality_declared,
     "facet_examples_row": chk_facet_examples_row,
     # R-md
-    "md_angle_brackets_html_or_spaced": chk_md_angle_brackets_html_or_spaced,
     "md_table_blank_lines": chk_md_table_blank_lines,
     "md_fence_no_markdown": chk_md_fence_no_markdown,
     "md_table_pipe_escape": chk_md_table_pipe_escape,
