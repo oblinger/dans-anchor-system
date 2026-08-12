@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
 """spine fix — the three mechanical spine rearrangements, self-verified per file.
 
-Reached as `spine fix <paths|--vault> [--dry-run]`. Fixes exactly the codes
+Reached as `spine fix <paths> [--dry-run]` or `spine fix --vault [--write]`.
+**`--vault` reports and does not write unless `--write` is given** (T231); a
+path argument writes unless `--dry-run` is given. The two defaults differ on
+purpose — one file is inspectable, 1,296 are not.
+
+Fixes exactly the codes
 that are pure rearrangement, and nothing else:
 
     S03  move the masthead above the H1
@@ -373,9 +378,31 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="spine fix", description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("paths", nargs="*", type=Path)
-    ap.add_argument("--vault", action="store_true")
-    ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--vault", action="store_true",
+                    help="every markdown file in the vault — REPORTS ONLY unless "
+                         "--write is also given")
+    ap.add_argument("--write", action="store_true",
+                    help="required to make --vault actually write; ignored for "
+                         "path arguments, which write by default")
+    ap.add_argument("--dry-run", action="store_true",
+                    help="report without writing (the default for --vault)")
     a = ap.parse_args(argv)
+
+    # T231 — `--vault` reports unless told otherwise; a path writes unless told
+    # otherwise. The blast radii are three orders of magnitude apart and the
+    # safe invocation should be the one you get by typing less.
+    #
+    # This is not hypothetical caution. On 2026-08-11 an agent reading F319 —
+    # which calls the vault measurement "the dry run" throughout — ran the
+    # command that prose names and wrote **1,296 files**, the single action M5
+    # is gated on. The old signal that it had written rather than reported was
+    # one word in the summary line (`fixed` versus `would fix`), which is easy
+    # to read past, and the second-order damage was worse than the writes:
+    # HookAnchor's daemon woke on every touched page and re-harvested 16
+    # `.anchor` descriptions, content this script's own guard refuses to touch.
+    write = a.write and not a.dry_run if a.vault else not a.dry_run
+    if a.vault and a.write and a.dry_run:
+        ap.error("--write and --dry-run contradict each other")
 
     if a.vault:
         files = list(walk(VAULT))
@@ -393,7 +420,7 @@ def main(argv=None) -> int:
         tally[action] += 1
         if action == "fixed":
             tally["by:" + note] += 1
-            if not a.dry_run:
+            if write:
                 f.write_text(new, encoding="utf-8")
         if action in ("refused", "skip"):
             try:
@@ -402,7 +429,9 @@ def main(argv=None) -> int:
                 shown = f
             print(f"  {action.upper():8} {shown} — {note}")
 
-    verb = "would fix" if a.dry_run else "fixed"
+    verb = "fixed" if write else "would fix"
+    if a.vault and not write:
+        print("\nspine fix: --vault REPORTS ONLY. Re-run with --write to apply.")
     print(f"\nspine fix: {verb} {tally['fixed']} of {len(files)} file(s); "
           f"{tally['ok']} already conforming, {tally['refused']} refused, "
           f"{tally['skip']} skipped")
