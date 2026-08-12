@@ -44,7 +44,7 @@ Read from and write to external services. Each sub-skill is an access card with 
 
 | Group | Usage | File | Description |
 |-------|-------|------|-------------|
-| **Apple** | `/io imail` | [[io-imail]] · [[io-imail-access]] | Email via **local Apple Mail** (working) — *every* account on this Mac, but only what is downloaded locally. Composing lives here. For one account's full server-side archive, use [[io-gmail\|`/io gmail`]]. Access methods: [[io-imail-access]]. |
+| **Apple** | `/io imail` | [[io-imail]] · [[io-local-mail]] | Email via **local Apple Mail** (working) — *every* account on this Mac, but only what is downloaded locally. Composing lives here. For one account's full server-side archive, use [[io-gmail\|`/io gmail`]]. Access methods: [[WIRE Mail]]. |
 | **Local** | `/io local-mail` | [[io-local-mail]] · [[WIRE Mail Local Index]] | **Fastest mail route by four orders of magnitude** (~15 ms vs `imail`'s ~10 min), works offline, and the only surface that searches several accounts in **one** query. Read-only. The mirror is still filling — check `mailsync --status` and [[Emails]] before believing a zero result. |
 | **Apple** | `/io ical` | [[io-ical]] · [[io-ical-access]] | Calendar via **local macOS Calendar** (EventKit, working): today's events, optional `+N` days ahead. Superset of the synced Google calendars. Server-side Google Calendar surface would be `/io gcal`. See [[io-ical-access]]. |
 | **Apple** | `/io ihealth` | [[io-ihealth]] | Apple Health / HealthKit — **local daily JSON drop** (working, no auth): sleep, heart rate, HRV, activity, overnight vitals, gait. One file per day off the Watch/iPhone. Pipe + traps: [[WIRE Health Auto Export]], [[LUMEN Data Sources]]. |

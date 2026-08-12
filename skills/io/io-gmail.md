@@ -2,7 +2,7 @@
 
 Search and read mail through the Gmail API. Reaches **one account's complete server-side archive**, including everything that was never downloaded to this Mac. (`gmail` = the server-side Google surface; the local Apple-Mail surface that aggregates *every* account on this machine is [[io-imail]].)
 
-**Access methods comparison:** [[io-imail-access]] — trade-offs between Apple Mail, IMAP, the Gmail API, and the rest.
+**Access methods comparison:** [[WIRE Mail]] — trade-offs between Apple Mail, IMAP, the Gmail API, and the rest.
 
 **Drafting an email?** The user's required draft format lives in [[DAS formats]] § Email draft — live markdown (never fenced) so the rendered view pastes into Mail as rich text; `To:`/`CC:`/`Subject:` lines always; bold/italic/lists/plain-URLs allowed; no blockquotes, wiki-links, or em-dashes.
 
@@ -64,5 +64,5 @@ Other mailboxes need `gsa gmail auth <email>` once each. Google OAuth tokens exp
 ## Related
 
 - [[io-imail]] — the local Apple Mail surface, and its measured performance table
-- [[io-imail-access]] — every access method compared, with the trade-offs
+- [[WIRE Mail]] — every access method compared, with the trade-offs
 - [[io/SKILL]] — the `/io` dispatch table and the local-first ranking
