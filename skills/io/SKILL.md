@@ -7,7 +7,8 @@ description: >
   "upload to drive", "read my email", "search mail for", "find that email from",
   "what's on my calendar", "read my calendar", "what do I have today",
   "pull my health data", "what's my sleep/heart rate", "check my apple health".
-  Subcommands: /io gsheet, /io gslide, /io gdoc, /io gdrive, /io gmail, /io imail, /io ical, /io ihealth, /io notion.
+  "search my mail fast", "search all my accounts at once".
+  Subcommands: /io gsheet, /io gslide, /io gdoc, /io gdrive, /io gmail, /io imail, /io local-mail, /io ical, /io ihealth, /io notion.
 tools: Read, Write, Edit, Bash, Glob, Grep, WebFetch, WebSearch
 user_invocable: true
 ---
@@ -18,7 +19,9 @@ subsystem:: [[DAS Doc Design]] — the Doc group's subsystem profile
 
 Read from and write to external services. Each sub-skill is an access card with ranked methods.
 
-**Command naming — a single-letter provider/surface prefix** so capabilities don't collide across providers. `g*` = Google cloud API (server-side, one account, expiring token): `gsheet`, `gslide`, `gdoc`, `gdrive`, `gmail`, and the future `gcal`. `i*` = Apple/local macOS frameworks (aggregate every account on this Mac): `imail`, `ical`, `ihealth`. The prefix marks *which access surface*, not which account — `imail` (local Apple Mail) already reads your Gmail if it syncs into Mail.app; `gmail` hits Gmail's API directly. Same local-vs-cloud split the `*-access` cards document.
+**Command naming — a set of usable names, not an enforced scheme.** `g*` = Google cloud API (server-side, one account, expiring token): `gsheet`, `gslide`, `gdoc`, `gdrive`, `gmail`, and the future `gcal`. `i*` = Apple/local macOS frameworks (aggregate every account on this Mac): `imail`, `ical`, `ihealth`. The prefix marks *which access surface*, not which account — `imail` (local Apple Mail) already reads your Gmail if it syncs into Mail.app; `gmail` hits Gmail's API directly.
+
+**The prefix is a convenience, and it stops where it stops being usable** (Dan, 2026-08-11). `imail` and `gmail` earn their compression by being said constantly — the voice engine has learned them. A one-letter prefix on a rarely-spoken name buys a few characters and costs recognition: `lmail` for the local index was rejected on exactly that ground, in favour of **`local-mail`**, which dictates and parses cleanly. *"I don't think we need consistency. We just need to have a set of names for things."* So do not extend the scheme by reflex — name a new surface whatever a person can reliably say out loud.
 
 ## Routing policy — local first, MCP last (F004, reaffirmed 2026-08-05)
 
@@ -42,7 +45,7 @@ Read from and write to external services. Each sub-skill is an access card with 
 | Group | Usage | File | Description |
 |-------|-------|------|-------------|
 | **Apple** | `/io imail` | [[io-imail]] · [[io-imail-access]] | Email via **local Apple Mail** (working) — *every* account on this Mac, but only what is downloaded locally. Composing lives here. For one account's full server-side archive, use [[io-gmail\|`/io gmail`]]. Access methods: [[io-imail-access]]. |
-| **Local index** | `notmuch search` | [[WIRE Mail Local Index]] · [[io-imail-access]] | **Fastest mail route by four orders of magnitude** (~15 ms vs `imail`'s ~10 min), offline, and the only one that searches several accounts in **one** query. No `/io` verb yet — the mirror is still filling, and a verb implying whole-corpus coverage would lie. Check `mailsync --status` and [[Emails]] before trusting a zero result. |
+| **Local** | `/io local-mail` | [[io-local-mail]] · [[WIRE Mail Local Index]] | **Fastest mail route by four orders of magnitude** (~15 ms vs `imail`'s ~10 min), works offline, and the only surface that searches several accounts in **one** query. Read-only. The mirror is still filling — check `mailsync --status` and [[Emails]] before believing a zero result. |
 | **Apple** | `/io ical` | [[io-ical]] · [[io-ical-access]] | Calendar via **local macOS Calendar** (EventKit, working): today's events, optional `+N` days ahead. Superset of the synced Google calendars. Server-side Google Calendar surface would be `/io gcal`. See [[io-ical-access]]. |
 | **Apple** | `/io ihealth` | [[io-ihealth]] | Apple Health / HealthKit — **local daily JSON drop** (working, no auth): sleep, heart rate, HRV, activity, overnight vitals, gait. One file per day off the Watch/iPhone. Pipe + traps: [[WIRE Health Auto Export]], [[LUMEN Data Sources]]. |
 | **Google** | `/io gsheet` | [[io-gsheet]] | Google Sheets |
