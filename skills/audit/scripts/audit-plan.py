@@ -1090,7 +1090,21 @@ def plan_one(target: Path, mode: str, cdir: Path | None, warnings: list[str],
             # of it — e.g. DAS Decisions.md (spec of R-decisions) matches the
             # `* Decisions.md` selector but must not be audited as a Decisions
             # instance. Drop a ruleset's own source file from its rule targets.
-            if tgts and rs.get("source"):
+            #
+            # NAME-matched only (T212, 2026-08-11). The case above is a *glob*
+            # catching the spec by filename — `DAS Decisions.md` looks like a
+            # Decisions doc and is not one. A `sentinel:` selector matches by
+            # CONTENT, and content does not lie about kind: a file carrying
+            # `# RULESET R-` is a ruleset whichever ruleset it is. Applying the
+            # exclusion there silently exempted `R-ruleset.md` from `R-ruleset`
+            # — the one set whose subject is the file kind it is itself written
+            # as, and whose header claims in so many words *"Self-applying:
+            # this set obeys its own rules."* It was not, and had never been.
+            # Measured before the narrowing: of the four sentinel-scoped sets
+            # (R-brief, R-discussion, R-ruleset, R-stream) only R-ruleset
+            # matches its own sentinel, and it passes all six of its mechanical
+            # rules — so this closes the hole without moving a verdict.
+            if tgts and rs.get("source") and kind != "sentinel":
                 src_abs = (REPO_ROOT / rs["source"]).resolve()
                 tgts = [t for t in tgts if t.resolve() != src_abs]
             if not tgts:

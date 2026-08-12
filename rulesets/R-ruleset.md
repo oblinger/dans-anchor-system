@@ -4,6 +4,25 @@ import:: skills/audit/scripts/audit-plan.py
 where:: `sentinel: ^#+ RULESET R-`
 description:: Format every ruleset definition obeys — sentinels, header fields, per-rule structure, numbering, includes.
 
+> **Four checkers wired 2026-08-11 ([[TINK Backlog#^T212|T212]]), two refused — and the four were sitting registered, tested, and invoked by nothing.**
+>
+> `--verify-registry` reports **24 orphan checkers**: registered in the dispatch table, called by no rule. Four of them name rules in *this* set almost verbatim, and this set is inside the closure `/audit doc` resolves — so `-04`, `-05`, `-07` and `-11` read `(checked)` while `_needs_judgment` (a membership test excluding only `tracked`/`retired`/`governing`) sent each one to a **billed LLM call** on every one of the **123 files carrying the `RULESET` sentinel**. Their own comments say what they were for: `chk_all_rules_have_id` records that it sheds a defect *"so that wiring it later does not re-import"* it. Later was never scheduled.
+>
+> Measured before wiring, over all 123:
+>
+> | Rule | Checker | Findings |
+> |---|---|---|
+> | `-04` | `all_rules_have_id` | **0** |
+> | `-05` | `rule_numbers_unique` | **0** |
+> | `-07` | `checked_rules_have_pattern` | **10** — `R-layering`, `R-ob-observability`, `R-completed-roadmap`, `R-one-path` (×2), `R-interfaces-folder`, `R-svg-jiggle` (×3), and more |
+> | `-11` | `ruleset_no_frontmatter` | **0** |
+>
+> Three of the four find nothing, and that is the argument for wiring them rather than against it: **492 judgments become 492 instant mechanical verdicts, and the 10 real findings stop being invisible behind them.** A rule that is silently judged is not cheaper than one that is checked — it is more expensive and less trustworthy, and it reports the same green.
+>
+> **`-02` and `-03` are refused, and the measurement is why.** `chk_header_has_field include` fails **16** of 123 — but `_header_block` ends at the first blank line after the H1, and files like [[R-feed]] put a blank line between the H1 and their `include::`. The line is *there*; the checker cannot see it. Wiring that reports 16 files as missing a field they carry. `chk_description_field_line` fails **106 of 123 (86%)** because it demands `description::` be the **second non-blank line**, while `-03` asks only that a header line match it. That is the [[R-anchor-page]]-01 signature exactly — a rule the corpus can satisfy only by mass-editing a hundred files toward no benefit — and the rule text, not the corpus, is the thing that would have to change. Both stay judgments until a checker matches what the rule actually says.
+>
+> **`-08`, `-09` have no registered checker at all** (include resolution, cycle detection); `-10` and `-12` are `(stated)`. Nothing else in this set is wirable today.
+
 The rules a `# RULESET` definition must satisfy — checked on **every ruleset, wherever it lives**: standalone `R-*.md` files **and** inline `# RULESET` blocks embedded in facet, skill, and discipline specs (e.g. `R-anchor-page` in [[DAS Anchor Page]], `R-markdown` in [[DAS markdown]]). The `where::` is a **content sentinel** — any file with a `# RULESET R-` heading (fence-aware: fenced *example* RULESETs are skipped) — so embedded sets are caught without enumerating their host files. Self-applying: this set obeys its own rules.
 
 ### RULE R-ruleset-01 — H1 carries the `RULESET` sentinel (checked)
@@ -28,12 +47,14 @@ A one-line `description::` tagline is in the header; its value carries no `::` t
 **Check pattern:** a header line matches `^description:: .+` and the value contains no `::`.
 
 ### RULE R-ruleset-04 — every rule heading carries the `RULE` sentinel + id (checked)
+check:: all_rules_have_id
 
 Each rule is a heading of the form `<H> RULE R-<slug>-NN[ — name][ (tier)]`.
 
 **Check pattern:** every rule heading matches `^#+ RULE R-[a-z0-9-]+-\d{2}\b`.
 
 ### RULE R-ruleset-05 — rule numbers are two-digit, unique, non-recycled (checked)
+check:: rule_numbers_unique
 
 `NN` is zero-padded to two digits and unique within the set; retired numbers are never reused.
 
@@ -53,6 +74,7 @@ It recurs because **a malformed tier makes a rule invisible to the very checks t
 **Check pattern:** every `RULE` heading outside a fence either matches `_RULE_RE` or ends `(when:: …)`.
 
 ### RULE R-ruleset-07 — `checked` / `sampled` rules carry a Check pattern (checked)
+check:: checked_rules_have_pattern
 
 A `(checked)` or `(sampled)` rule has a `**Check pattern:**` block in its body.
 
@@ -77,6 +99,7 @@ Each rule has an effective `where::` — its own, else the set's, else the `alwa
 **Check pattern:** for each rule, confirm an own-or-inherited `where::`; warn when a file-specific set has none (it would default to `always` and run on every file).
 
 ### RULE R-ruleset-11 — standalone ruleset files are body-only (checked)
+check:: ruleset_no_frontmatter
 
 A standalone `R-<slug>.md` has no YAML frontmatter (an embedded `# RULESET` lives inside a facet page that may carry its own frontmatter).
 
