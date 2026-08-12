@@ -1,11 +1,12 @@
 ---
-description: "made-up worked examples of the four spine shapes and the two exceptions"
+description: "made-up worked examples of the four spine shapes and the one exception"
 ---
 
-| -[[FEX Spine Examples]]- | : made-up worked examples of the four spine shapes and the two exceptions<br>→ [[DAS]] → [[examples]] → [FEX Spine Examples](hook://p/FEX%20Spine%20Examples)  |
+| -[[FEX Spine Examples]]- | : made-up worked examples of the four spine shapes and the one exception<br>→ [[DAS]] → [[examples]] → [FEX Spine Examples](hook://p/FEX%20Spine%20Examples)  |
 | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Spec | [[DAS spine]],  [[DAS Dispatch Table]],   |
-| Shapes | [[Harbor Latency Budget\|breadcrumb]],  [[Bridges\|custom]],  [[Harbor Runbooks\|custom-grouped]],  [[Devtools\|custom-two-level]],  [[Harbor Hops\|list]],  [[Harbor Releases\|stream]],  [[Harbor Retrospectives\|exception-external]],   |
+| Shapes | [[Harbor Latency Budget\|breadcrumb]],  [[Bridges\|custom]],  [[Harbor Runbooks\|custom-grouped]],  [[Devtools\|custom-two-level]],  [[Harbor Hops\|list]],  [[Harbor Releases\|stream]],  [[Harbor Retrospectives\|custom-outward]],   |
+| **[[DAS spine#Custom spine\|Custom]]** — outward-pointing | …and what it names is not in my folder at all | [[Harbor Retrospectives]],   | [[STARTUPPER]],   |
 | Related | [[FEX Dispatch Examples]],  [[DAS progressive-disclosure]],   |
 | ... | [[_{{DISK_LABEL}} Template]],  [[_{{PURCHASE_DATE}} {{HOSTNAME}} Template]],  [[Clarifier]],  [[CSE]],  [[DAS Examples]],  [[DAS US-CAE-1 — Schedule a Task]],  [[DAS US-CAE-2 — Monitor Task Status]],  [[DAS US-CAE-3 — Retry Failed Tasks]],  [[ESP]],  [[Espresso]],  [[FEX Agenda]],  [[FEX API]],  [[FEX API Design]],  [[FEX Architecture]],  [[FEX Claude]],  [[FEX Completed Roadmap]],  [[FEX CSE]],  [[FEX Decisions]],  [[FEX Decisions Details]],  [[FEX Facet]],  [[FEX Figure Page]],  [[FEX Files]],  [[FEX Icebox]],  [[FEX Inbox]],  [[FEX Minimal Facet]],  [[FEX Minimal Skill]],  [[FEX Project Root]],  [[FEX Repo]],  [[FEX Roadmap]],  [[FEX Rules]],  [[FEX Scheduler]],  [[FEX Skill]],  [[FEX Stories]],  [[FEX System Design]],  [[Forum Stories]],  [[HBR PRD User Stories]],  [[HWP]],  [[Knots]],  [[Mini]],  [[Snap]],  [[Viz Bench]],   |
 
@@ -20,10 +21,9 @@ One invented page per shape — each *is* the shape it teaches, so it can be ope
 | **[[DAS spine#Custom spine\|Custom]]** — two-level | …and each label is itself a page, marked `+` | [[Devtools]] | [[SKA]] |
 | **[[DAS spine#List spine\|List]]** | The machine writes a row per child, each with its own sentence | [[Harbor Hops]] | [[Disk]] |
 | **[[DAS spine#Stream spine\|Stream]]** | The same, reversed — my children are dated, so newest goes first | [[Harbor Releases]] | [[VOX]] |
-| *[[DAS spine#Exceptions\|Exception]]* — external | *What I organize is not in my folder at all, so I carry no marker* | ~~[[Harbor Retrospectives]]~~ | [[STARTUPPER]] |
 | *[[DAS spine#Exceptions\|Exception]]* — redirect | *I organize nothing; I hand you two or three destinations and stop* | — | [[AI Safety]] |
 
-**Four shapes, three of them one shape wearing three arrangements, and two exceptions.** The middle three rows are all the **custom** spine — the split between them is how the author chose to lay the rows out, which is worth learning and is not a difference in what the page *is*. The last two rows are not spines at all ([[DAS spine]] § Exceptions).
+**Four shapes, four of the rows one shape wearing four arrangements, and one exception.** Rows 2–5 are all the **custom** spine — what separates them is how the author laid the rows out and what they point at, which is worth learning and is not a difference in what the page *is*. Only the last row is not a spine ([[DAS spine]] § Exceptions).
 
 **The redirect has no made-up example yet**, because the Harbor world has nothing to redirect to. It is the one row of this gallery that cannot be opened and read, which is a gap in the gallery rather than in the taxonomy.
 
@@ -43,7 +43,7 @@ These pages are **deliberately made up**. The vault's own pages are the right ex
 
 **[[Bridges]] — that hand-listed rows are not a list spine.** Four machines, each with an authored row above a `...` safety valve. Visually identical to a list spine, opposite ownership — and ownership is the whole selector, which is why these two are the pair that teaches the shape set.
 
-**[[Harbor Retrospectives]] — that a masthead can leave its own folder, and stops being a spine when it does.** Its rows point at pages elsewhere entirely, grouped by consequence rather than location, and it carries no marker because a marker could only ever compute the wrong set.
+**[[Harbor Retrospectives]] — that a spine can leave its own folder and still be a custom spine.** Its rows point at pages elsewhere entirely, grouped by consequence rather than location. It carries no marker, and the reason is not that it points outward — it is that it fronts no folder, so there is nothing for a marker to sweep. [[STARTUPPER]], the live counterpart, points just as far outward and *does* carry a `...`, because it does front one.
 
 **[[Harbor Hops]] — that `---` is not `...` written longer.** Five hops, and the machine writes one row per hop with its own description. `...` would collapse all five into a single compact row; the per-child sentence is the entire reason to choose `---`. It deliberately has **no heart**: a pure index's spine is its content.
 

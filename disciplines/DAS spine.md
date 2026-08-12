@@ -21,11 +21,11 @@ Everything above the H1 says where the page sits; the heart directly below says 
 | **[[#Custom spine\|Custom]]** | `...` | named by hand, one row each, in whatever arrangement suits them | [[Legal]] · [[Rolodex]] · [[SKA]] | [[Bridges]] · [[Harbor Runbooks]] · [[Devtools]] | 814 |
 | **[[#List spine\|List]]** | `---` | the machine writes one row each, alphabetical, with descriptions | [[Disk]] | [[Harbor Hops]] | 231 |
 | **[[#Stream spine\|Stream]]** | `^^^` | the same, reversed, so dated children read newest-first | [[VOX]] | [[Harbor Releases]] | 23 |
-| *[[#Exceptions\|Exception]]* | *n/a* | *not a spine — see § Exceptions* | [[AI Safety]] · [[STARTUPPER]] | ~~[[Harbor Retrospectives]]~~ | 108+ |
+| *[[#Exceptions\|Exception]]* | *n/a* | *not a spine — see § Exceptions* | [[AI Safety]] | — | 102 |
 
 **Four shapes and one exception list. The question is who writes the rows** — you, or the machine. Custom is the author's: every row hand-written above a `...`, arranged however the material wants (flat, under plain-text group labels, or with `+` handing a group's members to the machine). List and stream are the machine's: it writes one row per child below the marker, alphabetical or reversed. Breadcrumb is the leaf case, where there are no rows because there are no children.
 
-**Anything that is not one of the four is an exception, enumerated by name** rather than derived from a rule — the redirect page and the external masthead are the two known kinds, and § Exceptions holds them. Dan, 2026-08-12, on the redirect: *"it's not really a spine, but redirect files are a valid exception case… for the exception cases, we should probably just list them out."*
+**Anything that is not one of the four is an exception, enumerated by name** rather than derived from a rule — the redirect page is the only known kind, and § Exceptions holds it. Dan, 2026-08-12, on the redirect: *"it's not really a spine, but redirect files are a valid exception case… for the exception cases, we should probably just list them out."*
 
 Counts are a vault scan of 1,234 masthead pages plus [[TINK308 - Spine: the routing zone every document opens with|F308]]'s breadcrumb census; custom is the `...` population entire, which is why it absorbs the three figures the earlier cut split it into (578 + 223 + 13). Each shape is specified in its own section below; the examples illustrate those specs and do not replace them.
 
@@ -78,6 +78,15 @@ Every entry gets its own hand-written row above the marker, and the machine swee
 - **Grouped** — the rows sit under a few plain-text labels. `Incident`, `Routine`, `Recovery` name nothing you can open; every child is already in this one folder, so the label only tells the reader which one they want. Fifteen children as fifteen rows and as three named groups of five carry the same links, but three groups are what a reader can hold in their head. [[Rolodex]] is the worked case — **Corporate**, **Professional**, **Personal**, and the whole contact system legible at a glance. Prefer it whenever the groups are real; fall back to flat when they are not, rather than inventing them.
 - **Two-level** — the label is itself **a page**, marked `+`, carrying its own spine and its own children. The members shown beside it are a hand-pinned *preview*, not the list; the list lives on the group's page. Reach for it when the groups are large enough to deserve pages of their own — roughly past fifteen children; below that it adds a hop for nothing, which is why it is the rarest arrangement at 13 pages.
 
+**A custom spine whose rows leave the folder is still a custom spine.** Dan, 2026-08-12, on [[STARTUPPER]]: *"why is startupper an exception spine? Why isn't that a custom spine."* It is. The rows are hand-written, so the selector answers the same way it does for every other custom page, and what the rows happen to *point at* was never the axis. [[STARTUPPER]] gathers thirty `@Name` pages that sit all over `AT/` because they are startup-affiliated rather than because they share a directory.
+
+**Pointing outward is a property of the rows; the mandatory marker turns on the folder.** Those are two different questions, and collapsing them is what briefly made this look like a shape of its own. The marker rule was always *every masthead **over a folder** needs one* — so a page that fronts no folder has nothing to sweep and owes no marker; 121 pages sit there legitimately.
+
+**[[STARTUPPER]] is the live warning, because it fronts no folder and carries a `...` anyway.** `spine_check` grades that `S09` — *carries a marker but fronts no folder, so it can only sweep siblings* — and the damage is visible in the rendered zone: its catchall has swept [[CONSULTANT]], [[DEVSHOP]], [[TECH]], [[PE FIRM]] and `FAANG Notes`, which are the *other* rolodex groups, not startuppers. An electric marker can only compute the folder it sits in, so on a page whose rows deliberately leave that folder it computes the wrong set — adding nothing to the hand-written list while sweeping in unrelated neighbours.
+
+**The cost of pointing outward is that nothing can verify the rows.** Every page whose children are in its folder can be diffed against that folder; one whose rows leave it cannot. Reach for it only when the grouping really is by property.
+
+
 **Grouped and two-level render almost identically and are not the same thing.** Grouped is one folder wearing headings; two-level is a node in a tree of containers. Read [[Harbor Runbooks]] and [[Devtools]] side by side — they are built to be that pair. The distinction is real and worth teaching, but it is a distinction *within* the custom spine rather than two more shapes: in all three arrangements the author writes the rows, the marker is `...`, and the machine sweeps the remainder.
 
 ### List spine
@@ -104,7 +113,7 @@ Identical to a list spine except reversed, so reverse-alphabetical *is* reverse-
 
 **A page that is none of the four shapes is an exception, and exceptions are listed by name.** Dan, 2026-08-12: *"for the exception cases, we should probably just list them out."* This is deliberately a roster rather than a rule — the four shapes are meant to cover everything an authored page does, so a fifth kind should have to be written down and looked at, not derived from a definition loose enough to admit it quietly.
 
-Two kinds are known. Both are legitimate; neither is a spine.
+**One kind is known.** The roster was briefly two: the *external masthead* was listed here for a day, on the reasoning that it must carry no marker and so cannot obey the mandatory `...`. Dan refused it the same day by pointing at the exemplar: *"why is startupper an exception spine? Why isn't that a custom spine?"* It is one — its rows are hand-written, which is the whole selector. What made it look like an exception was a *condition* (fronting no folder) that § The catchall is not optional had always carried its own clause for. See § Custom spine, which also records that [[STARTUPPER]] carries a marker it does not owe and is sweeping four unrelated sibling pages as a result.
 
 ### Redirect page
 
@@ -113,22 +122,6 @@ Two kinds are known. Both are legitimate; neither is a spine.
 **It is not a spine, and the sharp edge is where it sits.** Every shape above sits at or above the H1; a redirect sits *below* it, which is body content's position. Dan, 2026-08-12: *"it's kind of an exception… it's not really a spine, but I think redirect files are a valid exception case."* Ruled as [[TINK308 - Spine: the routing zone every document opens with|F308]] Q5, which had carried it as a seventh shape (S2) through three census passes.
 
 **86 pages, plus 16 more riding alongside a breadcrumb.** They are exceptions, not defects: a page that exists to hand the reader onward and nothing else is a real thing the vault does, and giving it a masthead would be a promise it cannot keep.
-
-### External masthead
-
-**No marker at all, and that is what makes it an exception.** Every shape above ends in an electric marker; this one cannot, and so it sits here rather than among them. Use it when the pages it organizes are deliberately not in its folder.
-
-Every shape describes children the file tree already holds. An external masthead points at material that lives elsewhere — because it is grouped by a *property* rather than by a place. [[STARTUPPER]] is the live case: thirty members whose `@Name` pages sit all over `AT/`, gathered here because they are startup-affiliated, not because they share a directory.
-
-**It must carry no marker at all.** An electric marker can only ever compute the folder, so on a page whose rows deliberately leave the folder it would compute the wrong set — sweeping in unrelated neighbours while adding nothing to the hand-written list. This is the one case where the absence of automation is part of the definition rather than an omission, and the general rule already covers why: *a page that fronts no folder has nothing to sweep.*
-
-**The rows are therefore fully manual, and nothing can verify them.** Every shape can be diffed against its folder; this exception cannot, because there is no folder to diff against. That is the cost of the shape, and the reason to reach for it only when the grouping really is by property.
-
-An external masthead can otherwise be laid out however suits it — [[STARTUPPER]] happens to be grouped (**People**, **Companies**, **Related pages**). Layout and externality are independent.
-
-**This page is an external masthead.** `disciplines/DAS spine.md` fronts no folder, and its rows point at [[LUMEN Nudge]], [[Rolodex]], [[Disk]], [[VOX]] and the Harbor examples — 93% of them outside `disciplines/`. It carries no marker, correctly.
-
-**Why it is an exception and not a fifth shape.** The mandatory `...` is the load-bearing rule of the custom spine, and this is the one page kind that must not carry one — so it does not narrow the rule, it stands outside it. Listing it by name keeps the four shapes exceptionless.
 
 ## Rules that cut across every shape
 
@@ -168,7 +161,7 @@ One rule stays, because the spine examples cannot be authored correctly without 
 
 The row vocabulary, the identity cell, and the fixed row order are [[DAS Dispatch Table]]'s; the automation semantics are summarized above but owned there. Do not restate either here.
 
-**This page is itself an [[#External masthead|external masthead]]** — see § Exceptions; it fronts no folder and its rows point outward, so carrying no marker is correct rather than an omission.
+**This page is itself a [[#Custom spine|custom spine]] that fronts no folder** — its rows point at [[LUMEN Nudge]], [[Rolodex]], [[Disk]], [[VOX]] and the Harbor examples, 93% of them outside `disciplines/`, so there is nothing to sweep and carrying no marker is correct rather than an omission.
 
 ### Where the examples live, and why not in a folder here
 
@@ -206,7 +199,8 @@ It still reads as a discipline in the `where::` grammar, because that grammar ca
 - **Curated, grouped and two-level are one shape, `custom`.** All three are hand-authored rows above a `...`; what separated them was how those rows happened to be arranged, which is the author's business and not a property of the page. Both distinctions are kept and taught inside § Custom spine — they were worth writing down, they were just not shapes.
 - **`+` was demoted back to a régime**, three days after this page promoted it. Recorded rather than quietly reverted, because the argument that promoted it was sound and is still in the text.
 - **The `...` is mandatory, and completeness is not an excuse.** Dan: *"even if you have a custom entry and you cover every one of them, you still want the dot, dot, dot, just so that if somebody adds one, it's not going to get lost."*
-- **Redirect pages and external mastheads are exceptions, listed by name** in a new § Exceptions at the end. The redirect had been carried as a seventh shape through three census passes of F308 and appeared nowhere on this page; the external masthead was a shape here and is the one page kind that must not carry the mandatory marker.
+- **The redirect page is an exception, listed by name** in a new § Exceptions at the end. It had been carried as a seventh shape through three census passes of F308 and appeared nowhere on this page.
+- **The external masthead was listed beside it for one day and Dan refused it the same day**, by opening the exemplar: *"why is startupper an exception spine? Why isn't that a custom spine."* Its rows are hand-written, which is the whole selector; what looked like a shape defined by carrying no marker was a *condition* (fronting no folder) that § The catchall is not optional had always had its own clause for. There is no external shape and no external exception. Worth keeping because the same mistake is available again: **pointing outward is a property of the rows, and the marker rule turns on the folder** — and because the first attempt at writing this entry asserted that [[STARTUPPER]] carries its `...` *because it fronts a folder*, which the checker refuted in one call. It fronts none, the marker is an `S09`, and its catchall has swept four unrelated rolodex groups.
 - **Scope and rollout settled (Q6):** every markdown file under an anchor owes a spine — 7,644 of 7,651 — with liberal exceptions allowed and no exceptions table built yet. The rollout is **lazy**: a page gets its spine when an agent saves it. Dan: *"we're not gonna scan through the whole repository, we're just gonna do this as the agent modifies a file. Later, we'll do the whole thing."* So the 5,088 spineless pages are a backlog depth, not a migration to schedule.
 
 **And the shape set now lives here alone.** Dan: *"we're getting multiple sources of truth here… what we should be doing is not doing this in the feature document, but actually putting the exemplars into the DAS documentation."* F308 had been carrying its own six-shape table while this page carried a different seven, and neither knew about the other. F308's table becomes a pointer; [[TINK326 - Spine Update|F326]] is where the work is tracked, and F308 closes when Dan agrees with this page and [[FEX Spine Examples]].
