@@ -12,7 +12,7 @@ description: "Skills — the `/`-invocable runbooks"
 | [[DAS Tracking Design\|Tracking]]+ | [[DAS Backlog\|Backlog]],  [[DAS workflow\|Workflow]],  [[DAS Messages\|Messages]],  [[DAS Ask\|Ask]],  [[DAS Groom\|Groom]],   |
 | [[DAS Design Design\|Design]]+ | [[DAS Plan\|Plan]],  [[DAS Architect\|Architect]],  [[DAS Parley\|Parley]],   |
 | [[DAS Code Design\|Code]]+ | [[DAS Code Skill\|Code]],  [[DAS Fix\|Fix]],  [[DAS Pilot Flow\|Pilot Flow]],  [[DAS PR Flow\|PR Flow]],  [[cleanup/SKILL\|Cleanup]],  [[module-doc/SKILL\|Module Doc]],  [[devops/SKILL\|Devops]],   |
-| [[DAS Doc Design\|Doc]]+ | [[DAS MD\|MD]],  [[DAS Viz\|Viz]],  [[DAS IO\|IO]],  [[redline/SKILL\|Redline]],   |
+| [[DAS Doc Design\|Doc]]+ | [[DAS MD\|MD]],  [[DAS Viz\|Viz]],  [[DAS IO\|IO]],  [[gshare/SKILL\|GShare]],  [[redline/SKILL\|Redline]],   |
 | [[DAS Search Design\|Search]]+ | [[DAS Find\|Find]],  [[DAS Profile\|Profile]],  [[DAS Survey\|Survey]],  [[DAS Purchase\|Buy]],  [[DAS Book\|Book]],  [[DAS Corp\|Corp]],  [[DAS Person\|Person]],  [[DAS Product\|Product]],  [[DAS Software\|Software]],  [[DAS Meta Survey\|Meta Survey]],  [[DAS Research\|Research]],  [[DAS Research Skill\|Research Skill]],  [[DAS Search Overview\|Search Overview]],   |
 | [[DAS Drive Design\|Drive]]+ | [[DAS Crank\|Crank]],  [[DAS Mint\|Mint]],  [[DAS Feature\|Feature]],  [[DAS Finalize\|Finalize]],  [[DAS Land\|Land]],  [[DAS Fortify\|Fortify]],  [[change/SKILL\|Change]],   |
 | [[DAS Utility Design\|Utility]]+ | [[DAS Ctrl\|Ctrl]],  [[bridge/SKILL\|Bridge]],  [[DAS Exp\|Exp]],  [[screen/SKILL\|Screen]],  [[get-user-auth/SKILL\|Get User Auth]],  [[vox/SKILL\|Vox]],  [[muse/SKILL\|Muse]],  [[DAS Snip\|Snip]],  [[DAS Cook\|Cook]],  [[atlas/SKILL\|Atlas]],   |
@@ -98,17 +98,18 @@ description: "Skills — the `/`-invocable runbooks"
 | [[google-slides]]  |  |
 | [[imgen/SKILL]]  | Generate and edit images into the IMGEN anchor — each sitting is a numbered roll whose page carries one pending "Next render" plus every batch it has already produced, prompt recorded beside the images it made. Text-to-image (flux-dev) and instruction editing (flux-kontext) are wired; visible per-call cost; a pick pins the keeper. Use when the user says "/imgen", "really imgen", or asks for a picture to be generated or edited. Not for authored diagrams — that is /viz. |
 | [[inbox/SKILL]]  | Drains the current anchor's [[DAS Inbox]] — reads every PENDING entry (raw input dropped in by another agent or the user via `state drop`), integrates each one into the right planning surface (Backlog, PRD, Roadmap, Discussion, or handled in place), and marks it processed with the sanctioned status tag (`DONE` or `MOVED → {destination}`) via `state inbox-tag`. Never hand-edits the Inbox markdown directly. Use when the user says "/inbox", "drain the inbox", "check the inbox", "process the inbox", or when the status banner shows `Inbox N` with N > 0. T131 leg 3 — the drain half of the agent-inbox pattern (leg 1: `state drop`; leg 2: the `Inbox N` banner signal). |
-| [[io/SKILL]]  | External system I/O — read from and write to external applications and services. Google Workspace: Sheets, Slides, Drive, Docs. Apple: Mail, Calendar, Health. Use when the user says: "put this in sheets", "read the spreadsheet", "update the slides", "upload to drive", "read my email", "search mail for", "find that email from", "what's on my calendar", "read my calendar", "what do I have today", "pull my health data", "what's my sleep/heart rate", "check my apple health". Subcommands: /io gsheet, /io gslide, /io gdoc, /io gdrive, /io imail, /io ical, /io ihealth, /io notion. |
+| [[io/SKILL]]  | External system I/O — read from and write to external applications and services. Google Workspace: Sheets, Slides, Drive, Docs. Apple: Mail, Calendar, Health. Use when the user says: "put this in sheets", "read the spreadsheet", "update the slides", "upload to drive", "read my email", "search mail for", "find that email from", "what's on my calendar", "read my calendar", "what do I have today", "pull my health data", "what's my sleep/heart rate", "check my apple health". "search my mail fast", "search all my accounts at once". Subcommands: /io gsheet, /io gslide, /io gdoc, /io gdrive, /io gmail, /io imail, /io local-mail, /io ical, /io ihealth, /io notion. |
 | [[io-excel]]  |  |
 | [[io-gdoc]]  |  |
 | [[io-gdrive]]  |  |
+| [[io-gmail]]  |  |
 | [[io-gsheet]]  |  |
 | [[io-gslide]]  |  |
 | [[io-ical]]  |  |
 | [[io-ical-access]]  |  |
 | [[io-ihealth]]  |  |
 | [[io-imail]]  |  |
-| [[io-imail-access]]  |  |
+| [[io-local-mail]]  |  |
 | [[io-notion]]  |  |
 | [[maintain/SKILL]]  |  |
 | [[md/SKILL]]  | Markdown utility verbs — produce or maintain markdown artifacts: /md file-tree (format file trees), /md toc (regenerate tables of contents), /md dispatch-table (build dispatch pages), /md cards (build cheat / summary / detail cards), /md track-changes (inline diff HTML for edits). Bare /md glances the [[DAS markdown]] discipline rules. The format-rule content moved to [[DAS markdown]] 2026-06-10 — this skill keeps utility verbs only. |
@@ -124,7 +125,7 @@ description: "Skills — the `/`-invocable runbooks"
 | [[pilot-flow/SKILL]]  |  |
 | [[pr-flow/SKILL]]  |  |
 | [[publish/SKILL]]  |  |
-| [[rewire]]  |  |
+| [[rewire]]  | idempotent structural repair for any anchor |
 | [[role-pilot]]  |  |
 | [[SKA Bridge Testing]]  | SKA Bridge Testing — strategy + proposed-tests overview |
 | [[SKILL-retired]]  | > |
@@ -146,6 +147,7 @@ description: "Skills — the `/`-invocable runbooks"
 | [[viz-pdf]]  |  |
 | [[viz-pptx]]  |  |
 | [[viz-svg]]  |  |
+| [[io-imail-access]]  |  |
 | [[io-calendar]]  |  |
 | [[io-calendar-access]]  |  |
 | [[io-email]]  |  |
@@ -154,8 +156,5 @@ description: "Skills — the `/`-invocable runbooks"
 # DAS Skills
 The catalog of skills — the `/`-invocable runbooks — organized by the nine subsystems in [[DAS]] order.
 
-![[F143-1-top-level.svg|2400]]
+![[F143-1-top-level.svg|2400]] 
 *Dan's Anchor System — the kinds of system parts: **Skills** (verbs) create **Facets** (nouns); **Disciplines** (adjectives) modify both; **Rulesets** constrain all three.*
-
-
-

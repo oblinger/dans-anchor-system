@@ -38,7 +38,7 @@ GROUPS = {
     "Dev": ["code", "fix", "pilot-flow", "pr-flow"],
     "Hygiene": ["audit", "lint", "maintain", "rewire", "rule", "slug-scan",
                 "tidy"],
-    "Doc": ["io", "md", "viz"],
+    "Doc": ["gshare", "io", "md", "viz"],
     "Search": ["find", "survey"],
     "Utility": ["bridge", "ctrl", "parley", "snip"],
     "Discipline": ["backlog", "mode", "role", "workflow"],
