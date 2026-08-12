@@ -1,17 +1,22 @@
 # RULESET R-exception-discipline
 include::
 import:: skills/audit/scripts/audit-plan.py
+where:: `file:{anchor}/**/* Exceptions.md, !**/DAS *.md`
+exclusion-note:: `!**/DAS *.md` exempts the facet-spec catalog — a `DAS <Name>.md` is the SPEC for a facet, not an instance (the form [[R-backlog]] and [[R-prd]] use).
 description:: Accepted rule-violations are catalogued as numbered, graded exceptions with a stated justification — the audit engine reads that table, and a corpus's suppressions are counted on every run.
 
 Every checked rule needs an escape, because a rule that admits none gets weakened the first time it is genuinely wrong — and a weakened rule stops catching the cases it was right about. The escape is a numbered row in the anchor's `{slug} Track/{slug} Exceptions.md`, scoped to a named target, graded, and justified.
 
 Recurs in HA + MUX + the R-ob enforcement idiom. HA: "Exceptions are numbered (EX001, EX002, …) with grades and For/Against justification"; every accepted site carries an inline `EX<n>` comment. MUX: "Scanner … Exception table destructively rewritten each run" with High/Medium/Low graded findings. [[R-ob-observability]]-01 already requires it per-rule ("listed in an Exceptions table with a grade + justification"); this family generalizes the idiom so any adopted ruleset can lean on it.
 
+> **The selector was written five times and inherited zero times, which cost 112 of TINK's 911 judgment tasks — [[TINK Backlog#^T212|T212]], 2026-08-11.** Five rules (`-01`, `-02`, `-04`, `-05`, `-09`) each carried an identical `where::` line; the set itself declared none, so the other four inherited `always` — every markdown file in every anchor. Those four are the `(stated)` ones, and each says in its own Check pattern that **no document can evidence it**: *"asserted about the engine rather than about a file"*, *"a file's content cannot evidence it"*. So an LLM was being asked, of all 28 TINK documents, whether the audit report prints `except N`. The selector is now declared once at the set level and every rule inherits it — the effective scope of the five wired rules is byte-identical, and the four judged rules go from 28 targets to the anchor's one exception table.
+>
+> **The residue is a real gap and not this row's to close.** `-03`, `-06`, `-07` and `-08` are verified by `test-f314-exceptions.py`, and `where::` has no way to say *"a test verifies this, not a target"* — so their honest scope is *no target at all*, which the grammar cannot express any more than it can express T218's trait gate. They are the only four rules in the corpus whose Check pattern says this. Scoped to the exception table because that is the narrowest true-ish thing available; filed as [[TINK Backlog#^T220|T220]].
+
 **Rules -01 through -03 were correct and unread from 2026-07-06 to 2026-08-08.** [[Warden Exceptions]] recorded three real architectural deviations against them and nothing consumed the file: `audit-plan.py` had no exception concept anywhere in 6,626 lines. Rules -04 through -09 are the enforcement surface that closes that, added by [[TINK314 - Exceptions: a graded, user-approved escape from any checked rule|F314]]; the table is now the thing the engine reads, not a thing the engine documents.
 
 ### RULE R-exception-discipline-01 — Accepted violations live in a numbered exception table (checked)
 check:: exceptions_table_wellformed
-where:: `file:{anchor}/**/* Exceptions.md, !**/DAS *.md`
 
 Each anchor's accepted deviations are enumerated in an exceptions table with per-anchor-unique numbers (EX001…), monotonic and never recycled. A violation neither fixed nor listed is an open finding, not an exception.
 
@@ -19,7 +24,6 @@ Each anchor's accepted deviations are enumerated in an exceptions table with per
 
 ### RULE R-exception-discipline-02 — Every exception carries a grade + justification (checked)
 check:: exceptions_table_wellformed
-where:: `file:{anchor}/**/* Exceptions.md, !**/DAS *.md`
 
 Each entry is graded `A`–`F` with a one-line justification for NOT taking the strict fix. Ungraded exceptions are unreviewed debt, and here that is literal: an ungraded row suppresses nothing.
 
@@ -33,7 +37,6 @@ The rules an exception covers keep running. A finding that matches no approved r
 
 ### RULE R-exception-discipline-04 — One path, and it is `{slug} Track/{slug} Exceptions.md` (checked)
 check:: exceptions_table_wellformed
-where:: `file:{anchor}/**/* Exceptions.md, !**/DAS *.md`
 
 The anchor's exception table lives at `{slug} Track/{slug} Exceptions.md` — visible, slug-named, reachable from the Track dispatch page. There is no search order and no second location.
 
@@ -43,7 +46,6 @@ The anchor's exception table lives at `{slug} Track/{slug} Exceptions.md` — vi
 
 ### RULE R-exception-discipline-05 — The table's five columns, and Target is never blank (checked)
 check:: exceptions_table_wellformed
-where:: `file:{anchor}/**/* Exceptions.md, !**/DAS *.md`
 
 The table is `| EX | Rule | Target | Grade | Justification |`. **Rule** is one rule id per row, so each deviation grades and retires on its own. **Target** is a path glob relative to the anchor root and is never blank — an anchor-wide exception writes `**` explicitly.
 
@@ -79,7 +81,6 @@ The grade is a scale, not a rubber stamp. `A`–`C` suppress the finding. `D`, `
 
 ### RULE R-exception-discipline-09 — A rule may demand a conversation before it can be excepted (checked)
 check:: exceptions_table_wellformed
-where:: `file:{anchor}/**/* Exceptions.md, !**/DAS *.md`
 
 A rule (or a whole ruleset) declares `confirm:: user` when the agent may not accept a deviation from it unaided. For those rules the agent asks first and records the grade it is given; an ungraded `?` row against one **fails the exception table** until the grade arrives.
 

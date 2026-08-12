@@ -6,7 +6,9 @@ Email can be reached more than one way. This page is the dispatch over **how** `
 |---|---|---|---|
 | **Local — Apple Mail** | every account configured in Mail.app (iCloud, Gmail, work, …), already-downloaded messages | none — Mail.app holds the credentials; we drive it via AppleScript | **✅ working** |
 | **Cloud — Gmail API** | a specific Google account's mail server-side (search the full mailbox, not just what's downloaded) | the existing Google OAuth at `~/.google_workspace_mcp/credentials/{user}@gmail.com.json` (same one `/io gsheet` etc. use) — **Gmail scopes already granted** | **✅ wired — [[io-gmail]]** |
-| **IMAP (direct)** | any IMAP server directly | per-account app-password | ⚪ not planned (Apple Mail already aggregates these) |
+| **Local mirror + index** | every *mirrored* account at once, offline, full history once fetched | app-specific password in the login Keychain (`mbsync-{account}`) | **🟡 wired, filling** — [[WIRE Mail Local Index]] |
+
+**Latency is the whole reason there are three.** Measured 2026-08-11 on this machine, same corpus: local index **~15 ms**, Gmail API **~1 s**, Apple Mail **~10 min**. That is not a tuning difference — it decides whether searching mail is something an agent does *in passing* while answering a question, or a thing it must plan around.
 
 ## Local — Apple Mail (default, working)
 
