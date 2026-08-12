@@ -1442,6 +1442,16 @@ def _head_h1(text: str) -> tuple[int | None, str | None]:
 
 
 def chk_anchor_has(target, anchor_root, args):
+    """`.anchor` declares every field named in args.
+
+    Registered, called by no rule, and that is the correct state rather than a
+    gap (T212). `R-dot-anchor-01` reads *".anchor is valid YAML; **every field
+    is optional**"*, so there is no field any anchor is required to declare and
+    nothing for this primitive to assert. It stays registered because the
+    optionality is a property of the *base* grammar: a rule scoped to one kind
+    of anchor may well require `slug:` or `traits:` of that kind, and this is
+    what it would call. Do not wire it against all anchors.
+    """
     dot = anchor_root / ".anchor"
     if not dot.is_file():
         return "fail", "no .anchor file"
@@ -3860,7 +3870,18 @@ def chk_doc_head_orientation_line(target, anchor_root, args):
 # -- R-roadmap -----------------------------------------------------------------
 
 def chk_file_exists(target, anchor_root, args):
-    """A file (arg[0], with {slug} substituted) exists under anchor_root."""
+    """A file (arg[0], with {slug} substituted) exists under anchor_root.
+
+    Registered and called by no rule (T212). The obvious caller would be an
+    entry-page rule — `file_exists {slug}.md` — and that is exactly the wiring
+    to avoid: `R-anchor-page-02` already owns entry-page existence through
+    `entry_page_matches_slug`, whose `_entry_page` resolves **two** candidates,
+    `{slug}.md` then `{folder}.md`. A one-candidate check reports the 34
+    anchors whose page is legitimately folder-named, which is the measured
+    failure of `folder_marker_exists` recorded in `R-fct-folder`. Left generic:
+    it is sound for a rule naming a specific required file, and wrong for the
+    entry page.
+    """
     if not args:
         return "error", "file_exists requires a path argument"
     slug = _anchor_slug(anchor_root)
