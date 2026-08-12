@@ -1,5 +1,6 @@
 # RULESET R-ob-state-mgt
 include::
+where:: `file:{anchor}/**/*.{rs,py,ts,js}`
 description:: Ob's opinionated take on state management — centralize config and state behind a single data singleton, and refuse to hardcode values that could vary. Not universal (other architectures use repository pattern, CQRS, event sourcing, functional state passing); this set captures Dan's specific approach.
 
 ### RULE R-ob-state-mgt-01 — Config access through the data singleton (checked)

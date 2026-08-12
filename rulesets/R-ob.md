@@ -14,9 +14,17 @@ set-id: OB
 
 # RULESET R-ob
 description:: Umbrella folder-file for Ob's rulesets — applies to every anchor Dan owns. Children rolled up via `include::` below. The markdown rule formerly here (D-OB01) moved out in 2026-06-09 since it's not Ob-specific; it now lives in [[R-markdown]] under [[R-doc]] (via the interim `R-md`, deleted 2026-08-11). Commit-discipline and em-dash rules pending capture as their own rulesets.
-include:: [[R-ob-cmd-proc]], [[R-ob-observability]], [[R-ob-state-mgt]], [[R-ob-remote-ops]]
+include:: [[R-ob-cmd-proc]], [[R-ob-observability]], [[R-ob-state-mgt]], [[R-ob-remote-ops]] 
 
 
 # Notes
+
+> **`R-ob-observability` and `R-ob-state-mgt` gained a selector 2026-08-11 ([[TINK Backlog#^T212|T212]]), and the obvious one would have been wrong.** Both declared no `where::`, so they inherited `always` — every file in every anchor. The reflex fix is to copy the sibling: [[R-ob-cmd-proc]] declares `file:{anchor}/**/*.rs`. **Reading the rules refuses it.** `R-ob-observability-01` writes out three Check patterns under three headings — *(Rust)*, *(TS/JS)* and *(Python)*, naming `except: pass` and `.catch(() => default)` explicitly — and `R-ob-state-mgt-01` names `env::var`, `process.env` and `os.environ` in a single line. These sets are deliberately multi-language, and the sibling's selector would have silently discarded two thirds of what they say.
+>
+> **The measurement is the argument.** Across the vault, `.rs` reaches **6** source files; `{rs,py,ts,js}` reaches **347** — so the reflex fix would have scoped a *"no silent fallbacks"* rule to under 2% of the code it was written about, and reported green over the rest. That is the same defect shape as [[R-wcag-contrast]]'s `file:*.svg` (69 of 127 diagrams, found the same day): a selector narrower than its rules, which cannot announce itself because a narrow scope is clean by construction. Both now carry `file:{anchor}/**/*.{rs,py,ts,js}`.
+>
+> **[[R-ob-cmd-proc]]'s own `.rs` scope is left as found and is not obviously wrong** — its rules turn on Rust-specific machinery (`-05` JSON-serializable events, `-11` trait-pluggable backends), so narrow may be right there. It is flagged only because a family whose three members disagree about their own language scope is worth one reader noticing.
+>
+> Selectors are a precondition, not arming: this umbrella is still inert ([[TINK Backlog#^T208|T208]]), and all five rules across the two sets read `(checked)` while resolving to no checker — the layer T212 takes up next.
 
 A small canonical set of rules Dan applies to *every* project he owns. Not trait-scoped (a personal-Code-anchor and a personal-Skill-anchor both pull this in); not domain-scoped (applies to docs, code, configs alike). Naming "ob" mirrors the `ob-` prefix used elsewhere in Dan's tooling (`dans-anchor-system`, `ob-utils`, vault root `~/ob/`). Rename if a better umbrella name surfaces later.

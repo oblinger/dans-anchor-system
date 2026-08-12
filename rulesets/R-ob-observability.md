@@ -1,5 +1,6 @@
 # RULESET R-ob-observability
 include::
+where:: `file:{anchor}/**/*.{rs,py,ts,js}`
 description:: Ob's opinionated take on observability — failures don't disappear silently, and every OS-bridge call is instrumented. Reflects a "log everything, gate by tier" philosophy; other schools prefer minimal logging and richer error context. This set captures Dan's specific approach.
 
 ### RULE R-ob-observability-01 — No silent fallbacks (checked)
