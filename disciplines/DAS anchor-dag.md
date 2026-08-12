@@ -12,6 +12,7 @@ description: >
   (per-doc) or trait (per-anchor) — it is a property of the whole corpus.
 tools: Read
 user_invocable: false
+group: discipline
 ---
 
 # Anchor DAG

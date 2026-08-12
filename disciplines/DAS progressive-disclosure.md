@@ -2,6 +2,7 @@
 name: progressive-disclosure
 description: Discipline. Layered information presentation across the vault — the **preface zone** every doc may carry (dispatch table → TLDR → figure), the **three levels** of progressive disclosure (project anchor / folder anchor / within-doc), and the **five named dispatch-table patterns** (Grouped / List / Compact at anchor-folder; Linear / Matrix within-doc). Cited by [[DAS Anchor Page]], [[DAS Features]], [[DAS Architecture]], [[DAS UX Design]], and the `md` skill.
 user_invocable: false
+group: discipline
 ---
 
 | -[[{Document}]]- | ><br>: One-line description |

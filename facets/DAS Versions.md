@@ -1,5 +1,6 @@
 ---
 description: "facet spec for the versions/ release-artifact store — the immutable, tag-gated folder a project's published builds land in"
+group: file
 ---
 
 | -[[DAS Versions]]- | → [[DAS]] → [[FCT]] → [DAS Versions](hook://p/DAS%20Versions)  |

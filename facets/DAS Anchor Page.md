@@ -1,5 +1,6 @@
 ---
 description: "Anchor Page facet — the format of an anchor's {slug}.md entry point"
+group: file
 ---
 
 | -[[DAS Anchor Page]]- | → [[DAS]] → [[FCT]] → [DAS Anchor Page](hook://p/DAS%20Anchor%20Page)  |

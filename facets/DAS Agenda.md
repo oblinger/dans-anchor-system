@@ -1,5 +1,6 @@
 ---
 description: "the strategy facet — one {slug} Agenda.md per anchor carrying the theory-of-victory for a big-chunk activity"
+group: file
 ---
 
 | -[[DAS Agenda]]- | → [[DAS]] → [[FCT]] → [DAS Agenda](hook://p/DAS%20Agenda)  |

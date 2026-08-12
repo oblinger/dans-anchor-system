@@ -1,5 +1,6 @@
 ---
 description: dated work products — papers, reports, polished outputs
+group: folder
 ---
 
 | -[[DAS WP]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[facets]] → [DAS WP](hook://p/DAS%20WP) |

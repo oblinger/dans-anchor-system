@@ -2,6 +2,7 @@
 name: markdown
 description: Discipline. The "every time you write markdown" rules — both mechanical (rendering correctness — table escapes, fence rules, spacing) and authoring (always-apply quality — wiki-links not bare backticks, definition lists, RULE/RULESET sentinels). Cited by every DAS facet, every design sub-skill, every authoring skill. Sibling discipline to [[DAS progressive-disclosure]] (which owns *what goes where in a doc*); markdown owns *how the markdown text itself is written*. Skill counterpart is [[md]] which owns user-invokable utility verbs (/md toc, /md file-tree, etc.).
 user_invocable: false
+group: discipline
 ---
 
 # Markdown Discipline

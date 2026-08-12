@@ -1,5 +1,6 @@
 ---
 description: the shared facet behind pebbles and rocks — one file per item, a hand-arranged control file that orders them, and propagation along the feed DAG
+group: folder
 ---
 
 | -[[DAS Stone]]- | → [[DAS]] → [[FCT]] → [DAS Stone](hook://p/DAS%20Stone)  |

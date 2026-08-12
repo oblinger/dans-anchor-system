@@ -1,5 +1,6 @@
 ---
 description: "design facet — the {slug} Design/ folder marks an anchor as following the designed-lifecycle convention; folder presence IS the signal (no trait field required)"
+group: folder
 ---
 
 | -[[DAS Design Folder]]- | → [[DAS]] → [[FCT]] → [DAS Design Folder](hook://p/DAS%20Design%20Folder)  |

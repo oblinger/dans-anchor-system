@@ -11,6 +11,7 @@ description: >
   dated stream; the facet declares which methods it supports and which is default.
 tools: Read
 user_invocable: false
+group: slot
 ---
 
 # Stream

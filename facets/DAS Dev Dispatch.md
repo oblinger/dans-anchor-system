@@ -1,5 +1,6 @@
 ---
 description: "audit-tied developer docs dispatch page — file tree and per-module docs"
+group: file
 ---
 
 | -[[DAS Dev Dispatch]]- | → [[DAS]] → [[FCT]] → [DAS Dev Dispatch](hook://p/DAS%20Dev%20Dispatch)  |

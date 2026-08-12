@@ -2,6 +2,7 @@
 name: verification
 description: "Discipline — four-tier verification preference ordering (agent-immediate → user-explicit), declared up front and consulted at verification time"
 user_invocable: false
+group: discipline
 ---
 
 :>> [[DAS]] → [[disciplines]] → [DAS verification](hook://p/DAS%20verification)

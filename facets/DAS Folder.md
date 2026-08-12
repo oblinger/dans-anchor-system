@@ -1,5 +1,6 @@
 ---
 description: "the anchor folder facet — the named directory + marker file that makes an anchor"
+group: folder
 ---
 
 | -[[DAS Folder]]- | → [[DAS]] → [[FCT]] → [DAS Folder](hook://p/DAS%20Folder)  |

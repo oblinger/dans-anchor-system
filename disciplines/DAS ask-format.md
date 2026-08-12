@@ -2,6 +2,7 @@
 name: ask-format
 description: Discipline. The format for any user-actionable surface that an agent writes — Questions (`Q<n>`), Verifies, à la carte items, resolution-acceptance phrases. Owns the navigation invariant (every Q / Verify is link-targetable). Cited by /ask, queries-render.py, /feature, /groom, /crank, and /audit q.
 user_invocable: false
+group: discipline
 ---
 
 # ask-format

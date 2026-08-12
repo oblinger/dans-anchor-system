@@ -1,5 +1,6 @@
 ---
 description: The command-line specification facet — the full command surface for an anchor that ships a CLI, opened by a compressed `--help` figure (an SVG); a design-pipeline doc downstream of UX Design
+group: file
 ---
 
 | -[[DAS CLI]]- | → [[DAS]] → [[FCT]] → [DAS CLI](hook://p/DAS%20CLI)  |

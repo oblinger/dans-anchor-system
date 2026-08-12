@@ -8,6 +8,7 @@ description: >
   fmt / clean). Rust-specific and cross-project only; per-project Cargo
   settings live in that project's own docs.
 user_invocable: false
+group: discipline
 ---
 
 # Rust Discipline

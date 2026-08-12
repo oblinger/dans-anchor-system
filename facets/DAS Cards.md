@@ -1,5 +1,6 @@
 ---
 description: "one cheat sheet plus its spaced-repetition summary and detail cards — one file per sheet"
+group: file
 ---
 
 | -[[DAS Cards]]- | → [[DAS]] → [[FCT]] → [DAS Cards](hook://p/DAS%20Cards)  |

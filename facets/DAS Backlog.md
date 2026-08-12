@@ -1,5 +1,6 @@
 ---
 description: "Organizes a backlog along two independent axes — *when* the user wants work to happen (horizon) and *how far* the work has progressed (workflow state)."
+group: file
 ---
 
 | -[[DAS Backlog]]- | → [[DAS]] → [[FCT]] → [DAS Backlog](hook://p/DAS%20Backlog)  |

@@ -1,5 +1,6 @@
 ---
 description: "facet spec for the project sequencing-design doc — milestones, shapes, and numbering"
+group: file
 ---
 
 | -[[DAS Roadmap]]- | → [[DAS]] → [[FCT]] → [DAS Roadmap](hook://p/DAS%20Roadmap)  |

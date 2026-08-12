@@ -1,5 +1,6 @@
 ---
 description: "per-module source code documentation — one doc per source module mirroring the repo tree"
+group: file
 ---
 
 | -[[DAS Module Doc]]- | → [[DAS]] → [[FCT]] → [DAS Module Doc](hook://p/DAS%20Module%20Doc)  |

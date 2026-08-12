@@ -2,6 +2,7 @@
 name: electric-zone
 description: "Slot facet. The electric zone is everything below a dispatch table's separator — a region defined by position and ownership alone, whose content has no shape of its own because the machine recomputes it."
 user_invocable: false
+group: slot
 ---
 
 | -[[DAS electric-zone]]- | : Slot facet. The electric zone is everything below a dispatch table's separator — a region defined by position and ownership alone, whose content has no shape of its own because the machine recomputes it.<br>→ [[DAS]] → [[disciplines]] → [DAS electric-zone](hook://p/DAS%20electric-zone)  |

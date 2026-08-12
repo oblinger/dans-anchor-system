@@ -1,5 +1,6 @@
 ---
 description: "specification for the OpenSpec-conformant specs/ folder — per-capability behavioral contracts with RFC-2119 requirements and Given/When/Then scenarios"
+group: file
 ---
 
 | -[[DAS Specs]]- | → [[DAS]] → [[FCT]] → [DAS Specs](hook://p/DAS%20Specs)  |

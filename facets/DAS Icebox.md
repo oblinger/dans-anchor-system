@@ -1,5 +1,6 @@
 ---
 description: optional file for distant-future / someday-maybe items
+group: file
 ---
 
 | -[[DAS Icebox]]- | → [[DAS]] → [[FCT]] → [DAS Icebox](hook://p/DAS%20Icebox)  |

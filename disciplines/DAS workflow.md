@@ -2,6 +2,7 @@
 name: workflow
 description: "The canonical state graph for any unit of work — what state it's in, what each state means, and what advances it."
 user_invocable: false
+group: discipline
 ---
 
 :>> [[DAS]] → [[disciplines]] → [DAS workflow](hook://p/DAS%20workflow)

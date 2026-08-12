@@ -1,5 +1,6 @@
 ---
 description: "status facet — one {slug} Status.md per anchor tracking design-phase completeness via a tier ladder"
+group: file
 ---
 
 | -[[DAS Status]]- | → [[DAS]] → [[FCT]] → [DAS Status](hook://p/DAS%20Status)  |

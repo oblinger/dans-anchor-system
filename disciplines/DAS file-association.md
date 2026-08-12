@@ -11,6 +11,7 @@ description: >
   directly. NOT progressive-disclosure (reader layering) or markdown (text rules).
 tools: Read
 user_invocable: false
+group: folder
 ---
 
 # File Association

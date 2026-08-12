@@ -2,6 +2,7 @@
 name: technical-answer
 description: Chat-response discipline for technical-interface questions — how the agent answers questions about APIs, function signatures, library behavior, config schemas, CLI flags, and wire formats in conversational replies (not file-output).
 user_invocable: false
+group: discipline
 ---
 
 # Technical-Answer Discipline

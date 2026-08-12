@@ -1,5 +1,6 @@
 ---
 description: top-level human-authored layer contract — complete vocabulary for using the layer, hides everything below
+group: file
 ---
 
 | -[[DAS Interface]]- | → [[DAS]] → [[FCT]] → [DAS Interface](hook://p/DAS%20Interface)  |

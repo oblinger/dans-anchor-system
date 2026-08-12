@@ -1,5 +1,6 @@
 ---
 description: "the Template facet — a domain-specific, folder-local structure for the items in one folder/tree"
+group: file, folder
 ---
 
 | -[[DAS Template]]- | → [[DAS]] → [[FCT]] → [DAS Template](hook://p/DAS%20Template)  |

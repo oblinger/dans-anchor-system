@@ -1,5 +1,6 @@
 ---
 description: Messages facet — the agent's per-anchor, append-only log of background-process messages. Distinct from `{slug} Inbox.md` which is the user's drop-zone for raw input.
+group: file
 ---
 
 | -[[DAS Messages]]- | → [[DAS]] → [[FCT]] → [DAS Messages](hook://p/DAS%20Messages)  |

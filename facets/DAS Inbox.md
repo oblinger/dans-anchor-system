@@ -1,5 +1,6 @@
 ---
 description: raw incoming content to process
+group: file
 ---
 
 | -[[DAS Inbox]]- | → [[DAS]] → [[FCT]] → [DAS Inbox](hook://p/DAS%20Inbox)  |

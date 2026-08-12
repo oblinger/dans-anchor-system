@@ -1,5 +1,6 @@
 ---
 description: the repo's complete source file tree, every file linked to its module doc (monospace)
+group: file
 ---
 
 | -[[DAS All Files]]- | → [[DAS]] → [[FCT]] → [DAS All Files](hook://p/DAS%20All%20Files)  |

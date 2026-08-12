@@ -1,5 +1,6 @@
 ---
 description: user-facing docs dispatch page — curated, synthesis-level human-authored docs for any audience
+group: file
 ---
 
 | -[[DAS User Dispatch]]- | → [[DAS]] → [[FCT]] → [DAS User Dispatch](hook://p/DAS%20User%20Dispatch)  |

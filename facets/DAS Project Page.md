@@ -1,5 +1,6 @@
 ---
 description: "published project overview page for an anchor"
+group: file
 ---
 
 | -[[DAS Project Page]]- | → [[DAS]] → [[FCT]] → [DAS Project Page](hook://p/DAS%20Project%20Page)  |

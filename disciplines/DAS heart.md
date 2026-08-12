@@ -2,6 +2,7 @@
 name: heart
 description: "Slot facet. The heart is what sits directly below the H1 — the page's own substance, on screen without scrolling, where the spine above it says only where the page sits."
 user_invocable: false
+group: slot
 ---
 
 | -[[DAS heart]]- | : Slot facet. The heart is what sits directly below the H1 — the page's own substance, on screen without scrolling, where the spine above it says only where the page sits.<br>→ [[DAS]] → [[disciplines]] → [DAS heart](hook://p/DAS%20heart)  |

@@ -1,5 +1,6 @@
 ---
 description: "standard test-kind catalogue — generic strategy per kind, linked from each project's Testing tests-table"
+group: discipline
 ---
 
 | -[[DAS Common Testing Types]]- | → [[DAS]] → [[FCT]] → [DAS Common Testing Types](hook://p/DAS%20Common%20Testing%20Types)  |

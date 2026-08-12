@@ -1,5 +1,6 @@
 ---
 description: "specification for the OpenSpec-conformant changes/ folder — C-numbered change folders that land on the backlog like features"
+group: file
 ---
 
 | -[[DAS Changes]]- | → [[DAS]] → [[FCT]] → [DAS Changes](hook://p/DAS%20Changes)  |

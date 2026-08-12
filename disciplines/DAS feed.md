@@ -9,6 +9,7 @@ description: >
   travels the edges is a stone, and its shape is DAS Stone's.
 tools: Read
 user_invocable: false
+group: discipline
 ---
 
 # DAS Feeds

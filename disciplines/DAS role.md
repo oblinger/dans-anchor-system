@@ -6,6 +6,7 @@ description: >
   Each role defines identity, workflows, git protocol, and a POST-COMPACT RELOAD section.
 tools: Read, Write, Edit, Bash, Glob, Grep
 user_invocable: true
+group: discipline
 ---
 
 # Role — Agent Role Definitions

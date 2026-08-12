@@ -1,5 +1,6 @@
 ---
 description: "folder templates — a folder's canonical multi-doc structure"
+group: folder
 ---
 
 | -[[DAS Template Folders]]- | → [[DAS]] → [[FCT]] → [DAS Template Folders](hook://p/DAS%20Template%20Folders)  |

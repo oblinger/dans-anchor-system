@@ -2,6 +2,7 @@
 name: granularity
 description: Discipline. The rule for how coarse or fine a capability/concept should be — when it lives as a subcomponent vs earns its own named unit vs spawns a grouping. Governed by the cost of the ALWAYS-LOADED surface: for skills, every top-level skill's name+description loads into every environment (subcommands are free until invoked); for facets, every facet's dispatch row carries context weight. Names the levels (subcommand → coarse skill → top-level skill → grouping; subsection → facet → folder-facet → grouping) and the two graduation triggers (coarsen-by-default; graduate-on-shared-shape or earned-independence). Cited by [[Access PRD]], [[SKA Design]], [[DAS Skills]], and any facet/skill deciding where a new capability lands.
 user_invocable: false
+group: discipline
 ---
 
 # Granularity Discipline

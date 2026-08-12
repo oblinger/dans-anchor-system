@@ -1,5 +1,6 @@
 ---
 description: "facet spec this doc follows"
+group: file
 ---
 
 | -[[DAS PRD]]- | → [[DAS]] → [[FCT]] → [DAS PRD](hook://p/DAS%20PRD)  |

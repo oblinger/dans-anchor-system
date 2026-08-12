@@ -1,5 +1,6 @@
 ---
 description: "Linked Mode discipline — anchor folder is metadata-only, code lives at an external path declared via `code:` in `.anchor`"
+group: discipline
 ---
 
 :>> [[DAS]] → [[disciplines]] → [DAS Linked Mode](hook://p/DAS%20Linked%20Mode)

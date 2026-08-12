@@ -1,5 +1,6 @@
 ---
 description: "the current technical-architecture document for a software project anchor"
+group: file
 ---
 
 | -[[DAS System Design]]- | → [[DAS]] → [[FCT]] → [DAS System Design](hook://p/DAS%20System%20Design)  |

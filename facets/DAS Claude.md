@@ -1,5 +1,6 @@
 ---
 description: CLAUDE.md agent configuration
+group: file
 ---
 
 | -[[DAS Claude]]- | → [[DAS]] → [[FCT]] → [DAS Claude](hook://p/DAS%20Claude)  |

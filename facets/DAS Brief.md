@@ -1,5 +1,6 @@
 ---
 description: The Brief doc facet — agent-facing per-file editing-and-maintenance content paired with a source file (the `# BRIEF` section / sidecar). Briefs are for the agent about to edit the file, NOT for the user reading it.
+group: slot
 ---
 
 | -[[DAS Brief]]- | → [[DAS]] → [[FCT]] → [DAS Brief](hook://p/DAS%20Brief)  |

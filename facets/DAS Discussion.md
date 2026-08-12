@@ -1,5 +1,6 @@
 ---
 description: "per-document discussion log — dated trade-off threads attached to the doc they're about"
+group: slot
 ---
 
 | -[[DAS Discussion]]- | → [[DAS]] → [[FCT]] → [DAS Discussion](hook://p/DAS%20Discussion)  |

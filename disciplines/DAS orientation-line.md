@@ -2,6 +2,7 @@
 name: orientation-line
 description: "Slot facet. The orientation line is the one sentence directly under the H1 — a place with a role and no fixed form, saying what this file is before anything says what it contains."
 user_invocable: false
+group: slot
 ---
 
 | -[[DAS orientation-line]]- | : Slot facet. The orientation line is the one sentence directly under the H1 — a place with a role and no fixed form, saying what this file is before anything says what it contains.<br>→ [[DAS]] → [[disciplines]] → [DAS orientation-line](hook://p/DAS%20orientation-line)  |

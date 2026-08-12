@@ -1,5 +1,6 @@
 ---
 description: "the top-of-page navigation table — its own spec, dogfooded"
+group: slot
 ---
 
 | -[[DAS Dispatch Table]]- | → [[DAS]] → [[FCT]] → [DAS Dispatch Table](hook://p/DAS%20Dispatch%20Table)  |

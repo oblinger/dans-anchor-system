@@ -1,5 +1,6 @@
 ---
 description: "completed-roadmap facet — migrated milestones in newest-on-top order, sibling of the forward-looking Roadmap"
+group: file
 ---
 
 | -[[DAS Completed Roadmap]]- | → [[DAS]] → [[FCT]] → [DAS Completed Roadmap](hook://p/DAS%20Completed%20Roadmap)  |

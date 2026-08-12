@@ -1,5 +1,6 @@
 ---
 description: "published web presence for an anchor — Jekyll project page or MkDocs full documentation site"
+group: folder
 ---
 
 | -[[DAS Documentation Site]]- | → [[DAS]] → [[FCT]] → [DAS Documentation Site](hook://p/DAS%20Documentation%20Site)  |

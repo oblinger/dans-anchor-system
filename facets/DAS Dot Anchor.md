@@ -1,5 +1,6 @@
 ---
 description: the `.anchor` file — the YAML declaration at an anchor's root (slug, traits, code, parents, …); the field set lives here, per-field rules route to their facets
+group: file
 ---
 
 | -[[DAS Dot Anchor]]- | → [[DAS]] → [[FCT]] → [DAS Dot Anchor](hook://p/DAS%20Dot%20Anchor)  |

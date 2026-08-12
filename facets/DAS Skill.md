@@ -1,5 +1,6 @@
 ---
 description: "the Skill primitive — SKILL.md entry-point structure and conventions"
+group: file
 ---
 
 | -[[DAS Skill]]- | → [[DAS]] → [[FCT]] → [DAS Skill](hook://p/DAS%20Skill)  |

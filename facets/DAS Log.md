@@ -1,5 +1,6 @@
 ---
 description: "the Log facet — dated entries capturing what happened on what day, in folder or single-file form"
+group: file
 ---
 
 | -[[DAS Log]]- | → [[DAS]] → [[FCT]] → [DAS Log](hook://p/DAS%20Log)  |

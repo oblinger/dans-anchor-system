@@ -2,6 +2,7 @@
 name: formats
 description: Discipline. The user's standard formats for pieces of information agents produce — email drafts first, more as they accrete. One H2 per format; each gives its trigger, rules, and a real example. Not markdown-layout rules (that is DAS markdown) — these are output-conformance formats, mostly about surviving the trip into an external surface.
 user_invocable: false
+group: discipline
 ---
 
 # formats

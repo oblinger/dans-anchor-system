@@ -1,5 +1,6 @@
 ---
 description: "the rocks facet — an optional {slug} Rocks/ folder per anchor holding the big chunks that anchor is trying to move; rocks form a tree and promotion up the tree is the main action"
+group: folder
 ---
 
 | -[[DAS Rocks]]- | → [[DAS]] → [[FCT]] → [DAS Rocks](hook://p/DAS%20Rocks)  |

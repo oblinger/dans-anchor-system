@@ -1,5 +1,6 @@
 ---
 description: dated agent-generated outputs — audit reports, analysis
+group: file
 ---
 
 | -[[DAS Outputs]]- | → [[DAS]] → [[FCT]] → [DAS Outputs](hook://p/DAS%20Outputs)  |

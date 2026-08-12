@@ -1,5 +1,6 @@
 ---
 description: "file-naming facet — every file inside an anchor uses `{slug} <X>.md` form by default; exceptions for vault-global files and facet-sanctioned unique patterns"
+group: discipline
 ---
 
 | -[[DAS Naming]]- | → [[DAS]] → [[FCT]] → [DAS Naming](hook://p/DAS%20Naming)  |

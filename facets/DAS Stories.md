@@ -1,5 +1,6 @@
 ---
 description: "facet spec for user stories as first-class siblings of a PRD — inline-bullet form for small PRDs, extracted-folder form for large ones"
+group: file
 ---
 
 | -[[DAS Stories]]- | → [[DAS]] → [[FCT]] → [DAS Stories](hook://p/DAS%20Stories)  |

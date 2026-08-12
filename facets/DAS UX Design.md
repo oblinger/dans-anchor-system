@@ -1,5 +1,6 @@
 ---
 description: "facet spec for `{slug} UX Design.md` — the human user-facing surface (CLI commands, screens, organization, naming, output shapes, error voice)"
+group: file
 ---
 
 | -[[DAS UX Design]]- | → [[DAS]] → [[FCT]] → [DAS UX Design](hook://p/DAS%20UX%20Design)  |

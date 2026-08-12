@@ -1,5 +1,6 @@
 ---
 description: "file templates — one document's canonical shape"
+group: file
 ---
 
 | -[[DAS Template Files]]- | → [[DAS]] → [[FCT]] → [DAS Template Files](hook://p/DAS%20Template%20Files)  |

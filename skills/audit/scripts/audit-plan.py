@@ -729,7 +729,7 @@ def effective_confirm(rule: dict, ruleset: dict) -> str | None:
 
 
 def parse_selector(where: str) -> tuple[str, str]:
-    """(kind, arg). kind ∈ always|file|anchor|sentinel. Bare glob → ('file', glob)."""
+    """(kind, arg). kind ∈ always|file|anchor|sentinel|group. Bare glob → ('file', glob)."""
     w = where.strip()
     if w == "always":
         return "always", ""
@@ -739,6 +739,8 @@ def parse_selector(where: str) -> tuple[str, str]:
         return "file", w[len("file:"):].strip()
     if w.startswith("sentinel:"):
         return "sentinel", w[len("sentinel:"):].strip()
+    if w.startswith("group:"):
+        return "group", w[len("group:"):].strip()
     return "file", w  # bare glob
 
 
@@ -875,9 +877,75 @@ def _match_file_glob(arg: str, scope_files: list[Path], anchor_root: Path) -> li
     return [p for p in scope_files if p in hits]
 
 
+# ── `group:` selector (T197) — a document declares what it is ────────────────
+#
+# The facet-group vocabulary is [[DAS Facet]] § Facet groups: a spec attaches to
+# a `file`, a `folder`, a `slot`, or to nothing of its own (`discipline`). That
+# page also settles WHERE the answer lives — *"the group is declared in the spec,
+# never encoded in which folder the spec lives in"* — because a facet can change
+# groups (Brief is a slot inline and a file as a sidecar) and a folder forces one
+# answer permanently.
+#
+# This selector is what finally READS that declaration. Before it, `R-facet-spec`
+# reached its target set by SUBTRACTION: a `DAS *.md` glob minus a hand-listed
+# complement that had grown to 48 clauses, every one appended by an agent after a
+# finding fired on a document the list had not yet heard of. A new discipline was
+# born failing the facet rules and the fix was always to grow the negative.
+#
+# The declaration is a frontmatter key, not a body `group::` field, for two
+# reasons: frontmatter is the metadata surface these specs already carry (the
+# `status::` dataview field is likewise specified as living there), and a body
+# line inside a spec is one dispatch-table rebuild away from being an electric
+# zone. Multiple groups are comma-separable — a spec whose realization genuinely
+# spans two (`DAS Template`, whose instances are files AND folders) says so
+# rather than picking a lie.
+_GROUP_KEY_RE = re.compile(r"^group\s*:\s*(.+?)\s*$", re.M)
+GROUP_VALUES = ("file", "folder", "slot", "discipline")
+
+
+def declared_groups(path: Path) -> set[str]:
+    """The facet groups a spec doc declares in frontmatter — empty if none.
+
+    Empty is the honest answer for every document that is not a spec (an index,
+    a gallery, a group profile), which is what keeps the selector positive.
+    """
+    try:
+        fm = _frontmatter(_read(path))
+    except OSError:
+        return set()
+    if not fm:
+        return set()
+    m = _GROUP_KEY_RE.search(fm)
+    if not m:
+        return set()
+    raw = m.group(1).strip().strip("[]")
+    return {v.strip().strip("\"'").lower() for v in raw.split(",") if v.strip()}
+
+
 def match_targets(kind: str, arg: str, scope_files: list[Path], anchor_root: Path) -> list[Path]:
     if kind == "always":
         return list(scope_files)
+    if kind == "group":
+        want = {g.strip().lower() for g in arg.split(",") if g.strip()}
+        out = []
+        for p in scope_files:
+            if not p.is_file():
+                continue
+            got = declared_groups(p)
+            # A typo is the one failure this selector cannot survive quietly:
+            # `group: File` or `group: files` declares nothing the selector
+            # knows, so the spec drops out of the target set and every rule
+            # that governed it reports nothing — a silent green, which is the
+            # worse half of the over/under-inclusion trade. Refuse to let an
+            # unknown value pass as if it were a considered choice.
+            bad = got - set(GROUP_VALUES)
+            if bad:
+                raise ValueError(
+                    f"{p}: frontmatter `group:` names {sorted(bad)}, which is not "
+                    f"one of {list(GROUP_VALUES)} — see [[DAS Facet]] § Facet groups")
+            if got & want:
+                out.append(p)
+        return out
     if kind == "anchor":
         return [anchor_root]  # synthetic: one structural check per anchor
     if kind == "file":

@@ -1,5 +1,6 @@
 ---
 description: "the top-down design of a system's module & content structure — the file-tree architecture doc kind"
+group: file
 ---
 
 | -[[DAS Files Architecture]]- | → [[DAS]] → [[FCT]] → [DAS Files Architecture](hook://p/DAS%20Files%20Architecture)  |

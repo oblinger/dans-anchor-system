@@ -1,5 +1,6 @@
 ---
 description: "specification for F-numbered per-feature design docs and their index page"
+group: file
 ---
 
 | -[[DAS Features]]- | → [[DAS]] → [[FCT]] → [DAS Features](hook://p/DAS%20Features)  |

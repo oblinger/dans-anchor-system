@@ -1,5 +1,6 @@
 ---
 description: per-anchor architecture overview — anchor-folder form with subsystems; standard section order; mandatory visual diagram (Excalidraw, never ASCII); subsystem dispatch table with link convention; API detail lives in sub-docs, not the main page.
+group: file
 ---
 
 | -[[DAS Architecture]]- | → [[DAS]] → [[FCT]] → [DAS Architecture](hook://p/DAS%20Architecture)  |

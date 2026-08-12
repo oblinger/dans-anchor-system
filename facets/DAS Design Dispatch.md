@@ -1,5 +1,6 @@
 ---
 description: "design docs dispatch page — Architecture, UX Design, Interface, Data Model, Principles, PRD"
+group: file
 ---
 
 | -[[DAS Design Dispatch]]- | → [[DAS]] → [[FCT]] → [DAS Design Dispatch](hook://p/DAS%20Design%20Dispatch)  |

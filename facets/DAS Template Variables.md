@@ -1,5 +1,6 @@
 ---
 description: "the `{{PLACEHOLDER}}` system shared by file and folder templates"
+group: discipline
 ---
 
 | -[[DAS Template Variables]]- | → [[DAS]] → [[FCT]] → [DAS Template Variables](hook://p/DAS%20Template%20Variables)  |

@@ -1,5 +1,6 @@
 ---
 description: "the Doc Structure facet — the canonical top-to-bottom layering every document follows (progressive disclosure specialized for a single document)"
+group: discipline
 ---
 
 | -[[DAS Doc Structure]]- | → [[DAS]] → [[FCT]] → [DAS Doc Structure](hook://p/DAS%20Doc%20Structure)  |

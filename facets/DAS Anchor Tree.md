@@ -2,6 +2,7 @@
 cssclasses:
   - monospace
 description: anchor master tree — every possible doc/folder in an anchor, linked to its facet spec
+group: file
 ---
 
 | -[[DAS Anchor Tree]]- | → [[DAS]] → [[FCT]] → [DAS Anchor Tree](hook://p/DAS%20Anchor%20Tree)  |

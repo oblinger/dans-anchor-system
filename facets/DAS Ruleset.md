@@ -1,5 +1,6 @@
 ---
 description: "the Ruleset facet — what a ruleset is and the format every ruleset file (a standalone `R-<slug>` or an anchor-local {slug} Rules.md) must take"
+group: slot
 ---
 
 | -[[DAS Ruleset]]- | → [[DAS]] → [[FCT]] → [DAS Ruleset](hook://p/DAS%20Ruleset)  |

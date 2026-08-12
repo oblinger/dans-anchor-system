@@ -5,6 +5,7 @@ description: >
   trade-offs so the agent doesn't have to ask each time. Cited by other skills;
   not directly user-invocable.
 user_invocable: false
+group: discipline
 ---
 
 # Mode Discipline

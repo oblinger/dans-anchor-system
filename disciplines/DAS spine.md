@@ -2,6 +2,7 @@
 name: spine
 description: "Slot facet. The spine is everything above the H1 — the page's position in the structure, in whichever shape its children call for; the heart is what comes directly below."
 user_invocable: false
+group: slot
 ---
 
 | -[[DAS spine]]- | : Slot facet. The spine is everything above the H1 — the page's position in the structure, in whichever shape its children call for; the heart is what comes directly below.<br>→ [[DAS]] → [[disciplines]] → [DAS spine](hook://p/DAS%20spine)  |

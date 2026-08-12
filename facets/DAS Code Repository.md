@@ -1,5 +1,6 @@
 ---
 description: "facet spec for the code repository association and doc-mirror routes declared in an anchor's `.anchor` file"
+group: folder
 ---
 
 | -[[DAS Code Repository]]- | → [[DAS]] → [[FCT]] → [DAS Code Repository](hook://p/DAS%20Code%20Repository)  |

@@ -8,6 +8,7 @@ description: >
   its own toolchain. Language-flavor disciplines (e.g. [[DAS rust]]) mirror the
   recipe names; per-project deviations live in that project's own docs, not here.
 user_invocable: false
+group: discipline
 ---
 
 # Code-Repo Discipline

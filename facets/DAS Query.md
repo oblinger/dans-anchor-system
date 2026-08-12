@@ -1,5 +1,6 @@
 ---
 description: Query facet — the format of an anchor's `{slug} queries.md`, the file `/ask` builds to ask the user questions. Rules about what a valid queries file looks like.
+group: file
 ---
 
 | -[[DAS Query]]- | → [[DAS]] → [[FCT]] → [DAS Query](hook://p/DAS%20Query)  |

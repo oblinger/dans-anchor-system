@@ -1,5 +1,6 @@
 ---
 description: "`/move` relocates an anchor folder to a new path and updates every path-dependent system that indexes it — HookAnchor, Claude Code session history, hardcoded paths inside the anchor's own configs, …"
+group: discipline
 ---
 
 | -[[DAS Move]]- | → [[DAS]] → [[FCT]] → [DAS Move](hook://p/DAS%20Move)  |
