@@ -1,9 +1,12 @@
 # RULESET R-naming
 include::
 import:: skills/audit/scripts/audit-plan.py
+where:: `always`
 description:: file-naming facet — `{slug} <X>.md` default + explicit exception allowlist
 
 Embedded ruleset for the Naming facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Armed by [[R-anchor]]'s `include::` — the umbrella `/audit anchor` resolves. Being named by [[R-facet]] is catalog membership, not adoption — that umbrella sits outside the `R-doc`/`R-anchor` closure `audit-plan.py` resolves, so an `include::` there arms nothing ([[TINK Backlog#^T208|T208]]). Vault-wide application — every anchor's files are subject to this set, no explicit `include::` needed.
+
+> **`always` is now declared rather than inherited — [[TINK Backlog#^T212|T212]], 2026-08-11.** The scope did not change: an absent `where::` already falls through to `always`, and the sentence above (*"every anchor's files are subject to this set"*) says that is intended. What changed is that a reader can no longer confuse *deliberately vault-wide* with *nobody wrote a selector* — the two looked identical, and the same ambiguity is what hid [[R-exception-discipline]]'s defect, where four rules inherited `always` because the set-level line was never written while five siblings each wrote it out. [[R-progressive]] already declared its `always` explicitly; this set now matches it. After this, the only live rules judged at `always` are these five and `R-progressive-06`, and all six were read and are honestly scoped.
 
 ### RULE R-naming-01 — A file prefix, if present, is the anchor's slug (checked)
 check:: name_slug_prefixed
