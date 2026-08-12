@@ -1,4 +1,5 @@
 # RULESET R-files-architecture
+include::
 description:: the file-tree / content-structure design doc kind
 
 ### RULE R-files-architecture-01 — Target structure is present and explicit (checked)

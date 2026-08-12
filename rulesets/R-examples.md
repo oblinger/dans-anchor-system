@@ -1,4 +1,5 @@
 # RULESET R-examples
+include::
 where:: `file:{anchor}/examples/**/*.md`
 import:: skills/audit/scripts/audit-plan.py
 description:: Examples in a published anchor are wholly invented — no content drawn from the author's vault, and no real project, person, address, or drive name.

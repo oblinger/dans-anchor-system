@@ -4,6 +4,7 @@ where: "file: {anchor}/**/*.md"
 ---
 
 # RULESET R-dispatch-table
+include::
 import:: skills/audit/scripts/audit-plan.py
 The shape every dispatch table must take — masthead-placement law, member-zone mechanics, and pipe-escaped cell links.
 

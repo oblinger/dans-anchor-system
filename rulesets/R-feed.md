@@ -1,5 +1,4 @@
 # RULESET R-feed
-
 include::
 where:: `file:**/.anchor`
 description:: Rules for the feed DAG — the `feeds:` key in `.anchor`, its consumer-only declaration, the acyclicity and resolvability invariants, and the no-silent-empty reporting duty of any pass that walks it.

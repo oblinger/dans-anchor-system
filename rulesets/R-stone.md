@@ -1,5 +1,4 @@
 # RULESET R-stone
-
 include::
 import:: skills/audit/scripts/audit-plan.py
 where:: `file:{anchor}/**/* Rocks/**, {anchor}/**/* Pebbles/**, !**/DAS *.md`

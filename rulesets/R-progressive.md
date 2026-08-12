@@ -1,4 +1,5 @@
 # RULESET R-progressive
+include::
 where:: `always`
 description:: layout conventions of progressive disclosure — checked on every markdown doc
 import:: skills/audit/scripts/audit-plan.py
