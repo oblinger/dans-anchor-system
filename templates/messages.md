@@ -1,4 +1,7 @@
-# {slug} Messages
-description:: background-process notes for the agent, read on every pause — distinct from the user's `{slug} Inbox.md`.
+---
+description: agent inbox for {slug} — append-only notifications from watchers, audits, and tools.
+---
 
-- **{{YYYY-MM-DD HH:MM}} · {{source process}}** — {{the note: what happened, what the agent should do or know}}
+# {slug} Messages
+
+[{{YYYY-MM-DD HH:MM:SS}}] [{{LEVEL}}] {slug}: {{what happened}} (at {{path relative to the vault root}})

@@ -2,11 +2,11 @@
 description: "test strategy + proposed tests"
 status:: drafting
 ---
-:>> [[DAS]] → [[Templates]] → [testing markdown](hook://p/testing%20markdown)
+:>> [[DAS]] → [[Templates]] → [testing markdown](hook://p/testing%20markdown) 
 # {slug} Testing
 How {slug} is verified: the kinds of test, how much of each, and the concrete inventory consistent with that strategy.
 
-**Related:** [[{slug} Architecture]],  [[{slug} PRD]],  [[DAS verification]]
+**Related:** [[{slug} Architecture]],  [[{slug} PRD]],  [[DAS verification]] 
 
 **TLDR**
 - **{{Posture descriptor}}** — {{one line: the shape of the test investment, e.g. "heavy unit + integration; minimal e2e"}}
@@ -15,7 +15,7 @@ How {slug} is verified: the kinds of test, how much of each, and the concrete in
 
 ## Tests
 
-| Kind | In system | Expected |
+| Kind | In system | Expected coverage |
 | --- | --- | --- |
 | [[DAS Common Testing Types#{{Kind}}\|{{Kind}}]] | {{N}} | {{target count and/or qualitative bar}} |
 | ... | | |

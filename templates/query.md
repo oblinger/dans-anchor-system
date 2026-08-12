@@ -1,28 +1,35 @@
 ---
-description: "{{One-line description of this anchor's question queue}}"
+description: "{slug} queries — mechanically rendered from the backlog (Blockers / Ready+Next / Questions / Blocked / Verifications / User / Other), and copied verbatim into Q.md. Do not hand-edit; edit the backlog rows."
 ---
 
-# [{{TAG}}]  [[{slug}|{slug}]]  -  Ready {{N}}    Questions {{N}}   |   Now {{N}}    Next {{N}}    Later {{N}}    Verify {{N}}    Icebox {{N}}
+# [{{TAG}}]  [[{slug} queries|{slug}]]  -  Ready {{N}}    User {{N}}    Inbox {{N}}   |   Now {{N}}    Next {{N}}    Later {{N}}   |   Parked {{N}}    Waiting {{N}}    Icebox {{N}}    {{{N}}}
 
-## Agent Resolutions
+## Blockers
 
-- **{{Short decision title}}** — {{reversible guess the agent made and why}} → [[F{{NNN}} — {{Title}}]]
-
-## Verifications
-
-- **V{{n}} — {{what the agent verified}}** — {{the concrete yes/no left for the user to judge, answerable from where they sit}} → [[F{{NNN}} — {{Title}}]]
-
-## Immediate Questions
-
-- **Q{{n}} — {{short question title}}** — {{full self-contained question with direct wiki-links to every artifact needed to answer}} → [[F{{NNN}} — {{Title}}]]
-  - **(A)** {{option}}
-  - **(B)** {{option}}
-  - **Recommendation:** {{Strong (A) | Lean (A) | None — one-line reason}}
-
-## Questions
-
-- [[F{{NNN}} — {{Title}}]] Q{{m}} — {{one-line pointer to the question in its feature doc}}
+- [[{{the blocking row, or its open question}}]] **({{n}}Q)** — **[{{bracket}}]** **gates [[{{the row it blocks}}]]** — {{one-line preview}}
+    - Q{{n}} — {{the question, when the blocker is a [Questions] row}}
 
 ## Ready
 
-- F{{NNN}} — {{title of a [Ready] row awaiting execution}}
+- [[{{the row, or its Open Questions}}]] — **Next:** {{the row's Next line}}
+
+## Questions
+
+- [[{{the source's open questions}}]] **({{n}}Q)** — {{one-line preview}}
+    - Q{{n}} — {{question}} · **(A)** {{option}} · **(B)** {{option}} · *{{Lean (A) | None}} — {{reason}}*
+
+## Blocked
+
+- [[{{the row}}]] — **[Blocked {{handle}}]** {{one-line preview}}
+
+## Verifications
+
+- **V{{n}}** [[{{the row}}]] — {{the concrete yes/no the user judges, answerable from where they sit}} · **yes / no**
+
+## User
+
+- **U{{n}}** [[{{the row}}]] — {{the action only the user can take}} · *why-user-action: {{why}}*
+
+## Other
+
+- {{row handle}} — **[{{bracket, or `no state`}}]** {{one-line preview}}
