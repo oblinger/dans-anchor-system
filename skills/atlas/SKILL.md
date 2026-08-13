@@ -10,7 +10,7 @@ subsystem:: [[DAS Utility Design]] — the Utility group's subsystem profile
 
 Maintain the vault-wide glossary and router at `~/ob/kmr/SYS/Atlas/Atlas.md`. Atlas is the agent's primary discovery surface for named things in the user's knowledge repo — anchors, concepts, standards, tools, project codenames. Every entry **routes to the canonical source** rather than duplicating its content.
 
-User docs: `[[Atlas]]` (the file itself is the documentation).
+User docs: [[DAS Atlas]] — the reading surface. The glossary itself, [[Atlas]], is also its own documentation.
 
 ## What this skill maintains
 
@@ -56,11 +56,7 @@ When the file grows unwieldy, split alphabetically (`Atlas A-F.md`, `Atlas G-M.m
 
 ### 4. Entry shape
 
-```markdown
-## Name
-
-One paragraph: what it is, where it lives, intended use, constraints, related-name links. End with the slug in parentheses if the name has one.  ([[slug]])
-```
+An entry is a single H2 whose text is the name, followed by one paragraph — what it is, where it lives, intended use, constraints, related-name links — closing with the slug in parentheses as a live link, so the paragraph ends `…  ([[slug]])`.
 
 - One H2 per name. The H2 text matches the slug exactly (case + spaces preserved).
 - One paragraph (rarely two for genuinely structural entries; never more than two).
