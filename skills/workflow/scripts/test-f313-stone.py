@@ -330,25 +330,64 @@ try:
     else:
         no(f"downstream deletion was NOT restored:\n{c_text}")
 
-    # ---- H: three-way edit converges on the last one ---------------------
-    print("== H: same stone edited in three files converges on the last ==")
+    # ---- H: conflicting edits abort the pass; agreeing edits converge -----
+    # F312 Q6 answered (C) 2026-08-13. This case USED to assert the opposite —
+    # that three files editing one stone to three different values converged on
+    # the alphabetically-last one. That was the shipped behaviour and it
+    # silently discarded two edits per pass: the projections converge, every
+    # file looks right afterwards, and nothing anywhere records that the other
+    # two edits existed. (C) keeps every-file-is-a-write-surface and removes
+    # only the silence.
+    print("== H: conflicting edits abort the pass and discard nothing ==")
+    h_watch = [apath, bpath, cpath, stone_path(root, "A", "R0002")]
+    h_before = {p: p.read_bytes() for p in h_watch}
     rewrite_line_text(apath, "R0002", "text-from-A")
     rewrite_line_text(bpath, "R0002", "text-from-B")
     rewrite_line_text(cpath, "R0002", "text-from-C")
+    h_edited = {p: p.read_bytes() for p in h_watch}
+
+    err = io.StringIO()
+    with contextlib.redirect_stderr(err):
+        rc = run(root, "rock", "update")
+    err_text = err.getvalue()
+
+    if rc != 0:
+        ok(f"three-way conflicting edit refuses the pass (rc={rc})")
+    else:
+        no("conflicting edits returned 0 — the loss is still silent")
+
+    if "conflicting values" in err_text and "A:R0002" in err_text:
+        ok("...and the report names the stone")
+    else:
+        no(f"collision not reported against the stone: {err_text!r}")
+
+    if all(f"text-from-{s}" in err_text for s in ("A", "B", "C")):
+        ok("...and quotes every value in conflict, so nothing is lost to the log")
+    else:
+        no(f"report did not carry all three values: {err_text!r}")
+
+    if all(p.read_bytes() == h_edited[p] for p in h_watch):
+        ok("...and NOTHING was written — no half-reconciled tree, as with a cycle")
+    else:
+        no("a colliding pass still wrote — abort is not before-writes")
+
+    # Agreement is not conflict: two projections edited to the SAME new text
+    # discard nothing when one is taken, so this must still converge. Without
+    # this the check could pass by simply refusing every multi-file edit.
+    rewrite_line_text(apath, "R0002", "agreed-text")
+    rewrite_line_text(bpath, "R0002", "agreed-text")
+    rewrite_line_text(cpath, "R0002", "agreed-text")
     rc = run(root, "rock", "update")
-    final_stone_text = stone_path(root, "A", "R0002").read_text(encoding="utf-8")
-    if "line:: text-from-C" in final_stone_text:
-        ok("stone's master line:: converged on the last-touched copy (C, alphabetically last)")
+    want = stone_line("A", "R0002", "agreed-text")
+    if rc == 0 and "line:: agreed-text" in stone_path(root, "A", "R0002").read_text(encoding="utf-8"):
+        ok("three projections edited to the SAME text still converge (rc=0)")
     else:
-        no(f"stone did not converge on the expected winner:\n{final_stone_text}")
-    a_final = apath.read_text(encoding="utf-8")
-    b_final = bpath.read_text(encoding="utf-8")
-    c_final = cpath.read_text(encoding="utf-8")
-    want = stone_line("A", "R0002", "text-from-C")
-    if want in a_final and want in b_final and want in c_final:
-        ok("every projection equals the stone after the pass (convergence)")
+        no(f"agreeing edits were treated as a conflict (rc={rc})")
+    if all(want in p.read_text(encoding="utf-8") for p in (apath, bpath, cpath)):
+        ok("...and every projection equals the stone afterwards (convergence)")
     else:
-        no(f"convergence failed:\nA={a_final}\nB={b_final}\nC={c_final}")
+        no("convergence failed after an agreeing three-way edit")
+    del h_before
 
     # ---- I: cycle reported as a path, no writes --------------------------
     print("== I: a cycle in feeds: is reported as a path, and nothing is written ==")

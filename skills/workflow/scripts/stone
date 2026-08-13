@@ -14,9 +14,12 @@ This is the mechanical half only.
         Walk the `feeds:` DAG under PATH (default: vault root) and reconcile
         every control file of this kind against its stones:
           - a line differing from its stone is an EDIT of the stone — the
-            edit travels up to the stone (last writer wins within the pass,
-            no merge, no conflict report), then every projection is rewritten
+            edit travels up to the stone, then every projection is rewritten
             to match (convergence: every projection == its stone at the end).
+            If two projections of one stone were edited to DIFFERENT values in
+            the same pass, that is a collision: the pass aborts before any
+            write, naming the stone and who said what (F312 Q6 = C). No merge
+            is attempted, and no edit is silently discarded.
           - a stone missing from every OTHER control file it should reach is
             silently re-added (a feed edge, or a line's position relative to
             the self-section, changed); a stone whose line only vanished from
@@ -592,13 +595,25 @@ def remove_stones(cf, targets: set, cfg: dict):
 # --------------------------------------------------------------------------
 # The propagation pass (§ Propagation)
 
-def readback(stones: dict, control: dict, cfg: dict):
+def readback(stones: dict, control: dict, cfg: dict) -> list:
     """Any line differing from its stone is an edit of the stone (wherever
-    found). Last writer wins within the pass — compared against each stone's
-    ORIGINAL line:: (as of the start of the pass), not a running value, so a
-    single edit surrounded by untouched stale copies is never mistaken for a
-    later 'edit' reverting it. Then every occurrence is resynced to the final
-    value: convergence, the property the design is tested against."""
+    found), compared against each stone's ORIGINAL line:: (as of the start of
+    the pass), not a running value — so a single edit surrounded by untouched
+    stale copies is never mistaken for a later 'edit' reverting it. Then every
+    occurrence is resynced: convergence, the property the design is tested
+    against.
+
+    Returns the COLLISIONS — stones whose projections were edited to two or
+    more different values in one pass. F312 Q6 answered (C) 2026-08-13: keep
+    the shipped every-file-is-a-write-surface model, but make the loss loud.
+    A colliding stone is left untouched here and the caller aborts the pass
+    before any write, so no edit is discarded and no file is half-reconciled.
+
+    The predicate is *distinct* differing values, not "more than one projection
+    differs". Two projections carrying the SAME new text lose nothing when one
+    of them is taken — that is a propagated edit, not a conflict. Only a
+    disagreement can discard something, and only disagreement is reported.
+    """
     occ: dict = {}
     for slug in sorted(control):
         cf = control[slug]
@@ -606,7 +621,7 @@ def readback(stones: dict, control: dict, cfg: dict):
             cls = classify_line(line, cfg)
             if cls[0] == "stone":
                 _, owner, sid, text = cls
-                occ.setdefault((owner, sid), []).append(text)
+                occ.setdefault((owner, sid), []).append((slug, text))
             elif cls[0] == "header":
                 tail = cls[2].lstrip()
                 if tail.startswith(":"):
@@ -615,19 +630,22 @@ def readback(stones: dict, control: dict, cfg: dict):
                         sub = classify_stone_chunk(chunk, cfg)
                         if sub:
                             owner, sid, text = sub
-                            occ.setdefault((owner, sid), []).append(text)
+                            occ.setdefault((owner, sid), []).append((slug, text))
 
-    for key, texts in occ.items():
+    collisions = []
+    for key, seen in occ.items():
         st = stones.get(key)
         if st is None:
             continue  # dangling reference — left untouched, not this tool's job
         original = st.orig_line
-        last_edit = None
-        for text in texts:
-            if text != original:
-                last_edit = text
-        if last_edit is not None and last_edit != st.line:
-            st.line = last_edit
+        edits = [(slug, text) for slug, text in seen if text != original]
+        distinct = {text for _slug, text in edits}
+        if len(distinct) > 1:
+            collisions.append((key[0], key[1], sorted(edits)))
+            continue  # leave the stone alone — the caller aborts before writes
+        if edits and edits[-1][1] != st.line:
+            st.line = edits[-1][1]
+    return collisions
 
     for slug in sorted(control):
         cf = control[slug]
@@ -838,9 +856,24 @@ def cmd_update(kind: str, cfg: dict, root: Path, args) -> int:
         lines = cpath.read_text(encoding="utf-8").splitlines() if exists else []
         control[slug] = SimpleNamespace(slug=slug, path=cpath, lines=lines, exists=exists)
 
-    readback(stones, control, cfg)
-
+    # The DAG is checked FIRST: a cycle makes "which value is downstream"
+    # meaningless, so a structural error outranks a content conflict.
     order = topo_order(anchors)  # raises + aborts (no writes yet) on a cycle
+
+    collisions = readback(stones, control, cfg)
+    if collisions:
+        # F312 Q6 = (C). Abort before any write, like the cycle check below:
+        # a half-reconciled tree is worse than an unreconciled one, and the
+        # whole point of the ruling is that no edit disappears quietly.
+        report = []
+        for owner, sid, edits in sorted(collisions):
+            report.append(f"  {owner}:{sid} was edited to {len(set(t for _s, t in edits))} "
+                          f"different values in one pass:")
+            for slug, text in edits:
+                report.append(f"    {slug} says: {text}")
+        raise StoneError(
+            f"{len(collisions)} stone(s) edited to conflicting values — nothing "
+            f"was written. Resolve by hand, then re-run.\n" + "\n".join(report))
 
     stats = {"archived": 0}
     published: dict = {}
