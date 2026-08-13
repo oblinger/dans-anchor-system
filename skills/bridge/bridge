@@ -126,6 +126,38 @@ run_profile_walk() {
   "$walker" "$mode"
 }
 
+open_local_viewer() {   # a Terminal window ON THIS MAC, watching the local session
+  # Deliberately a real Terminal window rather than a pane in the user's
+  # multiplexer UI: a window can be clicked to read WITHOUT becoming the
+  # target of dictation/keystroke routing, which a pane cannot.
+  #
+  # Only when nothing is already watching — `bridge tmux` is idempotent and
+  # gets re-run constantly, and opening a window per call piles up duplicates.
+  if [ -n "$(tmux list-clients -t "$LOCAL_SESSION" 2>/dev/null)" ]; then
+    say "PASS  viewer  already attached — a window is watching '$LOCAL_SESSION'"
+    return 0
+  fi
+  command -v osascript >/dev/null 2>&1 || return 0
+  osascript >/dev/null 2>&1 <<EOF
+set prevApp to ""
+try
+  tell application "System Events" to set prevApp to name of first application process whose frontmost is true
+end try
+tell application "Terminal"
+  set t to do script "tmux attach -t ${LOCAL_SESSION}"
+  -- Terminal labels a tab with its running process, so an untitled tab reads
+  -- "...ttach -t ${LOCAL_SESSION}". A custom title makes the tab say the machine
+  -- name and nothing else, which is what makes several of them clickable.
+  set custom title of t to "${LOCAL_SESSION}"
+end tell
+delay 0.3
+try
+  if prevApp is not "" and prevApp is not "Terminal" then tell application prevApp to activate
+end try
+EOF
+  say "PASS  viewer  Terminal window opened on '$LOCAL_SESSION' (focus returned)"
+}
+
 resolve_target() {
   # A bare name is only a Bonjour short-name if ssh does not already know it.
   # `rig` publishes every machine it creates as an ssh alias (`Host a2x-dev`),
@@ -477,9 +509,16 @@ $TMUX_BIN new -d -A -s $SESSION"
       "ssh -t -o ControlMaster=auto -o 'ControlPath=$CTL' -o ControlPersist=600 $USER@$TARGET 'tmux attach -t $WTARGET'"
     say "PASS  local   session '$LOCAL_SESSION' created (ssh-attached, viewer only)"
   fi
+  open_local_viewer
 
-  say "....  opening viewer window on $HOST's display, focused on '$WTARGET'"
-  open_command "exec $TMUX_BIN attach -t '$WTARGET'"
+  # The glanceable viewer on the REMOTE's own screen — only meaningful when the
+  # remote has a screen. On a headless box this wrote a .command file and then
+  # failed on `open: command not found`; the viewer that matters there is the
+  # local Terminal window (open_local_viewer), which already ran.
+  if [ "$REMOTE_OS" = "Darwin" ]; then
+    say "....  opening viewer window on $HOST's display, focused on '$WTARGET'"
+    open_command "exec $TMUX_BIN attach -t '$WTARGET'"
+  fi
 
   # capability check (screen-check probes inside the mux server, its own
   # scratch window — doesn't touch any agent's window)
@@ -490,7 +529,11 @@ $TMUX_BIN new -d -A -s $SESSION"
   }
 
   say ""
-  say "Viewer  : Terminal window on $HOST's screen, attached to '$WTARGET'"
+  if [ "$REMOTE_OS" = "Darwin" ]; then
+    say "Viewer  : Terminal window on $HOST's screen, attached to '$WTARGET'"
+  else
+    say "Viewer  : local Terminal window (tab '$LOCAL_SESSION') — $HOST has no screen of its own"
+  fi
   say "Drive   : ssh $USER@$TARGET \"tmux send-keys -t '$WTARGET' '<cmd>' Enter\""
   say "Read    : ssh $USER@$TARGET \"tmux capture-pane -t '$WTARGET' -p\""
 }
