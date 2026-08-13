@@ -7,7 +7,7 @@ description: "MUSE backlog — voice-memo pipeline features"
 | ... |  |
 
 # MUSE Backlog
-<!-- state:backlog h7 -->
+<!-- state:backlog hf -->
 
 Voice-memo ingestion + review-and-do pipeline work items.
 

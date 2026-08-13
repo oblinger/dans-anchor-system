@@ -1,5 +1,5 @@
 ---
-description: "test strategy + proposed tests"
+description: "SKA Bridge Testing — strategy + proposed-tests overview"
 status:: drafting
 ---
 

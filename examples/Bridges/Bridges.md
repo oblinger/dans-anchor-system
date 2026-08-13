@@ -1,14 +1,13 @@
 ---
-description: "example list-dispatch collection (≤ 15 members)"
 ---
 
 | -[[Bridges]]- | : example list-dispatch collection (≤ 15 members)<br>→ [[DAS]] → [[examples]] → [Bridges](hook://p/Bridges)  |
 | --- | --- |
 | Related | [[Devtools]] (grouped variant),  [[DAS Dispatch Table]],  [[DAS Examples]], |
-| ~~[[Bridges Studio\|Studio]]~~  | the M2 Studio — Full Disk Access, the build box |
-| ~~[[Bridges Air\|Air]]~~  | the travel laptop — Syncthing peer |
-| ~~[[Bridges Beast\|Beast]]~~  | the GPU box — remote experiments via `exp` |
-| ~~[[Bridges Pi\|Pi]]~~  | the always-on Raspberry Pi — cron + watchers |
+| [[Bridges Studio\|Studio]]  | the M2 Studio — Full Disk Access, the build box |
+| [[Bridges Air\|Air]]  | the travel laptop — Syncthing peer |
+| [[Bridges Beast\|Beast]]  | the GPU box — remote experiments via `exp` |
+| [[Bridges Pi\|Pi]]  | the always-on Raspberry Pi — cron + watchers |
 | ... |  |
 
 # Bridges

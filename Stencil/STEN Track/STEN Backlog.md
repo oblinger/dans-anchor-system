@@ -3,17 +3,13 @@
 | ... | [[STEN Messages]],  [[STEN queries]],   |
 
 # Stencil Backlog
-<!-- state:backlog f3 -->
+<!-- state:backlog kq -->
 
 Work in flight and queued for [[STEN|Stencil]] — the pattern language the anchor system is written in, one notation that both generates a document and tests whether a document fits.
 
 ## Active
 
 ## Ready
-- **B-QFix — QFix** [Ready] — audit q findings routed by --fix; each sub-bullet is a residual on STEN's tree needing the 100%-fix discipline (per the audit skill's Governing principle). ^B-QFix
-  - **Next:** Fix the next residual below at its source (repoint a renamed link, de-link a retired one, correct the flagged doc), then re-run `/audit q` to clear it — per the 100%-fix discipline.
-  - **C22** SYS/Bespoke/Skill Agent/dans-anchor-system/Stencil/STEN Track/STEN queries.md:9 — link `[[R-sten]]` does not resolve (basename 'R-sten' not in vault)
-
 ## Now
 - ...
 

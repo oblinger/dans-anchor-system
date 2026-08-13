@@ -1,8 +1,8 @@
 ---
-description: MUSE queries — mechanically rendered from the backlog (Blockers / Ready+Next / Questions / Blocked / Verifications / Other), and copied verbatim into Q.md. Do not hand-edit; edit the backlog rows.
+description: MUSE queries — mechanically rendered from the backlog (Blockers / Ready+Next / Questions / Blocked / Verifications / User / Other), and copied verbatim into Q.md. Do not hand-edit; edit the backlog rows.
 ---
 
-# [A]  [[MUSE|MUSE]]  -  Ready 6    User 0   |   Now 4    Next 2    Later 1   |   Parked 0    Waiting 1    Icebox 0
+# [A]  [[MUSE|MUSE]]  -  Ready 6    User 0    Inbox 2   |   Now 4    Next 2    Later 1   |   Parked 0    Waiting 1    Icebox 0
 
 ## Ready
 - [[MUSE Backlog#^T003|T003]] — **Next:** reproduce the failure under `_trust` rather than under a login shell — run `/Users/oblinger/bin/_trust muse-sweep` directly and capture the real per-file error, which the current log swallows behind the "repeatedly-failing" skip....
