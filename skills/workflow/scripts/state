@@ -170,10 +170,25 @@ def resolve_anchor(anchor_arg):
     declared = _anchors_declaring_slug(anchor_arg)
     if declared:
         where = ", ".join(str(d) for d in declared[:3])
+        # SV drop 2026-08-13: only assert "named otherwise" when a backlog
+        # actually exists under the declared anchor with a different prefix.
+        # A pebble-only anchor (SVH) has NO backlog under any name — that is a
+        # legitimate configuration, not a naming drift, and the retry advice
+        # was unfollowable there (no prefix would ever have worked).
+        other_backlogs = [f for d in declared for f in d.rglob("* Backlog.md")]
+        if not other_backlogs:
+            raise be.BacklogEditError(
+                f"anchor {anchor_arg!r}: the anchor at {where} declares "
+                f"`slug: {anchor_arg}` but holds NO backlog under any name — "
+                f"it tracks without one, so backlog-addressed state verbs "
+                f"cannot run on it. Nothing to retry."
+            )
         raise be.BacklogEditError(
             f"anchor {anchor_arg!r}: no '{anchor_arg} Backlog.md' in vault, but "
             f"the anchor at {where} DECLARES `slug: {anchor_arg}` while its "
-            f"files are named otherwise. `state` resolves by filename and "
+            f"files are named otherwise (found "
+            f"{', '.join(sorted({f.name for f in other_backlogs})[:3])}). "
+            f"`state` resolves by filename and "
             f"`ha -p` resolves by the declared slug, so the two disagree here. "
             f"Retry with the filename prefix its tracking actually uses, and "
             f"see TINK T202/T203 for which side should win."

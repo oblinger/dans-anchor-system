@@ -55,6 +55,19 @@ printf '# OK Backlog\n\n## Now\n' > "$TD/Ok/OK Track/OK Backlog.md"
 out=$(ANCHOR_VAULT_ROOT="$TD" "$STATE" show OK Backlog T1 2>&1)
 echo "$out" | grep -q "DECLARES"; ok $((1-$?)) "matching slug and filename produce no diagnostic"
 
+# 5 — a declared-slug anchor with NO backlog under ANY name (pebble-only,
+#     e.g. SVH) is NOT a naming drift: the message must say there is no
+#     backlog rather than assert "named otherwise" and offer an unfollowable
+#     retry (SV drop 2026-08-13: two probes and a detour to learn what the
+#     first message could have said outright).
+mkdir -p "$TD/Harness/SVH Track"
+printf 'slug: SVH\n' > "$TD/Harness/.anchor"
+printf '# SVH Pebble\n' > "$TD/Harness/SVH Track/SVH Pebble.md"
+out=$(ANCHOR_VAULT_ROOT="$TD" "$STATE" show SVH Backlog T1 2>&1)
+echo "$out" | grep -q "NO backlog under any name"; ok $? "pebble-only anchor: says no backlog exists"
+echo "$out" | grep -q "named otherwise"; ok $((1-$?)) "...and does not assert a naming drift"
+echo "$out" | grep -q "Retry"; ok $((1-$?)) "...and offers no unfollowable retry"
+
 echo "----------------------------------------"
 echo "T203 slug-disagreement: $PASS passed, $FAIL failed"
 [ "$FAIL" = 0 ]
