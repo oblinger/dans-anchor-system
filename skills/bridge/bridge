@@ -127,7 +127,26 @@ run_profile_walk() {
 }
 
 resolve_target() {
-  case "$HOST" in *.local|*.*) TARGET="$HOST" ;; *) TARGET="$HOST.local" ;; esac
+  # A bare name is only a Bonjour short-name if ssh does not already know it.
+  # `rig` publishes every machine it creates as an ssh alias (`Host a2x-dev`),
+  # and appending `.local` to a working alias turns it into an mDNS lookup that
+  # cannot resolve. Ask ssh itself rather than re-parsing ~/.ssh/config.
+  #
+  # Deliberately narrow: an alias only wins when it resolves to something OTHER
+  # than `<host>.local`, so LAN Macs (Host haorui → HostName haorui.local) keep
+  # byte-identical behaviour and only genuinely-elsewhere hosts take this path.
+  local ghost guser
+  ghost=$(ssh -G "$HOST" 2>/dev/null | awk '$1=="hostname"{print $2; exit}')
+  if [ -n "$ghost" ] && [ "$ghost" != "$HOST" ] && [ "$ghost" != "$HOST.local" ]; then
+    TARGET="$HOST"
+    # Honour the login name the alias declares. A cloud VM's account is rarely
+    # the laptop's ($USER), which is the Mac-to-Mac assumption that both ends
+    # are the same person.
+    guser=$(ssh -G "$HOST" 2>/dev/null | awk '$1=="user"{print $2; exit}')
+    [ -n "$guser" ] && USER="$guser"
+  else
+    case "$HOST" in *.local|*.*) TARGET="$HOST" ;; *) TARGET="$HOST.local" ;; esac
+  fi
   CTL="$STATE_DIR/cm-$TARGET.sock"
   SSH=(ssh -o BatchMode=yes -o ConnectTimeout=8
        -o ControlMaster=auto -o "ControlPath=$CTL" -o ControlPersist=600
@@ -276,6 +295,15 @@ hold_caffeinate() {  # ATT F022 — keep the remote awake while a bridge is up
   # the session, or the server and the process dies with it and macOS drops the
   # assertion -- which is why there is no reaping step. Nothing to leak, because
   # nothing outlives the thing it was protecting.
+  if [ "${REMOTE_OS:-Darwin}" != "Darwin" ]; then
+    # `caffeinate` is a macOS binary, and the failure it defends against —
+    # a laptop idle-sleeping mid-job — is not a thing a cloud VM does. Left
+    # unguarded this spawns a window running a nonexistent command, which
+    # dies instantly and then reports a WARN about a missing assertion that
+    # was never applicable on this platform.
+    say "SKIP  awake   ${REMOTE_OS} has no caffeinate — headless/cloud hosts do not idle-sleep"
+    return 0
+  fi
   local w="$SESSION:caffeinate"
   if "${SSH[@]}" "$TMUX_BIN list-windows -t $SESSION -F '#{window_name}' 2>/dev/null" \
        | grep -qx caffeinate; then
@@ -317,11 +345,21 @@ cmd_tmux() {
   require_host; resolve_target; preflight; resolve_agent
   "${SSH[@]}" 'true' 2>/dev/null || fail "reach — ssh key-auth to $TARGET failed"
   say "PASS  reach   $TARGET"
-  local console_user
-  console_user=$("${SSH[@]}" 'stat -f %Su /dev/console' 2>/dev/null)
-  { [ -n "$console_user" ] && [ "$console_user" != "root" ]; } \
-    || fail "gui — no user logged into $HOST's console; the viewer window cannot open"
-  say "PASS  gui     console user: $console_user"
+  local REMOTE_OS console_user
+  REMOTE_OS=$("${SSH[@]}" 'uname -s' 2>/dev/null | tr -d '\r')
+  if [ "$REMOTE_OS" = "Darwin" ]; then
+    console_user=$("${SSH[@]}" 'stat -f %Su /dev/console' 2>/dev/null)
+    { [ -n "$console_user" ] && [ "$console_user" != "root" ]; } \
+      || fail "gui — no user logged into $HOST's console; the viewer window cannot open"
+    say "PASS  gui     console user: $console_user"
+  else
+    # `stat -f` is not portable: on GNU coreutils it means *filesystem* status,
+    # so this probe does not fail on Linux — it PASSES with a block of `File:
+    # "/dev/console" ID: ... Blocks:` garbage. A check that cannot fail is
+    # worse than no check, and the same non-portable stat is what makes
+    # `bridge jobs` die with `File: unbound variable`.
+    say "SKIP  gui     remote is ${REMOTE_OS:-unknown} — no console user or viewer window to check"
+  fi
   remote_tmux_bin
   say "PASS  tmux    $TMUX_BIN"
   say "PASS  agent   $AGENT_SLUG  → window '$WINDOW'"
@@ -338,7 +376,17 @@ cmd_tmux() {
   have_server=$("${SSH[@]}" "tmux ls >/dev/null 2>&1 && echo yes || echo no")
   aqua=$("${SSH[@]}" "tmux show-environment -g 2>/dev/null" | grep -c 'TERM_PROGRAM=Apple_Terminal' || true)
 
-  if [ "$have_server" = "yes" ] && [ "$aqua" -ge 1 ]; then
+  if [ "$REMOTE_OS" != "Darwin" ]; then
+    # Non-macOS remote: there is no Aqua context to inherit and no `open`, so
+    # the Aqua path below cannot run — and nothing is lost by skipping it,
+    # because the TCC/window-server capabilities Aqua exists to buy do not
+    # exist on this platform at all. SSH-launching IS the whole contract here:
+    # given a host you can ssh into, `bridge tmux` must end with a named
+    # session on it. `new -d -A` is idempotent (creates or no-ops), so this
+    # never kills a server and never disturbs another agent's windows.
+    say "....  SSH-launching tmux server on $HOST (${REMOTE_OS:-non-macOS}: no Aqua context exists)"
+    "${SSH[@]}" "$TMUX_BIN new -d -A -s $SESSION" >/dev/null 2>&1 || true
+  elif [ "$have_server" = "yes" ] && [ "$aqua" -ge 1 ]; then
     # good server — ensure the shared host session exists (session is
     # shared by design; windows are what isolate agents within it — T171)
     if ! "${SSH[@]}" "tmux has-session -t $SESSION 2>/dev/null"; then
@@ -369,8 +417,14 @@ $TMUX_BIN new -d -A -s $SESSION"
   done
   [ "$ok" = "yes" ] || fail "remote session '$SESSION' did not come up — check $HOST's screen"
   aqua=$("${SSH[@]}" "tmux show-environment -g 2>/dev/null" | grep -c 'TERM_PROGRAM=Apple_Terminal' || true)
-  [ "$aqua" -ge 1 ] && say "PASS  launch  Aqua (Terminal) context" \
-                    || say "WARN  launch  server not Aqua-launched — capabilities will be degraded"
+  if [ "$REMOTE_OS" != "Darwin" ]; then
+    # Not a degradation on this platform — there is nothing to degrade from.
+    say "PASS  launch  SSH-launched (${REMOTE_OS}: Aqua/TCC capabilities are macOS-only)"
+  elif [ "$aqua" -ge 1 ]; then
+    say "PASS  launch  Aqua (Terminal) context"
+  else
+    say "WARN  launch  server not Aqua-launched — capabilities will be degraded"
+  fi
 
   # ---- per-agent WINDOW (T171 A) — the actual drive/read surface, never
   # the bare session. (T171 B) occupancy preflight guards reuse of an
