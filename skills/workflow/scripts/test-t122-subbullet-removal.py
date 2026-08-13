@@ -158,13 +158,18 @@ print("\n`define` PRESERVES an omitted companion — deliberately, and it is not
 # every time an agent re-defines a row to reword its body. Pinned so the reading
 # is a decision on the record rather than an accident nobody measured.
 bl2 = Path(_td.name) / "T2 Backlog.md"
+# The bracket carries a DATE because F305's `watch_grammar_gate` refuses a bare
+# `[Waiting]` on any write that sets one, and this is a define-shaped write. The
+# date is incidental to what is being pinned here (companion preservation); it
+# is dated rather than removed so the fixture keeps exercising a parked row.
 bl2.write_text(
     "# T Backlog\n\n## Later\n\n"
-    "- **T900 — a row** [Waiting] — body. ^T900\n"
+    "- **T900 — a row** [Waiting 2026-09-01] — body. ^T900\n"
     "  - **Next:** keep me.\n"
     "  - **Verify:** and keep me too.\n",
     encoding="utf-8")
-be.perform_edit(bl2, "Later", "T900", "Waiting", "a row", "reworded body.",
+be.perform_edit(bl2, "Later", "T900", "Waiting 2026-09-01", "a row",
+                "reworded body.",
                 True, True, verify_text=None, next_text=None, pending_subs=[])
 after2 = bl2.read_text(encoding="utf-8")
 check("a define-shaped write with no pending_subs keeps the Verify",

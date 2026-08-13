@@ -130,6 +130,9 @@ VALID_STATUS_PATTERNS = (
     re.compile(r"^Watching\s+\d{4}-\d{2}-\d{2}$", re.IGNORECASE),            # "Watching 2026-09-01"
     re.compile(r"^Waiting\s+\d+[dhmy]$", re.IGNORECASE),                     # "Waiting 7d" (retired)
     re.compile(r"^Watching\s+\d+[dhmy]$", re.IGNORECASE),                    # "Watching 14d" (retired)
+    # ^ both retired forms stay PARSEABLE on purpose: 23 live rows carry the
+    #   bare or relative shape and must remain readable and re-bracketable.
+    #   `watch_grammar_gate` is what refuses them on a WRITE (F305).
     re.compile(r"^Verify(-by\s+\d{4}-\d{2}-\d{2})?$", re.IGNORECASE),        # "Verify-by 2026-06-02"
     re.compile(r"^Done(\s+\d{4}-\d{2}-\d{2})?$", re.IGNORECASE),             # "Done 2026-06-04"
     # F283 — the handle is ANY row identifier, not only a feature: "a Verify can
@@ -1134,6 +1137,9 @@ def is_nonanswer(text):
     return False
 
 
+_RELATIVE_WATCH_RE = re.compile(r"^(?:Waiting|Watching)\s+\d+[dhmy]$", re.IGNORECASE)
+
+
 def blocked_grammar_gate(status, row_id):
     """F283 — `[Blocked]` must name what it is blocked ON.
 
@@ -1173,10 +1179,99 @@ def blocked_grammar_gate(status, row_id):
         f"                                    a Verify can gate work too\n"
         f"    --status Questions              waiting on an answer from the "
         f"user\n"
-        f"    --status Waiting                waiting on time or an external "
-        f"state — name the\n"
-        f"                                    condition in the body "
-        f"(\"Waiting on: <event>\")"
+        f"    --status \"Waiting <YYYY-MM-DD>\"  waiting on time or an external "
+        f"state — the date is\n"
+        f"                                    when to look again; name the "
+        f"condition in the body\n"
+        f"                                    (\"Waiting on: <event>\")"
+    )
+
+
+def watch_grammar_gate(status, row_id):
+    """F305 — `[Waiting]` and `[Watching]` must say WHEN to look again.
+
+    The Parked class is the one Dan named as able to fester: *"everything in
+    Parked is blocked, but unblocking may or may not handle itself."* A bare
+    `[Waiting]` is the shape that makes that true — it records that something
+    is deferred and nothing about when the deferral ends, so no surface can
+    ever tell a row whose moment has come from one that is simply forgotten.
+    A date can be compared to today. A mood cannot.
+
+    THE RELATIVE FORM IS REFUSED FOR A DIFFERENT AND SHARPER REASON: it ages
+    into a lie. `[Watching 7d]` written a month ago still reads *7d*, because
+    the bracket shows the DURATION it was set with while every reader takes it
+    for the time REMAINING. An absolute date is wrong in no way as it ages; it
+    simply becomes past, which is exactly the signal wanted.
+
+    This gate is FIRST, not last, at Dan's direction 2026-08-13. The original
+    plan swept the 23 existing rows and only then closed the door. He inverted
+    it: *"once we believe in this approach, I actually think we should go ahead
+    and promote the mandatory refuse-at-write early — that way if it's gonna
+    explode on us, because refusing is gonna cause the agents to not be able to
+    do something that they need to do, we want to know that early."* Closing
+    the door first also stops the list growing while the sweep runs.
+
+    IT FIRES ONLY ON A BRACKET THE CALLER ASKED FOR, and that narrowing was
+    forced by measurement rather than reasoned in advance — which is the whole
+    point of promoting this step to first. The gate was written strict, matching
+    its sibling `blocked_grammar_gate`, on the assumption that `--status same`
+    returns before validation. IT DOES NOT: line ~2305 resolves `same` to the
+    row's EXISTING bracket before any gate runs, so a strict gate re-validates a
+    bracket nobody touched. A live probe on `TINK F288` — a `--next` edit,
+    nothing to do with the bracket — was refused. All 23 rows vault-wide
+    carrying the bare or relative shape would have become unwritable for ANY
+    edit.
+
+    That is not the cost Dan agreed to. He asked for refuse-at-write early so
+    the list would STOP GROWING; blocking edits to rows that already exist is a
+    different effect, and the one he named as the thing to discover early. The
+    deciding argument against keeping it strict is that it would force an agent
+    who only wants to update a `- **Next:**` to invent a date — and a
+    manufactured date is a false claim, strictly worse than an honestly vague
+    bracket. So: a NEW bare or relative bracket is refused, an existing one is
+    left alone until something deliberately re-brackets it, and the 23 are
+    migrated as their own step with real dates.
+
+    The asymmetry with `blocked_grammar_gate` is therefore deliberate, not
+    drift. That gate's own docstring elects the strict reading — *"rows written
+    before this gate keep their bare bracket until something touches them"* —
+    and it costs nothing there, because `[Blocked <handle>]` is answerable from
+    the row itself: the blocker is already named in its prose. A date is not
+    recoverable that way. **The rule is: force a fix on touch when the row
+    already contains the answer; refuse only new writes when it does not.**
+    """
+    members = [m.strip() for m in (status or "").strip().strip("[]").split(",")
+               if m.strip()]
+    bare = [m for m in members if m.lower() in ("waiting", "watching")]
+    aged = [m for m in members if _RELATIVE_WATCH_RE.match(m)]
+    if not bare and not aged:
+        return
+    if bare:
+        which = bare[0]
+        why = (f"[{which}] refused: {row_id} must say WHEN to look again.\n"
+               f"  A bare [{which}] records that the row is deferred and "
+               f"nothing about when the\n"
+               f"  deferral ends, so nothing can tell a row whose moment has "
+               f"come from one that\n"
+               f"  is simply forgotten. A date can be compared to today.\n")
+    else:
+        which = aged[0]
+        why = (f"[{which}] refused: {row_id} must carry an ABSOLUTE date.\n"
+               f"  A relative duration ages into a lie — [{which}] written a "
+               f"month ago still reads\n"
+               f"  {which.split()[-1]}, because the bracket shows the duration "
+               f"it was SET with while every\n"
+               f"  reader takes it for the time REMAINING.\n")
+    kw = which.split()[0].capitalize()
+    kw = "Waiting" if kw.lower() == "waiting" else "Watching"
+    raise BacklogEditError(
+        why +
+        f"  Write the date you want to look again:\n"
+        f"    --status \"{kw} YYYY-MM-DD\"\n"
+        f"  If nothing external is pending and the wait is really on an "
+        f"answer from Dan,\n"
+        f"  [Questions] is the honest bracket; if it waits on another row, "
+        f"[Blocked <handle>]."
     )
 
 
@@ -2201,6 +2296,7 @@ def perform_edit(
     # `backlog-edit.py {slug} same <row> <status> "" "<new body>"` work
     # without blowing away the title.
     existing_status_for_check = ""
+    status_unchanged = False
     if existing is not None:
         # F250 #4 — the row's header is recognized (it's in row_index via
         # ROW_HEADER_RE) but if the FULL line can't be parsed (ROW_FULL_RE) —
@@ -2230,7 +2326,34 @@ def perform_edit(
         # render_row would write the literal `[same]`, silently clobbering the
         # real status (e.g. a body-only `state set` losing [Designing]).
         if status == "same" and existing_status_for_check:
+            # F305 — remember that the caller did NOT ask for a bracket change,
+            # so `watch_grammar_gate` can stay off a row it is not touching.
+            status_unchanged = True
             status = existing_status_for_check
+
+    # ---- BRACKET GRAMMAR RUNS FIRST -------------------------------------
+    # A structural error outranks a content error, so the shape of the bracket
+    # is settled before anything asks what the row SAYS. Moved above the
+    # Questions/verify constraints 2026-08-13 (F305) after `--status
+    # "Watching 7d"` was refused by the F240 verify gate for *lacking a
+    # concrete question* — true, but not the reason it was going to be
+    # rejected, and not the error the author needed to read. Same principle as
+    # F312 Q6's `topo_order`-before-collision ordering: report the error that
+    # makes the others meaningless. Neither gate's verdict changes, only which
+    # one an author is told about first.
+
+    # F283 — bare `[Blocked]` is illegal; it must name the row it waits on.
+    # Checked on any write that sets the bracket, so a pre-existing bare
+    # [Blocked] is corrected the first time anything touches it.
+    if status not in ("same", "delete"):
+        blocked_grammar_gate(status, row_id)
+        # F305 — a deferral must say when to look again. Same write-moment
+        # placement and the same reason: a structural refusal beats one more
+        # rule to remember. Unlike that gate it fires ONLY on a bracket the
+        # caller actually asked for — see watch_grammar_gate's docstring for
+        # the measurement that forced the narrowing.
+        if not status_unchanged:
+            watch_grammar_gate(status, row_id)
 
     # Constraint check — the Questions promise. Refuse the write if the
     # status asserts [Questions] but the body's wiki-link target has no
@@ -2310,12 +2433,6 @@ def perform_edit(
                 f"and is flagged by audit-q C51. If the action is something the "
                 f"agent can do, use [Ready] with a `- **Next:**` instead."
             )
-
-    # F283 — bare `[Blocked]` is illegal; it must name the row it waits on.
-    # Checked on any write that sets the bracket, so a pre-existing bare
-    # [Blocked] is corrected the first time anything touches it.
-    if status not in ("same", "delete"):
-        blocked_grammar_gate(status, row_id)
 
     # F240 — verification ownership gate. Fires when the row ENTERS the
     # Verify/Verify-by/Watching family or its question is (re)written; a
