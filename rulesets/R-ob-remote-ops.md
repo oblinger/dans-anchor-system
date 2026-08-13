@@ -46,10 +46,20 @@ def body(ctx):
         if host is None or not remote:
             continue  # bare interactive `ssh <host>` — a legitimate attach
         rc = remote[0].strip("'\"")
-        if len(remote) == 1:
-            # a quoted remote command is ONE token after the outer shlex.split
+        if " " in rc or len(remote) == 1:
+            # A quoted remote command is ONE token after the outer shlex.split
             # (e.g. `ssh host "tmux send-keys -t '...' '...' Enter"`) — retokenize
             # just that token to find its actual first word.
+            #
+            # Keyed on "remote[0] looks like a command line", NOT on it being the
+            # last token. Gating on `len(remote) == 1` alone meant anything AFTER
+            # the quoted command — a redirect, a pipe, a `; sleep` — left rc as
+            # the whole string, so the tmux exemption below silently missed and
+            # the bridge's own documented read surface was denied:
+            #     ssh h "tmux capture-pane -t w -p" 2>&1 | tail -4   → DENIED
+            #     ssh h "tmux capture-pane -t w -p"                  → allowed
+            # Same command, opposite verdict, decided by a trailing pipe — and
+            # every real read is piped. Found 2026-08-13 driving a Linux rig.
             try:
                 parts = shlex.split(remote[0])
             except ValueError:
