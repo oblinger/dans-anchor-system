@@ -433,6 +433,45 @@ def _option_gloss(rest: str, cap: int = 58) -> str:
     return head.rstrip(".").strip()
 
 
+def _read_pending_items(target_path: Path, letter: str) -> list[tuple[str, str, str]]:
+    """Pending doc-hosted V/U items as (item_id, text, block_anchor) — the
+    F305 hosting fallback. A [Verify*]/[User] row whose check lives in its
+    feature doc's open-items block (rather than in a row sub-bullet) surfaces
+    those items, each under its DURABLE handle — T127's fix (ii) for hosted
+    entries: `V1` here is the item's own minted number, stable across
+    renders, never the positional index. State-minted items are bullet-form
+    in the pending zone, so that is all this reads."""
+    try:
+        lines = target_path.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeDecodeError):
+        return []
+    head_re = re.compile(rf"^- \*\*({letter}\d+)\s+—\s+(.*)$")
+    out: list[tuple[str, str, str]] = []
+    in_block = False
+    for line in lines:
+        s = line.strip()
+        if s in ("## Open Items", "## Open Questions"):
+            in_block = True
+            continue
+        if in_block and (s.startswith("## ") or s in ("### Resolved",
+                                                      "### Removed")):
+            break
+        if not in_block:
+            continue
+        m = head_re.match(line)
+        if not m:
+            continue
+        text = m.group(2)
+        am = re.search(r"\^([\w-]+)\s*$", text)
+        anchor = am.group(1) if am else ""
+        text = re.sub(r"\s+\^[\w-]+\s*$", "", text)
+        # Drop the why-user annotation (audit surface, not user-facing) and
+        # the bold title close — the queue shows one readable line.
+        text = re.sub(r"\s*·\s*\*why-user(?:-action)?:.*?\*\s*$", "", text)
+        out.append((m.group(1), text.replace("**", ""), anchor))
+    return out
+
+
 def _read_open_questions(target_path: Path) -> list[tuple[str, str, str, list]]:
     """Pending open questions as (qid, question_text, recommendation, options) —
     mirrors _read_q_marker_count's pending gate but captures the human-facing
@@ -1633,11 +1672,24 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
         _h2("## Verifications")
         for i, r in enumerate(verifs, 1):
             link = _bullet_link(r, name, vault_index, block_ids, h3_headings)
-            # Prefer the row's concrete `Verify:` question; fall back to a ⚠ so a
-            # row with only jargon body is flagged (not silently shown vague).
+            # Prefer the row's concrete `Verify:` question; then the feature
+            # doc's hosted V items (F305 — each under its DURABLE handle with
+            # a deep link, T127 fix (ii)); fall back to a ⚠ so a row with
+            # only jargon body is flagged (not silently shown vague).
             q = verify_questions.get(r.identifier)
+            if not q:
+                _vdoc = _row_q_doc_path(r, vault_index)
+                _vitems = _read_pending_items(_vdoc, "V") if _vdoc else []
+                if _vitems:
+                    for vid, vtext, vanchor in _vitems:
+                        deep = (f"[[{_vdoc.stem}#^{vanchor}|{vid}]]"
+                                if vanchor else f"**{vid}**")
+                        body.append(f"- {deep} ({link}) — "
+                                    f"{_truncate_body(vtext, 240)} · "
+                                    f"**yes / no**")
+                    continue
             qtxt = (_truncate_body(q, 240) if q
-                    else "⚠ no concrete question — add a `- **Verify:** <yes/no question>` sub-bullet to the row")
+                    else "⚠ no concrete question — add a `- **Verify:** <yes/no question>` sub-bullet to the row (or host a V item in the feature doc)")
             # F235: the feature doc is the verification's home — link it first,
             # demote the backlog-row link to a parenthesized `(row)` pointer.
             doclink = _feature_doc_link(r, vault_index, backlog_file)
@@ -1659,8 +1711,19 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
         for i, r in enumerate(users, 1):
             link = _bullet_link(r, name, vault_index, block_ids, h3_headings)
             a = user_actions.get(r.identifier)
+            if not a:
+                # F305 hosting fallback — doc-hosted U items, durable handles.
+                _udoc = _row_q_doc_path(r, vault_index)
+                _uitems = _read_pending_items(_udoc, "U") if _udoc else []
+                if _uitems:
+                    for uid, utext, uanchor in _uitems:
+                        deep = (f"[[{_udoc.stem}#^{uanchor}|{uid}]]"
+                                if uanchor else f"**{uid}**")
+                        body.append(f"- {deep} ({link}) — "
+                                    f"{_truncate_body(utext, 240)}")
+                    continue
             atxt = (_truncate_body(a, 240) if a
-                    else "⚠ no action stated — add a `- **User:** <what you must do>` sub-bullet to the row")
+                    else "⚠ no action stated — add a `- **User:** <what you must do>` sub-bullet to the row (or host a U item in the feature doc)")
             body.append(f"- **U{i}** {link} — {atxt}")
 
     # F284 — the catch-all, emitted last so it never displaces the classified

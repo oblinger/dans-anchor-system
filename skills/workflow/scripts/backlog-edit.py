@@ -1991,7 +1991,7 @@ def _row_field(lines, row_id, label):
 
 
 def _subbullets_to_write(status, eff_verify, eff_next, eff_user, next_text,
-                         verify_text=None):
+                         verify_text=None, probe_text=None, eff_probe=None):
     """Which companion sub-bullets this edit attaches, as `[(label, text), …]`.
 
     Pure, so the dispatch is pinned by tests instead of living inline in
@@ -2086,8 +2086,16 @@ def _subbullets_to_write(status, eff_verify, eff_next, eff_user, next_text,
     # label. The [User] arm is the case worth checking — it writes User AND
     # Next from two different values, and `--user "step" --next ""` correctly
     # writes the one and removes the other.
+    # F305 Q2 — the `- **Probe:**` field: the agent-owned deferred check and
+    # its trigger. No bracket ever requires it and no bracket forbids it — the
+    # bracket says only WHEN the row is parked; the field says what happens
+    # when it is not. So it is written exactly when explicitly passed, on any
+    # bracket (the T056 pattern), and never rewritten on a re-touch.
+    if probe_text is not None and probe_text.strip():
+        out.append(("Probe", probe_text.strip()))
+
     for label, eff in (("Verify", eff_verify), ("Next", eff_next),
-                       ("User", eff_user)):
+                       ("User", eff_user), ("Probe", eff_probe)):
         if eff == "":
             out.append((label, None))
 
@@ -2164,7 +2172,52 @@ def ensure_h2_exists(lines, h2_index, h2_name):
     return lines, new_h2_index
 
 
-def _refuse_multiline_subbullets(verify_text, next_text, user_text):
+def _hosted_pending_items(backlog_path, body, letters):
+    """F305 hosting — pending doc-hosted items of the given kinds (`V`/`U`)
+    in the row's arrow-linked feature doc, as ['V1', …], or [].
+
+    This is what lets a `[Verify]` row whose check lives in its DOC (the
+    hosting design's home for it) satisfy the F171 companion-sub-bullet
+    requirement without duplicating the question onto the row — the split
+    F305 D1 exists to remove. Resolution is anchor-local: the two canonical
+    Features folders under the backlog's anchor root."""
+    m = re.search(r"→\s+\[\[([^\]#|]+)", body or "")
+    if not m:
+        return []
+    stem = m.group(1).strip()
+    anchor_root = backlog_path.parent.parent
+    hits = []
+    for pat in (f"* Design/* Features/{stem}.md",
+                f"* Track/* Features/{stem}.md"):
+        try:
+            hits.extend(anchor_root.glob(pat))
+        except (OSError, ValueError):
+            pass
+    if not hits:
+        return []
+    try:
+        doc_lines = hits[0].read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeDecodeError):
+        return []
+    out = []
+    in_block = False
+    for ln in doc_lines:
+        s = ln.strip()
+        if s in ("## Open Items", "## Open Questions"):
+            in_block = True
+            continue
+        if in_block and (s.startswith("## ")
+                         or s in ("### Resolved", "### Removed")):
+            break
+        if in_block:
+            mm = _ITEM_HEADER_BULLET_RE.match(ln)
+            if mm and mm.group(2) in letters:
+                out.append(mm.group(2) + mm.group(3))
+    return out
+
+
+def _refuse_multiline_subbullets(verify_text, next_text, user_text,
+                                 probe_text=None):
     """T128 — a sub-bullet is ONE line; refuse a value that cannot be one.
 
     `_ensure_subbullet` writes `f"  - **{label}:** {text}\\n"` with no check that
@@ -2182,7 +2235,7 @@ def _refuse_multiline_subbullets(verify_text, next_text, user_text):
     the value or put the long form in the row body.
     """
     for flag, text in (("--verify", verify_text), ("--next", next_text),
-                       ("--user", user_text)):
+                       ("--user", user_text), ("--probe", probe_text)):
         if text is None or "\n" not in str(text):
             continue
         head = str(text).split("\n", 1)[0].strip()
@@ -2210,9 +2263,10 @@ def perform_edit(
     why_user=None,
     user_text=None,
     why_user_action=None,
+    probe_text=None,
 ):
     """Apply the edit, return a one-line summary for the Messages entry."""
-    _refuse_multiline_subbullets(verify_text, next_text, user_text)
+    _refuse_multiline_subbullets(verify_text, next_text, user_text, probe_text)
 
     raw = backlog_path.read_text()
     lines, h2_index, row_index = scan_backlog(raw)
@@ -2236,13 +2290,14 @@ def perform_edit(
     # F171 companion-sub-bullet discipline: capture any existing Verify:/Next:
     # sub-bullet text so it survives a horizon-move (which drops the row span),
     # and so a same-status re-touch isn't forced to re-supply it.
-    existing_verify = existing_next = existing_user = None
+    existing_verify = existing_next = existing_user = existing_probe = None
     if existing is not None:
         _es, _ee = existing[0], existing[1]
         _span = lines[_es:_ee]
         existing_verify = _extract_subbullet_text(_span, "Verify")
         existing_next = _extract_subbullet_text(_span, "Next")
         existing_user = _extract_subbullet_text(_span, "User")
+        existing_probe = _extract_subbullet_text(_span, "Probe")
 
     # Validate horizon.
     if horizon == "same":
@@ -2396,8 +2451,17 @@ def perform_edit(
     eff_verify = verify_text if verify_text is not None else existing_verify
     eff_next = next_text if next_text is not None else existing_next
     eff_user = user_text if user_text is not None else existing_user
+    eff_probe = probe_text if probe_text is not None else existing_probe
+    # The arrow link a hosted-item check needs lives on the row's HEADER line
+    # (the existing body), which `body_for_check` does not carry on a
+    # flag-only `set` touch — include it.
+    _host_src = body_for_check
+    if existing is not None:
+        _host_src = lines[existing[0]] + "\n" + _host_src
     if status not in ("same", "delete"):
-        if _status_needs_verify(status) and not (eff_verify and eff_verify.strip()):
+        if (_status_needs_verify(status)
+                and not (eff_verify and eff_verify.strip())
+                and not _hosted_pending_items(backlog_path, _host_src, ("V",))):
             raise BacklogEditError(
                 f"[{status}] refused: {row_id} needs a concrete yes/no question. "
                 f"On `set`, pass --verify \"<question>\" (e.g. \"Since <date>, has "
@@ -2421,7 +2485,9 @@ def perform_edit(
                 f"user, rebracket ([Verify] for a user check, [Blocked]/[Questions] "
                 f"for a decision)."
             )
-        if _status_needs_user(status) and not (eff_user and eff_user.strip()):
+        if (_status_needs_user(status)
+                and not (eff_user and eff_user.strip())
+                and not _hosted_pending_items(backlog_path, _host_src, ("U",))):
             raise BacklogEditError(
                 f"[{status}] refused: {row_id} needs a `- **User:**` action. "
                 f"On `set`, pass --user \"<action>\" naming exactly what YOU (the "
@@ -2440,9 +2506,18 @@ def perform_edit(
     if status not in ("same", "delete") and _verify_family(status):
         entering = not _verify_family(existing_status_for_check)
         if entering or verify_text is not None or (why_user and why_user.strip()):
-            eff_verify = verify_ownership_gate(
-                status, row_id, eff_verify, why_user
-            )
+            # F305 hosting — a doc-hosted V was vetted at its OWN mint
+            # (`define <doc> V+` runs this same F240 gate); when the row
+            # carries no question of its own, demanding --why-user again at
+            # the bracket would be a second vetting of a vetted check.
+            _hosted_v = (not (eff_verify and eff_verify.strip())
+                         and verify_text is None
+                         and _hosted_pending_items(
+                             backlog_path, _host_src, ("V",)))
+            if not _hosted_v:
+                eff_verify = verify_ownership_gate(
+                    status, row_id, eff_verify, why_user
+                )
 
     # F259 — user-action ownership gate. Fires when the row ENTERS [User] or
     # its `- **User:**` action is (re)written; a same-status re-touch keeps the
@@ -2451,9 +2526,16 @@ def perform_edit(
         entering_user = (existing_status_for_check or "").strip() != "User"
         if entering_user or user_text is not None or (
                 why_user_action and why_user_action.strip()):
-            eff_user = user_action_gate(
-                status, row_id, eff_user, why_user_action
-            )
+            # F305 hosting — same exemption as the Verify gate above: a
+            # doc-hosted U was vetted at its own mint (F259).
+            _hosted_u = (not (eff_user and eff_user.strip())
+                         and user_text is None
+                         and _hosted_pending_items(
+                             backlog_path, _host_src, ("U",)))
+            if not _hosted_u:
+                eff_user = user_action_gate(
+                    status, row_id, eff_user, why_user_action
+                )
 
     # F242 — mechanical groom gate: a Ready/Active/Agreed row's Next must be a
     # real first step, not a non-answer placeholder (empty is caught above).
@@ -2527,7 +2609,8 @@ def perform_edit(
     # survives horizon-moves (which delete the old span) and same-status re-touch.
     if status not in ("same", "delete"):
         for label, text in _subbullets_to_write(
-            status, eff_verify, eff_next, eff_user, next_text, verify_text
+            status, eff_verify, eff_next, eff_user, next_text, verify_text,
+            probe_text, eff_probe
         ):
             _ensure_subbullet(lines, row_id, label, text)
 
@@ -2939,6 +3022,23 @@ def _read_q_body(args_inline, args_from_file):
 _Q_HEADER_BULLET_RE = re.compile(r"^(\s*)- \*\*Q(\d+)\b")
 _Q_HEADER_H3_RE = re.compile(r"^(\s*)### Q(\d+)\b")
 
+# F305 hosting pass — the open-items block hosts three answer shapes, keyed by
+# letter: Q (choose), V (observe, yes/no), U (perform, done). One lifecycle,
+# one block, per-letter monotonic numbering. These kind-blind forms match any
+# hosted item; the Q-named regexes above stay for the Q-specific paths.
+ITEM_KINDS = ("Q", "V", "U")
+_ITEM_HEADER_BULLET_RE = re.compile(r"^(\s*)- \*\*([QVU])(\d+)\b")
+_ITEM_HEADER_H3_RE = re.compile(r"^(\s*)### ([QVU])(\d+)\b")
+
+
+def _item_bullet_re(letter):
+    """Header-bullet regex for one item kind — group(1) indent, group(2) num."""
+    return re.compile(rf"^(\s*)- \*\*{letter}(\d+)\b")
+
+
+def _item_h3_re(letter):
+    return re.compile(rf"^(\s*)### {letter}(\d+)\b")
+
 
 def _next_q_number(doc_text):
     """One above the HIGH-WATER Q-number across pending bullets + ### Resolved
@@ -2958,9 +3058,17 @@ def _next_q_number(doc_text):
     The scan is already document-wide: `_Q_HEADER_H3_RE` matches the `### Q<n>`
     entries in the bottom `## Resolved`, so a migrated round raises the mark.
     """
+    return _next_item_number(doc_text, "Q")
+
+
+def _next_item_number(doc_text, letter):
+    """Per-letter high-water + 1 — the F291 monotonic policy, one namespace
+    per item kind (Q/V/U), so `V1` and `Q1` coexist in one doc without either
+    recycling the other's block-ID."""
+    bullet_re, h3_re = _item_bullet_re(letter), _item_h3_re(letter)
     used = {0}
     for line in doc_text.splitlines():
-        m = _Q_HEADER_BULLET_RE.match(line) or _Q_HEADER_H3_RE.match(line)
+        m = bullet_re.match(line) or h3_re.match(line)
         if m:
             used.add(int(m.group(2)))
     return max(used) + 1
@@ -3006,17 +3114,22 @@ def _find_h2(lines, h2_name):
 
 
 def _find_q_bullet(lines, q_num):
-    """Locate Q<n> bullet in the doc. Returns (start_line, end_line, indent)
-    where the bullet's body runs from start_line through end_line-1 (exclusive
-    of the next top-level bullet / H2 / H3).
+    return _find_item_bullet(lines, "Q", q_num)
+
+
+def _find_item_bullet(lines, letter, num):
+    """Locate the {letter}{num} bullet in the doc. Returns (start_line,
+    end_line, indent) where the bullet's body runs from start_line through
+    end_line-1 (exclusive of the next top-level bullet / H2 / H3).
     """
+    head_re = _item_bullet_re(letter)
     start = None
     indent = ""
     for i, line in enumerate(lines):
-        m = _Q_HEADER_BULLET_RE.match(line)
-        if m and int(m.group(2)) == q_num:
-            # Skip Qs inside ## Resolved or ### Resolved or ### Removed sections.
-            # Walk back to confirm we're in ## Open Questions / pending area.
+        m = head_re.match(line)
+        if m and int(m.group(2)) == num:
+            # Skip items inside ## Resolved or ### Resolved or ### Removed.
+            # Walk back to confirm we're in the pending area.
             section = _section_at(lines, i)
             if section in ("Open Questions", "Open Questions:Pending"):
                 start = i
@@ -3024,16 +3137,18 @@ def _find_q_bullet(lines, q_num):
                 break
     if start is None:
         return None
-    # End at next Q-header bullet (same or shallower indent) OR any heading.
-    # Sibling bullets at the same indent (e.g., `- (A)` option bullets, or
-    # `- **Recommendation:** ...`) are PART of the Q's body, not a sibling Q.
+    # End at the next item-header bullet of ANY kind (same or shallower
+    # indent) OR any heading — in a mixed block a V bullet ends the Q above
+    # it just as a sibling Q would. Sibling bullets at the same indent
+    # (e.g., `- (A)` option bullets, or `- **Recommendation:** ...`) are
+    # PART of the item's body, not a sibling item.
     end = len(lines)
     for j in range(start + 1, len(lines)):
         line = lines[j]
         if line.startswith("#"):
             end = j
             break
-        m = _Q_HEADER_BULLET_RE.match(line)
+        m = _ITEM_HEADER_BULLET_RE.match(line)
         if m and (len(line) - len(line.lstrip())) <= len(indent):
             end = j
             break
@@ -3043,9 +3158,12 @@ def _find_q_bullet(lines, q_num):
 def open_questions_is_empty(lines, h2_start, h2_end):
     """Does the ## Open Questions block still hold anything pending?
 
-    Only two things count as content: a pending `- **Q<n>` header bullet, and a
-    `### ` holding pen. Everything else — the integrity stamp, blank lines, and
-    any leftover placeholder prose — is not a pending question.
+    Only two things count as content: a pending item header bullet of ANY
+    kind (`- **Q<n>` / `- **V<n>` / `- **U<n>` — the F305 hosting contract:
+    the block is deleted when it is empty of all three kinds, not when the
+    last question resolves), and a `### ` holding pen. Everything else — the
+    integrity stamp, blank lines, and any leftover placeholder prose — is not
+    a pending item.
 
     The old test asked "is there any non-blank line", so a single stale
     placeholder line kept the block alive forever: Phase 2 never fired, audit-q
@@ -3057,7 +3175,7 @@ def open_questions_is_empty(lines, h2_start, h2_end):
         line = lines[k]
         if line.startswith("### "):
             return False
-        if _Q_HEADER_BULLET_RE.match(line):
+        if _ITEM_HEADER_BULLET_RE.match(line):
             return False
     return True
 
@@ -3408,8 +3526,14 @@ def _container_id_for_feature(feature_path):
 
 def _format_q_bullet(q_num, container_id, body):
     """Wrap a body into the canonical Q-bullet form with block-ID."""
+    return _format_item_bullet("Q", q_num, container_id, body)
+
+
+def _format_item_bullet(letter, num, container_id, body):
+    """Wrap a body into the canonical item-bullet form with block-ID —
+    `- **{L}{n} — Title** … ^{container}-{L}{n}` for any hosted kind."""
     body = body.strip()
-    block_id = f" ^{container_id}-Q{q_num}"
+    block_id = f" ^{container_id}-{letter}{num}"
     # If body already starts with `**Q<n> —`, accept as pre-formatted; just
     # ensure block-ID at end.
     #
@@ -3423,17 +3547,18 @@ def _format_q_bullet(q_num, container_id, body):
     # stray `— - `. Live on SKA F234 Q1/Q2 and HA F112 Q6. `_q_header_line`
     # already admitted both shapes (`^\s*-?\s*\*\*Q(?:\d+|\+)\s+—`); the two
     # patterns simply disagreed, and this one was the stricter.
-    if re.match(rf"^\s*-?\s*\*\*Q(?:\d+|\+)\s+—", body):
-        # Normalize the leading Q-number to the canonical bullet form. The
+    if re.match(rf"^\s*-?\s*\*\*{letter}(?:\d+|\+)\s+—", body):
+        # Normalize the leading item number to the canonical bullet form. The
         # leading `- ` goes with it and is restored just below, so a bulleted
         # and an unbulleted body converge on the same output.
-        body = re.sub(r"^\s*-?\s*\*\*Q(?:\d+|\+)", f"**Q{q_num}", body, count=1)
+        body = re.sub(rf"^\s*-?\s*\*\*{letter}(?:\d+|\+)", f"**{letter}{num}",
+                      body, count=1)
         # Ensure leading "- " bullet
         if not body.startswith("- "):
             body = "- " + body
     else:
         # Plain body — wrap as bullet
-        body = f"- **Q{q_num} — Untitled** — {body}"
+        body = f"- **{letter}{num} — Untitled** — {body}"
     # T140 — the old guard was `if f"^{container_id}-Q{q_num}" not in first_line`,
     # which asked only whether the CORRECT anchor was present and never removed a
     # wrong one. A Q minted while its host row was still `T+` kept `^T+-Q1` and

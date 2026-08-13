@@ -76,7 +76,9 @@ EOF
 }
 
 # stamp helper — first char index of ## Open Questions vs first H1
-oq_line()   { grep -n '^## Open Questions$' "$1" | head -1 | cut -d: -f1; }
+# F305 D1 — the writer renames the block to `## Open Items` on touch; the
+# legacy spelling is read forever. Accept either.
+oq_line()   { grep -n -E '^## Open (Items|Questions)$' "$1" | head -1 | cut -d: -f1; }
 h1_line()   { grep -n '^# ' "$1" | head -1 | cut -d: -f1; }
 has_stamp() { grep -q '<!-- state:q [0-9a-z][0-9a-z] -->' "$1"; }
 

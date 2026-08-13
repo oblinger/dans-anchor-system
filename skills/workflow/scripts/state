@@ -300,7 +300,7 @@ def _find_q_bullet_by_slug(lines, slug):
             if l.startswith("#"):
                 end = j
                 break
-            mh = be._Q_HEADER_BULLET_RE.match(l)
+            mh = be._ITEM_HEADER_BULLET_RE.match(l)
             if mh and (len(l) - len(l.lstrip())) <= len(indent):
                 end = j
                 break
@@ -310,18 +310,24 @@ def _find_q_bullet_by_slug(lines, slug):
     return None
 
 
-def _resolve_q_identifier(lines, q_num, slug):
-    """Locate a Q by either q_num or slug. Returns (start, end, indent, q_num).
-    Raises BacklogEditError on miss / ambiguity."""
+def _resolve_q_identifier(lines, q_num, slug, letter="Q"):
+    """Locate a hosted item by either number or slug (slug addressing is
+    Q-only). Returns (start, end, indent, num). Raises BacklogEditError on
+    miss / ambiguity."""
     if q_num is not None and slug is not None:
         raise be.BacklogEditError("specify either -n N or --slug NAME, not both")
     if q_num is not None:
-        loc = _find_pending_q(lines, q_num)
+        loc = _find_pending_item(lines, letter, q_num)
         if loc is None:
-            raise be.BacklogEditError(f"Q{q_num} not found in pending Open Questions")
+            raise be.BacklogEditError(
+                f"{letter}{q_num} not found in the pending open-items block")
         s, e = loc
         return s, e, "", q_num
     if slug is not None:
+        if letter != "Q":
+            raise be.BacklogEditError(
+                f"--slug addresses questions only — a {letter} item is "
+                f"addressed by number ({letter}<n>)")
         loc = _find_q_bullet_by_slug(lines, slug)
         if loc is None:
             raise be.BacklogEditError(f"Q with --slug {slug!r} not found in pending Open Questions")
@@ -366,7 +372,7 @@ def _delegate_row_edit(slug, horizon, row_id_arg, status, title, body,
                        title_provided, body_provided,
                        verify_text=None, next_text=None, pending_subs=None,
                        why_user=None, user_text=None, why_user_action=None,
-                       drop_pointer=False):
+                       drop_pointer=False, probe_text=None):
     """Delegate to backlog-edit's perform_edit machinery, mirroring its main()."""
     if status != "delete" and status != "same":
         # Validate status bracket against the closed canonical set.
@@ -454,6 +460,7 @@ def _delegate_row_edit(slug, horizon, row_id_arg, status, title, body,
             verify_text=verify_text, next_text=next_text,
             pending_subs=pending_subs, why_user=why_user,
             user_text=user_text, why_user_action=why_user_action,
+            probe_text=probe_text,
         )
         # Destination write landed on disk → now safe to remove the source row.
         be.perform_edit(
@@ -467,6 +474,7 @@ def _delegate_row_edit(slug, horizon, row_id_arg, status, title, body,
             verify_text=verify_text, next_text=next_text,
             pending_subs=pending_subs, why_user=why_user,
             user_text=user_text, why_user_action=why_user_action,
+            probe_text=probe_text,
         )
     be.append_messages(slug, result["summary"], backlog_path)
     be.write_state(slug, result)
@@ -666,8 +674,8 @@ def _parse_q_block(block_lines):
     # Two header shapes: the bullet `state` writes, and the H3 a hand-authored
     # block uses. In the bullet the question rides the header after the bold
     # title; in the H3 it is the prose underneath, so `prose` collects it.
-    hm = re.match(r"^\s*- \*\*Q\d+\s+—\s+(.*?)\*\*\s*(?:[—-]\s*)?(.*)$", header)
-    h3 = re.match(r"^\s*###\s+Q\d+\s+—\s+(.*)$", header)
+    hm = re.match(r"^\s*- \*\*[QVU]\d+\s+—\s+(.*?)\*\*\s*(?:[—-]\s*)?(.*)$", header)
+    h3 = re.match(r"^\s*###\s+[QVU]\d+\s+—\s+(.*)$", header)
     if hm:
         title, question = hm.group(1).strip(), hm.group(2).strip()
     elif h3:
@@ -750,8 +758,41 @@ def _resolve_outcome(choice, options, q_num):
     return f"({letter})" + (f" — {text}" if text else "")
 
 
-def _format_resolved_entry(q_num, parsed, outcome, note, today):
+def _item_outcome(letter, choice, options, num):
+    """Per-shape answer vocabulary (F305): Q = option letter / `none`,
+    V = `yes` / `no` / `none`, U = `done` / `none`. The shape is what
+    separates the three kinds — a verification is an observation and a user
+    action is a report, so neither validates against an option list."""
+    if letter == "Q":
+        return _resolve_outcome(choice, options, num)
+    vocab = ("yes", "no") if letter == "V" else ("done",)
+    raw = (choice or "").strip()
+    if not raw:
+        raise be.BacklogEditError(
+            f"resolve requires --choice for {letter}{num} — "
+            + " / ".join(vocab)
+            + ", or `none — <what happened instead>` when the outcome fell "
+            "outside that vocabulary.")
+    nm = re.match(r"^none\b\s*[—-]?\s*(.*)$", raw, re.I)
+    if nm:
+        rest = nm.group(1).strip()
+        return "none of the above" + (f" — {rest}" if rest else "")
+    m = re.match(r"^(\w+)\b\s*[—-]?\s*(.*)$", raw)
+    word = m.group(1).lower() if m else ""
+    if word not in vocab:
+        what = ("a verification is an observation answered "
+                if letter == "V" else "a user action is reported ")
+        raise be.BacklogEditError(
+            f"resolve refused: {letter}{num} takes " + " / ".join(vocab)
+            + f" (or `none — …`) — {what}" + " / ".join(vocab)
+            + f", never an option letter. Got {raw!r}.")
+    rest = m.group(2).strip()
+    return word + (f" — {rest}" if rest else "")
+
+
+def _format_resolved_entry(label, parsed, outcome, note, today):
     """The archived entry: question → resolution → options → lean (F291).
+    `label` is the item's full handle (`Q3`, `V1`, `U2` — F305 hosting).
 
     Inverts the old layout, which led with `**Choice:**` and buried the
     question inside a `> Original Q context:` quote at the bottom — forcing a
@@ -760,7 +801,7 @@ def _format_resolved_entry(q_num, parsed, outcome, note, today):
     happened, and the delta between them is the calibration signal that the
     single conflated `**Choice:**` line destroyed.
     """
-    out = ["", f"### Q{q_num} — {parsed['title']} (resolved {today})"]
+    out = ["", f"### {label} — {parsed['title']} (resolved {today})"]
     # The block-ID rides the question line — it is the address the backlog row,
     # Q.md, and chat asks point at, so dropping it at migration would break
     # every inbound link to the decision. Headings cannot carry one.
@@ -801,17 +842,26 @@ def _pending_q_heads(lines):
         if lines[k].strip() in _Q_ZONE_HEADS:
             end = k
             break
-        m = be._Q_HEADER_BULLET_RE.match(lines[k]) or be._Q_HEADER_H3_RE.match(lines[k])
+        # Kind-blind (F305 hosting): a pending V or U keeps the block alive
+        # and blocks migration exactly as a pending Q does — the block is
+        # retired only when it is empty of ALL three kinds.
+        m = (be._ITEM_HEADER_BULLET_RE.match(lines[k])
+             or be._ITEM_HEADER_H3_RE.match(lines[k]))
         if m:
-            heads.append((int(m.group(2)), k))
+            heads.append(((m.group(2), int(m.group(3))), k))
     return heads, end
 
 
 def _find_pending_q(lines, q_num):
-    """(start, end) of Q<n> in the unresolved zone, either shape, or None."""
+    return _find_pending_item(lines, "Q", q_num)
+
+
+def _find_pending_item(lines, letter, num):
+    """(start, end) of {letter}{num} in the unresolved zone, either shape,
+    or None. The span ends at the NEXT pending item of any kind."""
     heads, zone_end = _pending_q_heads(lines)
-    for i, (num, s) in enumerate(heads):
-        if num == q_num:
+    for i, (key, s) in enumerate(heads):
+        if key == (letter, num):
             return (s, heads[i + 1][1] if i + 1 < len(heads) else zone_end)
     return None
 
@@ -922,7 +972,7 @@ _MERGE_OPTION_RE = re.compile(r"^\s*- \*\*\([A-Za-z]\)\*\*")
 # The address the backlog row, Q.md, and every chat ask point at. Two entries
 # are the same entry when they carry the same one — never when their headings
 # merely read alike (T155).
-_Q_BLOCK_ID_RE = re.compile(r"\^([A-Za-z][A-Za-z0-9]*-Q\d+)\b")
+_Q_BLOCK_ID_RE = re.compile(r"\^([A-Za-z][A-Za-z0-9]*-[QVU]\d+)\b")
 
 
 def _entry_block_id(block):
@@ -973,13 +1023,13 @@ def _merge_prewritten(lines, entries, rh2_start, rh2_end):
     # Highest line first: grafting shifts every index below the splice.
     todo = []
     for entry in list(entries):
-        m = be._Q_HEADER_H3_RE.match(entry[0])
+        m = be._ITEM_HEADER_H3_RE.match(entry[0])
         bid = _entry_block_id(entry)
         if m and bid and bid in existing:
-            todo.append((existing[bid], int(m.group(2)), entry))
-    for at, q_num, entry in sorted(todo, reverse=True):
+            todo.append((existing[bid], m.group(2) + m.group(3), entry))
+    for at, label, entry in sorted(todo, reverse=True):
         entries.remove(entry)
-        kept.append(q_num)
+        kept.append(label)
         end = at + 1
         while end < len(lines) and not lines[end].startswith("#"):
             end += 1
@@ -994,7 +1044,7 @@ def _merge_prewritten(lines, entries, rh2_start, rh2_end):
         if graft:
             lines = (lines[:at] + _trim_blanks(list(block)) + [""]
                      + graft + [""] + lines[end:])
-        print(f"  Q{q_num} already had a Resolved entry (same block-ID); "
+        print(f"  {label} already had a Resolved entry (same block-ID); "
               "kept yours"
               + (f" (grafted {len(graft)} missing line(s))" if graft else ""),
               file=sys.stderr)
@@ -1026,11 +1076,11 @@ def _tidy_open_questions_spacing(lines):
     return lines[:start] + body + lines[end:]
 
 
-def _q_answer_core(slug, feature_path, q_num, q_slug, choice, body):
-    """`<doc> Q<n> resolve` — annotate in place, and migrate the whole block
-    when this was the last unresolved question (F291).
+def _q_answer_core(slug, feature_path, q_num, q_slug, choice, body, letter="Q"):
+    """`<doc> {L}<n> resolve` — annotate in place, and migrate the whole block
+    when this was the last unresolved item (F291, kind-blind per F305).
 
-    Nothing relocates until the last one lands: the question moves to the
+    Nothing relocates until the last one lands: the item moves to the
     block's resolved zone keeping its full option list, with the resolution
     appended below it. The duplication between option B and the resolution's
     restatement of B is safe *because* `state` writes both and nothing may
@@ -1039,10 +1089,11 @@ def _q_answer_core(slug, feature_path, q_num, q_slug, choice, body):
     """
     text = feature_path.read_text(encoding="utf-8")
     lines = text.splitlines()
-    start, end, _, q_num = _resolve_q_identifier(lines, q_num, q_slug)
+    start, end, _, q_num = _resolve_q_identifier(lines, q_num, q_slug, letter)
+    label = f"{letter}{q_num}"
     parsed = _parse_q_block(_trim_blanks(lines[start:end]))
-    outcome = _resolve_outcome(choice, parsed["options"], q_num)
-    entry = _format_resolved_entry(q_num, parsed, outcome, body,
+    outcome = _item_outcome(letter, choice, parsed["options"], q_num)
+    entry = _format_resolved_entry(label, parsed, outcome, body,
                                    date.today().isoformat())
     lines = lines[:start] + lines[end:]
     lines = _insert_into_resolved_zone(lines, entry)
@@ -1054,32 +1105,40 @@ def _q_answer_core(slug, feature_path, q_num, q_slug, choice, body):
     lines = be.restamp_open_questions(lines)
     be._write_feature_lines(feature_path, lines)
     _selffire(feature_path)
-    summary = f"resolved Q{q_num} ({outcome.split(' — ')[0]}) in {feature_path.name}"
+    summary = f"resolved {label} ({outcome.split(' — ')[0]}) in {feature_path.name}"
     if migrated:
         summary += (f" — last of the round; migrated {migrated} entr"
                     f"{'y' if migrated == 1 else 'ies'} to ## Resolved and "
                     "retired the block")
     else:
         summary += f" — {len(still_open)} still open"
+    if letter == "V" and outcome.split(" — ")[0] == "no":
+        # F305 — answered-no closes NOTHING beyond the item itself. There is
+        # no row force-close here to trigger (that was the MUX failure this
+        # feature exists to fix); the agent's next move is to mint the
+        # follow-up work the failed observation implies.
+        summary += (f"\n  ⚠ {label} answered NO — the feature is NOT "
+                    "verified. Nothing was closed; record the follow-up "
+                    "work (a new Next:/Q) before the row moves anywhere.")
     _post_conditions_and_print(slug, feature_path, summary)
     return 0
 
 
-def _q_remove_core(slug, feature_path, q_num, q_slug, reason):
-    """Block-surgery for Q-remove, called by the `remove <anchor> <doc> Q<n>` verb
-    against any resolved doc path (F236) — see `_q_answer_core`."""
+def _q_remove_core(slug, feature_path, q_num, q_slug, reason, letter="Q"):
+    """Block-surgery for item-remove, called by the `remove <anchor> <doc>
+    <L><n>` verb against any resolved doc path (F236) — see `_q_answer_core`."""
     text = feature_path.read_text(encoding="utf-8")
     reason = reason or "no reason provided"
     lines = text.splitlines()
-    start, end, _, q_num = _resolve_q_identifier(lines, q_num, q_slug)
+    start, end, _, q_num = _resolve_q_identifier(lines, q_num, q_slug, letter)
     header = lines[start]
-    title_m = re.match(r"^\s*- \*\*Q\d+\s+—\s+([^*]+?)\*\*", header)
+    title_m = re.match(rf"^\s*- \*\*{letter}\d+\s+—\s+([^*]+?)\*\*", header)
     title = title_m.group(1).strip() if title_m else "Untitled"
     original_body = "\n".join(lines[start:end]).rstrip()
     today = date.today().isoformat()
     h3_lines = [
         "",
-        f"### Q{q_num} — {title} (removed {today} — {reason})",
+        f"### {letter}{q_num} — {title} (removed {today} — {reason})",
         "",
         "> Original Q context (preserved for audit trail):",
     ]
@@ -1108,7 +1167,7 @@ def _q_remove_core(slug, feature_path, q_num, q_slug, reason):
     lines = be.restamp_open_questions(lines)
     be._write_feature_lines(feature_path, lines)
     _selffire(feature_path)
-    summary = f"removed Q{q_num} from {feature_path.name} (reason: {reason})"
+    summary = f"removed {letter}{q_num} from {feature_path.name} (reason: {reason})"
     _post_conditions_and_print(slug, feature_path, summary)
     return 0
 
@@ -2258,10 +2317,11 @@ def _row_set(slug, backlog_path, label, args):
     from stdin or --from-file."""
     if not any([args.status, args.horizon, args.title is not None,
                 args.inline is not None, args.next_step is not None,
-                args.verify is not None, getattr(args, "user", None) is not None]):
+                args.verify is not None, getattr(args, "user", None) is not None,
+                getattr(args, "probe", None) is not None]):
         raise be.BacklogEditError(
             "set requires at least one of --status / --horizon / --title / "
-            "--body / --next / --verify / --user"
+            "--body / --next / --verify / --user / --probe"
         )
     # `set` used to refuse --from-file here at runtime, because v2 declared all
     # thirteen flags globally and every verb inherited every one of them. F293
@@ -2277,6 +2337,7 @@ def _row_set(slug, backlog_path, label, args):
         user_text=getattr(args, "user", None),
         drop_pointer=getattr(args, "drop_pointer", False),
         why_user_action=getattr(args, "why_user_action", None),
+        probe_text=getattr(args, "probe", None),
     )
 
 
@@ -2566,32 +2627,103 @@ def _backlog_q_define(slug, backlog_path, label, args, minted=False):
 # Q labels on any doc
 
 
-def _q_define_core(slug, feature_path, q_num, body, why_ask=None):
-    """`<doc> Q<n> define` — create-or-replace Q<n> in place. Reuses
-    be._find_q_bullet / be._format_q_bullet / be._ensure_open_questions_h2 —
-    the same formatting the legacy `q add`/`q rewrite` verbs use — so define
-    subsumes both without duplicating the bullet-formatting logic."""
-    # Normalize: callers may pass the full bullet (`- **Q<n> — …` header line,
-    # or `- **Q+ — …` on a mint) or just the body content. be._format_q_bullet
-    # already accepts the pre-formatted `**Q<n> — …` form — rewrite a `Q+`
-    # placeholder to the assigned number, strip only the leading `- ` dash so
-    # it takes that branch (never double-wraps), and drop any caller-supplied
-    # trailing block-anchor on the first line (the canonical one is re-added).
-    if re.match(rf"^\s*-?\s*\*\*Q(?:{q_num}|\+)\s+—", body):
+def _run_verify_item_gates(num, body, why_user):
+    """F305 — mint gates for a doc-hosted verification. A V is an
+    OBSERVATION: it carries a yes/no question and nothing to choose, so
+    labeled options or a stated Lean/Strong are refused outright — that is
+    how "Recommendation is necessarily None" is enforced; the line itself is
+    never written, a necessary value carrying no information. Then the F240
+    ownership gate, exactly as at the bracket: a machine-phrased question is
+    agent-grade, and surfacing requires --why-user naming the human faculty."""
+    if re.search(r"^\s*-\s+\*\*\([A-Za-z0-9]+\)\*\*", body, re.M):
+        raise be.BacklogEditError(
+            f"define refused: V{num} is an observation — labeled options "
+            f"belong on a question (Q<n>); a verification is answered yes/no.")
+    if be.recommendation_strength(body) in ("Lean", "Strong"):
+        raise be.BacklogEditError(
+            f"define refused: V{num} is an observation — its Recommendation "
+            f"is necessarily None, so a stated Lean/Strong means this is a "
+            f"question (Q<n>), not a verification.")
+    stripped = re.sub(r"^\s*-?\s*\*\*V(?:\d+|\+)\s+—\s+[^*]*\*\*\s*[—-]?\s*",
+                      "", body.strip(), count=1)
+    first_q = stripped.splitlines()[0] if stripped else ""
+    if be.is_mechanical_verify(first_q):
+        raise be.BacklogEditError(
+            f"define refused: V{num}'s question reads as a machine event — "
+            f"an agent-grade check. Per F240, if the answer lives in a file, "
+            f"log, or probe, run it NOW — it never becomes a verification. "
+            f"Park the row [Waiting {{date}}] with a `- **Probe:**` field "
+            f"when it cannot run yet.\n  Question: \"{first_q[:100]}\"")
+    if "*why-user:" not in body and not (why_user and why_user.strip()):
+        raise be.BacklogEditError(
+            f"define refused: V{num} needs --why-user \"<one sentence>\" "
+            f"naming the human faculty this check invokes (taste / "
+            f"preference / ratification / passive-use observation). Per "
+            f"F240, a verification surfaces only when the user's answer is "
+            f"genuinely better than the agent's.")
+    if why_user and why_user.strip():
+        first, sep, rest = body.partition("\n")
+        first = first.rstrip() + f" · *why-user: {why_user.strip()}*"
+        body = first + (sep + rest if sep else "")
+    return body
+
+
+def _run_user_item_gates(num, body, why_user_action):
+    """F305 — mint gates for a doc-hosted user action: the F259 ownership
+    gate, exactly as at the [User] bracket. The requirement to ARTICULATE why
+    the agent cannot do it is the whole filter against lazy delegation."""
+    if "*why-user-action:" not in body and not (
+            why_user_action and why_user_action.strip()):
+        raise be.BacklogEditError(
+            f"define refused: U{num} needs --why-user-action \"<one "
+            f"sentence>\" naming the credential or human-only faculty this "
+            f"action requires (a login only the user holds, a GUI permission "
+            f"dialog, a 2FA device). Per F259, if the agent CAN do it, it is "
+            f"work — a `- **Next:**` — not a user item.")
+    if why_user_action and why_user_action.strip():
+        first, sep, rest = body.partition("\n")
+        first = (first.rstrip()
+                 + f" · *why-user-action: {why_user_action.strip()}*")
+        body = first + (sep + rest if sep else "")
+    return body
+
+
+def _q_define_core(slug, feature_path, q_num, body, why_ask=None, letter="Q",
+                   why_user=None, why_user_action=None):
+    """`<doc> {L}<n> define` — create-or-replace the item in place. Reuses
+    be._find_item_bullet / be._format_item_bullet / be._ensure_open_questions_h2
+    — the same formatting the legacy `q add`/`q rewrite` verbs use — so define
+    subsumes both without duplicating the bullet-formatting logic. Kind-aware
+    per F305: the letter picks the mint gates (Q ask-format/F257, V F240,
+    U F259); everything downstream of the gates is one code path."""
+    # Normalize: callers may pass the full bullet (`- **{L}<n> — …` header,
+    # or `- **{L}+ — …` on a mint) or just the body content. The formatter
+    # already accepts the pre-formatted form — rewrite a `+` placeholder to
+    # the assigned number, strip only the leading `- ` dash so it takes that
+    # branch (never double-wraps), and drop any caller-supplied trailing
+    # block-anchor on the first line (the canonical one is re-added).
+    if re.match(rf"^\s*-?\s*\*\*{letter}(?:{q_num}|\+)\s+—", body):
         first, sep, rest = body.partition("\n")
         first = re.sub(r"^\s*-\s+", "", first)
-        first = re.sub(r"^(\s*)\*\*Q\+(\s+—)", rf"\g<1>**Q{q_num}\g<2>", first)
+        first = re.sub(rf"^(\s*)\*\*{letter}\+(\s+—)",
+                       rf"\g<1>**{letter}{q_num}\g<2>", first)
         first = re.sub(r"\s+\^[\w-]+\s*$", "", first)
         body = first + (sep + rest if sep else "")
-    # Doc-scoped Q: no `On answer:` requirement yet (F275 M3 is standalone-row-
-    # only until proven; "once proven, every surfaced Q" is the future).
-    body, auto_resolve, damage_cat, damage_why = _run_question_gates(
-        q_num, body, why_ask, require_on_answer=False)
+    auto_resolve, damage_cat, damage_why = False, None, None
+    if letter == "Q":
+        # Doc-scoped Q: no `On answer:` requirement yet (F275 M3 is
+        # standalone-row-only until proven).
+        body, auto_resolve, damage_cat, damage_why = _run_question_gates(
+            q_num, body, why_ask, require_on_answer=False)
+    elif letter == "V":
+        body = _run_verify_item_gates(q_num, body, why_user)
+    else:  # U
+        body = _run_user_item_gates(q_num, body, why_user_action)
     text = feature_path.read_text(encoding="utf-8")
     container_id = _container_id_for_doc(feature_path)
     lines = text.splitlines()
-    loc = be._find_q_bullet(lines, q_num)
-    new_bullet = be._format_q_bullet(q_num, container_id, body)
+    loc = be._find_item_bullet(lines, letter, q_num)
+    new_bullet = be._format_item_bullet(letter, q_num, container_id, body)
     if loc is not None:
         start, end, _ = loc
         body_lines = new_bullet.splitlines()
@@ -2636,7 +2768,7 @@ def _q_define_core(slug, feature_path, q_num, body, why_ask=None):
                        _auto_resolve_note(damage_cat, damage_why))
         print(_auto_resolve_banner(f"Q{q_num}", damage_cat, choice))
         return 0
-    summary = f"{verb_done} Q{q_num} in {feature_path.name}"
+    summary = f"{verb_done} {letter}{q_num} in {feature_path.name}"
     _post_conditions_and_print(slug, feature_path, summary)
     return 0
 
@@ -2658,7 +2790,8 @@ def _q_revalidate_core(slug, feature_path):
               "nothing to revalidate")
         return 0
     start, end = rng
-    # Collect pending Q bullets — top-level, outside ### Resolved/Removed.
+    # Collect pending item bullets of every kind (F305) — top-level, outside
+    # ### Resolved/Removed.
     q_slices = []
     in_h3 = False
     k = start + 1
@@ -2668,7 +2801,7 @@ def _q_revalidate_core(slug, feature_path):
             in_h3 = True
             k += 1
             continue
-        m = be._Q_HEADER_BULLET_RE.match(line)
+        m = be._ITEM_HEADER_BULLET_RE.match(line)
         if m and not in_h3:
             indent = m.group(1)
             j = k + 1
@@ -2676,30 +2809,36 @@ def _q_revalidate_core(slug, feature_path):
                 nxt = lines[j]
                 if nxt.startswith("#"):
                     break
-                mh = be._Q_HEADER_BULLET_RE.match(nxt)
+                mh = be._ITEM_HEADER_BULLET_RE.match(nxt)
                 if mh and (len(nxt) - len(nxt.lstrip())) <= len(indent):
                     break
                 j += 1
-            q_slices.append((int(m.group(2)), k, j))
+            q_slices.append((m.group(2), int(m.group(3)), k, j))
             k = j
             continue
         k += 1
-    # Gate every pending Q through the same ask-format + F257 who-should-decide
-    # checks as define (why_ask=None here — an already-vetted Q carries its
-    # `*why-ask:*` annotation and is grandfathered; a hand-authored Lean/Strong
-    # without one is caught, matching what define would have refused).
-    for q_num, s, e in q_slices:
+    # Gate every pending item through the same mint gates as define
+    # (why=None here — an already-vetted item carries its `*why-ask:*` /
+    # `*why-user:*` / `*why-user-action:*` annotation and is grandfathered;
+    # a hand-authored one without it is caught, matching what define would
+    # have refused).
+    for letter, q_num, s, e in q_slices:
         block = "\n".join(lines[s:e])
         try:
-            _validate_ask_format_body(block)
-            be.question_mint_gate(q_num, block, None)
+            if letter == "Q":
+                _validate_ask_format_body(block)
+                be.question_mint_gate(q_num, block, None)
+            elif letter == "V":
+                _run_verify_item_gates(q_num, block, None)
+            else:
+                _run_user_item_gates(q_num, block, None)
         except be.BacklogEditError as err:
             reason = (str(err).replace("backlog_edit: ", "")
                       .replace("define refused: ", ""))
             raise be.BacklogEditError(
-                f"revalidate refused: Q{q_num} fails ask-format — {reason} "
-                f"Fix the content, or re-issue it through "
-                f"`state \"{feature_path.stem}\" Q{q_num} define`."
+                f"revalidate refused: {letter}{q_num} fails its mint gates — "
+                f"{reason} Fix the content, or re-issue it through "
+                f"`state \"{feature_path.stem}\" {letter}{q_num} define`."
             )
     # Canonical placement — legacy above-the-H1 blocks relocate below the H1.
     h1_idx = None
@@ -2742,28 +2881,36 @@ def _q_revalidate_core(slug, feature_path):
                    f"{feature_path.name} — no pending questions remained")
     else:
         summary = (f"revalidated Open Questions in {feature_path.name} — "
-                   f"{len(q_slices)} pending Q pass ask-format, stamp refreshed"
+                   f"{len(q_slices)} pending item(s) pass their mint gates, "
+                   f"stamp refreshed"
                    + (", block relocated below the H1" if relocated else ""))
     _post_conditions_and_print(slug, feature_path, summary)
     return 0
 
 
-def _query_verb(slug, doc_path, q_num, verb, args):
+def _query_verb(slug, doc_path, q_num, verb, args, letter="Q"):
+    kind_kwargs = dict(
+        why_ask=getattr(args, "why_ask", None),
+        why_user=getattr(args, "why_user", None),
+        why_user_action=getattr(args, "why_user_action", None),
+    )
     if verb == "define":
         body = read_body(args)
         if not body.strip():
             raise be.BacklogEditError("define requires a body via stdin or --body")
-        return _q_define_core(slug, doc_path, q_num, body,
-                              why_ask=getattr(args, "why_ask", None))
+        return _q_define_core(slug, doc_path, q_num, body, letter=letter,
+                              **kind_kwargs)
     if verb == "resolve":
         # The required-ness of --choice, and the legality of `none`, live in
-        # _resolve_outcome — it is the only place that can see the option list
-        # and so the only place that can say what a valid value would be.
+        # _item_outcome — it is the only place that can see the option list /
+        # answer shape and so the only place that can say what a valid value
+        # would be.
         body = read_body(args)
-        return _q_answer_core(slug, doc_path, q_num, None, args.choice, body)
+        return _q_answer_core(slug, doc_path, q_num, None, args.choice, body,
+                              letter=letter)
     if verb == "set":
         # F305 D2 — doc-hosted items are EDITED with `set`: a wholesale
-        # replace through the same ask-format gates as define. Unlike define
+        # replace through the same mint gates as define. Unlike define
         # it never creates (set edits, define creates), and it deliberately
         # routes through the doc define-core, whose replace is a full-bullet
         # splice — NOT the Backlog define's field-preserving merge, which
@@ -2772,16 +2919,17 @@ def _query_verb(slug, doc_path, q_num, verb, args):
         if not body.strip():
             raise be.BacklogEditError("set requires a body via stdin or --body")
         lines = doc_path.read_text(encoding="utf-8").splitlines()
-        if be._find_q_bullet(lines, q_num) is None:
+        if be._find_item_bullet(lines, letter, q_num) is None:
             raise be.BacklogEditError(
-                f"Q{q_num} not found in the open-items block of "
+                f"{letter}{q_num} not found in the open-items block of "
                 f"{doc_path.name} — set edits an existing item; use define "
                 f"to create one")
-        return _q_define_core(slug, doc_path, q_num, body,
-                              why_ask=getattr(args, "why_ask", None))
+        return _q_define_core(slug, doc_path, q_num, body, letter=letter,
+                              **kind_kwargs)
     if verb == "remove":
-        return _q_remove_core(slug, doc_path, q_num, None, args.reason)
-    raise be.BacklogEditError(f"unknown verb {verb!r} for a Q label")
+        return _q_remove_core(slug, doc_path, q_num, None, args.reason,
+                              letter=letter)
+    raise be.BacklogEditError(f"unknown verb {verb!r} for a {letter} label")
 
 
 # ------------------------------------------------------------------
@@ -2857,9 +3005,10 @@ def cmd_item(slug, anchor_path, args):
         raise be.BacklogEditError(
             f"auto-mint label {args.label} is only valid with define"
         )
-    if args.verb == "set" and doc_kind != "backlog" and letters != "Q":
+    if args.verb == "set" and doc_kind != "backlog" and letters not in be.ITEM_KINDS:
         raise be.BacklogEditError(
-            "set on a doc addresses a hosted item — valid labels: Q<n>")
+            "set on a doc addresses a hosted item — valid labels: "
+            "Q<n> / V<n> / U<n>")
     if doc_kind == "backlog" and letters == "Q":
         # F275 M2 — standalone feature-less question row (the row body IS the
         # question). define runs the ask-format/Damage/On-answer gates;
@@ -2878,15 +3027,19 @@ def cmd_item(slug, anchor_path, args):
             label = be.format_row_id(letters, mint_num)
             return _row_verb(slug, doc_path, label, args.verb, args, minted=True)
         return _row_verb(slug, doc_path, args.label, args.verb, args)
-    if doc_kind == "doc" and letters == "Q":
+    if doc_kind == "doc" and letters in be.ITEM_KINDS:
+        # F305 hosting — three answer shapes, one lifecycle: Q (choose),
+        # V (observe, yes/no), U (perform, done), per-letter numbering.
         if num == "+":
-            num = be._next_q_number(doc_path.read_text(encoding="utf-8"))
-        return _query_verb(slug, doc_path, num, args.verb, args)
+            num = be._next_item_number(
+                doc_path.read_text(encoding="utf-8"), letters)
+        return _query_verb(slug, doc_path, num, args.verb, args,
+                           letter=letters)
     where = "Backlog" if doc_kind == "backlog" else doc_path.name
     raise be.BacklogEditError(
         f"unknown query kind {args.label!r} for {where} — valid labels: "
         f"F<n>/T<n>/C<n>/Q<n>/F+/T+/C+/Q+ on Backlog (Q = standalone question "
-        f"row), Q<n>/Q+ on any other doc"
+        f"row), Q<n>/V<n>/U<n> (or Q+/V+/U+) on any other doc"
     )
 
 
@@ -2916,7 +3069,7 @@ def _row_span(lines, label):
     return None
 
 
-_ITEM_HEADER_RES = (be._Q_HEADER_BULLET_RE, be._Q_HEADER_H3_RE)
+_ITEM_HEADER_RES = (be._ITEM_HEADER_BULLET_RE, be._ITEM_HEADER_H3_RE)
 
 
 def _doc_item_span(lines, letters, num):
@@ -3049,12 +3202,12 @@ def cmd_show(slug, anchor_path, args):
                 span = _row_span(ice, args.label)
                 if span is not None:
                     lines, doc_path = ice, icebox_path
-    elif letters in ("Q", "V"):
+    elif letters in be.ITEM_KINDS:
         span = _doc_item_span(lines, letters, num)
     else:
         raise be.BacklogEditError(
             f"unknown label kind {args.label!r} — show reads F/T/C/Q rows on "
-            f"Backlog and Q/V items on any other doc")
+            f"Backlog and Q/V/U items on any other doc")
 
     if span is None:
         raise be.BacklogEditError(
@@ -3910,6 +4063,11 @@ def build_parser():
                    help="`- **Next:**` no-user action")
     s.add_argument("--verify", default=None,
                    help="`- **Verify:**` yes/no question")
+    s.add_argument("--probe", dest="probe", default=None,
+                   help="F305 Q2 — `- **Probe:**` the agent-owned deferred "
+                        "check: its trigger and what to run when it fires "
+                        "(e.g. \"once `fired` reaches 21 — re-run the soak "
+                        "counts\"). Any bracket; `--probe \"\"` removes it.")
     s.add_argument("--user", dest="user", default=None,
                    help="F259 — `- **User:**` action a [User] row is gated on "
                         "(what YOU, the user, must do: log in, click a "

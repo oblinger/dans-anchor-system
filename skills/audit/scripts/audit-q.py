@@ -2404,7 +2404,27 @@ def check_c21_empty_open_questions(
         # H2 exists. Did we find any pending Q bullets under it?
         if q_entries_by_file.get(file_path):
             continue
-        # H2 with zero pending Qs → Phase 2 missed.
+        # F305 hosting — the block may legitimately hold only V/U items
+        # (extract_q_entries is Q-only BY DESIGN: verifications never enter
+        # the bracket derivation). A pending V/U in the unresolved zone keeps
+        # the block alive, else a V-only block reads as "Phase 2 missed" and
+        # an agent deletes a live block. NOT open_questions_is_empty — that
+        # counts a `### Resolved` pen as content, which is exactly the state
+        # C21 exists to flag.
+        rng = _be_mod._open_questions_range(lines)
+        if rng is not None:
+            _s, _e = rng
+            pending_vu = False
+            for _ln in lines[_s + 1:_e]:
+                if _ln.strip() in ("### Resolved", "### Removed"):
+                    break
+                _m = _be_mod._ITEM_HEADER_BULLET_RE.match(_ln)
+                if _m and _m.group(2) in ("V", "U"):
+                    pending_vu = True
+                    break
+            if pending_vu:
+                continue
+        # H2 with zero pending items of any kind → Phase 2 missed.
         findings.append(Finding(
             severity="warning",
             surface_file=file_path,

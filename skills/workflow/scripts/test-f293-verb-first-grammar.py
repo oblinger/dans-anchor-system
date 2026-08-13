@@ -98,8 +98,12 @@ print("1. Each verb's help shows its own flags and not its siblings'")
 # which verb ran. Each row is (verb, must-list, must-NOT-list).
 for verb, present, absent in [
     ("resolve", ["--choice"], ["--horizon", "--status", "--why-ask", "--reason"]),
-    ("set", ["--status", "--horizon", "--title", "--next", "--verify", "--user"],
-     ["--choice", "--why-ask", "--reason", "--from-file"]),
+    # F305 D2 gave `set` --why-ask (a doc-hosted item rewritten to carry a
+    # Lean/Strong passes the same F257 gate define enforces), and the F305
+    # hosting pass gave it --probe; both are set's own flags now.
+    ("set", ["--status", "--horizon", "--title", "--next", "--verify", "--user",
+             "--why-ask", "--probe"],
+     ["--choice", "--reason", "--from-file"]),
     ("define", ["--horizon", "--why-ask", "--from-file"],
      ["--choice", "--status", "--title", "--reason"]),
     ("remove", ["--reason"], ["--choice", "--horizon", "--status", "--body"]),

@@ -211,7 +211,7 @@ The class is right and the population is mislabeled: `[Waiting]` has been servin
 
 **Retired by this table:** `[Verify-by {date}]` (a `[Waiting]` whose outcome happens to be a Verify — what a wait becomes is deliberately not encoded); bare `[Waiting]` and bare `[Blocked]` (both now illegal without an argument); the relative forms `[Waiting Nd]` / `[Waiting Nh]` / `[Watching Nd]` / `[Watching Nh]`, because a relative duration ages into a lie — a thirty-day-old `[Watching 7d]` still reads *7d* — while an absolute date never needs renumbering; `[Implementing]` (already an alias for `[Active]`); and `[Iced]`, which was never a state — the Icebox is a horizon, and a separate file.
 
-**There is no bracket for an agent-owned deferred check.** Under F240 a check the agent can run now is simply run, so such a check is bracket-worthy only while it *cannot* run — at which point the row is `[Waiting {date}]` or `[Watching {date}]` like any other clock-parked row. What the check *is* belongs in a sub-bullet field beside `- **Next:**`, `- **Verify:**` and `- **User:**`, not in the bracket.
+**There is no bracket for an agent-owned deferred check.** Under F240 a check the agent can run now is simply run, so such a check is bracket-worthy only while it *cannot* run — at which point the row is `[Waiting {date}]` or `[Watching {date}]` like any other clock-parked row. What the check *is* belongs in a sub-bullet field beside `- **Next:**`, `- **Verify:**` and `- **User:**`, not in the bracket: the **Probe field** (F305 Q2) names the trigger and what to run when it fires — `- **Probe:** once fired reaches 21 — re-run the soak counts`. Written via `state set … --probe "<trigger — check>"` on any bracket; `--probe ""` removes it. At a `[Watching {date}]` expiry the agent re-applies the F240 positioning test: a now-runnable probe makes the row `[Ready]` (run it), and only a genuine human faculty makes it `[Verify]`.
 
 `[Blocked F<NNN>]` is the **chained** form of `[Blocked]` — used when the blocker is another feature's progression. The chained F-number is the description; the user clicks `F<NNN>` to learn the actual current state of the blocker. Generic `[Blocked]` (without an F-number) is for non-feature blockers — diagnostic capture, external review, a missing API — and the row body must describe what's blocking.
 
@@ -292,11 +292,9 @@ Every backlog item has one of these statuses, derived from where the bullet sits
 
 ### The `→ [[X]]` link convention — for rows with feature docs
 
-When a feature row has unresolved questions, the bullet description should be replaced with a pointer to where those questions live:
+When a feature row has unresolved questions, the bullet description should be replaced with a pointer to where those questions live. The row reads:
 
-```
-- **F012 — Item Name** [Questions] — → [[F012 — Item Name]]
-```
+- **F012 — Item Name** [Questions] — → [[F012 — Item Name]] 
 
 The `→ [[Feature Doc]]` link is the marker. As long as the linked doc has pending questions in its `## Open Questions` block, the backlog item's status is **Questions**. When the user resolves those questions, the item can be re-readied (the description gets rewritten to reflect the resolved design, and the bullet moves to `## Ready`).
 
