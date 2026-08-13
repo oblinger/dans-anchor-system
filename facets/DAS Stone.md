@@ -50,6 +50,17 @@ This inverts the usual split, and the inversion is the point:
 - **The user** arranges **control files** — order, grouping, what is published.
 - **`stone`** keeps the two consistent and propagates along the feed DAG.
 
+## A backlog row deferred on a stone is linked from that stone's roadmap
+
+**Interim convention, Dan 2026-08-13 — it exists because a backlog row cannot currently block on a stone.** `audit-q` **C55** resolves a `[Blocked <handle>]` against backlog rows only, so `[Blocked TINK-P0004]` is refused as a dangling handle even when the pebble is exactly what the row waits on.
+
+Until that changes, when work is deferred because a stone has to happen first:
+
+1. **Park the feature in `## Later`.** A Later row renders in no queue whatever its bracket, which is the invisibility being asked for, and its bracket therefore stops being load-bearing — pick the honest one rather than contorting to satisfy a checker.
+2. **Add it to the stone's `## Roadmap`, in the same edit.** The stone body carries a table of the feature documents its work needs. That table is the *only* thing keeping a parked row reachable, so a row in Later with no entry there is lost rather than deferred — which is precisely the failure [[DAS Backlog]] § The four classes warns about for a blocker with no handle.
+
+**The intended end state is that blocking on a stone is simply allowed.** It is not built yet because it mixes the two stores: a `stone update` pass would then have to affect the backlog, and that coupling needs designing before it ships rather than after.
+
 ## Headers, and how publishing works
 
 A **header** is any line whose first link targets a control file. Pointing at *this* file's own control file makes it the **self-section**; pointing at another anchor's makes it that anchor's **import site**. An anchor publishes a stone by placing its line **below the self-section**.
