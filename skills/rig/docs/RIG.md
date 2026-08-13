@@ -47,8 +47,18 @@ Note that clouds use confusing words here. GCE reports a *stopped* instance as `
 Flat namespaces collide, so the convention is a prefix:
 
 ```
-<agent>.<name>          a2x.dev     tink.build     lumen.scratch
+<agent>-<name>          a2x-dev     tink-build     lumen-scratch
 ```
+
+**The separator is a hyphen, and that is load-bearing.** The whole point of the namespace is that *one name means one machine in every tool*, and a dot cannot survive the chain:
+
+| Consumer | A dotted name becomes | A hyphenated name becomes |
+| --- | --- | --- |
+| the cloud (GCE instance name) | rejected — dots are illegal | `a2x-dev` |
+| ssh (`Host` alias) | `a2x.dev` | `a2x-dev` |
+| tmux (session name) | **silently rewritten to `a2x_dev`** | `a2x-dev` |
+
+tmux's rewrite is the dangerous one because it is silent and undocumented: the session is created, under a different name, and tmux's prefix matching then lets a lookup for `bridge-a2x` quietly land inside `bridge-a2x_dev`. Two tools disagree about what the machine is called while both appear to work. `rig` rejects dotted names outright and tells you the hyphenated form.
 
 **The prefix is whoever owns the machine** — typically the agent that created it. Two agents that both want a `dev` box get `a2x.dev` and `tink.dev` and never collide. Set it with `--agent`, `$RIG_AGENT`, or `agent:` in the config; if the name you pass has no dot and an agent is known, rig prefixes it for you.
 
@@ -74,7 +84,23 @@ Because every downstream tool already accepts a host, none of them needs to know
 
 This also solves a bug that bites everyone eventually: **cloud addresses are not stable.** Stop a machine and start it again and it *may* come back on a different address — sometimes it reclaims the same one, which is worse than always changing, because it means the breakage is intermittent and you will not have built the habit of expecting it. Anything holding the old IP then points at nothing, or eventually at somebody else's machine. Since `up` rewrites the alias every time, the indirection is repaired whenever it breaks, without anyone having to notice.
 
-For the same reason, `down` and `rm` **remove** the alias. A destroyed rig whose `Host` entry survives is a live trap: the cloud recycles that address, so the alias does not fail — it connects to a stranger.
+For the same reason, `down` and `rm` **remove** the alias. A destroyed rig whose `Host` entry survives is a live trap: the cloud recycles that address, so the alias does not fail — it connects to a stranger. This is not hypothetical; it was observed within minutes of destroying a test rig, when the next machine started came up on the dead rig's exact address.
+
+### How a connection tool consumes this
+
+The alias is the entire handoff. A connection tool is handed the rig's name and needs nothing else:
+
+```sh
+rig up a2x-dev              # machine exists; alias published
+bridge tmux a2x-dev         # tmux session on both sides, named bridge-a2x-dev
+```
+
+One name — `a2x-dev` — is the cloud instance, the ssh alias, and (prefixed) the tmux session on both ends. Nothing has to be looked up or translated, and there is no second identifier to keep in sync.
+
+Two things the connection tool must honour, both learned by breaking them:
+
+- **The alias wins over any host-shortname convention.** A tool that expands a bare name to `<name>.local` for Bonjour will turn a working alias into an unresolvable mDNS lookup. Ask `ssh -G <name>` before guessing.
+- **The alias declares the login user; use it.** A cloud VM's account is rarely the laptop user's name. Assuming `$USER@host` is a same-person-both-ends assumption that holds between two of your own Macs and nowhere else.
 
 For the cases that want a raw address, `rig ip <name>` prints the IP on stdout and nothing else, so it composes:
 

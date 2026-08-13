@@ -79,23 +79,40 @@ def load_config():
 
 # ---------------------------------------------------------------- names
 
-NAME_RE = re.compile(r"^[a-z][a-z0-9]*(\.[a-z0-9][a-z0-9-]*)*$")
+# One name, everywhere: rig name == ssh alias == tmux session == cloud instance.
+#
+# The separator is a HYPHEN, not a dot, and that is load-bearing rather than
+# cosmetic. A dot cannot survive the whole chain: tmux silently rewrites `.`
+# to `_` in session names (measured, not documented), and GCE forbids dots in
+# instance names outright. Either one alone breaks "one name" — together they
+# guarantee that a dotted name means three different strings in three tools,
+# which is exactly the confusion this convention exists to remove.
+#
+# A hyphen is legal and unmangled in all four namespaces, so the name a user
+# types is the name every tool shows back.
+NAME_RE = re.compile(r"^[a-z][a-z0-9-]{0,61}[a-z0-9]$")
 
 
 def resolve_name(name, cfg, agent_opt):
-    """Apply the <agent>.<local> namespace convention.
+    """Apply the <agent>-<local> namespace convention.
 
     The namespace is global and flat. An agent owning rigs prefixes them with
     its own slug so two agents never collide on 'dev'.
     """
-    agent = agent_opt or os.environ.get("RIG_AGENT") or os.environ.get("BRIDGE_AGENT") or cfg.get("agent")
-    if "." not in name and agent:
-        name = f"{agent.lower()}.{name}"
+    agent = (agent_opt or os.environ.get("RIG_AGENT") or os.environ.get("BRIDGE_AGENT")
+             or cfg.get("agent") or "")
+    agent = agent.lower()
+    if "." in name:
+        die(f"bad rig name {name!r} — dots do not survive tmux (rewritten to '_') or GCE "
+            f"instance names; use hyphens: {name.replace('.', '-')!r}")
+    if agent and not name.startswith(f"{agent}-"):
+        name = f"{agent}-{name}"
     if not NAME_RE.match(name):
-        die(f"bad rig name {name!r} — use lowercase [a-z0-9-] segments separated by dots, e.g. a2x.dev")
-    if "." not in name:
-        note(f"rig: warning: {name!r} has no agent prefix — the namespace is global; "
-             f"prefer <agent>.<name> (set --agent or $RIG_AGENT)")
+        die(f"bad rig name {name!r} — lowercase letters, digits and hyphens; "
+            f"must start with a letter and end alphanumeric, e.g. a2x-dev")
+    if not agent:
+        note(f"rig: warning: no agent slug known, so {name!r} is unprefixed — the namespace "
+             f"is global; prefer <agent>-<name> (set --agent or $RIG_AGENT)")
     return name
 
 
@@ -136,10 +153,10 @@ class Backend:
 class GCP(Backend):
     """Google Compute Engine, via the gcloud CLI.
 
-    Naming: GCE instance names are RFC1035 and cannot contain dots, so the rig
-    name 'a2x.dev' becomes instance 'a2x-dev'. The authoritative rig name is
-    stored in instance metadata under 'rig-name', so the mapping stays exact
-    even when a local segment legitimately contains a hyphen.
+    Naming: rig names are already RFC1035-legal, so the instance carries the
+    rig name verbatim — there is no mapping layer to get wrong. The name is
+    also written to instance metadata as 'rig-name' so that machines created
+    outside rig can be adopted under a chosen name.
     """
 
     def __init__(self, cfg):
@@ -168,6 +185,8 @@ class GCP(Backend):
 
     @staticmethod
     def _native(name):
+        # Identity by construction — rig names are RFC1035-legal. The replace
+        # is a safety net for any legacy dotted name still recorded in metadata.
         return name.replace(".", "-")
 
     def _find(self, name):
