@@ -15,6 +15,7 @@ import os
 import subprocess
 import sys
 import tempfile
+import shlex
 from pathlib import Path
 
 SCRIPTS = Path(__file__).resolve().parent
@@ -94,7 +95,7 @@ def main():
               r.returncode == 0
               and rig.reg_lines() == [f"tool:post:Read\t{h}"]
               and grp["matcher"] == "Read"
-              and grp["hooks"][0]["command"] == f"{RUNNER} tool:post:Read")
+              and grp["hooks"][0]["command"] == f"{shlex.quote(str(RUNNER))} tool:post:Read")
         r = rig.run(UNINSTALL, "tool:post:Read", str(h))
         check("case 1: uninstall restores settings byte-for-byte",
               r.returncode == 0 and rig.bytes() == before
@@ -149,7 +150,7 @@ def main():
               and rig.adopted.exists())
         check("case 2: runner replaces occupant at its original index",
               s["hooks"]["PostToolUse"][1]["hooks"][0]["command"]
-              == f"{RUNNER} tool:post:Read"
+              == f"{shlex.quote(str(RUNNER))} tool:post:Read"
               and s["hooks"]["PostToolUse"][0]["matcher"] == "WebFetch"
               and len(s["hooks"]["PostToolUse"]) == 2)
         rig.fire("tool:post:Read")

@@ -56,6 +56,7 @@ DAS_HOOK_SETTINGS (settings.json) and DAS_HOOK_RUNNER (the hook-run path).
 import json
 import os
 import re
+import shlex
 import sys
 from hashlib import sha1
 from pathlib import Path
@@ -136,7 +137,11 @@ def is_warden_cmd(cmd):
 
 
 def is_runner_cmd(cmd, moment):
-    return cmd == f"{RUNNER} {moment}"
+    # Both forms: the shlex-quoted entry current installs write (the runner
+    # path may contain a space — ATT 2026-08-13: unquoted, the shell split it
+    # at `Skill Agent` and every hook behind the entry died at rc=127), and
+    # the bare legacy form already sitting in settings.json files.
+    return cmd in (f"{shlex.quote(str(RUNNER))} {moment}", f"{RUNNER} {moment}")
 
 
 def matcher_of(group):
@@ -317,7 +322,7 @@ def install(moment, hook_path):
     if moment_matcher is not None:
         runner_group["matcher"] = moment_matcher
     runner_group["hooks"] = [{"type": "command",
-                              "command": f"{RUNNER} {moment}"}]
+                              "command": f"{shlex.quote(str(RUNNER))} {moment}"}]
 
     insert_at = exact[0][0] if exact else len(groups)
     new_groups = [g for i, g in enumerate(groups) if i not in {i for i, _ in exact}]
