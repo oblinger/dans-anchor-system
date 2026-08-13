@@ -1,16 +1,20 @@
 ---
-description: "{{drop-zone for raw input — pasted notes, forwarded ideas, quick captures; processed into the planning docs, then tagged in place}}"
+description: {slug} inbox — raw input dropped for later processing.
 ---
-:>> [[DAS]] → [[Templates]] → [inbox markdown](hook://p/inbox%20markdown)
+:>> [[DAS]] → [[Templates]] → [inbox markdown](hook://p/inbox%20markdown) 
 # {slug} Inbox
-The drop-zone for raw input addressed to {slug} — pasted notes, forwarded ideas, quick captures — processed into the planning docs and tagged in place.
+Drop zone for raw input; an entry with no status tag is pending, and draining writes `DONE` or `MOVED → {destination}` per [[DAS Inbox]].
 
-## {{YYYY-MM-DD}} — {{Topic}}    `{{DONE | MOVED → destination}}`
+## {{YYYY-MM-DD}} — {{Topic}}
 
-{{The captured input. Preserve the original as a blockquote when it is worth keeping as a record:}}
+*from: {{sender}} · tag: {{type}}*
 
-> {{original pasted text}}
+> {{the message, quoted verbatim}}
 
 ## {{YYYY-MM-DD}} — {{Earlier topic}}    `DONE`
+
+{{A hand-pasted entry carries no attribution line — that line is written by `state drop` and only when the sender passed `--source` / `--tag`.}}
+
+## {{YYYY-MM-DD}} — {{Older topic}}    `MOVED → {{destination}}`
 
 {{...}}
