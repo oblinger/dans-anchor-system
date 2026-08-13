@@ -261,16 +261,22 @@ class GCP(Backend):
         return self._find(name)
 
     def down(self, name):
-        inst = self._find(name) or die(f"no such rig: {name}")
+        inst = self._find(name)
+        if not inst:
+            return False
         if inst["status"] != "RUNNING":
             note(f"rig: {name} already down")
-            return
+            return True
         self._gcloud("instances", "stop", inst["name"], f"--zone={inst['zone'].rsplit('/', 1)[-1]}")
+        return True
 
     def rm(self, name):
-        inst = self._find(name) or die(f"no such rig: {name}")
+        inst = self._find(name)
+        if not inst:
+            return False
         self._gcloud("instances", "delete", inst["name"],
                      f"--zone={inst['zone'].rsplit('/', 1)[-1]}", "--quiet")
+        return True
 
     def ls(self):
         return [self._row(i) for i in self._gcloud("instances", "list", json_out=True)]
@@ -285,21 +291,18 @@ class GCP(Backend):
 
 # ---------------------------------------------------------------- ssh config
 
-def write_ssh_alias(name, user, host, keyfile):
-    """Regenerate this rig's stanza inside rig's managed block.
+def _edit_ssh_block(name, stanza):
+    """Replace (or with stanza=None, drop) this rig's entry in the managed block.
 
-    The block exists because cloud IPs are ephemeral: a rig that goes down and
-    comes back up almost always returns on a different address, and every
-    consumer (bridge, svx, plain ssh) addresses it by alias.
+    The block exists because cloud addresses are not stable: a rig that stops and
+    starts may come back on a different IP, and every consumer (bridge, svx,
+    plain ssh) reaches it by alias. Rewriting on every `up` repairs the
+    indirection exactly when it breaks.
+
+    Removal matters as much as writing. A destroyed rig whose alias survives
+    points at an address the cloud will recycle to somebody else's machine —
+    which is worse than a broken alias, because it still connects.
     """
-    stanza = (f"Host {name}\n"
-              f"    HostName {host}\n"
-              f"    User {user}\n"
-              f"    IdentityFile {keyfile}\n"
-              f"    IdentitiesOnly yes\n"
-              f"    StrictHostKeyChecking accept-new\n"
-              f"    ServerAliveInterval 60\n")
-
     text = open(SSH_CONFIG).read() if os.path.exists(SSH_CONFIG) else ""
     if BLOCK_BEGIN in text and BLOCK_END in text:
         head, rest = text.split(BLOCK_BEGIN, 1)
@@ -309,11 +312,27 @@ def write_ssh_alias(name, user, host, keyfile):
 
     kept = [s for s in re.split(r"\n(?=Host )", block.strip("\n"))
             if s.strip() and not re.match(rf"Host {re.escape(name)}\s*$", s.splitlines()[0].strip())]
-    kept.append(stanza.rstrip("\n"))
+    if stanza:
+        kept.append(stanza.rstrip("\n"))
 
+    body = "\n".join(kept)
     with open(SSH_CONFIG, "w") as f:
-        f.write(head + BLOCK_BEGIN + "\n" + "\n".join(kept) + "\n" + BLOCK_END + tail)
+        f.write(head + BLOCK_BEGIN + "\n" + (body + "\n" if body else "") + BLOCK_END + tail)
     os.chmod(SSH_CONFIG, 0o600)
+
+
+def write_ssh_alias(name, user, host, keyfile):
+    _edit_ssh_block(name, (f"Host {name}\n"
+                           f"    HostName {host}\n"
+                           f"    User {user}\n"
+                           f"    IdentityFile {keyfile}\n"
+                           f"    IdentitiesOnly yes\n"
+                           f"    StrictHostKeyChecking accept-new\n"
+                           f"    ServerAliveInterval 60\n"))
+
+
+def remove_ssh_alias(name):
+    _edit_ssh_block(name, None)
 
 
 # ---------------------------------------------------------------- cli
@@ -341,8 +360,10 @@ def cmd_up(args, cfg):
 def cmd_down(args, cfg):
     be = get_backend(cfg, args.cloud)
     name = resolve_name(args.name, cfg, args.agent)
-    be.down(name)
-    note(f"rig: {name} down (disk kept — `rig rm {name}` to destroy)")
+    found = be.down(name)
+    remove_ssh_alias(name)   # unconditional: a stale alias outliving its rig is the trap
+    note(f"rig: {name} down (disk kept — `rig rm {name}` to destroy)" if found
+         else f"rig: no such rig: {name} (cleared any stale ssh alias)")
 
 
 def cmd_rm(args, cfg):
@@ -350,8 +371,10 @@ def cmd_rm(args, cfg):
     name = resolve_name(args.name, cfg, args.agent)
     if not args.yes:
         die(f"refusing to destroy {name} without --yes (this deletes the disk)")
-    be.rm(name)
-    note(f"rig: {name} destroyed")
+    found = be.rm(name)
+    remove_ssh_alias(name)
+    note(f"rig: {name} destroyed" if found
+         else f"rig: no such rig: {name} (cleared any stale ssh alias)")
 
 
 def cmd_ls(args, cfg):

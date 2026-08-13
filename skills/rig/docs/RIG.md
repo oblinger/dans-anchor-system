@@ -72,7 +72,9 @@ Host a2x.dev
 
 Because every downstream tool already accepts a host, none of them needs to know rig exists. Your connection tool, your experiment framework, and plain `ssh` all address `a2x.dev` and all keep working.
 
-This also solves a bug that bites everyone eventually: **cloud IPs are ephemeral.** Stop a machine and start it again and it almost always comes back on a different address. Anything holding the old IP silently points at nothing — or, worse, at somebody else's machine. Since `up` rewrites the alias every time, the indirection is repaired exactly when it breaks.
+This also solves a bug that bites everyone eventually: **cloud addresses are not stable.** Stop a machine and start it again and it *may* come back on a different address — sometimes it reclaims the same one, which is worse than always changing, because it means the breakage is intermittent and you will not have built the habit of expecting it. Anything holding the old IP then points at nothing, or eventually at somebody else's machine. Since `up` rewrites the alias every time, the indirection is repaired whenever it breaks, without anyone having to notice.
+
+For the same reason, `down` and `rm` **remove** the alias. A destroyed rig whose `Host` entry survives is a live trap: the cloud recycles that address, so the alias does not fail — it connects to a stranger.
 
 For the cases that want a raw address, `rig ip <name>` prints the IP on stdout and nothing else, so it composes:
 
