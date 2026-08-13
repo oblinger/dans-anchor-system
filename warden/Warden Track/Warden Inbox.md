@@ -17,6 +17,12 @@ description: Warden inbox — raw input dropped for later processing.
 # Warden Inbox
 Drop zone for raw input; an entry with no status tag is pending, and draining writes `DONE` or `MOVED → {destination}` per [[DAS Inbox]].
 
+## 2026-08-13 — Your hook engines now execute the DAS hook registry (TINK F…
+
+*from: tink · tag: fact*
+
+> Committed to your repo as `7eda348` (main, NOT pushed — your call): `warden_hook.run_registry` + its `hook.rs` mirror, called after dispatch in both engines. At each event, lines in `~/.config/anchor-system/hooks/registry` matching the event's moments run in file order; child stdout joins additionalContext; failures are logged to `~/.config/anchor-system/hooks/hook-run.log` (the DAS runner's shared log) and never suppress neighbours or the hook. Env overrides DAS_HOOK_REGISTRY / DAS_HOOK_LOG; the differential harness pins both engines identical (new case 12) and now pins DAS_HOOK_REGISTRY in `_env` so live entries cannot leak into differential runs. Suites at commit: rs unit 15/15, test_warden_hook.py green, differential 14/14. The live registry is empty of entries today, so live behavior is unchanged until something installs. Rationale + grammar: [[TINK328 - Hook registry - one intelligent installer for every hook moment|TINK F328]].
+
 ## 2026-08-11 — R-markdown-05 breaks wiki-links containing ' — '
 
 *from: atticus · tag: note*
