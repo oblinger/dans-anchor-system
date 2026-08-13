@@ -3,7 +3,7 @@ description: "canonical stream-spine exemplar — dated children, newest first"
 ---
 
 | -[[Harbor Releases]]- | : canonical stream-spine exemplar — dated children, newest first<br>→ [[DAS]] → [[examples]] → [Harbor Releases](hook://p/Harbor%20Releases)  |
-| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| --- | --- |
 | Related | [[FEX Spine Examples]],  [[Bridges]],  [[DAS spine]],  [[DAS stream]],   |
 | ^^^ | |
 | [[Harbor Retrospectives]]  | made-up external-spine exemplar — rows pointing at pages outside this folder |

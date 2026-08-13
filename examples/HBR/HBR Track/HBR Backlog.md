@@ -6,10 +6,10 @@ description: "work queue"
 | --- | --- |
 | Anchor | [[HBR Track]] (parent) |
 | Related | [[HBR Features]],  [[HBR Roadmap]],   |
-| ... | [[HBR Messages]],  [[HBR queries]],  [[HBR Rocks]],  [[HBR Status]],   |
+| ... | [[HBR Messages]],  [[HBR queries]],  [[HBR Rock]],  [[HBR Rocks]],  [[HBR Status]],   |
 
 # HBR Backlog
-<!-- state:backlog 3o -->
+<!-- state:backlog wv -->
 Harbor's work queue — horizon H2s, one row per item, status in brackets.
 
 
