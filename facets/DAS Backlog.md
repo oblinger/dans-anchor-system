@@ -172,12 +172,20 @@ Ruled by Dan 2026-08-07 ([[TINK305 - Three answer shapes, one lifecycle|TINK F30
 
 - **Ready** — the agent acts next.
 - **User** — the **user** is blocking the activity.
-- **Parked** — nothing is blocked, but **nothing undoes it either**. Growth here is a bad smell.
+- **Parked** — **everything here is blocked**, but unblocking **may or may not handle itself**. Growth here *can* be a bad smell — see below for which kind.
 - **Hidden** — parked *and self-unwinding*. Omitted from the rendered page.
 
 **A class name may collide with a bracket name, and that is deliberate.** Class **Ready** holds `[Ready]` and `[Active]`; class **User** holds `[Questions]`, `[User]` and `[Designing]`. The alternative — coining `Runnable` and `Owed` so every class name is unique — was drafted and rejected on brevity: *"I'm a little bit tempted to basically say runnable. And I still think I would use the word ready. I know it's ambiguous because Active is getting slipped in there… I think I'm okay that Ready is a bit ambiguous."* The collision is also mild where it lands hardest: 82% of class Ready is literally `[Ready]`, so the name is right about the overwhelming case.
 
-The assignment test is **does the state undo itself?** A `[Waiting 2026-09-01]` row leaves its own state when the date passes with nobody acting, so a hundred of them is not a smell and omitting them costs nothing. A `[Verify]` or `[Blocked]` row sits forever until a person acts, so both stay visible — quietly — and their *growth* is the signal. This is the one criterion in the scheme that can be checked rather than argued.
+The assignment test is **does the state undo itself?** A `[Waiting 2026-09-01]` row leaves its own state when the date passes with nobody acting, so a hundred of them is not a smell and omitting them costs nothing. A `[Verify]` or `[Blocked]` row sits until a person acts, so both stay visible — quietly. This is the one criterion in the scheme that can be checked rather than argued.
+
+**Parked is not one smell — it is three shapes, and only the third is bad** (Dan, 2026-08-13). The class name says *parked*, and every bracket inside it says *blocked*; the honest reading is that everything in Parked **is** blocked, and what varies is whether anything will come along and undo it.
+
+- **`[Verify]` — only a person undoes it, and that is fine.** The work is usually done; what is owed is closing it out. As long as nothing is waiting on it, it can sit until the user gets to it, and its sitting there is the point.
+- **`[Blocked <handle>]` — usually fine, because the handle is visible.** A row may not block on a later horizon than its own (below), so whatever it names sits at least as high on the page as the blocked row does. That row gets done in the normal course of work, and this one is unblocked as a side effect. Nobody has to remember it.
+- **`[Blocked <prose>]` — this is the bad smell.** With no handle there is no named row to get done, so the blocker is usually a nebulous something-to-be-dealt-with, and nothing on the page will ever clear it. This is the growth worth watching, not the class total.
+
+**Parked stays on the page precisely because things fester there.** It is the band that needs no minute-by-minute attention but must not vanish; **Hidden** is the band that is genuinely fine off-screen. What makes keeping all three shapes together safe is that **blocking is an attribute, not a class**: any row may be blocking another, and when it is, it is raised to the top of the page regardless of its bracket. So a `[Verify]` that something is actually waiting on stops being quiet and becomes a blocker in the position of highest attention — which is the mechanism that lets Parked be calm without being unwatched.
 
 **Hidden means hidden from `{slug} queries.md`, never from the backlog.** The queries page is a render; this file is the store. `/crank` and `/groom` read the store, so a Hidden row is fully visible to the agent and to any user who opens the backlog — it is simply not pushed at the user. Every class, including Hidden, still carries a **count** in the banner.
 
