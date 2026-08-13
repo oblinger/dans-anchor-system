@@ -261,6 +261,57 @@ $1
 EOF
 }
 
+hold_caffeinate() {  # ATT F022 — keep the remote awake while a bridge is up
+  # WHY THIS IS NOT `ssh host "caffeinate -is <cmd>"`, which is what the row
+  # originally specified. Work does not travel through ssh one-shots here. The
+  # one-shot runs `tmux send-keys` and returns in milliseconds; the command it
+  # typed then runs in a pane owned by the tmux SERVER, outside that ssh
+  # entirely. Wrapping the one-shot would start a caffeinate, hold an assertion
+  # for the length of a keystroke, and release it before the work began -- a
+  # guard that reports success and protects nothing, while `pmset -g assertions`
+  # sampled at the right instant would even confirm it "works".
+  #
+  # So the assertion is held by a process whose LIFETIME MATCHES THE WORK: a
+  # dedicated window in the session, running `caffeinate -is`. Kill the window,
+  # the session, or the server and the process dies with it and macOS drops the
+  # assertion -- which is why there is no reaping step. Nothing to leak, because
+  # nothing outlives the thing it was protecting.
+  local w="$SESSION:caffeinate"
+  if "${SSH[@]}" "$TMUX_BIN list-windows -t $SESSION -F '#{window_name}' 2>/dev/null" \
+       | grep -qx caffeinate; then
+    say "PASS  awake   '$w' already holding the assertion"
+  else
+    "${SSH[@]}" "$TMUX_BIN new-window -d -t $SESSION -n caffeinate 'caffeinate -is'"
+    say "PASS  awake   '$w' created — holds caffeinate -is for the session's life"
+  fi
+  if [ "$(caffeinate_state)" = held ]; then
+    say "PASS  awake   $HOST holds PreventUserIdleSystemSleep for THIS window's caffeinate"
+  else
+    say "WARN  awake   no assertion from our caffeinate on $HOST — it may idle-sleep mid-job"
+  fi
+}
+
+caffeinate_state() {  # echoes held | absent — ground truth from the power manager
+  # Two traps, both hit while building this (2026-08-13):
+  #
+  # 1. MATCH OUR OWN PID, not the word "caffeinate". Any tool on the machine may
+  #    hold a caffeinate assertion -- this laptop had an unrelated 300-second one
+  #    running during the very test that was supposed to prove the mechanism. A
+  #    check that greps for the name reports PASS on someone else's assertion and
+  #    keeps reporting it after ours has died.
+  #
+  # 2. CAPTURE `pmset -g assertions` BEFORE MATCHING. `pmset -g assertions |
+  #    grep -q ...` returned no-match against output that demonstrably contained
+  #    the line, reproducibly, while the same match against a captured variable
+  #    succeeded every time. Whatever pmset does when its stdout closes early,
+  #    the pipe form cannot be trusted -- so this uses `case` on a captured
+  #    string and no pipe at all.
+  "${SSH[@]}" "p=\$($TMUX_BIN list-panes -t '$SESSION:caffeinate' -F '#{pane_pid}' 2>/dev/null | tr -d '[:space:]')
+a=\$(pmset -g assertions 2>/dev/null)
+if [ -n \"\$p\" ]; then case \"\$a\" in *\"pid \$p(caffeinate)\"*) echo held;; *) echo absent;; esac
+else echo absent; fi"
+}
+
 # ---------------------------------------------------------------- tmux verb
 cmd_tmux() {
   require_host; resolve_target; preflight; resolve_agent
@@ -297,7 +348,7 @@ cmd_tmux() {
     if [ "$have_server" = "yes" ]; then
       local busy
       busy=$("${SSH[@]}" "tmux list-panes -a -F '#{session_name}:#{window_index} #{pane_current_command}' 2>/dev/null" \
-             | awk '$2 !~ /^(zsh|bash|sh|-zsh|-bash)$/')
+             | awk '$2 !~ /^(zsh|bash|sh|-zsh|-bash|caffeinate)$/')
       if [ -n "$busy" ] && [ "$MODE" != "force-server" ]; then
         fail "busy panes across the server — refusing a full restart that would kill EVERY agent's window, not just mine (--force-server to override; this is destructive to all windows):
 $busy"
@@ -342,6 +393,7 @@ $TMUX_BIN new -d -A -s $SESSION"
     say "PASS  window  '$WTARGET' created"
   fi
   tag_window "$WTARGET"
+  hold_caffeinate
 
   # local twin session, ssh-attached — OPTIONAL convenience viewer only
   # (a human can `tmux attach -t bridge-<host>` on the laptop to watch).
@@ -510,6 +562,16 @@ cmd_doctor() {
   [ -n "$stamp" ] && check stamp yes "provisioned $stamp" || check stamp no "never installed — run: bridge install $HOST"
   ctrl_ok=$("${SSH[@]}" "test -x ~/bin/ctrl && echo yes || echo no")
   check ctrl "$ctrl_ok" "~/bin/ctrl on remote"
+  # ATT F022. Asks the power manager, not tmux: a `caffeinate` window can exist
+  # with a dead pane, and the question is whether the machine will idle-sleep
+  # out from under a running job -- which only pmset can answer.
+  # doctor is read-only and must never abort, so resolve tmux WITHOUT
+  # remote_tmux_bin's fail-on-missing — a remote with no tmux should report a
+  # failed row here, not take the whole diagnosis down.
+  TMUX_BIN=$("${SSH[@]}" 'zsh -lc "which tmux" 2>/dev/null' | tail -1)
+  case "$TMUX_BIN" in /*) awake=$(caffeinate_state) ;; *) awake=absent ;; esac
+  [ "$awake" = held ] && check awake yes "idle-sleep held off by this session's caffeinate" \
+                      || check awake no "no caffeinate assertion — $HOST may idle-sleep mid-job; run: bridge tmux $HOST"
   tmux has-session -t "$LOCAL_SESSION" 2>/dev/null \
     && check local yes "local session '$LOCAL_SESSION' up" \
     || check local no "no local session — run: bridge tmux $HOST"

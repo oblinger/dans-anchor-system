@@ -11,36 +11,10 @@ The umbrella skill for connecting this Mac to another machine — a packaged dis
 
 | Table of Contents |  |
 |---|---|
+| **[[#Unattended remote work goes through `bridge run` — and a Warden rule enforces it]]** |  |
 | **[[#Heartbeat discipline — MANDATORY whenever a bridge is active]]** |  |
 | **[[#The dispatcher — every verb is a packaged command (F279)]]** |  |
-|    [[#Config files]] |  |
-|    [[#Setup recipe (manual background — the dispatcher automates this)]] |  |
-|    [[#Control gotchas (2026-06-06, COPPER → 10T verification)]] |  |
-|    [[#The "disk station" pattern]] |  |
-|    [[#Subcommand surface]] |  |
-|    [[#Resolution flow for `bridge sync`]] |  |
-|    [[#Init recipe (Syncthing)]] |  |
-|    [[#Tar-seed accelerator (initial seed — strongly preferred for big/small-file vaults)]] |  |
-|    [[#Fast-link discovery (Thunderbolt / USB-C bridge)]] |  |
-|    [[#`sync-status` / `sync-teardown`]] |  |
-|    [[#Per-session auto-resume]] |  |
-|    [[#rsync mode (F175 Phase 3 — explicit push/pull, the hard gate)]] |  |
-|    [[#NFS-via-symlink mode (F175 Phase 2 — live mount, zero lag)]] |  |
-|    [[#Sync gotchas]] |  |
-|    [[#Environment parity ≠ session portability]] |  |
-|    [[#Memory IS shared (F159)]] |  |
-|    [[#Recipe — `claude-provision.py`]] |  |
-|    [[#Refresh — `bridge refresh <host>` (reconverge an existing twin)]] |  |
-|    [[#When to use]] |  |
-|    [[#Subcommand surface]] |  |
-|    [[#Standard tmux session — `agent`, one per host]] |  |
-|    [[#Setup recipe — composition with `bridge claude` + tmux launch + windows]] |  |
-|    [[#Brief format — YAML frontmatter + redundant body-top table]] |  |
-|    [[#Status doc — one canonical doc per host at a computed path]] |  |
-|    [[#Status doc transport — SSH-pull on demand; NOT Syncthing; NOT git]] |  |
-|    [[#Heartbeat — hard convention while there's active work]] |  |
-|    [[#Idempotency]] |  |
-|    [[#Gotchas (live, from the 2026-06-23 hand-run)]] |  |
+| **[[#The `full` profile — capability table (v1 draft, F027)]]** |  |
 | **[[#When NOT to use bridge]]** |  |
 | **[[#Status]]** |  |
 
@@ -252,6 +226,14 @@ ssh oblinger@<host>.local "tmux capture-pane -t 'bridge-<host>:agent-<slug>' -p"
 ~/.claude/skills/bridge/screen-check.sh <host> [session]     # session default: work
 ```
 `screen-check.sh` runs an **FDA probe** (TCC-dir read) and a **test grab** (`screencapture`) *inside the canonical mux server* — bare-SSH probes prove nothing about the server's GUI context — and reports PASS/FAIL per capability with the exact remediation (redo Step 5 Terminal-launch, or grant the Step 5b TCC permissions). `bridge-test.sh` runs it automatically as `T-ctl-screen`, so any connect-time test pass covers this. The ~3-second self-test on every connect catches a degraded bridge *before* you build work on top of it.
+
+### Keeping the remote awake — automatic, and not where you'd expect (ATT F022)
+
+**`bridge tmux` holds the remote's idle-sleep off for you.** It creates a window named `caffeinate` in the session, running `caffeinate -is`, and `bridge doctor` reports an `awake` row. Paired with `pmset -a sleep 15 displaysleep 10` on the remote, this is the whole discipline: the machine stays up exactly as long as a bridge session exists and idles down by itself afterwards. **There is nothing to release and nothing to reap** — kill the window, the session, or the server, and the process dies with it, which is the point of using `caffeinate` rather than `pmset`.
+
+**Do NOT "fix" this by wrapping remote commands in `caffeinate -is`.** That is the obvious design and it is a no-op here. Work does not travel through ssh one-shots — the one-shot runs `tmux send-keys` and returns in milliseconds, and the command it typed then runs in a pane owned by the tmux **server**, outside that ssh entirely. A wrapped one-shot holds an assertion for the length of a keystroke and drops it before the work starts. The assertion has to be held by something whose *lifetime matches the work*, which is why it lives in a window rather than around a command.
+
+**Two traps if you ever touch the probe.** (1) Match **our own pid**, not the string `caffeinate` — unrelated tools hold caffeinate assertions, and a name match reports PASS on someone else's and keeps reporting it after ours has died. (2) **Capture `pmset -g assertions` into a variable before matching it.** `pmset -g assertions | grep -q …` reproducibly returns no-match against output that demonstrably contains the line; the same match against a captured string succeeds every time. `caffeinate_state()` uses `case` on a captured string and no pipe at all.
 
 ### Control gotchas (2026-06-06, COPPER → 10T verification)
 
