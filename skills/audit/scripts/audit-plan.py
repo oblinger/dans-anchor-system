@@ -1920,7 +1920,7 @@ def chk_design_row_iff_folder(target, anchor_root, args):
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
-    name = anchor_root.name
+    name = _anchor_slug(anchor_root)
     has_folder = (anchor_root / f"{name} Design").is_dir()
     text = _strip_fenced(_read(f))   # T103a — a fenced sample row is not a Design row
     # A *Design row*'s first cell is the design-folder link aliased exactly "Design"
@@ -3324,7 +3324,7 @@ def chk_user_stories_use_rid_numbering(target, anchor_root, args):
 
 def chk_no_legacy_open_questions_file(target, anchor_root, args):
     """No legacy {slug} Open Questions.md in {slug} Design/."""
-    name = anchor_root.name
+    name = _anchor_slug(anchor_root)
     legacy = anchor_root / f"{name} Design" / f"{name} Open Questions.md"
     if legacy.is_file():
         return "fail", f"legacy Open Questions file exists: {legacy.relative_to(anchor_root)}"
@@ -4347,10 +4347,10 @@ def chk_design_folder_children(target, anchor_root, args):
     """{slug} Design/ contains required children (args are stem names, e.g. PRD)."""
     if target.is_file():
         return "pass", "not a folder"
-    design = anchor_root / f"{anchor_root.name} Design"
+    name = _anchor_slug(anchor_root)
+    design = anchor_root / f"{name} Design"
     if not design.is_dir():
         return "pass", "no Design folder (N/A)"
-    name = anchor_root.name
     missing = [a for a in args
                if not ((design / f"{name} {a}.md").is_file() or (design / f"{name} {a}").is_dir())]
     if missing:
@@ -4360,7 +4360,7 @@ def chk_design_folder_children(target, anchor_root, args):
 
 def chk_status_facets_initialized(target, anchor_root, args):
     """When {slug} Design/ exists, {slug} Track/{slug} Status.md has the facet lines (args)."""
-    name = anchor_root.name
+    name = _anchor_slug(anchor_root)
     if not (anchor_root / f"{name} Design").is_dir():
         return "pass", "no Design folder (N/A)"
     status_file = anchor_root / f"{name} Track" / f"{name} Status.md"
