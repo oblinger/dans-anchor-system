@@ -90,8 +90,8 @@ Every source file and directory that has a module doc is linked by making the fi
 
 | What | Format | Renders as |
 |------|--------|------------|
-| Source file | `[[FEX Scheduler\|scheduler.rs]]` | `scheduler.rs` (links to CAE Scheduler doc) |
-| Directory | `[[CAE engine\|engine/]]` | `engine/` (links to module aggregator doc) |
+| Source file | `[[FEX Scheduler\|scheduler.rs]]` | `scheduler.rs` (links to the FEX Scheduler module doc) |
+| Directory | `[[HBR Ingest\|ingest/]]` | `ingest/` (links to the module aggregator doc) |
 | Standard file | `[[DAS Claude\|CLAUDE.md]]` | `CLAUDE.md` (links to CAB spec) |
 
 Files without a module doc (tests, config files, etc.) use plain filenames — no link.

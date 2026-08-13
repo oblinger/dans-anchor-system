@@ -39,15 +39,15 @@ The defining property is **what the content describes**: User docs describe *use
 # Reference Example
 ---
 
-# CAE User Docs
+# HBR User Docs
 
 | -[[HBR User Docs]]- | : end-user / consumer documentation<br>→ [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Dispatch]] → [DAS User Dispatch](hook://p/DAS%20User%20Dispatch) |
 | --- | --- |
 | [[HBR Guide\|Guide]] | getting started and usage |
-| [[CAE Installation\|Installation]] | installation instructions (when applicable) |
+| Installation | installation instructions (when applicable) |
 | [[HBR CLI\|CLI]] | CLI command reference (when applicable) |
-| [[CAE FAQ\|FAQ]] | frequently asked questions (when applicable) |
-| [[CAE Cards\|Cards]] | cheat sheets and flashcards |
+| FAQ | frequently asked questions (when applicable) |
+| Cards | cheat sheets and flashcards |
 
 ---
 

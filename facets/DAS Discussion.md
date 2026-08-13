@@ -86,7 +86,6 @@ Discussion is **append-only**. Entries are never edited after the Decision is fi
 - [[DAS Decisions]] — anchor-level decisions log (different altitude).
 - [[DAS Log]] — sibling stream facet.
 - [[DAS Facets]] — facet catalog with the Document-scoped row.
-- [[CAE Discussion]] — legacy anchor-scoped example, pending migration (see [[TINK Backlog]] § F149).
 
 # BRIEF
 

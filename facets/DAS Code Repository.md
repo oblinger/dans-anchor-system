@@ -201,7 +201,7 @@ Design rationale, alternatives considered, and the trade-off matrix:
 
 # BRIEF
 
-*(Maintainer note — facet-specific cautions for whoever edits this spec. This is a DAS facet spec, never a per-anchor record — don't inline a specific anchor's `code:` value or repo path as canonical content; use [[CAE example]] (or similar) as a worked reference. The normative spec is the body above.)*
+*(Maintainer note — facet-specific cautions for whoever edits this spec. This is a DAS facet spec, never a per-anchor record — don't inline a specific anchor's `code:` value or repo path as canonical content; use [[FEX Repo]] (or similar) as a worked reference. The normative spec is the body above.)*
 
 - **Inclusion test** — content belongs here only if it concerns the vault↔repo *association mechanism* (declaration, resolution, inline vs linked, doc-sync direction). Repo-internal conventions (justfile shape, test layout, language choices) live in `<App> Dev/` or the repo's own docs; trait-wide rules in `CAB code.md`; markdown-rendering rules in [[R-markdown]]; project-wide policy in `CLAUDE.md`.
 - **Two load-bearing invariants — don't soften them:** the `code:` key is the single source of truth (no symlink / `.git/`-probing / path-convention fallback), and the mirror's backward leg transports **only committed changes** (uncommitted there-side edits quarantine — the there side is never an authoring surface). Any edit weakening either must be flagged explicitly, with ~~[[FCT Facets]]~~ / related facet specs updated in the same pass.

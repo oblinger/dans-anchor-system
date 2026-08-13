@@ -2,9 +2,9 @@
 | --- | --- |
 | [[HBR PRD]]  | parent PRD — user stories drive this design |
 | [[HBR UX Design]]  | sibling — human CLI surface |
-| [[CAE API Doc]]  | downstream — per-module reference |
+| [[FEX API]]  | downstream — per-module reference |
 | [[DAS API Design]]  | facet spec this doc follows |
-| ... | [[_{{DISK_LABEL}} Template]],  [[_{{PURCHASE_DATE}} {{HOSTNAME}} Template]],  [[Bridges]],  [[Clarifier]],  [[CSE]],  [[DAS Examples]],  [[DAS US-CAE-1 — Schedule a Task]],  [[DAS US-CAE-2 — Monitor Task Status]],  [[DAS US-CAE-3 — Retry Failed Tasks]],  [[Devtools]],  [[ESP]],  [[Espresso]],  [[FEX Agenda]],  [[FEX API]],  [[FEX Claude]],  [[FEX Completed Roadmap]],  [[FEX CSE]],  [[FEX Decisions]],  [[FEX Decisions Details]],  [[FEX Dispatch Examples]],  [[FEX Facet]],  [[FEX Figure Page]],  [[FEX Files]],  [[FEX Icebox]],  [[FEX Inbox]],  [[FEX Minimal Facet]],  [[FEX Minimal Skill]],  [[FEX Project Root]],  [[FEX Repo]],  [[FEX Roadmap]],  [[FEX Rules]],  [[FEX Scheduler]],  [[FEX Skill]],  [[FEX Spine Examples]],  [[FEX Stories]],  [[FEX System Design]],  [[Forum Stories]],  [[Harbor Hops]],  [[Harbor Latency Budget]],  [[Harbor Releases]],  [[Harbor Runbooks]],  [[HBR]],  [[HBR PRD User Stories]],  [[HWP]],  [[Knots]],  [[Mini]],  [[Snap]],  [[Viz Bench]],   |
+| ... | [[_{{DISK_LABEL}} Template]],  [[_{{PURCHASE_DATE}} {{HOSTNAME}} Template]],  [[Bridges]],  [[Clarifier]],  [[CSE]],  [[DAS Examples]],  [[DAS US-CAE-1 — Schedule a Task]],  [[DAS US-CAE-2 — Monitor Task Status]],  [[DAS US-CAE-3 — Retry Failed Tasks]],  [[Devtools]],  [[ESP]],  [[Espresso]],  [[FEX Agenda]],  [[FEX Claude]],  [[FEX Completed Roadmap]],  [[FEX CSE]],  [[FEX Decisions]],  [[FEX Decisions Details]],  [[FEX Dispatch Examples]],  [[FEX Facet]],  [[FEX Figure Page]],  [[FEX Files]],  [[FEX Icebox]],  [[FEX Inbox]],  [[FEX Minimal Facet]],  [[FEX Minimal Skill]],  [[FEX Project Root]],  [[FEX Repo]],  [[FEX Roadmap]],  [[FEX Rules]],  [[FEX Scheduler]],  [[FEX Skill]],  [[FEX Spine Examples]],  [[FEX Stories]],  [[FEX System Design]],  [[Forum Stories]],  [[Harbor Hops]],  [[Harbor Latency Budget]],  [[Harbor Releases]],  [[Harbor Runbooks]],  [[HBR]],  [[HBR PRD User Stories]],  [[HWP]],  [[Knots]],  [[Mini]],  [[Snap]],  [[Viz Bench]],   |
 
 # FEX API Design
 description:: Programmatic Rust-crate surface — types, signatures, error envelope, stability + compatibility.
@@ -56,7 +56,7 @@ The six methods on `Scheduler` cover the same lifecycle the CLI surfaces; the `T
 | `Task::with_priority` | `fn with_priority(self, priority: Priority) -> Task` | Set scheduling priority. | US-CAE-1 |
 | `Task::with_client_token` | `fn with_client_token(self, token: impl Into<String>) -> Task` | Opt into idempotent submission keyed by token (see § Contract semantics). | US-CAE-1 |
 
-All schema-bearing types (`Task`, `TaskState`, `TaskSummary`, `RetryPolicy`, `Priority`, `DrainOutcome`, `TaskId`) live in the `cae::models` module. See ~~[[CAE API Doc]]~~ for per-field documentation; this doc covers *intent*, not reference.
+All schema-bearing types (`Task`, `TaskState`, `TaskSummary`, `RetryPolicy`, `Priority`, `DrainOutcome`, `TaskId`) live in the `cae::models` module. See [[FEX API]] for per-field documentation; this doc covers *intent*, not reference.
 
 ## Contract semantics
 
@@ -136,6 +136,6 @@ Error mapping to CLI exit codes (for `cae` CLI binary that wraps the API): `Stor
 
 - [[HBR PRD]] — user stories that drive this design.
 - [[HBR UX Design]] — sibling facet covering the human CLI surface.
-- ~~[[CAE API Doc]]~~ — per-module reference (auto-generated; *what exists*).
+- [[FEX API]] — per-module reference (auto-generated; *what exists*).
 - [[FEX Architecture]] — internal organization that backs this surface.
 - [[DAS API Design]] — facet spec; embedded [[R-api]] ruleset.

@@ -87,13 +87,13 @@ A reviewer reads `## Tests` to answer "what kinds, how much now, how much intend
 | Test                                | Exercises                                   | Spec                          |
 | ----------------------------------- | ------------------------------------------- | ----------------------------- |
 | `test_scheduler_priority_ordering`  | Scheduler picks highest-priority Ready task | [[FEX Scheduler#Tests]]       |
-| `test_retry_backoff_exponential`    | Retry delays double up to cap               | [[CAE-Retry#Tests]]           |
+| `test_retry_backoff_exponential`    | Retry delays double up to cap               | [[FEX Scheduler#Retry semantics]] |
 
 ### Integration
 
 | Test                                 | Exercises                                          | Spec                          |
 | ------------------------------------ | -------------------------------------------------- | ----------------------------- |
-| `test_schedule_then_drain_end_to_end` | Schedule N tasks, drain blocks until all complete | [[CAE Dev Docs/CAE-Boundary]] |
+| `test_schedule_then_drain_end_to_end` | Schedule N tasks, drain blocks until all complete | [[FEX Scheduler#^TaskScheduler-drain]] |
 
 ```
 

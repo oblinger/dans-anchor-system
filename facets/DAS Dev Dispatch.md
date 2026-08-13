@@ -39,9 +39,9 @@ The `{slug} Dev Docs.md` dispatch page inside the root-level `{slug} Dev Docs/` 
 | [[FEX Files\|Files]] | repository file tree (audit-generated) |
 | **engine/** |  |
 | [[FEX Scheduler\|Scheduler]] | priority queue and worker pool |
-| [[CAE RetryManager\|RetryManager]] | backoff and retry logic |
+| RetryManager | backoff and retry logic — no module doc, so no link (see § Format Specification) |
 | **api/** |  |
-| [[CAE Router\|Router]] | CLI command routing |
+| Router | CLI command routing — no module doc, so no link |
 
 (Note: the synthesis docs are not listed here — Interface lives in `{slug} Design/`, the Architecture story in `{slug} Design/` (the `{slug} Architecture` doc). Dev Docs carries only Files + per-module docs.)
 

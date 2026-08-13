@@ -86,7 +86,7 @@ description: "CAE system architecture — worked example of the DAS Architecture
 # FEX Architecture
 CAE is a single-process CLI scheduler. A submitted task carries a deadline, a retry policy, and an opaque command payload; the scheduler enqueues it in a SQLite-backed priority store, dispatches to a fixed worker pool when ready, and routes failures through a centralized retry manager. No daemon, no IPC — every coordination decision flows through the SQLite store.
 
-![[CAE Architecture.png]]
+![[FEX Architecture.svg|2400]]
 
 CLI submits tasks to the **Scheduler**, which dispatches to the **Worker Pool**, persists state in **TaskStore**, and consults **RetryManager** on failure. The injectable **Clock** (not shown — passed by reference at construction) is the time source every component reads from.
 
@@ -115,7 +115,7 @@ A `cae` command invocation is either:
 
 ## Thread layout
 
-![[CAE Threads.png]]
+![[FEX Threads.svg|2400]]
 
 ## Design decisions
 

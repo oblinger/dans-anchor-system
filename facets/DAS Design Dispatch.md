@@ -30,17 +30,17 @@ Below is a condensed reference example.
 # Reference Example
 ---
 
-# CAE Design
+# HBR Design
 
 | -[[HBR Design]]- | : design — system spec, UX, interface, data, principles<br>→ [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[DAS Dispatch]] → [DAS Design Dispatch](hook://p/DAS%20Design%20Dispatch) |
 | --- | --- |
 | [[FEX Architecture\|Architecture]] | system-architecture story — a Design child (`{slug} Architecture`) |
 | [[HBR UX Design\|UX Design]] | user-interaction shape — screens, commands, output formats |
-| [[CAE Interface\|Interface]] | top-level layer contract — public API for callers (required for Code anchors) |
-| [[CAE Data Model\|Data Model]] | data shapes & schemas |
+| Interface | top-level layer contract — public API for callers (required for Code anchors) |
+| Data Model | data shapes & schemas |
 | [[FEX Decisions\|Principles]] | load-bearing rules & invariants |
 | [[HBR PRD\|PRD]] | product requirements |
-| [[CAE Design Discussion\|Design Discussion]] | design trade-off conversations |
+| Design Discussion | design trade-off conversations |
 
 ---
 

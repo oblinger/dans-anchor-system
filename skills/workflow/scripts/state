@@ -1608,8 +1608,16 @@ _LABEL_RE = re.compile(r"^([A-Z]+)(\d+|\+)$")
 # F250 #11 — `/symlinks/` (dotfile-mirror trees) and `/Closet/` (parked copies)
 # are the two places a live doc is duplicated on disk; walking them makes a
 # single real doc surface as multiple candidates → false "ambiguous" refusal.
+#
+# `/_ARCHIVES_/` was dropped 2026-08-13 (T116). Dan: archived material has a
+# name already and there is not going to be a second one — **Yore** is it, and
+# `/Yore/` above carries the whole meaning. There was exactly one `_ARCHIVES_`
+# folder in the vault, it held nothing but two `.DS_Store` files, and it is
+# deleted. Do not re-add a third name here; convert the folder to a Yore.
+# `/Versions/` stays and is NOT the same idea: five real folders holding
+# successive versions of a *live* document, which is not archived material.
 _SKIP_PATH_FRAGMENTS = (
-    "/.trash/", "/Yore/", "/_ARCHIVES_/", "/Versions/", "/symlinks/", "/Closet/",
+    "/.trash/", "/Yore/", "/Versions/", "/symlinks/", "/Closet/",
 )
 
 

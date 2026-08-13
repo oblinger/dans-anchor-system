@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 560" width="1500" height="560" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="tarrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-end">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#4a5568"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1500" height="560" fill="#ffffff"/>
+
+  <text x="40" y="50" font-size="26" font-weight="700" fill="#1a202c">Thread layout — a `cae` invocation is short-lived or long-lived, never both</text>
+  <text x="40" y="80" font-size="17" fill="#4a5568">The store is the only thing that outlives a process.</text>
+
+  <!-- Short-lived panel -->
+  <rect x="50" y="115" width="640" height="330" rx="12" fill="#f7fafc" stroke="#a0aec0" stroke-width="2"/>
+  <text x="80" y="152" font-size="20" font-weight="700" fill="#2d3748">Short-lived — submit · cancel · status</text>
+
+  <rect x="90" y="180" width="560" height="60" rx="8" fill="#edf2f7" stroke="#2d3748" stroke-width="2"/>
+  <text x="370" y="217" font-size="17" text-anchor="middle" fill="#1a202c">main thread — the only thread</text>
+
+  <line x1="370" y1="240" x2="370" y2="288" stroke="#4a5568" stroke-width="2.5" marker-end="url(#tarrow)"/>
+
+  <rect x="90" y="292" width="560" height="60" rx="8" fill="#e9f5ec" stroke="#276749" stroke-width="2"/>
+  <text x="370" y="329" font-size="17" text-anchor="middle" fill="#1c4532">open store → one operation → close → exit</text>
+
+  <text x="370" y="392" font-size="15" text-anchor="middle" fill="#4a5568">No scheduler, no workers. Process lifetime is a single</text>
+  <text x="370" y="415" font-size="15" text-anchor="middle" fill="#4a5568">SQLite transaction's worth of work.</text>
+
+  <!-- Long-lived panel -->
+  <rect x="740" y="115" width="710" height="330" rx="12" fill="#f7fafc" stroke="#a0aec0" stroke-width="2"/>
+  <text x="770" y="152" font-size="20" font-weight="700" fill="#2d3748">Long-lived — drain · run</text>
+
+  <rect x="780" y="180" width="200" height="60" rx="8" fill="#edf2f7" stroke="#2d3748" stroke-width="2"/>
+  <text x="880" y="209" font-size="16" text-anchor="middle" fill="#1a202c">main thread</text>
+  <text x="880" y="230" font-size="13" text-anchor="middle" fill="#4a5568">blocks on drain()</text>
+
+  <rect x="1030" y="180" width="200" height="60" rx="8" fill="#e6f0fb" stroke="#2b6cb0" stroke-width="2.5"/>
+  <text x="1130" y="209" font-size="16" text-anchor="middle" fill="#1a365d">scheduler thread</text>
+  <text x="1130" y="230" font-size="13" text-anchor="middle" fill="#2c5282">owns the queue</text>
+
+  <rect x="1280" y="168" width="130" height="40" rx="6" fill="#ffffff" stroke="#718096" stroke-width="2"/>
+  <text x="1345" y="194" font-size="15" text-anchor="middle" fill="#2d3748">worker 1</text>
+  <rect x="1280" y="215" width="130" height="40" rx="6" fill="#ffffff" stroke="#718096" stroke-width="2"/>
+  <text x="1345" y="241" font-size="15" text-anchor="middle" fill="#2d3748">worker 2</text>
+  <rect x="1280" y="262" width="130" height="40" rx="6" fill="#ffffff" stroke="#718096" stroke-width="2"/>
+  <text x="1345" y="288" font-size="15" text-anchor="middle" fill="#2d3748">worker N</text>
+  <text x="1345" y="325" font-size="13" text-anchor="middle" fill="#718096">fixed pool (D3)</text>
+
+  <line x1="980" y1="210" x2="1024" y2="210" stroke="#4a5568" stroke-width="2.5" marker-end="url(#tarrow)"/>
+  <text x="1002" y="199" font-size="13" text-anchor="middle" fill="#4a5568">spawn</text>
+
+  <line x1="1230" y1="210" x2="1274" y2="188" stroke="#4a5568" stroke-width="2.5" marker-end="url(#tarrow)"/>
+  <line x1="1230" y1="215" x2="1274" y2="235" stroke="#4a5568" stroke-width="2.5" marker-end="url(#tarrow)"/>
+  <line x1="1230" y1="222" x2="1274" y2="282" stroke="#4a5568" stroke-width="2.5" marker-end="url(#tarrow)"/>
+
+  <rect x="780" y="292" width="450" height="60" rx="8" fill="#e9f5ec" stroke="#276749" stroke-width="2"/>
+  <text x="1005" y="329" font-size="17" text-anchor="middle" fill="#1c4532">TaskStore — SQLite, shared by every thread</text>
+
+  <line x1="1130" y1="240" x2="1130" y2="288" stroke="#4a5568" stroke-width="2.5" marker-end="url(#tarrow)"/>
+
+  <text x="1095" y="392" font-size="15" text-anchor="middle" fill="#4a5568">Runs until the queue drains or the user interrupts.</text>
+  <text x="1095" y="415" font-size="15" text-anchor="middle" fill="#4a5568">Workers never talk to each other — only to the store.</text>
+</svg>
