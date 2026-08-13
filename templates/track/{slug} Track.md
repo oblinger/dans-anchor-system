@@ -9,4 +9,4 @@ description: "{{one line naming what this anchor's tracking surface holds}}"
 | ... |  |
 
 # {slug} Track
-{slug} Track is the dispatch page for the {slug} anchor's tracking artifacts.
+{{one line naming what this anchor tracks and where the reader goes next — written per anchor, not boilerplate}}
