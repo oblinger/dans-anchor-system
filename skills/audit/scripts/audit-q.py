@@ -2220,6 +2220,14 @@ def check_c19_option_bullets(q_entries: list[QEntry]) -> list[Finding]:
                         body = line.lstrip("- *").strip()
                         if body.startswith((
                             "Note:", "Context:", "Constraint:", "Background:",
+                            # Pieces 6 and 7 of the Q group (F270, F275) — the
+                            # two lines `state define` REFUSES to mint a Q
+                            # without. C20 already treats both as part of the
+                            # group; this list had not been told. Omitting them
+                            # made every well-formed standalone Q arrive with
+                            # two findings that cannot be fixed without making
+                            # the row unmintable.
+                            "Damage:", "On answer:",
                             "Recommendation",
                         )):
                             continue
@@ -2256,6 +2264,11 @@ def check_c19_option_bullets(q_entries: list[QEntry]) -> list[Finding]:
                         body = line.lstrip("- *").strip()
                         if body.startswith((
                             "Note:", "Context:", "Constraint:", "Background:",
+                            # Pieces 6 and 7 of the Q group (F270, F275) — the
+                            # two lines `state define` REFUSES to mint a Q
+                            # without. C20 already treats both as part of the
+                            # group; this list had not been told.
+                            "Damage:", "On answer:",
                             # Inline Recommendation lines are NOT options.
                             # Legacy docs sometimes have a rich inline Rec
                             # alongside the stub-Rec terminator; skip those.
