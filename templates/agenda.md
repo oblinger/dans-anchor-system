@@ -1,6 +1,7 @@
 ---
 description: "{{why this activity exists, what winning looks like, and how we plan to attack it}}"
 ---
+:>> [[DAS]] → [[Templates]] → [agenda markdown](hook://p/agenda%20markdown) 
 # {slug} Agenda
 The strategic frame for {slug} — why this activity exists, what winning looks like, and the approach we are betting on.
 
