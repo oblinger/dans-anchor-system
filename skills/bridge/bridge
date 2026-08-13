@@ -152,7 +152,15 @@ resolve_target() {
        -o ControlMaster=auto -o "ControlPath=$CTL" -o ControlPersist=600
        "$USER@$TARGET")
   [ -z "$SESSION" ] && SESSION="bridge-${HOST%%.*}"
-  LOCAL_SESSION="bridge-${HOST%%.*}"
+  # The LOCAL session is a label a human reads — it is what `set-titles-string
+  # '#S'` puts in the Terminal title bar and tab. Every local session bridge
+  # makes is a bridge session, so a `bridge-` prefix carries no information
+  # there and just costs characters in the most valuable strip of screen.
+  # Name it after the machine, because "which box am I looking at" is the only
+  # question this window answers. (The REMOTE session keeps the prefix: that
+  # tmux namespace is shared with whatever else runs on the box — svx job
+  # sessions, a user's own — so there the prefix does real work.)
+  LOCAL_SESSION="${HOST%%.*}"
   STAMP_CACHE="$STATE_DIR/stamp-$TARGET"
 }
 
@@ -463,7 +471,9 @@ $TMUX_BIN new -d -A -s $SESSION"
   if tmux has-session -t "$LOCAL_SESSION" 2>/dev/null; then
     say "PASS  local   session '$LOCAL_SESSION' already up (viewer only)"
   else
-    tmux new-session -d -s "$LOCAL_SESSION" \
+    # -n names the window the same as the session: with one window, the tab and
+    # the title should say the same short thing rather than a cwd-derived slug.
+    tmux new-session -d -s "$LOCAL_SESSION" -n "$LOCAL_SESSION" \
       "ssh -t -o ControlMaster=auto -o 'ControlPath=$CTL' -o ControlPersist=600 $USER@$TARGET 'tmux attach -t $WTARGET'"
     say "PASS  local   session '$LOCAL_SESSION' created (ssh-attached, viewer only)"
   fi
