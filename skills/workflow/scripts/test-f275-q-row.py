@@ -234,7 +234,7 @@ dbody = ("- **Q+ — doc-scoped question?**\n"
 rc, out, err = run(args(str(doc), "Q+", "define", body=dbody))
 dtxt = doc.read_text()
 ok("doc-scoped Q+ still lands in the doc's Open Questions (no Backlog collision)") \
-    if ("## Open Questions" in dtxt and "**Q1 —" in dtxt) \
+    if ("## Open Items" in dtxt and "**Q1 —" in dtxt) \
     else no(f"doc-scoped Q regressed:\nOUT={out!r}\nERR={err!r}\nTXT={dtxt}")
 
 import shutil

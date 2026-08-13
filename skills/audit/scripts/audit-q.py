@@ -2394,7 +2394,9 @@ def check_c21_empty_open_questions(
                 continue
             if in_fence:
                 continue
-            if line.strip() == "## Open Questions":
+            # F305: `## Open Items` is canonical; `## Open Questions` is the
+            # legacy spelling, accepted forever (the writer renames on touch).
+            if line.strip() in ("## Open Items", "## Open Questions"):
                 oq_line = line_num
                 break
         if oq_line == 0:
@@ -2409,7 +2411,7 @@ def check_c21_empty_open_questions(
             surface_line=oq_line,
             code="C21",
             message=(
-                "`## Open Questions` H2 has zero pending Qs (all in ### Resolved). "
+                "open-items H2 has zero pending Qs (all in ### Resolved). "
                 "Phase 2 transition missed — delete this H2 and migrate Resolved "
                 "to a bottom `## Resolved` H2."
             ),
@@ -3848,7 +3850,9 @@ def check_c45_open_questions_above_h1(entries: list[BacklogEntry]) -> list[Findi
     findings: list[Finding] = []
     seen: set[Path] = set()
     h1_re = re.compile(r"^# ")
-    oq_re = re.compile(r"^## Open Questions\s*$")
+    # F305: both spellings — `## Open Items` canonical, `## Open Questions`
+    # legacy, accepted forever (the writer renames on touch).
+    oq_re = re.compile(r"^## Open (?:Items|Questions)\s*$")
     for e in entries:
         if not questions_member(e.status):
             continue
@@ -3900,7 +3904,7 @@ def check_c45_open_questions_above_h1(entries: list[BacklogEntry]) -> list[Findi
                 surface_line=oq_line,
                 code="C45",
                 message=(
-                    f"'## Open Questions' sits above the H1 (H1 at line "
+                    f"open-items H2 sits above the H1 (H1 at line "
                     f"{h1_line}) — per F241 the block belongs immediately "
                     f"below the H1, as the file's first H2. Run "
                     f"`state \"{target.stem}\" revalidate` to relocate + "
@@ -3953,7 +3957,7 @@ def check_c48_q_stamp_drift(entries: list[BacklogEntry]) -> list[Finding]:
                 surface_line=rng[0] + 1,
                 code="C48",
                 message=(
-                    f"'## Open Questions' integrity stamp mismatch (stored "
+                    f"open-items block integrity stamp mismatch (stored "
                     f"`{stored}`, computed `{computed}`) — the block was "
                     f"hand-edited past the state script's ask-format gates. "
                     f"Re-issue the change through `state`, or run "

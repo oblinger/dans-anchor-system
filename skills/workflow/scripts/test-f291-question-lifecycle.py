@@ -329,5 +329,102 @@ with tempfile.TemporaryDirectory() as td:
     ok("the missing **Resolved:** line was grafted on",
        "**Resolved:** (A) — no" in t, t[-400:])
 
+with tempfile.TemporaryDirectory() as td:
+    print("11. F305 D1 — the block is `## Open Items`; legacy docs rename on touch")
+    # 11a. A freshly-created block carries the canonical heading.
+    fresh = Path(td) / "F005 — Fresh.md"
+    fresh.write_text(DOC.replace("F001 — Fixture feature", "F005 — Fresh"),
+                     encoding="utf-8")
+    st._q_define_core("ZZ", fresh, 1,
+                      q_body(1, "does the new block get the new name?",
+                             [("A", "yes"), ("B", "no")], "None"))
+    t = fresh.read_text()
+    ok("new block minted as ## Open Items", "## Open Items" in t, t[:300])
+    ok("no legacy heading in a fresh doc", "## Open Questions" not in t, t[:300])
+    check("the block reads back", zones(t), ([1], []))
+
+    # 11b. A doc already carrying `## Open Items` round-trips the lifecycle.
+    st._q_answer_core("ZZ", fresh, 1, None, "(A)", "The creator writes the new name.")
+    check("Open Items block migrates when its round empties",
+          be._open_questions_range(fresh.read_text().splitlines()), None)
+    check("entry archived from an Open Items block",
+          sorted(archived(fresh.read_text())), [1])
+
+    # 11c. A legacy `## Open Questions` doc is renamed by its FIRST managed
+    # write — and the integrity stamp is computed over the migrated block.
+    legacy = Path(td) / "F006 — Legacy.md"
+    legacy.write_text(
+        "# [[ZZ]] · F006 — Legacy\n"
+        "Orientation.\n\n"
+        "## Open Questions\n\n"
+        "- **Q1 — stays pending** — context. ^F006-Q1\n"
+        "    - **(A)** yes\n"
+        "    - **(B)** no\n"
+        "    - **Recommendation:** None\n\n"
+        "## Summary\n\nBody.\n", encoding="utf-8")
+    st._q_define_core("ZZ", legacy, 2,
+                      q_body(2, "arrives via a managed write",
+                             [("A", "yes"), ("B", "no")], "None"))
+    t = legacy.read_text()
+    ok("legacy heading renamed on touch", "## Open Items" in t, t[:400])
+    ok("old heading gone after the touch", "## Open Questions" not in t, t[:400])
+    check("both questions pending after the rename", zones(t), ([1, 2], []))
+    ok("Q1's block-ID survives the rename", "^F006-Q1" in t, "anchor kept")
+    lines = t.splitlines()
+    rng = be._open_questions_range(lines)
+    check("stamp matches the migrated block",
+          be.read_q_stamp(lines, *rng), be.compute_q_stamp(lines, *rng))
+
+    # 11d. An untouched legacy doc is NOT migrated — reads work, file unchanged.
+    untouched = Path(td) / "F007 — Untouched.md"
+    untouched_text = (
+        "# [[ZZ]] · F007 — Untouched\n"
+        "Orientation.\n\n"
+        "## Open Questions\n\n"
+        "- **Q1 — read but never written** — context. ^F007-Q1\n"
+        "    - **(A)** yes\n"
+        "    - **(B)** no\n"
+        "    - **Recommendation:** None\n\n"
+        "## Summary\n\nBody.\n")
+    untouched.write_text(untouched_text, encoding="utf-8")
+    check("legacy block reads under the old name",
+          zones(untouched.read_text()), ([1], []))
+    check("reading migrated nothing", untouched.read_text(), untouched_text)
+
+    print("12. F305 D2 — `set` edits a doc-hosted item; define creates")
+    import types
+    setdoc = Path(td) / "F008 — Setdoc.md"
+    setdoc.write_text(DOC.replace("F001 — Fixture feature", "F008 — Setdoc"),
+                      encoding="utf-8")
+    st._q_define_core("ZZ", setdoc, 1,
+                      q_body(1, "the original question",
+                             [("A", "yes"), ("B", "no")], "None"))
+    args = types.SimpleNamespace(
+        inline=q_body(1, "the rewritten question",
+                      [("A", "spin"), ("B", "still")], "None"),
+        from_file=None, why_ask=None)
+    st._query_verb("ZZ", setdoc, 1, "set", args)
+    t = setdoc.read_text()
+    ok("set replaced the bullet wholesale",
+       "the rewritten question" in t and "the original question" not in t,
+       t[:600])
+    ok("set replaced the options too",
+       "**(A)** spin" in t and "**(A)** yes" not in t, "options replaced")
+    check("still exactly one Q1", zones(t), ([1], []))
+
+    # set never creates — a missing item is refused, file untouched.
+    before = setdoc.read_text()
+    args_missing = types.SimpleNamespace(
+        inline=q_body(3, "does not exist",
+                      [("A", "yes"), ("B", "no")], "None"),
+        from_file=None, why_ask=None)
+    try:
+        st._query_verb("ZZ", setdoc, 3, "set", args_missing)
+        check("set on a missing item is refused", "no error raised",
+              "BacklogEditError")
+    except be.BacklogEditError as err:
+        ok("refusal points at define", "define" in str(err), str(err))
+    check("file untouched by the refusal", setdoc.read_text(), before)
+
 print(f"\ntest-f291-question-lifecycle: {PASS} passed, {FAIL} failed")
 sys.exit(1 if FAIL else 0)

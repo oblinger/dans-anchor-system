@@ -1549,7 +1549,7 @@ def _head_h1(text: str) -> tuple[int | None, str | None]:
         hit = _H1_RE.match(ln)
         if hit:
             return off + i, hit.group(1)
-        if re.match(r"^ {0,3}## Open Questions\b", ln):
+        if re.match(r"^ {0,3}## Open (?:Items|Questions)\b", ln):
             parked_q = True
             continue
         if _ANY_HEADING_RE.match(ln):
@@ -1877,7 +1877,7 @@ def chk_h1_after_frontmatter(target, anchor_root, args):
         if ln.lstrip().startswith(":>>"):
             in_questions = False
             continue
-        if re.match(r"^## Open Questions\b", ln):
+        if re.match(r"^## Open (?:Items|Questions)\b", ln):
             in_questions = True
             continue
         if in_questions:

@@ -87,15 +87,19 @@ def drive(path, *argv):
     return be.main_q(["backlog-edit.py", "ZZT", "F001", *argv])
 
 
+_HEADS = ("## Open Items", "## Open Questions")  # F305: canonical + legacy
+
+
 def oq_present(path):
-    return "## Open Questions" in path.read_text(encoding="utf-8")
+    text = path.read_text(encoding="utf-8")
+    return any(h in text for h in _HEADS)
 
 
 def pending_qs(path):
-    """Pending Q-header bullets inside the Open Questions block."""
+    """Pending Q-header bullets inside the open-items block."""
     lines = path.read_text(encoding="utf-8").splitlines()
     try:
-        s = next(i for i, l in enumerate(lines) if l.strip() == "## Open Questions")
+        s = next(i for i, l in enumerate(lines) if l.strip() in _HEADS)
     except StopIteration:
         return []
     e = next((i for i in range(s + 1, len(lines)) if lines[i].startswith("## ")),

@@ -712,8 +712,13 @@ def _doc_q_anchor(qdoc, q_entries: list) -> Optional[str]:
                       text)
         if m:
             return "#^" + m.group(1)
-    if re.search(r"^##\s+Open Questions\s*$", text, re.M):
-        return "#Open Questions"
+    # F305: aim at whichever heading the doc ACTUALLY carries — canonical
+    # `## Open Items` first, legacy `## Open Questions` second. An anchor
+    # naming the wrong spelling silently drops the reader at the top of the
+    # doc, which is the exact T216 failure this function exists to fix.
+    for head in ("Open Items", "Open Questions"):
+        if re.search(r"^##\s+" + head + r"\s*$", text, re.M):
+            return "#" + head
     return None
 
 
@@ -1776,7 +1781,7 @@ def render_queries_doc(name: str, banner: Optional[str], rows: list[Row],
     # Preserve existing frontmatter; else write a default.
     # The section list must be the one `_render_body` actually emits, in its
     # order: Blockers / Ready / Questions / Blocked / Verifications / User /
-    # Other. `User` was missing here while `_h2("## User")` shipped, so this
+    # Other. `User` was missing here while the `## User` emission shipped, so this
     # line under-reported the render by one section — found 2026-08-12 by
     # matching `templates/query.md` against a real instance for F303, where the
     # template turned out to be RIGHT and this string stale. Whenever a section

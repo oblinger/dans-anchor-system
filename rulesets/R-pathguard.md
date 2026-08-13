@@ -74,9 +74,11 @@ def body(ctx):
     old = inp.get("old_string") or ""
     new = inp.get("new_string") or ""
     # `## Resolved` was here until F291 and is now [[R-state-region]]'s (warn).
-    heads = ("## Open Questions",)
+    # F305: `## Open Items` is the canonical heading; `## Open Questions` is
+    # the legacy spelling, accepted forever (the writer renames on touch).
+    heads = ("## Open Items", "## Open Questions")
     # Location-based, NOT substring-based (T045 defect 2): fire only when the
-    # edit touches a REAL managed heading LINE (`^## Open Questions$`) — prose
+    # edit touches a REAL managed heading LINE — prose
     # that merely quotes the heading string inline (e.g. a `## Recovery note`
     # that mentions the managed region) must pass.
     head_re = re.compile(r"^(?:" + "|".join(re.escape(h) for h in heads) + r")[ \t]*$", re.M)
@@ -97,8 +99,8 @@ def body(ctx):
             pass
     if not hit:
         return []
-    return ["DENY: `## Open Questions` in a feature doc is owned by "
-            "`state <define|resolve|remove> <anchor> <doc> <Q<n>|Q+>` — do not Edit the region directly."]
+    return ["DENY: the open-items block (`## Open Items` / legacy `## Open Questions`) in a feature doc is owned by "
+            "`state <define|set|resolve|remove> <anchor> <doc> <Q<n>|Q+>` — do not Edit the region directly."]
 ```
 
 Matches an Edit that touches the heading LINE or whose `old_string` sits inside the heading's section (between it and the next H2). It does **not** fire on prose that merely quotes the heading string inline — the T045 false positive that refused a `## Recovery note` edit for containing the managed heading as literal text.
@@ -196,7 +198,9 @@ def body(ctx):
     def _regions(text):
         out = {}
         # Open block only since F291 — `## Resolved` is R-state-region's now.
-        for m in re.finditer(r"^(## Open Questions)[ \t]*$", text, re.M):
+        # F305: both spellings — `## Open Items` canonical, `## Open
+        # Questions` legacy (the writer renames on touch).
+        for m in re.finditer(r"^(## Open (?:Items|Questions))[ \t]*$", text, re.M):
             tail = text[m.end():]
             nxt = re.search(r"^## ", tail, re.M)
             out[m.group(1)] = tail[:nxt.start()] if nxt else tail
@@ -210,8 +214,8 @@ def body(ctx):
         return []
     if _regions(content) == on_disk:   # region preserved verbatim → allow
         return []
-    return ["DENY: `## Open Questions` in a feature doc is owned by "
-            "`state <define|resolve|remove> <anchor> <doc> <Q<n>|Q+>` — this Write changes or drops "
+    return ["DENY: the open-items block (`## Open Items` / legacy `## Open Questions`) in a feature doc is owned by "
+            "`state <define|set|resolve|remove> <anchor> <doc> <Q<n>|Q+>` — this Write changes or drops "
             "the managed region. Preserve it verbatim (rewrite prose only) and route question "
             "edits through `state`."]
 ```

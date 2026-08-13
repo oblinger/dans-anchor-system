@@ -1072,7 +1072,7 @@ def _q_remove_core(slug, feature_path, q_num, q_slug, reason):
         h3_lines.append(f"> {ol}")
     h3_lines.append("")
     lines = lines[:start] + lines[end:]
-    oq = be._find_h2(lines, "Open Questions")
+    oq = be._find_items_h2(lines)
     if oq is None:
         lines, (oq_start, oq_end) = be._ensure_open_questions_h2(lines)
     else:
@@ -2746,6 +2746,24 @@ def _query_verb(slug, doc_path, q_num, verb, args):
         # and so the only place that can say what a valid value would be.
         body = read_body(args)
         return _q_answer_core(slug, doc_path, q_num, None, args.choice, body)
+    if verb == "set":
+        # F305 D2 — doc-hosted items are EDITED with `set`: a wholesale
+        # replace through the same ask-format gates as define. Unlike define
+        # it never creates (set edits, define creates), and it deliberately
+        # routes through the doc define-core, whose replace is a full-bullet
+        # splice — NOT the Backlog define's field-preserving merge, which
+        # T122 found quietly keeps whatever a caller omits.
+        body = read_body(args)
+        if not body.strip():
+            raise be.BacklogEditError("set requires a body via stdin or --body")
+        lines = doc_path.read_text(encoding="utf-8").splitlines()
+        if be._find_q_bullet(lines, q_num) is None:
+            raise be.BacklogEditError(
+                f"Q{q_num} not found in the open-items block of "
+                f"{doc_path.name} — set edits an existing item; use define "
+                f"to create one")
+        return _q_define_core(slug, doc_path, q_num, body,
+                              why_ask=getattr(args, "why_ask", None))
     if verb == "remove":
         return _q_remove_core(slug, doc_path, q_num, None, args.reason)
     raise be.BacklogEditError(f"unknown verb {verb!r} for a Q label")
@@ -2824,8 +2842,9 @@ def cmd_item(slug, anchor_path, args):
         raise be.BacklogEditError(
             f"auto-mint label {args.label} is only valid with define"
         )
-    if args.verb == "set" and doc_kind != "backlog":
-        raise be.BacklogEditError("set is Backlog-only — Q/V items use define")
+    if args.verb == "set" and doc_kind != "backlog" and letters != "Q":
+        raise be.BacklogEditError(
+            "set on a doc addresses a hosted item — valid labels: Q<n>")
     if doc_kind == "backlog" and letters == "Q":
         # F275 M2 — standalone feature-less question row (the row body IS the
         # question). define runs the ask-format/Damage/On-answer gates;
@@ -3865,7 +3884,9 @@ def build_parser():
 
     s = subs.add_parser(
         "set",
-        help="partial field update on a Backlog row — only flagged fields change")
+        help="partial field update on a Backlog row (only flagged fields "
+             "change), or wholesale rewrite of a doc-hosted Q via --body "
+             "(F305 D2 — set edits, define creates)")
     _add_address(s, _LABEL_HELP)
     s.add_argument("--status", default=None, help="new bracket status")
     s.add_argument("--horizon", default=None, help="move the row to this horizon")
@@ -3889,6 +3910,10 @@ def build_parser():
     # own flag and never reads a body stream. v2 declared --from-file globally
     # and then refused it here at runtime; the per-verb schema is the check.
     s.add_argument("--body", dest="inline", default=None, help="new row body")
+    s.add_argument("--why-ask", dest="why_ask", default=None,
+                   help="F257 — required when a doc-hosted item rewritten via "
+                        "`set` (F305 D2) carries a Lean/Strong recommendation; "
+                        "same gate define enforces")
     s.add_argument("--drop-pointer", dest="drop_pointer", action="store_true",
                    help="T174 — sever the row's `→ [[doc]]` pointer instead of "
                         "carrying it onto the new --body (default is to carry it)")

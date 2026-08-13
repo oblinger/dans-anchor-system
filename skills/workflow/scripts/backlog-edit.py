@@ -2966,6 +2966,25 @@ def _next_q_number(doc_text):
     return max(used) + 1
 
 
+# F305 D1 — the shared open-items block. `## Open Items` is the canonical
+# heading (ratified 2026-08-13: the block hosts questions, verifications, and
+# user actions, so "Open Questions" becomes false the moment a non-question
+# lives there); `## Open Questions` is the legacy spelling, accepted on read
+# forever. The writer renames on touch (restamp_open_questions), so the corpus
+# migrates one doc at a time with no sweep — only the writer ever produces the
+# new heading.
+ITEMS_HEADINGS = ("Open Items", "Open Questions")
+
+
+def _find_items_h2(lines):
+    """The open-items block under either spelling — canonical name first."""
+    for name in ITEMS_HEADINGS:
+        found = _find_h2(lines, name)
+        if found is not None:
+            return found
+    return None
+
+
 def _find_h2(lines, h2_name):
     """Return (start_line, end_line) of the `## {h2_name}` H2 block, or None.
 
@@ -3049,7 +3068,7 @@ def drop_open_questions_if_empty(lines):
     Removes ONLY the block itself: `_find_h2` ends at the next H2, so a resolved
     archive living further down the doc is never in the removed span.
     """
-    oq = _find_h2(lines, "Open Questions")
+    oq = _find_items_h2(lines)
     if oq is None:
         return lines, False
     oq_start, oq_end = oq
@@ -3093,7 +3112,7 @@ def _section_at(lines, line_idx):
         if line.startswith("## "):
             name = line.strip()[3:]
             last_h2 = name
-            in_open_q = (name == "Open Questions")
+            in_open_q = (name in ITEMS_HEADINGS)
             in_h3 = None
         elif line.startswith("### "):
             in_h3 = line.strip()[4:]
@@ -3115,7 +3134,7 @@ def _ensure_open_questions_h2(lines):
     Returns lines (possibly modified) AND the (h2_start, h2_end) content
     range after insertion.
     """
-    existing = _find_h2(lines, "Open Questions")
+    existing = _find_items_h2(lines)
     if existing is not None:
         return lines, existing
     # Find the H1, then the first H2 after it — the block inserts there so it
@@ -3126,7 +3145,7 @@ def _ensure_open_questions_h2(lines):
             h1_idx = i
             break
     if h1_idx is None:
-        raise BacklogEditError("feature doc has no H1; cannot insert ## Open Questions")
+        raise BacklogEditError("feature doc has no H1; cannot insert ## Open Items")
     insert_at = len(lines)
     for j in range(h1_idx + 1, len(lines)):
         if lines[j].startswith("## "):
@@ -3135,7 +3154,7 @@ def _ensure_open_questions_h2(lines):
     if insert_at == len(lines) and lines and lines[-1].strip():
         lines = lines + [""]
         insert_at = len(lines)
-    new_block = ["## Open Questions", "", ""]
+    new_block = ["## Open Items", "", ""]
     lines = lines[:insert_at] + new_block + lines[insert_at:]
     return lines, (insert_at + 1, insert_at + 3)
 
@@ -3158,7 +3177,7 @@ def _open_questions_range(lines):
     """(heading_idx, end_exclusive) of the ## Open Questions block, clamped
     to the H1 when the block sits above it (legacy placement); None if the
     doc has no block. Hash scope per F241: heading through the next H2."""
-    found = _find_h2(lines, "Open Questions")
+    found = _find_items_h2(lines)
     if found is None:
         return None
     start, end = found
@@ -3230,6 +3249,11 @@ def restamp_open_questions(lines):
     if rng is None:
         return lines
     start, end = rng
+    # F305 rename-on-touch: every managed write migrates this doc's block to
+    # the canonical heading. This is the ONLY place the corpus migrates — an
+    # untouched doc keeps the legacy spelling and every reader accepts both.
+    if lines[start].strip() == "## Open Questions":
+        lines = lines[:start] + ["## Open Items"] + lines[start + 1:]
     stamp_line = f"<!-- state:q {compute_q_stamp(lines, start, end)} -->"
     for k in range(start + 1, end):
         if _Q_STAMP_RE.match(lines[k].strip()):
