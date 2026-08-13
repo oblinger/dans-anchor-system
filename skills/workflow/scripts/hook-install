@@ -1,0 +1,423 @@
+#!/usr/bin/env python3
+"""hook-install / hook-uninstall — F328 step 2: the one installer for every hook moment.
+
+    hook-install   <moment> <path-to-executable>
+    hook-uninstall <moment> <path-to-executable>
+
+An agent says "run this at this moment"; the installer figures out which of
+three occupancy cases applies (F328 § The installer's three cases):
+
+  1. nothing at the moment      -> registry line + runner entry in settings.json
+  2. a non-Warden occupant sits -> adopt it (first registry line[s]), replace its
+                                   settings.json entry with the runner entry
+  3. Warden covers the moment   -> registry line ONLY; settings.json untouched
+                                   (Warden executes the registry — zero extra
+                                   processes)
+
+`hook-uninstall` reverses each: removing the last non-adopted registry line for
+a moment removes the runner entry and restores case 2's adopted occupant to its
+original settings.json form at its original position — which is what makes the
+Success Criteria's byte-for-byte check meaningful (the live settings.json is
+canonical `json.dumps(indent=2) + "\\n"`, so a structurally-exact restore IS a
+byte-exact restore).
+
+Occupancy subtleties the three-case summary hides, decided here:
+
+- Only a group whose matcher EXACTLY equals the moment's matcher is adopted.
+  A broader matcher (`Bash|Edit|Write`, or no matcher on a matcher event)
+  occupies many moments at once; folding it into one moment's registry line
+  would silently narrow it. Broad occupants are left in place and simply
+  coexist — both still fire, which is all the Success Criteria requires.
+- An occupant whose command is not itself a bare executable path (an
+  `sh -c '…'` blob, `bash /path/script.sh`) cannot be a registry line — one
+  line is one executable, no inline arguments. It is adopted via a generated
+  wrapper under wrappers/ that carries the original command verbatim; the
+  wrapper is deleted on unwind. This is the design's own rule applied to
+  adoption: "anything needing arguments gets a wrapper script."
+- Warden detection is a read of settings.json (a command naming `warden-rs`)
+  plus an executable check on that binary — no probing, no execution. Warden
+  registered with a missing binary is broken config: the installer refuses
+  rather than treating a dead entry as either executor or adoptee.
+- `write:{kind}` and `skill:pre:{skill}` have no Warden-free equivalent the
+  fallback runner can express (per-skill filtering needs the payload, which
+  the runner deliberately does not parse). With Warden covering the moment
+  they are registry-line-only (case 3); without Warden the installer says so
+  and refuses, rather than silently registering something weaker.
+
+If settings.json is malformed JSON the installer refuses and touches nothing.
+
+State (all machine-local, beside the registry):
+    ~/.config/anchor-system/hooks/registry       the registry (DAS_HOOK_REGISTRY)
+    ~/.config/anchor-system/hooks/adopted.json   case-2 reversal record (DAS_HOOK_ADOPTED)
+    ~/.config/anchor-system/hooks/wrappers/      generated adoption wrappers (DAS_HOOK_WRAPPERS)
+Env overrides (used by test-f328-hook-install.py): the above plus
+DAS_HOOK_SETTINGS (settings.json) and DAS_HOOK_RUNNER (the hook-run path).
+"""
+import json
+import os
+import re
+import sys
+from hashlib import sha1
+from pathlib import Path
+
+HOME = Path.home()
+HOOKS_DIR = HOME / ".config/anchor-system/hooks"
+REGISTRY = Path(os.environ.get("DAS_HOOK_REGISTRY", HOOKS_DIR / "registry"))
+SETTINGS = Path(os.environ.get("DAS_HOOK_SETTINGS", HOME / ".claude/settings.json"))
+ADOPTED = Path(os.environ.get("DAS_HOOK_ADOPTED", HOOKS_DIR / "adopted.json"))
+WRAPPERS = Path(os.environ.get("DAS_HOOK_WRAPPERS", HOOKS_DIR / "wrappers"))
+RUNNER = Path(os.environ.get("DAS_HOOK_RUNNER",
+                             Path(__file__).resolve().parent / "hook-run"))
+
+
+def die(msg):
+    print(f"hook-install: {msg}", file=sys.stderr)
+    sys.exit(1)
+
+
+# ---------------------------------------------------------------- moment map
+
+# Warden's moment vocabulary -> (Claude Code event, matcher-or-None).
+# A mapping to (None, None) means "Warden-only": no settings.json registration
+# can express it precisely, so it is legal only as case 3.
+def moment_to_event(moment):
+    for prefix, event in (("tool:pre:", "PreToolUse"), ("tool:post:", "PostToolUse")):
+        if moment.startswith(prefix):
+            tool = moment[len(prefix):]
+            if not tool:
+                die(f"moment '{moment}' names no tool")
+            return event, tool
+    fixed = {
+        "prompt:submit": ("UserPromptSubmit", None),
+        "prompt:stop": ("Stop", None),
+        "session:start": ("SessionStart", None),
+        # Warden's vocabulary is normative, and Warden maps Claude's Stop
+        # event to BOTH session:stop and prompt:stop (hook.rs
+        # event_to_moments) — so the fallback must register session:stop at
+        # Stop too, or the two executors would fire it at different moments.
+        "session:stop": ("Stop", None),
+        "session:compact": ("PreCompact", None),
+    }
+    if moment in fixed:
+        return fixed[moment]
+    if moment.startswith("skill:pre:") or moment.startswith("write:"):
+        return None, None
+    die(f"unknown moment '{moment}' — vocabulary is tool:pre:{{tool}}, "
+        f"tool:post:{{tool}}, skill:pre:{{skill}}, write:{{kind}}, "
+        f"session:start|stop|compact, prompt:submit|stop")
+
+
+# ------------------------------------------------------------- settings.json
+
+def load_settings():
+    if not SETTINGS.exists():
+        die(f"settings file not found: {SETTINGS}")
+    try:
+        return json.loads(SETTINGS.read_text())
+    except json.JSONDecodeError as e:
+        die(f"settings file is malformed JSON ({e}) — refusing to touch it: {SETTINGS}")
+
+
+def save_settings(obj):
+    SETTINGS.write_text(json.dumps(obj, indent=2) + "\n")
+
+
+def event_groups(settings, event):
+    return settings.get("hooks", {}).get(event, [])
+
+
+def group_cmds(group):
+    return [h.get("command", "") for h in group.get("hooks", [])
+            if h.get("type") == "command"]
+
+
+def is_warden_cmd(cmd):
+    return "warden-rs" in cmd
+
+
+def is_runner_cmd(cmd, moment):
+    return cmd == f"{RUNNER} {moment}"
+
+
+def matcher_of(group):
+    m = group.get("matcher")
+    return m if m else None       # absent and "" mean the same: fire always
+
+
+def covers(matcher, tool):
+    """Does this group's matcher fire at the moment? (tool None = matcherless event)"""
+    if tool is None or matcher is None:
+        return True
+    if matcher == tool:
+        return True
+    try:
+        return re.fullmatch(matcher, tool) is not None
+    except re.error:
+        return False
+
+
+def warden_binary_from(settings):
+    """First warden-rs command's executable token, or None if none registered."""
+    for groups in settings.get("hooks", {}).values():
+        for g in groups:
+            for cmd in group_cmds(g):
+                if is_warden_cmd(cmd):
+                    return Path(cmd.split()[0])
+    return None
+
+
+def warden_covers(settings, event, tool):
+    if event is None:
+        # Warden-only moments: covered iff warden is registered anywhere.
+        return warden_binary_from(settings) is not None
+    return any(is_warden_cmd(cmd) and covers(matcher_of(g), tool)
+               for g in event_groups(settings, event) for cmd in group_cmds(g))
+
+
+# ----------------------------------------------------------------- registry
+
+def read_registry():
+    if not REGISTRY.exists():
+        return []
+    return REGISTRY.read_text().splitlines()
+
+
+def write_registry(lines):
+    REGISTRY.parent.mkdir(parents=True, exist_ok=True)
+    REGISTRY.write_text("\n".join(lines) + ("\n" if lines else ""))
+
+
+def parse_line(line):
+    """-> (moment, path) or None for blanks/comments."""
+    stripped = line.strip()
+    if not stripped or stripped.startswith("#"):
+        return None
+    parts = stripped.split(None, 1)
+    if len(parts) != 2:
+        return None
+    return parts[0], parts[1].rstrip()
+
+
+def registry_lines_for(lines, moment):
+    """-> [(index, path)] of live lines at this moment, in file order."""
+    out = []
+    for i, line in enumerate(lines):
+        parsed = parse_line(line)
+        if parsed and parsed[0] == moment:
+            out.append((i, parsed[1]))
+    return out
+
+
+# ------------------------------------------------------------ adoption state
+
+def load_adopted():
+    if not ADOPTED.exists():
+        return {}
+    try:
+        return json.loads(ADOPTED.read_text())
+    except json.JSONDecodeError as e:
+        die(f"adoption record is malformed JSON ({e}) — refusing: {ADOPTED}")
+
+
+def save_adopted(obj):
+    ADOPTED.parent.mkdir(parents=True, exist_ok=True)
+    if obj:
+        ADOPTED.write_text(json.dumps(obj, indent=2) + "\n")
+    elif ADOPTED.exists():
+        ADOPTED.unlink()
+
+
+def adoptable_path(cmd):
+    """If the whole command IS one executable file, return it; else None."""
+    p = Path(cmd.strip())
+    return p if p.is_file() and os.access(p, os.X_OK) else None
+
+
+def make_wrapper(moment, cmd):
+    """Materialize an adopted occupant whose command is not a bare path."""
+    WRAPPERS.mkdir(parents=True, exist_ok=True)
+    w = WRAPPERS / f"adopted-{sha1(cmd.encode()).hexdigest()[:12]}.sh"
+    w.write_text(
+        "#!/bin/bash\n"
+        f"# F328 adoption wrapper for moment {moment} — generated by hook-install.\n"
+        "# The original settings.json command, verbatim (a registry line is one\n"
+        "# bare executable path, so an arg-carrying occupant rides in a wrapper):\n"
+        f"{cmd}\n")
+    w.chmod(0o755)
+    return w
+
+
+# ------------------------------------------------------------------ install
+
+def install(moment, hook_path):
+    hook = Path(hook_path)
+    if not hook.is_absolute():
+        die(f"hook path must be absolute: {hook}")
+    if not hook.is_file():
+        die(f"hook does not exist: {hook}")
+    if not os.access(hook, os.X_OK):
+        die(f"hook is not executable: {hook}")
+
+    settings = load_settings()
+    event, tool = moment_to_event(moment)
+
+    lines = read_registry()
+    if any(p == str(hook) for _, p in registry_lines_for(lines, moment)):
+        die(f"already registered at {moment}: {hook}")
+
+    # Case 3 — Warden covers the moment: registry line only.
+    if warden_covers(settings, event, tool):
+        wbin = warden_binary_from(settings)
+        if wbin is None or not os.access(wbin, os.X_OK):
+            die(f"Warden is registered at this moment but its binary is missing "
+                f"or not executable ({wbin}) — fix that before installing")
+        lines.append(f"{moment}\t{hook}")
+        write_registry(lines)
+        print(f"installed (case 3, Warden executes): {moment} -> {hook}")
+        return
+
+    if event is None:
+        die(f"moment '{moment}' has no Warden-free equivalent — the fallback "
+            f"runner cannot express it (write:{{kind}} needs Warden's write "
+            f"pipeline; skill:pre:{{skill}} needs payload filtering). Install "
+            f"Warden or pick a different moment.")
+
+    groups = event_groups(settings, event)
+    runner_present = any(is_runner_cmd(cmd, moment)
+                         for g in groups for cmd in group_cmds(g))
+
+    if runner_present:
+        # Already managed: the runner sits at the moment; grow the registry.
+        lines.append(f"{moment}\t{hook}")
+        write_registry(lines)
+        print(f"installed (runner already present): {moment} -> {hook}")
+        return
+
+    # Case 2 — adopt every exact-matcher non-Warden occupant, in order.
+    moment_matcher = tool  # None on matcherless events
+    exact = [(i, g) for i, g in enumerate(groups)
+             if matcher_of(g) == moment_matcher
+             and not any(is_warden_cmd(c) for c in group_cmds(g))]
+
+    adopted = load_adopted()
+    records, adopted_lines = [], []
+    for i, g in exact:
+        for cmd in group_cmds(g):
+            target = adoptable_path(cmd)
+            wrapper = None
+            if target is None:
+                wrapper = make_wrapper(moment, cmd)
+                target = wrapper
+            adopted_lines.append(f"{moment}\t{target}")
+            records.append({"event": event, "index": i, "group": g,
+                            "wrapper": str(wrapper) if wrapper else None,
+                            "line": str(target)})
+
+    runner_group = {}
+    if moment_matcher is not None:
+        runner_group["matcher"] = moment_matcher
+    runner_group["hooks"] = [{"type": "command",
+                              "command": f"{RUNNER} {moment}"}]
+
+    insert_at = exact[0][0] if exact else len(groups)
+    new_groups = [g for i, g in enumerate(groups) if i not in {i for i, _ in exact}]
+    new_groups.insert(min(insert_at, len(new_groups)), runner_group)
+    settings.setdefault("hooks", {})[event] = new_groups
+
+    # Adopted occupants lead their moment's registry lines: stranger runs first.
+    lines.extend(adopted_lines)
+    lines.append(f"{moment}\t{hook}")
+    write_registry(lines)
+    save_settings(settings)
+    if records:
+        adopted[moment] = adopted.get(moment, []) + records
+        save_adopted(adopted)
+        print(f"installed (case 2, adopted {len(records)} occupant(s)): "
+              f"{moment} -> {hook}")
+    else:
+        print(f"installed (case 1, empty moment): {moment} -> {hook}")
+
+
+# ---------------------------------------------------------------- uninstall
+
+def uninstall(moment, hook_path):
+    hook = str(Path(hook_path))
+    lines = read_registry()
+    at_moment = registry_lines_for(lines, moment)
+    mine = [i for i, p in at_moment if p == hook]
+    if not mine:
+        die(f"not registered at {moment}: {hook}")
+
+    adopted = load_adopted()
+    records = adopted.get(moment, [])
+    adopted_paths = {r["line"] for r in records}
+    if hook in adopted_paths:
+        die(f"{hook} is an adopted occupant at {moment} — it unwinds "
+            f"automatically when the last installed hook is removed; "
+            f"uninstall the hook you installed instead")
+
+    keep = [line for i, line in enumerate(lines) if i not in set(mine)]
+    remaining = [p for _, p in registry_lines_for(keep, moment)]
+
+    if any(p not in adopted_paths for p in remaining):
+        # Other installed hooks still ride this moment: registry edit only.
+        write_registry(keep)
+        print(f"uninstalled: {moment} -> {hook} "
+              f"({len(remaining)} line(s) remain at {moment})")
+        return
+
+    # Last installed hook at the moment: full unwind.
+    keep = [line for line in keep
+            if not (parse_line(line) and parse_line(line)[0] == moment)]
+    write_registry(keep)
+
+    settings = load_settings()
+    event, tool = moment_to_event(moment)
+    changed = False
+    if event is not None:
+        groups = event_groups(settings, event)
+        runner_idx = next(
+            (i for i, g in enumerate(groups)
+             if any(is_runner_cmd(cmd, moment) for cmd in group_cmds(g))), None)
+        if runner_idx is not None:
+            del groups[runner_idx]
+            # Restore adopted occupants where the runner sat — the runner took
+            # the first adoptee's slot at install, so inserting them there in
+            # record order reproduces the original positions exactly.
+            for offset, r in enumerate(records):
+                groups.insert(min(runner_idx + offset, len(groups)), r["group"])
+            settings["hooks"][event] = groups
+            if not groups:
+                del settings["hooks"][event]
+            save_settings(settings)
+            changed = True
+    for r in records:
+        if r.get("wrapper"):
+            w = Path(r["wrapper"])
+            if w.exists():
+                w.unlink()
+    if records:
+        del adopted[moment]
+        save_adopted(adopted)
+    kind = ("case 2 unwound, occupant restored" if records
+            else "runner entry removed" if changed else "case 3, registry only")
+    print(f"uninstalled ({kind}): {moment} -> {hook}")
+
+
+# --------------------------------------------------------------------- main
+
+def main():
+    prog = Path(sys.argv[0]).name
+    args = sys.argv[1:]
+    if len(args) != 2 or args[0] in ("-h", "--help"):
+        print(__doc__.strip().splitlines()[0])
+        print(f"usage: {prog} <moment> <path-to-executable>")
+        sys.exit(0 if args and args[0] in ("-h", "--help") else 2)
+    if prog == "hook-uninstall":
+        uninstall(*args)
+    else:
+        install(*args)
+
+
+if __name__ == "__main__":
+    main()
