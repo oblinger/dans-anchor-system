@@ -13,7 +13,7 @@ Verifications:
         doc   = Backlog (case-insensitive) | wiki-name | path to a .md file
         label = LETTERS+DIGITS, or LETTERS+'+' to auto-mint —
                 Q7 / V3 (any doc) / F157 / T8 (Backlog only) /
-                F+ / T+ / Q+ / V+ (mint the next unused number) /
+                F+ / T+ / Q+ (mint the next unused number) /
                 T41.Q1 (a question hosted INSIDE Backlog row T41 —
                 resolve and show only; T086)
         verb  = define (create-or-replace) | set (Backlog-only partial
@@ -1624,7 +1624,7 @@ _SKIP_PATH_FRAGMENTS = (
 def parse_label(label):
     """Split a label into (letters, number). `number` is an int (Q7, V3,
     F157, T8) or the literal string `"+"` for an auto-mint label (F+, T+,
-    Q+, V+ — only legal with `define`). Raises on anything not matching
+    Q+ — only legal with `define`). Raises on anything not matching
     `^[A-Z]+(\\d+|\\+)$`."""
     m = _LABEL_RE.match(label)
     if not m:
@@ -2752,26 +2752,26 @@ def _query_verb(slug, doc_path, q_num, verb, args):
 
 
 # ------------------------------------------------------------------
-# V (verification) labels on any doc — new in F236
+# Shared: the block-ID container a doc-hosted item anchors to
+#
+# The `V<n>` (verification) label family that used to live here was DELETED
+# 2026-08-13 under F305 D3. 227 lines, zero tests, and — measured before
+# removing them — zero artifacts: not one `^<id>-V<n>` block anchor existed
+# anywhere in the vault, so the machinery had never once run to completion on
+# a real document. Reachable from the CLI (`state define <doc> V+`) but never
+# reached.
+#
+# It was not merely unused, which would have been an argument for leaving it.
+# `_v_define_core` called `_ensure_verifications_h2`, creating a doc-hosted
+# `## Verifications` H2 — exactly the shape F305 D1 retires, since all three
+# answer shapes now share ONE `## Open Items` block. Adopting it would have
+# meant retargeting every write, which is building D1, not reusing D3. So the
+# choice D3 offered — adopt deliberately with tests, or delete — resolved to
+# delete: 227 untested lines that LOOK authoritative are worse than either,
+# and these would have written a section the design had already removed.
+#
+# Only `_container_id_for_doc` survives, because the Q machinery calls it too.
 
-
-_V_HEADER_BULLET_RE = re.compile(r"^(\s*)- \*\*V(\d+)\b")
-_V_HEADER_H3_RE = re.compile(r"^(\s*)### V(\d+)\b")
-
-
-def _next_v_number(doc_text):
-    """Lowest unused V-number across pending `## Verifications` bullets +
-    bottom `## Resolved` `### V<n>` H3s. Mirrors be._next_q_number for the V
-    namespace (F236 V+ auto-mint)."""
-    used = set()
-    for line in doc_text.splitlines():
-        m = _V_HEADER_BULLET_RE.match(line) or _V_HEADER_H3_RE.match(line)
-        if m:
-            used.add(int(m.group(2)))
-    n = 1
-    while n in used:
-        n += 1
-    return n
 
 
 def _container_id_for_doc(doc_path):
@@ -2797,244 +2797,6 @@ def _container_id_for_doc(doc_path):
     """
     return be.feature_number(doc_path.stem) or re.sub(
         r"[^\w\-]", "-", doc_path.stem)
-
-
-def _v_format_bullet(v_num, container_id, body):
-    """Wrap a V-define body into `- **V<n> — <title>** — <rest> ^<container>-V<n>`.
-
-    If body is already pre-formatted (`**V<n> — Title** — rest`, copy-pasted
-    from an existing bullet), normalize the number and reuse it verbatim.
-    Otherwise the first line's text (up to an em-dash, if present) becomes
-    the title; anything after — on that line or subsequent lines — becomes
-    the trailing body.
-    """
-    body = body.strip()
-    # `V+` placeholder (mint form) normalizes like an explicit number — the
-    # canonical v_num is stamped into the rebuilt bullet either way.
-    m = re.match(r"^-?\s*\*\*V(?:\d+|\+)\s+—\s+(.+?)\*\*(?:\s+—\s+(.*))?$", body, re.DOTALL)
-    if m:
-        title = m.group(1).strip()
-        rest = (m.group(2) or "").strip()
-    else:
-        lines = body.splitlines()
-        first = lines[0].strip()
-        rest_lines = [l.strip() for l in lines[1:] if l.strip()]
-        if " — " in first:
-            title, _, tail = first.partition(" — ")
-            title = title.strip()
-            rest = tail.strip()
-        else:
-            title, rest = first, ""
-        if rest_lines:
-            extra = " ".join(rest_lines)
-            rest = f"{rest} {extra}".strip()
-    suffix = f" — {rest}" if rest else ""
-    anchor = re.sub(r"[^\w\-]", "-", f"{container_id}-V{v_num}")
-    return f"- **V{v_num} — {title}**{suffix} ^{anchor}"
-
-
-def _find_v_bullet(lines, v_num):
-    """Locate the pending `V<n>` bullet inside `## Verifications` (excluding
-    any `### Resolved`/`### Removed` sub-sections). Mirrors be._find_q_bullet
-    scoped to the Verifications H2. Returns (start, end, indent) or None."""
-    h2 = be._find_h2(lines, "Verifications")
-    if h2 is None:
-        return None
-    h2_start, h2_end = h2
-    in_h3 = None
-    for i in range(h2_start + 1, h2_end):
-        line = lines[i]
-        if line.startswith("### "):
-            in_h3 = line.strip()[4:]
-            continue
-        m = _V_HEADER_BULLET_RE.match(line)
-        if m and int(m.group(2)) == v_num and in_h3 is None:
-            indent = m.group(1)
-            end = h2_end
-            for j in range(i + 1, h2_end):
-                l = lines[j]
-                if l.startswith("### "):
-                    end = j
-                    break
-                mm = _V_HEADER_BULLET_RE.match(l)
-                if mm and (len(l) - len(l.lstrip())) <= len(indent):
-                    end = j
-                    break
-            return (i, end, indent)
-    return None
-
-
-def _ensure_verifications_h2(lines):
-    """Ensure a `## Verifications` H2 exists — directly after
-    `## Success Criteria` when present, else before `## Status`, else at the
-    end of the doc. Returns lines (possibly modified) AND (h2_start, h2_end)."""
-    existing = be._find_h2(lines, "Verifications")
-    if existing is not None:
-        return lines, existing
-    sc = be._find_h2(lines, "Success Criteria")
-    if sc is not None:
-        _, sc_end = sc
-        insert_at = sc_end
-        lines = lines[:insert_at] + ["", "## Verifications", ""] + lines[insert_at:]
-        return lines, (insert_at + 1, insert_at + 3)
-    st = be._find_h2(lines, "Status")
-    if st is not None:
-        st_start, _ = st
-        lines = lines[:st_start] + ["## Verifications", "", ""] + lines[st_start:]
-        return lines, (st_start, st_start + 2)
-    if lines and lines[-1].strip():
-        lines.append("")
-    lines.append("## Verifications")
-    lines.append("")
-    return lines, (len(lines) - 2, len(lines))
-
-
-def _v_define_core(slug, doc_path, v_num, body):
-    """`<doc> V<n> define` — create-or-replace the V-bullet under
-    `## Verifications`."""
-    text = doc_path.read_text(encoding="utf-8")
-    lines = text.splitlines()
-    container_id = _container_id_for_doc(doc_path)
-    loc = _find_v_bullet(lines, v_num)
-    new_bullet = _v_format_bullet(v_num, container_id, body)
-    if loc is not None:
-        start, end, _ = loc
-        lines = lines[:start] + [new_bullet] + lines[end:]
-        verb_done = "redefined"
-    else:
-        lines, (h2_start, h2_end) = _ensure_verifications_h2(lines)
-        insert_at = h2_end
-        for j in range(h2_start + 1, h2_end):
-            if lines[j].startswith("### "):
-                insert_at = j
-                break
-        while insert_at > h2_start + 1 and not lines[insert_at - 1].strip():
-            insert_at -= 1
-        new_lines = ["", new_bullet] if insert_at > h2_start + 1 and lines[insert_at - 1].strip() else [new_bullet]
-        new_lines = new_lines + [""]
-        lines = lines[:insert_at] + new_lines + lines[insert_at:]
-        verb_done = "defined"
-    be._write_feature_lines(doc_path, lines)
-    summary = f"{verb_done} V{v_num} in {doc_path.name}"
-    _post_conditions_and_print(slug, doc_path, summary)
-    return 0
-
-
-def _v_resolve_core(slug, doc_path, v_num, body):
-    """`<doc> V<n> resolve` — move the V-bullet to the bottom `## Resolved`
-    as `### V<n> — Title` with `**Result:** <body> (<date>)`. Drops
-    `## Verifications` if that was the last item (mirrors Q's Phase-2
-    empty-block cleanup)."""
-    text = doc_path.read_text(encoding="utf-8")
-    lines = text.splitlines()
-    loc = _find_v_bullet(lines, v_num)
-    if loc is None:
-        raise be.BacklogEditError(
-            f"V{v_num} not found in ## Verifications of {doc_path.name}"
-        )
-    start, end, _ = loc
-    header = lines[start]
-    title_m = re.match(r"^\s*- \*\*V\d+\s+—\s+([^*]+?)\*\*", header)
-    title = title_m.group(1).strip() if title_m else "Untitled"
-    today = date.today().isoformat()
-    result_text = body.strip() or "confirmed"
-    h3_lines = [
-        "",
-        f"### V{v_num} — {title}",
-        f"**Result:** {result_text} ({today})",
-        "",
-    ]
-    lines = lines[:start] + lines[end:]
-    h2 = be._find_h2(lines, "Verifications")
-    if h2 is not None:
-        h2_start, h2_end = h2
-        empty = True
-        for k in range(h2_start + 1, h2_end):
-            if lines[k].strip():
-                empty = False
-                break
-        if empty:
-            drop_end = h2_end
-            while drop_end < len(lines) and not lines[drop_end].strip():
-                drop_end += 1
-            if drop_end < len(lines):
-                lines = lines[:h2_start] + lines[drop_end:]
-            else:
-                lines = lines[:h2_start]
-    lines, (rh2_start, rh2_end) = be._ensure_bottom_resolved_h2(lines)
-    insert_at = rh2_end
-    while insert_at > rh2_start + 1 and not lines[insert_at - 1].strip():
-        insert_at -= 1
-    lines = lines[:insert_at] + h3_lines + lines[insert_at:]
-    be._write_feature_lines(doc_path, lines)
-    summary = f"resolved V{v_num} in {doc_path.name}"
-    _post_conditions_and_print(slug, doc_path, summary)
-    return 0
-
-
-def _v_remove_core(slug, doc_path, v_num, reason):
-    """`<doc> V<n> remove` — soft-delete, mirroring Q remove: move to a
-    `### Removed` H3 nested inside `## Verifications` (audit trail)."""
-    text = doc_path.read_text(encoding="utf-8")
-    reason = reason or "no reason provided"
-    lines = text.splitlines()
-    loc = _find_v_bullet(lines, v_num)
-    if loc is None:
-        raise be.BacklogEditError(
-            f"V{v_num} not found in ## Verifications of {doc_path.name}"
-        )
-    start, end, _ = loc
-    header = lines[start]
-    title_m = re.match(r"^\s*- \*\*V\d+\s+—\s+([^*]+?)\*\*", header)
-    title = title_m.group(1).strip() if title_m else "Untitled"
-    original_body = "\n".join(lines[start:end]).rstrip()
-    today = date.today().isoformat()
-    h3_lines = [
-        "",
-        f"### V{v_num} — {title} (removed {today} — {reason})",
-        "",
-        "> Original V context (preserved for audit trail):",
-    ]
-    for ol in original_body.splitlines():
-        h3_lines.append(f"> {ol}")
-    h3_lines.append("")
-    lines = lines[:start] + lines[end:]
-    h2 = be._find_h2(lines, "Verifications")
-    if h2 is None:
-        lines, (h2_start, h2_end) = _ensure_verifications_h2(lines)
-    else:
-        h2_start, h2_end = h2
-    removed = be._find_h3_in_h2(lines, h2_start, h2_end, "Removed")
-    if removed is None:
-        insert_at = h2_end
-        while insert_at > h2_start + 1 and not lines[insert_at - 1].strip():
-            insert_at -= 1
-        lines = lines[:insert_at] + ["", "### Removed", ""] + h3_lines[1:] + lines[insert_at:]
-    else:
-        r_start, r_end = removed
-        insert_at = r_end
-        while insert_at > r_start + 1 and not lines[insert_at - 1].strip():
-            insert_at -= 1
-        lines = lines[:insert_at] + h3_lines + lines[insert_at:]
-    be._write_feature_lines(doc_path, lines)
-    summary = f"removed V{v_num} from {doc_path.name} (reason: {reason})"
-    _post_conditions_and_print(slug, doc_path, summary)
-    return 0
-
-
-def _verify_verb(slug, doc_path, v_num, verb, args):
-    if verb == "define":
-        body = read_body(args)
-        if not body.strip():
-            raise be.BacklogEditError("define requires a body via stdin or --body")
-        return _v_define_core(slug, doc_path, v_num, body)
-    if verb == "resolve":
-        body = read_body(args)
-        return _v_resolve_core(slug, doc_path, v_num, body)
-    if verb == "remove":
-        return _v_remove_core(slug, doc_path, v_num, args.reason)
-    raise be.BacklogEditError(f"unknown verb {verb!r} for a V label")
-
 
 # ------------------------------------------------------------------
 # Top-level dispatch + CLI
@@ -3086,15 +2848,11 @@ def cmd_item(slug, anchor_path, args):
         if num == "+":
             num = be._next_q_number(doc_path.read_text(encoding="utf-8"))
         return _query_verb(slug, doc_path, num, args.verb, args)
-    if doc_kind == "doc" and letters == "V":
-        if num == "+":
-            num = _next_v_number(doc_path.read_text(encoding="utf-8"))
-        return _verify_verb(slug, doc_path, num, args.verb, args)
     where = "Backlog" if doc_kind == "backlog" else doc_path.name
     raise be.BacklogEditError(
         f"unknown query kind {args.label!r} for {where} — valid labels: "
         f"F<n>/T<n>/C<n>/Q<n>/F+/T+/C+/Q+ on Backlog (Q = standalone question "
-        f"row), Q<n>/V<n>/Q+/V+ on any other doc"
+        f"row), Q<n>/Q+ on any other doc"
     )
 
 
@@ -3124,12 +2882,11 @@ def _row_span(lines, label):
     return None
 
 
-_ITEM_HEADER_RES = (be._Q_HEADER_BULLET_RE, be._Q_HEADER_H3_RE,
-                    _V_HEADER_BULLET_RE, _V_HEADER_H3_RE)
+_ITEM_HEADER_RES = (be._Q_HEADER_BULLET_RE, be._Q_HEADER_H3_RE)
 
 
 def _doc_item_span(lines, letters, num):
-    """(start, end) of a `Q<n>`/`V<n>` item ANYWHERE in a doc, or None.
+    """(start, end) of a `Q<n>` item ANYWHERE in a doc, or None.
 
     Deliberately not restricted to the pending zone: the whole point of a read
     verb is to answer "what does this item say" without the caller having to
@@ -4028,8 +3785,8 @@ _ALL_VERBS = _ITEM_VERBS + ("show", "mint-id", "drop", "inbox-list",
                             "inbox-tag", "revalidate", "status", "roadmap",
                             "triage", "crank", "groom-list", "summary-line")
 
-_LABEL_HELP = ("item id — F<n>/T<n>/C<n>/Q<n> on Backlog, Q<n>/V<n> on any "
-               "other doc; LETTERS+'+' auto-mints (F+, T+, C+, Q+, V+); "
+_LABEL_HELP = ("item id — F<n>/T<n>/C<n>/Q<n> on Backlog, Q<n> on any "
+               "other doc; LETTERS+'+' auto-mints (F+, T+, C+, Q+); "
                "<row>.Q<n> addresses a question hosted inside a Backlog row "
                "(resolve/show only)")
 
