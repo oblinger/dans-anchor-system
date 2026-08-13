@@ -1,0 +1,53 @@
+#!/bin/bash
+# hook-run — the Warden-less fallback executor for the DAS hook registry
+# (TINK F328). Usage: hook-run <moment>. Reads the registry, runs every
+# executable registered at that moment, in file order, and always exits 0 —
+# a hook that fails is logged and must not suppress its neighbours or the
+# session it fires in.
+#
+# The shebang is #!/bin/bash ON PURPOSE and load-bearing: the no-eval
+# dispatch below relies on bash's word-splitting rules. Under zsh, unquoted
+# $cmd does not word-split, so a zsh-tested "simplification" of the quoting
+# would behave identically there and break under bash — that exact confusion
+# already cost one round of measurement (F328 § No eval). Do not port this
+# to zsh or sh untested.
+#
+# One registry line = one moment + one executable path, NO inline arguments —
+# anything needing arguments gets a wrapper script. The whole remainder after
+# the moment is the path, expanded quoted ("$cmd") as a single word: that is
+# what lets a path contain interior spaces with no quoting in the registry,
+# and what keeps `;`-chains and $( ) substitutions in a hostile registry
+# line inert (measured: eval executed both injections AND broke spaced
+# paths; the quoted form blocks both and works).
+#
+# Registry grammar (F328 § The registry file): one line per hook — moment,
+# whitespace (any run of spaces/tabs), executable path. Blank lines and
+# `#` comments (leading whitespace tolerated) are skipped. File order is
+# execution order.
+
+REGISTRY="${DAS_HOOK_REGISTRY:-$HOME/.config/anchor-system/hooks/registry}"
+LOG="${DAS_HOOK_LOG:-$HOME/.config/anchor-system/hooks/hook-run.log}"
+
+moment="$1"
+[ -z "$moment" ] && exit 0
+[ -f "$REGISTRY" ] || exit 0
+
+# Hooks receive their real input as JSON on stdin; capture it once so every
+# registered hook gets the same payload. (stdin may legitimately be empty.)
+input=$(cat)
+
+# `|| [ -n "$m" ]` keeps a final line without a trailing newline firing.
+while read -r m cmd || [ -n "$m" ]; do
+    case "$m" in ""|\#*) continue ;; esac
+    [ "$m" = "$moment" ] || continue
+    [ -n "$cmd" ] || continue
+    printf '%s' "$input" | "$cmd"
+    rc=$?
+    mkdir -p "$(dirname "$LOG")"
+    if [ $rc -eq 0 ]; then
+        printf '%s  %s  ok  %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$moment" "$cmd" >> "$LOG"
+    else
+        printf '%s  %s  exit=%s  %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$moment" "$rc" "$cmd" >> "$LOG"
+    fi
+done < "$REGISTRY"
+exit 0
