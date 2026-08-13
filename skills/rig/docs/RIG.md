@@ -102,6 +102,16 @@ Two things the connection tool must honour, both learned by breaking them:
 - **The alias wins over any host-shortname convention.** A tool that expands a bare name to `<name>.local` for Bonjour will turn a working alias into an unresolvable mDNS lookup. Ask `ssh -G <name>` before guessing.
 - **The alias declares the login user; use it.** A cloud VM's account is rarely the laptop user's name. Assuming `$USER@host` is a same-person-both-ends assumption that holds between two of your own Macs and nowhere else.
 
+**A tool that writes its own ssh config cannot consume the alias — feed it `rig ip`.** Some tools generate a private ssh config and connect with `ssh -F`. Pointing such a tool at the alias produces `HostName a2x-dev`, and `HostName` must be a resolvable address: ssh does **not** re-resolve it as another alias, and the private config cannot see `~/.ssh/config`. The symptom is `Could not resolve hostname a2x-dev` from a name that `ssh a2x-dev` connects to happily.
+
+For those, hand over the address instead of the name:
+
+```sh
+svx remote add a2x --host "$(whoami)@$(rig ip a2x-dev)"
+```
+
+The cost is that such a tool now holds an **address**, not a name, so it goes stale exactly when the alias would have been repaired — after a `down`/`up`. Re-run its registration after restarting the rig, or give the machine a static address if that becomes tiresome.
+
 For the cases that want a raw address, `rig ip <name>` prints the IP on stdout and nothing else, so it composes:
 
 ```sh

@@ -507,6 +507,10 @@ $TMUX_BIN new -d -A -s $SESSION"
     # the title should say the same short thing rather than a cwd-derived slug.
     tmux new-session -d -s "$LOCAL_SESSION" -n "$LOCAL_SESSION" \
       "ssh -t -o ControlMaster=auto -o 'ControlPath=$CTL' -o ControlPersist=600 $USER@$TARGET 'tmux attach -t $WTARGET'"
+    # Without this tmux's automatic-rename immediately overwrites the -n name
+    # with the cwd basename, so the window reads as whatever directory bridge
+    # happened to be invoked from — which names the wrong machine entirely.
+    tmux set-window-option -t "$LOCAL_SESSION" automatic-rename off 2>/dev/null || true
     say "PASS  local   session '$LOCAL_SESSION' created (ssh-attached, viewer only)"
   fi
   open_local_viewer
