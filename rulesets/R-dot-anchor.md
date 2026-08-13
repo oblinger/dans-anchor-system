@@ -21,19 +21,28 @@ The `.anchor` file parses as YAML. **No key is required** — presence alone is 
 
 The discarded `traits:` justification is worth recording, because it was wrong in an instructive way: it claimed an empty `.anchor` makes breadcrumb inference skip to the grandparent. That incident is real, but the [[audit-anchor]] checklist attaches it to **`slug:`** — the sentence was mis-transcribed onto the wrong field. It also fails to reproduce: **720 `.anchor` files in the live vault are zero-byte**, and of the 232 child docs beneath them carrying a breadcrumb, **182 name their empty anchor correctly** (the other 50 are hand-written short trails like `:>> [[SVAR]]`, not inference dropping a level).
 
-### RULE R-dot-anchor-03 — A declared slug is an uppercase token and never a restatement (checked)
+### RULE R-dot-anchor-03 — A declared slug is all capitals unless it is the name, and never a restatement (checked)
 check:: slug_is_a_handle
 
-A `slug:` in `.anchor` matches **`^[A-Z0-9]+$`** — one token, uppercase alphanumeric, no spaces — and is declared only when it is a genuine short handle for the anchor. A leading digit is legal: [[ANC Standard]] § Anchor retirement retires a slug in place by prefixing its two-digit creation year (`SKD` → `25SKD`), so `^[A-Z][A-Z0-9]*$` would condemn every retired slug.
+A `slug:` in `.anchor` takes **one of two forms**, and nothing else:
+
+- **a shortening** — `^[A-Z0-9]+$`, one token, uppercase alphanumeric, no spaces (`WARD`, `TINK`, `WEB`). This is the ordinary case. A leading digit is legal: [[ANC Standard]] § Anchor retirement retires a slug in place by prefixing its two-digit creation year (`SKD` → `25SKD`), so `^[A-Z][A-Z0-9]*$` would condemn every retired slug.
+- **the name itself** — the anchor's own name, carried in **the name's own case** (`Warden`). Legal when the name is already short enough to serve, and never upcased when it is.
+
+Dan ruled the two-form grammar 2026-08-13 ([[TINK Backlog#^T150|T150]]). Declaring a slug declares that it **can be used as a prefix to differentiate things** — that is what a slug means, 100% of the time — and *by convention* it is also a shorthand: fewer characters, easier to type, and it keeps filenames from growing. But occasionally the original name is good enough to be the slug, and then the one thing that must not happen is **two different casings of the same word in circulation**. So `WARD` and `Warden` are both legal for the Warden anchor, and whichever is declared is the only spelling that appears.
+
+**"The name" is the anchor page's title, not the folder.** They differ in case more often than they look like they would: Warden is folder `warden/` — lowercase to sit beside its `rs/` and `engine/` siblings, a repo-path convention rather than a display name — while the page is `Warden.md` and every prose reference is `[[Warden]]`. A prefix has to be visually right next to the name a reader knows.
 
 A declaration is a **statement of intent**, in one of two forms — either is sufficient:
 
 - **prefix intent** — files inside the anchor lead with it (`TINK Backlog.md`);
 - **moniker intent** — it is the short form typed to refer to or navigate to the anchor (`WEB` for `Website`), even with nothing prefixed.
 
-A **restatement** is never a slug: a value byte-identical to the basename, or a mere re-casing of it, says nothing the basename did not already say, and the *implied* slug computes to the same value once it is gone. The implied slug is unconstrained by this rule — it is a basename, and basenames are long and sentence-cased on purpose.
+Moniker intent survives the two-form grammar unchanged. "A slug can be used as a prefix" is a **capability**, not a requirement — a slug declared purely for typing and navigation, with nothing prefixed at all, is still a slug.
 
-**Check pattern:** for each `.anchor` declaring `slug`, assert it matches `^[A-Z0-9]+$` and is not equal to the anchor's basename (case-insensitively). Staff-roster anchors are exempt from the restatement half by [[TINK301 - Slug is a prefix identifier, basename is the semantic name|TINK F301]]: `ASH`/`Ash`, `TINK`/`Tink` and their siblings are re-casings, kept so the roster reads uniformly.
+A **restatement** is never a slug: a value **byte-identical to the folder basename** says nothing the basename did not already say, and the *implied* slug computes to the same value once it is gone. The test is against the folder specifically, because the folder is what the implied slug is computed from — a slug equal to the anchor **page's** name but not the folder's (`Warden` over `warden/`) is doing real work and stays. The implied slug is unconstrained by this rule — it is a basename, and basenames are long and sentence-cased on purpose.
+
+**Check pattern:** for each `.anchor` declaring `slug`, assert it either matches `^[A-Z0-9]+$` or equals the anchor page's stem, and is not byte-identical to the folder basename. **No staff-roster exemption is needed** — the one [[TINK301 - Slug is a prefix identifier, basename is the semantic name|TINK F301]] wrote for `ASH`/`Ash` and `TINK`/`Tink` was subsumed the moment case-differing values stopped counting as restatements; those are ordinary shortenings under the first form. Deleting it removed a clause, not a protection.
 
 **Why:** the slug exists to be visually separable from the name it prefixes, which uppercase achieves and a title-case multi-word string does not. Measured 2026-08-03 before this rule existed: **116 of 186 declarations were restatements** and 76 were not single tokens — including `2026-03-18 AI Model Pricing`, a perfectly good *basename* that was never a slug. Without a stated grammar the field silently became a second copy of the folder name, and `{slug}` interpolation in `where::` selectors inherited the confusion ([[TINK Backlog#^T111|T111]]).
 

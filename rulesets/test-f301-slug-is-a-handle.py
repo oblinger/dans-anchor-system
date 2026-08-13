@@ -52,10 +52,12 @@ spec.loader.exec_module(ap)
 root = pathlib.Path(tempfile.mkdtemp())
 
 
-def verdict(folder, dot_body):
+def verdict(folder, dot_body, page=None):
     d = root / folder
     d.mkdir(parents=True, exist_ok=True)
     (d / ".anchor").write_text(dot_body, encoding="utf-8")
+    if page:
+        (d / f"{page}.md").write_text(f"# {page}\n", encoding="utf-8")
     return ap.chk_slug_is_a_handle(d, d, [])[0]
 
 
@@ -104,6 +106,47 @@ check("'TINK' in folder 'Tink' passes", verdict("Tink", "slug: TINK\n"), "pass")
 check("'ASH' in folder 'Ash' passes", verdict("Ash", "slug: ASH\n"), "pass")
 check("'HERMES' in folder 'Hermes' passes", verdict("Hermes", "slug: HERMES\n"), "pass")
 
+# Dan, 2026-08-13 (T150): "A slug should be all capitals. Unless the slug is
+# identical to the name, in which case it has to have the same case as the
+# name." Declaring a slug declares prefix-capability -- that is what a slug
+# means, every time -- and by convention it is also a SHORTENING. But
+# occasionally the name is already good enough to be the slug, and then the one
+# thing that must not happen is two casings of the same word in circulation.
+# `WARD` and `Warden` are therefore BOTH legal for the Warden anchor.
+#
+# "The name" is the anchor PAGE's title, not the folder: `warden/` is lowercase
+# to sit beside `rs/` and `engine/`, while the page is `Warden.md` and every
+# prose reference is `[[Warden]]`. A prefix has to be visually right next to
+# the name a reader knows.
+print("\nThe name itself is a legal slug, in the name's own case")
+check("'Warden' in folder 'warden' with page Warden.md passes",
+      verdict("warden", "slug: Warden\n", page="Warden"), "pass")
+check("'Website' in folder 'Website' still FAILS — it restates the folder",
+      verdict("Website3", "slug: Website3\n", page="Website3"), "fail")
+check("a shortening still may not be lowercased ('ward' in 'warden')",
+      verdict("warden4", "slug: ward\n", page="Warden"), "fail")
+check("a name-cased slug that matches NO name fails",
+      verdict("warden5", "slug: Warder\n", page="Warden"), "fail")
+# The pair Dan named as both-legal, asserted as a pair so neither can drift.
+check("'WARD' in folder 'warden' passes (the shortening form)",
+      verdict("warden6", "slug: WARD\n", page="Warden"), "pass")
+
+# RED AND HONESTLY SO, measured 2026-08-13 (T150). 17 anchors failed this at
+# HEAD; the T150 amendment above clears exactly one of them (`warden`, whose
+# `slug: Warden` is now the legal name-as-slug form). The surviving 16 are all
+# multi-token or byte-identical restatements -- `SYS Track`, `Career Track`,
+# `HUD 1`, `Admin` -- and they are NOT the safe deletion the refusal message
+# advertises, which is why they are still here rather than fixed in passing:
+#
+#   `SYS/SYS Track/.anchor` declares `slug: SYS Track`, but `_anchor_slug()`
+#   parses `^slug:\s*(\S+)` -- ONE token -- so the live value is `SYS`, and its
+#   files (`SYS Pebble.md`, `SYS Pebbles/`) are prefixed with exactly that.
+#   Deleting the declaration would raise the implied slug to the full folder
+#   name `SYS Track` and strand every prefixed file. The declaration is wrong
+#   AND load-bearing, because two functions in this file disagree about how to
+#   read it: this checker reads the whole line, `_anchor_slug` reads the first
+#   token. Fixing them means picking a slug (`SYS` collides with the parent
+#   anchor), which is a decision, not a sweep.
 print("\nThe live vault conforms")
 vault = pathlib.Path.home() / "ob/kmr"
 if vault.is_dir():

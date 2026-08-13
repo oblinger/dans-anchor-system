@@ -1704,25 +1704,53 @@ def _ancestor_anchor_slugs(anchor_root: Path) -> list[str]:
 _SLUG_GRAMMAR = re.compile(r"^[A-Z0-9]+$")
 
 
+def _anchor_display_name(anchor_root):
+    """The anchor's NAME as a reader sees it — the anchor page's stem when the
+    folder has one, else the folder basename.
+
+    The two differ in case more often than they look like they would: the
+    Warden anchor is folder `warden/` (a repo-path convention, sibling to
+    `rs/` and `engine/`) but page `Warden.md`, and every prose reference is
+    `[[Warden]]`. R-dot-anchor-03's name-as-slug form is decided against the
+    name a reader knows, which is the page title.
+    """
+    base = anchor_root.name
+    try:
+        for md in anchor_root.glob("*.md"):
+            if md.stem.lower() == base.lower():
+                return md.stem
+    except OSError:
+        pass
+    return base
+
+
 def chk_slug_is_a_handle(target, anchor_root, args):
-    """R-dot-anchor-03: a declared slug is an uppercase token and never a
-    restatement of the basename (TINK F301).
+    """R-dot-anchor-03: a declared slug is all capitals unless it IS the name,
+    and is never a restatement of the basename (TINK F301, amended by T150).
 
-    Two independent failures. GRAMMAR: `^[A-Z0-9]+$` — one token, uppercase
-    alphanumeric. A leading digit is deliberate, because ANC Standard retires a
-    slug in place by prefixing its two-digit creation year (`SKD` -> `25SKD`);
-    `^[A-Z][A-Z0-9]*$` would condemn every retired slug. RESTATEMENT: a value
-    BYTE-IDENTICAL to the basename says nothing the basename did not already
-    say, and deleting it is provably safe — the implied slug computes to the
-    same handle with the declaration gone.
+    GRAMMAR — two legal forms, ruled by Dan 2026-08-13. A slug is `^[A-Z0-9]+$`
+    (one uppercase alphanumeric token) when it is a genuine SHORTENING, which is
+    the ordinary case; or it is THE NAME ITSELF, carried in the name's own case
+    (`Warden`). The one thing forbidden is two casings of the same word in
+    circulation, so a name used as its own slug is never upcased. A leading
+    digit is deliberate in the first form, because ANC Standard retires a slug
+    in place by prefixing its two-digit creation year (`SKD` -> `25SKD`);
+    `^[A-Z][A-Z0-9]*$` would condemn every retired slug.
 
-    A slug differing from the basename only in CASE is NOT a restatement, and
-    the distinction is load-bearing. `MUSE` for folder `muse` supplies an
-    uppercase prefix form (`MUSE F018.md`) that the lowercase basename cannot;
-    deleting it would drop the implied slug to `muse` and put every prefixed
-    file in that anchor in violation. The Staff roster (`TINK`/`Tink`) is the
-    same shape, so it needs no exemption — it was never an exception, only a
-    case the first draft of this rule mis-classified.
+    RESTATEMENT — a value BYTE-IDENTICAL to the FOLDER BASENAME says nothing the
+    basename did not already say, and deleting it is provably safe: the implied
+    slug computes to the same handle with the declaration gone. That test is
+    against the folder specifically, because the folder is what the implied slug
+    is computed from. A slug equal to the anchor PAGE's name but not the folder's
+    (`Warden` over `warden/`) is doing real work and stays.
+
+    A slug differing from the basename only in CASE is likewise NOT a
+    restatement, and the distinction is load-bearing. `MUSE` for folder `muse`
+    supplies an uppercase prefix form (`MUSE F018.md`) that the lowercase
+    basename cannot; deleting it would drop the implied slug to `muse` and put
+    every prefixed file in that anchor in violation. The Staff roster
+    (`TINK`/`Tink`) is the same shape, so it needs no exemption — it was never
+    an exception, only a case the first draft of this rule mis-classified.
 
     Silent on an anchor that declares no slug — that is the common and correct
     case (86% of the corpus), not a defect.
@@ -1738,10 +1766,13 @@ def chk_slug_is_a_handle(target, anchor_root, args):
     if not m:
         return "pass", "no slug declared — the basename serves"
     slug = m.group(1).strip().strip('"').strip("'")
-    if not _SLUG_GRAMMAR.match(slug):
-        return "fail", (f"slug {slug!r} is not one uppercase alphanumeric token "
-                        f"(^[A-Z0-9]+$) — a slug is a prefix and must be "
-                        f"visually separable from the name it sits in front of")
+    name = _anchor_display_name(anchor_root)
+    is_the_name = slug == name and slug != anchor_root.name
+    if not is_the_name and not _SLUG_GRAMMAR.match(slug):
+        return "fail", (f"slug {slug!r} is neither one uppercase alphanumeric token "
+                        f"(^[A-Z0-9]+$) nor the anchor's own name {name!r} — a slug "
+                        f"is a prefix and must be visually separable from the name "
+                        f"it sits in front of, unless it IS that name")
     if slug == anchor_root.name:
         return "fail", (f"slug {slug!r} restates the basename {anchor_root.name!r} "
                         f"— delete it; the implied slug is already that value")
