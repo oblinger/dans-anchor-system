@@ -58,9 +58,22 @@ Declared by [[DAS Pebble]] on top of the shared key. Carried over from the Nudge
 
 **Only `tempo::` is required**, and the reasoning generalises to every kind: everything else has a defensible default, and *a required field with a sensible default is a field that gets filled in wrong.*
 
-**Required by this spec and carried by none of the corpus — measured 2026-08-13 (F312 M3): 0 of 22 live pebbles declare `tempo::`.** That is unanimous, and under the template-vs-population method it would ordinarily mean the population wins and the requirement is wrong. It does not mean that here, and the distinction is worth stating because it is the one case the method has to allow for: **the population is unanimous because the migration that would create the field has not run.** `tempo::` comes from [[LUMEN Nudge]]'s register, and moving those 17 rows in is **M5**, still open. Every existing pebble was minted by `stone new`, which writes `line::` and `appears::` and nothing else.
+**The `tempo::` grammar, carried verbatim from the Nudge register when M5 retired it (2026-08-13).** This table is now the canonical spec — the register's `# BRIEF` no longer exists, and `nudge-check.py --selftest` pins every form. A tempo answers two questions in one value — *when do I raise this next*, and *how often after that* (Dan, 2026-08-06: *"it's just telling you when is the time that you should bother me again and how often should you bother me?"*):
 
-So `tempo::` is **required-after-M5, unenforced until then**, and this line is the record of that so a later reader does not mistake an empty column for a dead field. The practical consequence is the reason it matters: **arming a `tempo::`-required check today would fire on 100% of the corpus** — the vacuous-explosion shape, a rule whose first run condemns everything it looks at.
+| `tempo::` | Means |
+|---|---|
+| `2026-08-07 07:00` | one moment, then the pebble is done |
+| `2026-08-10` | one day, no particular hour |
+| `daily` | every morning until it moves |
+| `weekly` | once midweek, and again at Friday's close |
+| `2026-08-07 07:00 → daily` | first at that moment, every day after at that time |
+| `2026-08-06 10:00 → weekly` | first at that moment, same weekday and time after |
+| `every 3 hours` / `hourly` | sub-day repeat |
+| `waiting` | blocked on a person or an event — no clock |
+
+Two rules ride with the grammar, both learned the hard way in the register era. **An `alert:: 🔔` on a date-certain tempo must carry a TIME, or the bell is decorative** — only a time-bearing tempo fires from the daemon; a day-only date is Daybreak's to surface, and a 🔔 with no clock has no path to the user the day Daybreak doesn't run (that is how Eli's birthday bell went unfired on 2026-08-08). `waiting` is the one honest exception — a 🔔 there means *flag this loudly whenever it resolves*. And **choosing a tempo is a real decision**: `daily` is a promise to raise something every single morning and the fastest way to train the user to ignore the channel; `weekly` is the honest default for *"soon, but not today"*.
+
+**`tempo::` was carried by none of the pre-M5 corpus — measured 2026-08-13 (F312 M3): 0 of 22 live pebbles.** That was unanimous, and under the template-vs-population method it would ordinarily mean the population wins and the requirement is wrong. It did not mean that here, and the distinction is worth stating because it is the one case the method has to allow for: **the population was unanimous because the migration that would create the field had not run.** M5 ran later the same day: the 17 [[LUMEN Nudge]] rows are now pebbles carrying `tempo::` (and `alert::`/`last-raised::` where earned), so the corpus is 17-of-39 — every migrated pebble carries it, every pre-M5 mint still does not. **What now gates arming the requirement is the backfill of the pre-M5 pebbles**, which is a per-owner judgment call (what *is* the tempo of "sweep 390 person pages"?), not a mechanical fill.
 
 **The spelling is `last-raised::` with a hyphen, settled 2026-08-13 by measuring the vault rather than by preference.** [[TINK311 - Pebble parameters: tempo, last-raised, and the Nudge migration|F311]] and [[TINK312 - Feed: a second DAG over anchors, and the facets that travel it|F312]] both wrote `last_raised::` with an underscore, and `stone`'s `_KEY_RE` accepts either (`^([A-Za-z][\w-]*)::`), so nothing would have caught the disagreement. The live corpus is decisive: **110 occurrences across 7 hyphenated keys** — `runtime-seconds::`, `exit-code::`, `exclusion-note::`, `success-metric::`, `cost-estimate::`, `where-note::`, `selector-note::` — against **6 occurrences across 4 underscored ones**. Hyphen is the convention; both feature docs were corrected to match this spec rather than the reverse. It was worth settling now because **no pebble carries the key yet**, so the choice is free today and becomes a 17-row rename the moment M5 runs.
 
@@ -85,7 +98,7 @@ Nowhere yet — but **no longer for the reason this section used to give**. `R-s
 What replaces it is a sequencing fact rather than a technical one, measured 2026-08-13:
 
 - **The shared keys are checkable now and would pass.** `line::` and `appears::` are on 30 of 30 stones. A rule asserting them measures something real and starts green — which, per this project's standing caution, means the fixture has to prove it *can* fail before the green means anything.
-- **The pebble vocabulary is not checkable yet, and arming it would be an explosion, not a finding.** `tempo::` is on 0 of 22. The rule would condemn the entire corpus on its first run, and a rule that fires everywhere gets turned off. It waits on **M5**, the [[LUMEN Nudge]] migration, which is what puts `tempo::` on a pebble in the first place.
+- **The pebble vocabulary is closer but still not armable — M5 ran 2026-08-13 and moved the count from 0 of 22 to 17 of 39.** Every migrated pebble carries `tempo::`; every pre-M5 mint still does not. Arming today would condemn the 22 legacy pebbles — smaller than the vacuous explosion this bullet used to describe, but still a rule that opens by firing on more than half its corpus. What remains is the **backfill**: each pre-M5 pebble needs a tempo its owner actually means, which is a judgment call per stone, not a mechanical fill. Arm in the pass that finishes the backfill.
 - **`anchor::` is retired and stayed retired.** Nothing in the corpus carries it, so the retirement is complete rather than merely declared.
 
 The order that follows: arm the shared keys with a deliberately-malformed fixture beside a clean twin, and arm the pebble vocabulary in the same pass as M5, never before it.
