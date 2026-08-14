@@ -18,11 +18,23 @@
 #   cap_repair_<id>     one-line hint printed under a FAIL row in doctor mode
 #
 # Rows covered in stage 2 (7): aqua, screen, playwright, safari-ae, clipboard,
-# notification, audio. Deferred to stage 3: utm (Windows VM, user-prompted),
-# agent-window (concurrent-agent convention, requires shared-browser claim
-# design). See F027 backlog for the stage-3 Next.
+# notification, audio. Added stage 3: agent-window.
+#
+# The stage-2 header said agent-window "requires shared-browser claim design".
+# That was wrong, and it is why the row sat deferred for a month after the
+# mechanism it probes had already shipped. The convention landed under T171 --
+# `bridge tmux --agent SLUG` refuses without an agent identity, creates
+# `agent-SLUG`, and runs an occupancy preflight. The probe asks only whether
+# the session carries such a window; the browser lease is a SEPARATE, still-open
+# design question about a different shared resource. Bundling an unbuilt design
+# with a shipped one kept a working check off the board.
+#
+# Still deferred to stage 3: utm (Windows VM, user-prompted), the shared-browser
+# claim/lease, and two live defects in the shipped convention -- case-sensitive
+# slugs (`agent-atticus` and `agent-Atticus` coexist for one agent) and no reaper
+# for dead agent windows. Those two need a design call; see the F027 backlog Next.
 
-CAPS_FULL_IDS=(aqua screen playwright safari-ae clipboard notification audio)
+CAPS_FULL_IDS=(aqua screen playwright safari-ae clipboard notification audio agent-window)
 
 # ---------------------------------------------------------------- helpers
 
@@ -184,6 +196,34 @@ cap_probe_audio() {
 cap_install_audio() {
   echo "    informational: no install action; audio requires a physical default output device"
   return 2
+}
+
+# ---------------------------------------------------------------- agent-window
+
+cap_desc_agent-window()   { echo "Concurrent-agent window convention — agents share a session without colliding"; }
+cap_repair_agent-window() { echo "open an identified window: bridge tmux <host> --agent <slug>"; }
+
+# Four agents shared bridge-haorui on 2026-07-26 and collided badly — stolen
+# `ctrl jpage` navigations, killed background jobs, a base64 script pasted into
+# the middle of another agent's command line — because `tmux send-keys -t
+# bridge-<host>` with no window target lands on whichever window happens to be
+# ACTIVE. The convention that fixes it is a per-agent named window; this probe
+# asks whether the session is actually using it.
+#
+# Deliberately does NOT run inside _run_in_mux: the helper creates an unnamed
+# window to run its body, and every other probe in this file does the same, so a
+# probe executing there would see tmux's default numeric names and could not tell
+# a conforming session from a bare one. Ask the server directly instead.
+cap_probe_agent-window() {
+  "${SSH[@]}" "tmux list-windows -t $SESSION -F '#{window_name}' 2>/dev/null" \
+    | grep -Eq '^agent-'
+}
+
+cap_install_agent-window() {
+  echo "    guidance: $(cap_repair_agent-window)"
+  echo "    note: the slug is the agent's identity — it appears in tmux list-windows"
+  echo "          and in the occupancy refusal any other agent gets"
+  return 1
 }
 
 # ---------------------------------------------------------------- walker
