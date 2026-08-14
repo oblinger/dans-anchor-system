@@ -30,6 +30,18 @@
 #       --force recreates only MY window; --force-server does the old
 #       session-wide kill-server restart (destroys every agent's window —
 #       only for a genuinely SSH-launched/non-Aqua server).
+#   bridge windows <host> [--reap] [--older-than H] [--agent SLUG]
+#       Inventory the shared session's windows, one line each: LIVE / DEAD /
+#       HELD / SELF, how long it has been quiet, how many background children
+#       its shell holds, and its occupant tag. A window is LIVE if ANY of
+#       three independent signals fires — a non-shell foreground command, a
+#       child process under the pane shell (this is what catches a job
+#       started with `&`, which the foreground command structurally cannot
+#       see), or output written inside --older-than (default 24h). Only a
+#       window silent on all three is DEAD. Default is report-only; --reap
+#       kills the DEAD ones, and even then refuses anything that is not an
+#       `agent-*` window plus the caller's own — so `caffeinate`, the viewer
+#       shell and any hand-made window are structurally out of reach.
 #   bridge install <host> [--profile P] [--dry-run]
 #       Idempotent converge — "make it so." Env files (claude-provision),
 #       launchd-durable Syncthing on the remote, provision stamp. Re-run any
@@ -69,6 +81,8 @@ STALL=600                      # F054: seconds of no output AND no CPU before ST
 WATCH=0                        # F054: block until the job reaches a terminal verdict
 UNTIL="stall"                  # F054: watch --until stall|done
 STALL_SET=""                   # F054: `bridge stall` new tolerance (0 = dismiss)
+REAP=0                         # F027 stage 3: `bridge windows --reap` kills; default reports
+STALE_HOURS=24                 # F027 stage 3: silent AND processless this long = reapable
 for arg in "$@"; do
   case "$arg" in
     --session) : ;;             # value captured next loop via flag
@@ -88,6 +102,9 @@ for arg in "$@"; do
     --force-server) MODE="force-server" ;;  # T171: the old session-wide meaning, renamed+separated
     --dry-run) DRY_RUN=1 ;;
     --watch)   WATCH=1 ;;
+    --reap)    REAP=1 ;;
+    --older-than) : ;;
+    --older-than=*) STALE_HOURS="${arg#*=}" ;;
     --until)   : ;;
     --until=*) UNTIL="${arg#*=}" ;;
     *) case "${PREV:-}" in
@@ -97,6 +114,7 @@ for arg in "$@"; do
          --job)     [ -z "$JOB_NAME" ] && JOB_NAME="$arg" ;;
          --script)  [ -z "$JOB_SCRIPT" ] && JOB_SCRIPT="$arg" ;;
          --stall)   STALL="$arg" ;;
+         --older-than) STALE_HOURS="$arg" ;;
          --until)   UNTIL="$arg" ;;
          # A bare number is `bridge stall <host> --job <n> <seconds>` -- only
          # when it follows no value-taking flag, so `--stall 25` is untouched.
@@ -955,9 +973,108 @@ cmd_watch() {
   watch_loop "$JOB_NAME"
 }
 
+# --------------------------------------------------- windows (F027 stage 3)
+# `bridge windows <host>` inventories the shared session; `--reap` removes the
+# windows that are provably finished with.
+#
+# THE LIVENESS TEST IS THE WHOLE PROBLEM. A window holding live work must never
+# be reaped, and the obvious test -- "is pane_current_command an idle shell?" --
+# is wrong on its own: a job started with `&` or nohup leaves the shell in the
+# foreground, so the pane reads `zsh` while real work runs underneath it. So
+# three INDEPENDENT signals are collected, and ANY ONE of them keeps the window:
+#
+#   1. foreground   any pane whose current command is not an idle shell
+#   2. descendants  any pane shell with a child process (catches `&` / nohup,
+#                   which signal 1 structurally cannot see)
+#   3. recent       window_activity (last output) newer than --older-than
+#
+# Only a window silent on all three is DEAD. The default is report-only; even
+# with --reap the sweep refuses anything that is not an `agent-*` window, plus
+# the caller's own window, so `caffeinate`, the viewer shell, and any
+# hand-made window are structurally out of reach.
+cmd_windows() {
+  require_host; resolve_target; preflight
+  local now_r raw my_window=""
+  [ -n "${AGENT_FLAG:-}${BRIDGE_AGENT:-}" ] && my_window="agent-$(sanitize_slug "${AGENT_FLAG:-$BRIDGE_AGENT}")"
+
+  now_r=$("${SSH[@]}" 'date +%s' 2>/dev/null) || fail "cannot reach $TARGET"
+  [ -n "$now_r" ] || fail "no clock from $TARGET"
+  TMUX_BIN=$("${SSH[@]}" 'zsh -lc "which tmux" 2>/dev/null' | tail -1)
+  case "$TMUX_BIN" in /*) : ;; *) fail "tmux not found on $TARGET" ;; esac
+
+  # One round trip. Per window: index, name, activity age, occupant tag, the
+  # non-idle foreground commands, and the count of pane-shell children.
+  raw=$("${SSH[@]}" "
+    S='$SESSION'
+    $TMUX_BIN has-session -t \"\$S\" 2>/dev/null || { echo '__NOSESSION__'; exit 0; }
+    $TMUX_BIN list-windows -t \"\$S\" -F '#{window_index} #{window_name} #{window_activity}' | while read -r idx name act; do
+      occ=\$($TMUX_BIN show-window-options -t \"\$S:\$idx\" -v @bridge_occupant 2>/dev/null)
+      fg=''; kids=0
+      while read -r ppid pcmd; do
+        case \"\$pcmd\" in -zsh|zsh|-bash|bash|sh|-sh) : ;; *) fg=\"\$fg \$pcmd\" ;; esac
+        n=\$(pgrep -P \"\$ppid\" 2>/dev/null | wc -l | tr -d ' ')
+        kids=\$(( kids + n ))
+      done <<EOF
+\$($TMUX_BIN list-panes -t \"\$S:\$idx\" -F '#{pane_pid} #{pane_current_command}')
+EOF
+      echo \"\$idx|\$name|\$act|\$kids|\${fg# }|\$occ\"
+    done" 2>/dev/null)
+
+  case "$raw" in
+    *__NOSESSION__*) fail "no tmux session '$SESSION' on $TARGET — run: bridge tmux $HOST --agent <slug>" ;;
+    "") fail "no windows reported by $TARGET (is tmux running?)" ;;
+  esac
+
+  local stale_secs=$(( STALE_HOURS * 3600 ))
+  local dead_list="" n_live=0 n_dead=0 n_held=0
+  say "windows in '$SESSION' on $TARGET  (stale threshold: ${STALE_HOURS}h)"
+  say ""
+  printf '  %-6s %-22s %8s %6s  %s\n' STATE WINDOW QUIET KIDS 'FOREGROUND / OCCUPANT'
+  while IFS='|' read -r idx name act kids fg occ; do
+    [ -n "$name" ] || continue
+    local age=$(( now_r - act )) state reason
+    if   [ -n "$fg" ];                 then state=LIVE; reason="running: $fg"
+    elif [ "${kids:-0}" -gt 0 ];       then state=LIVE; reason="$kids background child process(es)"
+    elif [ "$age" -lt "$stale_secs" ]; then state=LIVE; reason="wrote output ${age}s ago"
+    else                                    state=DEAD; reason="silent, no process"
+    fi
+    if [ "$state" = DEAD ]; then
+      case "$name" in
+        agent-*) if [ -n "$my_window" ] && [ "$name" = "$my_window" ]; then
+                   state=SELF; reason="this is my own window"
+                 fi ;;
+        *) state=HELD; reason="not an agent-* window — never reaped" ;;
+      esac
+    fi
+    case "$state" in
+      LIVE) n_live=$(( n_live + 1 )) ;;
+      DEAD) n_dead=$(( n_dead + 1 )); dead_list="$dead_list $idx:$name" ;;
+      *)    n_held=$(( n_held + 1 )) ;;
+    esac
+    printf '  %-6s %-22s %7dh %6s  %s\n' "$state" "$name" $(( age / 3600 )) "${kids:-0}" \
+           "${occ:-$reason}"
+  done <<EOF
+$raw
+EOF
+
+  say ""
+  say "  $n_live live · $n_dead reapable · $n_held held"
+  [ "$n_dead" -eq 0 ] && { say "  nothing to reap"; return 0; }
+  if [ "$REAP" -eq 0 ]; then
+    say "  report only — re-run with --reap to remove the $n_dead DEAD window(s)"
+    return 0
+  fi
+  local w
+  for w in $dead_list; do
+    "${SSH[@]}" "$TMUX_BIN kill-window -t '$SESSION:${w%%:*}'" 2>/dev/null \
+      && say "  reaped  ${w#*:}" || say "  FAIL    could not kill ${w#*:}"
+  done
+}
+
 # ------------------------------------------------------------------- verbs
 case "$VERB" in
   tmux)             cmd_tmux ;;
+  windows)          cmd_windows ;;
   run)              cmd_run ;;
   watch)            cmd_watch ;;
   stall)            cmd_stall ;;
@@ -966,6 +1083,6 @@ case "$VERB" in
   skills)           cmd_skills ;;
   sync)             cmd_sync ;;
   doctor)           cmd_doctor ;;
-  help|--help|-h)   sed -n '2,48p' "$0" | sed 's/^# \{0,1\}//' ;;
-  *) fail "unknown verb '$VERB' — verbs: tmux, run, jobs, install (alias refresh), skills, sync, doctor" ;;
+  help|--help|-h)   sed -n '2,62p' "$0" | sed 's/^# \{0,1\}//' ;;
+  *) fail "unknown verb '$VERB' — verbs: tmux, windows, run, jobs, install (alias refresh), skills, sync, doctor" ;;
 esac
