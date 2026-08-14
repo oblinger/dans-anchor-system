@@ -1,5 +1,5 @@
 ---
-description: "made-up worked examples of the four spine shapes and the one exception"
+description: "made-up worked examples of the five spine shapes"
 ---
 
 | -[[FEX Spine Examples]]- | : made-up worked examples of the four spine shapes and the one exception<br>→ [[DAS]] → [[examples]] → [FEX Spine Examples](hook://p/FEX%20Spine%20Examples)  |

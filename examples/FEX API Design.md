@@ -7,7 +7,7 @@
 | ... | [[_{{DISK_LABEL}} Template]],  [[_{{PURCHASE_DATE}} {{HOSTNAME}} Template]],  [[Bridges]],  [[Clarifier]],  [[CSE]],  [[DAS Examples]],  [[DAS US-CAE-1 — Schedule a Task]],  [[DAS US-CAE-2 — Monitor Task Status]],  [[DAS US-CAE-3 — Retry Failed Tasks]],  [[Devtools]],  [[ESP]],  [[Espresso]],  [[FEX Agenda]],  [[FEX Claude]],  [[FEX Completed Roadmap]],  [[FEX CSE]],  [[FEX Decisions]],  [[FEX Decisions Details]],  [[FEX Dispatch Examples]],  [[FEX Facet]],  [[FEX Figure Page]],  [[FEX Files]],  [[FEX Icebox]],  [[FEX Inbox]],  [[FEX Minimal Facet]],  [[FEX Minimal Skill]],  [[FEX Project Root]],  [[FEX Repo]],  [[FEX Roadmap]],  [[FEX Rules]],  [[FEX Scheduler]],  [[FEX Skill]],  [[FEX Spine Examples]],  [[FEX Stories]],  [[FEX System Design]],  [[Forum Stories]],  [[Harbor Hops]],  [[Harbor Latency Budget]],  [[Harbor Releases]],  [[Harbor Runbooks]],  [[HBR]],  [[HBR PRD User Stories]],  [[HWP]],  [[Knots]],  [[Mini]],  [[Snap]],  [[Viz Bench]],   |
 
 # FEX API Design
-description:: Programmatic Rust-crate surface — types, signatures, error envelope, stability + compatibility.
+description:: programmatic surface of the `cae` Rust crate — types, signatures, error envelope, stability + compatibility commitments. Sibling to
 
 **TL;DR.**
 - Consumer: Rust code embedding `cae` as a library — typically a daemon or CLI wrapper scheduling tasks programmatically.

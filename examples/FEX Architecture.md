@@ -55,7 +55,7 @@ description: "CAE system architecture — worked example of the DAS Architecture
 | [[HWP]]  | a short whitepaper on the Harbor media server — the worked Paper anchor example |
 | [[Knots]]  | **Knots** — a tiny **Topic** anchor: a no-code evergreen knowledge hub routing to sub-topics ( |
 | [[Mini]]  | tiny example project — the MINIMAL design-docs world for F178 |
-| [[Snap]]  |  |
+| [[Snap]]  | example SKILL anchor — the minimal shape of a user-invocable skill |
 | [[Viz Bench]]  | figure-drafting techniques compared across a fixed reference set |
 | [[FEX Grouped Dispatch]]  | canonical grouped-dispatch exemplar |
 | [[FEX List Dispatch]]  | canonical list-dispatch exemplar |

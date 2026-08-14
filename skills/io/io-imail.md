@@ -1,4 +1,17 @@
 # imail — Apple Mail (read & search)
+The Apple Mail surface — the only one that can **send**, and the wrong one for searching.
+
+> ## 🚨 DO NOT SEARCH MAIL FROM HERE — USE THE INDEX
+>
+> **Searching with AppleScript against Mail.app is forbidden.** Use **[[io-local-mail|`/io local-mail`]]** (`notmuch`) — milliseconds instead of minutes, every mirrored account in one query, no GUI app involved.
+>
+> The user, 2026-08-13, after a ten-minute sweep: *"I don't know what you're doing here with OSA script, but I don't think you should be doing it. If you want to look in my email, you should not be using that. There's an index on my email that you should be using… You gotta put a remembrance in for this, man. This has happened multiple times."*
+>
+> **A zero from the index is not permission to come back here.** Run `mailsync --status`; if the account you need shows 0, run `mailsync <account>` and **tell the user** — including when it fails, which it can (`PassCmd exited with status 44` on the `oblinger` account, 2026-08-13). A broken mirror is a bug to report, not a reason to fall back to a slow sweep.
+>
+> **What this page is still for:** **composing and sending** — the index is read-only by construction — and reaching an account that genuinely is not mirrored, *after* the mirror has been tried and the user has been told. Even then scope tightly and always wrap in `with timeout of N seconds`; the Apple Event default is 120 s and it dies silently.
+>
+> **Not sure where to look?** Order and shipping details are usually faster from the retailer's own order history in a real browser session on haorui than from mail at all.
 
 Read, search, and access email through Apple Mail using AppleScript. No OAuth tokens, no API keys — Mail.app handles all authentication natively. (`imail` = the local Apple-Mail surface; the server-side Gmail-API surface is [[io-gmail|`/io gmail`]], wired 2026-08-11.)
 

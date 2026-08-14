@@ -1,5 +1,5 @@
 ---
-description: "downstream — per-module reference"
+description: "CAE public API surface — public modules, schemas, file formats, error types. The contract a caller imports against. Sub-document of CAE Architecture per the DAS Architecture facet (worked example of {slug} API.md placement)."
 ---
 
 :>> [[DAS]] → [[examples]] → [FEX API](hook://p/FEX%20API)
