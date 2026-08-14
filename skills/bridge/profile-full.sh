@@ -29,10 +29,11 @@
 # design question about a different shared resource. Bundling an unbuilt design
 # with a shipped one kept a working check off the board.
 #
+# The case-sensitive-slug defect found alongside this row is FIXED (2026-08-13):
+# sanitize_slug lowercases, so `Atticus` and `atticus` are one identity again.
+#
 # Still deferred to stage 3: utm (Windows VM, user-prompted), the shared-browser
-# claim/lease, and two live defects in the shipped convention -- case-sensitive
-# slugs (`agent-atticus` and `agent-Atticus` coexist for one agent) and no reaper
-# for dead agent windows. Those two need a design call; see the F027 backlog Next.
+# claim/lease, and a reaper for dead agent windows. See the F027 backlog Next.
 
 CAPS_FULL_IDS=(aqua screen playwright safari-ae clipboard notification audio agent-window)
 

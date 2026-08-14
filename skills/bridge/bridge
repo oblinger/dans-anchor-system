@@ -223,7 +223,17 @@ resolve_target() {
 # reach for --force. Refusing up front costs one flag and cannot be wrong.
 # No silent fallback to a shared/default window — fail loudly instead
 # (that silent fallback IS the T171 bug).
-sanitize_slug() { printf '%s' "$1" | tr -c 'A-Za-z0-9_-' '-' | sed 's/-\{2,\}/-/g; s/^-//; s/-$//'; }
+# Lowercased since 2026-08-13 (F027 stage 3). Measured on live haorui:
+# `agent-atticus` and `agent-Atticus` were open at the same time as two windows
+# for ONE agent. Case-sensitivity here is not a harmless cosmetic difference —
+# it silently defeats the occupancy preflight, because a second agent typing a
+# different capitalisation of the same name is never told the window is taken.
+# That is precisely the collision T171 exists to catch, reintroduced through
+# the identity function. An agent slug is a name, and names are not case-keyed.
+sanitize_slug() {
+  printf '%s' "$1" | tr 'A-Z' 'a-z' | tr -c 'a-z0-9_-' '-' \
+    | sed 's/-\{2,\}/-/g; s/^-//; s/-$//'
+}
 
 resolve_agent() {
   local raw
