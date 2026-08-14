@@ -1567,7 +1567,11 @@ def find_ask_format_files(
             for features_dir in feature_dirs:
                 if not features_dir.is_dir():
                     continue
-                for feature_file in sorted(features_dir.glob("F*.md")):
+                # Flat form plus the folder-doc upgrade (`F015 — T/F015 — T.md`).
+                folder_docs = [p for p in features_dir.glob("F*/F*.md")
+                               if p.stem == p.parent.name]
+                for feature_file in sorted(list(features_dir.glob("F*.md"))
+                                           + folder_docs):
                     if feature_file in seen_feat:
                         continue
                     seen_feat.add(feature_file)
@@ -3762,6 +3766,12 @@ def check_c43_row_links_existing_doc(entries: list[BacklogEntry]) -> list[Findin
                     # Don't descend into nested anchors OR .git/venv/etc dot-dirs.
                     if child.name.startswith(".") or child.name in ("node_modules", "__pycache__", "venv", ".venv"):
                         continue
+                    # Folder-doc upgrade: `F015 — Title/F015 — Title.md` is THIS
+                    # anchor's feature even when the folder carries its own
+                    # `.anchor` — the boundary skip must not hide it.
+                    if (child.name.startswith(pattern_prefix)
+                            and (child / f"{child.name}.md").is_file()):
+                        return True
                     if (child / ".anchor").exists():
                         continue
                     stack.append(child)

@@ -2187,8 +2187,12 @@ def _hosted_pending_items(backlog_path, body, letters):
     stem = m.group(1).strip()
     anchor_root = backlog_path.parent.parent
     hits = []
+    # Both the flat form (`Features/X.md`) and the folder-doc upgrade
+    # (`Features/X/X.md`, optionally carrying its own `.anchor`) are one doc.
     for pat in (f"* Design/* Features/{stem}.md",
-                f"* Track/* Features/{stem}.md"):
+                f"* Track/* Features/{stem}.md",
+                f"* Design/* Features/{stem}/{stem}.md",
+                f"* Track/* Features/{stem}/{stem}.md"):
         try:
             hits.extend(anchor_root.glob(pat))
         except (OSError, ValueError):
@@ -2983,6 +2987,9 @@ def _find_feature_doc(slug, row_id):
     matches = []
     for d in existing:
         matches.extend(d.glob(f"{row_id} — *.md"))
+        # Folder-doc form: `F015 — Title/F015 — Title.md`.
+        matches.extend(p for p in d.glob(f"{row_id} — */{row_id} — *.md")
+                       if p.stem == p.parent.name)
     if not matches:
         where = ", ".join(str(d) for d in existing)
         raise BacklogEditError(
