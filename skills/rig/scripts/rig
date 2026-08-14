@@ -419,6 +419,87 @@ def cmd_ls(args, cfg):
         print(f"\nrunning burn ≈ ${burn:.2f}/hr  (≈ ${burn * 24 * 30:,.0f}/mo if left up)")
 
 
+IDLE_PROBE = r"""
+# wc, not `grep -c`: grep exits 1 on zero matches, so a `|| echo 0` fallback
+# fires ON TOP of grep's own "0" and the probe returns two lines.
+gpu=$(nvidia-smi --query-compute-apps=pid --format=csv,noheader 2>/dev/null | sed '/^$/d' | wc -l | tr -d ' ')
+load=$(cut -d' ' -f1 /proc/loadavg 2>/dev/null || echo 0)
+now=$(date +%s)
+act=0
+for a in $(tmux list-sessions -F '#{session_activity}' 2>/dev/null); do
+  [ "$a" -gt "$act" ] && act=$a
+done
+if [ "$act" = 0 ]; then idle_s=999999; else idle_s=$(( now - act )); fi
+echo "gpu=$gpu load=$load idle_s=$idle_s"
+"""
+
+
+def cmd_reap(args, cfg):
+    """Take down rigs that are up but doing nothing.
+
+    A stopgap for the fact that nothing expires: a forgotten GPU box bills
+    continuously and the agent that made it has no session tomorrow in which
+    to remember. This does not replace a real lease — it just makes the
+    common case (someone walked away) cost an hour instead of a month.
+
+    Three safety properties, in order of importance:
+
+    1. **Only rigs rig manages.** A machine without a `rig-name` is somebody
+       else's; it is never touched, however idle it looks.
+    2. **Unreachable is never idle.** A box we cannot probe is left running
+       and reported. Silence is not evidence of inactivity, and guessing
+       wrong here destroys someone's session.
+    3. **`down`, never `rm`.** Stopping is reversible and keeps the disk;
+       destroying is not. An automatic actor gets the reversible verb only.
+    """
+    be = get_backend(cfg, args.cloud)
+    idle_min = args.idle
+    acted, skipped = [], []
+
+    for r in be.ls():
+        if r["state"] != "up" or r["rig"] == "-":
+            continue
+        name = r["rig"]
+        p = subprocess.run(
+            ["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=10", name, "bash -s"],
+            input=IDLE_PROBE, capture_output=True, text=True,
+        )
+        if p.returncode != 0:
+            skipped.append((name, "unreachable — left running on purpose"))
+            continue
+        try:
+            f = dict(kv.split("=", 1) for kv in p.stdout.split())
+            gpu, load, idle_s = int(f["gpu"]), float(f["load"]), int(f["idle_s"])
+        except (ValueError, KeyError):
+            skipped.append((name, f"unparseable probe: {p.stdout.strip()[:40]}"))
+            continue
+
+        busy = []
+        if gpu:
+            busy.append(f"{gpu} GPU process(es)")
+        if load >= args.load:
+            busy.append(f"load {load:.2f}")
+        if idle_s < idle_min * 60:
+            busy.append(f"tmux active {idle_s // 60}m ago")
+        if busy:
+            skipped.append((name, "busy — " + ", ".join(busy)))
+            continue
+
+        if args.dry_run:
+            acted.append((name, f"WOULD stop (idle {idle_s // 60}m, load {load:.2f}, no GPU work)"))
+            continue
+        be.down(name)
+        remove_ssh_alias(name)
+        acted.append((name, f"stopped (idle {idle_s // 60}m, load {load:.2f}, no GPU work)"))
+
+    for n, why in acted:
+        note(f"rig: {n}: {why}")
+    for n, why in skipped:
+        note(f"rig: {n}: {why}")
+    if not acted and not skipped:
+        note("rig: nothing running")
+
+
 def cmd_ip(args, cfg):
     """Machine-readable by design — bare IP on stdout, nothing else, so
     `ssh root@$(rig ip a2x.dev)` works."""
@@ -465,6 +546,12 @@ def main():
 
     ls = sub.add_parser("ls", help="what exists, what's running, what it's burning")
     ls.set_defaults(fn=cmd_ls)
+
+    rp = sub.add_parser("reap", help="stop rig-managed machines that are up but idle")
+    rp.add_argument("--idle", type=int, default=60, help="minutes of inactivity before stopping (default 60)")
+    rp.add_argument("--load", type=float, default=0.2, help="1-min load average at or above which a box counts as busy")
+    rp.add_argument("--dry-run", action="store_true", help="report what would be stopped, change nothing")
+    rp.set_defaults(fn=cmd_reap)
 
     ip = sub.add_parser("ip", help="print the IP on stdout (for `$(rig ip NAME)`)")
     ip.add_argument("name")
