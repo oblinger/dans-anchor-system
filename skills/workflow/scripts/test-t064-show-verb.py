@@ -140,8 +140,11 @@ with tempfile.TemporaryDirectory() as td:
     # The point of reading a resolved item is not having to know it resolved.
     check("archived H3-form Q2 is reachable", rc == 0 and "an archived question" in out)
     check("Q2 carries its resolution", "**Resolved:** (B) — second" in out)
-    rc, out, _ = run(home, "show", "ZZS", "F001 — Fixture", "V1")
-    check("V1 on the same doc", rc == 0 and "did the render link the doc first" in out)
+    # F305 D5 — the V<n> item namespace is retired: a verification is the
+    # doc's final QUESTION, so `show <doc> V1` is an unknown kind now.
+    rc, out, err = run(home, "show", "ZZS", "F001 — Fixture", "V1")
+    check("V1 is an unknown kind (namespace retired, F305 D5)",
+          rc != 0 and "unknown label kind" in err)
 
     print("4. show refuses what it cannot read")
     rc, out, err = run(home, "show", "ZZS", "Backlog", "T404")

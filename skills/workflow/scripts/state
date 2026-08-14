@@ -744,6 +744,14 @@ def _resolve_outcome(choice, options, q_num):
     if nm:
         rest = nm.group(1).strip()
         return "none of the above" + (f" — {rest}" if rest else "")
+    # F305 D5 — the optionless yes/no form: a verification is the doc's FINAL
+    # question, minted at done-time with no labeled options; its answer is the
+    # observation verbatim, never an option letter.
+    if not options:
+        vm = re.match(r"^(yes|no|done)\b\s*[—-]?\s*(.*)$", raw, re.I)
+        if vm:
+            rest = vm.group(2).strip()
+            return vm.group(1).lower() + (f" — {rest}" if rest else "")
     letter = raw.strip("()").strip()
     listed = {L.strip("()").strip(): text for L, text in options}
     if options and letter not in listed:
@@ -756,38 +764,6 @@ def _resolve_outcome(choice, options, q_num):
         )
     text = listed.get(letter, "")
     return f"({letter})" + (f" — {text}" if text else "")
-
-
-def _item_outcome(letter, choice, options, num):
-    """Per-shape answer vocabulary (F305): Q = option letter / `none`,
-    V = `yes` / `no` / `none`, U = `done` / `none`. The shape is what
-    separates the three kinds — a verification is an observation and a user
-    action is a report, so neither validates against an option list."""
-    if letter == "Q":
-        return _resolve_outcome(choice, options, num)
-    vocab = ("yes", "no") if letter == "V" else ("done",)
-    raw = (choice or "").strip()
-    if not raw:
-        raise be.BacklogEditError(
-            f"resolve requires --choice for {letter}{num} — "
-            + " / ".join(vocab)
-            + ", or `none — <what happened instead>` when the outcome fell "
-            "outside that vocabulary.")
-    nm = re.match(r"^none\b\s*[—-]?\s*(.*)$", raw, re.I)
-    if nm:
-        rest = nm.group(1).strip()
-        return "none of the above" + (f" — {rest}" if rest else "")
-    m = re.match(r"^(\w+)\b\s*[—-]?\s*(.*)$", raw)
-    word = m.group(1).lower() if m else ""
-    if word not in vocab:
-        what = ("a verification is an observation answered "
-                if letter == "V" else "a user action is reported ")
-        raise be.BacklogEditError(
-            f"resolve refused: {letter}{num} takes " + " / ".join(vocab)
-            + f" (or `none — …`) — {what}" + " / ".join(vocab)
-            + f", never an option letter. Got {raw!r}.")
-    rest = m.group(2).strip()
-    return word + (f" — {rest}" if rest else "")
 
 
 def _format_resolved_entry(label, parsed, outcome, note, today):
@@ -1092,7 +1068,7 @@ def _q_answer_core(slug, feature_path, q_num, q_slug, choice, body, letter="Q"):
     start, end, _, q_num = _resolve_q_identifier(lines, q_num, q_slug, letter)
     label = f"{letter}{q_num}"
     parsed = _parse_q_block(_trim_blanks(lines[start:end]))
-    outcome = _item_outcome(letter, choice, parsed["options"], q_num)
+    outcome = _resolve_outcome(choice, parsed["options"], q_num)
     entry = _format_resolved_entry(label, parsed, outcome, body,
                                    date.today().isoformat())
     lines = lines[:start] + lines[end:]
@@ -1112,11 +1088,11 @@ def _q_answer_core(slug, feature_path, q_num, q_slug, choice, body, letter="Q"):
                     "retired the block")
     else:
         summary += f" — {len(still_open)} still open"
-    if letter == "V" and outcome.split(" — ")[0] == "no":
-        # F305 — answered-no closes NOTHING beyond the item itself. There is
-        # no row force-close here to trigger (that was the MUX failure this
-        # feature exists to fix); the agent's next move is to mint the
-        # follow-up work the failed observation implies.
+    if not parsed["options"] and outcome.split(" — ")[0] == "no":
+        # F305 D5 — a final (optionless yes/no) question answered no closes
+        # NOTHING beyond itself; there is no row force-close to trigger (the
+        # MUX failure this feature exists to fix). The agent's next move is
+        # to mint the follow-up work the failed observation implies.
         summary += (f"\n  ⚠ {label} answered NO — the feature is NOT "
                     "verified. Nothing was closed; record the follow-up "
                     "work (a new Next:/Q) before the row moves anywhere.")
@@ -1845,10 +1821,24 @@ def _validate_ask_format_body(body):
     option_re = re.compile(r"^\s*-\s+\*\*\([A-Za-z0-9]+\)\*\*", re.MULTILINE)
     options = option_re.findall(body)
     if len(options) < 2:
+        # F305 D5 — the FINAL-question form: a verification minted at
+        # done-time is an observation with nothing to choose, so it carries
+        # ZERO options, an explicit `yes / no` answer cue, and its
+        # Recommendation line (necessarily None — a stated lean would make
+        # it a choice). _resolve_outcome accepts yes/no/none verbatim on an
+        # optionless question, which closes the loop.
+        rec_line = re.search(
+            r"^\s*-\s+\*\*Recommendation:\*\*\s*(.*)$", body, re.MULTILINE)
+        if (not options and re.search(r"yes\s*/\s*no", body, re.I)
+                and rec_line
+                and re.match(r"^None\b", rec_line.group(1).strip(), re.I)):
+            return
         raise be.BacklogEditError(
             "define refused: ask-format requires ≥2 labeled option "
             "bullets, each on its own line (e.g. `- **(A)** ...`); found "
-            f"{len(options)}. See [[DAS ask-format]]."
+            f"{len(options)}. The one exception is the final-question form "
+            "(F305 D5): zero options + a `yes / no` cue + "
+            "`- **Recommendation:** None`. See [[DAS ask-format]]."
         )
     rec_re = re.compile(r"^\s*-\s+\*\*Recommendation:\*\*", re.MULTILINE)  # `^\s*-`: a standalone Backlog Q-row (F275) carries Recommendation as an indented sub-bullet
     if not rec_re.search(body):
@@ -2627,67 +2617,6 @@ def _backlog_q_define(slug, backlog_path, label, args, minted=False):
 # Q labels on any doc
 
 
-def _run_verify_item_gates(num, body, why_user):
-    """F305 — mint gates for a doc-hosted verification. A V is an
-    OBSERVATION: it carries a yes/no question and nothing to choose, so
-    labeled options or a stated Lean/Strong are refused outright — that is
-    how "Recommendation is necessarily None" is enforced; the line itself is
-    never written, a necessary value carrying no information. Then the F240
-    ownership gate, exactly as at the bracket: a machine-phrased question is
-    agent-grade, and surfacing requires --why-user naming the human faculty."""
-    if re.search(r"^\s*-\s+\*\*\([A-Za-z0-9]+\)\*\*", body, re.M):
-        raise be.BacklogEditError(
-            f"define refused: V{num} is an observation — labeled options "
-            f"belong on a question (Q<n>); a verification is answered yes/no.")
-    if be.recommendation_strength(body) in ("Lean", "Strong"):
-        raise be.BacklogEditError(
-            f"define refused: V{num} is an observation — its Recommendation "
-            f"is necessarily None, so a stated Lean/Strong means this is a "
-            f"question (Q<n>), not a verification.")
-    stripped = re.sub(r"^\s*-?\s*\*\*V(?:\d+|\+)\s+—\s+[^*]*\*\*\s*[—-]?\s*",
-                      "", body.strip(), count=1)
-    first_q = stripped.splitlines()[0] if stripped else ""
-    if be.is_mechanical_verify(first_q):
-        raise be.BacklogEditError(
-            f"define refused: V{num}'s question reads as a machine event — "
-            f"an agent-grade check. Per F240, if the answer lives in a file, "
-            f"log, or probe, run it NOW — it never becomes a verification. "
-            f"Park the row [Waiting {{date}}] with a `- **Probe:**` field "
-            f"when it cannot run yet.\n  Question: \"{first_q[:100]}\"")
-    if "*why-user:" not in body and not (why_user and why_user.strip()):
-        raise be.BacklogEditError(
-            f"define refused: V{num} needs --why-user \"<one sentence>\" "
-            f"naming the human faculty this check invokes (taste / "
-            f"preference / ratification / passive-use observation). Per "
-            f"F240, a verification surfaces only when the user's answer is "
-            f"genuinely better than the agent's.")
-    if why_user and why_user.strip():
-        first, sep, rest = body.partition("\n")
-        first = first.rstrip() + f" · *why-user: {why_user.strip()}*"
-        body = first + (sep + rest if sep else "")
-    return body
-
-
-def _run_user_item_gates(num, body, why_user_action):
-    """F305 — mint gates for a doc-hosted user action: the F259 ownership
-    gate, exactly as at the [User] bracket. The requirement to ARTICULATE why
-    the agent cannot do it is the whole filter against lazy delegation."""
-    if "*why-user-action:" not in body and not (
-            why_user_action and why_user_action.strip()):
-        raise be.BacklogEditError(
-            f"define refused: U{num} needs --why-user-action \"<one "
-            f"sentence>\" naming the credential or human-only faculty this "
-            f"action requires (a login only the user holds, a GUI permission "
-            f"dialog, a 2FA device). Per F259, if the agent CAN do it, it is "
-            f"work — a `- **Next:**` — not a user item.")
-    if why_user_action and why_user_action.strip():
-        first, sep, rest = body.partition("\n")
-        first = (first.rstrip()
-                 + f" · *why-user-action: {why_user_action.strip()}*")
-        body = first + (sep + rest if sep else "")
-    return body
-
-
 def _q_define_core(slug, feature_path, q_num, body, why_ask=None, letter="Q",
                    why_user=None, why_user_action=None):
     """`<doc> {L}<n> define` — create-or-replace the item in place. Reuses
@@ -2709,16 +2638,10 @@ def _q_define_core(slug, feature_path, q_num, body, why_ask=None, letter="Q",
                        rf"\g<1>**{letter}{q_num}\g<2>", first)
         first = re.sub(r"\s+\^[\w-]+\s*$", "", first)
         body = first + (sep + rest if sep else "")
-    auto_resolve, damage_cat, damage_why = False, None, None
-    if letter == "Q":
-        # Doc-scoped Q: no `On answer:` requirement yet (F275 M3 is
-        # standalone-row-only until proven).
-        body, auto_resolve, damage_cat, damage_why = _run_question_gates(
-            q_num, body, why_ask, require_on_answer=False)
-    elif letter == "V":
-        body = _run_verify_item_gates(q_num, body, why_user)
-    else:  # U
-        body = _run_user_item_gates(q_num, body, why_user_action)
+    # Doc-scoped Q: no `On answer:` requirement yet (F275 M3 is
+    # standalone-row-only until proven).
+    body, auto_resolve, damage_cat, damage_why = _run_question_gates(
+        q_num, body, why_ask, require_on_answer=False)
     text = feature_path.read_text(encoding="utf-8")
     container_id = _container_id_for_doc(feature_path)
     lines = text.splitlines()
@@ -2825,13 +2748,8 @@ def _q_revalidate_core(slug, feature_path):
     for letter, q_num, s, e in q_slices:
         block = "\n".join(lines[s:e])
         try:
-            if letter == "Q":
-                _validate_ask_format_body(block)
-                be.question_mint_gate(q_num, block, None)
-            elif letter == "V":
-                _run_verify_item_gates(q_num, block, None)
-            else:
-                _run_user_item_gates(q_num, block, None)
+            _validate_ask_format_body(block)
+            be.question_mint_gate(q_num, block, None)
         except be.BacklogEditError as err:
             reason = (str(err).replace("backlog_edit: ", "")
                       .replace("define refused: ", ""))
@@ -2902,9 +2820,8 @@ def _query_verb(slug, doc_path, q_num, verb, args, letter="Q"):
                               **kind_kwargs)
     if verb == "resolve":
         # The required-ness of --choice, and the legality of `none`, live in
-        # _item_outcome — it is the only place that can see the option list /
-        # answer shape and so the only place that can say what a valid value
-        # would be.
+        # _resolve_outcome — it is the only place that can see the option
+        # list and so the only place that can say what a valid value would be.
         body = read_body(args)
         return _q_answer_core(slug, doc_path, q_num, None, args.choice, body,
                               letter=letter)
@@ -3007,8 +2924,7 @@ def cmd_item(slug, anchor_path, args):
         )
     if args.verb == "set" and doc_kind != "backlog" and letters not in be.ITEM_KINDS:
         raise be.BacklogEditError(
-            "set on a doc addresses a hosted item — valid labels: "
-            "Q<n> / V<n> / U<n>")
+            "set on a doc addresses a hosted item — valid labels: Q<n>")
     if doc_kind == "backlog" and letters == "Q":
         # F275 M2 — standalone feature-less question row (the row body IS the
         # question). define runs the ask-format/Damage/On-answer gates;
@@ -3039,7 +2955,7 @@ def cmd_item(slug, anchor_path, args):
     raise be.BacklogEditError(
         f"unknown query kind {args.label!r} for {where} — valid labels: "
         f"F<n>/T<n>/C<n>/Q<n>/F+/T+/C+/Q+ on Backlog (Q = standalone question "
-        f"row), Q<n>/V<n>/U<n> (or Q+/V+/U+) on any other doc"
+        f"row), Q<n>/Q+ on any other doc"
     )
 
 
@@ -3207,7 +3123,7 @@ def cmd_show(slug, anchor_path, args):
     else:
         raise be.BacklogEditError(
             f"unknown label kind {args.label!r} — show reads F/T/C/Q rows on "
-            f"Backlog and Q/V/U items on any other doc")
+            f"Backlog and Q items on any other doc")
 
     if span is None:
         raise be.BacklogEditError(

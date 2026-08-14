@@ -333,9 +333,20 @@ Run tests, verify the feature works as designed.
 skl-stat update <S#> "Testing" "Implementation complete, running tests"
 ```
 
+### 6a. Promote Success Criteria — mint the FINAL question (F305 D5)
+
+When the agent believes the feature done, Success Criteria stops being passive: apply the F240 positioning test to its check. Agent-runnable (tier 1/2) → run it now. User-owned (tier 3/4) → **mint the doc's final question** — one more `Q<n>` in the doc's own numbering, in the final-question form (zero labeled options, an explicit `yes / no` cue, `- **Recommendation:** None` — the write gate admits exactly this shape) — and set the row `[Verify]`, whose class is Parked: done, nothing waiting, only the check remains. The user answers `Q<n>: yes` to close it out; **no records the outcome and closes nothing** — mint the follow-up work the failed observation implies. Never a separate `V<n>` item or a positional page handle (T127).
+
+```bash
+echo '**Q+ — Verified in use?** — <the tier-3/4 observation, phrased for the user> **yes / no**
+- **Recommendation:** None
+- **Damage:** taste — <what their eyes judge>' | state define <anchor> "<feature doc>" Q+
+state set <anchor> Backlog F<n> --status Verify
+```
+
 ### 7. Complete
 
-When tests pass and the feature is verified:
+When tests pass and the feature is verified (the final question answered yes):
 - Update the feature doc's Status to "Done"
 - Commit all uncommitted work for this feature
 - Post final stat update

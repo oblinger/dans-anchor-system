@@ -2993,6 +2993,17 @@ def _rows_with_subbullet(backlog_file: Path, label: str) -> set:
     return have
 
 
+def _row_doc_has_pending_q(e: "BacklogEntry", backlog_file: Path) -> bool:
+    """F305 D5 — does the row's arrow-linked doc hold a pending question?
+    Shares the writer's own resolver (`_hosted_pending_items`), so the check
+    and the F171 gate agree on what counts."""
+    try:
+        return bool(_be_mod._hosted_pending_items(
+            backlog_file, e.raw_body or "", ("Q",)))
+    except Exception:
+        return False
+
+
 def check_c41_soak_question_declared(
     entries: list[BacklogEntry], backlog_file: Path,
 ) -> list[Finding]:
@@ -3016,6 +3027,13 @@ def check_c41_soak_question_declared(
             or (s.startswith("Verify") and not s.startswith("Verify-by"))
         )
         needs_next = s in ("Ready", "Active", "Agreed")
+        if (needs_verify and e.identifier not in have_verify
+                and _row_doc_has_pending_q(e, backlog_file)):
+            # F305 D5 — the check may live in the doc as its FINAL question
+            # (same Q numbering, minted at done-time); a row whose linked doc
+            # holds a pending Q carries its verification there, not in a
+            # `- **Verify:**` sub-bullet.
+            continue
         if needs_verify and e.identifier not in have_verify:
             findings.append(Finding(
                 severity="warning",

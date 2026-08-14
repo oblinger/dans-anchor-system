@@ -433,45 +433,6 @@ def _option_gloss(rest: str, cap: int = 58) -> str:
     return head.rstrip(".").strip()
 
 
-def _read_pending_items(target_path: Path, letter: str) -> list[tuple[str, str, str]]:
-    """Pending doc-hosted V/U items as (item_id, text, block_anchor) — the
-    F305 hosting fallback. A [Verify*]/[User] row whose check lives in its
-    feature doc's open-items block (rather than in a row sub-bullet) surfaces
-    those items, each under its DURABLE handle — T127's fix (ii) for hosted
-    entries: `V1` here is the item's own minted number, stable across
-    renders, never the positional index. State-minted items are bullet-form
-    in the pending zone, so that is all this reads."""
-    try:
-        lines = target_path.read_text(encoding="utf-8").splitlines()
-    except (OSError, UnicodeDecodeError):
-        return []
-    head_re = re.compile(rf"^- \*\*({letter}\d+)\s+—\s+(.*)$")
-    out: list[tuple[str, str, str]] = []
-    in_block = False
-    for line in lines:
-        s = line.strip()
-        if s in ("## Open Items", "## Open Questions"):
-            in_block = True
-            continue
-        if in_block and (s.startswith("## ") or s in ("### Resolved",
-                                                      "### Removed")):
-            break
-        if not in_block:
-            continue
-        m = head_re.match(line)
-        if not m:
-            continue
-        text = m.group(2)
-        am = re.search(r"\^([\w-]+)\s*$", text)
-        anchor = am.group(1) if am else ""
-        text = re.sub(r"\s+\^[\w-]+\s*$", "", text)
-        # Drop the why-user annotation (audit surface, not user-facing) and
-        # the bold title close — the queue shows one readable line.
-        text = re.sub(r"\s*·\s*\*why-user(?:-action)?:.*?\*\s*$", "", text)
-        out.append((m.group(1), text.replace("**", ""), anchor))
-    return out
-
-
 def _read_open_questions(target_path: Path) -> list[tuple[str, str, str, list]]:
     """Pending open questions as (qid, question_text, recommendation, options) —
     mirrors _read_q_marker_count's pending gate but captures the human-facing
@@ -1657,47 +1618,22 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
     # blocked on something else, then I don't really want to see it, I just wanna
     # work on the thing that it's blocked by." It renders anyway so that nothing
     # silently disappears, which is the defect that produced this feature.
-    if blocked:
+    # F305 D5 — `[Verify*]`/`[Watching*]` rows ride the SAME ledger. Dan's
+    # ruling 2026-08-13: the bracket says "done, nothing waiting — only the
+    # check remains", which is exactly the parked, safely-ignorable state;
+    # when one gates something, the Blockers promotion has already lifted it
+    # to the top. The old `## Verifications` section — a positionally
+    # V-numbered ask pile — retires with it: the ASK now reaches the user as
+    # the doc's final question (same Q numbering), never a parallel handle
+    # namespace (T127).
+    if blocked or verifs:
         _h2("## Blocked")
-        for r in blocked:
+        for r in blocked + verifs:
             link = _bullet_link(r, name, vault_index, block_ids, h3_headings)
             btxt = _bullet_bracket_display(r.bracket, name, block_ids)
-            txt = _truncate_body(r.body, 160)
-            body.append(f"- {link} — {btxt}" + (f" {txt}" if txt else ""))
-    # Verifications last, deliberately below the fold: "it's not actually a
-    # problem if a verification is not verified if nothing is depending on it" —
-    # and when something does depend on it, Blockers has already promoted it out
-    # of here to the top of the file.
-    if verifs:
-        _h2("## Verifications")
-        for i, r in enumerate(verifs, 1):
-            link = _bullet_link(r, name, vault_index, block_ids, h3_headings)
-            # Prefer the row's concrete `Verify:` question; then the feature
-            # doc's hosted V items (F305 — each under its DURABLE handle with
-            # a deep link, T127 fix (ii)); fall back to a ⚠ so a row with
-            # only jargon body is flagged (not silently shown vague).
             q = verify_questions.get(r.identifier)
-            if not q:
-                _vdoc = _row_q_doc_path(r, vault_index)
-                _vitems = _read_pending_items(_vdoc, "V") if _vdoc else []
-                if _vitems:
-                    for vid, vtext, vanchor in _vitems:
-                        deep = (f"[[{_vdoc.stem}#^{vanchor}|{vid}]]"
-                                if vanchor else f"**{vid}**")
-                        body.append(f"- {deep} ({link}) — "
-                                    f"{_truncate_body(vtext, 240)} · "
-                                    f"**yes / no**")
-                    continue
-            qtxt = (_truncate_body(q, 240) if q
-                    else "⚠ no concrete question — add a `- **Verify:** <yes/no question>` sub-bullet to the row (or host a V item in the feature doc)")
-            # F235: the feature doc is the verification's home — link it first,
-            # demote the backlog-row link to a parenthesized `(row)` pointer.
-            doclink = _feature_doc_link(r, vault_index, backlog_file)
-            if doclink:
-                rowlink = re.sub(r"\|[^\]|]*\]\]$", "|row]]", link) if link.rstrip().endswith("]]") else link
-                body.append(f"- **V{i}** {doclink} ({rowlink}) — {qtxt} · **yes / no**")
-            else:
-                body.append(f"- **V{i}** {link} — {qtxt} · **yes / no**")
+            txt = _truncate_body(q or r.body, 160)
+            body.append(f"- {link} — {btxt}" + (f" {txt}" if txt else ""))
     # The `[User]` pile — emitted right after Questions, because it is the
     # other set of rows that go nowhere until the human personally acts. Each
     # shows its `- **User:**` action, which F259 already requires the row to
@@ -1708,23 +1644,15 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
         # verbatim (F259 requires the row to carry one), so the entry says what
         # to DO. A row missing it gets a ⚠ rather than quietly showing prose.
         user_actions = _extract_labeled_subbullets(backlog_file, "User")
-        for i, r in enumerate(users, 1):
+        # F305 D5 / T127 — the row's own durable id (the link text) is the
+        # answer handle; the positional U<i> namespace is retired, so a
+        # handle never renames between renders.
+        for r in users:
             link = _bullet_link(r, name, vault_index, block_ids, h3_headings)
             a = user_actions.get(r.identifier)
-            if not a:
-                # F305 hosting fallback — doc-hosted U items, durable handles.
-                _udoc = _row_q_doc_path(r, vault_index)
-                _uitems = _read_pending_items(_udoc, "U") if _udoc else []
-                if _uitems:
-                    for uid, utext, uanchor in _uitems:
-                        deep = (f"[[{_udoc.stem}#^{uanchor}|{uid}]]"
-                                if uanchor else f"**{uid}**")
-                        body.append(f"- {deep} ({link}) — "
-                                    f"{_truncate_body(utext, 240)}")
-                    continue
             atxt = (_truncate_body(a, 240) if a
-                    else "⚠ no action stated — add a `- **User:** <what you must do>` sub-bullet to the row (or host a U item in the feature doc)")
-            body.append(f"- **U{i}** {link} — {atxt}")
+                    else "⚠ no action stated — add a `- **User:** <what you must do>` sub-bullet to the row")
+            body.append(f"- {link} — {atxt}")
 
     # F284 — the catch-all, emitted last so it never displaces the classified
     # work. Each row shows its bracket VERBATIM: a state the render doesn't know
@@ -1851,7 +1779,7 @@ def render_queries_doc(name: str, banner: Optional[str], rows: list[Row],
     # is added or dropped, this string moves with it; that is the whole reason
     # the refresh below exists.
     desc = (f"description: {name} queries — mechanically rendered from the backlog "
-            "(Blockers / Ready+Next / Questions / Blocked / Verifications / User / Other), "
+            "(Blockers / Ready+Next / Questions / Blocked / User / Other), "
             "and copied verbatim into Q.md. "
             "Do not hand-edit; edit the backlog rows.")
     fm = ["---", desc, "---"]

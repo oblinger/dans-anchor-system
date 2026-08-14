@@ -2461,7 +2461,7 @@ def perform_edit(
     if status not in ("same", "delete"):
         if (_status_needs_verify(status)
                 and not (eff_verify and eff_verify.strip())
-                and not _hosted_pending_items(backlog_path, _host_src, ("V",))):
+                and not _hosted_pending_items(backlog_path, _host_src, ("Q",))):
             raise BacklogEditError(
                 f"[{status}] refused: {row_id} needs a concrete yes/no question. "
                 f"On `set`, pass --verify \"<question>\" (e.g. \"Since <date>, has "
@@ -2485,9 +2485,7 @@ def perform_edit(
                 f"user, rebracket ([Verify] for a user check, [Blocked]/[Questions] "
                 f"for a decision)."
             )
-        if (_status_needs_user(status)
-                and not (eff_user and eff_user.strip())
-                and not _hosted_pending_items(backlog_path, _host_src, ("U",))):
+        if _status_needs_user(status) and not (eff_user and eff_user.strip()):
             raise BacklogEditError(
                 f"[{status}] refused: {row_id} needs a `- **User:**` action. "
                 f"On `set`, pass --user \"<action>\" naming exactly what YOU (the "
@@ -2513,7 +2511,7 @@ def perform_edit(
             _hosted_v = (not (eff_verify and eff_verify.strip())
                          and verify_text is None
                          and _hosted_pending_items(
-                             backlog_path, _host_src, ("V",)))
+                             backlog_path, _host_src, ("Q",)))
             if not _hosted_v:
                 eff_verify = verify_ownership_gate(
                     status, row_id, eff_verify, why_user
@@ -2526,16 +2524,9 @@ def perform_edit(
         entering_user = (existing_status_for_check or "").strip() != "User"
         if entering_user or user_text is not None or (
                 why_user_action and why_user_action.strip()):
-            # F305 hosting — same exemption as the Verify gate above: a
-            # doc-hosted U was vetted at its own mint (F259).
-            _hosted_u = (not (eff_user and eff_user.strip())
-                         and user_text is None
-                         and _hosted_pending_items(
-                             backlog_path, _host_src, ("U",)))
-            if not _hosted_u:
-                eff_user = user_action_gate(
-                    status, row_id, eff_user, why_user_action
-                )
+            eff_user = user_action_gate(
+                status, row_id, eff_user, why_user_action
+            )
 
     # F242 — mechanical groom gate: a Ready/Active/Agreed row's Next must be a
     # real first step, not a non-answer placeholder (empty is caught above).
@@ -3026,9 +3017,9 @@ _Q_HEADER_H3_RE = re.compile(r"^(\s*)### Q(\d+)\b")
 # letter: Q (choose), V (observe, yes/no), U (perform, done). One lifecycle,
 # one block, per-letter monotonic numbering. These kind-blind forms match any
 # hosted item; the Q-named regexes above stay for the Q-specific paths.
-ITEM_KINDS = ("Q", "V", "U")
-_ITEM_HEADER_BULLET_RE = re.compile(r"^(\s*)- \*\*([QVU])(\d+)\b")
-_ITEM_HEADER_H3_RE = re.compile(r"^(\s*)### ([QVU])(\d+)\b")
+ITEM_KINDS = ("Q",)
+_ITEM_HEADER_BULLET_RE = re.compile(r"^(\s*)- \*\*(Q)(\d+)\b")
+_ITEM_HEADER_H3_RE = re.compile(r"^(\s*)### (Q)(\d+)\b")
 
 
 def _item_bullet_re(letter):

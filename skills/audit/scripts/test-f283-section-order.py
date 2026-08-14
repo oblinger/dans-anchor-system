@@ -90,9 +90,9 @@ def main():
     body, h2s = render(FULL, next_actions={"F004": "do it"})
 
     # --- the order itself ------------------------------------------------
-    check("all six sections render",
+    check("all five sections render (Verifications retired into the ledger, F305 D5)",
           h2s, ["## Blockers", "## Ready", "## Questions",
-                "## Blocked", "## Verifications", "## Other"])
+                "## Blocked", "## Other"])
     check("Other is last", h2s[-1], "## Other")
     check("Blockers is first", h2s[0], "## Blockers")
 
@@ -156,7 +156,7 @@ def main():
 - **F001 — Deferred check** [Verify-by 2099-01-01] — auto-Dones on its date. ^F001
 - **F002 — Plain check** [Verify] — wants a look. ^F002
 """)
-    check("[Verify-by] produces no section of its own", h2s3, ["## Verifications"])
+    check("[Verify-by] produces no section of its own", h2s3, ["## Blocked"])
     check("[Verify-by] row is absent entirely",
           any("F001" in ln for ln in body3), False)
     check("plain [Verify] still renders", any("F002" in ln for ln in body3), True)
@@ -372,7 +372,7 @@ def main():
         fm = qf.read_text(encoding="utf-8").splitlines()
         check("the machine description is refreshed to the F283 sections",
               any("(Blockers / Ready+Next / Questions / Blocked / "
-                  "Verifications / User / Other)" in ln for ln in fm), True)
+                  "User / Other)" in ln for ln in fm), True)
         check("the pre-F283 section list is gone",
               any("(Verifications / Ready+Next / Questions)" in ln for ln in fm),
               False)
@@ -405,7 +405,7 @@ def main():
                                   {"F001": "go"}, {}, bl)
             check(f"refreshed: {label}",
                   "(Blockers / Ready+Next / Questions / Blocked / "
-                  "Verifications / User / Other)" in qf.read_text(encoding="utf-8"), True)
+                  "User / Other)" in qf.read_text(encoding="utf-8"), True)
 
         # A description a human rewrote into their own words is NOT ours to
         # rewrite — the prefix match is what tells the two apart.
