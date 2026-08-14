@@ -764,6 +764,18 @@ cmd_jobs() {
   say "== jobs on $HOST =="
   while IFS='|' read -r name status start end lmt cpu procs now; do
     [ -n "$name" ] || continue
+    # The remote probe is a shell script on a machine we did not build. Anything
+    # it hands back that is not a number is treated as absent rather than fed to
+    # $(( )), where a stray word is read as a variable name and kills the whole
+    # report with `unbound variable` -- naming the garbage, never the job.
+    # Blanked, not zeroed: an empty `end` is how a running job says "not finished",
+    # so zeroing it would date every live job to the epoch. Downstream already
+    # spells every use `${var:-0}`; this only guarantees the value is a number.
+    local f
+    for f in start end lmt cpu procs now; do
+      case "${!f}" in (*[!0-9]*) eval "$f=" ;; esac
+    done
+    [ -n "$now" ] || now=$(date +%s)
     local sfile="$JOBS_DIR/$HOST/$name.sample"
     local jfile="$JOBS_DIR/$HOST/$name.job"
     # A missing .job file means local state was lost (or the job was launched

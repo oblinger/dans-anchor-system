@@ -26,7 +26,16 @@ for meta in "$DIR"/*.meta; do
   end=$(sed -n 's/^end=//p' "$meta" | head -1)
   log="$DIR/$name.log"
   lmt=0
-  [ -f "$log" ] && lmt=$(stat -f %m "$log" 2>/dev/null || echo 0)
+  # `stat -f %m` is BSD-only. On GNU coreutils `-f` means *filesystem* status and
+  # takes no format, so `%m` is read as a FILENAME and the real file still gets
+  # stat'd -- successfully, exit 0, printing the multi-line default block that
+  # opens `File: "..."`. The caller then fed `File:` into $(( )) and died with
+  # `File: unbound variable`, on a Linux rig, from a line that reads fine.
+  # Both spellings are tried and the answer is required to be digits.
+  if [ -f "$log" ]; then
+    lmt=$(stat -c %Y "$log" 2>/dev/null || stat -f %m "$log" 2>/dev/null || echo 0)
+    case "$lmt" in (*[!0-9]*|'') lmt=0 ;; esac
+  fi
 
   cpu=0; procs=0
   pgid=$(cat "$DIR/$name.pgid" 2>/dev/null || echo "")
