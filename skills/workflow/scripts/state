@@ -1874,15 +1874,17 @@ def _run_question_gates(q_num, body, why_ask, require_on_answer=False):
     # a Lean-without-why-ask) and are resolved to the agent's lean by the caller.
     damage_cat, damage_why = be.parse_damage(body)
     if damage_cat is None:
-        sys.stderr.write(
-            f"⚠ Q{q_num} has no `- **Damage:**` line, so it was SURFACED by default.\n"
-            "  → Re-run this same define with a Damage line appended to the Q body — the\n"
-            "    first word is the category, then one sentence on what breaks if you guess wrong:\n"
+        # F270 hard-require (flipped from warn 2026-08-14: the observation gate
+        # was met — real mints carry the line, and the waste-class auto-resolve
+        # has fired in live use).
+        raise be.BacklogEditError(
+            f"define refused: Q{q_num} has no `- **Damage:**` line (F270). Re-run this\n"
+            "  same define with a Damage line appended to the Q body — the first word is\n"
+            "  the category, then one sentence on what breaks if you guess wrong:\n"
             "      • waste / priority                        → auto-resolved for you, never reaches the user\n"
             "      • irreversible / locking / taste / other  → surfaces to the user\n"
             "    e.g.  `- **Damage:** waste — a wrong pick just re-runs one step`\n"
-            "    A waste/priority re-run replaces this surfaced Q and auto-resolves it.\n"
-            "  See [[DAS ask-format]] § The Damage field.\n"
+            "  See [[DAS ask-format]] § The Damage field."
         )
     auto_resolve = damage_cat in be.DAMAGE_AUTO_RESOLVE
     # T188 — `Recommendation: None` vetoes the auto-resolve, whatever the class.

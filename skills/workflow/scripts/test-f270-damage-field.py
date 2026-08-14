@@ -6,7 +6,7 @@ Two layers, mirroring test-f257:
   2. `_q_define_core` (state) end-to-end on a temp doc — proves the wiring:
      waste/priority AUTO-RESOLVE (define → resolve in place, never surface);
      a surface category (irreversible/locking/taste/other) SURFACES, with the
-     Damage line satisfying the F257 why-ask gate; a missing Damage line WARNS
+     Damage line satisfying the F257 why-ask gate; a missing Damage line REFUSES
      but surfaces (soft-required rollout); a bad category is REFUSED.
 
 Self-contained: imports the modules in-process; touches only tmp files."""
@@ -149,15 +149,19 @@ good = ("- **Q1 —" in txt and "## Resolved" not in txt
 ok("locking Q surfaces (Lean, no --why-ask) with Damage as the justification") if good \
     else no(f"locking not surfaced/annotated:\n{txt}")
 
-# (d) missing Damage line → warns INSTRUCTIVELY on stderr, still surfaces (soft-required).
+# (d) missing Damage line → REFUSED instructively (hard-required since 2026-08-14),
+# file untouched. Flipped from the soft warn once the observation gate was met.
 f = fresh_doc()
-out, err = define(f, body("None. genuine uncertainty", None))
-txt = f.read_text()
-instructive = ("Re-run" in err and "waste" in err and "**Damage:**" in err
-               and "surface" in err.lower())
-ok("missing Damage → instructive warn (re-run + categories) + surfaces") \
-    if (instructive and "- **Q1 —" in txt) \
-    else no(f"missing-damage path wrong:\nERR={err!r}\nTXT={txt}")
+before = f.read_text()
+try:
+    define(f, body("None. genuine uncertainty", None))
+    no("missing Damage should refuse (hard-required)")
+except be.BacklogEditError as e:
+    msg = str(e)
+    instructive = ("Re-run" in msg and "waste" in msg and "**Damage:**" in msg)
+    ok("missing Damage → instructive refusal, file untouched") \
+        if (instructive and f.read_text() == before) \
+        else no(f"missing-damage refusal wrong:\nMSG={msg!r}")
 
 # (e) bad category → refused, file untouched.
 f = fresh_doc()
