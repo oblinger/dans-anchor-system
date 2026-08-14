@@ -103,6 +103,7 @@ for arg in "$@"; do
     --dry-run) DRY_RUN=1 ;;
     --watch)   WATCH=1 ;;
     --reap)    REAP=1 ;;
+    --with-vm) export BRIDGE_WITH_VM=1 ;;   # F027: the opt-in prompt, rendered as a flag
     --older-than) : ;;
     --older-than=*) STALE_HOURS="${arg#*=}" ;;
     --until)   : ;;

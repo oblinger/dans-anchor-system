@@ -32,10 +32,20 @@
 # The case-sensitive-slug defect found alongside this row is FIXED (2026-08-13):
 # sanitize_slug lowercases, so `Atticus` and `atticus` are one identity again.
 #
-# Still deferred to stage 3: utm (Windows VM, user-prompted), the shared-browser
-# claim/lease, and a reaper for dead agent windows. See the F027 backlog Next.
+# The dead-agent-window reaper shipped 2026-08-14 as `bridge windows --reap`.
+# Still deferred: the shared-browser claim/lease. See the F027 backlog Next.
 
 CAPS_FULL_IDS=(aqua screen playwright safari-ae clipboard notification audio agent-window)
+
+# OPT-IN rows. Dan's ruling on the Windows VM (F027): it sits outside `full`
+# proper, but requesting `full` should PROMPT for whether to include it. An
+# installer that runs unattended has nowhere to put a prompt -- so the prompt
+# becomes a flag, and the walk's job is to keep the choice from being silent.
+# Every walk prints the row as OPT-IN and names `--with-vm`; passing that flag
+# moves it into the countable set. What is NOT allowed is for the row to
+# disappear when unselected, because then "full passed" would quietly mean less
+# than it says -- the same drift the whole profile mechanism exists to surface.
+CAPS_FULL_OPTIONAL=(utm)
 
 # ---------------------------------------------------------------- helpers
 
@@ -227,6 +237,30 @@ cap_install_agent-window() {
   return 1
 }
 
+# ---------------------------------------------------------------- utm (opt-in)
+
+cap_desc_utm()   { echo "VM control (utmctl) — Windows / Linux VM lifecycle via UTM"; }
+cap_repair_utm() { echo "brew install --cask utm, then grant Terminal.app 'Automation → UTM' TCC on the remote"; }
+
+# `utmctl list` is the honest probe: it exercises the AppleEvent path, so it
+# separates "UTM is not installed" (command not found) from "installed but
+# Terminal.app lacks Automation TCC" (OSStatus -1743) -- two failures with
+# completely different repairs that a `command -v` check would collapse into one.
+cap_probe_utm() {
+  _run_in_mux utm 'command -v utmctl >/dev/null 2>&1 && utmctl list >/dev/null 2>&1' 4
+  local rc=$?; _clean_marker utm; return $rc
+}
+
+# Never automatic, per Dan. Even with --with-vm the walk installs nothing on its
+# own: UTM is a 200 MB cask plus a TCC grant plus a VM image the user has to
+# import, and none of that belongs to an unattended converge run.
+cap_install_utm() {
+  echo "    guidance: $(cap_repair_utm)"
+  echo "    note: importing the VM image itself is yours — the installer does not"
+  echo "          create or fetch a Windows image (F014 / F010 track that work)"
+  return 1
+}
+
 # ---------------------------------------------------------------- walker
 
 # profile_full_walk MODE
@@ -239,8 +273,12 @@ profile_full_walk() {
   local mode="$1"
   local pass=0 fail=0 fixed=0 info=0
   local id desc irc
-  say "-- full profile walk (${#CAPS_FULL_IDS[@]} rows) --"
-  for id in "${CAPS_FULL_IDS[@]}"; do
+  # The opt-in rows join the countable set only when the user asked for them;
+  # otherwise they are announced at the end, never silently dropped.
+  local rows=("${CAPS_FULL_IDS[@]}")
+  [ "${BRIDGE_WITH_VM:-0}" = 1 ] && rows+=("${CAPS_FULL_OPTIONAL[@]}")
+  say "-- full profile walk (${#rows[@]} rows) --"
+  for id in "${rows[@]}"; do
     desc=$("cap_desc_$id")
     if "cap_probe_$id"; then
       say "  PASS  $id  $desc"
@@ -278,6 +316,11 @@ profile_full_walk() {
         ;;
     esac
   done
+  if [ "${BRIDGE_WITH_VM:-0}" != 1 ]; then
+    for id in "${CAPS_FULL_OPTIONAL[@]}"; do
+      say "  OPT-IN  $id  $("cap_desc_$id") — not probed; add --with-vm to include it"
+    done
+  fi
   say "-- profile walk: $pass pass, $fixed fixed, $fail fail, $info info --"
   [ "$fail" = 0 ]
 }
