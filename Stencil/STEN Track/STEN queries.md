@@ -1,5 +1,5 @@
 ---
-description: STEN queries — mechanically rendered from the backlog (Blockers / Ready+Next / Questions / Blocked / Verifications / User / Other), and copied verbatim into Q.md. Do not hand-edit; edit the backlog rows.
+description: STEN queries — mechanically rendered from the backlog (Blockers / Ready+Next / Questions / Blocked / User / Other), and copied verbatim into Q.md. Do not hand-edit; edit the backlog rows.
 ---
 
 # [A]  [[STEN|STEN]]  -  Ready 1    User 0   |   Now 1    Next 0    Later 0   |   Parked 0    Waiting 0    Icebox 0

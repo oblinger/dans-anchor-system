@@ -5,6 +5,8 @@ description: Fable spec-vs-impl + latent-bug scan of the Warden rule engine — 
 # [[Warden]] · F234 — Fable scan — Warden engine
 Adversarial Fable audit of the Warden rule engine (`~/bin/warden` → `engine/warden`; Python engine + Rust sidecar).
 
+next:: Assess prior Fable coverage + ROI, then run the scoped scan.
+
 ## Summary
 
 Warden is 3,687 LOC of Python across 11 `warden_*.py` modules plus a 1,483-LOC Rust `rs/` sidecar: rule compilation → firing → daemon. Unlike the SKA-side targets it is **well-tested** (73 `test_*` functions) — which makes it an ideal **spec-vs-impl** Fable target (a good test net lets Fable reason against expected behavior). The risk surface is its **youth**: freshly extracted from `dans-anchor-system` (T008) with the `warden_root` corpus-resolution decoupling and F188 mirror-route seams still fresh — exactly where path-resolution and config-fallback bugs lurk after an extraction. Part of the [[F253 — Fable multi-codebase scan campaign (roadmap)|F253 scan campaign]].
@@ -31,5 +33,8 @@ Run the Fable recipe (global `CLAUDE.md` § Fable-5 audit) with the test suite a
 **Ready** — spec complete, parked in Later (off the crank frontier, awaiting user greenlight to run); migrate when kicked off (see [[F253 — Fable multi-codebase scan campaign (roadmap)|F253]] — #3).
 
 next action: assess prior Fable coverage + incremental ROI, then run the adversarial spec-vs-impl Fable scan on the scoped surface (§ Design).
+
+
+**Where this stands (the row's Next, 2026-08-15):** assess prior Fable coverage + ROI, then run the scoped scan
 
 ## Resolved

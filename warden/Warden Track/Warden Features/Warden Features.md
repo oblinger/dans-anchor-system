@@ -1,6 +1,6 @@
 ---
 ---
-| -[[Warden Features]]- | : dated feature specs for the Warden engine<br>→ [[DAS]] → [[WARD]] → [[Warden Track]] → [Warden Features](hook://p/Warden%20Features)  |
+| -[[Warden Features]]- | : dated feature specs for the Warden engine<br>→ [[DAS]] → [[Warden]] → [[Warden Track]] → [Warden Features](hook://p/Warden%20Features)  |
 | --- | --- |
 | [[F209 — Unified trigger taxonomy + when language]]  | F209 — Unified trigger taxonomy + `when::` language |
 | [[F210 — Conjunction binding + indexing]]  | F210 — Conjunction binding (`when ∧ where ∧ if`) + indexing |

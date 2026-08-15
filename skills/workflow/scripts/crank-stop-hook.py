@@ -343,13 +343,21 @@ def _triage_mode():
         return "warn"
 
 
-def _triage_log(slug, verdict, mode):
+def _triage_log(slug, verdict, mode, msg_tail=None):
+    # `msg_tail` (final ~160 chars of the stopping message) exists so the D4
+    # read can adjudicate what a `missing` verdict actually was: a crank report
+    # that forgot its line (the defect), or a conversational reply that merely
+    # consumed the sentinel (D3 scope too wide). The first week's log carried
+    # only the verdict, and its 72% missing rate was unreadable for exactly
+    # that reason.
     try:
         GATE_DIR.mkdir(parents=True, exist_ok=True)
+        rec = {"ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+               "anchor": slug, "verdict": verdict, "mode": mode}
+        if msg_tail:
+            rec["msg_tail"] = msg_tail[-160:]
         with TRIAGE_LOG.open("a", encoding="utf-8") as fh:
-            fh.write(json.dumps({
-                "ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-                "anchor": slug, "verdict": verdict, "mode": mode}) + "\n")
+            fh.write(json.dumps(rec) + "\n")
     except OSError:
         pass
 
@@ -640,11 +648,12 @@ def warden_hook(payload):
         # text already in hand, so it costs nothing and its remediation is the
         # more specific of the two.
         if crank is not None:
-            verdict, reason = _triage_line_check(
-                name, _last_assistant_text(
-                    payload.get("transcript_path", "")))
+            final_text = _last_assistant_text(
+                payload.get("transcript_path", ""))
+            verdict, reason = _triage_line_check(name, final_text)
             mode = _triage_mode()
-            _triage_log(name, verdict, mode)
+            _triage_log(name, verdict, mode,
+                        msg_tail=(final_text or "").strip())
             if reason and mode == "enforce":
                 return _block(gate_path, reason, name, count)
         # F267 stage 2: always logs a verdict; returns a block-reason only in

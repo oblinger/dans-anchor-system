@@ -1,5 +1,5 @@
 ---
-description: HBR queries — mechanically rendered from the backlog (Blockers / Ready+Next / Questions / Blocked / Verifications / User / Other), and copied verbatim into Q.md. Do not hand-edit; edit the backlog rows.
+description: HBR queries — mechanically rendered from the backlog (Blockers / Ready+Next / Questions / Blocked / User / Other), and copied verbatim into Q.md. Do not hand-edit; edit the backlog rows.
 ---
 
 # [U+A]  [[HBR|HBR]]  -  Ready 3    User 1   |   Now 1    Next 1    Later 0   |   Parked 0    Waiting 0    Icebox 0

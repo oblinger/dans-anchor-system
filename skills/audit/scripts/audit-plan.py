@@ -984,10 +984,30 @@ def sub_anchor_roots(target: Path) -> set[Path]:
     for dot in target.rglob(".anchor"):
         if _under_dot_dir(dot, target):
             continue  # T100 — a `.anchor` inside `.trash` is not a live sub-anchor
+        if _is_folder_doc_marker(dot):
+            continue  # F329 — scanner-minted marker beside a folder-form backlog
         parent = dot.parent.resolve()
         if parent != t:
             roots.add(parent)
     return roots
+
+
+def _is_folder_doc_marker(dot: Path) -> bool:
+    """True when this `.anchor` sits beside a folder-form backlog namesake
+    (F329) — a `<!-- state:backlog -->`-stamped `X/X.md`. HookAnchor's scanner
+    auto-mints `.anchor` in every namesake folder on its 10-minute rescan, so
+    the marker's mere presence cannot demote the queue folder to a sub-anchor:
+    that would eject the anchor's own backlog (and its T-docs) from every
+    anchor-scoped audit — the T232 failure, self-inflicted. Same discriminator
+    `_anchorness` uses: the namesake's own machine stamp outranks the marker."""
+    namesake = dot.parent / f"{dot.parent.name}.md"
+    if not namesake.is_file():
+        return False
+    try:
+        head = namesake.read_text(encoding="utf-8", errors="replace")[:2000]
+    except OSError:
+        return False
+    return re.search(r"<!--\s*state:backlog\b", head) is not None
 
 
 def _under_dot_dir(p: Path, root: Path) -> bool:
@@ -3529,9 +3549,25 @@ def _anchorness(f: Path) -> tuple[bool, str]:
     backlogs, feature docs grown into folders) is a *document* in folder form,
     and demanding a masthead of it would be wrong. The `.anchor` marker is
     what separates the two, and it is the definition of an anchor root anyway.
+
+    Same day, the marker test alone proved insufficient: HookAnchor's scanner
+    auto-mints `.anchor` in EVERY namesake folder on its 10-minute rescan
+    (observed re-minting 2 minutes after deletion), so "has `.anchor`" is true
+    of every folder-doc within one scan cycle and the F329 exemption would be
+    a no-op. The stronger discriminator is the file's own machine stamp: a
+    namesake carrying `<!-- state:backlog -->` is a folder-form backlog — a
+    state-owned document, never an anchor page — whatever the scanner minted
+    beside it. Policy question (should the scanner skip these?) is filed with
+    HA; this keeps DAS audits truthful in the meantime.
     """
     if f.stem == f.parent.name:
         if (f.parent / ".anchor").is_file():
+            try:
+                head = f.read_text(encoding="utf-8", errors="replace")[:2000]
+            except OSError:
+                head = ""
+            if re.search(r"<!--\s*state:backlog\b", head):
+                return False, ""
             return True, "folder namesake"
         return False, ""
     dot = f.parent / ".anchor"
