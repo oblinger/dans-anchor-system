@@ -76,10 +76,14 @@ No masthead row may link to an anchor that already appears in the **breadcrumb p
 The **Related** row may be **empty or omitted**. List only *genuinely* related siblings/material plus any one-off links the user deliberately pinned. Do **not** invent a relation to fill the row — when nothing is truly related, the correct Related row is no row (or an empty one).
 **Why:** a forced relation is noise; an honest empty is information. The table is a switchboard, not a quota to fill.
 
-### RULE R-dispatch-table-06 — Pure link table; minimal annotation (stated)
+### RULE R-dispatch-table-06 — Pure link table; minimal annotation (checked)
+check:: dispatch_cell_narrative
+mend:: dispatch-cell-narrative
 A dispatch table is the **distilled set of jump-destinations**, not an explanation of them. No meta-discussion of what a link *means* belongs in a cell. At most **one or two words in parentheses** as an adjective — and **prefer none**. A link's meaning belongs on the linked page itself — its top line (H1 + first sentence) and its `description` frontmatter — not in the table that points at it.
 **Left vs right cell — asymmetric.** The **left cell** is the row's *label* (row name, group name, sub-area name) — describing the row itself is fine there. The **right cell** is nearly pure links; the 1–2-word cap applies to the right cell. Narrative belongs on the destination page, never the right cell.
+**Check pattern:** every right cell of the doc's own masthead, after the identity row and the GFM header separator, up to (not including) the first electric-marker row — strip every wiki-link and markdown link, then strip every parenthetical of ≤2 words; any word character left over → warn.
 **Why:** the table's value is the distilled essence of *where you can jump*; prose about each destination dilutes that and duplicates what the destination already says about itself.
+**Ships `warn`, not `fail`** (per this ruleset's own precedent for -07/-08): displaced narrative needs a judgment call about where it lands — already covered in `## Overview`, or genuinely new — which is not a safe automatic repair. Measured on a 5-page sample 2026-08-14 (TINK, A2X, SYS, DAS, Atlas): 3 of 5 already violate it, confirming real vault-wide debt rather than an A2X-only quirk.
 
 ### RULE R-dispatch-table-07 — Every dispatch table ends with a catch-all marker (checked)
 mend:: dispatch-rebuild
@@ -128,5 +132,15 @@ For the grammar, read [[DAS Dispatch Table]].
 Escape the pipe inside the wiki-link: write `[[Target\|Display]]`, not `[[Target|Display]]`.
 
 An unescaped pipe ends the table cell, so the row silently loses everything after it — the link still looks right in the source and the table is broken in the render. This is the one dispatch-table defect worth fixing by hand, since it is a single character and the builder would only reproduce whatever it read.
+
+For the grammar, read [[DAS Dispatch Table]].
+
+### MEND dispatch-cell-narrative
+
+Cut the prose out of the right cell; leave only the link(s) and, if you really want one, a single ≤2-word parenthetical tag per link (e.g. `(historical)`, `(archived)`).
+
+Where the prose goes depends on what it says: if it explains what the destination page *is*, it belongs on that page's own head (the H1 + orientation line, or its `description` frontmatter); if it's a fact about the anchor as a whole (provenance, a decision, a historical note), it belongs in this doc's own `## Overview` or a dedicated section — check first whether it is already said there, since a page that grew a narrative dispatch row usually already has the fuller version written out somewhere below the table.
+
+Custom rows outside the canonical Related / Design / Track / User Docs / Dev Docs order (a `Successor` row, an `Archive` row, and the like) are not exempt — if all that survives after trimming is a bare label with nothing to link, delete the row rather than leaving an empty one.
 
 For the grammar, read [[DAS Dispatch Table]].

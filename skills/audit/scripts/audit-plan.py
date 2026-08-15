@@ -3686,6 +3686,65 @@ def chk_dispatch_link_case_drift(target, anchor_root, args):
     return "pass", "masthead link case matches disk"
 
 
+def chk_dispatch_cell_narrative(target, anchor_root, args):
+    """R-dispatch-table-06 — a masthead's RIGHT cell is nearly pure links: at
+    most one short (<=2 word) parenthetical tag per link, no other prose.
+
+    Scope: every row of the doc's own masthead after the identity row and the
+    GFM header separator, stopping at the first electric-marker row (`...`,
+    `---`, `^^^`, `+++`, `!!!`, `…`) — everything from there down is machine-
+    owned per R-dispatch-table-13 and never hand-authored narrative. The LEFT
+    cell is exempt (R-06: "describing the row itself is fine there").
+
+    Check: strip every wiki-link (`[[Target]]` / `[[Target\\|Display]]`) and
+    markdown link (`[text](url)`) from the right cell, then strip every
+    parenthetical group of <=2 whitespace-separated words (the rule's allowed
+    tag, e.g. `(historical)`, `(archived)`). Any word character left over is
+    narrative that escaped the cap — a paragraph, a sentence fragment, a `**bold**`
+    gloss — and the rule says it belongs on the destination page's own head
+    (H1 + orientation line) or `## Overview`, not the table that points at it.
+
+    Ships `warn`, not `fail`, matching this ruleset's own precedent for -07/-08
+    (R-dispatch-table.md's postmortem): there is no safe automatic repair —
+    deciding whether displaced prose is already covered elsewhere in the body,
+    or where it should land, is a judgment call, not a mechanical fix.
+    """
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    text = _read(f)
+    rows = _masthead_rows(text, f.stem)
+    if len(rows) < 3:
+        return "pass", "no self-masthead" if not rows else "no content rows"
+    marker_cells = {"...", "…", "---", "^^^", "+++", "!!!"}
+    offenders = []
+    for ln in rows[2:]:
+        cells = _row_cells(ln)
+        if not cells:
+            continue
+        if cells[0].strip() in marker_cells:
+            break
+        if len(cells) < 2:
+            continue
+        right = cells[1]
+        stripped = _WIKILINK_RE.sub("", right)
+        stripped = re.sub(r"\[[^\]]*\]\([^)]*\)", "", stripped)
+
+        def _short_tag(m):
+            words = m.group(1).split()
+            return "" if len(words) <= 2 else m.group(0)
+
+        stripped = re.sub(r"\(([^)]*)\)", _short_tag, stripped)
+        if re.search(r"\w", stripped):
+            offenders.append(f"'{cells[0].strip()}' row: {right.strip()[:80]!r}")
+    if offenders:
+        return "warn", ("dispatch table right cell carries narrative beyond a short "
+                        "(<=2 word) parenthetical tag — " + "; ".join(offenders[:4])
+                        + " — move the explanation to the destination page's own "
+                        "head or this doc's ## Overview (R-dispatch-table-06)")
+    return "pass", "right cells are links + short tags only"
+
+
 def chk_toc_table_iff_long(target, anchor_root, args):
     """R-doc-structure-03, the long side only: a doc of 300+ body lines must
     carry a TOC table (≥2 rows whose first cell is an in-document `[[#…]]`
@@ -7017,6 +7076,7 @@ CHECKERS = {
     "dispatch_table_iff_anchor": chk_dispatch_table_iff_anchor,
     "dispatch_area_row": chk_dispatch_area_row,
     "dispatch_link_case_drift": chk_dispatch_link_case_drift,
+    "dispatch_cell_narrative": chk_dispatch_cell_narrative,
     "toc_table_iff_long": chk_toc_table_iff_long,
     # R-spine-03/05 — summary presence + freshness (SKA F277)
     "summary_present_iff_complex": chk_summary_present_iff_complex,
