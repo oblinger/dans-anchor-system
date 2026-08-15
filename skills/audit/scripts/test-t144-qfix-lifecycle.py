@@ -1,27 +1,20 @@
 #!/usr/bin/env python3
-"""test-t144-qfix-lifecycle.py — TINK T144: the B-QFix row's full lifecycle.
+"""test-t144-qfix-lifecycle.py — the audit-residual lifecycle, POST-F332.
 
-T144 was filed against `audit-q --fix` on the claim that it "mints B-QFix when
-findings appear but never retires it when they clear." Measured 2026-08-06, that
-diagnosis is wrong: `route_findings_to_qfix` seeds its per-anchor groups from
-`anchor_backlogs` (not from the findings), so an anchor with zero residuals takes
-the `clear_qfix_row` branch and the row is deleted. Confirmed against two live
-anchors — PROS and ABIO each carried a `[Ready]` B-QFix row with zero findings,
-and a single `--fix` pass cleared both.
+T144 pinned the B-QFix `[Ready]` row's reconcile behavior. F332 Q2 (Dan,
+2026-08-15) retired that row: mechanical audit debris is sub-surface work
+the user is neither aware of nor interested in, so `--fix` now routes it to
+`{slug} Chores.md` ([[DAS Chores]]) beside the backlog, and clears/deletes
+that file's audit-owned bullets when residuals drop to zero. A legacy
+B-QFix row found on a touched anchor is removed in the same pass.
 
-The real gap is a TRIGGER gap, not a reconcile gap: nothing re-runs `--fix` when
-findings are cleared by editing the offending docs, which is how most findings
-get fixed. The row is reconciled only on the next `state` mutation of that anchor
-(`backlog-edit.refresh_q_md`), so between those two moments the anchor's banner
-reports Runnable work that no longer exists.
-
-These tests pin the reconcile behavior so the wrong diagnosis cannot be re-filed,
-and so a future trigger fix has a green baseline to build on:
-
-  A. residual present            → row is created, carrying that residual
-  B. residual persists, re-run   → row is updated in place, still a singleton
-  C. residual cleared, re-run    → row is DELETED (the behavior T144 denied)
-  D. no row, no residual, re-run → nothing is created
+  A. residual present            → chores file created carrying it; no B-QFix
+                                   row is minted; a legacy row is removed
+  B. residual persists, re-run   → idempotent (hand-added chores survive)
+  C. residual cleared, re-run    → audit bullets cleared; file deleted when
+                                   nothing hand-added remains
+  E. read-only pass              → reports stale audit chores, mutates nothing
+  D. no residue, re-run          → no-op
 
 Self-contained: imports audit-q.py, builds fixtures in a tmpdir, cleans up.
 Never touches the real vault (warden self-fire disabled)."""
@@ -50,7 +43,7 @@ def qfix_rows(path: Path) -> list[str]:
 
 
 def make_finding(surface: Path, code="C41"):
-    """A non-mechanically-fixable finding — the kind that routes to B-QFix."""
+    """A non-mechanically-fixable finding — the kind that routes to chores."""
     return aq.Finding(
         code=code,
         severity="warning",
@@ -65,85 +58,101 @@ TMP = Path(tempfile.mkdtemp())
 try:
     bl = TMP / "ZZT Track" / "ZZT Backlog.md"
     bl.parent.mkdir(parents=True, exist_ok=True)
+    # Seed a LEGACY B-QFix row so test A also covers its removal on touch.
     bl.write_text(
         "# ZZT Backlog\n\n"
         "## Now\n\n"
         "- **T001 — Real work** [Ready] — do the thing. ^T001\n"
-        "  - **Next:** run step one.\n",
+        "  - **Next:** run step one.\n"
+        "- **B-QFix — QFix** [Ready] — legacy machinery row. ^B-QFix\n"
+        "  - **C99** old/residual.md:1 — stale capture from before F332.\n",
         encoding="utf-8",
     )
     backlogs = {"ZZT": bl}
+    chores = bl.parent / "ZZT Chores.md"
 
-    # ---- A: a residual mints the row ---------------------------------------
-    print("== A: a non-mechanically-fixable residual creates B-QFix ==")
+    # ---- A: a residual routes to chores; the legacy row is removed ---------
+    print("== A: a residual routes to Chores.md; no B-QFix row survives ==")
     aq.route_findings_to_qfix([make_finding(bl)], backlogs)
-    rows = qfix_rows(bl)
-    if len(rows) == 1:
-        ok("B-QFix row created")
+    if chores.exists() and "C41" in chores.read_text(encoding="utf-8"):
+        ok("chores file created carrying the residual")
     else:
-        no(f"expected exactly 1 B-QFix row, found {len(rows)}")
-    if "[Ready]" in (rows[0] if rows else ""):
-        ok("row is bracketed [Ready]")
+        no(f"chores file missing or empty: {chores}")
+    if not qfix_rows(bl):
+        ok("legacy B-QFix row removed on touch; none minted")
     else:
-        no("row is not [Ready]")
-    if "C41" in bl.read_text(encoding="utf-8"):
-        ok("residual is carried as a sub-bullet")
-    else:
-        no("residual sub-bullet missing")
+        no("a B-QFix row survives in the backlog")
 
-    # ---- B: the residual persists — row is updated, not duplicated ---------
-    print("== B: a second pass with the same residual keeps a singleton ==")
+    # ---- B: idempotent re-run; hand-added chores survive -------------------
+    print("== B: re-run is idempotent and preserves hand-added chores ==")
+    with chores.open("a", encoding="utf-8") as f:
+        f.write("- hand-added chore: rewrap the widget cable.\n")
     aq.route_findings_to_qfix([make_finding(bl)], backlogs)
-    rows = qfix_rows(bl)
-    if len(rows) == 1:
-        ok("still exactly 1 B-QFix row (updated in place)")
+    ctext = chores.read_text(encoding="utf-8")
+    if ctext.count("C41") == 1:
+        ok("audit bullet not duplicated on re-run")
     else:
-        no(f"expected 1 B-QFix row after re-run, found {len(rows)}")
+        no(f"audit bullet duplicated:\n{ctext}")
+    if "hand-added chore" in ctext:
+        ok("hand-added chore survives the rewrite")
+    else:
+        no("hand-added chore was destroyed")
 
-    # ---- C: the residual clears — row is DELETED ---------------------------
-    # This is the case T144 claimed was broken. It is not.
-    print("== C: zero residuals deletes the row (T144's denied behavior) ==")
+    # ---- C: zero residuals clears audit bullets; file kept for hand chores -
+    print("== C: zero residuals clears audit bullets ==")
     aq.route_findings_to_qfix([], backlogs)
-    rows = qfix_rows(bl)
-    if not rows:
-        ok("B-QFix row deleted when residuals drop to zero")
+    ctext = chores.read_text(encoding="utf-8")
+    if "C41" not in ctext and "hand-added chore" in ctext:
+        ok("audit bullets cleared; hand chores kept, file retained")
     else:
-        no(f"stale B-QFix row survived a zero-residual pass: {rows[0][:70]}")
+        no(f"clear pass wrong:\n{ctext}")
+    # Now with no hand chores, the file itself goes.
+    aq.route_findings_to_qfix([make_finding(bl)], backlogs)
+    lines = [l for l in chores.read_text(encoding="utf-8").splitlines()
+             if l.startswith("- ") and "hand-added" in l]
+    chores.write_text(
+        "\n".join(l for l in chores.read_text(encoding="utf-8").splitlines()
+                  if "hand-added" not in l) + "\n", encoding="utf-8")
+    aq.route_findings_to_qfix([], backlogs)
+    if not chores.exists():
+        ok("chores file deleted when nothing hand-added remains")
+    else:
+        no(f"empty chores file survived:\n{chores.read_text(encoding='utf-8')}")
     if "- **T001" in bl.read_text(encoding="utf-8"):
-        ok("real rows are untouched by the clear")
+        ok("real rows are untouched throughout")
     else:
-        no("the clear removed a real row")
+        no("a real row was damaged")
 
     # ---- E: the read-only path REPORTS staleness without mutating ----------
-    # The trigger fix: `--dry` must name a B-QFix row carrying zero reproducing
-    # residuals, because a read-only pass may not clear one itself.
-    print("== E: read-only pass reports a stale row and does not touch it ==")
-    aq.route_findings_to_qfix([make_finding(bl)], backlogs)   # re-mint a row
-    before = bl.read_text(encoding="utf-8")
+    print("== E: read-only pass reports stale chores and does not touch them ==")
+    aq.route_findings_to_qfix([make_finding(bl)], backlogs)   # re-mint chores
+    before_bl = bl.read_text(encoding="utf-8")
+    before_ch = chores.read_text(encoding="utf-8")
     log = aq.report_stale_qfix_rows([make_finding(bl)], backlogs)
     if not log:
         ok("silent while the residual still reproduces")
     else:
-        no(f"reported staleness on a row with a live residual: {log}")
+        no(f"reported staleness on a live residual: {log}")
     log = aq.report_stale_qfix_rows([], backlogs)
-    if log and "stale B-QFix" in log[0]:
-        ok("reports the stale row once residuals stop reproducing")
+    if log and "stale audit chores" in log[0]:
+        ok("reports stale audit chores once residuals stop reproducing")
     else:
-        no(f"failed to report a stale row: {log}")
-    if bl.read_text(encoding="utf-8") == before:
-        ok("read-only pass left the backlog byte-identical")
+        no(f"failed to report stale chores: {log}")
+    if (bl.read_text(encoding="utf-8") == before_bl
+            and chores.read_text(encoding="utf-8") == before_ch):
+        ok("read-only pass left both files byte-identical")
     else:
-        no("read-only pass mutated the backlog")
+        no("read-only pass mutated a file")
     aq.route_findings_to_qfix([], backlogs)   # tidy up for D
 
     # ---- D: nothing to clear is a no-op ------------------------------------
-    print("== D: zero residuals with no existing row creates nothing ==")
-    before = bl.read_text(encoding="utf-8")
+    print("== D: zero residuals with no residue creates nothing ==")
+    before_bl = bl.read_text(encoding="utf-8")
     aq.route_findings_to_qfix([], backlogs)
-    if bl.read_text(encoding="utf-8") == before:
-        ok("no-op when there is no row and no residual")
+    if bl.read_text(encoding="utf-8") == before_bl and not chores.exists():
+        ok("no-op when there is no residue and no residual")
     else:
-        no("a zero-residual pass mutated a backlog with no B-QFix row")
+        no("a zero-residual pass created or mutated something")
 
 finally:
     shutil.rmtree(TMP, ignore_errors=True)

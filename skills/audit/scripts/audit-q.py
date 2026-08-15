@@ -5264,15 +5264,28 @@ def _resolve_owning_anchor(
     return None
 
 
+def chores_path_for(backlog_file: Path) -> Path:
+    """The anchor's `{slug} Chores.md` per R-chores-01: inside the folder-form
+    backlog when the anchor has one, else beside the backlog in Track."""
+    slug = backlog_file.stem[:-len(" Backlog")]
+    if backlog_file.parent.name == backlog_file.stem:
+        return backlog_file.parent / f"{slug} Chores.md"
+    return backlog_track_dir(backlog_file) / f"{slug} Chores.md"
+
+
 def file_qfix_row(
     backlog_file: Path, anchor_name: str, findings: list[Finding]
 ) -> tuple[bool, str]:
-    """Find or create the singleton `B-QFix [Ready]` row in backlog_file,
-    then replace its sub-bullets with the current findings list.
+    """Route --fix residuals to `{slug} Chores.md` ([[DAS Chores]], F332 Q2 —
+    supersedes the `B-QFix [Ready]` backlog row: mechanical audit debris is
+    sub-surface work the user is neither aware of nor interested in, so it
+    leaves the human queue). The audit-owned bullets (`- **C…**`) are
+    rewritten wholesale each run; hand-added chores below them survive. A
+    legacy B-QFix row found in the backlog is removed in the same pass.
 
     Idempotent: subsequent runs with the same findings produce an identical
-    file; new findings replace old sub-bullets; zero findings shouldn't
-    happen here (the caller filters empties before calling).
+    file; zero findings shouldn't happen here (the caller filters empties
+    before calling).
 
     Returns (changed, summary_msg)."""
     try:
@@ -5324,92 +5337,100 @@ def file_qfix_row(
             f"  - **{f.code}** {rel}:{f.surface_line} — {safe_msg}"
         )
 
-    # A [Ready] row — even a machinery one — must declare a no-user next action
-    # (user direction 2026-07-11: "B-QFix with no declared next action is
-    # wrong"). Lead the sub-bullets with a standing Next so the router-owned
-    # B-QFix row always carries one; it survives every --fix re-render because
-    # the sub-bullets are rewritten from this list each run.
-    next_sub = (
-        "  - **Next:** Fix the next residual below at its source (repoint a "
-        "renamed link, de-link a retired one, correct the flagged doc), then "
-        "re-run `/audit q` to clear it — per the 100%-fix discipline."
-    )
-    new_subs = [next_sub] + new_subs
+    # Chores bullets are flat (R-chores-02) — the sub-bullet indent goes.
+    new_bullets = [s[2:] if s.startswith("  - ") else s for s in new_subs]
 
-    qfix_row_text = (
-        f"- **B-QFix — QFix** [Ready] — audit q findings routed by --fix; "
-        f"each sub-bullet is a residual on {anchor_name}'s tree needing the "
-        f"100%-fix discipline (per the audit skill's Governing principle). "
-        f"^B-QFix"
-    )
+    chores_file = chores_path_for(backlog_file)
+    slug = backlog_file.stem[:-len(" Backlog")]
+    header = [
+        "---",
+        f"description: sub-surface chores for {anchor_name} — audit residuals "
+        f"and other items the user is neither aware of nor interested in "
+        f"([[DAS Chores]]).",
+        "---",
+        "",
+        f"# {slug} Chores",
+        "Fix each item at its source and delete its bullet; the `- **C…**` "
+        "bullets are rewritten by every `/audit q --fix` run.",
+        "",
+    ]
+    if chores_file.exists():
+        try:
+            old = chores_file.read_text(encoding="utf-8").splitlines()
+        except (OSError, UnicodeDecodeError):
+            old = []
+        # Preserve hand-added chores; the audit-owned `- **C…**` bullets are
+        # replaced wholesale.
+        hand = [l for l in old
+                if l.startswith("- ") and not re.match(r"- \*\*C\d+\*\*", l)]
+    else:
+        hand = []
+    chores_file.parent.mkdir(parents=True, exist_ok=True)
+    chores_file.write_text(
+        "\n".join(header + new_bullets + hand) + "\n", encoding="utf-8")
+    _selffire(chores_file)
+    result = (f"routed {len(findings)} residual(s) to {chores_file.name}")
 
-    # Locate existing B-QFix row.
+    # Remove a legacy B-QFix row (plus its sub-bullets) from the backlog —
+    # the extraction half of "QFix moves out" (F332), applied on touch.
     qfix_idx: Optional[int] = None
     for i, line in enumerate(lines):
         if line.lstrip().startswith("- **B-QFix"):
             qfix_idx = i
             break
-
     if qfix_idx is not None:
-        # Find end of existing sub-bullets (`  - ` indented lines, with
-        # optional intervening blank lines that don't terminate the block).
         end = qfix_idx + 1
         while end < len(lines):
             stripped = lines[end]
             if stripped.startswith("  - "):
                 end += 1
                 continue
-            # Blank line — peek next to see if sub-bullets continue.
             if not stripped.strip() and end + 1 < len(lines) \
                     and lines[end + 1].startswith("  - "):
                 end += 1
                 continue
             break
-        lines[qfix_idx] = qfix_row_text
-        lines[qfix_idx + 1: end] = new_subs
-        result = f"updated B-QFix with {len(findings)} residual(s)"
-    else:
-        # Create row at the top of `## Ready`. Create the H2 if absent.
-        ready_idx: Optional[int] = None
-        for i, line in enumerate(lines):
-            if line.strip() == "## Ready":
-                ready_idx = i
-                break
-        if ready_idx is None:
-            # Insert `## Ready` before the first existing H2, or at end.
-            insert_at = len(lines)
-            for i, line in enumerate(lines):
-                if line.startswith("## "):
-                    insert_at = i
-                    break
-            lines.insert(insert_at, "## Ready")
-            lines.insert(insert_at + 1, "")
-            ready_idx = insert_at
-        insert_at = ready_idx + 1
-        while insert_at < len(lines) and not lines[insert_at].strip():
-            insert_at += 1
-        block = [qfix_row_text] + new_subs + [""]
-        for j, ln in enumerate(block):
-            lines.insert(insert_at + j, ln)
-        result = f"created B-QFix with {len(findings)} residual(s)"
+        if end < len(lines) and not lines[end].strip():
+            end += 1
+        del lines[qfix_idx:end]
+        backlog_file.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        _selffire(backlog_file)
+        result += " + removed legacy B-QFix row"
 
-    backlog_file.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    _selffire(backlog_file)
     return True, result
 
 
 def clear_qfix_row(backlog_file: Path) -> tuple[bool, str]:
-    """Delete an existing singleton `B-QFix` row (and its sub-bullets) from
-    backlog_file. No-op if the row doesn't exist. Returns (changed, msg).
-
-    Called when an anchor's residual findings drop to zero so stale captures
-    from prior runs don't persist as a phantom Ready row inflating the
-    anchor's banner.
+    """Clear stale audit residue when an anchor's findings drop to zero:
+    the audit-owned `- **C…**` bullets in `{slug} Chores.md` (F332 — the
+    file itself is deleted when no hand-added chores remain), plus any
+    legacy singleton `B-QFix` row still in the backlog. Returns
+    (changed, msg).
     """
+    cleared: list[str] = []
+    chores_file = chores_path_for(backlog_file)
+    if chores_file.exists():
+        try:
+            old = chores_file.read_text(encoding="utf-8").splitlines()
+        except (OSError, UnicodeDecodeError):
+            old = []
+        if any(re.match(r"- \*\*C\d+\*\*", l) for l in old):
+            hand = [l for l in old
+                    if l.startswith("- ") and not re.match(r"- \*\*C\d+\*\*", l)]
+            if hand:
+                kept = [l for l in old if not re.match(r"- \*\*C\d+\*\*", l)]
+                chores_file.write_text(
+                    "\n".join(kept) + "\n", encoding="utf-8")
+                _selffire(chores_file)
+            else:
+                chores_file.unlink()
+            cleared.append("stale audit chores")
     try:
         text = backlog_file.read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError):
-        return False, f"couldn't read {backlog_file.name}"
+        return bool(cleared), (
+            "cleared " + ", ".join(cleared) if cleared
+            else f"couldn't read {backlog_file.name}")
     lines = text.splitlines()
     qfix_idx: Optional[int] = None
     for i, line in enumerate(lines):
@@ -5417,7 +5438,9 @@ def clear_qfix_row(backlog_file: Path) -> tuple[bool, str]:
             qfix_idx = i
             break
     if qfix_idx is None:
-        return False, "no QFix row to clear"
+        return bool(cleared), (
+            "cleared " + ", ".join(cleared) if cleared
+            else "no QFix residue to clear")
     end = qfix_idx + 1
     while end < len(lines):
         stripped = lines[end]
@@ -5436,7 +5459,8 @@ def clear_qfix_row(backlog_file: Path) -> tuple[bool, str]:
             break
     backlog_file.write_text("\n".join(lines) + "\n", encoding="utf-8")
     _selffire(backlog_file)
-    return True, "cleared stale B-QFix row"
+    cleared.append("legacy B-QFix row")
+    return True, "cleared " + ", ".join(cleared)
 
 
 def route_findings_to_qfix(
@@ -5512,6 +5536,20 @@ def report_stale_qfix_rows(
                 f"row is still [Ready] and inflating the banner. Re-run with "
                 f"--fix to clear it."
             )
+        # F332 — same staleness check against the chores file's audit bullets.
+        chores_file = chores_path_for(backlog_file)
+        if chores_file.exists():
+            try:
+                chores_lines = chores_file.read_text(
+                    encoding="utf-8").splitlines()
+            except OSError:
+                continue
+            if any(re.match(r"- \*\*C\d+\*\*", l) for l in chores_lines):
+                log.append(
+                    f"  {anchor}: stale audit chores — 0 residuals reproduce, "
+                    f"but {chores_file.name} still carries `- **C…**` bullets. "
+                    f"Re-run with --fix to clear them."
+                )
     return log
 
 
