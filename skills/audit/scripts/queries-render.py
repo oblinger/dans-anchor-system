@@ -854,7 +854,7 @@ def derive_banner(name: str, rows: list[Row], backlog_file: Path,
         if r.horizon in horizon_counts and not r.bracket.startswith("Done"):
             horizon_counts[r.horizon] += 1
     # Icebox count from {slug} Icebox.md
-    icebox_file = backlog_file.parent / f"{name} Icebox.md"
+    icebox_file = audit_q.backlog_track_dir(backlog_file) / f"{name} Icebox.md"
     if icebox_file.is_file():
         try:
             icebox_text = icebox_file.read_text(encoding="utf-8")
@@ -1735,7 +1735,7 @@ def render_queries_doc(name: str, banner: Optional[str], rows: list[Row],
     Returns False only when there is no page to keep honest."""
     built = build_queries_body(name, banner, rows, vault_index, next_actions,
                                verify_questions, backlog_file)
-    queries_file = backlog_file.parent / f"{name} queries.md"
+    queries_file = audit_q.backlog_track_dir(backlog_file) / f"{name} queries.md"
     body: list[str]
     h1: str
     # Resolve the actual anchor page name — usually equals `name` (slug =
@@ -1747,7 +1747,7 @@ def render_queries_doc(name: str, banner: Optional[str], rows: list[Row],
     # will surface the broken link if truly unresolvable).
     anchor_page_name = name
     if name.lower() not in vault_index:
-        anchor_dir_name = backlog_file.parent.parent.name
+        anchor_dir_name = audit_q.backlog_track_dir(backlog_file).parent.name
         if anchor_dir_name.lower() in vault_index:
             anchor_page_name = anchor_dir_name
     if built is None or banner is None:

@@ -1548,7 +1548,7 @@ def find_ask_format_files(
             # authored directly there (there is no `{slug} Questions.md`).
             # extract_q_entries picks up only the authored `**Q<n>` bullets in
             # `## Questions`; rendered pointer lines and resolutions are ignored.
-            queries_file = backlog_file.parent / f"{name} queries.md"
+            queries_file = backlog_track_dir(backlog_file) / f"{name} queries.md"
             if queries_file.is_file() and queries_file not in seen_paths:
                 out.append((name, queries_file))
         else:
@@ -1556,7 +1556,7 @@ def find_ask_format_files(
             # F142 transition — features live in the new `{name} Design/{name}
             # Features/` location (Design is a sibling of `{name} Track/`) or the
             # legacy `{name} Features/` sibling of the backlog. Glob both.
-            track_dir = backlog_file.parent          # {name} Track/
+            track_dir = backlog_track_dir(backlog_file)  # {name} Track/ (F329 folder-doc aware)
             anchor_root = track_dir.parent           # Design/Track siblings
             feature_dirs = [
                 anchor_root / f"{name} Design" / f"{name} Features",  # new canonical
@@ -1578,7 +1578,7 @@ def find_ask_format_files(
                     fnum = feature_number(feature_file.stem)
                     if fnum:
                         out.append((fnum, feature_file))
-            queries_file = backlog_file.parent / f"{name} queries.md"
+            queries_file = backlog_track_dir(backlog_file) / f"{name} queries.md"
             if queries_file.is_file():
                 out.append((name, queries_file))
         # The backlog itself carries row-scoped Qs (F275 standalone Q rows and
@@ -4207,7 +4207,7 @@ def check_c46_queries_q_link_lands_on_qs(
     findings: list[Finding] = []
     inline_q_re = re.compile(r"^\s*- \*\*Q\d+\s+[—-]")
     for name, backlog_file in sorted(anchor_backlogs.items()):
-        queries_file = backlog_file.parent / f"{name} queries.md"
+        queries_file = backlog_track_dir(backlog_file) / f"{name} queries.md"
         if not queries_file.is_file():
             continue
         try:
@@ -4385,7 +4385,7 @@ def check_c35_ask_md_drift(
     q_claim_re = re.compile(r"-\s*\*{0,2}Q(\d+)\b")
     wiki_link_re = re.compile(r"\[\[([^|\]]+?)(?:\|[^\]]+)?\]\]")
     for name, backlog_file in anchor_backlogs.items():
-        queries_file = backlog_file.parent / f"{name} queries.md"
+        queries_file = backlog_track_dir(backlog_file) / f"{name} queries.md"
         if not queries_file.is_file():
             continue
         try:
@@ -4643,7 +4643,7 @@ def check_c37_queries_item_format(
     """
     findings: list[Finding] = []
     for name, backlog_file in anchor_backlogs.items():
-        qf = backlog_file.parent / f"{name} queries.md"
+        qf = backlog_track_dir(backlog_file) / f"{name} queries.md"
         if not qf.is_file():
             continue
         try:
@@ -5249,7 +5249,7 @@ def _resolve_owning_anchor(
     candidates: list[tuple[int, str, Path]] = []
     for name, backlog in anchor_backlogs.items():
         try:
-            root = backlog.parents[1]
+            root = backlog_track_dir(backlog).parent  # F329 folder-doc aware
         except IndexError:
             continue
         candidates.append((len(root.parts), name, root))
@@ -5656,7 +5656,13 @@ def classify_backlog(path: Path) -> tuple[str, Optional[str]]:
     if any(frag in parts for frag in EXCLUDED_PATH_FRAGMENTS):
         return "exclude", "path-fragment"
     slug = path.stem[:-len(" Backlog")]
-    if path.parent.name not in (f"{slug} Track", f"{slug} Plan"):
+    # F329 — the folder-doc form (`{slug} Track/{slug} Backlog/{slug}
+    # Backlog.md`) opts in exactly like the flat form; the parent to test is
+    # then one level up. Same recognizer as backlog_track_dir.
+    opt_in_parent = path.parent
+    if opt_in_parent.name == path.stem:
+        opt_in_parent = opt_in_parent.parent
+    if opt_in_parent.name not in (f"{slug} Track", f"{slug} Plan"):
         # Never opted in. Most such files are obviously not queues; naming why
         # keeps C52 quiet about them, so the complaint stays meaningful. These
         # reasons gate only the COMPLAINT, never the render — a wrong entry
@@ -5725,6 +5731,21 @@ def _backlog_structure_fault(path: Path) -> Optional[str]:
     if rows and not has_horizon:
         return f"{rows} row(s) under no recognised horizon H2"
     return None
+
+
+def backlog_track_dir(backlog_path: Path) -> Path:
+    """The `{slug} Track/` (or `Plan/`) directory a backlog belongs to.
+
+    F329 — the backlog may be folder-doc form (`{slug} Track/{slug} Backlog/
+    {slug} Backlog.md`, the folder holding the T-docs); the Track dir is then
+    one level further up. Mirrors `backlog_edit.anchor_track_dir` — the two
+    scripts cannot import each other, so the recognizer (stem == parent name)
+    is carried in both with a pointer here.
+    """
+    parent = backlog_path.parent
+    if parent.name == backlog_path.stem:
+        return parent.parent
+    return parent
 
 
 def find_anchor_backlogs(vault_root: Path) -> dict[str, Path]:
@@ -6012,7 +6033,7 @@ def count_pending_inbox(name: str, backlog_file: Path) -> int:
     beside `slug: SCOUT` would otherwise put the count and the file in two
     different Track folders and the banner would read 0 forever.
     """
-    inbox = backlog_file.parent / f"{name} Inbox.md"
+    inbox = backlog_track_dir(backlog_file) / f"{name} Inbox.md"
     if not inbox.is_file():
         return 0
     try:
@@ -6121,7 +6142,7 @@ def derive_anchor_banner(name: str, backlog_file: Path,
         if e.horizon in horizon_counts and not e.status.startswith("Done"):
             horizon_counts[e.horizon] += 1
     # Icebox count: from {slug} Icebox.md if it exists
-    icebox_file = backlog_file.parent / f"{name} Icebox.md"
+    icebox_file = backlog_track_dir(backlog_file) / f"{name} Icebox.md"
     if icebox_file.is_file():
         try:
             icebox_text = icebox_file.read_text(encoding="utf-8")
@@ -6475,7 +6496,7 @@ def main() -> int:
     c22_scope.extend(p for _, p in ask_format_files)
     c22_scope.extend(anchor_backlogs.values())
     for backlog_file in anchor_backlogs.values():
-        queries_md = backlog_file.parent / f"{backlog_file.stem.replace(' Backlog', ' queries')}.md"
+        queries_md = backlog_track_dir(backlog_file) / f"{backlog_file.stem.replace(' Backlog', ' queries')}.md"
         if queries_md.is_file():
             c22_scope.append(queries_md)
     # These three sources OVERLAP, and a scope that lists a file twice reports
@@ -6551,7 +6572,7 @@ def main() -> int:
         c36_surfaces.append(Q_MD)
     for name, backlog_file in anchor_backlogs.items():
         c36_surfaces.append(backlog_file)
-        queries_md = backlog_file.parent / f"{name} queries.md"
+        queries_md = backlog_track_dir(backlog_file) / f"{name} queries.md"
         if queries_md.is_file():
             c36_surfaces.append(queries_md)
     for surface in c36_surfaces:
@@ -6713,7 +6734,7 @@ def _owning_slug_for_cwd(all_backlogs: dict[str, Path]) -> Optional[str]:
     best_len = -1
     for slug, backlog_file in all_backlogs.items():
         # {anchor}/{slug} Track/{slug} Backlog.md → anchor root is Track's parent
-        root = backlog_file.parent.parent.resolve()
+        root = backlog_track_dir(backlog_file).parent.resolve()
         try:
             cwd.relative_to(root)
         except ValueError:

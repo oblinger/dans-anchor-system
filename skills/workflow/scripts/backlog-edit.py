@@ -269,8 +269,17 @@ def find_backlog(slug):
 
 
 def anchor_track_dir(backlog_path):
-    """The `{slug} Track/` directory (where Messages.md lives)."""
-    return backlog_path.parent
+    """The `{slug} Track/` directory (where Messages.md lives).
+
+    F329 — the backlog may be folder-doc form (`{slug} Track/{slug} Backlog/
+    {slug} Backlog.md`, the folder holding the T-docs); the Track dir is then
+    one level further up. The test is stem == parent name, same as every
+    other folder-doc recognizer.
+    """
+    parent = backlog_path.parent
+    if parent.name == backlog_path.stem:
+        return parent.parent
+    return parent
 
 
 def find_icebox(slug):
@@ -300,7 +309,7 @@ def ensure_icebox(slug, backlog_path):
     existing = find_icebox(slug)
     if existing is not None:
         return existing
-    icebox = backlog_path.parent / f"{slug} Icebox.md"
+    icebox = anchor_track_dir(backlog_path) / f"{slug} Icebox.md"
     header = (
         "---\n"
         f"description: cold-storage backlog for {slug} — parked items "
@@ -398,6 +407,36 @@ def row_pending_q_lines(sub_lines):
             break
         out.append(line)
     return out
+
+
+def _pending_q_numbers(span_lines):
+    """The set of pending inline Q-numbers in a row span (F329 gate input)."""
+    return {m.group(2) for l in row_pending_q_lines(span_lines)
+            if (m := _ROW_Q_HEADER_RE.match(l))}
+
+
+def f329_refuse_new_inline_qs(row_id, old_span, new_span, slug=None):
+    """F329 — questions live in docs; the backlog hosts pointers.
+
+    Refuse a write that ADDS a pending `- **Q<n> — …**` sub-bullet to a row.
+    Editing a row that already carries legacy inline Qs is fine (they migrate
+    on touch, never by force — the F305 D1 pattern), and resolving one is fine
+    (the pending set shrinks); only a NEW inline question number refuses.
+    """
+    added = _pending_q_numbers(new_span) - _pending_q_numbers(old_span or [])
+    if not added:
+        return
+    qs = ", ".join(f"Q{n}" for n in sorted(added, key=int))
+    slug_hint = slug or "{SLUG}"
+    raise BacklogEditError(
+        f"{row_id}: inline row questions are retired (F329) — refusing to add "
+        f"{qs}. Questions live in docs: put it in the row's arrow-linked doc "
+        f"via `state define <anchor> <doc> Q+`, or for a standalone question "
+        f"mint a T-doc `{slug_hint} T<n> - <Title>.md` in the folder-form "
+        f"backlog (`<slug> Track/<slug> Backlog/`) holding one stamped "
+        f"`## Open Questions` block, and link it from the row with `→ [[…]]`. "
+        f"Existing inline Qs migrate on touch, never by sweep."
+    )
 
 
 def count_row_pending_qs(sub_lines):
@@ -2185,7 +2224,7 @@ def _hosted_pending_items(backlog_path, body, letters):
     if not m:
         return []
     stem = m.group(1).strip()
-    anchor_root = backlog_path.parent.parent
+    anchor_root = anchor_track_dir(backlog_path).parent
     hits = []
     # Both the flat form (`Features/X.md`) and the folder-doc upgrade
     # (`Features/X/X.md`, optionally carrying its own `.anchor`) are one doc.
@@ -2195,7 +2234,11 @@ def _hosted_pending_items(backlog_path, body, letters):
                 f"* Track/* Features/{stem}/{stem}.md",
                 # F331 subs — root-level `{slug} Subs/`, folder-doc form.
                 f"* Subs/{stem}/{stem}.md",
-                f"* Subs/{stem}.md"):
+                f"* Subs/{stem}.md",
+                # F329 — T-docs live directly in the folder-form backlog
+                # (`{slug} Track/{slug} Backlog/{SLUG} T<n> - Title.md`).
+                f"* Track/* Backlog/{stem}.md",
+                f"* Plan/* Backlog/{stem}.md"):
         try:
             hits.extend(anchor_root.glob(pat))
         except (OSError, ValueError):
@@ -2298,13 +2341,26 @@ def perform_edit(
     # sub-bullet text so it survives a horizon-move (which drops the row span),
     # and so a same-status re-touch isn't forced to re-supply it.
     existing_verify = existing_next = existing_user = existing_probe = None
+    old_span = None  # F329 gate input — the row's pre-edit sub-bullet span
     if existing is not None:
         _es, _ee = existing[0], existing[1]
         _span = lines[_es:_ee]
+        old_span = list(_span)
         existing_verify = _extract_subbullet_text(_span, "Verify")
         existing_next = _extract_subbullet_text(_span, "Next")
         existing_user = _extract_subbullet_text(_span, "User")
         existing_probe = _extract_subbullet_text(_span, "Probe")
+
+    # F329 — new standalone Q-rows are retired: a question is a doc (T-doc or
+    # feature doc), never a backlog row. Existing F275 Q-rows stay addressable
+    # (edit/resolve/delete) until they migrate on touch.
+    if kind == "Q" and existing is None and status != "delete":
+        raise BacklogEditError(
+            "new standalone Q-rows are retired (F329) — questions live in "
+            "docs. Mint a T-row plus a T-doc (`{SLUG} T<n> - <Title>.md` in "
+            "the folder-form backlog `<slug> Track/<slug> Backlog/`) holding "
+            "the question in its stamped `## Open Questions` block."
+        )
 
     # Validate horizon.
     if horizon == "same":
@@ -2626,6 +2682,19 @@ def perform_edit(
                     sl = sl if sl.startswith(" ") else "  " + sl
                     lines.insert(j + k, sl if sl.endswith("\n") else sl + "\n")
                 break
+
+    # F329 — refuse a write that ADDS a pending inline `- **Q<n>` sub-bullet
+    # to the row (questions live in docs; legacy inline Qs migrate on touch).
+    # Compared by Q-number over the rescanned span, so reworded or resolved
+    # existing questions pass and only genuinely new numbers refuse.
+    if status != "delete":
+        _, _, new_row_index = scan_backlog("".join(lines))
+        placed = new_row_index.get(row_id)
+        if placed is not None:
+            f329_refuse_new_inline_qs(
+                row_id, old_span, lines[placed[0]:placed[1]],
+                slug=backlog_path.stem[:-len(" Backlog")],
+            )
 
     # T128 — hold the pre-edit bytes so a failed post-condition can be UNDONE.
     # `raw` is what `perform_edit` read at entry, before any mutation.
@@ -2963,13 +3032,14 @@ def _candidate_feature_dirs(slug, backlog_path):
     both, preferred-first, so callers transparently find docs in either place
     during the rollout. See F142.
     """
-    track_dir = backlog_path.parent          # {slug} Track/
+    track_dir = anchor_track_dir(backlog_path)  # {slug} Track/ (folder-doc aware, F329)
     anchor_root = track_dir.parent           # anchor docs root (Design/Track siblings)
     return [
         anchor_root / f"{slug} Design" / f"{slug} Features",  # new canonical
         track_dir / f"{slug} Features",                       # legacy sibling
         anchor_root / f"{slug} Features",                     # older flat variant
         anchor_root / f"{slug} Subs",                          # F331 subs
+        track_dir / f"{slug} Backlog",                         # F329 T-docs
     ]
 
 

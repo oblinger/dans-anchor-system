@@ -89,6 +89,15 @@ description: scratch
 
 ## Now
 
+- **T1 — trailing recommendation** [Questions] — body text.
+  - **Q1 — a question?** ^T1-Q1
+- **T2 — mid-body recommendation** [Questions] — body text.
+  - **Q1 — a question?** ^T2-Q1
+- **T4 — a Q ending in On-answer** [Questions] — body text.
+  - **Q1 — a question?** ^T4-Q1
+- **T5 — a Q ending in Damage** [Questions] — body text.
+  - **Q1 — a question?** ^T5-Q1
+
 ## Next
 
 ## Later
@@ -97,6 +106,11 @@ description: scratch
 
 ## Done
 """
+# The Q-carrying rows are PRE-SEEDED because F329 refuses a define that ADDS
+# a pending inline Q to a row: new questions belong in docs. Re-defining a
+# legacy row that already carries the same Q-numbers is the migration-on-touch
+# shape and passes the gate — and it is exactly the write this suite pins the
+# separator behavior for.
 
 
 class R:
