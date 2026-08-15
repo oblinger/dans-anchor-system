@@ -146,8 +146,12 @@ def main():
     # --- the reported case: one pending Q, promoted into ## Blockers ------
     b = render(BACKLOG, ONE_Q_DOC)
     row = bullet(b)
-    check("blocker — the question text still renders (T211 holds)",
-          any("Which write model governs" in ln for ln in b), True)
+    # F332 (2026-08-15) — a doc-backed entry is ONE line: the preview this
+    # used to assert is deliberately gone, because the anchored link (below)
+    # lands the reader ON the question in the doc. T211's protection now
+    # rides the anchor + badge, not an inlined copy.
+    check("blocker — doc-backed question preview is NOT inlined (F332 pure link-list)",
+          any("Which write model governs" in ln for ln in b), False)
     check("blocker — the (1Q) badge still renders",
           "**(1Q)**" in row, True)
     # The assertion this file exists for. The display text is whatever the link

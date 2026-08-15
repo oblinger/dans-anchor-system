@@ -1534,7 +1534,14 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
             # honours it; dropping only the options would reintroduce exactly
             # that defect.
             if qdoc:
-                lines.append(f"    - {qid} — {_question_sentence(qtext, qlimit)}")
+                # F332 (Dan, 2026-08-15) — the queue is a pure link-list: a
+                # doc-backed entry is ONE line, and the anchored link already
+                # lands the reader ON the question (T216), where the doc-level
+                # info box and the full ask-format entry live. The preview
+                # line this used to emit was exactly the meta-text Dan said he
+                # has learned to ignore. Inline (docless) rows below keep
+                # their preview: on an unmigrated anchor this render is still
+                # the only place the user can read the question at all.
                 continue
             opt_txt = ""
             if qopts:
