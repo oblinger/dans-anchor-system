@@ -4,11 +4,38 @@
 
 It exists because every other tool in the chain assumes the machine already exists. Connection tools take a host you can already reach; experiment frameworks take a remote you have already registered. Something has to make the box first, and until now that something was a human at a cloud console.
 
+## Synopsis
+
+```
+rig [--cloud BACKEND] [--agent SLUG] COMMAND [ARGS]
+
+  up    NAME [--size TYPE] [--zone ZONE] [--disk GB] [--image FAMILY]
+                                 create if absent, start if stopped, no-op if running
+  down  NAME                      stop it — disk survives, compute billing stops
+  rm    NAME --yes                destroy it, disk and all; not reversible
+  ls                              every machine in the account, with state and burn rate
+  ip    NAME                      print the address on stdout and nothing else
+  ssh   NAME [ARGS...]            refresh the alias and connect; ARGS pass through to ssh
+  reap  [--idle MIN] [--load N] [--dry-run]
+                                  stop rig-managed machines that are up but idle
+
+  --cloud BACKEND   which adapter (default: gcp; only gcp is implemented)
+  --agent SLUG      namespace prefix; also $RIG_AGENT, $BRIDGE_AGENT, or `agent:` in config
+  --idle MIN        minutes of inactivity before reap stops a box (default: 60)
+  --load N          1-minute load average at or above which a box counts as busy
+  --dry-run         report what reap would stop, change nothing
+  --yes             required by rm; there is no undo
+
+  NAME is <agent>-<local>, lowercase, hyphens only — a2x-dev, tink-build.
+  Dotted names are rejected. Config: ~/.config/rig/config.yaml
+  Exit 0 on success; nonzero with a one-line reason on stderr otherwise.
+```
+
+In use, the point is that the second line needs nothing from the first:
+
 ```sh
 rig up a2x-dev          # ensure it exists and is running
 ssh a2x-dev             # …and it's reachable, because rig wrote the alias
-rig ls                  # what exists, what's running, what it's costing
-rig down a2x-dev        # stop it
 ```
 
 ## What rig is not
