@@ -3673,6 +3673,15 @@ def _triage_gate_findings(backlog_path):
         if status in ("Ready", "Active", "Agreed") and rid != "B-QFix":
             next_text = be._extract_subbullet_text(lines[start:end], "Next")
             if not next_text:
+                # F332 — a derived (pointer-led) row's Next lives in its doc
+                # as the `next::` field; the row deliberately carries no
+                # sub-bullet. Same exemption audit-q C41 applies.
+                try:
+                    next_text = be.read_doc_next(
+                        be.arrow_doc_path(lines[start]))
+                except Exception:
+                    next_text = None
+            if not next_text:
                 findings.append(
                     f"{rid}: [{status}] with no `- **Next:**` step — "
                     "not actually executable")
