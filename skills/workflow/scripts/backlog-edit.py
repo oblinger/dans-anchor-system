@@ -339,6 +339,65 @@ def find_file_by_basename(basename):
     return None
 
 
+def sync_doc_next(row_body, next_text):
+    """F332 — the doc owns the Next. An explicit `--next` on a row writes the
+    arrow-linked doc's `next::` Dataview field, kept in the H1's intro block
+    (under the orientation line, before the first H2): create, update, or —
+    for an empty flag, matching T122's removal semantics — delete it. The
+    row's `- **Next:**` sub-bullet is a derived copy during the transition to
+    pure link-list rows and disappears with them.
+
+    Best effort by design: a row with no resolvable arrow-linked doc (T-rows
+    pre-F329-migration, off-vault links) keeps its row-only Next and nothing
+    is written. Returns the doc path written, else None.
+    """
+    if not row_body:
+        return None
+    arrow_links = list(re.finditer(r"→\s+(\[\[[^\]]+\]\])", row_body))
+    m = WIKI_LINK_RE.search(arrow_links[-1].group(1)) if arrow_links else None
+    if not m:
+        return None
+    target = find_file_by_basename(m.group(1).strip())
+    if target is None:
+        return None
+    try:
+        text = target.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return None
+    lines = text.splitlines(keepends=True)
+    h1_idx = next((i for i, l in enumerate(lines) if l.startswith("# ")), None)
+    if h1_idx is None:
+        return None
+    end = next((i for i in range(h1_idx + 1, len(lines))
+                if lines[i].startswith("## ")), len(lines))
+    field_idx = next((i for i in range(h1_idx + 1, end)
+                      if lines[i].startswith("next::")), None)
+    new_line = f"next:: {next_text.strip()}\n"
+    if not next_text.strip():
+        if field_idx is None:
+            return None
+        del lines[field_idx]
+        if (0 < field_idx < len(lines) and lines[field_idx].strip() == ""
+                and lines[field_idx - 1].strip() == ""):
+            del lines[field_idx]
+    elif field_idx is not None:
+        if lines[field_idx] == new_line:
+            return None
+        lines[field_idx] = new_line
+    else:
+        # Insert after the orientation run — the consecutive non-blank lines
+        # directly under the H1 — separated by the blank line R-spine-02
+        # requires there, and followed by its own blank before what comes next.
+        ins = h1_idx + 1
+        while ins < end and lines[ins].strip() != "":
+            ins += 1
+        if ins < end and lines[ins].strip() == "":
+            ins += 1  # keep the orientation's trailing blank before the field
+        lines[ins:ins] = [new_line, "\n"]
+    target.write_text("".join(lines), encoding="utf-8")
+    return target
+
+
 def _scope_text_to_block_id_region(text, block_id):
     """Per F103: scope a target file's text to the region of the row carrying
     `^<block_id>`. The row's region runs from the line containing `^<block_id>`
@@ -2521,6 +2580,12 @@ def perform_edit(
     _host_src = body_for_check
     if existing is not None:
         _host_src = lines[existing[0]] + "\n" + _host_src
+
+    # F332 — the doc owns the Next: an explicit --next mirrors into the
+    # arrow-linked doc's `next::` field (best effort; rows without a doc
+    # keep their row-only Next until the F329 migration reaches them).
+    if next_text is not None and status != "delete":
+        sync_doc_next(_host_src, next_text)
     if status not in ("same", "delete"):
         if (_status_needs_verify(status)
                 and not (eff_verify and eff_verify.strip())
