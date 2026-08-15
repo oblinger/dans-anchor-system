@@ -40,7 +40,9 @@ rig ssh <name>     # refresh the alias and connect
 
 ## Two things an agent must get right
 
-**1. Use your own slug as the name prefix.** The namespace is global and flat, so `dev` means one machine everywhere. The convention is `<agent>.<name>` — `a2x.dev`, `tink.build`. Pass `--agent <slug>`, or export `RIG_AGENT`; rig prefixes a bare name for you when it knows your slug, and warns when it does not. Two agents that both want a "dev" box collide unless this is honoured.
+**1. Use your own slug as the name prefix, joined with a hyphen.** The namespace is global and flat, so `dev` means one machine everywhere. The convention is `<agent>-<name>` — `a2x-dev`, `tink-build`. Pass `--agent <slug>`, or export `RIG_AGENT`; rig prefixes an unprefixed name for you when it knows your slug, and warns when it does not. Two agents that both want a "dev" box collide unless this is honoured.
+
+**The hyphen is load-bearing — rig rejects dotted names outright.** tmux silently rewrites `.` to `_` in session names and GCE forbids dots in instance names, so a dotted name would mean three different strings in three tools, which is the exact confusion the one-name convention exists to remove.
 
 **2. Bring it down when you are finished.** *Nothing expires.* There is no lease, no timeout, no automatic teardown — a GPU box left running bills continuously (order of several hundred dollars a month for one mid-range GPU), and you will not have a session tomorrow in which to notice. Treat `rig down` as part of finishing the work, not as cleanup to get to later. Auto-teardown is designed but unbuilt — [[TINK P0005]].
 
@@ -60,7 +62,7 @@ Because the output is an ordinary ssh host, every downstream tool composes witho
 
 ## Backends
 
-Adapters register with `@backend("<name>")` and implement `up` / `down` / `rm` / `ls` / `ip` / `ssh_target`; `--cloud` selects one. **`gcp` is the only one implemented** — Azure is expected, and the seam exists now because a second backend is far cheaper to add than to retrofit. Name mapping is the adapter's problem: GCE forbids dots, so `a2x.dev` becomes instance `a2x-dev` with the true name in metadata.
+Adapters register with `@backend("<name>")` and implement `up` / `down` / `rm` / `ls` / `ip` / `ssh_target`; `--cloud` selects one. **`gcp` is the only one implemented** — Azure is expected, and the seam exists now because a second backend is far cheaper to add than to retrofit. Name mapping is the adapter's problem: hyphenated rig names pass through GCE unchanged, and the true name is also carried in instance metadata so the mapping stays exact on any cloud with stricter rules.
 
 Keep adapters thin. They encode *your* choices — image family, key, which zones to try — not an abstraction over clouds.
 

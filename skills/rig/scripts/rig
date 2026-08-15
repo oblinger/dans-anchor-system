@@ -502,7 +502,7 @@ def cmd_reap(args, cfg):
 
 def cmd_ip(args, cfg):
     """Machine-readable by design — bare IP on stdout, nothing else, so
-    `ssh root@$(rig ip a2x.dev)` works."""
+    `ssh root@$(rig ip a2x-dev)` works."""
     be = get_backend(cfg, args.cloud)
     ip = be.ip(resolve_name(args.name, cfg, args.agent))
     if not ip:
@@ -524,7 +524,7 @@ def main():
     cfg = load_config()
     p = argparse.ArgumentParser(prog="rig", description="bring cloud machines up and down")
     p.add_argument("--cloud", help=f"backend (default {cfg['backend']}); have: {', '.join(sorted(BACKENDS))}")
-    p.add_argument("--agent", help="agent slug for the <agent>.<name> namespace convention")
+    p.add_argument("--agent", help="agent slug for the <agent>-<name> namespace convention")
     sub = p.add_subparsers(dest="verb", required=True)
 
     up = sub.add_parser("up", help="ensure it exists and is running (creates on first call)")
