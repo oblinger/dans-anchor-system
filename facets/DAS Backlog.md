@@ -333,7 +333,9 @@ Backlog-touching batch operations (`/groom`, `/ask`, audits) never interrupt mid
 
 ## Location
 
-`{slug} Backlog.md` lives in `{slug} Track/`.
+`{slug} Backlog.md` lives in `{slug} Track/` — either as a flat file, or in the **folder form** (F329, 2026-08-15): `{slug} Track/{slug} Backlog/{slug} Backlog.md`, the folder additionally holding the anchor's **T-docs** (`{SLUG} T{n} - {Title}.md` — one doc per standalone task/question, parallel to feature docs in everything but numbering) and its [[DAS Chores|{slug} Chores.md]]. The recognizer everywhere is *stem == parent folder name*; the folder carries **no `.anchor`** (it is a document in folder form, not a sub-anchor — R-doc-structure-02 § F329). Anchors migrate on touch, not by sweep; TINK is the live exemplar.
+
+**Row grammar under F332 (derived rows).** A row whose body leads with the arrow pointer is *derived*: `state` regenerates everything after the pointer from the doc on every touch — `- **F332 — Title** [Bracket] — → [[doc|F332]] — <the doc's next::, else its description, else its orientation line>`. The backlog persists exactly four things per row: membership, order, horizon, bracket. A Ready/Active row's Next lives in the doc as its `next::` Dataview field (`state set … --next` writes it there); no `- **Next:**` sub-bullet is materialized on a derived row. Hand text after the pointer is overwritten on regeneration (electric-zone doctrine).
 
 ## Relationship to Other Planning Docs
 
