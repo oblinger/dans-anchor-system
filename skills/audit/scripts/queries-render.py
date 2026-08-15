@@ -563,6 +563,13 @@ def _read_row_inline_questions(backlog_file: Path, r: "Row") -> list[tuple[str, 
             break
         if not line.strip():
             continue
+        # A row's `- **Resolved**` sub-bullet opens its resolved zone; every Q
+        # below it is archived history, not pending. `backlog-edit.py`'s
+        # [Questions] gate (`row_pending_q_lines`) already stops here — this
+        # reader didn't, so a resolved row-Q rendered as pending and inflated
+        # the (NQ) badge (T197 Q1, found 2026-08-14).
+        if re.match(r"\s+-\s+\*\*Resolved\*\*\s*$", line):
+            break
         # A row-hosted Q may carry its options as NESTED sub-bullets rather than
         # packed onto the header line — which is what audit-q C8 requires, so it
         # is the shape any Q authored to pass the checker will have. T130 taught
