@@ -34,7 +34,7 @@ The breadcrumb-masthead **dispatch table** appears on a document **if and only i
 - **Anchor document → MUST carry a dispatch table** (per [[DAS Dispatch Table]] / [[DAS Anchor Page]]).
 - **Non-anchor document → MUST NOT carry a dispatch table.** User-story files, feature docs, individual design docs, and plain content pages are not anchors; a breadcrumb masthead on them is a violation. Parent / sibling back-links belong in a `## Related` or `## See also` section instead.
 
-**Check pattern:** detect a dispatch masthead by `^\| -\[\[.+\]\]- \|` as the first table row. Assert it is present when the file is an anchor file and absent otherwise. Anchor-ness: the file is named `{folder} .md` matching its enclosing folder, or a sibling `.anchor` marker designates it.
+**Check pattern:** detect a dispatch masthead by `^\| -\[\[.+\]\]- \|` as the first table row. Assert it is present when the file is an anchor file and absent otherwise. Anchor-ness: the file is named `{folder} .md` matching its enclosing folder **and that folder carries a `.anchor` marker**, or a sibling `.anchor` declares the file's stem as its slug. A namesake alone proves nothing since F329 (2026-08-15): the folder-doc form — `X/X.md` with no `.anchor`, e.g. a folder-form `{slug} Backlog/` or a feature doc grown into a folder — is a *document* in folder form, keeps its `:>>` breadcrumb, and must not be asked for a masthead.
 
 **Why:** the dispatch table is the *anchor* navigation surface — breadcrumb up the tree plus the anchor's member links. On a non-anchor it is noise that falsely implies the document roots a subtree, and it pushes the real content below the fold. This is the rule that makes a story file with a masthead (e.g. a `US-<slug>-<N>` file) fail.
 

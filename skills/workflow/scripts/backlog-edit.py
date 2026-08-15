@@ -339,6 +339,120 @@ def find_file_by_basename(basename):
     return None
 
 
+def arrow_doc_path(row_body):
+    """Vault path of the LAST arrow-linked (`→ [[doc]]`) doc in a row body or
+    span, or None. The last-link rule matches sync_doc_next's historical
+    behavior: prose arrows earlier in a body lose to the pointer at the end."""
+    if not row_body:
+        return None
+    arrow_links = list(re.finditer(r"→\s+(\[\[[^\]]+\]\])", row_body))
+    m = WIKI_LINK_RE.search(arrow_links[-1].group(1)) if arrow_links else None
+    if not m:
+        return None
+    return find_file_by_basename(m.group(1).strip())
+
+
+def _doc_head(doc_path):
+    """(lines, h1_idx, end) for a doc — end is the first H2 (the intro block
+    boundary). None on any read/shape failure."""
+    if doc_path is None:
+        return None
+    try:
+        text = doc_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return None
+    lines = text.splitlines(keepends=True)
+    h1_idx = next((i for i, l in enumerate(lines) if l.startswith("# ")), None)
+    if h1_idx is None:
+        return None
+    end = next((i for i in range(h1_idx + 1, len(lines))
+                if lines[i].startswith("## ")), len(lines))
+    return lines, h1_idx, end
+
+
+def read_doc_next(doc_path):
+    """The doc's `next::` Dataview field text (F332), or None."""
+    head = _doc_head(doc_path)
+    if head is None:
+        return None
+    lines, h1_idx, end = head
+    for i in range(h1_idx + 1, end):
+        if lines[i].startswith("next::"):
+            txt = lines[i][len("next::"):].strip()
+            return txt or None
+    return None
+
+
+def doc_derived_line(doc_path):
+    """F332 — the one derived line a pure-link backlog row carries: the doc's
+    `next::` field, falling back to its frontmatter `description:`, falling
+    back to the orientation line under the H1. None when nothing usable."""
+    nxt = read_doc_next(doc_path)
+    if nxt:
+        return nxt
+    head = _doc_head(doc_path)
+    if head is None:
+        return None
+    lines, h1_idx, _ = head
+    if lines and lines[0].strip() == "---":
+        for l in lines[1:]:
+            if l.strip() == "---":
+                break
+            if l.startswith("description:"):
+                desc = l[len("description:"):].strip().strip('"').strip()
+                if desc:
+                    return desc
+    if h1_idx + 1 < len(lines):
+        orient = lines[h1_idx + 1].strip()
+        if orient and not orient.startswith(("#", ">", "next::", "|", ":>>")):
+            return orient
+    return None
+
+
+def is_derived_row_body(body):
+    """F332 — a row whose body LEADS with the arrow pointer is a pure-link
+    (derived) row: everything after the pointer is regenerated from the doc."""
+    return bool(body) and body.lstrip().startswith("→ [[")
+
+
+def regenerate_derived_row(lines, row_id):
+    """F332 — rewrite a placed derived row's body to the canonical
+    `→ [[<doc>|<row_id>]] — <derived line>` form, reading the derived line
+    from the doc (`next::` → description → orientation). When the doc carries
+    a `next::`, the row's `- **Next:**` sub-bullet is dropped — the doc is
+    the source and the derived line already shows it (electric-zone
+    doctrine: hand text after the pointer is overwritten here).
+
+    Mutates `lines` in place; returns True when the row was rewritten.
+    No-op (False) for non-derived bodies and unresolvable doc links."""
+    row_i = None
+    for i, line in enumerate(lines):
+        rm = ROW_HEADER_RE.match(line)
+        if rm and len(rm.group(1)) == 0 and rm.group(2) == row_id:
+            row_i = i
+            break
+    if row_i is None:
+        return False
+    m = ROW_FULL_RE.match(lines[row_i])
+    if not m:
+        return False
+    body = (m.group("body") or "").strip()
+    if not is_derived_row_body(body):
+        return False
+    doc = arrow_doc_path(body)
+    if doc is None:
+        return False
+    derived = doc_derived_line(doc)
+    new_body = f"→ [[{doc.stem}|{row_id}]]" + (f" — {derived}" if derived else "")
+    new_line = render_row(row_id, m.group("status") or "",
+                          m.group("title") or "", new_body)
+    if lines[row_i] != new_line:
+        lines[row_i] = new_line
+    if read_doc_next(doc):
+        _ensure_subbullet(lines, row_id, "Next", None)
+    return True
+
+
 def sync_doc_next(row_body, next_text):
     """F332 — the doc owns the Next. An explicit `--next` on a row writes the
     arrow-linked doc's `next::` Dataview field, kept in the H1's intro block
@@ -351,13 +465,7 @@ def sync_doc_next(row_body, next_text):
     pre-F329-migration, off-vault links) keeps its row-only Next and nothing
     is written. Returns the doc path written, else None.
     """
-    if not row_body:
-        return None
-    arrow_links = list(re.finditer(r"→\s+(\[\[[^\]]+\]\])", row_body))
-    m = WIKI_LINK_RE.search(arrow_links[-1].group(1)) if arrow_links else None
-    if not m:
-        return None
-    target = find_file_by_basename(m.group(1).strip())
+    target = arrow_doc_path(row_body)
     if target is None:
         return None
     try:
@@ -2014,6 +2122,15 @@ def verify_write_landed(lines, row_id, requested):
         # exists to clean: a caller piping in a row that still carries the mint
         # placeholder gets a hard revert with no hint of why.
         if _strip_trailing_anchors(str(want).strip()) not in got:
+            # F332 — a derived (pointer-led) body is normalized on write:
+            # display text collapses to `|<row_id>]]` and the trailing line
+            # regenerates from the doc. Same link target = the write landed.
+            if label == "body" and is_derived_row_body(str(want)) \
+                    and is_derived_row_body(got):
+                wm = WIKI_LINK_RE.search(str(want))
+                gm = WIKI_LINK_RE.search(got)
+                if wm and gm and wm.group(1).strip() == gm.group(1).strip():
+                    continue
             if "\n" in str(want).strip():
                 # A genuine rejection, but the old message named the wrong
                 # thing. A row is ONE line; a body carrying a blank line lands
@@ -2044,6 +2161,11 @@ def verify_write_landed(lines, row_id, requested):
                                 f"still carries `- **{label}:** {got[:40]}`")
             continue
         if got is None:
+            # F332 — on a derived row the Next never lands as a sub-bullet;
+            # it shows as the regenerated derived line on the row itself
+            # (written to the doc's `next::` by sync_doc_next).
+            if label == "Next" and str(want).strip() in lines[span[0]]:
+                continue
             failures.append(f"{label}: asked to set it, but {row_id} has no "
                             f"`- **{label}:**` sub-bullet after the write")
         elif str(want).strip() not in got:
@@ -2586,6 +2708,16 @@ def perform_edit(
     # keep their row-only Next until the F329 migration reaches them).
     if next_text is not None and status != "delete":
         sync_doc_next(_host_src, next_text)
+    # F332 — derived rows: when the row's doc carries a `next::` field, the
+    # doc satisfies the Ready/Active Next requirement and no row sub-bullet
+    # is materialized — the regenerated derived line shows it instead.
+    next_from_doc = False
+    if (status not in ("same", "delete") and _status_needs_next(status)
+            and not (eff_next and eff_next.strip())):
+        _doc_next = read_doc_next(arrow_doc_path(_host_src))
+        if _doc_next:
+            eff_next = _doc_next
+            next_from_doc = True
     if status not in ("same", "delete"):
         if (_status_needs_verify(status)
                 and not (eff_verify and eff_verify.strip())
@@ -2731,6 +2863,10 @@ def perform_edit(
             status, eff_verify, eff_next, eff_user, next_text, verify_text,
             probe_text, eff_probe
         ):
+            # F332 — a Next satisfied by the doc's `next::` never lands as a
+            # row sub-bullet (removals, text=None, still apply).
+            if label == "Next" and next_from_doc and text is not None:
+                continue
             _ensure_subbullet(lines, row_id, label, text)
 
     # v2 `define` sub-bullets land in the SAME edit, before the post-edit
@@ -2760,6 +2896,13 @@ def perform_edit(
                 row_id, old_span, lines[placed[0]:placed[1]],
                 slug=backlog_path.stem[:-len(" Backlog")],
             )
+
+    # F332 — a pointer-led (derived) row's trailing line regenerates from its
+    # doc on every touch: `→ [[doc|<id>]] — <next:: | description | orientation>`.
+    # This is also the on-touch migration: any doc-backed row whose body leads
+    # with the pointer collapses to the canonical pure-link form here.
+    if status != "delete":
+        regenerate_derived_row(lines, row_id)
 
     # T128 — hold the pre-edit bytes so a failed post-condition can be UNDONE.
     # `raw` is what `perform_edit` read at entry, before any mutation.

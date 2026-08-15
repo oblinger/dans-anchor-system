@@ -3054,6 +3054,14 @@ def check_c41_soak_question_declared(
                 mechanically_fixable=False,
             ))
         elif needs_next and e.identifier not in have_next:
+            # F332 — a derived row's Next lives in its doc as `next::`; the
+            # regenerated row line shows it, no sub-bullet exists or should.
+            try:
+                if _be_mod.read_doc_next(
+                        _be_mod.arrow_doc_path(e.raw_body or "")):
+                    continue
+            except Exception:
+                pass
             findings.append(Finding(
                 severity="warning",
                 surface_file=e.source_file,

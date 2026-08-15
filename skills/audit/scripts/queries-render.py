@@ -688,6 +688,24 @@ def _q_home_link(r: "Row", vault_index: dict, backlog_file: Path) -> Optional[st
     return _feature_doc_link(r, vault_index, backlog_file)
 
 
+def _doc_next_fallback(r: "Row", vault_index: dict,
+                       backlog_file: Path) -> Optional[str]:
+    """F332 — a derived (pure-link) row carries no `- **Next:**` sub-bullet;
+    its Next is the arrow-linked doc's `next::` Dataview field. Resolve the
+    doc and read it, sharing the writer's own reader so the render and
+    `state` agree on what the field says."""
+    if not r.arrow_link:
+        return None
+    bn = r.arrow_link.split("#")[0].split("|")[0].strip()
+    target = audit_q.resolve_target(bn, backlog_file, vault_index)
+    if target is None:
+        return None
+    try:
+        return audit_q._be_mod.read_doc_next(target)
+    except Exception:
+        return None
+
+
 def _doc_q_anchor(qdoc, q_entries: list) -> Optional[str]:
     """The in-document anchor a Q-bearing link must carry, or None.
 
@@ -1573,7 +1591,8 @@ def build_queries_body(name: str, banner: Optional[str], rows: list[Row],
         _h2("## Ready")
         for r in ready:
             link = _bullet_link(r, name, vault_index, block_ids, h3_headings)
-            na = next_actions.get(r.identifier)
+            na = (next_actions.get(r.identifier)
+                  or _doc_next_fallback(r, vault_index, backlog_file))
             na_txt = (_truncate_body(na, 200) if na
                       else "⚠ none declared — not really Ready; add a no-user next-action or rebracket")
             # A `[Ready]` row can hold pending questions without being a

@@ -3520,10 +3520,20 @@ def chk_doc_top_order(target, anchor_root, args):
 
 
 def _anchorness(f: Path) -> tuple[bool, str]:
-    """(is_anchor_page, evidence) — the file is its folder's namesake page, or a
-    sibling `.anchor` declares its stem as the slug."""
+    """(is_anchor_page, evidence) — the file is its folder's namesake page (in
+    a folder that IS an anchor root), or a sibling `.anchor` declares its stem
+    as the slug.
+
+    F329 (2026-08-15) — a namesake alone no longer proves anchorhood: the
+    folder-doc form (`X/X.md` with NO `.anchor` in the folder — folder-form
+    backlogs, feature docs grown into folders) is a *document* in folder form,
+    and demanding a masthead of it would be wrong. The `.anchor` marker is
+    what separates the two, and it is the definition of an anchor root anyway.
+    """
     if f.stem == f.parent.name:
-        return True, "folder namesake"
+        if (f.parent / ".anchor").is_file():
+            return True, "folder namesake"
+        return False, ""
     dot = f.parent / ".anchor"
     if dot.is_file():
         try:
