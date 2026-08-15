@@ -80,9 +80,8 @@ For each `### ` record under the retiring item's `## Resolved`:
 
 Never drop a durable-shaping decision silently on archival — that loss is exactly what F249 closes. If a decision's layer is genuinely ambiguous, fold it to the most specific durable doc it plausibly shaped and note the ambiguity in the provenance line; do not discard it.
 
-### 4. Update Status / Stat Records
+### 4. Update Status Records
 
-- If `skl-stat` is in use, post a Done update with the work-unit's S-number and a brief activity note.
 - If the work corresponds to a backlog item (`F<n>` or `B<n>` in `{slug} Backlog.md`), move it to `## Done` via the workflow skill's `state resolve <anchor> Backlog <row-id>` — never edit the backlog file directly. F/T-number and title are preserved; the resolution note is appended to the body:
 
   ```bash

@@ -41,7 +41,7 @@ The agent never calls cab-audit directly for user-facing work. `/audit docs` cal
 
 ### stat (the reporter)
 
-Audit results go to stat via `skl-stat add`. The punch list is a detail file. The user sees "N fixes needed" in Ops and clicks through.
+The punch list is a detail file holding the audit's findings in full.
 
 ### /code modules (the fixer)
 

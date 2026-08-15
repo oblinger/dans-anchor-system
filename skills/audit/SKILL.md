@@ -70,13 +70,7 @@ The user walks these callouts later and deletes (or keeps) each. This keeps the 
 2. **Dispatch each sub-audit as a worker** (Agent tool, `subagent_type=general-purpose`). The orchestrator does *not* execute sub-audit runbooks itself — it only collects results.
    - Pass each worker: the anchor path, the sub-skill file path, and any flags (`dry`, `recheck`).
    - Each worker scans, reports, writes its own backlog entry, and reports back the B-number(s) it wrote (or "clean").
-3. After all workers return, print a per-sub-audit summary line, then post one stat update:
-
-```bash
-skl-stat add "Review" "[[{slug}]]" "Audit: <total> findings across <K> sub-audits"
-```
-
-Use `Done` + `Audit: clean` if every sub-audit returned zero findings.
+3. After all workers return, print a per-sub-audit summary line.
 
 ## Why workers for the orchestrator
 

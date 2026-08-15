@@ -1,5 +1,5 @@
 ---
-description: "Install CAB command-line tools — make stat, cab-config, cab-scan, cab-audit available from any shell. Run once per machine."
+description: "Install CAB command-line tools — make cab-config, cab-scan, cab-audit available from any shell. Run once per machine."
 ---
 
 # anchor-install — wire the anchor CLI tools
@@ -21,7 +21,6 @@ The command-line tools live as scripts in the anchor skill's `scripts/` folder. 
 |---------|--------|-------------|
 | `cab-scan` | cab-scan.py | Discover all anchors, write to `~/.config/skl/anchors.yaml` |
 | `cab-config` | cab-config.py | Manage `.skl/config.yaml` anchor orchestration |
-| `skl-stat` | stat.py | Activity status tracking across projects |
 | `cab-maintain` | maintain-check.py | Run maintenance checks (file triggers, event triggers) |
 | `cab-audit` | audit/scripts/cab-audit.py | Audit anchor structure against CAB type rules |
 

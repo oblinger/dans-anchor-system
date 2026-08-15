@@ -8,7 +8,7 @@ description: User guides for anchor-lifecycle skills — creating, installing, m
 |  |  |
 | [[DAS Anchor Toolkit\|Anchor Toolkit]]  | The `anchor` skill is the low-level toolkit for working with **anchors** — the standardized named folders that this whole system is built around. |
 | [[DAS Create\|Create]]  | Create a new thing — anchor, feature, work product, spec, or rule. |
-| [[DAS Install\|Install]]  | `/install` is the one-time setup skill for getting CAB command-line tools (`cab-scan`, `cab-config`, `skl-stat`, `cab-maintain`, `cab-audit`) onto a fresh machine. |
+| [[DAS Install\|Install]]  | `/install` is the one-time setup skill for getting CAB command-line tools (`cab-scan`, `cab-config`, `cab-maintain`, `cab-audit`) onto a fresh machine. |
 | [[DAS Migrate\|Migrate]]  | Migrate an anchor — change its slug, traits, location, or structure. |
 | [[DAS Move\|Move]]  | `/move` relocates an anchor folder to a new path and updates every path-dependent system that indexes it — HookAnchor, Claude Code session history, hardcoded paths inside the anchor's own configs, … |
 | [[DAS Publish\|Publish]]  | `/publish` deploys an anchor's public page to the web. |

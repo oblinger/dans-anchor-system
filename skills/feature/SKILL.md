@@ -24,19 +24,16 @@ The runbook for the `/feature` skill — drives a feature from idea through Desi
 |    [[#1.5. Mint the backlog (or roadmap) row — MANDATORY (per [[SKA workflow]] § Active-work invariant)]] |  |
 |    [[#1a. Surface the Doc — glance only when adding/modifying a pending question AND the user is engaging now]] |  |
 |    [[#1c. Refresh the anchor's Q.md section — automatic via `state`]] |  |
-|    [[#2. Post to Stat]] |  |
-|    [[#3. Design Discussion]] |  |
-|    [[#4. Reach Agreement]] |  |
-|    [[#5. Implement]] |  |
-|    [[#6. Test]] |  |
-|    [[#7. Complete]] |  |
+|    [[#2. Design Discussion]] |  |
+|    [[#3. Reach Agreement]] |  |
+|    [[#4. Implement]] |  |
+|    [[#5. Test]] |  |
+|    [[#5a. Promote Success Criteria — mint the FINAL question (F305 D5)]] |  |
+|    [[#6. Complete]] |  |
 | **[[#Commit Discipline]]** |  |
 | **[[#Feature Doc Conventions]]** |  |
-| **[[#Stat Integration]]** |  |
 
-Manage a feature from initial idea through design, agreement, implementation, testing, and completion. Every feature gets a dated design document, posts to stat throughout its lifecycle, and requires explicit user agreement before implementation begins.
-
-**MANDATORY: Post to stat at every lifecycle transition. The user monitors features via the Ops page.**
+Manage a feature from initial idea through design, agreement, implementation, testing, and completion. Every feature gets a dated design document and requires explicit user agreement before implementation begins.
 
 **MANDATORY: Commit discipline.** Before starting a new feature or switching to any other activity, commit all uncommitted work from the current feature. The natural commit point is the transition — not when you think you're done, but when you're about to do something else.
 
@@ -253,13 +250,7 @@ The audit's fix-by-default behavior catches any drift introduced by this skill's
 
 **Parking mode skips the glance**, but the Q.md update post-condition **still fires** — Q.md is the persistent dashboard; it should reflect the just-filed feature even when the user said "for later." The next time the user opens Q.md, the parked feature is at the top.
 
-### 2. Post to Stat
-
-```bash
-skl-stat add "Proposed" "<Feature Name>" "Feature doc created"
-```
-
-### 3. Design Discussion
+### 2. Design Discussion
 
 Work with the user to flesh out the design. **Per F128/F129/F236, Q-state changes delegate to `state` (the v2 query grammar)** — the canonical state-editor enforces ask-format spec, Q-numbering policy, and the block lifecycle at write time. Agents should not hand-edit `## Open Questions` blocks.
 
@@ -283,21 +274,12 @@ When a new question arises mid-discussion, add it via `Q+ define` and glance the
 
 Full F129 spec: [[DAS State]]. Predecessor: [[F128 — Status script as source-of-truth for Q-management — extend backlog-edit.py|F128]] (legacy CLI shape).
 
-Update stat as you work:
-```bash
-skl-stat update <S#> "Designing" "Resolving open questions"
-```
-
-### 4. Reach Agreement
+### 3. Reach Agreement
 
 When all open questions are resolved and the design is complete:
 - Update the feature doc's Status section to "Agreed"
 - Get explicit user confirmation: "This design is agreed — ready to implement?"
 - Only proceed to implementation after the user says yes
-
-```bash
-skl-stat update <S#> "Agreed" "Design approved by user"
-```
 
 **This is a gate.** Do not implement without agreement. If the user says "just do it" without a design discussion, still create the feature doc (even if minimal) and confirm before coding.
 
@@ -311,29 +293,21 @@ skl-stat update <S#> "Agreed" "Design approved by user"
 
 Why it works: the user confirms design + plan in one glance, every choice is visible as a line (not buried in prose), and the full feature doc still exists for the deeper look. Model instance: the MUSE F019 gate (trust-helper build) — status line, 3 Q-lines, 7 plan steps, one `Also:` line, one ask.
 
-### 5. Implement
+### 4. Implement
 
 Use `/mint` or work directly. The feature doc is the spec.
-
-```bash
-skl-stat update <S#> "Implementing" "Starting implementation"
-```
 
 During implementation:
 - Reference the feature doc for decisions
 - If new questions arise, add them to `## Open Questions` (pending list), run `open "<feature doc path>"` so the user sees them, and pause if the question is blocking
-- Resolve any questions with the three-step discipline from § 3 before continuing
+- Resolve any questions with the three-step discipline from § 2 before continuing
 - Do NOT commit during implementation unless switching to another activity
 
-### 6. Test
+### 5. Test
 
 Run tests, verify the feature works as designed.
 
-```bash
-skl-stat update <S#> "Testing" "Implementation complete, running tests"
-```
-
-### 6a. Promote Success Criteria — mint the FINAL question (F305 D5)
+### 5a. Promote Success Criteria — mint the FINAL question (F305 D5)
 
 When the agent believes the feature done, Success Criteria stops being passive: apply the F240 positioning test to its check. Agent-runnable (tier 1/2) → run it now. User-owned (tier 3/4) → **mint the doc's final question** — one more `Q<n>` in the doc's own numbering, in the final-question form (zero labeled options, an explicit `yes / no` cue, `- **Recommendation:** None` — the write gate admits exactly this shape) — and set the row `[Verify]`, whose class is Parked: done, nothing waiting, only the check remains. The user answers `Q<n>: yes` to close it out; **no records the outcome and closes nothing** — mint the follow-up work the failed observation implies. Never a separate `V<n>` item or a positional page handle (T127).
 
@@ -344,16 +318,11 @@ echo '**Q+ — Verified in use?** — <the tier-3/4 observation, phrased for the
 state set <anchor> Backlog F<n> --status Verify
 ```
 
-### 7. Complete
+### 6. Complete
 
 When tests pass and the feature is verified (the final question answered yes):
 - Update the feature doc's Status to "Done"
 - Commit all uncommitted work for this feature
-- Post final stat update
-
-```bash
-skl-stat update <S#> "Done" "Feature complete and tested"
-```
 
 ## Commit Discipline
 
@@ -382,12 +351,3 @@ Implement <Feature Name> (S03200917)
 - **Status near the bottom** — single line indicating lifecycle stage. (`## Resolved`, when present, sits below Status as the historical archive.)
 - **No implementation details in the feature doc** — the feature doc is the *what* and *why*.
 
-## Stat Integration
-
-Every lifecycle transition posts to stat. The user can monitor all active features from the Ops page:
-
-| S# | Status | Output | Activity |
-|----|--------|--------|----------|
-| S03210930 | Implementing | [[F017 — Standard Rulesets]] | 3 of 11 rulesets created |
-| S03200917 | Agreed | [[F005 — Buffer Origin Point]] | Design approved |
-| S03201400 | Proposed | [[Smart Clear]] | Feature doc created |

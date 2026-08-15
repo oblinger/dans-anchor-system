@@ -59,12 +59,6 @@ For each approved ruleset:
 
 The exception table starts empty — exceptions will be added as `/rule check` finds violations against the standard rules.
 
-### 5. Post to Stat
-
-```bash
-skl-stat add "Done" "rulesets" "Applied 3 standard rulesets: xdg-config, async-coordination, error-handling"
-```
-
 ## Notes
 
 - Standard rulesets use set-prefixed R-numbers (R-XDG01, R-AC02) that are stable across projects

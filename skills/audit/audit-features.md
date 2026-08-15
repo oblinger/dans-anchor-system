@@ -102,14 +102,6 @@ Group sub-bullets by category (integration-pending first, then needs-fix), then 
 
 If there are zero remaining findings (everything was integrated inline AND no broken frontmatter), do **not** write an entry — print `features: clean — N integrated inline, no overflow` and stop.
 
-## Stat post
-
-```bash
-skl-stat add "Review" "[[{slug}]]" "Audit: features — <N> findings"
-```
-
-Use `Done` + `Audit: features — clean` if zero findings.
-
 ## Notes on idempotence
 
 Re-running `/audit features` after fixes should produce **strictly fewer findings** (or zero). If new findings appear that weren't there before, an F-doc was added or a PRD wiring was undone since the last run.

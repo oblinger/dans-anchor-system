@@ -88,7 +88,6 @@ When the discussion reaches a natural stopping point, the agent is responsible f
 - Weave generated materials into their proper locations (skill files, spec docs, anchor pages, etc.)
 - Create feature documents if a feature emerged from the discussion
 - Update any referenced documentation
-- Post to stat if the work is trackable
 
 ### 7. Close
 

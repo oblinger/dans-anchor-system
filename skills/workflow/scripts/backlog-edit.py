@@ -2192,7 +2192,10 @@ def _hosted_pending_items(backlog_path, body, letters):
     for pat in (f"* Design/* Features/{stem}.md",
                 f"* Track/* Features/{stem}.md",
                 f"* Design/* Features/{stem}/{stem}.md",
-                f"* Track/* Features/{stem}/{stem}.md"):
+                f"* Track/* Features/{stem}/{stem}.md",
+                # F331 subs — root-level `{slug} Subs/`, folder-doc form.
+                f"* Subs/{stem}/{stem}.md",
+                f"* Subs/{stem}.md"):
         try:
             hits.extend(anchor_root.glob(pat))
         except (OSError, ValueError):
@@ -2966,6 +2969,7 @@ def _candidate_feature_dirs(slug, backlog_path):
         anchor_root / f"{slug} Design" / f"{slug} Features",  # new canonical
         track_dir / f"{slug} Features",                       # legacy sibling
         anchor_root / f"{slug} Features",                     # older flat variant
+        anchor_root / f"{slug} Subs",                          # F331 subs
     ]
 
 
