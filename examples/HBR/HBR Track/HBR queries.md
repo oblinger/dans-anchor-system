@@ -11,4 +11,3 @@ description: HBR queries — mechanically rendered from the backlog (Blockers / 
 
 ## Questions
 - [[F003 — Scheduled Catalog Checkpoint#^F003-Q1|F003]] **(1Q)** ([[F003 — Scheduled Catalog Checkpoint]]) — · periodic SQLite WAL checkpoint so an unclean shutdown resumes from the last good catalog state (US-HBR-5). Q1 — fixed-interval vs write-triggered — is open.
-    - Q1 — Checkpoint trigger: fixed interval or write-count?

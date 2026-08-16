@@ -5442,9 +5442,32 @@ def _row_bracket(row_line):
     return (m.group(1) or m.group(2) or "").strip()
 
 
+_BE_MOD = None
+
+
+def _be_mod():
+    """Lazy import of the workflow skill's backlog-edit module — the producer
+    of the F332 derived-row grammar, borrowed here (never copied — T120) for
+    the doc-`next::` exemption."""
+    global _BE_MOD
+    if _BE_MOD is None:
+        import importlib.util
+        bp = (Path(__file__).resolve().parent.parent.parent
+              / "workflow" / "scripts" / "backlog-edit.py")
+        spec = importlib.util.spec_from_file_location("backlog_edit_for_plan", bp)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        _BE_MOD = mod
+    return _BE_MOD
+
+
 def chk_backlog_frontier_planned(target, anchor_root, args):
     """R-backlog-02: [Ready]/[Active] rows under frontier H2s carry a
-    `- **Next:**` sub-bullet declaring the next autonomous step."""
+    `- **Next:**` sub-bullet declaring the next autonomous step — OR, since
+    F332 (2026-08-15), are derived rows (`→ [[doc|id]]`) whose doc carries a
+    `next::` field; the regenerator deliberately drops the row-side sub-bullet
+    when the doc holds the Next, so demanding both would re-create what F332
+    removed."""
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file to inspect"
@@ -5455,6 +5478,12 @@ def chk_backlog_frontier_planned(target, anchor_root, args):
         b = _row_bracket(row)
         if b and re.fullmatch(r"(?:\d+\s+)?(Ready|Active)", b):
             if not any(re.match(r"^\s+-\s+\*\*Next:\*\*", s) for s in subs):
+                try:
+                    be = _be_mod()
+                    if be.read_doc_next(be.arrow_doc_path(row)):
+                        continue
+                except Exception:
+                    pass
                 failures.append(f"line {i}: [{b}] row declares no `- **Next:**` step")
     return ("pass", "") if not failures else ("fail", "; ".join(failures[:3]))
 
