@@ -165,12 +165,12 @@ def cmd_append(args):
     if args.body:
         body = Path(args.body).expanduser().read_text().strip()
     if not doc.exists():
-        doc.write_text(f"# {num} — {title}\n" + (f"\n{body}\n" if body else ""))
+        doc.write_text(f"# {prefix}-{num} — {title}\n" + (f"\n{body}\n" if body else ""))
     else:
         text = doc.read_text()
         lines = text.split("\n")
         if lines and lines[0].startswith("# "):
-            lines[0] = f"# {num} — {title}"
+            lines[0] = f"# {prefix}-{num} — {title}"
         if body is not None:
             lines = [lines[0], "", body]
         doc.write_text("\n".join(lines).rstrip("\n") + "\n")
