@@ -1,0 +1,271 @@
+#!/usr/bin/env python3
+"""nb — the Notebook facet's one write surface (F334, [[DAS Notebook]]).
+
+A notebook is a folder of numbered dash-entries plus a namesake narrative doc:
+
+    {slug} Notebook/                      <- per-anchor stream of notebooks
+      A2X012 - Game Breaks/               <- one notebook ({PREFIX} - {Title})
+        A2X012 - Game Breaks.md           <- namesake narrative (one H2 per entry)
+        A2X012-001 first pass.md          <- entry doc
+        A2X012-001 leaderboard.png        <- entry data / figures
+
+Verbs:
+  nb append <notebook-dir> [--num NNN] [--title T] [--summary S]
+            [--body file.md] [--data f ...] [--fig f ...]
+  nb mint <path-inside-anchor>
+
+`append` creates the notebook folder + narrative on first use, mints the next
+entry number when --num is omitted, and has keyword-overwrite semantics:
+--title/--summary/--body replace, --data/--fig accumulate (same basename
+overwrites). Each entry's narrative block is machine-regenerated on every
+append — hand-edits inside a block are lost; durable prose belongs in the
+entry's own doc. Figures embed sized by count: 1 -> full width, 2 -> |1000,
+3+ -> |500, three per row.
+
+`mint` prints the first available {SLUG}{NNN} in the anchor's shared number
+namespace (features, subprojects, notebooks all draw from one pool; numbers
+are never reused). It scans backlog F/T row numbers and every {SLUG}NNN-named
+file or folder in the anchor tree, and prints max+1.
+"""
+
+import argparse
+import re
+import shutil
+import sys
+from pathlib import Path
+
+ENTRY_RE = re.compile(r"^(?P<prefix>[A-Za-z][A-Za-z0-9]*?\d{3})-(?P<num>\d{3})\b")
+PREFIX_RE = re.compile(r"^(?P<prefix>[A-Za-z][A-Za-z0-9]*?\d{3})\b")
+H2_RE = re.compile(r"^## \[\[(?P<target>[^\]|]+)\|(?P<num>\d{3}) — (?P<title>.+)\]\]\s*$")
+EMBED_RE = re.compile(r"!\[\[(?P<file>[^\]|]+)(?:\|(?P<width>\d+))?\]\]")
+BAD_FILENAME = re.compile(r'[:/\\?*"<>|\n]')
+
+
+def die(msg):
+    sys.exit(f"nb: error: {msg}")
+
+
+def safe_name(text):
+    text = text.replace("—", "-").replace("–", "-")
+    return BAD_FILENAME.sub("-", text).strip()
+
+
+# ---------------------------------------------------------------- narrative --
+
+def narrative_path(nbdir: Path) -> Path:
+    return nbdir / f"{nbdir.name}.md"
+
+
+def new_narrative(nbdir: Path) -> str:
+    return (
+        "---\n"
+        f'description: "Notebook — {nbdir.name}. Appended by nb ([[DAS Notebook]]); one H2 per entry, each linking to the entry\'s own doc."\n'
+        "---\n\n"
+        f"# {nbdir.name}\n"
+        "<!-- notebook -->\n"
+        "Notebook — the ordered artifact stream of this activity. Entry blocks below are machine-written by `nb append`; durable prose belongs in each entry's own doc.\n"
+    )
+
+
+def parse_narrative(text):
+    """Split into (head, {num: block_lines}). A block runs from its H2 to the next H2."""
+    lines = text.split("\n")
+    head, blocks, cur = [], {}, None
+    for ln in lines:
+        m = H2_RE.match(ln)
+        if m:
+            cur = m.group("num")
+            blocks[cur] = [ln]
+        elif cur is not None:
+            blocks[cur].append(ln)
+        else:
+            head.append(ln)
+    return "\n".join(head).rstrip("\n"), blocks
+
+
+def parse_block(block_lines):
+    """Return (doc_target, title, summary, figures) from an existing entry block."""
+    m = H2_RE.match(block_lines[0])
+    target, title = m.group("target"), m.group("title")
+    summary_lines, figures = [], []
+    for ln in block_lines[1:]:
+        embeds = EMBED_RE.findall(ln)
+        if embeds:
+            figures.extend(e[0] for e in embeds)
+        elif ln.strip():
+            summary_lines.append(ln.strip())
+    return target, title, " ".join(summary_lines), figures
+
+
+def render_block(doc_stem, num, title, summary, figures):
+    out = [f"## [[{doc_stem}|{num} — {title}]]", ""]
+    if summary:
+        out += [summary, ""]
+    if figures:
+        n = len(figures)
+        width = None if n == 1 else (1000 if n == 2 else 500)
+        for i in range(0, n, 3):
+            row = figures[i : i + 3]
+            out.append(" ".join(
+                f"![[{f}]]" if width is None else f"![[{f}|{width}]]" for f in row))
+        out.append("")
+    return "\n".join(out).rstrip("\n")
+
+
+# ------------------------------------------------------------------- append --
+
+def cmd_append(args):
+    nbdir = Path(args.notebook).expanduser().resolve()
+    m = PREFIX_RE.match(nbdir.name)
+    if not m:
+        die(f"notebook folder name must start with a {{SLUG}}{{NNN}} prefix: {nbdir.name!r}")
+    prefix = m.group("prefix")
+
+    if not nbdir.exists():
+        if not nbdir.parent.exists():
+            die(f"parent folder does not exist (streams are created deliberately): {nbdir.parent}")
+        nbdir.mkdir()
+    nar = narrative_path(nbdir)
+    if not nar.exists():
+        nar.write_text(new_narrative(nbdir))
+
+    head, blocks = parse_narrative(nar.read_text())
+
+    # -- entry number
+    existing_nums = set(blocks)
+    for f in nbdir.iterdir():
+        em = ENTRY_RE.match(f.name)
+        if em and em.group("prefix") == prefix:
+            existing_nums.add(em.group("num"))
+    if args.num:
+        num = f"{int(args.num):03d}"
+    else:
+        num = f"{(max((int(n) for n in existing_nums), default=0) + 1):03d}"
+
+    is_new = num not in blocks
+    if is_new and not args.title:
+        die(f"new entry {prefix}-{num} requires --title")
+
+    # -- merge with any existing block state
+    old_target = old_summary = None
+    old_title, old_figs = None, []
+    if not is_new:
+        old_target, old_title, old_summary, old_figs = parse_block(blocks[num])
+
+    title = args.title or old_title
+    summary = args.summary if args.summary is not None else (old_summary or "")
+
+    # -- entry doc (always exists; renamed if the title changed)
+    doc_name = f"{prefix}-{num} {safe_name(title)}.md"
+    doc = nbdir / doc_name
+    old_doc = nbdir / f"{old_target}.md" if old_target else None
+    if old_doc and old_doc.exists() and old_doc.name != doc_name:
+        old_doc.rename(doc)
+    body = None
+    if args.body:
+        body = Path(args.body).expanduser().read_text().strip()
+    if not doc.exists():
+        doc.write_text(f"# {num} — {title}\n" + (f"\n{body}\n" if body else ""))
+    else:
+        text = doc.read_text()
+        lines = text.split("\n")
+        if lines and lines[0].startswith("# "):
+            lines[0] = f"# {num} — {title}"
+        if body is not None:
+            lines = [lines[0], "", body]
+        doc.write_text("\n".join(lines).rstrip("\n") + "\n")
+
+    # -- data + figure files
+    def take(src_str):
+        src = Path(src_str).expanduser()
+        if not src.exists():
+            die(f"no such file: {src}")
+        base = src.name
+        if not base.startswith(f"{prefix}-{num} "):
+            base = f"{prefix}-{num} {base}"
+        dest = nbdir / base
+        shutil.copy2(src, dest)
+        return dest.name
+
+    for d in args.data or []:
+        if d.endswith(".md"):
+            die("markdown data files are not supported in v1 (they collide with entry docs) — fold the content into --body")
+        take(d)
+    figures = list(old_figs)
+    for fg in args.fig or []:
+        name = take(fg)
+        stem = Path(name).stem  # embeds may be recorded with or without ext; use full name
+        if name not in figures:
+            figures.append(name)
+
+    # -- regenerate this entry's narrative block, keep all others, sorted
+    blocks[num] = render_block(doc.stem, num, title, summary, figures).split("\n")
+    ordered = [
+        "\n".join(blocks[n]).rstrip("\n") for n in sorted(blocks, key=int)
+    ]
+    nar.write_text(head + "\n\n" + "\n\n".join(ordered) + "\n")
+
+    print(f"nb: {prefix}-{num} {'created' if is_new else 'updated'} — "
+          f"{len(figures)} fig(s), doc: {doc.name}")
+
+
+# --------------------------------------------------------------------- mint --
+
+def read_anchor_slug(start: Path):
+    d = start if start.is_dir() else start.parent
+    while True:
+        dot = d / ".anchor"
+        if dot.exists():
+            for ln in dot.read_text().splitlines():
+                sm = re.match(r"^slug:\s*(\S+)", ln.strip())
+                if sm:
+                    return sm.group(1), d
+            die(f".anchor at {d} declares no slug: — declare one, or pass a path in an anchor that does")
+        if d.parent == d:
+            die(f"no .anchor found walking up from {start}")
+        d = d.parent
+
+
+def cmd_mint(args):
+    slug, root = read_anchor_slug(Path(args.path).expanduser().resolve())
+    used = set()
+    name_re = re.compile(rf"\b{re.escape(slug)}(\d{{3}})\b")
+    row_re = re.compile(r"\*\*[FT](\d{3}) — ")
+    for p in root.rglob("*"):
+        if any(part.startswith(".") for part in p.relative_to(root).parts):
+            continue
+        for n in name_re.findall(p.name):
+            used.add(int(n))
+        if p.name.endswith("Backlog.md") and p.is_file():
+            for n in row_re.findall(p.read_text(errors="ignore")):
+                used.add(int(n))
+    nxt = max(used, default=0) + 1
+    print(f"{slug}{nxt:03d}")
+
+
+# --------------------------------------------------------------------- main --
+
+def main():
+    ap = argparse.ArgumentParser(prog="nb", description="Notebook facet writer ([[DAS Notebook]], F334)")
+    sub = ap.add_subparsers(dest="verb", required=True)
+
+    a = sub.add_parser("append", help="create or extend a dash-entry in a notebook")
+    a.add_argument("notebook", help="path to the notebook folder ({PREFIX} - {Title}); created on first use")
+    a.add_argument("--num", help="target an existing entry number (default: mint the next)")
+    a.add_argument("--title", help="entry title (required for a new entry; overwrites on re-append)")
+    a.add_argument("--summary", help="1-3 narrative sentences (overwrites)")
+    a.add_argument("--body", help="markdown file whose content becomes the entry doc body (overwrites)")
+    a.add_argument("--data", action="append", metavar="FILE", help="data file, stored only (repeatable)")
+    a.add_argument("--fig", action="append", metavar="FILE", help="figure, stored AND embedded in the narrative (repeatable)")
+    a.set_defaults(func=cmd_append)
+
+    m = sub.add_parser("mint", help="print the first available {SLUG}{NNN} in the anchor's shared namespace")
+    m.add_argument("path", help="any path inside the anchor")
+    m.set_defaults(func=cmd_mint)
+
+    args = ap.parse_args()
+    args.func(args)
+
+
+if __name__ == "__main__":
+    main()
