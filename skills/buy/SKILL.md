@@ -294,6 +294,8 @@ Once the user reports what they bought, record it: a dated entry in [[BUY Log]],
 
 **Before concluding a purchase left no digital trail, search forwarded mail and search by product.** A sweep that looks only at the user's own order history and their own sent/received mail is owner-centric, and household purchases made on a partner's account are invisible to it — but they very often arrive as a **forward**. The 2026-08-10 durables sweep concluded a 65" LG OLED had been *"bought in a store, or on an account we cannot see"*; it was Costco order `1264001546` on Qingling's membership, and the shipping notice was sitting in Dan's own inbox, findable in one `gsa gmail search "in:anywhere <product>"`. Search the **product name**, not the retailer or the sender. And per [[io-gmail]], control-test any zero before reporting an absence.
 
+**And know which retailers mail cannot see at all — eBay is one.** The rule above says a silent mailbox is usually lying; this is the case where it is telling the truth. Checked 2026-08-17: `from:ebay.com` across the whole of `oblinger@gmail.com` returns **seven messages, all 2006–2007 spam** — no confirmation and no shipping notice for either 2026 eBay purchase. That account mails a different address. **Reconstruct an eBay order from `https://www.ebay.com/mye/myebay/purchase` in the logged-in browser on haorui, never from mail** — and note that the direct order-detail URL (`/mesh/ord/details?orderid=…`) errors out, so go through the purchases list. The general form: **before treating a mailbox's silence as evidence, establish that mail is a valid instrument for that retailer at all.**
+
 ## When NOT to use this skill
 
 - **Identifying a product** — use `/find`.
