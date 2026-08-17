@@ -124,8 +124,11 @@ def archived_stone_path(root, slug, sid):
 
 
 def write_control(path, slug, body_lines):
+    # Canonical packed form (Dan, 2026-08-17): frontmatter, then the list —
+    # no title H1, no blank lines. `_normalize_control` enforces this on
+    # every write, so fixtures authored any other way would churn on pass 1.
     path.parent.mkdir(parents=True, exist_ok=True)
-    header = ["---", f"description: {slug} Rock — control file", "---", "", f"# {slug} Rock", ""]
+    header = ["---", f"description: {slug} Rock — control file", "---"]
     path.write_text("\n".join(header + body_lines) + "\n", encoding="utf-8")
 
 
@@ -700,6 +703,93 @@ try:
         ok("...naming both the zero it wrote and the scope it covered")
     else:
         no(f"...but the report carries no count of what it looked at: {report!r}")
+
+    # ============================================================
+    # P. resync — an edit in ONE projection rewrites the OTHERS (2026-08-17)
+    #
+    # The loop that pushes a settled stone value back out to stale projections
+    # sat DEAD after readback's `return` from the F313 ship until 2026-08-17:
+    # edits traveled up to the stone, the other projections kept the old text,
+    # and the NEXT pass read the stale copy as a fresh edit and dragged the
+    # stone backwards (seen live: HUD 1's copies of LUMEN P0005/P0012). Cases
+    # B–H never caught it because every file they asserted on had been hand-
+    # edited itself; the missing assertion is on a file that was NOT touched.
+    # ============================================================
+    print("== P: an edit in one projection resyncs the untouched ones ==")
+    proot = TMP / "p"
+    mkanchor(proot, "PA", [])
+    mkanchor(proot, "PB", ["PA"])
+    run(proot, "rock", "new", "PA", "--line", "original wording")
+    write_control(control_path(proot, "PA"), "PA",
+                  [header_line("PA"), stone_line("PA", "R0001", "original wording")])
+    write_control(control_path(proot, "PB"), "PB", [header_line("PA")])
+    run(proot, "rock", "update")   # propagate into PB — all three copies agree
+
+    rewrite_line_text(control_path(proot, "PB"), "PA R0001", "edited downstream only")
+    rc = run(proot, "rock", "update")
+    pa_text = control_path(proot, "PA").read_text(encoding="utf-8")
+    pa_stone = stone_path(proot, "PA", "R0001").read_text(encoding="utf-8")
+    if "line:: edited downstream only" in pa_stone:
+        ok("the downstream edit traveled up to the stone (readback)")
+    else:
+        no(f"edit did not reach the stone: {pa_stone!r}")
+    if stone_line("PA", "R0001", "edited downstream only") in pa_text:
+        ok("the UNTOUCHED owner projection was rewritten to match (resync)")
+    else:
+        no(f"stale projection survived the pass — resync is dead again:\n{pa_text}")
+    rc2 = run(proot, "rock", "update")
+    if rc2 == 0 and "line:: edited downstream only" in stone_path(proot, "PA", "R0001").read_text(encoding="utf-8"):
+        ok("...and the following pass is quiet — no stale-copy edit bounce")
+    else:
+        no("a second pass changed the stone again — the stale-bounce persists")
+
+    # ============================================================
+    # Q. header form + packing (2026-08-17)
+    #
+    # The renderer follows the kind config (header_alias + optional
+    # header_line wrap), and the PARSER accepts both the config form and the
+    # dash-wrapped `-[[X Rock|X]]-` variant. NOTE: the wrapped form was tried
+    # as the CANONICAL form and reverted the same day — a bare `-[[X|Y]]-`
+    # line is HookAnchor's electric identity-row grammar, and ELECTRIC
+    # rebuilds wiped every line below the header in the live vault. The
+    # parser keeps accepting it so a stray hand-written wrap can never make
+    # an anchor silently unpublish; the renderer must NOT emit it.
+    # ============================================================
+    print("== Q: header render follows config; both forms parse; files stay packed ==")
+    hl = header_line("QQ")
+    want_link = f"[[QQ Rock|{CFG['header_alias'].format(slug='QQ')}]]"
+    want_hl = CFG.get("header_line", "{link}").format(link=want_link)
+    if hl == want_hl:
+        ok(f"header renders per kind config: {hl!r}")
+    else:
+        no(f"header rendering disagrees with config: {hl!r} != {want_hl!r}")
+    if st.classify_line("-[[QQ Rock|QQ]]- ", CFG)[0] == "header":
+        ok("the dash-wrapped form classifies as a header (parse tolerance)")
+    else:
+        no("the dash-wrapped header form does NOT classify as a header")
+    if st.classify_line("[[QQ Rock|-QQ-]]", CFG)[0] == "header":
+        ok("the dashes-inside form classifies as a header")
+    else:
+        no("dashes-inside header stopped classifying — live files would unpublish")
+
+    qroot = TMP / "q"
+    mkanchor(qroot, "QQ", [])
+    run(qroot, "rock", "new", "QQ", "--line", "the packed one")
+    # hand-author the sins: title H1 and blank lines around the list
+    qpath = control_path(qroot, "QQ")
+    qlines = qpath.read_text(encoding="utf-8").splitlines()
+    sinful = qlines[:3] + ["", "# QQ Rock", ""] + [qlines[3], "", header_line("QQ"), ""]
+    qpath.write_text("\n".join(sinful) + "\n", encoding="utf-8")
+    run(qroot, "rock", "update")
+    q_after = qpath.read_text(encoding="utf-8")
+    if "\n\n" not in q_after and "# QQ Rock" not in q_after:
+        ok("update packs the file: no blank lines, no title H1")
+    else:
+        no(f"update left blanks or the H1 in place:\n{q_after!r}")
+    if stone_line("QQ", "R0001", "the packed one") in q_after and hl in q_after:
+        ok("...and every real line survived the packing")
+    else:
+        no(f"packing dropped a real line:\n{q_after!r}")
 
 finally:
     shutil.rmtree(TMP, ignore_errors=True)

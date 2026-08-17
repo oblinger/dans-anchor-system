@@ -6557,12 +6557,20 @@ def chk_stone_members_numbered(target, anchor_root, args):
         "from a snapshot; this is the half a file can evidence.)")
 
 
-_STONE_FIRST_LINK_RX = re.compile(r"^\s*\[\[([^\]|]+)(?:\|([^\]]*))?\]\]")
+# The optional leading `-` admits the header_line wrap (`-[[X Pebble|X]]-`,
+# dashes OUTSIDE the link — 2026-08-17); identity still comes from the target.
+_STONE_FIRST_LINK_RX = re.compile(r"^\s*(?:-\s*)?\[\[([^\]|]+)(?:\|([^\]]*))?\]\]")
 
 
 def chk_stone_header_by_target(target, anchor_root, args):
     """R-stone-04: in the control file, what a line RENDERS as matches what its
-    first link TARGETS — a header is a header by target, never by appearance."""
+    first link TARGETS — a header is a header by target, never by appearance.
+
+    Since 2026-08-17 a header renders as the kind's `header_line` template with
+    the wrap OUTSIDE the link and the bare slug as display: `-[[X Pebble|X]]-`.
+    The wrap (not the display, which is now an unremarkable bare slug) is what
+    makes a line LOOK like a header, so the appearance side of the check reads
+    the whole line shape rather than the display alias."""
     f, folder, slug, cfg, done = _stone_gate(target, anchor_root, True)
     if done:
         return done
@@ -6573,10 +6581,15 @@ def chk_stone_header_by_target(target, anchor_root, args):
     num_rx = re.compile(
         rf"^([A-Za-z][A-Za-z0-9]*) {re.escape(cfg['prefix'])}"
         rf"\d{{{cfg.get('digits', 4)}}}$")
-    # The two display shapes, taken from the kind's own alias templates rather
-    # than spelled out here: `-{slug}-` renders a header, `{slug}:` a stone.
-    hdr_shape = re.compile("^" + re.escape(cfg["header_alias"]).replace(
-        r"\{slug\}", r".+") + "$")
+    # Shapes taken from the kind's own templates rather than spelled out here:
+    # the header_line wrap around the link renders a header, `{slug}:` a stone.
+    pre, _, suf = cfg.get("header_line", "{link}").partition("{link}")
+    wrap_is_distinct = bool(pre.strip() or suf.strip())
+    hdr_line_rx = re.compile(
+        r"^\s*" + re.escape(pre) + r"\[\[[^\]]+\]\]" + re.escape(suf)
+        + r"\s*(?::.*)?$")
+    hdr_example = cfg.get("header_line", "{link}").format(
+        link=f"[[… {ctrl_word}|…]]")
     stn_shape = re.compile("^" + re.escape(cfg["stone_alias"]).replace(
         r"\{slug\}", r".+") + "$")
     problems = []
@@ -6588,17 +6601,19 @@ def chk_stone_header_by_target(target, anchor_root, args):
         disp = (m.group(2) if m.group(2) is not None else tgt).strip()
         is_hdr = tgt.endswith(f" {ctrl_word}")
         is_stn = bool(num_rx.match(tgt))
-        if hdr_shape.match(disp) and not is_hdr:
-            problems.append(f"line {n} renders as a header ({disp!r}) but its first "
-                            f"link targets {tgt!r}, which is not a `… {ctrl_word}` "
+        if is_hdr:
+            want_disp = cfg["header_alias"].format(slug=tgt[: -len(ctrl_word) - 1])
+            if not hdr_line_rx.match(line) or disp != want_disp:
+                problems.append(f"line {n} targets the control file {tgt!r} — so it "
+                                f"IS a header — but renders as {line.strip()!r}, "
+                                f"not {hdr_example!r}")
+        elif wrap_is_distinct and hdr_line_rx.match(line):
+            problems.append(f"line {n} renders as a header ({line.strip()!r}) but its "
+                            f"first link targets {tgt!r}, which is not a `… {ctrl_word}` "
                             "control file")
         elif stn_shape.match(disp) and not is_stn:
             problems.append(f"line {n} renders as a stone ({disp!r}) but its first "
                             f"link targets {tgt!r}, which is not a numbered stone")
-        elif is_hdr and not hdr_shape.match(disp):
-            problems.append(f"line {n} targets the control file {tgt!r} — so it IS a "
-                            f"header — but renders as {disp!r}, not "
-                            f"{cfg['header_alias'].format(slug='…')!r}")
         elif is_stn and not stn_shape.match(disp):
             problems.append(f"line {n} targets the stone {tgt!r} but renders as "
                             f"{disp!r}, not {cfg['stone_alias'].format(slug='…')!r}")
