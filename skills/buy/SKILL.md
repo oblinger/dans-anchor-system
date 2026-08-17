@@ -21,6 +21,29 @@ subsystem:: [[DAS Search Design]] — the Search group's subsystem profile
 
 Skill spec for `/buy <product>` — walks major retailers for a known product, verifies real product pages via real-Safari fetching, and recommends the best place to purchase with stock + price + seller captured.
 
+| Table of Contents |  |
+|---|---|
+| **[[#Where this runs — haorui, not the laptop]]** |  |
+|    [[#Delivery — stage tabs, don't just report]] |  |
+|    [[#Gotchas (paid for on the first live run, 2026-07-24)]] |  |
+| **[[#When to Use]]** |  |
+| **[[#Required input]]** |  |
+| **[[#Per-retailer candidate list (v1 default)]]** |  |
+| **[[#Runbook]]** |  |
+|    [[#1. Resolve product identity]] |  |
+|    [[#2. Discover candidate URLs per retailer]] |  |
+|    [[#3. Verify each candidate IS a product page (CORE LOOP — load-bearing)]] |  |
+|    [[#4. Capture per VALID page]] |  |
+|    [[#5. Recommend]] |  |
+|    [[#6. Stage every finalist as a tab on haorui]] |  |
+|    [[#6b. Once the choice is made, clear the window down to one tab]] |  |
+|    [[#7. Log the outcome — and this half does not end at the button]] |  |
+| **[[#When NOT to use this skill]]** |  |
+| **[[#Anti-patterns]]** |  |
+| **[[#Output]]** |  |
+| **[[#Related]]** |  |
+| **[[#Known limitations (v1 skeleton)]]** |  |
+
 `/buy <product>` walks the major retailers selling a known product, drives **real Safari** via `ctrl jpage` to bypass bot-walls, verifies each landing page is actually a product page for the requested model, and recommends where to purchase.
 
 **Critical constraint — fetch wall** (this is the lesson the v0 attempt of this skill paid for):
@@ -37,13 +60,15 @@ tmux send-keys -t bridge-haorui '<cmd>' Enter
 tmux capture-pane -t bridge-haorui -p
 ```
 
-**The division of labor is fixed: the agent researches and stages; the user buys.** Never place an order, never complete a checkout. The deliverable is a set of verified product tabs open on haorui, each sitting on a live Add-to-Cart button, so the user can walk them in one pass and decide.
+**The division of labor is fixed: the agent researches and stages; the user buys.** Never place an order, never complete a checkout. Dan restated this as settled policy on 2026-08-17 — *"You do not own the checkout. So, at least for now, what you do is you get all the way up to the checkout button, and I press the checkout button. I think it's a much safer flow."* The deliverable is a machine in a state where his next action is one press: verified product tabs open on haorui, each sitting on a live Add-to-Cart button, **the item to buy frontmost**, and — once comparison is over — **nothing else in the window**. Full standing brief: [[HERMES Mandate]].
 
 ### Delivery — stage tabs, don't just report
 
 `ctrl tab <url>` opens a candidate without stealing focus, so a whole finalist set can be staged in order. Do that for **every** finalist, not only the winner — the user's rhythm is to go through the tabs and pick, and a recommendation they can't click is friction.
 
-**Stage in reverse rank order — worst first, the recommendation LAST.** The last tab opened is the one sitting on screen, and the screen is what gets bought. Ordering the tabs to match the comparison table (best first) leaves the *lowest*-ranked candidate frontmost, which is exactly backwards. Cost a wrong purchase on 2026-08-17: four mice staged best-first, the user moved fast and bought the #4 pick because it was the tab in front of him. He normally looks before buying, and said so — but *"it's still better to put the recommended one on the screen last."* Then `screencapture -x` to confirm the tabs actually landed before reporting done.
+**Comparing and buying are two different screens.** While the user is still choosing, many tabs is right — that is the comparison surface. **Once the choice is made, there should be exactly one tab: the thing being bought.** Dan, 2026-08-17: *"If we're no longer comparing options, a lot of times it's better to make sure that there are no other tabs in the browser… you can just wipe those tabs out and then you just have one tab, which is the one I'm going to purchase."* Close the rest before handing over — a single tab means the button under his finger cannot be the wrong one. **Conditional on being the browser's main user** (his qualifier: *"at least if you're the main one using a system"*) — on a machine someone else is working in, close only what you opened.
+
+**While still comparing, stage in reverse rank order — worst first, the recommendation LAST.** The last tab opened is the one sitting on screen, and the screen is what gets bought. Ordering the tabs to match the comparison table (best first) leaves the *lowest*-ranked candidate frontmost, which is exactly backwards. Cost a wrong purchase on 2026-08-17: four mice staged best-first, the user moved fast and bought the #4 pick because it was the tab in front of him. He normally looks before buying, and said so — but *"it's still better to put the recommended one on the screen last."* Then `screencapture -x` to confirm the tabs actually landed before reporting done.
 
 ### Gotchas (paid for on the first live run, 2026-07-24)
 
@@ -247,9 +272,23 @@ screencapture -x /tmp/buy/tabs.png    # then scp back and LOOK at it
 
 Confirm the tabs actually landed, and that the frontmost one is the recommendation, before reporting done. **Stop here — the user clicks Add to Cart and completes the purchase.**
 
-### 7. Log the outcome
+### 6b. Once the choice is made, clear the window down to one tab
 
-Once the user reports what they bought, record it: a dated entry in [[BUY Log]], a **Done** line in [[BUY Purchasing]], and — for consumables — the $/unit reference on the category page (e.g. [[BUY Tea]]) so the next run starts from real numbers instead of re-deriving them.
+Comparison is over the moment the user names a pick — and the comparison surface should not survive it. Close every other tab so **exactly one remains: the thing being bought**. A single tab makes the wrong button unpressable.
+
+```bash
+# after the user names a pick — leave only its tab open
+osascript -e 'tell application "Safari" to close (every tab of window 1 whose URL does not contain "{winning-asin-or-slug}")'
+osascript -e 'tell application "Safari" to get URL of every tab of window 1'   # verify exactly one
+```
+
+**Only when this agent is the browser's main user** — Dan's qualifier, *"at least if you're the main one using a system."* haorui qualifies. On a shared or borrowed machine, close only the tabs you opened and leave the rest alone.
+
+### 7. Log the outcome — and this half does not end at the button
+
+Once the user reports what they bought, record it: a dated entry in [[BUY Log]], a **Done** line in [[BUY Purchasing]], the inventory entry under [[My Stuff]], and — for consumables — the $/unit reference on the category page (e.g. [[BUY Tea]]) so the next run starts from real numbers instead of re-deriving them.
+
+**Then keep going.** Per [[HERMES Mandate]], the record layer is owned end to end: **read the order mail to confirm the purchase actually went through** (a staged cart is not an order), verify what arrived matches the listing, and put any return deadline somewhere that will raise it. Read the order history rather than inferring from what was staged — on 2026-08-17 the tabs said one thing and the orders page said both finalists were bought, at prices that differed from the quoted ones. **This applies to purchases other agents make too**, not only ones that ran through this skill.
 
 ## When NOT to use this skill
 
