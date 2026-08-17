@@ -37,12 +37,26 @@ moment="$1"
 input=$(cat)
 
 # `|| [ -n "$m" ]` keeps a final line without a trailing newline firing.
+# OUTPUTS ARE MERGED, NOT CONCATENATED (defect found 2026-08-17, TINK T233).
+# The harness parses this process's stdout as ONE JSON hook envelope. With
+# several hooks at a moment, letting each write stdout directly concatenates
+# an envelope with plain text (measured live: inject.sh's brief followed by
+# read-age's warning) — invalid JSON, so the harness silently discarded BOTH.
+# Each hook's stdout is therefore captured, and at the end everything is
+# folded into a single envelope: an envelope's additionalContext is extracted,
+# plain text rides as-is. The merge runs python3 only when some hook actually
+# produced output — the every-read silent path stays pure bash.
+outputs=""
 while read -r m cmd || [ -n "$m" ]; do
     case "$m" in ""|\#*) continue ;; esac
     [ "$m" = "$moment" ] || continue
     [ -n "$cmd" ] || continue
-    printf '%s' "$input" | "$cmd"
+    out=$(printf '%s' "$input" | "$cmd")
     rc=$?
+    if [ -n "$out" ]; then
+        outputs="${outputs}${out}
+"
+    fi
     mkdir -p "$(dirname "$LOG")"
     if [ $rc -eq 0 ]; then
         printf '%s  %s  ok  %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$moment" "$cmd" >> "$LOG"
@@ -50,4 +64,47 @@ while read -r m cmd || [ -n "$m" ]; do
         printf '%s  %s  exit=%s  %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$moment" "$rc" "$cmd" >> "$LOG"
     fi
 done < "$REGISTRY"
+
+if [ -n "$outputs" ]; then
+    printf '%s' "$outputs" | python3 -c '
+import json, sys
+moment = sys.argv[1]
+raw = sys.stdin.read()
+# One hook spoke and produced a single well-formed JSON object: pass it
+# through verbatim, preserving whatever envelope it built for itself.
+try:
+    obj = json.loads(raw)
+    sys.stdout.write(raw.strip())
+    sys.exit(0)
+except ValueError:
+    pass
+parts = []
+dec = json.JSONDecoder()
+event = "PreToolUse" if moment.startswith("tool:pre:") else "PostToolUse"
+i, n = 0, len(raw)
+while i < n:
+    while i < n and raw[i] in " \t\r\n":
+        i += 1
+    if i >= n:
+        break
+    if raw[i] == "{":
+        try:
+            obj, end = dec.raw_decode(raw, i)
+            ctx = (obj.get("hookSpecificOutput") or {}).get("additionalContext")
+            parts.append(ctx if ctx is not None else json.dumps(obj))
+            i = end
+            continue
+        except ValueError:
+            pass
+    j = raw.find("\n", i)
+    if j < 0:
+        j = n
+    parts.append(raw[i:j])
+    i = j + 1
+text = "\n\n".join(p for p in parts if p.strip())
+if text:
+    json.dump({"hookSpecificOutput": {"hookEventName": event,
+                                      "additionalContext": text}}, sys.stdout)
+' "$moment"
+fi
 exit 0
