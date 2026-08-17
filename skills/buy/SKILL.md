@@ -41,7 +41,9 @@ tmux capture-pane -t bridge-haorui -p
 
 ### Delivery — stage tabs, don't just report
 
-`ctrl tab <url>` opens a candidate without stealing focus, so a whole finalist set can be staged in order. Do that for **every** finalist, not only the winner — the user's rhythm is to go through the tabs and pick, and a recommendation they can't click is friction. Order the tabs to match the comparison table in chat, then `screencapture -x` to confirm they actually landed before reporting done.
+`ctrl tab <url>` opens a candidate without stealing focus, so a whole finalist set can be staged in order. Do that for **every** finalist, not only the winner — the user's rhythm is to go through the tabs and pick, and a recommendation they can't click is friction.
+
+**Stage in reverse rank order — worst first, the recommendation LAST.** The last tab opened is the one sitting on screen, and the screen is what gets bought. Ordering the tabs to match the comparison table (best first) leaves the *lowest*-ranked candidate frontmost, which is exactly backwards. Cost a wrong purchase on 2026-08-17: four mice staged best-first, the user moved fast and bought the #4 pick because it was the tab in front of him. He normally looks before buying, and said so — but *"it's still better to put the recommended one on the screen last."* Then `screencapture -x` to confirm the tabs actually landed before reporting done.
 
 ### Gotchas (paid for on the first live run, 2026-07-24)
 
@@ -236,14 +238,14 @@ Plus a one-line recommendation: *"Adorama at $749.00 — biggest sale (33% off l
 
 ### 6. Stage every finalist as a tab on haorui
 
-Not just the winner — the whole shortlist, in the same order as the comparison table, so the user can go through them in one pass:
+Not just the winner — the whole shortlist, so the user can go through them in one pass. **Open them worst-ranked first so the recommendation is the last tab and therefore the one on screen** (see *Delivery — stage tabs* above; ordering them best-first put the #4 pick in front of the user and he bought it):
 
 ```bash
-for A in {asin-or-url-list}; do ctrl tab "{url}"; sleep 2; done
+for A in {finalists-in-REVERSE-rank-order}; do ctrl tab "{url}"; sleep 2; done
 screencapture -x /tmp/buy/tabs.png    # then scp back and LOOK at it
 ```
 
-Confirm the tabs actually landed before reporting done. **Stop here — the user clicks Add to Cart and completes the purchase.**
+Confirm the tabs actually landed, and that the frontmost one is the recommendation, before reporting done. **Stop here — the user clicks Add to Cart and completes the purchase.**
 
 ### 7. Log the outcome
 
