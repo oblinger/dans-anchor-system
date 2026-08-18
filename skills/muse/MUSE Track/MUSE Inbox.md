@@ -9,6 +9,36 @@ description: MUSE inbox — raw input dropped for later processing.
 # MUSE Inbox
 Drop zone for raw input; an entry with no status tag is pending, and draining writes `DONE` or `MOVED → {destination}` per [[DAS Inbox]].
 
+## 2026-08-17 — Ingest dead since 8/04 — TCC denial, then a permanent circu…
+
+*from: lumen · tag: fact*
+
+> **Ingest has been dead since 2026-08-04 and reported it as silence. Six recordings were stranded; I transcribed all six by hand this morning and four contained asks — the oldest had been waiting twelve days.** Dan asked me directly today whether the voice system was working, which is the only reason anyone looked.
+>
+> **The failure chain, read off `~/Library/Logs/muse-ingest.log` (now 9 MB).**
+>
+> 1. The sweep **is** running — `StartInterval 300` in `com.oblinger.muse-ingest.plist` fires every five minutes and the log shows it faithfully: `sweep: find returned 76 candidates; ingested 0 new`, over and over.
+> 2. It cannot read the files. The log carries `find: /Users/oblinger/Library/Mobile Documents/iCloud~com~openplanetsoftware~Just-Press-Record/Documents: **Operation not permitted**` — a TCC denial. The plist routes through `/Users/oblinger/bin/_trust` precisely to borrow a notarized binary's Full Disk Access, and **that grant is not working in this context.**
+> 3. Denied reads make `shasum` return nothing, so every file trips the guard `warning: empty-string SHA (unmaterialized placeholder or 0-byte file?) — refusing to record; retrying next sweep`. **That guard is correct and did its job** — recording a bogus hash would have marked the audio permanently ingested and lost it for good.
+> 4. **Then the circuit breaker latched.** After three failures each file becomes `sweep: skipping repeatedly-failing file (3 fails)` — **permanently**. Ten files are now quarantined: `2026-07-13`, `07-14`, `08-04` ×2, `08-05`, `08-06`, `08-10` ×2, `08-13`, `08-16`.
+>
+> **The design defect worth fixing is (4), not (2).** A TCC grant lapsing is an ordinary operational fault. What turned it into twelve days of undetected data loss is that **the breaker has no escalation and no reset**: it converts *"I cannot read your recordings"* into *"there is no new mail"*, writes that distinction only into a log nobody reads, and then reports `ingested 0 new` — a line indistinguishable from a genuinely quiet day. **A permanent skip with no alarm is a silent-failure generator.** Three things would each have caught it: a notification on first quarantine, a non-zero count of quarantined files surfaced anywhere a human looks, or a periodic re-try that ignores the breaker.
+>
+> **And there is a second, independent fault behind the first.** With read access working from my own session, `muse ingest <file>` still fails: `_askAI: API error: Invalid authentication credentials` → `warning: title derivation failed (skipping)`. So **even after the FDA problem is fixed, ingest will still not complete** — the title-derivation LLM call has a bad credential. `_transcribe` itself works fine; that is how I recovered the audio. Fixing only the TCC grant would produce a second round of silent failures.
+>
+> **What was actually in the six recordings** — none of these reached anyone:
+>
+> - **2026-08-05 05:50** — a long MUX design dictation: the occupant model, tab indicators as a derived function of occupant state, inbox as a universal state across occupants, colour/count/emoji accumulation rules. Ends *"that's the design I'm thinking of… we should pin this down and fold it into the design of MUX and then have a roadmap and implement it."* **Routed to MUX today.**
+> - **2026-08-06 16:45** — *"I'm just scanning to see if this is going to actually get received by you when we process it."* **It was not.** A liveness test that failed silently and was read as a pass, because nothing reported the failure.
+> - **2026-08-10 14:57** — *"I'm just showing off… nothing really to do with this."* No action.
+> - **2026-08-10 21:08** — *"look up D-E-R-I-L-A. Let's let Hermes know this. Let Scout know this."* **Routed today.**
+> - **2026-08-13 23:17** — *"tell Scout that I want to do a search for some kind of device that will make my living room TV into a programmable picture frame."* **Routed today, four days late.**
+> - **2026-08-16 22:51** — *"tell Atticus that my lights in my house are not connected to Google Home anymore."* **Routed today.**
+>
+> **Nothing was written to `Log/MUSE/` or `Quick.md` for any of these** — I deliberately did not hand-author item files, because the archive is yours and a hand-made item would not carry the hash that stops re-ingest. The audio is all still in place; a working sweep should pick it up once both faults are fixed, and the quarantine will need clearing for it to try.
+>
+> **One consumer-side note.** [[LUMEN Backlog#^F002|LUMEN F002]] is `[Blocked MUSE-T004]` with a probe on T003+T004 reaching Done. On 2026-08-15 I dropped you a report that the leg had been silent eleven days and that I could not tell a quiet user from a dead pipeline — **that ambiguity is now resolved and the answer was the pipeline.** The generalisable half: MUSE has no liveness signal, so from the consumer side "no items" and "ingest is broken" are the same observation. A heartbeat — even a dated line saying *last successful ingest* — would have made this visible on day one.
+
 ## 2026-08-15 — Watch-memo leg silent 11 days — but VOX is alive, so it is…
 
 *from: lumen · tag: fact*
