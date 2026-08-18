@@ -1787,15 +1787,21 @@ def chk_slug_is_a_handle(target, anchor_root, args):
         return "pass", "no slug declared — the basename serves"
     slug = m.group(1).strip().strip('"').strip("'")
     name = _anchor_display_name(anchor_root)
+    # Restatement is tested FIRST because it is the more specific diagnosis and
+    # the only one carrying a provably-safe fix. A multi-word restatement fails
+    # both tests, and reporting the grammar violation would send the reader off
+    # to invent a shortening when deleting the line is correct and lossless.
+    # Measured 2026-08-18 (T241): all 19 vault failures are restatements, and
+    # grammar-first mislabelled the 11 multi-word ones.
+    if slug == anchor_root.name:
+        return "fail", (f"slug {slug!r} restates the basename {anchor_root.name!r} "
+                        f"— delete it; the implied slug is already that value")
     is_the_name = slug == name and slug != anchor_root.name
     if not is_the_name and not _SLUG_GRAMMAR.match(slug):
         return "fail", (f"slug {slug!r} is neither one uppercase alphanumeric token "
                         f"(^[A-Z0-9]+$) nor the anchor's own name {name!r} — a slug "
                         f"is a prefix and must be visually separable from the name "
                         f"it sits in front of, unless it IS that name")
-    if slug == anchor_root.name:
-        return "fail", (f"slug {slug!r} restates the basename {anchor_root.name!r} "
-                        f"— delete it; the implied slug is already that value")
     return "pass", ""
 
 
