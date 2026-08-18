@@ -30,7 +30,7 @@ The kinds are open-ended and declared in configuration. Nothing about `pebble` o
 | control file | `{slug} Pebble` | `{slug} Rock` |
 | stone file | `{slug} P0001` | `{slug} R0001` |
 | stone display | `{slug}:` | `{slug}:` |
-| header display | `-{slug}-` | `-{slug}-` |
+| header display | `-[[…\|{slug}]]-` | `-[[…\|{slug}]]-` |
 
 Folder names default to plural per [[DAS Facets]]; the control-file name is **configuration, not convention** — it is invisible to the mechanism, because a header is identified by what it links to rather than by what it is called.
 

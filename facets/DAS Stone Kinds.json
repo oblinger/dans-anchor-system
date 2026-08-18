@@ -1,12 +1,13 @@
 {
-  "_comment": "TINK F313 — per-kind declarations consumed by `stone` (skills/workflow/scripts/stone). DAS-side, vault-wide: every anchor and every agent must agree on what a control file is named and how a stone line renders, so this lives beside the facet specs (DAS Stone.md, DAS Stone Design.md, DAS Stone Keys.md) rather than in ~/.config/. Format keys: {slug} in folder/control/aliases; {link} in the optional header_line template (default '{link}'), which wraps the assembled `[[{control}|{header_alias}]]` wikilink. NOTE 2026-08-17: the dashes-OUTSIDE form (header_alias '{slug}' + header_line '-{link}-') was tried and REVERTED — a bare `-[[X Pebble|X]]-` line is HookAnchor's electric identity-row grammar, and ELECTRIC rebuilds wiped every line below the header in 54 control files. The dashes stay INSIDE the display (`[[X Pebble|-X-]]`), which renders the same and does not match that grammar. 'control' MUST be of the exact shape '{slug} WORD' — stone's header/self-section detection derives the fixed WORD suffix from it.",
+  "_comment": "TINK F313 — per-kind declarations consumed by `stone` (skills/workflow/scripts/stone). DAS-side, vault-wide: every anchor and every agent must agree on what a control file is named and how a stone line renders, so this lives beside the facet specs (DAS Stone.md, DAS Stone Design.md, DAS Stone Keys.md) rather than in ~/.config/. Format keys: {slug} in folder/control/aliases; {link} in the optional header_line template (default '{link}'), which wraps the assembled `[[{control}|{header_alias}]]` wikilink. HISTORY 2026-08-17: the dashes-OUTSIDE form below (header_alias '{slug}' + header_line '-{link}-') was first tried and reverted — a bare `-[[X Pebble|X]]-` line was HookAnchor's electric identity-row grammar and ELECTRIC rebuilds wiped every line below the header in 54 control files. Later the same day HookAnchor f180d008c retired the bare dash form (bare initiator is now `= = [[Name]] = =`; the dash form matches only as a table row's first cell), verified live against the running daemon, and the dashes-outside form was re-adopted. 'control' MUST be of the exact shape '{slug} WORD' — stone's header/self-section detection derives the fixed WORD suffix from it.",
   "pebble": {
     "folder": "{slug} Pebbles",
     "control": "{slug} Pebble",
     "prefix": "P",
     "digits": 4,
     "stone_alias": "{slug}:",
-    "header_alias": "-{slug}-"
+    "header_alias": "{slug}",
+    "header_line": "-{link}-"
   },
   "rock": {
     "folder": "{slug} Rocks",
@@ -14,6 +15,7 @@
     "prefix": "R",
     "digits": 4,
     "stone_alias": "{slug}:",
-    "header_alias": "-{slug}-"
+    "header_alias": "{slug}",
+    "header_line": "-{link}-"
   }
 }
