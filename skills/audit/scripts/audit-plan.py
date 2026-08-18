@@ -3809,6 +3809,19 @@ def chk_toc_table_iff_long(target, anchor_root, args):
     # place, so a hand-authored TOC survives there, and long ones carry one.
     if f.name == "Q.md" or f.name.endswith(" queries.md"):
         return "pass", "script-owned projection"
+    # T237 — append-only chronological logs are exempt too, on a DIFFERENT
+    # ground, which is worth stating because the projection argument does not
+    # apply: an Inbox is appended to rather than rewritten, so a hand-authored
+    # TOC would in fact survive `state drop` (Atticus was careful to say so
+    # rather than overclaim the exemption). The reason these are exempt is that
+    # the rule has nothing to bite on. An Inbox's content outline IS its list
+    # of dated H2s, in the order they already appear, so a TOC restates the
+    # document; a Messages log has no headings at all, so its TOC would be
+    # empty. Left unexempted, the advisory fired on every `state` write to
+    # every Inbox and Messages file in the fleet — nine times in one drain,
+    # measured 2026-08-17 — which is how a warning tier stops being read.
+    if f.name.endswith(" Inbox.md") or f.name.endswith(" Messages.md"):
+        return "pass", "append-only log — its outline is the entry list itself"
     lines = _strip_fenced(_read(f)).splitlines()
     # First cell may be bold — md-toc.py (the sanctioned TOC generator) emits
     # `| **[[#Section]]** |`, which the bare `\[\[#` pattern missed, making
