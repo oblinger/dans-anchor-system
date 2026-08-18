@@ -4,7 +4,7 @@ description: "the example gallery — fictional worlds + a per-kind map"
 
 | -[[DAS Examples]]- | : the example gallery — fictional worlds + a per-kind map<br>→ [[DAS]] → [[examples]] → [DAS Examples](hook://p/DAS%20Examples)  |
 | --- | --- |
-| Related | [[DAS Skills\|Skills]],  [[DAS Facets\|Facets]],  [[DAS Disciplines\|Disciplines]],  [[DAS Traits\|Traits]],  [[DAS Rulesets\|Rulesets]],  [[DAS\|dans-anchor-system]],   |
+| Related | [[FEX Root\|by facet]],  [[DAS Skills\|Skills]],  [[DAS Facets\|Facets]],  [[DAS Disciplines\|Disciplines]],  [[DAS Traits\|Traits]],  [[DAS Rulesets\|Rulesets]],  [[DAS\|dans-anchor-system]],   |
 |  | **THE EXAMPLE WORLDS** |
 | [[HBR]]  | **Harbor** — a fictional media-server project (its own slug): project root + grouped dispatch ([[HBR Components]]) + a built-out sub-anchor ([[HBR Ingest]]) + a full, tiny facet set ([[HBR Design]] / [[HBR Track]] / [[HBR User Docs]] / [[HBR Dev Docs]]), all `HBR`-prefixed |
 | [[FEX Repo\|Repo]]  | **FEX Repo** — a fake skills repository tying the loose examples together: a skill ([[FEX Snapshot\|Snapshot]]), three facets spanning the kinds ([[FEX Manifest\|Manifest]] / [[FEX Pin\|Pin]] / [[FEX Bundle\|Bundle]]), a discipline ([[FEX Retention\|Retention]]), a ruleset ([[R-fex-manifest]]) |
