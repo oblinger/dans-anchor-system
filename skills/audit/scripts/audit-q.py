@@ -5434,15 +5434,21 @@ def clear_qfix_row(backlog_file: Path) -> tuple[bool, str]:
         except (OSError, UnicodeDecodeError):
             old = []
         if any(re.match(r"- \*\*C\d+\*\*", l) for l in old):
-            hand = [l for l in old
-                    if l.startswith("- ") and not re.match(r"- \*\*C\d+\*\*", l)]
-            if hand:
-                kept = [l for l in old if not re.match(r"- \*\*C\d+\*\*", l)]
-                chores_file.write_text(
-                    "\n".join(kept) + "\n", encoding="utf-8")
-                _selffire(chores_file)
-            else:
-                chores_file.unlink()
+            # Drop the audit-owned bullets and KEEP the file, even when nothing
+            # hand-added remains.  This used to unlink an emptied Chores.md,
+            # which DAS Chores permits ("empty or absent"), but Dan asked
+            # 2026-08-18 that the file stay put: an anchor's facet instance
+            # that deletes itself the moment it empties cannot be found by
+            # someone looking for it, and the disappearance reads as damage.
+            # Observed twice the same day on TINK -- restoring the file by
+            # hand did not hold, because deletion fires on the
+            # C-bullets-to-zero transition rather than on emptiness, so the
+            # next chore that landed and was fixed removed it again.
+            kept = [l for l in old if not re.match(r"- \*\*C\d+\*\*", l)]
+            while kept and not kept[-1].strip():
+                kept.pop()
+            chores_file.write_text("\n".join(kept) + "\n", encoding="utf-8")
+            _selffire(chores_file)
             cleared.append("stale audit chores")
     try:
         text = backlog_file.read_text(encoding="utf-8")

@@ -19,6 +19,7 @@ B-QFix row found on a touched anchor is removed in the same pass.
 Self-contained: imports audit-q.py, builds fixtures in a tmpdir, cleans up.
 Never touches the real vault (warden self-fire disabled)."""
 import importlib.util
+import re
 import shutil
 import sys
 import tempfile
@@ -114,10 +115,15 @@ try:
         "\n".join(l for l in chores.read_text(encoding="utf-8").splitlines()
                   if "hand-added" not in l) + "\n", encoding="utf-8")
     aq.route_findings_to_qfix([], backlogs)
-    if not chores.exists():
-        ok("chores file deleted when nothing hand-added remains")
+    # Dan, 2026-08-18: the file STAYS, even with nothing hand-added. A facet
+    # instance that deletes itself the moment it empties cannot be found by
+    # anyone looking for it, and its disappearance reads as damage. This
+    # assertion was the opposite until that call.
+    if chores.exists() and not re.search(r"^- \*\*C\d+", chores.read_text(
+            encoding="utf-8"), re.M):
+        ok("chores file retained and emptied of audit bullets")
     else:
-        no(f"empty chores file survived:\n{chores.read_text(encoding='utf-8')}")
+        no("empty chores file was deleted, or audit bullets survived")
     if "- **T001" in bl.read_text(encoding="utf-8"):
         ok("real rows are untouched throughout")
     else:
@@ -148,8 +154,10 @@ try:
     # ---- D: nothing to clear is a no-op ------------------------------------
     print("== D: zero residuals with no residue creates nothing ==")
     before_bl = bl.read_text(encoding="utf-8")
+    before_ch = chores.read_text(encoding="utf-8") if chores.exists() else None
     aq.route_findings_to_qfix([], backlogs)
-    if bl.read_text(encoding="utf-8") == before_bl and not chores.exists():
+    after_ch = chores.read_text(encoding="utf-8") if chores.exists() else None
+    if bl.read_text(encoding="utf-8") == before_bl and after_ch == before_ch:
         ok("no-op when there is no residue and no residual")
     else:
         no("a zero-residual pass created or mutated something")
