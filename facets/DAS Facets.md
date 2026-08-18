@@ -4,7 +4,7 @@ description: "the per-doc structural specs"
 
 | -[[DAS Facets]]- | → [[DAS]] → [[FCT]] → [DAS Facets](hook://p/DAS%20Facets)  |
 | --- | --- |
-| Related | [[DAS Skills\|Skills]],  [[DAS Disciplines\|Disciplines]],  [[DAS Traits\|Traits]],  [[DAS Examples\|Examples]],  [[FEX Root\|by facet]],  [[DAS Rulesets\|Rulesets]],  [[DAS\|dans-anchor-system]],   |
+| Related | [[DAS Skills\|Skills]],  [[DAS Disciplines\|Disciplines]],  [[DAS Traits\|Traits]],  [[DAS Examples\|Examples]],  [[DAS Rulesets\|Rulesets]],  [[DAS\|dans-anchor-system]],   |
 |  |  |
 |  | **FACETS** |
 | [[DAS Anchor Design\|Anchor]]+ | [[DAS Anchor\|Anchor]],  [[DAS Dot Anchor\|Dot Anchor]],  [[DAS Anchor Page\|Anchor Page]],  [[DAS Project Page\|Project Page]],  [[DAS Folder\|Folder]],  [[DAS Anchor Tree\|Anchor Tree]],  [[DAS Naming\|Naming]],  [[DAS Claude\|Claude]],  [[DAS Interface\|Interface]],  [[DAS Move\|Move]],  [[DAS Subs\|Subs]],  [[DAS Dispatch\|Dispatch]],  [[DAS Dispatch Table\|Dispatch Table]],  [[DAS Dispatch Table Design\|Dispatch Table Design]],  [[DAS Design Dispatch\|Design Dispatch]],  [[DAS Dev Dispatch\|Dev Dispatch]],  [[DAS User Dispatch\|User Dispatch]],   |
