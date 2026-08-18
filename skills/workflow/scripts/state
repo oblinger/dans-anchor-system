@@ -3527,6 +3527,21 @@ def cmd_inbox_tag(slug, anchor_path, args):
             f"file has been restored to its pre-call state.")
 
     _selffire(inbox_path)
+
+    # T237 — re-heal the derived banner, exactly as the row-mutating verbs do.
+    # `Inbox N` is derived from the count of PENDING entries, so tagging one
+    # changes it; without this the banner kept claiming entries that had just
+    # been drained. Atticus measured it 2026-08-17: [[ATT Inbox]] drained to 0
+    # pending while the ATT banner still read `Inbox 2`, and it stayed wrong
+    # through a commit until `audit-q --fix` was run by hand.
+    #
+    # That failure direction is the expensive one. `Inbox N` is the only
+    # passive signal that a drop is waiting, and the vault-wide session-start
+    # convention tells every agent to act on it — so a count that over-reports
+    # after a clean drain teaches agents to distrust the number, which costs
+    # more than the two entries it was wrong by.
+    be.refresh_q_md(slug)
+
     print(f"{slug}: inbox-tag {args.date} → `{tag}`")
     return 0
 

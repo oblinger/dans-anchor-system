@@ -3018,6 +3018,14 @@ def check_c41_soak_question_declared(
     findings: list[Finding] = []
     have_verify = _rows_with_subbullet(backlog_file, "Verify")
     have_next = _rows_with_subbullet(backlog_file, "Next")
+    # T237 — a `- **Probe:**` satisfies C41 on a [Watching*] row. F305 Q2 and
+    # [[DAS Backlog]] define the agent-owned deferred check as a Probe on a
+    # Watching row, and deliberately NOT a Verify: a Verify there renders into
+    # `## Verifications` and puts a check in front of the user that is by
+    # design invisible to them. Without this, that sanctioned shape was flagged
+    # by the very checker meant to catch half-authored rows. Watching only — a
+    # [Verify*] row's whole point is the human question.
+    have_probe = _rows_with_subbullet(backlog_file, "Probe")
     for e in entries:
         # B-QFix is a machinery row authored by --fix itself; its sub-bullets
         # ARE the residual findings and its next-action is per-C-code (walk the
@@ -3037,6 +3045,9 @@ def check_c41_soak_question_declared(
             # (same Q numbering, minted at done-time); a row whose linked doc
             # holds a pending Q carries its verification there, not in a
             # `- **Verify:**` sub-bullet.
+            continue
+        if (needs_verify and e.identifier not in have_verify
+                and s.startswith("Watching") and e.identifier in have_probe):
             continue
         if needs_verify and e.identifier not in have_verify:
             findings.append(Finding(

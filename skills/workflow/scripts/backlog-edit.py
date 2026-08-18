@@ -2762,9 +2762,34 @@ def perform_edit(
         if _doc_next:
             eff_next = _doc_next
             next_from_doc = True
+    # T237 — a `- **Probe:**` satisfies the concrete-check requirement on a
+    # [Watching*] row, for BOTH gates below. F305 Q2 and [[DAS Backlog]]
+    # § "There is no bracket for an agent-owned deferred check" say a
+    # [Watching {date}] row whose check is agent-runnable carries a Probe and
+    # deliberately NOT a Verify — a Verify on a Watching row renders into
+    # `## Verifications`, putting a check in front of the user that is by
+    # design invisible to them. Two separate refusals contradicted that spec on
+    # precisely the shape it exists for: the concrete-question check here, and
+    # the F240 ownership gate below, which demanded `--why-user` naming the
+    # human faculty a check with no human in it supposedly invokes.
+    #
+    # Scoped to Watching: a [Verify*] row's whole point IS the human question,
+    # and a Probe must never stand in for one there.
+    #
+    # `define` carries the body's companion sub-bullets in `pending_subs`
+    # rather than in the flags — the refusal text itself says define "reads the
+    # promise from the body, not from the flag" — so a Probe written into the
+    # body counts too, or the verb the spec tells you to use is the one verb
+    # that cannot express the shape. (Atticus hit exactly that, 2026-08-17.)
+    _probe_satisfies = (status or "").strip().startswith("Watching") and bool(
+        (eff_probe and eff_probe.strip())
+        or (probe_text and probe_text.strip())
+        or any(re.match(r"\s*-\s+\*\*Probe:\*\*\s*\S", s or "")
+               for s in (pending_subs or [])))
     if status not in ("same", "delete"):
         if (_status_needs_verify(status)
                 and not (eff_verify and eff_verify.strip())
+                and not _probe_satisfies
                 and not _hosted_pending_items(backlog_path, _host_src, ("Q",))):
             raise BacklogEditError(
                 f"[{status}] refused: {row_id} needs a concrete yes/no question. "
@@ -2774,8 +2799,11 @@ def perform_edit(
                 f"promise from the body, not from the flag. Setting a Watching/Verify "
                 f"bracket without "
                 f"its `- **Verify:**` sub-bullet renders `⚠ no concrete question` "
-                f"and is flagged by audit-q C41. If there is genuinely no user "
-                f"check, promote to [Done] or rebracket to [Blocked]/[Waiting]."
+                f"and is flagged by audit-q C41. If the check is AGENT-runnable "
+                f"rather than a user question, this is a [Watching {{date}}] row "
+                f"with a `- **Probe:**` (F305 Q2) — pass --probe instead, and it "
+                f"renders nowhere the user sees. If there is genuinely no check "
+                f"at all, promote to [Done] or rebracket to [Blocked]/[Waiting]."
             )
         if _status_needs_next(status) and not (eff_next and eff_next.strip()):
             raise BacklogEditError(
@@ -2805,7 +2833,8 @@ def perform_edit(
     # F240 — verification ownership gate. Fires when the row ENTERS the
     # Verify/Verify-by/Watching family or its question is (re)written; a
     # same-family re-touch keeps the vetting it got at entry.
-    if status not in ("same", "delete") and _verify_family(status):
+    if (status not in ("same", "delete") and _verify_family(status)
+            and not _probe_satisfies):
         entering = not _verify_family(existing_status_for_check)
         if entering or verify_text is not None or (why_user and why_user.strip()):
             # F305 hosting — a doc-hosted V was vetted at its OWN mint
