@@ -3993,8 +3993,32 @@ def _format_item_bullet(letter, num, container_id, body):
         if not body.startswith("- "):
             body = "- " + body
     else:
-        # Plain body — wrap as bullet
-        body = f"- **{letter}{num} — Untitled** — {body}"
+        # T239 — a plain body that OPENS with its own question line titles
+        # itself from that line, rather than being stamped `Untitled`. The
+        # shape [[DAS ask-format]] invites — question sentence, blank line,
+        # then prose — landed in the Resolved zone as `Q2 — Untitled` with the
+        # real question stranded on the next line (A2X, 2026-08-16, A2X011 Q2).
+        # A Resolved zone full of `Untitled` is unscannable, which is that
+        # zone's only job, and there is no retitle verb, so the reporter had to
+        # hand-edit against the hook's advice.
+        #
+        # Only the FIRST line is eligible, and only when it looks like a title
+        # rather than a paragraph: no option bullets, no field labels, and
+        # short enough to read as a heading. Anything else keeps `Untitled`,
+        # which is honest — a wrapped paragraph is not a title.
+        head, _, rest = body.partition("\n")
+        head = head.strip().lstrip("-").strip()
+        looks_like_title = (
+            head
+            and len(head) <= 120
+            and not head.startswith(("**(", "- ", "|", ">", "#"))
+            and not re.match(r"^\*\*(?:Recommendation|Damage|Risk|Lean)\b", head)
+        )
+        if looks_like_title:
+            body = f"- **{letter}{num} — {head.rstrip('?').strip()}?** — {rest.strip()}" \
+                if head.endswith("?") else f"- **{letter}{num} — {head}** — {rest.strip()}"
+        else:
+            body = f"- **{letter}{num} — Untitled** — {body}"
     # T140 — the old guard was `if f"^{container_id}-Q{q_num}" not in first_line`,
     # which asked only whether the CORRECT anchor was present and never removed a
     # wrong one. A Q minted while its host row was still `T+` kept `^T+-Q1` and
