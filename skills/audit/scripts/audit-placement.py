@@ -172,6 +172,7 @@ def scan(vault):
         if is_dir:
             tmpl = tmpl + "{slug} " + facet + "/"
         found.append({"facet": facet, "tmpl": tmpl, "is_dir": is_dir,
+                      "root": root, "slug": slug,
                       "path": os.path.relpath(target, vault)})
 
     for dirpath, dirnames, filenames in os.walk(vault):
@@ -221,6 +222,25 @@ def expected_for(facet):
     return SUBSYSTEM_DEFAULT[sub]
 
 
+def _subsystem_folder_exists(inst, expected):
+    """True when the anchor actually HAS one of the folders the rule names.
+
+    Resolves each expected template against the instance's own anchor root and
+    slug, and asks the filesystem.  Only the leading folder of a template is
+    tested -- `{anchor}/{slug} Track/{slug} Backlog/` is satisfied for this
+    purpose by `{slug} Track/` existing, because that is the folder whose
+    absence would leave the instance homeless.
+    """
+    for tmpl in expected:
+        body = tmpl[len("{anchor}/"):].rstrip("/")
+        if not body:
+            continue
+        first = body.split("/")[0].replace("{slug}", inst["slug"])
+        if os.path.isdir(os.path.join(inst["root"], first)):
+            return True
+    return False
+
+
 def check(vault, quiet=False):
     """Flag every instance sitting outside its facet's conforming placements.
 
@@ -251,6 +271,21 @@ def check(vault, quiet=False):
             # first 51 findings against perfectly conforming index pages.
             ok = tmpl in exp or (
                 tmpl.endswith(tail) and tmpl[:-len(tail)] in exp)
+        if not ok and tmpl == "{anchor}/" and not _subsystem_folder_exists(inst, exp):
+            # A FLAT anchor -- one that never grew the `{slug} Design/` or
+            # `{slug} Track/` folder the rule names -- has nowhere else to put
+            # the instance, so the anchor root is not a deviation but the only
+            # available placement.  Measured 2026-08-18: 8 of the checker's
+            # first 22 findings were this, spread over 7 anchors (CAT, Disk,
+            # DFP, START, Eli, AIS, CAT Backup).  Reporting them told the
+            # reader to move a file into a folder that does not exist, which is
+            # advice no one can follow -- the honest reading is that placement
+            # binds an anchor only once it has the subsystem folder.
+            #
+            # Note this is a claim about the FILESYSTEM, not about the rule:
+            # the moment such an anchor grows the folder, its root-placed
+            # instances start deviating again, which is the intended behavior.
+            ok = True
         if ok:
             conforming[inst["facet"]] += 1
         else:
