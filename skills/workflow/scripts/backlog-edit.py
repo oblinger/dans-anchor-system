@@ -46,6 +46,7 @@ Q-management mode (F128):
 
 from __future__ import annotations
 
+import gzip
 import json
 import os
 import re
@@ -2983,6 +2984,95 @@ def _is_facet_spec(path):
     return path.parent.name == "facets" and path.name.startswith("DAS ")
 
 
+# A Messages log is append-only and nothing ever drained it, so every one grew
+# without bound until Obsidian started refusing to index them (TINK T234:
+# "Indexing taking a long time for … TINK Messages.md", at 751 KB / ~21 KB per
+# day). The cap keeps the tail and archives the head — NOT a clear. DAS Messages
+# is explicit that "a cleared log nothing reads is the same dead channel,
+# emptier", so the history moves to a gzip beside the file, where it is still
+# readable but invisible to Obsidian's indexer.
+#
+# Hysteresis is the point of having two numbers: rotating at exactly KEEP would
+# rewrite the whole file on every single append once it filled. Rotating only
+# above HIGH means one rewrite per (HIGH - KEEP) appends.
+MESSAGES_KEEP = 300      # entries retained in the live file (~31 KB, measured)
+MESSAGES_HIGH = 500      # rotate only once the file exceeds this
+
+
+def _messages_header(slug):
+    # The corpus decides this line, not this function. Measured 2026-08-12
+    # (F303): 38 of the vault's 44 `* Messages.md` files carry the sentence
+    # below, and exactly ONE carried the string this branch used to write — so
+    # the creator was minting a form nothing else in the vault uses, and a
+    # template mirroring it faithfully documented a corpus of one. Aligning the
+    # writer costs a line; sweeping 38 append-only files that agents write to
+    # constantly does not. `{slug}` is deliberately absent from the description:
+    # the 38 do not name their own anchor there, and the file's H1 already does.
+    return (
+        "---\n"
+        "description: agent inbox — background-process messages for this "
+        "anchor; append-only. See [[DAS Messages]].\n"
+        "---\n"
+        f"\n# {slug} Messages\n"
+        # The orientation line is not decoration: R-spine-02 requires a single
+        # line under the H1 followed by a blank, and without it the first LOG
+        # line becomes the orientation line and trips the rule against every
+        # entry that follows it. Only 2 of the vault's 44 instances had one
+        # (measured 2026-08-17), which is why the rest fire on every write.
+        f"Agent inbox for {slug} — machine-written notices from background "
+        f"processes; append-only. See [[DAS Messages]].\n\n"
+    )
+
+
+ENTRY_RE = re.compile(r"^\[(\d{4}-\d{2}-\d{2})[ T]")
+
+
+def _rotate_messages(messages_path, slug):
+    """Archive all but the last MESSAGES_KEEP entries into a gzip sibling.
+
+    Returns silently when the file is under the high-water mark. Any failure is
+    reported to stderr and swallowed: the message itself is already written, and
+    losing the rotation is not worth failing the state mutation that triggered it.
+    """
+    try:
+        lines = messages_path.read_text().splitlines(keepends=True)
+        entries = [ln for ln in lines if ENTRY_RE.match(ln)]
+        if len(entries) <= MESSAGES_HIGH:
+            return
+        cut = len(entries) - MESSAGES_KEEP
+        archived, kept = entries[:cut], entries[cut:]
+
+        def day(line):
+            m = ENTRY_RE.match(line)
+            return m.group(1) if m else "unknown"
+
+        # Fold into the anchor's existing archive when there is one, so an anchor
+        # accumulates ONE archive rather than a shelf of fragments. gzip members
+        # concatenate legally and Python's reader spans them, so this appends
+        # without decompressing what is already there; only the name widens.
+        prior = sorted(messages_path.parent.glob(f"{slug} Messages * to *.md.gz"))
+        target = prior[0] if prior else None
+        first = day(archived[0])
+        if target:
+            m = re.search(r" (\d{4}-\d{2}-\d{2}) to ", target.name)
+            if m:
+                first = m.group(1)
+        archive = messages_path.parent / f"{slug} Messages {first} to {day(archived[-1])}.md.gz"
+        with gzip.GzipFile(filename=str(target or archive), mode="ab") as gz:
+            gz.write("".join(archived).encode())
+        if target and target != archive:
+            target.rename(archive)
+
+        # Rebuild the live file. The header is re-emitted rather than preserved:
+        # the 2026-08-17 hand-rotation dropped frontmatter and H1 from the four
+        # files it touched, so re-emitting heals those on their next rotation.
+        head = [ln for ln in lines if not ENTRY_RE.match(ln)]
+        header = "".join(head) if any(ln.startswith("# ") for ln in head) else _messages_header(slug)
+        messages_path.write_text(header.rstrip("\n") + "\n\n" + "".join(kept))
+    except Exception as e:                                   # noqa: BLE001
+        print(f"backlog-edit: could not rotate {messages_path.name}: {e}", file=sys.stderr)
+
+
 def append_messages(slug, summary, backlog_path):
     """Write a global-sentinel entry and a per-anchor Messages.md entry."""
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -3002,26 +3092,11 @@ def append_messages(slug, summary, backlog_path):
     if _is_facet_spec(backlog_path) or _is_facet_spec(messages_path):
         return
     if not messages_path.exists():
-        header = (
-            "---\n"
-            # The corpus decides this line, not this function. Measured
-            # 2026-08-12 (F303): 38 of the vault's 44 `* Messages.md` files
-            # carry the sentence below, and exactly ONE carried the string this
-            # branch used to write — so the creator was minting a form nothing
-            # else in the vault uses, and a template mirroring it faithfully
-            # documented a corpus of one. Aligning the writer costs a line;
-            # sweeping 38 append-only files that agents write to constantly does
-            # not. `{slug}` is deliberately absent: the 38 do not name their own
-            # anchor here, and the file's own H1 already does.
-            "description: agent inbox — background-process messages for this "
-            "anchor; append-only. See [[DAS Messages]].\n"
-            "---\n"
-            f"\n# {slug} Messages\n\n"
-        )
-        messages_path.write_text(header)
+        messages_path.write_text(_messages_header(slug))
         _selffire(messages_path)
     with messages_path.open("a") as f:
         f.write(line)
+    _rotate_messages(messages_path, slug)
 
 
 def write_state(slug, result):

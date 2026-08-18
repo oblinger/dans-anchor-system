@@ -7,7 +7,7 @@ description: Publish a markdown file to a link-shared Google Doc that expires, t
 
 `gshare` is a **script, not an agent workflow**. It puts a markdown file on Drive as a link-shared Google Doc, records it in a register, and takes it back down when it expires. The expiry has to fire when nobody is asking, so no part of it depends on an agent noticing — run the command and read what it prints.
 
-    gshare <path> [--days N | --forever] [--title T]   publish, or refresh an existing share
+    gshare <path> [--days N | --forever] [--title T] [--pdf]   publish, or refresh an existing share
     gshare list [--all]                                what is published right now
     gshare clean [--dry-run]                           sweep expired rows, reconcile against Drive
     gshare rm <path | url | id>                        take one share down now
@@ -22,6 +22,9 @@ Default lifetime is 30 days. `gshare <same path>` again **refreshes the existing
 - **Taking a share down revokes the permission and then trashes the file.** In that order, and the order is load-bearing: trashing a Drive file does *not* revoke its link share — measured 2026-08-12, a trashed-but-still-shared doc serves its content exactly as before. Trashing after revoking is what keeps the content recoverable for 30 days.
 - **Unregistered files in the share folder are reported, never touched.** The folder predates this script.
 - **It publishes markdown only.** Frontmatter, `:>>` breadcrumbs, HTML comments, and block-ids are stripped, and `[[wiki-links]]` are flattened to their display text, because a wiki-link renders as literal brackets to someone without the vault. Tables survive as real Docs tables.
+- **Figures travel (F335).** The conversion path is pandoc DOCX → Drive's DOCX→Doc importer, so images ride *inside* the payload: Obsidian `![[image]]` embeds are resolved through the vault, mermaid fences render to PNG via `mmdc`, and SVG is rasterized via `rsvg-convert` (Docs mangles imported SVG). Callouts (`> [!note]`) become styled blockquotes. `pandoc`, `mmdc`, and `rsvg-convert` are hard dependencies — a missing tool dies with install instructions.
+- **Obsidian-only constructs never block a publish — they gap and report.** Dataview/query blocks, Excalidraw drawings without an exported image, note transclusions, and missing embeds each become a clearly-marked ⚠ gap in the published Doc, and the CLI prints "published, but N constructs could not convert: …" naming each with its line number. Nothing silent, nothing refused. (There is deliberately no auto-fallback to PDF: those constructs render only inside Obsidian's plugin runtime, so a PDF would have the identical holes.)
+- **`--pdf` publishes a PDF instead of an editable Doc** — for docs whose value is layout. Same register, same expiry, same rm/refresh verbs; rendered via pandoc HTML + headless Chrome print with a vault-ish stylesheet. Switching a share's lane (doc ↔ pdf) takes the old file down and mints a new URL — Drive cannot convert one into the other in place.
 
 ## Configuration
 
@@ -40,6 +43,6 @@ Sharing a **folder**. It needs a decision the single-file case does not — whet
 
 ## Related
 
-- Design: `F325` in the TINK anchor.
+- Design: `F325` (base) and `F335` (fidelity upgrade: DOCX intermediate, rendered figures, gap report, --pdf lane) in the TINK anchor.
 - Transport and Drive conventions: the `io` skill's `io-gdrive` card, which owns the WEBSHARE naming rule (`YYYY-MM-DD ` prefix) that `gshare` applies.
 - Not to be confused with `/publish`, which deploys an anchor's splash page to GitHub Pages — permanent, HTML, anchor-scoped.

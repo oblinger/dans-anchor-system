@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """gshare — publish a markdown file to a link-shared Google Doc, with a register and an expiry.
 
-    gshare <path> [--days N | --forever] [--title T]   publish, or refresh an existing share
+    gshare <path> [--days N | --forever] [--title T] [--pdf]   publish, or refresh an existing share
     gshare list [--all]                                print the register
     gshare clean [--dry-run]                           sweep expired rows, reconcile against Drive
     gshare rm <path | url | id>                        take one share down now
@@ -13,13 +13,20 @@ fire when nobody is asking, so it cannot depend on an agent noticing.
 The register (two markdown tables in one vault page) is the ONLY store: the Drive file
 id is recovered from the URL in the Weblink cell, so there is no sidecar and no cache.
 
+Conversion (per F335): markdown → figure pass (Obsidian embeds resolved, mermaid →
+PNG via mmdc, SVG rasterized via rsvg-convert) → pandoc DOCX → Drive import to a
+native, editable Google Doc. Constructs that only render inside Obsidian (dataview,
+excalidraw, note transclusions) never block the publish: each becomes a marked gap in
+the published Doc and a line in the CLI report. `--pdf` publishes a PDF instead
+(pandoc HTML + headless Chrome print) for docs whose value is layout.
+
 Config: ~/.config/anchor-system/gshare/config.yaml (per F080).
   drive_folder_id: <Drive folder that receives shares>   (required)
   credentials:     <OAuth client json with a drive scope> (required)
   register:        <path to the register page>            (default: {skill_data_root}/gshare/gshare register.md)
   default_days:    30
 
-Per F325.
+Per F325; fidelity upgrade per F335.
 """
 
 import argparse
@@ -27,8 +34,11 @@ import datetime as dt
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
+import tempfile
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -42,6 +52,8 @@ DRIVE = "https://www.googleapis.com/drive/v3"
 UPLOAD = "https://www.googleapis.com/upload/drive/v3"
 DOC_ID_RE = re.compile(r"/(?:document|file|spreadsheets|presentation)/d/([A-Za-z0-9_-]{10,})")
 TODAY = dt.date.today()
+DOCX_MIME = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 
 
 def die(msg) -> NoReturn:
@@ -143,27 +155,29 @@ def api(token, method, url, body=None, content_type="application/json", raw=None
         die(f"Drive {method} {url.split('?')[0]} failed: {e.code} {e.read().decode(errors='replace')[:400]}")
 
 
-def multipart(metadata, html):
+def multipart(metadata, payload: bytes, payload_type: str):
     boundary = uuid.uuid4().hex
-    body = (
+    head = (
         f"--{boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n"
         f"{json.dumps(metadata)}\r\n"
-        f"--{boundary}\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n"
-        f"{html}\r\n--{boundary}--\r\n"
+        f"--{boundary}\r\nContent-Type: {payload_type}\r\n\r\n"
     ).encode()
-    return body, f"multipart/related; boundary={boundary}"
+    tail = f"\r\n--{boundary}--\r\n".encode()
+    return head + payload + tail, f"multipart/related; boundary={boundary}"
 
 
-def drive_create(token, name, folder, html):
-    body, ctype = multipart(
-        {"name": name, "mimeType": "application/vnd.google-apps.document", "parents": [folder]}, html)
+def drive_create(token, name, folder, payload, payload_type, as_gdoc):
+    meta = {"name": name, "parents": [folder]}
+    if as_gdoc:
+        meta["mimeType"] = "application/vnd.google-apps.document"
+    body, ctype = multipart(meta, payload, payload_type)
     return api(token, "POST",
                f"{UPLOAD}/files?uploadType=multipart&fields=id,name,webViewLink",
                content_type=ctype, raw=body)
 
 
-def drive_update(token, file_id, name, html):
-    body, ctype = multipart({"name": name}, html)
+def drive_update(token, file_id, name, payload, payload_type):
+    body, ctype = multipart({"name": name}, payload, payload_type)
     return api(token, "PATCH",
                f"{UPLOAD}/files/{file_id}?uploadType=multipart&fields=id,name,webViewLink",
                content_type=ctype, raw=body)
@@ -229,11 +243,38 @@ def drive_list(token, folder):
             return out
 
 
-# ------------------------------------------------------------ markdown → HTML
+# --------------------------------------------------- markdown → DOCX / PDF (F335)
 
 WIKI_PIPED = re.compile(r"\[\[([^\[\]|]+)\|([^\[\]]+)\]\]")
 WIKI_PLAIN = re.compile(r"\[\[([^\[\]|]+)\]\]")
 BLOCK_ID = re.compile(r"\s+\^[A-Za-z0-9][A-Za-z0-9-]*\s*$")
+EMBED = re.compile(r"!\[\[([^\[\]|]+?)(?:\|[^\[\]]*)?\]\]")
+MD_IMG = re.compile(r"!\[([^\]]*)\]\(([^)\s]+)\)")
+FENCE = re.compile(r"^\s*(```+|~~~+)\s*(\S*)")
+CALLOUT = re.compile(r"^(\s*>\s*)\[!(\w+)\][+-]?\s*(.*)$")
+
+IMG_EXTS = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".svg"}
+# Fence languages that render only inside Obsidian's plugin runtime. No external
+# renderer exists for these — not DOCX, and not the PDF lane either (headless
+# Chrome prints the same markdown without the plugins), which is why the answer
+# is a marked gap + report, never a format switch (F335 Q1, Dan 2026-08-17).
+OBSIDIAN_ONLY_FENCES = {"dataview", "dataviewjs", "query", "tasks"}
+
+
+def _tool(name, hint):
+    """Locate a rendering dependency. Missing tool = environment error = die
+    (unlike a failing construct, which is a content gap and reports)."""
+    p = shutil.which(name)
+    if not p and (Path("/opt/homebrew/bin") / name).is_file():
+        p = str(Path("/opt/homebrew/bin") / name)
+    if not p:
+        die(f"`{name}` is required for this document and is not installed — {hint}")
+    return p
+
+
+class Gap:
+    def __init__(self, line, what, detail=""):
+        self.line, self.what, self.detail = line, what, detail
 
 
 def flatten_wikilinks(text):
@@ -250,7 +291,8 @@ def strip_frontmatter(text):
     return text
 
 
-def prepare(text):
+def strip_vault_noise(text):
+    """Frontmatter, HTML comments, `:>>` breadcrumbs, block-ids."""
     text = strip_frontmatter(text)
     text = re.sub(r"<!--.*?-->", "", text, flags=re.S)
     lines = []
@@ -258,15 +300,247 @@ def prepare(text):
         if line.lstrip().startswith(":>>"):
             continue
         lines.append(BLOCK_ID.sub("", line))
-    return flatten_wikilinks("\n".join(lines)).strip() + "\n"
+    return "\n".join(lines)
 
 
-def to_html(text):
+def prepare(text):
+    """Title/date extraction view of the doc — strip noise, flatten links."""
+    return flatten_wikilinks(strip_vault_noise(text)).strip() + "\n"
+
+
+class FigurePass:
+    """Resolve every figure the doc carries into a real image file, and turn
+    every construct that cannot render outside Obsidian into a marked gap.
+    All images land in the workdir under space-free names so both pandoc and
+    Chrome can reference them without path-quoting trouble."""
+
+    def __init__(self, src, cfg, workdir):
+        self.src, self.cfg, self.workdir = src, cfg, workdir
+        self.gaps, self._index, self._n = [], None, 0
+
+    def vault_lookup(self, basename):
+        if self._index is None:
+            self._index = {}
+            for root, dirs, files in os.walk(self.cfg["vault_root"]):
+                dirs[:] = [d for d in dirs if not d.startswith(".")]
+                for f in files:
+                    self._index.setdefault(f.lower(), Path(root) / f)
+        return self._index.get(basename.lower())
+
+    def stage_image(self, path, line_no, alt=""):
+        """Copy (rasterizing SVG) into the workdir; return markdown, or None on gap.
+
+        `alt` is load-bearing and defaults to EMPTY on purpose: pandoc turns a
+        lone `![text](img)` paragraph into a *captioned figure*, so passing the
+        filename here would print "TINK" under every Obsidian `![[TINK.png]]`
+        embed — a caption the vault reader never sees. Embeds pass nothing;
+        an explicit markdown image passes the author's own alt, because there
+        the caption was written deliberately.
+        """
+        self._n += 1
+        if path.suffix.lower() == ".svg":
+            out = self.workdir / f"fig-{self._n}.png"
+            rsvg = _tool("rsvg-convert", "`brew install librsvg` (Docs mangles imported SVG, so gshare rasterizes it)")
+            r = subprocess.run([rsvg, "-o", str(out), "--zoom", "2", str(path)],
+                               capture_output=True, text=True, timeout=120)
+            if r.returncode != 0 or not out.is_file():
+                self.gaps.append(Gap(line_no, f"SVG `{path.name}`",
+                                     f"rasterization failed: {r.stderr.strip()[:120]}"))
+                return None
+        else:
+            out = self.workdir / f"fig-{self._n}{path.suffix.lower()}"
+            shutil.copy2(path, out)
+        return f"![{alt}]({out})"
+
+    def gap_marker(self, line_no, what, detail):
+        self.gaps.append(Gap(line_no, what, detail))
+        return f"**[⚠ not converted: {what} — {detail}]**"
+
+    def gap_block(self, line_no, what, detail, source_lines):
+        self.gaps.append(Gap(line_no, what, detail))
+        out = ["", f"> ⚠ **Not converted: {what}** — {detail} Source preserved:", ">"]
+        out += [f">     {s}" for s in source_lines]
+        out.append("")
+        return out
+
+    def embed_repl(self, m, line_no):
+        name = m.group(1).strip()
+        base = name.split("#")[0].strip()
+        ext = Path(base).suffix.lower()
+        if ".excalidraw" in base.lower():
+            stem = base[: base.lower().index(".excalidraw")]
+            for cand_ext in (".png", ".svg"):
+                p = self.vault_lookup(Path(stem).name + ".excalidraw" + cand_ext) \
+                    or self.vault_lookup(Path(stem).name + cand_ext)
+                if p:
+                    staged = self.stage_image(p, line_no)
+                    if staged:
+                        return staged
+            return self.gap_marker(line_no, f"Excalidraw drawing `{base}`",
+                                   "renders only inside Obsidian and no exported .png/.svg sits beside it — export one in Obsidian")
+        if ext in IMG_EXTS:
+            p = self.vault_lookup(Path(base).name)
+            if not p:
+                return self.gap_marker(line_no, f"image embed `{base}`", "not found anywhere in the vault")
+            staged = self.stage_image(p, line_no)
+            return staged if staged else f"**[⚠ not converted: `{base}`]**"
+        if ext in ("", ".md"):
+            return self.gap_marker(line_no, f"note transclusion `{name}`",
+                                   "embedding another note renders only inside Obsidian; share that note separately or inline it")
+        return self.gap_marker(line_no, f"embedded {ext} file `{base}`",
+                               "a Google Doc cannot carry this file type inline")
+
+    def md_img_repl(self, m, line_no):
+        alt, ref = m.group(1), m.group(2)
+        if ref.startswith(("http://", "https://", "data:")):
+            return m.group(0)
+        raw = urllib.parse.unquote(ref)
+        p = Path(raw) if raw.startswith("/") else (self.src.parent / raw)
+        if not p.is_file():
+            return self.gap_marker(line_no, f"image `{ref}`", "file not found relative to the source doc")
+        staged = self.stage_image(p.resolve(), line_no, alt=alt)
+        return staged if staged else f"**[⚠ not converted: `{ref}`]**"
+
+    def render_mermaid(self, source):
+        mmdc = _tool("mmdc", "`npm install -g @mermaid-js/mermaid-cli`")
+        self._n += 1
+        mmd = self.workdir / f"mermaid-{self._n}.mmd"
+        png = self.workdir / f"mermaid-{self._n}.png"
+        mmd.write_text(source)
+        r = subprocess.run([mmdc, "-i", str(mmd), "-o", str(png), "-b", "white",
+                            "--scale", "2", "--quiet"],
+                           capture_output=True, text=True, timeout=180)
+        if r.returncode != 0 or not png.is_file():
+            err = (r.stderr or r.stdout).strip().splitlines()
+            return None, (err[-1][:160] if err else "mmdc produced no output")
+        return png, None
+
+    def run(self, text):
+        lines = text.splitlines()
+        out, i = [], 0
+        while i < len(lines):
+            line = lines[i]
+            f = FENCE.match(line)
+            if f:
+                fence, lang = f.group(1), f.group(2).lower()
+                j = i + 1
+                while j < len(lines) and not lines[j].strip().startswith(fence[0] * 3):
+                    j += 1
+                body = lines[i + 1:j]
+                if lang == "mermaid":
+                    png, err = self.render_mermaid("\n".join(body) + "\n")
+                    if png:
+                        out += ["", f"![]({png})", ""]
+                    else:
+                        out += self.gap_block(i + 1, "mermaid diagram",
+                                              f"mmdc failed to render it ({err}).", body)
+                elif lang in OBSIDIAN_ONLY_FENCES:
+                    out += self.gap_block(i + 1, f"`{lang}` block",
+                                          "it renders only inside Obsidian's plugin runtime.", body)
+                else:
+                    out += lines[i:j + 1] if j < len(lines) else lines[i:]
+                i = j + 1
+                continue
+            c = CALLOUT.match(line)
+            if c:
+                title = c.group(3).strip()
+                head = c.group(2).capitalize() + (f" — {title}" if title else "")
+                line = f"{c.group(1)}**{head}**"
+            else:
+                # MD_IMG first, EMBED second — embed replacements emit ![..](..)
+                # markdown that must not be re-processed as a source image.
+                n = i + 1
+                line = MD_IMG.sub(lambda m: self.md_img_repl(m, n), line)
+                line = EMBED.sub(lambda m: self.embed_repl(m, n), line)
+            out.append(line)
+            i += 1
+        return "\n".join(out)
+
+
+def convert(src, text, cfg, workdir, pdf=False, title=""):
+    """The one conversion path: noise strip → figure pass → flatten →
+    pandoc DOCX (or pandoc HTML → Chrome print for --pdf).
+    Returns (payload_bytes, payload_mime, as_gdoc, gaps)."""
+    pandoc = _tool("pandoc", "`brew install pandoc`")
+    fp = FigurePass(src, cfg, workdir)
+    md = flatten_wikilinks(fp.run(strip_vault_noise(text))).strip() + "\n"
+    if not pdf:
+        out = workdir / "out.docx"
+        r = subprocess.run([pandoc, "-f", "gfm", "-t", "docx", "-o", str(out)],
+                           input=md, text=True, capture_output=True, timeout=120)
+        if r.returncode != 0:
+            die(f"pandoc → docx failed: {r.stderr.strip()[:400]}")
+        return out.read_bytes(), DOCX_MIME, True, fp.gaps
+    # --pdf lane: pandoc HTML body, vault-ish stylesheet, headless Chrome print.
+    if not Path(CHROME).is_file():
+        die(f"--pdf needs Google Chrome for headless printing and {CHROME} does not exist")
+    r = subprocess.run([pandoc, "-f", "gfm", "-t", "html"],
+                       input=md, text=True, capture_output=True, timeout=120)
+    if r.returncode != 0:
+        die(f"pandoc → html failed: {r.stderr.strip()[:400]}")
+    import html as _html
+    html_path = workdir / "out.html"
+    # .replace, not .format — the body is arbitrary document HTML and may carry braces.
+    html_path.write_text(HTML_SHELL.replace("__TITLE__", _html.escape(title or src.stem))
+                                   .replace("__BODY__", r.stdout))
+    pdf_path = workdir / "out.pdf"
+    # WAIT ON THE ARTIFACT, NOT THE PROCESS. Measured 2026-08-17 (F335): Chrome
+    # 151 writes a complete PDF in about two seconds and then never exits — its
+    # bundled updater keeps the process group alive, so `subprocess.run` waits
+    # until the timeout even though the file has been sitting there, finished,
+    # the whole time. All three headless modes behave identically, so this is
+    # not a mode to flag around; the wait condition was simply wrong.
+    proc = subprocess.Popen([CHROME, "--headless", "--disable-gpu",
+                             "--no-first-run", "--no-default-browser-check",
+                             f"--user-data-dir={workdir}/chrome-profile",
+                             "--no-pdf-header-footer", "--virtual-time-budget=10000",
+                             f"--print-to-pdf={pdf_path}", f"file://{html_path}"],
+                            stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
     try:
-        import markdown
-    except ImportError:
-        die("the `markdown` package is not installed — `pip install markdown`")
-    return markdown.markdown(prepare(text), extensions=["tables", "extra", "sane_lists"])
+        stable, last = 0, -1
+        for _ in range(240):                       # 120 s ceiling, 0.5 s steps
+            if proc.poll() is not None and pdf_path.is_file():
+                break
+            size = pdf_path.stat().st_size if pdf_path.is_file() else -1
+            # Two consecutive equal, non-zero sizes means the write finished.
+            stable = stable + 1 if size == last and size > 0 else 0
+            last = size
+            if stable >= 2:
+                break
+            time.sleep(0.5)
+    finally:
+        proc.kill()
+        try:
+            err = (proc.communicate(timeout=10)[1] or b"").decode(errors="replace")
+        except subprocess.TimeoutExpired:
+            err = ""
+    if not pdf_path.is_file() or pdf_path.stat().st_size == 0:
+        die(f"Chrome headless print produced no PDF: {err.strip()[-400:]}")
+    return pdf_path.read_bytes(), "application/pdf", False, fp.gaps
+
+
+HTML_SHELL = """<!doctype html><html><head><meta charset="utf-8"><title>__TITLE__</title><style>
+body { font-family: -apple-system, 'Helvetica Neue', Helvetica, sans-serif; max-width: 48em;
+       margin: 2em auto; padding: 0 2em; line-height: 1.55; color: #1a1a1a; }
+h1, h2, h3 { line-height: 1.25; }
+img { max-width: 100%; }
+table { border-collapse: collapse; margin: 1em 0; }
+th, td { border: 1px solid #bbb; padding: 4px 10px; text-align: left; }
+code { background: #f4f4f4; padding: 1px 4px; border-radius: 3px; font-size: 0.9em; }
+pre { background: #f4f4f4; padding: 10px; overflow-x: auto; border-radius: 4px; }
+pre code { background: none; padding: 0; }
+blockquote { border-left: 3px solid #ccc; margin-left: 0; padding-left: 1em; color: #444; }
+</style></head><body>__BODY__</body></html>"""
+
+
+def report_gaps(gaps):
+    if not gaps:
+        return
+    n = len(gaps)
+    print(f"  ⚠ published, but {n} construct{'s' if n > 1 else ''} could not convert:")
+    for g in gaps:
+        detail = f" — {g.detail}" if g.detail else ""
+        print(f"    · line {g.line}: {g.what}{detail}")
 
 
 DATE_RE = re.compile(r"(\d{4}-\d{2}-\d{2})")
@@ -455,28 +729,41 @@ def cmd_publish(cfg, args):
 
     text = src.read_text()
     name = drive_name(src, text, args.title)
-    html = to_html(text)
-    expires = None if args.forever else (TODAY + dt.timedelta(days=args.days or cfg["default_days"])).isoformat()
+    with tempfile.TemporaryDirectory(prefix="gshare-") as td:
+        payload, ptype, as_gdoc, gaps = convert(src, text, cfg, Path(td),
+                                                pdf=args.pdf, title=name)
+        expires = None if args.forever else (TODAY + dt.timedelta(days=args.days or cfg["default_days"])).isoformat()
 
-    existing = find_row(rows, str(src))
-    if existing and existing.doc_id and drive_get(token, existing.doc_id):
-        f = drive_update(token, existing.doc_id, name, html)
-        existing.name, existing.expires = f["name"], expires
-        row, verb = existing, "refreshed"
-    else:
-        if existing:
-            rows.remove(existing)
-        f = drive_create(token, name, cfg["drive_folder_id"], html)
-        drive_share(token, f["id"])
-        row = Row(TODAY.isoformat(), expires, f["webViewLink"], f["name"], src.resolve())
-        rows.append(row)
-        verb = "published"
+        # Decide the lane first, then act once. A registered row is refreshable
+        # only when its Drive file is still live AND it is the same kind of file
+        # we are about to upload: Drive cannot convert a Doc into a PDF (or back)
+        # in place, so a lane switch has to take the old share down and mint a
+        # fresh URL rather than silently leaving the previous format published.
+        existing = find_row(rows, str(src))
+        live = bool(existing and existing.doc_id and drive_get(token, existing.doc_id))
+        same_lane = bool(existing and ("/document/" in existing.url) == as_gdoc)
+
+        if existing and live and same_lane:
+            f = drive_update(token, existing.doc_id, name, payload, ptype)
+            existing.name, existing.expires = f["name"], expires
+            row, verb = existing, "refreshed"
+        else:
+            if existing:
+                if live:
+                    drive_takedown(token, existing.doc_id)
+                rows.remove(existing)
+            f = drive_create(token, name, cfg["drive_folder_id"], payload, ptype, as_gdoc)
+            drive_share(token, f["id"])
+            row = Row(TODAY.isoformat(), expires, f["webViewLink"], f["name"], src.resolve())
+            rows.append(row)
+            verb = "published"
 
     write_register(cfg, rows)
-    print(f"gshare: {verb} {row.name}")
+    print(f"gshare: {verb} {row.name}{' (PDF)' if args.pdf else ''}")
     print(f"  {row.url}")
     print(f"  {'never expires' if not row.expires else 'expires ' + row.expires}"
           f" · register: {cfg['register']}")
+    report_gaps(gaps)
     if taken:
         print(f"  ({len(taken)} expired share{'s' if len(taken) > 1 else ''} swept on the way in)")
 
@@ -572,6 +859,8 @@ def main():
     q.add_argument("--days", type=int, help="days until it expires")
     q.add_argument("--forever", "--permanent", dest="forever", action="store_true")
     q.add_argument("--title", help="override the document title")
+    q.add_argument("--pdf", action="store_true",
+                   help="publish a PDF instead of an editable Google Doc (layout-first docs)")
 
     # `gshare <path>` with no verb means publish.
     argv = sys.argv[1:]
