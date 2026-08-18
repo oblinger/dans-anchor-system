@@ -1810,6 +1810,27 @@ def _resolve_doc_path(doc_arg, slug, anchor_path):
     return ("doc", vault_matches[0])
 
 
+# T239 — name the WHOLE required set on the first refusal. The gates fire one
+# at a time, so an author who is missing three fields learns about them across
+# three rejected attempts, each of which reads like the last thing standing in
+# the way. A2X reported converging in five tries, 2026-08-16, and praised the
+# individual messages — the gap was never their wording, it was that none of
+# them said what else was coming.
+_Q_REQUIRED_FIELDS_HINT = (
+    "  A well-formed Q carries ALL of these — check them together rather than\n"
+    "  one refusal at a time:\n"
+    "    • ≥2 option bullets   `- **(A)** …` / `- **(B)** …`, each on its own line\n"
+    "    • a recommendation    `- **Recommendation:** Lean (A) | Strong (B) | None`\n"
+    "    • a damage line       `- **Damage:** <category> — <one sentence>`\n"
+    "        category ∈ waste | priority | irreversible | locking | taste | other\n"
+    "        (waste/priority auto-resolve and never reach the user)\n"
+    "    • with a Lean/Strong recommendation, ALSO:\n"
+    "        `--why-ask \"<why this surfaces despite having an answer>\"`\n"
+    "        and a risk line   `- **Risk of (A):** <class> — <one sentence>`\n"
+    "        class ∈ file | interface | commitment | time | money | interpretation"
+)
+
+
 def _validate_ask_format_body(body):
     """Write-time gate for `Q<n> define` bodies — refuses anything that
     doesn't carry the ask-format basics: ≥2 own-line labeled option bullets
@@ -1838,13 +1859,15 @@ def _validate_ask_format_body(body):
             "bullets, each on its own line (e.g. `- **(A)** ...`); found "
             f"{len(options)}. The one exception is the final-question form "
             "(F305 D5): zero options + a `yes / no` cue + "
-            "`- **Recommendation:** None`. See [[DAS ask-format]]."
+            "`- **Recommendation:** None`. See [[DAS ask-format]].\n"
+            + _Q_REQUIRED_FIELDS_HINT
         )
     rec_re = re.compile(r"^\s*-\s+\*\*Recommendation:\*\*", re.MULTILINE)  # `^\s*-`: a standalone Backlog Q-row (F275) carries Recommendation as an indented sub-bullet
     if not rec_re.search(body):
         raise be.BacklogEditError(
             "define refused: ask-format requires a `- **Recommendation:**` "
-            "line at indent 0 (value may be `None`). See [[DAS ask-format]]."
+            "line at indent 0 (value may be `None`). See [[DAS ask-format]].\n"
+            + _Q_REQUIRED_FIELDS_HINT
         )
 
 
