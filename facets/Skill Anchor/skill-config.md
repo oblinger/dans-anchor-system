@@ -16,6 +16,8 @@ The skill-config facet specifies *where a Skill Anchor's per-machine mutable con
 
 This is a DAS facet of the Skill trait. The config namespace lives outside both the anchor's filesystem folder AND the skill runtime folder — at the per-machine `~/.config/` location.
 
+**Worked example: [[gshare skill|gshare]]** — assets at `skills/gshare/`, config at `~/.config/anchor-system/gshare/config.yaml`, which is the two-namespace split of this facet's first bullet with nothing else mixed in. Note what the example cannot show you: the config half is per-machine and outside the vault, so unlike every other facet's example it is not reachable by wiki-link, only by path. That is a property of the facet, not a gap in the example.
+
 
 ## Layout
 

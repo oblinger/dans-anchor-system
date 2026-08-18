@@ -18,6 +18,8 @@ What distinguishes a conformant search-rule surface from one-off rule files:
 
 This is a DAS facet of the Skill trait. Like skill-testing, the actual content lives at the runtime location, not under the anchor's filesystem folder.
 
+**Worked example: [[Find Skill|find]]** — `skills/find/rules/` ships the defaults; `Topic/Search/SRCH rules/` holds the user overrides that layer over them. Two sibling instances exist, `skills/profile/rules/` and `skills/survey/rules/`, which makes this the one Skill-Anchor sub-facet with a real population rather than a single exemplar.
+
 
 ## Two homes for rules
 

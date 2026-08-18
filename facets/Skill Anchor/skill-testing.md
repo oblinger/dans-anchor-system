@@ -15,6 +15,8 @@ The skill-testing facet specifies *how a skill verifies its own behavior — a `
 
 This is a DAS facet of the Skill trait — it applies to anchors that carry `traits: [skill]`, and the content (the `tests/` folder) lives at the runtime location `~/.claude/skills/<skill-name>/tests/`, not under the anchor's filesystem folder.
 
+**Worked example: [[ctrl skill|ctrl]]** — `skills/ctrl/tests/` carries the `unit/` + `live/` split described above. Measured 2026-08-18 ([[TINK327 - Every facet has a worked example, and FEX {facet} is how you reach it|F327]]): it is the **only** one. Three skills in the repo have a `tests/` folder at all, and the other two ([[audit]], `anchor-system`) are flat collections of `test_*.py` with no split. The convention this facet's first bullet leads with therefore has one instance, not a population — worth knowing before treating a flat `tests/` folder as a violation.
+
 
 ## Layout
 
