@@ -2,13 +2,13 @@
 description: "skim → click into the rule that applies"
 ---
 
-| -[[DAS Skill]]- | : skim → click into the rule that applies<br>→ [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [[SKL Search]] → [SKL Skill](hook://p/DAS%20Skill)|
+| -[[DAS Skill Search]]- | : skim → click into the rule that applies<br>→ [[DAS]] → [docs](hook://docs) → [DAS Skill Search](hook://p/DAS%20Skill%20Search)  |
 | --- | --- |
 | Skill rules (any verb) | [[SRCH rules/skill\|skill.md]],   |
 | Verbs | [[SRCH rules/find-skill\|find-skill]],  [[SRCH rules/profile-skill\|describe-skill]],  [[SRCH rules/survey-skill\|survey-skill]],   |
 | ... |  |
 
-# DAS Skill
+# DAS Skill Search
 When the search agent runs against an **agent skill** — Claude Code skills, MCP servers, agentic tooling — these are the rules that apply.
 
 The most valuable verb here is **survey** — comparing many skills along architectural axes ("survey architect skills", "compare PRD writers"). The skill-survey specialization pre-bakes search loci (anthropic-skills, GitHub `filename:SKILL.md`), columns (output / trigger / scope), and the mandatory choice-point + approach-group analysis.

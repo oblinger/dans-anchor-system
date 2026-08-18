@@ -2,10 +2,10 @@
 description: "How to use the development workflow — from planning through implementation and release."
 ---
 
-| -[[DAS Code]]- | : How to use the development workflow — from planning through implementation and release.<br>→ [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [[DAS]] → [DAS Code Skill](hook://p/DAS%20Code%20Skill) |
+| -[[DAS Code Skill]]- | : How to use the development workflow — from planning through implementation and release.<br>→ [[DAS]] → [docs](hook://docs) → [DAS Code Skill](hook://p/DAS%20Code%20Skill)  |
 | --- | --- |
 | Related | [[skills/code/SKILL.md\|SKILL]],   |
-| [[DAS Code Skill Design\|Design]] |  |
+| [[DAS Code Skill Design\|Design]]  |  |
 | ... |  |
 
 # DAS Code Skill
