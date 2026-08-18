@@ -42,7 +42,7 @@ Boundaries: **the substrate serves the other subsystems** — Tracking, Design, 
 
 ## Coordinated examples
 
-Anchor is illustrated inside the coherent worked worlds at [[DAS Examples]] (HBR, FEX Repo) — each world is itself a complete anchor with marker, masthead, and tree.
+Anchor is illustrated inside the coherent worked worlds at [[FEX]] (HBR, FEX Repo) — each world is itself a complete anchor with marker, masthead, and tree.
 
 ## Design record
 

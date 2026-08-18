@@ -4,7 +4,7 @@ import:: skills/audit/scripts/audit-plan.py
 where:: `anchor`
 description:: the `{slug}.md` entry-page format
 
-What `/audit anchor` checks every `{slug}.md` against. All anchor-page kinds (skill / list / grouped / project root / sub-folder) share this set; worked instances of each kind live in [[DAS Examples]]. Audit a page by reading these rules **or** by diffing it against the matching example. Format of this set: [[DAS Ruleset]].
+What `/audit anchor` checks every `{slug}.md` against. All anchor-page kinds (skill / list / grouped / project root / sub-folder) share this set; worked instances of each kind live in [[FEX]]. Audit a page by reading these rules **or** by diffing it against the matching example. Format of this set: [[DAS Ruleset]].
 
 ## Identity & frontmatter
 

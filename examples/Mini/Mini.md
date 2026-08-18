@@ -1,9 +1,9 @@
 ---
 ---
 
-| -[[Mini]]- | : example project anchor — the MINIMAL design-docs world, counterpart to [[HBR]]<br>→ [[DAS]] → [[examples]] → [Mini](hook://p/Mini)  |
+| -[[Mini]]- | : example project anchor — the MINIMAL design-docs world, counterpart to [[HBR]]<br>→ [[DAS]] → [[FEX]] → [Mini](hook://p/Mini)  |
 | --- | --- |
-| Related | [[HBR]],  [[DAS Examples]],   |
+| Related | [[HBR]],  [[FEX]],   |
 | ... | [[Mini Architecture\|Architecture]],  [[Mini Decisions\|Decisions]],  [[Mini Design/Mini PRD\|Design/Mini PRD]],  [[Mini PRD/Mini PRD\|PRD/Mini PRD]],  [[Mini Testing\|Testing]],   |
 
 # Mini

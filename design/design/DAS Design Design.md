@@ -42,7 +42,7 @@ Boundaries: **Features are authored here but driven by Drive** — the `{slug} D
 
 ## Coordinated examples
 
-Design is illustrated inside the coherent worked worlds at [[DAS Examples]] (HBR, FEX Repo) — each world carries a real `{slug} Design/` tree rather than standalone per-facet samples.
+Design is illustrated inside the coherent worked worlds at [[FEX]] (HBR, FEX Repo) — each world carries a real `{slug} Design/` tree rather than standalone per-facet samples.
 
 ## Design record
 

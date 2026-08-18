@@ -65,7 +65,7 @@ with branch states off the path: `[Questions]` — waiting on a user *decision* 
 
 ## Coordinated examples
 
-Tracking is illustrated inside the coherent worked worlds at [[DAS Examples]] (HBR, FEX Repo) — one real backlog + queries + status set per world, rather than a standalone example per facet.
+Tracking is illustrated inside the coherent worked worlds at [[FEX]] (HBR, FEX Repo) — one real backlog + queries + status set per world, rather than a standalone example per facet.
 
 ## Provenance
 

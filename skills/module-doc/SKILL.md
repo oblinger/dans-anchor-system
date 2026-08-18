@@ -246,7 +246,7 @@ The remaining C30 (SVG older than excalidraw) means a manual re-convert: `python
 
 **Step 8 — Subjective re-read.** Walk the 14-item checklist above against `FEX Scheduler.md`. The figure passes (clean layout, all sections represented), prose orients cold, method descriptions are non-trivial, the topic carries weight (anchors `[[FEX Decisions#D07 — One Queue, One Clock (checked)]]`).
 
-**Step 9 — Link in dispatch tables.** Add a row to [[DAS Examples]]:
+**Step 9 — Link in dispatch tables.** Add a row to [[FEX]]:
 ```markdown
 
 | [[FEX Scheduler]] | Priority queue engine + worker pool for deferred task execution |

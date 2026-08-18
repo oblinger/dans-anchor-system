@@ -1,5 +1,5 @@
 ---
-description: "Install CAB command-line tools — make cab-config, cab-scan, cab-audit available from any shell. Run once per machine."
+description: "Install CAB command-line tools — make stat, cab-config, cab-scan, cab-audit available from any shell. Run once per machine."
 ---
 
 # anchor-install — wire the anchor CLI tools

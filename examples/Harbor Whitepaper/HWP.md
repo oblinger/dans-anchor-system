@@ -2,9 +2,9 @@
 traits: [Paper]
 ---
 
-| -[[HWP]]- | : Harbor Whitepaper — example Paper anchor — a long-form writeup revised across dated versions<br>→ [[DAS]] → [[examples]] → [HWP](hook://p/HWP)  |
+| -[[HWP]]- | : Harbor Whitepaper — example Paper anchor — a long-form writeup revised across dated versions<br>→ [[DAS]] → [[FEX]] → [HWP](hook://p/HWP)  |
 | --- | --- |
-| Related | [[HBR]] (the project it describes),  [[Paper Anchor]] (the trait it illustrates),  [[DAS Examples]] (the example gallery), |
+| Related | [[HBR]] (the project it describes),  [[Paper Anchor]] (the trait it illustrates),  [[FEX]] (the example gallery), |
 | ... |  |
 
 # HWP - Harbor Whitepaper

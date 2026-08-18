@@ -2,7 +2,7 @@
 description: "CAE system architecture — worked example of the DAS Architecture facet"
 ---
 
-| -[[FEX Architecture]]- | : CAE system architecture — worked example of the DAS Architecture facet<br>→ [[DAS]] → [[examples]] → [FEX Architecture](hook://p/FEX%20Architecture)  |
+| -[[FEX Architecture]]- | : CAE system architecture — worked example of the DAS Architecture facet<br>→ [[DAS]] → [[FEX]] → [FEX Architecture](hook://p/FEX%20Architecture)  |
 | --- | --- |
 | [[FEX Scheduler]]  | priority queue engine + worker dispatch. Source: `src/execution/scheduler.rs`. |
 | [CAE-Store] | SQLite-backed task persistence; load/save/mark-done. (subsystem doc not yet authored) |
@@ -14,7 +14,6 @@ description: "CAE system architecture — worked example of the DAS Architecture
 | [[Bridges]]  | example list-dispatch collection (≤ 15 members) |
 | [[Clarifier]]  | example project anchor — a designed software project |
 | [[CSE]]  | Common Skill Example — reference anchor — a fully-wired example of a DAS skill anchor |
-| [[DAS Examples]]  | the example gallery — fictional worlds + a per-kind map |
 | [[DAS US-CAE-1 — Schedule a Task]]  | Schedule a deferred shell task with absolute or relative time |
 | [[DAS US-CAE-2 — Monitor Task Status]]  | Show task state grouped by pending / running / done / failed |
 | [[DAS US-CAE-3 — Retry Failed Tasks]]  | Auto-retry failed tasks with exponential backoff to a cap |

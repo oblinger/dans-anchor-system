@@ -1,9 +1,9 @@
 ---
 ---
 
-| -[[Devtools]]- | : example grouped-dispatch collection (> 15 members)<br>→ [[DAS]] → [[examples]] → [Devtools](hook://p/Devtools)  |
+| -[[Devtools]]- | : example grouped-dispatch collection (> 15 members)<br>→ [[DAS]] → [[FEX]] → [Devtools](hook://p/Devtools)  |
 | --- | --- |
-| Related | [[Bridges]] (flat variant),  [[DAS Dispatch Table]],  [[DAS progressive-disclosure]],  [[DAS Examples]], |
+| Related | [[Bridges]] (flat variant),  [[DAS Dispatch Table]],  [[DAS progressive-disclosure]],  [[FEX]], |
 | [[Devtools Build\|Build]]+ | [[Devtools Compile\|Compile]],  [[Devtools Bundle\|Bundle]],  [[Devtools Watch\|Watch]],  [[Devtools Cache\|Cache]],   |
 | [[Devtools Test\|Test]]+ | [[Devtools Unit\|Unit]],  [[Devtools E2E\|E2E]],  [[Devtools Coverage\|Coverage]],  [[Devtools Fuzz\|Fuzz]],   |
 | [[Devtools Ship\|Ship]]+ | [[Devtools Release\|Release]],  [[Devtools Sign\|Sign]],  [[Devtools Publish\|Publish]],  [[Devtools Rollback\|Rollback]],   |

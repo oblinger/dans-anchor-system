@@ -4,7 +4,7 @@ description: "cross-cutting concepts the agent reads"
 
 | -[[DAS Disciplines]]- | : cross-cutting concepts the agent reads<br>→ [[DAS]] → [[disciplines]] → [DAS Disciplines](hook://p/DAS%20Disciplines)  |
 | --- | --- |
-| Related | [[DAS Skills\|Skills]],  [[DAS Facets\|Facets]],  [[DAS Traits\|Traits]],  [[DAS Examples\|Examples]],  [[DAS Rulesets\|Rulesets]],  [[DAS Disciplines Brief\|Brief]],  [[DAS\|dans-anchor-system]],   |
+| Related | [[DAS Skills\|Skills]],  [[DAS Facets\|Facets]],  [[DAS Traits\|Traits]],  [[FEX\|Examples]],  [[DAS Rulesets\|Rulesets]],  [[DAS Disciplines Brief\|Brief]],  [[DAS\|dans-anchor-system]],   |
 |  |  |
 |  | **DISCIPLINES** — organized by the nine subsystems, in [[DAS]] order |
 | [[DAS Anchor Design\|Anchor]]+ | [[DAS anchor-dag\|anchor-dag]],  [[DAS Linked Mode\|Linked Mode]],  [[DAS progressive-disclosure\|progressive-disclosure]],  [[DAS spine\|spine]],  [[DAS heart\|heart]],  [[DAS orientation-line\|orientation-line]],  [[DAS electric-zone\|electric-zone]],   |

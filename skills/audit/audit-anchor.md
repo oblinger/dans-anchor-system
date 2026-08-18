@@ -23,7 +23,7 @@ Takes one anchor (or folder) and checks it against the **anchor ruleset** — th
 - [ ] **When `slug:` is absent**, the anchor is addressed by its basename, and anything needing a guaranteed handle uses the **implied slug** — explicit slug when declared, otherwise the basename verbatim (§ S2).
 
 ### B — anchor page conforms *([[DAS Anchor Page]] § Ruleset)*
-*Reference: read the [[DAS Anchor Page]] ruleset **`R-anchor-page`**, or diff the anchor against the matching kind in [[DAS Examples]] — [[HBR]] (project), [[HBR Components]] (grouped), [[HBR Ingest]] (sub-folder), [[FEX Snapshot]] (skill).*
+*Reference: read the [[DAS Anchor Page]] ruleset **`R-anchor-page`**, or diff the anchor against the matching kind in [[FEX]] — [[HBR]] (project), [[HBR Components]] (grouped), [[HBR Ingest]] (sub-folder), [[FEX Snapshot]] (skill).*
 - [ ] The anchor page **`{slug}.md`** exists (filename = slug; H1's readable name may differ).
 - [ ] **H1 = `{slug} <dash> {Full Name}`** (per [[R-anchor-page]] rule 05) — slug leads, then the readable name; any dash form. (Bare-name anchors: H1 is just the name.)
 - [ ] **No blank line after the H1** — the one-sentence summary sits on the very next line. Then a blank, then the optional figure, then the dispatch table. (Top-of-page order: H1 → summary → figure? → dispatch.)

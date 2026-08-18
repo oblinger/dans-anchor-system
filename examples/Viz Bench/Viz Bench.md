@@ -2,9 +2,9 @@
 description: "Viz Bench — a fixed set of reference figures drafted by different techniques (Scribe / D2 / Draw.io) from different starting points (formal spec / natural text), so the inputs and outputs can be compared side by side."
 ---
 
-| -[[Viz Bench]]- | : figure-drafting techniques compared across a fixed reference set<br>→ [[DAS]] → [[examples]] → [Viz Bench](hook://p/Viz%20Bench)  |
+| -[[Viz Bench]]- | : figure-drafting techniques compared across a fixed reference set<br>→ [[DAS]] → [FEX](hook://FEX) → [Viz Bench](hook://p/Viz%20Bench)  |
 | --- | --- |
-| Related | [[viz]] (the skill under test),  [[R-diagram]] / [[R-svg-jiggle]] (the Scribe rules),  [[drawio-skill]] (the Draw.io engine) |
+| Related | ~~[[viz]]~~ (the skill under test),  [[R-diagram]] / [[R-svg-jiggle]] (the Scribe rules),  ~~[[drawio-skill]]~~ (the Draw.io engine) |
 | Members | [[Gallery — Draw.io\|Draw.io Gallery]],  [[Gallery\|Scribe + D2 Gallery]],   |
 | ... | [[ deployment topology]],  [[ org tree]],  [[ radial]],   |
 
@@ -16,7 +16,7 @@ A benchmark for **figure-drafting techniques**: one fixed set of reference figur
 - **Technique (engine)** — *how* the figure is drafted:
   - **Scribe** — the in-house approach: the agent hand-authors the SVG directly (`/viz svg` / `/viz diagram`), governed by the [[R-diagram]] ruleset and cleaned up by the [[R-svg-jiggle]] repair pass. Full pixel control; the label-over-box problem is solved by jiggle.
   - **D2** — text → [D2](https://d2lang.com) DSL → ELK auto-layout → SVG (`/viz d2`).
-  - **Draw.io** — natural-language or JSON → draw.io XML → the official draw.io engine renders it, with a vision self-check ([[drawio-skill]]). Routes edges + places labels in corridors by construction.
+  - **Draw.io** — natural-language or JSON → draw.io XML → the official draw.io engine renders it, with a vision self-check (~~[[drawio-skill]]~~). Routes edges + places labels in corridors by construction.
 - **Input mode** — *what it starts from*:
   - **Formal spec** — the detailed `NN — …` spec docs below (every node + edge enumerated). The current corpus.
   - **Natural text** — a free-prose description of the same figure (no node/edge enumeration), to test how each technique copes with looser input. *(Planned — not yet populated.)*

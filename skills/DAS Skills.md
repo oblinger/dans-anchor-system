@@ -4,7 +4,7 @@ description: "Skills — the `/`-invocable runbooks"
 
 | -[[DAS Skills]]- | : Skills — the `/`-invocable runbooks<br>→ [[DAS]] → [[SKL]] → [DAS Skills](hook://p/DAS%20Skills)  |
 | --- | --- |
-| Related | [[DAS Facets\|Facets]],  [[DAS Disciplines\|Disciplines]],  [[DAS Traits\|Traits]],  [[DAS Examples\|Examples]],  [[DAS Rulesets\|Rulesets]],  [[DAS\|dans-anchor-system]],   |
+| Related | [[DAS Facets\|Facets]],  [[DAS Disciplines\|Disciplines]],  [[DAS Traits\|Traits]],  [[FEX\|Examples]],  [[DAS Rulesets\|Rulesets]],  [[DAS\|dans-anchor-system]],   |
 |  |  |
 |  | **SKILL GROUPS** — organized by the nine subsystems, in [[DAS]] order |
 | [[DAS Anchor Design\|Anchor]]+ | [[DAS Anchor Toolkit\|Anchor Toolkit]],  [[DAS Create\|Create]],  [[DAS Migrate\|Migrate]],  [[DAS Move\|Move]],  [[DAS Publish\|Publish]],  [[DAS Streams\|Streams]],  [[DAS Yore\|Yore]],   |
@@ -17,7 +17,7 @@ description: "Skills — the `/`-invocable runbooks"
 | [[DAS Drive Design\|Drive]]+ | [[DAS Crank\|Crank]],  [[DAS Mint\|Mint]],  [[DAS Feature\|Feature]],  [[DAS Finalize\|Finalize]],  [[DAS Land\|Land]],  [[DAS Fortify\|Fortify]],  [[change/SKILL\|Change]],   |
 | [[DAS Utility Design\|Utility]]+ | [[DAS Ctrl\|Ctrl]],  [[bridge/SKILL\|Bridge]],  [[DAS Exp\|Exp]],  [[screen/SKILL\|Screen]],  [[get-user-auth/SKILL\|Get User Auth]],  [[vox/SKILL\|Vox]],  [[muse/SKILL\|Muse]],  [[DAS Snip\|Snip]],  [[DAS Cook\|Cook]],  [[atlas/SKILL\|Atlas]],   |
 | --- | |
-| [[anchor/SKILL]]  | Anchor operations — both a single anchor and the anchor system's machinery. Actions: /anchor scan (discover anchors), /anchor config (manage .anchor), /anchor status (activity tracking), /anchor docs-audit (docs vs source), /anchor install (one-time per-machine wiring of the CLI tools). Use when the user says: "scan for anchors", "anchor config", "install the anchor tools". |
+| [[anchor/SKILL]]  | Anchor operations — both a single anchor and the anchor system's machinery. Actions: /anchor scan (discover anchors), /anchor config (manage .anchor), /anchor docs-audit (docs vs source), /anchor install (one-time per-machine wiring of the CLI tools). Use when the user says: "scan for anchors", "anchor config", "install the anchor tools". |
 | [[anchor-install]]  | Install CAB command-line tools — make stat, cab-config, cab-scan, cab-audit available from any shell. Run once per machine. |
 | [[anchor-system/SKILL]]  | Internal helper — reads + writes the unified `~/.config/anchor-system/` namespace (per F080) for skill configuration, runtime state, and accumulated data. Not user-invocable; consumed by other skills via the `anchor-system config` / `anchor-system path` CLI. |
 | [[Architect]]  | SKA skill anchor for `/architect` |
@@ -68,7 +68,7 @@ description: "Skills — the `/`-invocable runbooks"
 | [[code-worktrees]]  |  |
 | [[cook/SKILL]]  | Recipe-aware shopping/staging list from Paprika |
 | [[CRAFT]]  |  |
-| [[ctrl/SKILL]]  | Local environment control — browser automation, persistent shell sessions, and system interaction. Subcommands: box, outbox, surf, search, navigate, shell. Most subcommands are mapped to trigger words in CLAUDE.md. |
+| [[ctrl/SKILL]]  | Local environment control — persistent tmux sessions, Safari + Chrome browser automation, and screen see/drive. Four families: shell (trot/box/outbox), Safari (surf/search/jpage), Chrome CDP (cpage/cexec/cclick — drives your REAL Chrome, so it inherits your logged-in sessions), and screen (grab/click/type). Most subcommands are mapped to trigger words in CLAUDE.md. |
 | [[daybreak/SKILL]]  | Morning routine — the day's opening sequence. Run each morning to set up what the day looks like. Use when the user says "daybreak", "/daybreak", or asks to start the day. |
 | [[disk/SKILL]]  | Reconcile a mirror drive (10T / 8T / BLACK) against its catalog, in both directions, plus two capacity questions. Use when the user says "check the drive for stray files", "does the drive match the catalog", "is there anything unexpected on 8T", "will BLACK still hold the master if we resync", "what would a refresh actually copy/delete", "reconcile 10T against the catalog". Not a hash checker — pairs with the existing three-drive SHA-256 verify system, doesn't replace it. |
 | [[Drawing Wisdom]]  | Accumulated judgment about drawing pictures — when a figure earns its place, what makes one readable, and the mistakes that keep recurring. The companion to the `viz` skill's mechanical instruction. |
@@ -126,9 +126,15 @@ description: "Skills — the `/`-invocable runbooks"
 | [[pr-flow/SKILL]]  |  |
 | [[publish/SKILL]]  |  |
 | [[rewire]]  | idempotent structural repair for any anchor |
+| [[RIG]]  |  |
+| [[rig/SKILL]]  | Cloud machine lifecycle — create, start, stop and destroy GPU/CPU boxes, and publish each one as an ssh alias. Verbs: up, down, rm, ls, ip, ssh. GCP today; adapter seam for more. Reach for it when work needs a machine that does not exist yet. |
 | [[role-pilot]]  |  |
 | [[SKA Bridge Testing]]  | SKA Bridge Testing — strategy + proposed-tests overview |
 | [[SKILL-retired]]  | > |
+| [skills atlas](hook://skills%20atlas)  |  |
+| [skills find](hook://skills%20find)  |  |
+| [skills profile](hook://skills%20profile)  |  |
+| [skills survey](hook://skills%20survey)  |  |
 | [[SKL]]  | the skills pillar — every Claude Code skill, one folder per skill with a SKILL.md entry point |
 | [[slug-scan/SKILL]]  |  |
 | [[snip/SKILL]]  | Capture rough text drops and iteratively refine them. Use when the user says `/snip <text>` (or the word "snip" gets auto-prefixed as `/snip` by the dictation pipeline). Three modes: (1) `/snip <text>` with no revise marker drops a new dated H2 entry with two versions stacked newest-on-top: `### version 1` (AI refinement) above `### version 0` (raw verbatim). (2) `/snip revise <instructions>` — or any args containing `snip <punct/ws> revise` somewhere — takes the current top version of the top entry, applies the instructions, and prepends the result as the next version. (3) Bare `/snip` re-refines the top version with a generic clean pass, prepending the next version. In every case the new top version is pbcopy'd to clipboard and the file is glanced. |

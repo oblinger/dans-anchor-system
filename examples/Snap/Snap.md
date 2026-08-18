@@ -1,6 +1,6 @@
-| -[[Snap]]- | : example SKILL anchor — the minimal shape of a user-invocable skill<br>→ [[DAS]] → [[examples]] → [Snap](hook://p/Snap)  |
+| -[[Snap]]- | : example SKILL anchor — the minimal shape of a user-invocable skill<br>→ [[DAS]] → [[FEX]] → [Snap](hook://p/Snap)  |
 | --- | --- |
-| Related | [[DAS Skills]],  [[DAS Examples]],  [[rewire]],   |
+| Related | [[DAS Skills]],  [[FEX]],  [[rewire]],   |
 | ... | [[Snap/SKILL]],   |
 
 # Snap

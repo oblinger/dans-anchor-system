@@ -2,7 +2,7 @@
 description: "made-up list-spine exemplar — one machine-written row per hop"
 ---
 
-| -[[Harbor Hops]]- | : made-up list-spine exemplar — one machine-written row per hop<br>→ [[DAS]] → [[examples]] → [Harbor Hops](hook://p/Harbor%20Hops)  |
+| -[[Harbor Hops]]- | : made-up list-spine exemplar — one machine-written row per hop<br>→ [[DAS]] → [FEX](hook://FEX) → [Harbor Hops](hook://p/Harbor%20Hops)  |
 | --- | --- |
 | Related | [[FEX Spine Examples]],  [[Harbor Latency Budget]],  [[DAS spine]],   |
 | --- | |

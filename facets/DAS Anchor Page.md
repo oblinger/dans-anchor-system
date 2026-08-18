@@ -5,10 +5,10 @@ group: file
 
 | -[[DAS Anchor Page]]- | → [[DAS]] → [[FCT]] → [DAS Anchor Page](hook://p/DAS%20Anchor%20Page)  |
 | --- | --- |
-| Related | [[DAS Facets]],  [[DAS Dispatch Table]],  [[DAS progressive-disclosure]],  [[DAS Examples]],   |
+| Related | [[DAS Facets]],  [[DAS Dispatch Table]],  [[DAS progressive-disclosure]],  [[FEX]],   |
 | Rules | [[R-anchor]],  [[R-anchor-page]],   |
 | Examples | [[HBR\|HBR anchor page]],  [[OBU\|OBU anchor page]],   |
-| ... | [[anchor-page]],  [[DAS Agenda]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Tree]],  [[DAS API Design]],  [[DAS Architecture]],  [[DAS Aspects]],  [[DAS Backlog]],  [[DAS Brief]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Claude]],  [[DAS CLI]],  [[DAS Code]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[facets/DAS Decisions]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Design Folder]],  [[DAS Dev Dispatch]],  [[DAS Discussion]],  [[DAS Dispatch]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facet]],  [[DAS Features]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Interface]],  [[DAS Log]],  [[DAS Messages]],  [[DAS Module Doc]],  [[facets/DAS Move]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS PRD]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Roadmap]],  [[DAS Rocks]],  [[DAS Ruleset]],  [[facets/DAS Skill]],  [[DAS Specs]],  [[DAS Status]],  [[DAS Stone]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS User Dispatch]],  [[DAS UX Design]],  [[DAS Versions]],  [[facets/DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
+| ... | [[anchor-page]],  [[DAS Agenda]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Tree]],  [[DAS API Design]],  [[DAS Architecture]],  [[DAS Aspects]],  [[DAS Backlog]],  [[DAS Brief]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Chores]],  [[DAS Claude]],  [[DAS CLI]],  [[DAS Code]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[facets/DAS Decisions]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Design Folder]],  [[DAS Dev Dispatch]],  [[DAS Discussion]],  [[DAS Dispatch]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facet]],  [[DAS Features]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Interface]],  [[DAS Log]],  [[DAS Messages]],  [[DAS Module Doc]],  [[DAS Move]],  [[DAS Notebook]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS PRD]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Roadmap]],  [[DAS Rocks]],  [[DAS Ruleset]],  [[DAS Skill]],  [[DAS Specs]],  [[DAS Status]],  [[DAS Stone]],  [[DAS Stories]],  [[DAS Subs]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS User Dispatch]],  [[DAS UX Design]],  [[DAS Versions]],  [[DAS WP]],  [[project-page]],  [[skill-config]],  [[skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
 
 # DAS Anchor Page
 The entry page every anchor opens with — its `{slug}.md`.
@@ -16,7 +16,7 @@ The entry page every anchor opens with — its `{slug}.md`.
 Design
 **Examples:** [[HBR\|Code project]],  [[DAS Anchor Page\|facet]],  [[DAS progressive-disclosure\|discipline]],  [[DAS Mint\|skill-doc]],  [[DAS Skills\|Container · grouped]],  [[SKA Access\|Container · list]],  [[HBR Log\|Container · chronological]],  [[Life\|Topic]]
 Rulesets
-**OLD Examples:** [[DAS Examples]] — ~~[[Snapper Dapper\|skill]]~~,  [[Espresso\|list]],  ~~[[Harbor Components\|grouped]]~~,  [[Glossary\|facet]],  ~~[[Harbor\|project]]~~,  ~~[[Harbor Ingest\|sub-folder]]~~
+**OLD Examples:** [[FEX]] — ~~[[Snapper Dapper\|skill]]~~,  [[Espresso\|list]],  ~~[[Harbor Components\|grouped]]~~,  [[Glossary\|facet]],  ~~[[Harbor\|project]]~~,  ~~[[Harbor Ingest\|sub-folder]]~~
 
 | Kind | FEX examples | Description and external examples |
 | --- | --- | --- |
@@ -117,4 +117,4 @@ traits: [Code]
 
 - **Consumers cite this file as the format authority** — `/create anchor`, `/rewire`, `/tidy`, `/audit anchor`, and the audit scripts.
 - **Link, don't duplicate** — dispatch-table *mechanics* stay in [[DAS Dispatch Table]], row *placement / order* in [[R-anchor-page]]-12/-13/-14, the naming prefix in [[DAS Naming]]; sub-folder dispatch pages have their own facets. Don't inline them here.
-- **Examples are never instantiated here** — they live in the `examples/` gallery ([[DAS Examples]]); the masthead `Examples` row links to them by kind. If the spec changes, fix the examples — never retrofit the spec to a stale copy.
+- **Examples are never instantiated here** — they live in the `examples/` gallery ([[FEX]]); the masthead `Examples` row links to them by kind. If the spec changes, fix the examples — never retrofit the spec to a stale copy.

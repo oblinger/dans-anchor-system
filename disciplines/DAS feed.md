@@ -1,12 +1,6 @@
 ---
 name: feed
-description: >
-  Discipline — the second DAG over anchors. `feeds:` in `.anchor` names the
-  anchors that feed into this one; out-edges are computed by inversion. Items
-  published by a source appear in every anchor drawing from it, by copying the
-  control line rather than by rendering a block. The discipline owns the graph
-  and its three invariants — acyclic, every edge resolves, no silent empty; what
-  travels the edges is a stone, and its shape is DAS Stone's.
+description: "Discipline — the second DAG over anchors. `feeds:` in `.anchor` names the anchors that feed into this one; out-edges are computed by inversion. A feed facet materializes as a folder of one-file-per-item with a roster on top, each item carrying `key::` parameters and a `line::` rendering. The top group of a roster is the export set, and it propagates to every anchor declaring this one as a source. Members: Rocks, and the item register. DRAFT — the facet-side naming is pending TINK F312 Q1."
 tools: Read
 user_invocable: false
 group: discipline

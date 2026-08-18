@@ -1,6 +1,6 @@
 ---
-description: "Folder-name marker for `examples/` — the examples collection; the anchor page is [[DAS Examples]]."
+description: "Folder-name marker for `examples/` — the examples collection; the anchor page is [[FEX]]."
 ---
 
 # examples
-(See Anchor [[DAS Examples]])
+(See Anchor [[FEX]])

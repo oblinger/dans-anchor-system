@@ -3,14 +3,14 @@ description: "canonical project-root exemplar"
 traits: [Code]
 ---
 
-| -[[FEX Project Root]]- | : canonical project-root exemplar<br>→ [[DAS]] → [[examples]] → [FEX Project Root](hook://p/FEX%20Project%20Root)  |
+| -[[FEX Project Root]]- | : canonical project-root exemplar<br>→ [[DAS]] → [[FEX]] → [FEX Project Root](hook://p/FEX%20Project%20Root)  |
 | --- | --- |
 | Related | [[FEX Facet]],  [[DAS Project Page]] (the facet),  [[vox]] (sibling transcript tool),  [Repo](https://github.com/example/clarifier),  [Docs site](https://example.github.io/clarifier/)  |
 | [[Clarifier Design\|Design]]+ | [[Clarifier PRD\|PRD]],  [[Clarifier UX Design\|UX Design]],  [[Clarifier CLI\|CLI]],  [[Clarifier API Design\|API]],  [[Clarifier Architecture\|Architecture]],  [[Clarifier Decisions\|Decisions]],  [[Clarifier Testing\|Testing]],  [[Clarifier Roadmap\|Roadmap]],  [[Clarifier Features\|Features]],   |
 | [[Clarifier Track\|Track]]+ | [[Clarifier Backlog\|Backlog]],   |
 | [[Clarifier User Docs\|User Docs]]+ | [[Clarifier Guide\|Guide]],   |
 | [[Clarifier Dev Docs\|Dev Docs]]+ | [[Clarifier Files\|Files]],   |
-| ... | [[_{{DISK_LABEL}} Template]],  [[_{{PURCHASE_DATE}} {{HOSTNAME}} Template]],  [[Bridges]],  [[Clarifier]],  [[CSE]],  [[DAS Examples]],  [[DAS US-CAE-1 — Schedule a Task]],  [[DAS US-CAE-2 — Monitor Task Status]],  [[DAS US-CAE-3 — Retry Failed Tasks]],  [[Devtools]],  [[ESP]],  [[Espresso]],  [[FEX Agenda]],  [[FEX API]],  [[FEX API Design]],  [[FEX Architecture]],  [[FEX Claude]],  [[FEX Completed Roadmap]],  [[FEX CSE]],  [[FEX Decisions]],  [[FEX Decisions Details]],  [[FEX Dispatch Examples]],  [[FEX Files]],  [[FEX Icebox]],  [[FEX Inbox]],  [[FEX Minimal Facet]],  [[FEX Minimal Skill]],  [[FEX Repo]],  [[FEX Roadmap]],  [[FEX Rules]],  [[FEX Scheduler]],  [[FEX Skill]],  [[FEX Spine Examples]],  [[FEX Stories]],  [[FEX System Design]],  [[Forum Stories]],  [[Harbor Hops]],  [[Harbor Latency Budget]],  [[Harbor Releases]],  [[Harbor Runbooks]],  [[HBR]],  [[HBR PRD User Stories]],  [[HWP]],  [[Knots]],  [[Mini]],  [[Snap]],  [[Viz Bench]],   |
+| ... | [[_{{DISK_LABEL}} Template]],  [[_{{PURCHASE_DATE}} {{HOSTNAME}} Template]],  [[Bridges]],  [[Clarifier]],  [[CSE]],  [[DAS US-CAE-1 — Schedule a Task]],  [[DAS US-CAE-2 — Monitor Task Status]],  [[DAS US-CAE-3 — Retry Failed Tasks]],  [[Devtools]],  [[ESP]],  [[Espresso]],  [[FEX Agenda]],  [[FEX API]],  [[FEX API Design]],  [[FEX Architecture]],  [[FEX Claude]],  [[FEX Completed Roadmap]],  [[FEX CSE]],  [[FEX Decisions]],  [[FEX Decisions Details]],  [[FEX Dispatch Examples]],  [[FEX Files]],  [[FEX Icebox]],  [[FEX Inbox]],  [[FEX Minimal Facet]],  [[FEX Minimal Skill]],  [[FEX Repo]],  [[FEX Roadmap]],  [[FEX Rules]],  [[FEX Scheduler]],  [[FEX Skill]],  [[FEX Spine Examples]],  [[FEX Stories]],  [[FEX System Design]],  [[Forum Stories]],  [[Harbor Hops]],  [[Harbor Latency Budget]],  [[Harbor Releases]],  [[Harbor Runbooks]],  [[HBR]],  [[HBR PRD User Stories]],  [[HWP]],  [[Knots]],  [[Mini]],  [[Snap]],  [[Viz Bench]],   |
 
 # CLF — Clarifier
 A CLI that turns messy meeting transcripts into clean, attributed minutes.

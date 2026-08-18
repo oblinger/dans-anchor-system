@@ -1,9 +1,9 @@
 ---
 ---
 
-| -[[Bridges]]- | : example list-dispatch collection (≤ 15 members)<br>→ [[DAS]] → [[examples]] → [Bridges](hook://p/Bridges)  |
+| -[[Bridges]]- | : example list-dispatch collection (≤ 15 members)<br>→ [[DAS]] → [[FEX]] → [Bridges](hook://p/Bridges)  |
 | --- | --- |
-| Related | [[Devtools]] (grouped variant),  [[DAS Dispatch Table]],  [[DAS Examples]], |
+| Related | [[Devtools]] (grouped variant),  [[DAS Dispatch Table]],  [[FEX]], |
 | [[Bridges Studio\|Studio]]  | the M2 Studio — Full Disk Access, the build box |
 | [[Bridges Air\|Air]]  | the travel laptop — Syncthing peer |
 | [[Bridges Beast\|Beast]]  | the GPU box — remote experiments via `exp` |

@@ -4,7 +4,7 @@ description: "The anchor traits — declarable specializations of an anchor"
 
 | -[[DAS Traits]]- | : The anchor traits — declarable specializations of an anchor<br>→ [[DAS]] → [[traits]] → [DAS Traits](hook://p/DAS%20Traits)  |
 | --- | --- |
-| Related | [[DAS Skills\|Skills]],  [[DAS Facets\|Facets]],  [[DAS Disciplines\|Disciplines]],  [[DAS Examples\|Examples]],  [[DAS Rulesets\|Rulesets]],  [[DAS\|dans-anchor-system]],   |
+| Related | [[DAS Skills\|Skills]],  [[DAS Facets\|Facets]],  [[DAS Disciplines\|Disciplines]],  [[FEX\|Examples]],  [[DAS Rulesets\|Rulesets]],  [[DAS\|dans-anchor-system]],   |
 | ... | [[anchor-base]],  [[pr]],  [[push]],   |
 
 # Traits
