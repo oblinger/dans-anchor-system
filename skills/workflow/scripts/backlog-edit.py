@@ -1269,6 +1269,11 @@ def _status_needs_user(status):
     return (status or "").strip() == "User"
 
 
+# Matches one ` · *why-user-action: …*` trailer, greedily enough to catch a run
+# of them. Used to strip before re-appending so the annotation cannot double.
+_WHY_USER_ACTION_RE = re.compile(r"(?:\s*·\s*\*why-user-action:[^*]*\*)+\s*$")
+
+
 def user_action_gate(status, row_id, eff_user, why_user_action):
     """F259 — enforce genuine user-only-ness when a row ENTERS [User] or its
     `- **User:**` action is (re)written; a re-touch that keeps the action is
@@ -1290,6 +1295,15 @@ def user_action_gate(status, row_id, eff_user, why_user_action):
             f"  it, this is [Ready] with a `- **Next:**`, not [User]."
         )
     if why_user_action and why_user_action.strip():
+        # T236 — STRIP BEFORE APPENDING, or the annotation doubles. `eff_user`
+        # is the EXISTING sub-bullet text whenever the caller passed
+        # `--why-user-action` without `--user`, and that text already carries a
+        # trailer, so a bare append writes a second one. Every re-touch added
+        # another; Sonar found four doubled rows on SONAR the day after they had
+        # been deduped by hand, because the dedup was undone by the next touch.
+        # Stripping first makes the operation idempotent, which is also what
+        # lets `--why-user-action` be the supported way to FIX a doubled row.
+        a_text = _WHY_USER_ACTION_RE.sub("", a_text).strip()
         return f"{a_text} · *why-user-action: {why_user_action.strip()}*" \
             if a_text else f"· *why-user-action: {why_user_action.strip()}*"
     return eff_user
@@ -2212,7 +2226,8 @@ def _row_field(lines, row_id, label):
 
 
 def _subbullets_to_write(status, eff_verify, eff_next, eff_user, next_text,
-                         verify_text=None, probe_text=None, eff_probe=None):
+                         verify_text=None, probe_text=None, eff_probe=None,
+                         user_text=None, why_user_action=None):
     """Which companion sub-bullets this edit attaches, as `[(label, text), …]`.
 
     Pure, so the dispatch is pinned by tests instead of living inline in
@@ -2280,6 +2295,34 @@ def _subbullets_to_write(status, eff_verify, eff_next, eff_user, next_text,
     if (not wrote_verify and _terminal_bracket(status)
             and verify_text is not None and verify_text.strip()):
         out.append(("Verify", verify_text.strip()))
+
+    # T236 — an EXPLICIT `--user` is honoured whatever the bracket. This is the
+    # THIRD instance of one defect: T046 fixed it for Next, T123 for Verify, and
+    # the [User] arm above kept the original shape, so a row not bracketed
+    # [User] could not have its `- **User:**` line rewritten at all. `state set`
+    # printed `updated`, changed nothing, and T050's landing check then reverted
+    # the file and reported "the edit reported success but the file does not
+    # reflect it" — which reads like a writer bug and is really this dispatch
+    # declining to write.
+    #
+    # A row legitimately carries a User action while parked on some other
+    # bracket: Sonar hit this 2026-08-17 on `SONAR Backlog` T031, a
+    # [Waiting 2026-09-01] row whose user action Dan had just given a send-by
+    # date. `--status` alone landed, `--user` could not, so the row's bracket
+    # and its own User line disagreed with nothing able to reconcile them.
+    #
+    # Fires only when the caller explicitly touched the field — via `--user` or
+    # via `--why-user-action`, which rewrites the trailer on it — for the T056
+    # reason the two blocks above apply: an ordinary re-touch must not rewrite
+    # (and thereby reorder) a sub-bullet nobody asked to change. What it WRITES
+    # is `eff_user`, never the raw `user_text`: the gate above has already
+    # folded the `· *why-user-action: …*` trailer into `eff_user`, so writing
+    # the raw text back would silently drop the annotation it just computed.
+    wrote_user = any(lbl == "User" for lbl, _ in out)
+    user_touched = (user_text is not None and user_text.strip()) or (
+        why_user_action is not None and why_user_action.strip())
+    if not wrote_user and user_touched and eff_user and eff_user.strip():
+        out.append(("User", eff_user.strip()))
 
     # T122 — an explicitly EMPTY flag REMOVES the sub-bullet (text `None`).
     #
@@ -2788,6 +2831,15 @@ def perform_edit(
             eff_user = user_action_gate(
                 status, row_id, eff_user, why_user_action
             )
+    elif (status != "delete" and eff_user
+            and why_user_action and why_user_action.strip()):
+        # T236 — a row NOT bracketed [User] may still carry a User action, and
+        # its trailer has to be reachable. The F259 REFUSAL stays scoped to rows
+        # entering [User] (that is the gate on honest delegation), but rewriting
+        # the annotation on an already-vetted row is just an edit, and without
+        # this branch it was the one edit no flag combination could make.
+        eff_user = (_WHY_USER_ACTION_RE.sub("", eff_user).strip()
+                    + f" · *why-user-action: {why_user_action.strip()}*").strip()
 
     # F242 — mechanical groom gate: a Ready/Active/Agreed row's Next must be a
     # real first step, not a non-answer placeholder (empty is caught above).
@@ -2862,7 +2914,7 @@ def perform_edit(
     if status not in ("same", "delete"):
         for label, text in _subbullets_to_write(
             status, eff_verify, eff_next, eff_user, next_text, verify_text,
-            probe_text, eff_probe
+            probe_text, eff_probe, user_text, why_user_action
         ):
             # F332 — a Next satisfied by the doc's `next::` never lands as a
             # row sub-bullet (removals, text=None, still apply).

@@ -2307,13 +2307,19 @@ def _row_set(slug, backlog_path, label, args):
     Unlike `define` (which replaces the row wholesale from one full markdown
     line), `set` takes each field via its own flag and never reads a body
     from stdin or --from-file."""
+    # T236 — `--why-user-action` counts as a field-bearing flag. It writes the
+    # `· *why-user-action: …*` trailer on the `- **User:**` sub-bullet, so a
+    # caller correcting only that trailer has a real edit to make; leaving it
+    # off this list made the correction unreachable, which is how four doubled
+    # trailers survived a hand-dedup on SONAR (reported 2026-08-17).
     if not any([args.status, args.horizon, args.title is not None,
                 args.inline is not None, args.next_step is not None,
                 args.verify is not None, getattr(args, "user", None) is not None,
-                getattr(args, "probe", None) is not None]):
+                getattr(args, "probe", None) is not None,
+                getattr(args, "why_user_action", None) is not None]):
         raise be.BacklogEditError(
             "set requires at least one of --status / --horizon / --title / "
-            "--body / --next / --verify / --user / --probe"
+            "--body / --next / --verify / --user / --probe / --why-user-action"
         )
     # `set` used to refuse --from-file here at runtime, because v2 declared all
     # thirteen flags globally and every verb inherited every one of them. F293
