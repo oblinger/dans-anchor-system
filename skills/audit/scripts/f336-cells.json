@@ -1,0 +1,178 @@
+{
+ "file": {
+  "PRD": {
+   "{anchor}/{slug} Design/": 26,
+   "{anchor}/{slug} MGR/": 1,
+   "{anchor}/": 1
+  },
+  "System Design": {
+   "{anchor}/{slug} Design/": 5,
+   "{anchor}/{slug} Track/": 5,
+   "{anchor}/{slug} Dev Docs/{slug} System Design/": 1,
+   "{anchor}/{slug} Dev Docs/{slug} Postmortems/legacy System Design/": 2
+  },
+  "Track": {
+   "{anchor}/{slug} Track/": 47
+  },
+  "Messages": {
+   "{anchor}/{slug} Track/": 32,
+   "{anchor}/": 2,
+   "{anchor}/{slug} Dev Docs/": 1
+  },
+  "queries": {
+   "{anchor}/{slug} Track/": 31
+  },
+  "Backlog": {
+   "{anchor}/{slug} Track/": 19,
+   "{anchor}/{slug} Track/{slug} Backlog/": 12
+  },
+  "Features": {
+   "{anchor}/{slug} Track/{slug} Features/": 12,
+   "{anchor}/{slug} Design/{slug} Features/": 4,
+   "{anchor}/{slug} Track/": 1
+  },
+  "Roadmap": {
+   "{anchor}/{slug} Track/{slug} Roadmap/": 3,
+   "{anchor}/{slug} Track/": 11,
+   "{anchor}/": 4,
+   "{anchor}/{slug} Business/{slug} Strat/2023 SV Roadmap/": 1,
+   "{anchor}/{slug} Design/": 3,
+   "{anchor}/Anchorage Design/": 1
+  },
+  "Decisions": {
+   "{anchor}/{slug} Design/": 5,
+   "{anchor}/": 2,
+   "{anchor}/{slug} Design/{slug} Architecture/": 2
+  },
+  "Interface": {
+   "{anchor}/{slug} Design/": 4,
+   "{anchor}/{slug} User Docs/": 1,
+   "{anchor}/{slug} Design/{slug} Architecture/": 1
+  },
+  "Architecture": {
+   "{anchor}/{slug} Design/{slug} Architecture/": 8,
+   "{anchor}/{slug} Design/": 4,
+   "{anchor}/Anchorage Design/": 1
+  },
+  "Icebox": {
+   "{anchor}/{slug} Track/": 7
+  },
+  "Rock": {
+   "{anchor}/{slug} Track/": 23
+  },
+  "Pebble": {
+   "{anchor}/{slug} Track/": 31
+  },
+  "Inbox": {
+   "{anchor}/{slug} Track/": 27
+  },
+  "Chores": {
+   "{anchor}/{slug} Track/{slug} Backlog/": 3,
+   "{anchor}/{slug} Track/": 6
+  },
+  "Log": {
+   "{anchor}/{slug} Log/": 11,
+   "{anchor}/": 49
+  },
+  "Brief": {
+   "{anchor}/": 1
+  },
+  "Testing": {
+   "{anchor}/{slug} Design/": 4
+  },
+  "Agenda": {
+   "{anchor}/{slug} Track/": 4
+  },
+  "WP": {
+   "{anchor}/{slug} WP/": 1
+  },
+  "Versions": {
+   "{anchor}/{slug} Versions/": 1,
+   "{anchor}/": 1
+  },
+  "Stories": {
+   "{anchor}/{slug} Design/{slug} Stories/": 1,
+   "{anchor}/": 1
+  },
+  "Status": {
+   "{anchor}/": 1,
+   "{anchor}/{slug} Track/": 1
+  },
+  "UX Design": {
+   "{anchor}/{slug} Design/": 2,
+   "{anchor}/{slug} User Docs/": 1
+  },
+  "Exceptions": {
+   "{anchor}/{slug} Track/": 3
+  },
+  "CLI": {
+   "{anchor}/{slug} User Docs/": 2,
+   "{anchor}/Anchorage Design/": 1
+  },
+  "Outputs": {
+   "{anchor}/{slug} Track/{slug} Outputs/": 1
+  }
+ },
+ "folder": {
+  "Design": {
+   "{anchor}/{slug} Design/": 40
+  },
+  "Log": {
+   "{anchor}/{slug} Log/": 12
+  },
+  "Track": {
+   "{anchor}/{slug} Track/": 57
+  },
+  "Features": {
+   "{anchor}/{slug} Track/{slug} Features/": 18,
+   "{anchor}/{slug} Design/{slug} Features/": 12
+  },
+  "Roadmap": {
+   "{anchor}/{slug} Track/{slug} Roadmap/": 4
+  },
+  "Architecture": {
+   "{anchor}/{slug} Design/{slug} Architecture/": 8
+  },
+  "Subs": {
+   "{anchor}/{slug} Subs/": 2
+  },
+  "Backlog": {
+   "{anchor}/{slug} Track/{slug} Backlog/": 12
+  },
+  "Pebbles": {
+   "{anchor}/{slug} Track/{slug} Pebbles/": 19
+  },
+  "WP": {
+   "{anchor}/{slug} WP/": 1
+  },
+  "Rocks": {
+   "{anchor}/{slug} Track/{slug} Rocks/": 3
+  }
+ },
+ "unowned": {
+  "Architecture": 14,
+  "Status": 6,
+  "CLI": 4,
+  "PRD": 65,
+  "Decisions": 11,
+  "Agenda": 3,
+  "Testing": 4,
+  "Track": 13,
+  "Design": 44,
+  "Log": 36,
+  "Features": 9,
+  "System Design": 3,
+  "Inbox": 3,
+  "Roadmap": 13,
+  "Messages": 6,
+  "Backlog": 3,
+  "UX Design": 4,
+  "Stories": 8,
+  "Outputs": 1,
+  "Brief": 5,
+  "queries": 1,
+  "Chores": 1,
+  "Interface": 3,
+  "Exceptions": 2
+ }
+}

@@ -173,8 +173,10 @@ def inflate_measure(sl, start, sink=None):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--outer", required=True)
-    ap.add_argument("--member", required=True)
+    ap.add_argument("--outer", help="container archive holding the member")
+    ap.add_argument("--member", help="STORED member inside --outer to salvage")
+    ap.add_argument("--raw", help="salvage a BARE zip file on disk (e.g. an "
+                    "abandoned ziXXXXXX temp) instead of a nested member")
     ap.add_argument("--out", required=True, help="archive to write")
     ap.add_argument("--limit", type=int, default=0,
                     help="stop after N entries (slice test); 0 = whole member")
@@ -182,27 +184,40 @@ def main():
                     help="walk and verify, write nothing")
     args = ap.parse_args()
 
-    z = zipfile.ZipFile(args.outer)
-    hits = [e for e in z.infolist() if e.filename == args.member]
-    if not hits:
-        sys.exit(f"member not found in outer archive: {args.member}")
-    info = hits[0]
-    if info.compress_type != zipfile.ZIP_STORED:
-        sys.exit("REFUSED: the nested member is compressed (compress_type="
-                 f"{info.compress_type}), so its bytes are not contiguous and "
-                 "none of this offset arithmetic would be valid.")
+    # --raw walks a bare file; --outer/--member walks a STORED nested member.
+    # Both end up as a Slice, so nothing downstream knows the difference.
+    if args.raw:
+        if args.outer or args.member:
+            sys.exit("--raw is exclusive with --outer/--member")
+        info = argparse.Namespace(file_size=os.path.getsize(args.raw))
+        src, base = args.raw, 0
+    else:
+        if not (args.outer and args.member):
+            sys.exit("need --raw, or both --outer and --member")
+        z = zipfile.ZipFile(args.outer)
+        hits = [e for e in z.infolist() if e.filename == args.member]
+        if not hits:
+            sys.exit(f"member not found in outer archive: {args.member}")
+        info = hits[0]
+        if info.compress_type != zipfile.ZIP_STORED:
+            sys.exit("REFUSED: the nested member is compressed (compress_type="
+                     f"{info.compress_type}), so its bytes are not contiguous "
+                     "and none of this offset arithmetic would be valid.")
+        src = args.outer
 
-    with open(args.outer, "rb") as fh:
-        fh.seek(info.header_offset)
-        lh = fh.read(30)
-        if lh[:4] != SIG:
-            sys.exit("REFUSED: no local header at the member's recorded offset")
-        nl, el = struct.unpack("<HH", lh[26:30])
-        base = info.header_offset + 30 + nl + el
+    with open(src, "rb") as fh:
+        if not args.raw:
+            fh.seek(info.header_offset)
+            lh = fh.read(30)
+            if lh[:4] != SIG:
+                sys.exit("REFUSED: no local header at the member's recorded offset")
+            nl, el = struct.unpack("<HH", lh[26:30])
+            base = info.header_offset + 30 + nl + el
         sl = Slice(fh, base, info.file_size)
 
-        print(f"outer   : {args.outer}")
-        print(f"member  : {args.member}")
+        print(f"source  : {src}")
+        if args.member:
+            print(f"member  : {args.member}")
         print(f"data at : {base:,}   length {info.file_size:,} bytes")
         print(f"output  : {args.out}{'  (DRY RUN — nothing written)' if args.dry_run else ''}")
         print(flush=True)
