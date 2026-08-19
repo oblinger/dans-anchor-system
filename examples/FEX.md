@@ -1,4 +1,5 @@
 ---
+description: "the examples pillar — every worked example, indexed by facet"
 ---
 
 | -[[FEX]]- | : FEX — DAS Examples — the examples pillar — every worked example, indexed by facet<br>→ [[DAS]] → [FEX](hook://p/FEX)  |
