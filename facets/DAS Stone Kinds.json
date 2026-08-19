@@ -9,6 +9,15 @@
     "header_alias": "{slug}",
     "header_line": "-{link}-"
   },
+  "sleeper": {
+    "folder": "{slug} Sleepers",
+    "control": "{slug} Sleeper",
+    "prefix": "S",
+    "digits": 4,
+    "stone_alias": "{slug}:",
+    "header_alias": "{slug}",
+    "header_line": "-{link}-"
+  },
   "rock": {
     "folder": "{slug} Rocks",
     "control": "{slug} Rock",
