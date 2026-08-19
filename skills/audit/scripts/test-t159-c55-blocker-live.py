@@ -154,12 +154,22 @@ ok("silent") if not f else no("silent", msgs(f), [])
 
 # ---------------------------------------------------------------- H
 print("\nH: the blocker is live but parked where nothing renders it")
-# The ATT-F041 shape as it stood before the 2026-08-08 repair: `[User]` under
-# `## Later` renders in NO section, so the reader is told nine rows are blocked
-# and given no way to reach the one action that releases them.
+# The ATT-F041 shape: `[User]` under `## Later` renders in NO section, so the
+# reader is told rows are blocked and given no way to reach the one action that
+# releases them. Dan, 2026-08-08: *"Atticus is blocked by F041 in a lot of
+# places. And I don't see F041… I wouldn't know to go and get that F041."*
+#
+# FIXTURE CORRECTED 2026-08-19. It used to park the WAITER under `## Later`
+# too, which stopped expressing the scenario the moment `## Later` went back to
+# rendering nothing: with neither row on the page, the reader is told nothing
+# and there is no missing path to complain about. The complaint requires a
+# VISIBLE waiter and a HIDDEN blocker, which is what the real ATT case was —
+# Dan could see "blocked by F041" in a lot of places, which is how he came to
+# look for F041. So the waiter moves to `## Now` and the blocker stays parked.
 f = run({"ATT": [
-    "## Later",
+    "## Now",
     "- **F040 — Thing** [Blocked F041] — body ^F040",
+    "## Later",
     "- **F041 — The blocker** [User] — body ^F041",
 ]})
 if len(f) == 1 and "renders in no queue" in f[0].message and "## Later" in f[0].message:

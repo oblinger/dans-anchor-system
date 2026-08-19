@@ -182,14 +182,34 @@ try:
 
     # The render predicate: the banner's zone-1 scope IS the body's membership,
     # so the two cannot disagree. This is the MUX 2026-06-04 defect's home.
-    if qr._row_should_render(mkrow("F1", "3 Questions", horizon="Later")):
-        ok("a [Questions] row under ## Later renders — so it must also count")
+    #
+    # That defect had TWO valid repairs — narrow the body to match the banner,
+    # or widen the banner to match the body. Until 2026-08-19 this assertion
+    # pinned the second ("a [Questions] row under ## Later renders — so it must
+    # also count"), which is not the invariant, it is one side of it, and it is
+    # the side the design rejects: [[DAS Query]] scopes zone 1 to `## Now` /
+    # `## Next`, and F284 § Scope note keeps `## Later` out of the render.
+    # So the test now pins the AGREEMENT itself and lets the design pick the
+    # side — it would fail either way round if body and banner came apart.
+    for _bracket in ("3 Questions", "Blocked F001", "Verify",
+                     "Waiting 2026-09-01", "Ready", "User"):
+        _row = mkrow("F1", _bracket, horizon="Later")
+        if qr._row_should_render(_row) == aq.renders_in_body("Later", _bracket):
+            ok(f"body and zone-1 agree on `[{_bracket}]` under ## Later")
+        else:
+            no(f"body/banner split on `[{_bracket}]` under ## Later")
+    # And the side the design picks: nothing under Later, whatever the bracket.
+    if not any(qr._row_should_render(mkrow("F1", b, horizon="Later"))
+               for b in ("3 Questions", "Blocked F001", "Verify", "Ready", "User")):
+        ok("## Later renders nothing, whatever the bracket")
     else:
-        no("a [Questions] row under ## Later does not render (banner/body split)")
-    if not qr._row_should_render(mkrow("F2", "Waiting 2026-09-01", horizon="Later")):
-        ok("a [Waiting] row under ## Later does NOT render (Hidden)")
+        no("a ## Later row rendered in the body")
+    # Nothing vanishes: a parked blocker still lands in zone 3's Parked count,
+    # which is the whole reason that count is unscoped by horizon.
+    if qr._in_class_parked("Blocked F001"):
+        ok("a parked [Blocked …] row is still counted in zone 3 (Parked)")
     else:
-        no("a Hidden row rendered in the body")
+        no("a parked [Blocked …] row fell out of every count")
 
     # ---- E. the three zones -------------------------------------------------
     print("== E: three zones, ordered by attention ==")

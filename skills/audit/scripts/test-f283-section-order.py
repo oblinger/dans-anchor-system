@@ -175,38 +175,40 @@ def main():
     check("Verifications is gone once its only row was promoted",
           "## Verifications" in h2s4, False)
 
-    # --- a blocker is a blocker if the waiting row RENDERS ------------------
-    # SUPERSEDED 2026-08-08. This block asserted the opposite until then, on
+    # --- a blocker is a blocker only if the waiting row RENDERS --------------
+    # RESTORED 2026-08-19 to what this block asserted before 2026-08-08, on
     # Dan's 2026-07-30 ruling: *a blocker for something parked in `## Later` is
     # not a blocker, it is a note* — nothing he was working on was held up, so
     # the row was noise at the position of highest attention. The case that
     # produced it (Tink F238 waiting on F230, both in Later) was real.
     #
-    # What changed is not the principle but the horizon's meaning. `[Blocked …]`
-    # rows under `## Later` DO render now — F283's own visibility ledger admits
-    # them, so 37 previously-vanishing rows became visible — and a reader who
-    # can see a row saying it waits on X must be able to find X. Dan,
-    # 2026-08-08, after failing to do exactly that: *"Atticus is blocked by F041
-    # in a lot of places. And I don't see F041… I wouldn't know to go and get
-    # that F041."*
+    # The 2026-08-08 inversion was not a change of principle either. It rode on
+    # `renders_in_body` admitting `[Blocked …]` from `## Later`, and the
+    # principle it kept was stated right here: *"a `[Waiting]` row under Later
+    # still promotes nothing … work nobody can see does not get to occupy the
+    # top of the page."* Now that NOTHING under Later renders, that same
+    # sentence decides every parked row, and the horizon test and the
+    # renders-anywhere test are one test again.
     #
-    # So the test is no longer the waiter's HORIZON but whether the waiter
-    # appears on the page at all. A `[Waiting]` row under Later still promotes
-    # nothing, which is what keeps the 2026-07-30 ruling's substance: work
-    # nobody can see does not get to occupy the top of the page.
+    # Dan's 2026-08-08 concern is satisfied, not overridden — *"Atticus is
+    # blocked by F041 in a lot of places. And I don't see F041… I wouldn't know
+    # to go and get that F041."* The invariant behind it is *a reader who can
+    # see a row saying it waits on X must be able to find X*. A parked waiter is
+    # no longer a row the reader can see, so the invariant holds by absence for
+    # Later and non-vacuously for `## Now` / `## Next`, which is where it bit.
     body5, h2s5 = render("""# X Backlog
 
 ## Now
 
-- **F001 — Named by parked but VISIBLE work** [Questions] — a rendered row waits. ^F001
+- **F001 — Named by parked but INVISIBLE work** [Questions] — only a parked row waits. ^F001
 
 ## Later
 
-- **F002 — Parked, waiting, and rendered** [Blocked F001] — deferred by intent. ^F002
+- **F002 — Parked, waiting, and unrendered** [Blocked F001] — deferred by intent. ^F002
 """, next_actions={"F001": "go"})
-    check("a Later waiter that RENDERS does make a blocker",
-          "## Blockers" in h2s5, True)
-    check("...and the promoted blocker leaves Ready for the top",
+    check("a Later waiter that renders NOWHERE makes no blocker",
+          "## Blockers" in h2s5, False)
+    check("...and F001 is still on the page on its own merits",
           any("F001" in ln for ln in body5), True)
 
     # The other side of the same rule: a waiter that renders NOWHERE promotes
@@ -285,14 +287,13 @@ def main():
     check("a mixed blocker still surfaces", h2s7[0], "## Blockers")
     check("the frontier waiter is named",
           any("gates [[X Backlog#^F008|F008]]" in ln for ln in body7), True)
-    # Scoped to the BLOCKERS bullet, which is what this rule is about. It used
-    # to read "no bullet anywhere mentions F009", and that was the same
-    # assertion only because a `[Blocked …]` row in `## Later` rendered
-    # NOWHERE — so "not named as a waiter" and "absent from the document" were
-    # indistinguishable. F305 separated them: the parked row now appears in the
-    # `## Blocked` ledger (37 vault-wide rows were vanishing from the very
-    # section built to stop rows vanishing), while still being wrong to name at
-    # the top of the file. Both halves are asserted below.
+    # Scoped to the BLOCKERS bullet, which is what this rule is about. Between
+    # F305 (2026-08-07) and the 2026-08-19 restore this had to be scoped,
+    # because a `[Blocked …]` row in `## Later` rendered and so "not named as a
+    # waiter" and "absent from the document" came apart. With `## Later` back
+    # out of the body they coincide again, and BOTH are asserted below — the
+    # scoped form because it is what the rule is actually about, and the
+    # document-wide form because it is the stronger statement and now true.
     _blockers_bullets = []
     _in = False
     for ln in body7:
@@ -300,15 +301,18 @@ def main():
             _in = ln.strip() == "## Blockers"
         elif ln.startswith("- ") and _in:
             _blockers_bullets.append(ln)
-    # SUPERSEDED 2026-08-08 along with the horizon rule above: a parked waiter
-    # that RENDERS is now named, because the bullet's job is to tell the reader
-    # which of the rows they can see are held up by this one. Naming only the
-    # frontier waiter left F009 visible in the `## Blocked` ledger saying it
-    # waits on F001, while F001's own bullet denied gating anything but F008.
-    check("a parked waiter that renders IS named in the Blockers bullet",
-          any("F009" in ln for ln in _blockers_bullets), True)
-    check("...and the parked row still appears in the Blocked ledger too",
-          any("F009" in ln for ln in body7 if ln.startswith("- ")), True)
+    # RESTORED 2026-08-19 along with the horizon rule above. The bullet's job is
+    # to tell the reader which of the rows THEY CAN SEE are held up by this one;
+    # a parked waiter is not one of those, so naming it puts a row the reader
+    # cannot reach at the position of highest attention. The 2026-08-08 reason
+    # for naming it — that F009 was otherwise visible in the `## Blocked` ledger
+    # claiming to wait on F001 while F001's bullet denied gating it — is gone,
+    # because F009 is no longer in the ledger either. No half-visible row, so
+    # no contradiction to paper over.
+    check("a parked waiter is NOT named in the Blockers bullet",
+          any("F009" in ln for ln in _blockers_bullets), False)
+    check("...and the parked row is absent from the document entirely",
+          any("F009" in ln for ln in body7 if ln.startswith("- ")), False)
 
     # --- the case that decided the design: the BLOCKER itself is off-frontier
     # Measured 2026-07-30: all four named `[Blocked <handle>]` edges vault-wide

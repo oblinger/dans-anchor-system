@@ -2932,6 +2932,21 @@ def check_c55_blocker_live_and_visible(
                             f"row's owner, not the blocker's."),
                         mechanically_fixable=False))
                     continue
+                # This third finding is about VISIBILITY, not integrity, so it
+                # needs the reader to exist: it fires only when the WAITING row
+                # renders. Its own message says "the reader is told the work is
+                # blocked" — if `e` is parked too, the reader is told nothing
+                # and there is nothing to repair.
+                #
+                # The guard was absent until 2026-08-19 and could not bite,
+                # because `[Blocked …]` under `## Later` used to render, so a
+                # parked waiter was a visible waiter. Restoring `## Later` to
+                # render nothing separated the two, and without this line the
+                # check would fire on every parked blocked row in the vault —
+                # 72 of them — each one demanding the reader be given a path to
+                # something no reader is being shown.
+                if not renders_in_body(e.horizon, e.status):
+                    continue
                 if not renders_in_body(target.horizon, target.status):
                     findings.append(Finding(
                         severity="error", surface_file=e.source_file,
@@ -5995,7 +6010,45 @@ def renders_in_body(horizon: str, bracket: str) -> bool:
     constant which was then aliased straight back to the narrow one, so the
     comment promised the wide scope while the code kept the narrow — and two
     live rows (Anchorage F029, Docket F054) were still rendered-but-uncounted
-    when F305 measured it on 2026-08-07."""
+    when F305 measured it on 2026-08-07.
+
+    THE BODY IS THE ACTIVE HORIZONS. `## Later` renders nothing, whatever its
+    bracket. Restored 2026-08-19 on Dan's direction; the design always said so
+    and the code had drifted off it in three steps, which is worth recording
+    because each step looked local and correct:
+
+    1. **2026-06-02, primary-sourced** — user direction, carried in this
+       function's ancestor as a comment: *"only count from ACTIVE horizons.
+       Rows parked in ## Later or ## Verify are passive observation, not
+       active questions."*
+    2. **2026-06-04, MUX** — banner said `Questions 0` while the body listed
+       two `## Later` rows. Two repairs were available: narrow the BODY to
+       match the banner, or widen the BANNER to match the body. F305 took the
+       second and DELETED the 2026-06-02 direction in the same commit
+       (c9980485), so the disagreement was resolved against the design.
+    3. **Afterwards** — `Blocked` was admitted on the "37 rows vanishing"
+       evidence (7771917d), and a quote attributed to Dan 2026-08-07 —
+       *"Ready, User and Parked are all shown"* — was added by a later commit
+       (dbd4eabb) to justify the branch. That quote has NO primary source
+       anywhere in the vault: it occurs only here and in documents citing
+       this comment. It also enumerates BANNER ZONE LABELS (zone 1's Ready /
+       User, zone 3's Parked / Waiting), so even at face value it rules on
+       what the banner COUNTS, not on what the body RENDERS.
+
+    The design, in three places that all agree: [[DAS Query]] § the banner —
+    *"Zone 1 is scoped to the active horizons (## Now, ## Next)"*; F284
+    § Scope note — *"Later and Icebox are deliberately out of scope… a total
+    render over every horizon would bury the frontier it exists to surface"*;
+    and this repo's own zone-3 comment in `queries-render.py` — Parked and
+    Waiting are counted *"precisely BECAUSE they are omitted from the body."*
+
+    NOTHING VANISHES, and that is what makes this safe. The 37-rows-vanishing
+    finding is real, but its answer is zone 3, not a body listing: `parked_n`
+    and `waiting_n` are computed from every live row unscoped by horizon, so a
+    `[Blocked …]` row parked in Later still lands in `Parked N`, and zone 2
+    counts it again in `Later N`. Measured at the restore: 86 rows across 11
+    backlogs left the body (72 `Blocked`, 14 `Questions`); every one is still
+    on its banner twice."""
     if bracket.startswith("Done"):
         return False
     # `[Verify-by <date>]` renders NOWHERE (F283): the bracket promises nothing
@@ -6004,49 +6057,38 @@ def renders_in_body(horizon: str, bracket: str) -> bool:
     if _VERIFY_BY_BRACKET_RE.match(bracket):
         return False
     if horizon == "Later":
-        # Under Later: the User class and the Parked class — everything that
-        # needs the USER's eyes. Dan's rule, 2026-08-07: *"Ready, User and
-        # Parked are all shown. The only one that's not shown is Waiting."*
+        # `## Later` renders NOTHING. Parking a row is a statement that nobody
+        # is acting on it, and the body is the act-on-it surface.
         #
-        # `Blocked` was missing here, which silently defeated F283's entire
-        # purpose. That feature exists to be a **visibility ledger** — its own
-        # comment in `build_queries_body` says the section "renders anyway so
-        # that nothing silently disappears, which is the defect that produced
-        # this feature" — and yet 37 of the vault's 66 Parked rows rendered
-        # nowhere, every one a `[Blocked …]` row parked in `## Later`. The
-        # feature built to stop rows disappearing was disappearing them.
+        # Three brackets used to be admitted here (`Questions`, `Verify*`,
+        # `Blocked …`) and the docstring above records how each arrived. The
+        # short version: none of them was a decision to widen the body — the
+        # first two came from resolving a banner/body DISAGREEMENT in the
+        # banner's favour, and the third from a real vanishing-rows finding
+        # whose actual answer is zone 3.
         #
-        # `Ready` and `Designing` are NOT admitted here, and the reason is a
-        # standing ruling this branch must not quietly overturn: F284
-        # § Scope note keeps `## Later` off the render because it is
-        # deferred-by-choice and rendering all of it would bury the frontier.
-        # `Blocked` earns its place against that rule on specific evidence —
-        # 37 rows were vanishing from the very ledger built to prevent
-        # vanishing. `Ready` in particular would be actively harmful: zone 1's
-        # count is what `/crank`'s hard continuation rule reads to decide the
-        # agent MUST keep working, so admitting it would push 30 vault-wide
-        # deliberately-deferred rows onto the agent's runway.
+        # Two arguments that read as objections and are not:
         #
-        # `User` is grouped with them, and that is CONTESTED — see TINK T157.
-        # Tried and reverted 2026-08-08: this function's own opening comment
-        # quotes Dan (2026-08-07) as *"Ready, User and Parked are all shown"*,
-        # `Questions` (the other user-blocking member of this same class) is
-        # already admitted from Later, and seven rows vault-wide sat `[User]`
-        # under Later rendering in NO section of any page — hidden from the one
-        # person their bracket says is the only possible actor.
+        # - *"F283's ledger loses 37 `[Blocked …]` rows."* It does not. Zone 3
+        #   counts `Parked` across every live horizon, and its own comment in
+        #   `queries-render.py` says it is counted "precisely BECAUSE they are
+        #   omitted from the body." Zone 2 counts the row again under
+        #   `Later N`. A parked blocker is on the banner twice and in the
+        #   backlog file; it is deferred, not disappeared.
+        # - *"A `[User]` row parked in Later is hidden from the only person who
+        #   can act on it"* (T157/T158). True, and it stays true — but that is
+        #   the POINT of `[User]` + `## Later`, which is the vault's only way
+        #   to say "the user owns this AND the user has deferred it." SKA F271
+        #   is the live proof: its Status reads "two Dan actions and his
+        #   judgment call" while its row reads "do not surface it until he
+        #   opens it." Widening the body overrides that instruction silently.
         #
-        # What killed it: `[User]` + `## Later` is the vault's ONLY way to say
-        # *"the user owns this AND the user has deferred it."* SKA F271 is the
-        # live proof — its `## Status` reads *"what remains is two Dan actions
-        # and his judgment call"* (genuinely user-gated) while its row reads
-        # *"do not surface it until he opens it"* (deliberately hidden).
-        # Admitting `User` here silently overrides that instruction for every
-        # such row. The gap is real and so is the suppression; which one wins
-        # needs a vocabulary that can hold both, which is Dan's call, not a
-        # predicate edit.
-        return any("Questions" in m or m.startswith("Verify")
-                   or m.startswith("Blocked")
-                   for m in bracket_members(bracket))
+        # If a parked row should be acted on, PROMOTE ITS HORIZON. [[DAS Query]]
+        # says this in as many words: "the fix is to promote its horizon, not
+        # to widen zone 1 — widening zone 1 would put work in the *act on it*
+        # zone that the backlog has explicitly deferred, which is the reverse
+        # of the reading order the whole layout exists to produce."
+        return False
     return horizon in ("Active", "Ready", "Now", "Next", "Verify")
 
 

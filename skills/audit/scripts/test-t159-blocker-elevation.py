@@ -68,6 +68,23 @@ def no(m):
     print(f"  FAIL  {m}")
 
 
+# FIXTURE REBALANCED 2026-08-19, when `## Later` went back to rendering nothing.
+# Every WAITER used to sit under `## Later`, which was fine only while that
+# horizon rendered `[Blocked …]`; once it stopped, no waiter appeared on the
+# page, nothing promoted, and five assertions went vacuous at once.
+#
+# The suite's own principle is unchanged and is what the rebalance restores:
+# *"the honest test is 'does the waiting row appear on this page'"*. So the
+# waiters move to `## Now` where they render, and the BLOCKERS stay parked
+# under `## Later`. That is also the real shape of the case this file exists
+# for — Dan saw a pile of rows announcing they were blocked on ATT F041 and
+# could not find F041 — so the fixture now expresses its own motivating story
+# instead of a configuration in which nobody could have noticed anything.
+#
+# Deliberately still parked: F061 `[Waiting]` (case E needs a waiter that
+# renders NOWHERE, and `[Waiting]` renders under `## Now`, so `## Later` is the
+# only place it can be) and every blocker, since case C's whole point is that
+# elevation must not require the blocker itself to be visible.
 FIXTURE = """# ATT Backlog
 
 ## Now
@@ -77,25 +94,21 @@ FIXTURE = """# ATT Backlog
   - **Next:** do it
 - **F060 — blocks only a hidden row** [Ready] — body ^F060
   - **Next:** do it
+- **F040 — a merge that needs the disks** [Blocked ATT-F041] — body ^F040
+- **F039 — another one** [Blocked ATT-F041] — body ^F039
+- **F070 — names another anchor's row** [Blocked MUX-F999] — body ^F070
+- **F092 — waits on the half-gated one** [Blocked F090] — body ^F092
+- **F093 — waits on the stuck one** [Blocked F091] — body ^F093
 
 ## Later
 
 - **F041 — disk-ops master pointer** [User] — body ^F041
   - **User:** attach BEAST / COPPER and start a disk-work session
-- **F040 — a merge that needs the disks** [Blocked ATT-F041] — body ^F040
-- **F039 — another one** [Blocked ATT-F041] — body ^F039
-- **F050 — the bare-handle blocker** [Ready] — body ^F050
-  - **Next:** do it
-- **F060 — blocks only a hidden row** [Ready] — body ^F060
-  - **Next:** do it
 - **F061 — waits on F060, and renders nowhere** [Waiting] — body ^F061
-- **F070 — names another anchor's row** [Blocked MUX-F999] — body ^F070
 - **F090 — gated on Dan, but also runnable** [Ready, User] — body ^F090
   - **Next:** run the agent phase
   - **User:** then decide
-- **F092 — waits on the half-gated one** [Blocked F090] — body ^F092
 - **F091 — a stuck blocker** [Blocked upstream] — body ^F091
-- **F093 — waits on the stuck one** [Blocked F091] — body ^F093
 
 ## Done
 
