@@ -36,7 +36,9 @@ import importlib.machinery
 import importlib.util
 import io
 import contextlib
+import shutil
 import sys
+import tempfile
 from pathlib import Path
 
 HERE = Path(__file__).parent
@@ -86,10 +88,31 @@ def notes(status, body, existing="Ready"):
     return buf.getvalue()
 
 
-# The vault is the corpus these run against — the targets below are real docs,
-# picked for the property each assertion needs rather than invented, because
-# `find_file_by_basename` resolves against the live vault.
-PROSE_TARGET = "TINK Persona"          # a real doc with no `## Status` H2
+# These used to be REAL vault docs, "picked for the property each assertion
+# needs rather than invented, because `find_file_by_basename` resolves against
+# the live vault." That coupling broke the suite: `TINK Persona.md` was renamed
+# to `Tink Persona.md`, and since the resolver is case-SENSITIVE the lookup
+# returned None, so `verify_status_block` took its can't-locate-the-target skip
+# path and never refused. Twelve of twenty assertions then failed on a `None`
+# refusal — not one of them about pointer provenance, the thing under test.
+#
+# A test of a REFUSAL MESSAGE has no business depending on what the vault
+# happens to contain today. Stubbing the resolver makes it hermetic: the names
+# below are now arbitrary labels, and the fixture supplies the one property
+# each assertion needs (a doc that exists and has no `## Status` H2).
+# Restored 2026-08-18 (T245).
+PROSE_TARGET = "ZZT Prose Target"      # a doc that exists, with no `## Status` H2
+LOSING_TARGET = "ZZT Losing Target"    # ditto — the arrow that loses last-wins
+
+_FIXTURES = Path(tempfile.mkdtemp(prefix="t089-"))
+for _name in (PROSE_TARGET, LOSING_TARGET):
+    (_FIXTURES / f"{_name}.md").write_text(
+        f"---\ndescription: fixture\n---\n\n# {_name}\nNo Status H2 here.\n",
+        encoding="utf-8")
+
+_real_find = be.find_file_by_basename
+be.find_file_by_basename = lambda basename: (
+    p if (p := _FIXTURES / f"{basename}.md").exists() else _real_find(basename))
 
 print("1. A prose arrow is quoted back, so the agent can see what matched")
 r = refusal("Done", f"renamed `prj/Ask/` → [[{PROSE_TARGET}]] and moved the tests")
@@ -107,12 +130,12 @@ check("the refusal names both ways out — reword, or add a real pointer",
       r and "reword" in r and "leading `→ [[F<n> — …]]`" in r, repr(r))
 
 print("2. Multiple arrows are the strongest prose signal — say so")
-two = f"moved `a/` → [[TINK Persona Journal]] then `b/` → [[{PROSE_TARGET}]]"
+two = f"moved `a/` → [[{LOSING_TARGET}]] then `b/` → [[{PROSE_TARGET}]]"
 r = refusal("Done", two)
 check("the count is reported", r and "holds 2 `→ [[…]]` sequences" in r, repr(r))
 check("last-wins is stated explicitly", r and "LAST wins" in r, repr(r))
 check("the losing arrow is named too",
-      r and "TINK Persona Journal" in r, repr(r))
+      r and LOSING_TARGET in r, repr(r))
 check("the winner is still the last one",
       r and f"target [[{PROSE_TARGET}]]" in r, repr(r))
 
@@ -146,6 +169,8 @@ check("a re-touch at the same status still skips",
       refusal("Done", f"renamed `x` → [[{PROSE_TARGET}]]", existing="Done") is None)
 check("an unresolvable target still skips, without provenance noise",
       refusal("Done", "moved `x` → [[No Such Doc Anywhere In The Vault]]") is None)
+
+shutil.rmtree(_FIXTURES, ignore_errors=True)
 
 print(f"\ntest-t089-pointer-provenance: {PASS} passed, {FAIL} failed")
 sys.exit(1 if FAIL else 0)

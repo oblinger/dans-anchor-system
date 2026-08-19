@@ -4015,8 +4015,15 @@ def _format_item_bullet(letter, num, container_id, body):
             and not re.match(r"^\*\*(?:Recommendation|Damage|Risk|Lean)\b", head)
         )
         if looks_like_title:
-            body = f"- **{letter}{num} — {head.rstrip('?').strip()}?** — {rest.strip()}" \
-                if head.endswith("?") else f"- **{letter}{num} — {head}** — {rest.strip()}"
+            title = f"{head.rstrip('?').strip()}?" if head.endswith("?") else head
+            # T245 — omit the ` — ` when the title WAS the whole body. Appending
+            # it unconditionally left a dangling em-dash with nothing after it
+            # (`- **Q1 — Which relationships carry an ask?** — ^T017-Q1`), which
+            # reads as a body that went missing rather than one that was never
+            # written, and is what a title-only self-title always produces.
+            tail = rest.strip()
+            body = (f"- **{letter}{num} — {title}** — {tail}" if tail
+                    else f"- **{letter}{num} — {title}**")
         else:
             body = f"- **{letter}{num} — Untitled** — {body}"
     # T140 — the old guard was `if f"^{container_id}-Q{q_num}" not in first_line`,

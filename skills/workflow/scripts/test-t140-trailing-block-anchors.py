@@ -122,9 +122,13 @@ check("a clean row is a fixed point",
 print("\n_format_q_bullet — the stale anchor sat FIRST, so the renderer took it")
 
 f = be._format_q_bullet
-check("a plain body is wrapped with one anchor",
+# T239 self-titles a short, title-shaped first line instead of stamping
+# `Untitled` and demoting it to the body -- this expectation predates that
+# and had been failing since. T245 additionally drops the dangling ` — `
+# when the title WAS the whole body, so there is no empty tail to render.
+check("a short title-shaped body becomes the title, with one anchor",
       f(1, "T017", "Which relationships carry an ask?"),
-      "- **Q1 — Untitled** — Which relationships carry an ask? ^T017-Q1")
+      "- **Q1 — Which relationships carry an ask?** ^T017-Q1")
 check("a pre-formatted Q keeps its title and gains one anchor",
       f(1, "T017", "**Q1 — Which relationships carry an ask?**"),
       "- **Q1 — Which relationships carry an ask?** ^T017-Q1")
@@ -154,9 +158,11 @@ check("a bulleted Q+ body — both shapes at once — still converges",
       "- **Q3 — Anchor-verb consolidation?** — context here ^F234-Q3")
 # A genuinely title-less body must still get the Untitled wrapper — the fix
 # narrows what counts as pre-formatted, it does not remove the fallback.
+# `just some prose` is short and has no option bullets, so T239 reads it as
+# a title; the Untitled fallback now needs a body that cannot pass for one.
 check("a body that really has no Q header still gets wrapped",
-      f(2, "F234", "just some prose"),
-      "- **Q2 — Untitled** — just some prose ^F234-Q2")
+      f(2, "F234", "  - **(A)** an option bullet, which is never a title"),
+      "- **Q2 — Untitled** — - **(A)** an option bullet, which is never a title ^F234-Q2")
 # Only the FIRST line carries the anchor; option/Recommendation lines below it
 # must come through untouched.
 multi = ("- **Q1 — Pick one** ^T+-Q1\n"
