@@ -68,7 +68,16 @@ def body(header, rec, risk="interface — the daemon topology is hard-coded by "
     T160 — a Lean/Strong recommendation must also state the risk OF ITS LEAN,
     so the fixture carries that line. It is inert for everything this test
     asserts: `question_mint_gate` never reads it, and the end-to-end `define`
-    below would otherwise be refused by a gate that is not the one under test."""
+    below would otherwise be refused by a gate that is not the one under test.
+
+    F270 — the same is true of the `- **Damage:**` line, which landed AFTER
+    this fixture was written and was never added to it. The end-to-end
+    `define` at the bottom had been failing ever since, on a gate that is not
+    the one under test, and the failure was in the suite long enough to stop
+    being read as a signal. The class is `locking` rather than `waste` on
+    purpose: `waste`/`priority` route a question to auto-resolution, which
+    would take the Lean-Q-that-surfaces case out of the very path it exists to
+    exercise."""
     lines = [f"- **Q1 — {header}**",
              "  - **(A)** first option.",
              "  - **(B)** second option.",
@@ -76,6 +85,8 @@ def body(header, rec, risk="interface — the daemon topology is hard-coded by "
     letter = _lean_letter(rec)
     if letter and risk is not None:
         lines.append(f"  - **Risk of ({letter}):** {risk}")
+    lines.append("  - **Damage:** locking — the topology every caller "
+                 "hard-codes is fixed by this choice.")
     return "\n".join(lines)
 
 
@@ -172,15 +183,45 @@ def fresh_doc():
     return f
 
 
-# define a Lean Q with no --why-ask → refused, file unchanged.
+# F270 SUBSUMES --why-ask on this path, and that is deliberate:
+#
+#     gate_why = why_ask or (f"{damage_cat}: {damage_why}" ...)
+#
+# Damage is hard-required, so the fallback is always populated and the F257
+# refusal is unreachable from `_q_define_core`. The assertion here used to be
+# "a Lean Q with no --why-ask is refused"; it kept passing after F270 landed
+# only because the fixture carried no Damage line, so the F270 gate refused
+# first and the test read someone else's refusal as its own. Restored 2026-08-18
+# to assert the contract that actually holds — a Damage line is a strictly
+# better justification than --why-ask, being specific about what breaks rather
+# than asserting that asking is warranted.
+#
+# The F257 gate is still live as a FUNCTION and still tested in isolation in
+# § 2 above; what no longer exists is a way to reach its refusal through define.
+f = fresh_doc()
+try:
+    st._q_define_core("ZZR", f, 1, body(REAL_FORK, "Lean (A). x"), why_ask=None)
+    txt = f.read_text()
+    ok("define accepts a Lean Q whose Damage line justifies it (F270 subsumes "
+       "--why-ask)") if "**Q1 —" in txt else no(f"define wrote nothing:\n{txt}")
+except be.BacklogEditError as ex:
+    no(f"define(Lean, Damage, no --why-ask) wrongly refused: {ex}")
+
+# ...and with no Damage line at all it IS refused, file unchanged — the gate
+# that now carries this case.
 f = fresh_doc()
 before = f.read_text()
 try:
-    st._q_define_core("ZZR", f, 1, body(REAL_FORK, "Lean (A). x"), why_ask=None)
-    no("define(Lean, no --why-ask) should refuse")
-except be.BacklogEditError:
-    ok("define refuses a Lean Q without --why-ask") if f.read_text() == before \
-        else no("define refused but wrote the file anyway")
+    st._q_define_core("ZZR", f, 1,
+                      body(REAL_FORK, "Lean (A). x").replace(
+                          "\n  - **Damage:** locking — the topology every "
+                          "caller hard-codes is fixed by this choice.", ""),
+                      why_ask=None)
+    no("define(Lean, no Damage) should refuse")
+except be.BacklogEditError as ex:
+    good = "Damage" in str(ex) and f.read_text() == before
+    ok("define refuses a Q with no Damage line, and writes nothing") if good \
+        else no(f"refused for the wrong reason or wrote anyway: {ex}")
 
 # define the same Lean Q with --why-ask → written, annotation present.
 f = fresh_doc()

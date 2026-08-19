@@ -2866,6 +2866,23 @@ def _query_verb(slug, doc_path, q_num, verb, args, letter="Q"):
         body = read_body(args)
         if not body.strip():
             raise be.BacklogEditError("set requires a body via stdin or --body")
+        # T244 — `--title` is declared on the `set` subparser and was read only
+        # by the Backlog row path, so on a doc-hosted item it was accepted,
+        # reported `redefined Q<n>`, and did nothing: the title came from the
+        # T239 self-titling rule, which uses the body's first line and falls
+        # back to `Untitled` when that line is a paragraph. Two `set` calls
+        # reported success against F336 Q1 while the rendered title stayed
+        # `Q1 — Untitled` (2026-08-18).
+        #
+        # `--title` wins, which is what it already does for a row -- a flag
+        # that reports success while doing nothing is the silent-no-op shape,
+        # and the only alternative (refuse it here) leaves doc items with no
+        # retitle verb at all, the gap the T239 comment itself notes.
+        # Synthesising the pre-formatted header takes the normalizer branch in
+        # _q_define_core, so multi-line bodies keep their sub-bullets.
+        title = getattr(args, "title", None)
+        if title:
+            body = f"**{letter}{q_num} — {title}** — {body.lstrip()}"
         lines = doc_path.read_text(encoding="utf-8").splitlines()
         if be._find_item_bullet(lines, letter, q_num) is None:
             raise be.BacklogEditError(
