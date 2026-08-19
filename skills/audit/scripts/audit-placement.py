@@ -234,7 +234,14 @@ def _subsystem_folder_exists(inst, expected):
     for tmpl in expected:
         body = tmpl[len("{anchor}/"):].rstrip("/")
         if not body:
-            continue
+            # The template IS the anchor root, which always exists -- so the
+            # rule always has somewhere to point and the instance is never
+            # homeless.  This was a `continue`, which made a root-naming rule
+            # count as "no folder available" and wrongly exempted every
+            # deviation under it: `ABIO Log.md` sits in `ABIO Track/` while
+            # `Log`'s rule offers the anchor root, and the exemption swallowed
+            # it silently.
+            return True
         first = body.split("/")[0].replace("{slug}", inst["slug"])
         if os.path.isdir(os.path.join(inst["root"], first)):
             return True
@@ -271,20 +278,27 @@ def check(vault, quiet=False):
             # first 51 findings against perfectly conforming index pages.
             ok = tmpl in exp or (
                 tmpl.endswith(tail) and tmpl[:-len(tail)] in exp)
-        if not ok and tmpl == "{anchor}/" and not _subsystem_folder_exists(inst, exp):
-            # A FLAT anchor -- one that never grew the `{slug} Design/` or
-            # `{slug} Track/` folder the rule names -- has nowhere else to put
-            # the instance, so the anchor root is not a deviation but the only
-            # available placement.  Measured 2026-08-18: 8 of the checker's
-            # first 22 findings were this, spread over 7 anchors (CAT, Disk,
-            # DFP, START, Eli, AIS, CAT Backup).  Reporting them told the
-            # reader to move a file into a folder that does not exist, which is
-            # advice no one can follow -- the honest reading is that placement
-            # binds an anchor only once it has the subsystem folder.
+        if not ok and not _subsystem_folder_exists(inst, exp):
+            # An anchor that never grew the `{slug} Design/` or `{slug} Track/`
+            # folder the rule names has nowhere to put the instance, so wherever
+            # it sits is the only available placement rather than a deviation.
+            # Measured 2026-08-18: 8 of the checker's first 22 findings were
+            # this, across 7 anchors (CAT, Disk, DFP, START, Eli, AIS, CAT
+            # Backup).  Reporting them told the reader to move a file into a
+            # folder that does not exist, which is advice no one can follow --
+            # placement binds an anchor only once it has the subsystem folder.
+            #
+            # The test was first written as `tmpl == "{anchor}/"`, exempting
+            # only ROOT placement.  That was too narrow, and trying to execute
+            # the resulting moves is what showed it: `RR PRD.md` sits in `RR
+            # MGR/` and `DMUX Messages.md` in `DMUX Dev Docs/` precisely
+            # BECAUSE neither anchor has the folder -- an anchor without the
+            # structure puts the file in whatever folder it does have, which is
+            # not always the root.  Same absent folder, same verdict.
             #
             # Note this is a claim about the FILESYSTEM, not about the rule:
-            # the moment such an anchor grows the folder, its root-placed
-            # instances start deviating again, which is the intended behavior.
+            # the moment such an anchor grows the folder, its instances start
+            # deviating again, which is the intended behavior.
             ok = True
         if ok:
             conforming[inst["facet"]] += 1
