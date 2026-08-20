@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""T551 — `remove <anchor> Backlog <row>.Q<n>`: F329's missing other half.
+"""MUX T308 — `remove <anchor> Backlog <row>.Q<n>`: F329's missing other half.
+
+The filename carries the anchor because F/T numbers are a PER-ANCHOR namespace
+and this directory is shared. A bare `test-t551-*` here already named two
+unrelated things at once — TINK T551 (pebble suppression) and this — with the
+filename as the only surviving provenance. Anchor-qualify shared-repo tests.
 
 F329 retired inline row questions and told the existing ones to "migrate on
 touch, never by sweep". `define … Q+` performs the first half — the question
@@ -14,7 +19,7 @@ the verb can stop a duplicate but cannot lose a question. The three refusals
 below are the test: no doc, doc without the block-ID, and doc where the
 block-ID sits under `## Resolved` (rehomed to a question nobody can answer).
 
-    python3 test-t551-row-q-remove.py
+    python3 test-mux-t308-row-q-remove.py
 """
 # T170 — several scripts here are extensionless, so the import machinery caches
 # them under a mangled name and has been seen serving code no longer on disk.
