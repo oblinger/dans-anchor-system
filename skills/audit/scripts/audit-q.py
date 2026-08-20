@@ -71,6 +71,15 @@ Checks applied to Q.md, each anchor's backlog, and each feature/Questions doc:
        that owns none of them. C1 tests only that the target RESOLVES, so it
        passes this silently; Daybreak and LUMEN's starvation rule both read
        these counts. Case drift is not a mismatch (T138).              (report).
+  C57: F329/T550 — a live backlog row that HOSTS a question instead of
+       pointing at the doc that does. Four shapes, named on the finding:
+       `inline-q` (pending `- **Q<n>` sub-bullet), `q-row` (F275 standalone
+       Q-row), `lettered` (a `- **User:**`/`- **Verify:**` sub-bullet carrying
+       ≥2 `(A)`..`(D)` labels — a whole ask-format question in the row), and
+       `unhosted` (that sub-bullet poses a `?` on a row with no `→ [[doc]]`).
+       F329's mint-time gate names only the first, which is why the other
+       three accumulated unseen. Warning: this is a migration population, not
+       a stop-gate.                                                  (report).
   D1:  Q.md per-anchor banners derived from each anchor's backlog
        (not validated — overwritten on every run).
 
@@ -932,6 +941,61 @@ def backlog_entries(backlog_file: Path,
     return entries
 
 
+# A row document's basename comes in three permanently-coexisting forms, and
+# `_arrow_target` knew only the first (see `_basename_is_own_doc`):
+#
+#   F332 — Title        legacy, everything before 2026-08-02
+#   TINK F332 - Title   F298, the one morning that convention lasted
+#   TINK332 - Title     F300, current — the kind letter is DROPPED
+#
+# Both dashes appear in the wild across the middle form, so both are accepted.
+_OWN_DOC_LETTERED_RE = re.compile(
+    r"^(?:[A-Za-z][A-Za-z0-9]*\s+)?([A-Za-z])(\d+)\s+[—-]\s")
+_OWN_DOC_FUSED_RE = re.compile(r"^[A-Za-z]+(\d+)\s+[—-]\s")
+_ROW_ID_RE = re.compile(r"^([A-Za-z])(\d+)$")
+
+
+def _basename_is_own_doc(link: LinkEntry, identifier: str) -> bool:
+    """True when `link` targets the row's OWN document, in any of the three
+    naming conventions that coexist permanently in the vault.
+
+    `_arrow_target` decided this with `basename.startswith(f"{identifier} ")` —
+    a test written against the legacy `F332 — Title` basename, which is the
+    only form that puts the row's identifier at the head of the filename. F298
+    moved the slug in front of it and F300 dropped the kind letter entirely, so
+    every row whose doc carries either later convention read as having NO own
+    doc. Callers then fall through to `_row_inline_q_count`, which is 0 on
+    exactly those rows — migrating a row is what moves its questions out of it.
+
+    Found 2026-08-19 by C57, whose `unhosted` shape fired on eight fully
+    migrated TINK rows (F300 form) and on SONAR F006 (F298 form), reporting the
+    migration as the thing it fixes. Behind that false positive, C24, C48 and
+    C50 had been silently passing vault-wide on the same rows for the same
+    reason: they were asking a question about a document they never found.
+
+    The fused form carries no kind letter, so its number is matched first and
+    the letter confirmed from the doc's H1 (`feature_number` reads it). An
+    unresolved link has no H1 to read, and there the number match stands alone:
+    slug+number is unique within an anchor by construction.
+    """
+    base = link.target_basename or ""
+    want = _ROW_ID_RE.match(identifier or "")
+    if not want:
+        return False
+    letter, number = want.group(1).upper(), int(want.group(2))
+    m = _OWN_DOC_LETTERED_RE.match(base)
+    if m:
+        return m.group(1).upper() == letter and int(m.group(2)) == number
+    m = _OWN_DOC_FUSED_RE.match(base)
+    if not m or int(m.group(1)) != number:
+        return False
+    if link.target_file_path is None:
+        return True
+    got = _ROW_ID_RE.match(feature_number(base, link.target_file_path) or "")
+    return bool(got) and got.group(1).upper() == letter \
+        and int(got.group(2)) == number
+
+
 def _arrow_target(e: BacklogEntry) -> Optional[LinkEntry]:
     """T012: resolve the row's OWN doc — the arrow-form `→ [[…]]` link.
 
@@ -956,7 +1020,8 @@ def _arrow_target(e: BacklogEntry) -> Optional[LinkEntry]:
     if not arrows:
         return None
     own = [l for l in arrows
-           if (l.target_basename or "").startswith(f"{e.identifier} ")]
+           if (l.target_basename or "").startswith(f"{e.identifier} ")
+           or _basename_is_own_doc(l, e.identifier)]
     # F251 #2 — when NO arrow is the row's OWN doc, return None instead of
     # falling back to arrows[0] (an unrelated prose `→ [[…]]` mention or a
     # `→ [[{slug} Backlog#^id]]` self-ref). A wrong fallback made C23/C24/
@@ -3218,6 +3283,145 @@ def check_c51_user_action_present(
     return findings
 
 
+# ============================================================
+# C57 — a backlog row that HOSTS a question instead of pointing at the doc
+#       that does (F329 / T550)
+# ============================================================
+#
+# F329 shipped with exactly one gate: `state` refuses a write that ADDS a
+# pending inline `- **Q<n>` sub-bullet to a row. That gate names ONE host
+# shape, and naming one shape teaches the next writer to use another. SONAR
+# T048 and T049 were both written AFTER F329 shipped, each carrying a full
+# lettered yes/no inside a `- **User:**` sub-bullet — a surface the gate does
+# not inspect and no check had ever looked at. Dan found them by eye
+# (2026-08-19): *"there's a bunch of entries in Sonar's backlog that have
+# questions embedded in the backlog, and I think we decided we're not gonna do
+# this."*
+#
+# So this check does not test for a shape. It tests the INVARIANT — a row that
+# asks the user something must have a doc to host the asking — and reports the
+# way each row breaks it, so the population stays legible when it is migrated.
+#
+# Overlap with C34 is deliberate and bounded. C34 is a line-level markdown rule
+# that predates F329 and still exempts T-/B-/Q-rows as "the sanctioned no-doc
+# form"; that exemption is what let shape `inline-q` accumulate on exactly the
+# rows F329 was written to cover. C57 is the row-level rule that now owns the
+# invariant for every kind, at WARNING severity — the population is a migration
+# backlog (T550), not a stop-gate, and promoting it to error before it is
+# measured would hand four other anchors a red gate they did not ask for.
+
+_C57_SUBBULLET_BREAK_RE = re.compile(
+    r"^\s+-\s+\*\*(?:Next|Verify|User|Resolved|Q\d+)\b")
+
+
+def _row_span_lines(e: BacklogEntry) -> list[str]:
+    """The row's own sub-bullet span — lines after the row opener up to the
+    next top-level bullet, heading, or EOF. Same forward-scan as
+    `_row_inline_q_count` / `_row_has_next`; the three must not disagree about
+    where a row ends or two of them will describe different rows."""
+    try:
+        lines = e.source_file.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeDecodeError):
+        return []
+    span: list[str] = []
+    for nxt in lines[e.source_line:]:  # source_line is 1-indexed → next line
+        if HEADING_RE.match(nxt) or re.match(r"^- \*\*", nxt):
+            break
+        span.append(nxt)
+    return span
+
+
+def _labeled_subbullet_block(span: list[str], label: str) -> str:
+    """The FULL text of a `- **<label>:**` sub-bullet — its own line plus every
+    continuation line and nested option bullet under it, to the next labeled
+    sibling.
+
+    `_rows_with_subbullet_text` keeps only the sub-bullet's first line, which
+    is precisely where a lettered option list is invisible: C19 requires each
+    `**(A)**` to sit on its OWN line, so a question written to spec has its
+    entire decision shape below the line that check can see. That is why the
+    SONAR rows read as ordinary one-line User asks to everything mechanical.
+    """
+    head = re.compile(rf"^\s+-\s+(?:\*\*)?{label}(?:\s*\([^)]*\))?:(?:\*\*)?")
+    out: list[str] = []
+    collecting = False
+    for line in span:
+        if head.match(line):
+            collecting = True
+            out.append(line)
+            continue
+        if collecting:
+            if _C57_SUBBULLET_BREAK_RE.match(line):
+                break
+            out.append(line)
+    return "\n".join(out)
+
+
+def check_c57_row_hosts_question(
+    entries: list[BacklogEntry], backlog_file: Path,
+) -> list[Finding]:
+    """C57 (F329 / T550): a live backlog row that hosts a question itself
+    instead of pointing at the doc that hosts it.
+
+    Four host shapes, reported by name on the finding so the migration can be
+    counted and batched rather than eyeballed:
+
+      `inline-q`    — ≥1 pending `- **Q<n> —` sub-bullet on the row.
+      `q-row`       — an F275 standalone Q-row; the row IS the question.
+                      Retired as a mintable shape by F329; legacy ones remain.
+      `lettered`    — a `- **User:**` / `- **Verify:**` sub-bullet carrying ≥2
+                      distinct `(A)`..`(D)` option labels. This is a full
+                      ask-format question living in the row. The SONAR shape.
+      `unhosted`    — a `- **User:**` / `- **Verify:**` sub-bullet that poses a
+                      question (`?`) on a row with no `→ [[doc]]` of its own.
+                      The weakest signal of the four, and the one that will
+                      carry false positives (a one-line yes/no verification on
+                      a small row is legitimate); it is here because it is the
+                      only shape that catches a question with nowhere to live.
+
+    Report-only. Migrating a row means minting its doc, moving the record and
+    the fork into it, and reducing the sub-bullet to a one-line ask that links
+    the doc — judgement at every step, and none of it mechanical.
+    """
+    findings: list[Finding] = []
+    for e in entries:
+        if e.horizon in ("Done", "Icebox"):
+            continue
+        kinds: list[str] = []
+        if _is_standalone_q_row(e.identifier):
+            kinds.append("q-row")
+        if _row_inline_q_count(e) > 0:
+            kinds.append("inline-q")
+        span = _row_span_lines(e)
+        has_doc = _arrow_target(e) is not None
+        for label in ("User", "Verify"):
+            block = _labeled_subbullet_block(span, label)
+            if not block:
+                continue
+            scan = "\n".join(_strip_code_spans(l) for l in block.splitlines())
+            if has_inline_alternatives(scan):
+                kinds.append(f"lettered({label})")
+            elif "?" in scan and not has_doc:
+                kinds.append(f"unhosted({label})")
+        if not kinds:
+            continue
+        findings.append(Finding(
+            severity="warning",
+            surface_file=e.source_file,
+            surface_line=e.source_line,
+            code="C57",
+            message=(
+                f"row '{e.identifier}' [{e.status}] hosts its own question "
+                f"({', '.join(kinds)}) — per F329 the backlog hosts pointers "
+                f"and questions live in docs. Mint the row's doc, move the "
+                f"record and the fork into it, and leave the sub-bullet as a "
+                f"one-line ask that links the doc. The row keeps its id."
+            ),
+            mechanically_fixable=False,
+        ))
+    return findings
+
+
 def check_c18_verify_by_expired(
     entries: list[BacklogEntry], today: date,
 ) -> list[Finding]:
@@ -4351,11 +4555,16 @@ def check_c34_inline_q_in_row_body(backlog_files: list[Path]) -> list[Finding]:
 
     For **F-rows** Qs belong in the feature doc (`{slug} Features/F<n> —
     Title.md` § `## Open Questions`) — the doc is the Q home and the row links
-    it. **T-/B-rows have no feature doc**, so per R-backlog-05 / [[Backlog|DAS
-    Backlog]] § The groomed states the row ITSELF is the Q-bearing target:
-    well-formed `- **Q<n> —` sub-bullets on a T-/B-row are the sanctioned
-    inline form, not a finding (aligned 2026-07-06 — C34 previously
-    contradicted the spec and forced Questions-state T-rows into fake docs).
+    it. **T-/B-rows had no feature doc** when this check was aligned
+    (2026-07-06), so the row ITSELF was the sanctioned Q-bearing target and
+    well-formed `- **Q<n> —` sub-bullets on a T-/B-row are exempt here.
+
+    **F329 retired that premise** — every row kind mints a doc now, so the
+    exemption below no longer describes a sanctioned form, only a legacy
+    population. It is kept because C34 is an ERROR: promoting several anchors'
+    unmigrated rows to a red stop-gate is not this check's call to make. The
+    invariant those rows break is owned by **C57**, at warning severity, which
+    sees all four host shapes rather than only this one.
     """
     findings: list[Finding] = []
     # Match `- **Q<n> —` or `  - **Q<n> —` (indented or not — any bullet form).
@@ -6661,6 +6870,7 @@ def main() -> int:
         findings.extend(check_c41_soak_question_declared(entries, backlog_file))
         findings.extend(check_c47_verify_ownership(entries, backlog_file))
         findings.extend(check_c51_user_action_present(entries, backlog_file))
+        findings.extend(check_c57_row_hosts_question(entries, backlog_file))
         findings.extend(check_c18_verify_by_expired(entries, today))
         findings.extend(check_c23_designing_resolves(entries))
         findings.extend(check_c24_questions_count_match(entries))
