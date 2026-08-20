@@ -26,7 +26,15 @@ check:: entry_page_matches_slug
 
 The entry page is named `{slug}.md` — the filename matches the `.anchor` slug (the H1's readable name may differ).
 
-**Check pattern:** `basename(page) == slug + ".md"`.
+**Check pattern:** `basename(page) == slug + ".md"` — **unless** the folder is a `stone` store.
+
+**Exemption: a stone store is not an anchor** ([[TINK Backlog#^T561|T561]], 2026-08-20, from [[Eli]]). `stone` writes `{slug} P####.md` into `{slug} Pebbles/` and keeps the control file **one level up** at `{slug} Pebble.md`, so the folder has no namesake by design. Measured through the real `--mode anchor --run` plan: this rule fired on **19 of 19** pebble stores — every anchor that has ever minted a pebble — and the only local remedy would have made that anchor the one deviant in the vault. Same shape as [[TINK Backlog#^T363|T363]] and [[TINK Backlog#^T556|T556]]: a rule correct on its face, unactionable in place, and permanent.
+
+**The exemption is keyed to the control file, not to the missing namesake** — keying on "this folder has no namesake" would be circular, since that is exactly what this rule reports. `{slug} Pebble.md` beside the folder is a fact `stone` wrote and nothing acquires by accident. Both the folder suffix and the control name are derived from `facets/DAS Stone Kinds.json`, whose own comment promises a third stone kind needs no code change; hardcoding `" Pebbles"` would break that promise.
+
+**Rocks are matched by the same predicate and are unaffected**: 4 of 4 rock folders carry a namesake *and* an `.anchor` — a rock group is an anchor by design — so they passed before and pass now. The residual: a rock folder that **lost** its namesake would be silent here. It is small, and `R-dot-anchor` still reads that folder.
+
+**One measurement lesson worth keeping.** The first pass at this count called `chk_entry_page_matches_slug` directly with the vault as `anchor_root`, got `pass` on every store, and concluded the rule fired on **1 of 19** — the opposite of the truth. A checker invoked outside its plan answers a different question than the plan asks. Count through `--mode anchor --run`, and with `--no-cache`, or the cache will hand back the pre-fix verdict and the fix will look inert.
 
 ### RULE R-anchor-page-03 — YAML `description:` present (checked)
 check:: frontmatter_has description

@@ -179,31 +179,35 @@ def test_dispatch_area_is_wider_than_table():
     so the dispatch AREA is table rows plus list items, and R-file-association-07's
     text was corrected to say so rather than five compliant folders being failed.
     """
-    d = ROOT / "Par Notes"
+    # `Features` rather than any plural word: T561 scoped this rule to folders
+    # whose suffix names a REGISTERED facet, so a fixture named `Par Notes`
+    # falls out of scope and two of the four cases below would pass for the
+    # wrong reason — a verdict nobody re-checks. Keep it a real facet name.
+    d = ROOT / "Par Features"
     d.mkdir(parents=True, exist_ok=True)
     (d / "Item One.md").write_text("# Item One\n", encoding="utf-8")
-    head = ("# Par Notes\nOrientation.\n\n| -[[Par Notes]]- | → [[kmr]] |\n| --- | --- |\n"
+    head = ("# Par Features\nOrientation.\n\n| -[[Par Features]]- | → [[kmr]] |\n| --- | --- |\n"
             "| Related | [[Somewhere Else]] |\n")
 
-    (d / "Par Notes.md").write_text(
+    (d / "Par Features.md").write_text(
         head + "\nProse mentioning [[Item One]] in passing — the dispatch lists nothing.\n",
         encoding="utf-8")
     check("a PROSE mention is not the dispatch listing the item",
           ap.chk_file_association_folder_structure(d, ROOT, []),
           ("fail", "dispatch table links none of the 1 item files"))
 
-    (d / "Par Notes.md").write_text(head + "\n" + FENCE + "- [[Item One]] — a sample row\n```\n",
+    (d / "Par Features.md").write_text(head + "\n" + FENCE + "- [[Item One]] — a sample row\n```\n",
                                     encoding="utf-8")
     check("a FENCED example listing is not the dispatch either",
           ap.chk_file_association_folder_structure(d, ROOT, []),
           ("fail", "dispatch table links none of the 1 item files"))
 
-    (d / "Par Notes.md").write_text(head + "| [[Item One]] | the item |\n", encoding="utf-8")
+    (d / "Par Features.md").write_text(head + "| [[Item One]] | the item |\n", encoding="utf-8")
     check("a TABLE-row listing counts (the rule's literal wording)",
           ap.chk_file_association_folder_structure(d, ROOT, []),
           ("pass", "folder structure OK: 1 items linked"))
 
-    (d / "Par Notes.md").write_text(head + "| ^^^ | |\n\n- [[Item One]] — the item\n",
+    (d / "Par Features.md").write_text(head + "| ^^^ | |\n\n- [[Item One]] — the item\n",
                                     encoding="utf-8")
     check("a BULLET listing under the masthead counts — the HBR Features shape",
           ap.chk_file_association_folder_structure(d, ROOT, []),

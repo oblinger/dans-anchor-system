@@ -1648,9 +1648,59 @@ def chk_anchor_has(target, anchor_root, args):
     return ("pass", "") if not missing else ("fail", f"missing in .anchor: {', '.join(missing)}")
 
 
+def _is_stone_store(folder: Path) -> bool:
+    """True when this folder is a `stone` STORE — `{slug} Pebbles/` beside its
+    control file `{slug} Pebble.md`, and the same for any other stone kind.
+
+    A store is not an anchor: `stone` writes `{slug} P####.md` into the folder
+    and keeps the control file **one level up**, so the folder has no namesake
+    by design. That is not an omission to repair — 19 of 19 `*Pebbles/` folders
+    vault-wide are in exactly this shape, which makes it the convention rather
+    than a deviation (T561, from [[Eli]]).
+
+    **The positive half is the control file, not the missing namesake.** Keying
+    on "this folder has no namesake" would be circular — that is the very thing
+    `R-anchor-page-02` reports. `{slug} Pebble.md` sitting beside the folder is
+    a fact `stone` wrote, and nothing acquires it by accident, which is the same
+    property the T363 and T556 exemptions are keyed on.
+
+    Suffix and control name are both **derived from `facets/DAS Stone
+    Kinds.json`**, whose own comment promises a third kind needs no code change.
+    Hardcoding `" Pebbles"` here would quietly break that promise.
+
+    Rocks are matched by this predicate too and are unaffected in practice:
+    4 of 4 rock folders carry a namesake AND an `.anchor`, so they pass
+    `R-anchor-page-02` on their own. The residual is worth stating — a rock
+    folder that LOST its namesake would now be silent here — and it is small
+    because a rock group is an anchor by design and `R-dot-anchor` still reads
+    it.
+    """
+    try:
+        kinds = _stone_kind_suffixes()
+    except Exception:
+        return False
+    for suffix, (_kind, cfg) in kinds.items():
+        if not suffix or not folder.name.endswith(suffix):
+            continue
+        slug = folder.name[: -len(suffix)]
+        control = cfg.get("control")
+        if not isinstance(control, str):
+            continue
+        if (folder.parent / f"{control.replace('{slug}', slug)}.md").is_file():
+            return True
+    return False
+
+
 def chk_entry_page_matches_slug(target, anchor_root, args):
     ep = _entry_page(anchor_root)
     if ep is None:
+        if _is_stone_store(anchor_root):
+            # T561, 2026-08-20. Fired on 19 of 19 pebble stores, measured
+            # through the real `--mode anchor --run` plan rather than by calling
+            # this checker directly (which passes the vault as anchor_root and
+            # answers a different question — the first cut of this measurement
+            # got "1 of 19" that way and was wrong).
+            return "pass", "a stone store, not an anchor — control file is one level up"
         return "fail", f"no entry page {_anchor_slug(anchor_root)}.md"
     return "pass", ep.name
 
@@ -4592,13 +4642,83 @@ def chk_status_facets_initialized(target, anchor_root, args):
 
 # -- R-file-association --------------------------------------------------------
 
+_facet_names_cache: set[str] | None = None
+
+
+def _registered_facet_names() -> set[str]:
+    """Every facet the registry declares, as a bare name — `facets/DAS <Name>.md`
+    minus the prefix. Read once per process; the folder holds 77 files.
+
+    This is the *registry*, not a guess: a name is here because someone wrote a
+    facet spec for it. `chk_facet_registered` asks the mirror-image question
+    (is this spec linked from `DAS Facets.md`), so the two ends of the same
+    catalog are now both consulted rather than one being re-invented.
+    """
+    global _facet_names_cache
+    if _facet_names_cache is None:
+        try:
+            _facet_names_cache = {
+                p.stem[4:] for p in (REPO_ROOT / "facets").glob("DAS *.md")
+                if len(p.stem) > 4
+            }
+        except OSError:
+            _facet_names_cache = set()
+    return _facet_names_cache
+
+
 def chk_file_association_folder_structure(target, anchor_root, args):
-    """Method-3 plural folder: has {Folder}.md anchor + dispatch table linking items."""
+    """Method-3 facet folder: has {Folder}.md anchor + dispatch table linking items.
+
+    Scope is `{Parent} {Facet}s/` where **`{Facet}` names a registered facet**
+    (T561). It used to be the plural suffix alone — `re.search(r"\\s+\\w+s$")` —
+    and a plural name is evidence of nothing. Measured vault-wide before the
+    change and after:
+
+        name-only          372 folders in scope, **271 fail** (73%)
+        registered facet   100 folders in scope,    48 fail
+
+    The 223 findings that go away are not judgment calls. They are
+    `NJDB Databricks`, `NJDB Weights & Biases`, `@Buck Shlegeris`, `My Dates`,
+    `Cap tables`, `SV Wings`, `Moms Files` — company names, a person, and
+    ordinary topic folders whose last letter is `s`, each told to grow a
+    dispatch table for items it does not have. The 48 that remain are real:
+    mostly `{slug} Features/` folders across the fleet with no `{slug}
+    Features.md` index, which [[DAS Features]] does require.
+
+    **Nothing passing is lost**, because a folder leaving scope was either
+    already passing or was never a facet folder. 49 currently-passing folders
+    drop out; a pass that becomes a non-question costs nothing.
+
+    Two residuals, stated because a silent narrowing is how a rule stops
+    meaning what it says:
+
+      1. **The `{Parent}` half of `R-file-association-03` is still unchecked.**
+         Requiring the prefix to match an enclosing folder or declared slug
+         would cut scope to 53 and findings to 27 — but it also drops **75**
+         currently-passing folders, because multi-word facet names (`SVAR Dev
+         Docs`, `SVW User Docs`) put a qualifier between parent and facet and
+         the naive split reads `SVAR Dev` as the parent. That is a real
+         refinement and it needs the multi-word facet question answered first.
+      2. **A stray singular/plural coincidence still admits a few.**
+         `2025-10-07 Derm Docs` matches because `Doc` is a facet. The parent
+         test above is what would remove it, which is the argument for doing
+         residual 1 rather than patching around it.
+
+    The pebble stores that co-motivated T561 need no exemption clause here:
+    there is no `DAS Pebble` facet, so all 19 `{slug} Pebbles/` folders leave
+    scope with the other 223. Their other reported failure, `R-anchor-page-02`,
+    was measured at **1 of 19**, not fleet-wide — [[Eli]] is the one store that
+    picked up a stray 0-byte `.anchor`, and the row generalized from it.
+    """
     if not target.is_dir():
         return "pass", "not a directory"
     folder = target.name
-    if not re.search(r"\s+\w+s$", folder):
+    m = re.search(r"\s+(\w+)s$", folder)
+    if not m:
         return "pass", "not a plural-suffix folder"
+    facet = m.group(1)
+    if not ({facet, f"{facet}s"} & _registered_facet_names()):
+        return "pass", f"plural suffix {facet + 's'!r} names no registered facet"
     anchor_file = target / f"{folder}.md"
     if not anchor_file.is_file():
         return "fail", f"method-3 folder missing anchor file {folder}.md"
