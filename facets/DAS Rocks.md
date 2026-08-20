@@ -93,7 +93,7 @@ Each rocks folder is one **node**. The structure above it:
 
 **It does not when** there is one obvious chunk (promote it straight to the root, sourced from the anchor page), or the anchor is small enough that its whole future fits in the Agenda or Backlog, or creating it would produce an empty planning artifact.
 
-**Bias to too-few over too-many.** Too many rocks facets means planning overhead and coverage loss — work lost among planning documents. Too few means the interplay between chunks stays hidden. The facet is elective and is never scaffolded (`R-rocks-10`, [[feedback_lazy_file_creation]]).
+**Bias to too-few over too-many.** Too many rocks facets means planning overhead and coverage loss — work lost among planning documents. Too few means the interplay between chunks stays hidden. The facet is elective and is never scaffolded (`R-rocks-10`).
 
 ## Ownership
 

@@ -58,7 +58,7 @@ A `[Watching …]` row carries **either** that `- **Verify:**` question **or** a
 check:: backlog_questions_have_numbered_q
 mend:: backlog-question-promise
 
-`[Questions]` is a **structural promise**: following the row lands the user on a numbered `Q<n>` they can answer in chat (`<id> Q<n>: <answer>`). The state-2 body contract is satisfied one of two ways — inline `- **Q<n>` sub-bullets at the top of the row body (B-rows / task-rows with no doc, per § B-row inline Qs), **or** a `→ [[Feature Doc]]` link delegating the Qs to that doc's `## Open Questions` (per § The `→ [[X]]` link convention). A `[Questions]` row with neither is malformed — the user clicks and lands on prose with nothing to answer (the [[feedback_close_round_trip_loopholes]] failure). Fix by hoisting the informal questions to numbered form or adding the `→ [[Doc]]` link — or rebracket to a state the row actually satisfies.
+`[Questions]` is a **structural promise**: following the row lands the user on a numbered `Q<n>` they can answer in chat (`<id> Q<n>: <answer>`). The state-2 body contract is satisfied one of two ways — inline `- **Q<n>` sub-bullets at the top of the row body (B-rows / task-rows with no doc, per § B-row inline Qs), **or** a `→ [[Feature Doc]]` link delegating the Qs to that doc's `## Open Questions` (per § The `→ [[X]]` link convention). A `[Questions]` row with neither is malformed — the user clicks and lands on prose with nothing to answer. Fix by hoisting the informal questions to numbered form or adding the `→ [[Doc]]` link — or rebracket to a state the row actually satisfies.
 
 **Check pattern:** for each row whose bracket is `Questions` (or `N Questions`), either an indented sub-bullet starts `- **Q<n>` or the row/sub-bullets contain a `→ [[…]]` link.
 

@@ -37,8 +37,8 @@ pop the dialog" or "just screen-grab" from an ssh shell. The fix is to launch
 `open -a "<App>"`, `open <file>`), which LaunchServices runs in the logged-in
 console session where dialogs render and the keychain is reachable.
 
-(See `[[project_muxux_haorui_obutils_pathdep]]` for the concrete haorui case
-this skill was distilled from.)
+(Distilled from a concrete case on a bridged Mac, where a path-dependency
+resolved differently under a bare SSH shell than under the console session.)
 
 ## Two delivery methods — pick by what the credential needs
 

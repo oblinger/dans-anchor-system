@@ -43,7 +43,7 @@ A pass refuses, naming the offending string, when a declared source matches no a
 
 **Check pattern:** stated; guard test `test-f313-stone.py` case N — an anchor declaring `feeds: SRC, TYPPO` refuses the pass, quotes `TYPPO` in the message, and writes nothing.
 
-**Why:** this is the least visible of the three invariants and the reason the other two are not enough. An unresolvable source supplies zero items and is **indistinguishable from a source that happens to be empty**, so without an explicit check a typo'd feed edge is invisible forever — the anchor simply never receives anything and nothing ever says why. See [[project_a_threshold_detector_proves_a_vacuous_zero]].
+**Why:** this is the least visible of the three invariants and the reason the other two are not enough. An unresolvable source supplies zero items and is **indistinguishable from a source that happens to be empty**, so without an explicit check a typo'd feed edge is invisible forever — the anchor simply never receives anything and nothing ever says why.
 
 ### RULE R-feed-04 — A pass reports its counts, including when they are zero (stated)
 
