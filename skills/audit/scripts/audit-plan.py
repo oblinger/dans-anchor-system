@@ -5934,6 +5934,77 @@ def chk_backlog_timed_has_expiry_date(target, anchor_root, args):
     return ("pass", "") if not failures else ("fail", "; ".join(failures[:3]))
 
 
+_STEN_ANCHOR_RE = re.compile(r"^(\.\.\.|==)\s+\S")
+_HEADING_RE = re.compile(r"^(#{1,6})\s+(.*)$")
+
+
+def _template_first_heading(f):
+    """(depth, text) of a template specimen's first heading, or None.
+
+    THE SPINE IS SKIPPED, and that is the whole reason this is a function
+    rather than a look at line one. A specimen is live markdown, so it carries
+    whatever a real instance carries — and per `DAS spine` a real page may open
+    with a `:>>` breadcrumb or a masthead table ABOVE its H1. Measured
+    2026-08-20: of 29 file templates in the vault, 11 do not have a heading on
+    their first content line, and five of those are spines doing exactly what
+    the spec asks. Reading line one would have called those defects.
+    """
+    lines = _read(f).splitlines()
+    i = 0
+    if lines and lines[0].strip() == "---":                     # frontmatter
+        i = 1
+        while i < len(lines) and lines[i].strip() != "---":
+            i += 1
+        i += 1
+    for ln in lines[i:]:
+        # `_is_table_row` rather than `ln.startswith("|")` — T099's rule that a
+        # checker must never re-spell what a table row IS. structure-lint
+        # caught the hand-rolled version here on the commit that added it.
+        if not ln.strip() or ln.lstrip().startswith(":>>") or _is_table_row(ln):
+            continue                                            # spine
+        m = _HEADING_RE.match(ln)
+        return (len(m.group(1)), m.group(2)) if m else None
+    return None
+
+
+def chk_template_anchor_declared(target, anchor_root, args):
+    """R-template-11: a specimen that opens BELOW `# H1` declares an anchor.
+
+    Per `STEN Language`, a stencil with no anchor marker governs the **whole
+    document** — that is one of the language's four defaults, and it is what
+    makes the marker free for everything already written. The failure this
+    catches is a specimen that opens at `##` or lower with no marker: it claims
+    whole-document by the default while plainly being a fragment of one, and a
+    reader cannot tell which was meant.
+
+    The two markers are `# ... NAME` (this depth or deeper) and `# == NAME`
+    (exactly this depth), specified in `STEN Language` since M2, 2026-08-07.
+
+    NOT CHECKED HERE: a specimen with no heading at all. One exists and is
+    arguably legitimate — a meeting-transcript template whose top is plain text
+    — so refusing it needs a ruling rather than a regex, and refusing it *by
+    accident* inside a rule about anchors would be the wrong place to have that
+    argument.
+    """
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file to inspect"
+    if not f.name.startswith("_") or " Template" not in f.name:
+        return "pass", "not a template specimen"
+    h = _template_first_heading(f)
+    if h is None:
+        return "pass", "no heading — out of scope (see docstring)"
+    depth, text = h
+    if depth == 1 or _STEN_ANCHOR_RE.match(text):
+        return "pass", ""
+    return "fail", (
+        f"specimen opens at `{'#' * depth}` with no anchor marker — it claims "
+        f"the whole document by default while reading as a fragment. Declare "
+        f"the anchor (`{'#' * depth} ... {{NAME}}` for this-depth-or-deeper, "
+        f"`{'#' * depth} == {{NAME}}` for exactly-this-depth), or raise it to "
+        f"`# H1` if it really does govern a whole file")
+
+
 _USER_SUB_RE = re.compile(r"^\s+-\s+\*\*User:\*\*")
 _USER_BRACKET_RE = re.compile(r"(?:\d+\s+)?User")
 _WHY_USER_ACTION_ANNOT_RE = re.compile(r"·\s*\*why-user-action:")
@@ -7845,6 +7916,7 @@ CHECKERS = {
     "backlog_questions_have_numbered_q": chk_backlog_questions_have_numbered_q,
     "backlog_blocker_named": chk_backlog_blocker_named,
     "backlog_timed_has_expiry_date": chk_backlog_timed_has_expiry_date,
+    "template_anchor_declared": chk_template_anchor_declared,
     "backlog_user_action_named": chk_backlog_user_action_named,
     "backlog_verify_is_user_grade": chk_backlog_verify_is_user_grade,
     # R-fct-features (T035 — F257 gate, file-scoped)
