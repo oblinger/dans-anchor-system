@@ -69,9 +69,11 @@ import contextlib
 import importlib.machinery
 import importlib.util
 import io
+import os
 import shutil
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 HERE = Path(__file__).parent
@@ -181,6 +183,16 @@ def publish_after(path, needle, after_needle):
 def drop_line(path, needle):
     lines = path.read_text(encoding="utf-8").splitlines()
     lines = [l for l in lines if needle not in l]
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def rewrite_stone_line(path, new_text):
+    """Author a stone's `line::` directly, the way an agent edits the record
+    rather than a projection of it (T553)."""
+    lines = path.read_text(encoding="utf-8").splitlines()
+    for i, l in enumerate(lines):
+        if l.startswith("line:: "):
+            lines[i] = f"line:: {new_text}"
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
@@ -790,6 +802,94 @@ try:
         ok("...and every real line survived the packing")
     else:
         no(f"packing dropped a real line:\n{q_after!r}")
+
+    # ============================================================
+    # R. a stone authored DIRECTLY is not reverted by a stale projection
+    #    (T553, 2026-08-19)
+    #
+    # `readback`'s rule — "any line differing from its stone is an edit of the
+    # stone" — silently assumed the projection is always the newer side. It is
+    # not, whenever a `line::` is authored in the stone file itself. Hermes hit
+    # this 2026-08-17: a no-argument pass reported `6 stone file(s) written
+    # (0 archived)`, exit 0, no warning, and had replaced six pebbles' `line::`
+    # with superseded text, propagating HUD 1 → LUMEN. LUMEN P0012's 8/17
+    # update lost to its own pre-8/17 state.
+    #
+    # The discriminator is file mtime. Case P above pins the OTHER direction —
+    # a genuine downstream edit must still travel up — so the two together are
+    # what keep this fix from being a revert of the feature.
+    # ============================================================
+    print("== R: a directly-authored stone is not reverted by a stale copy ==")
+    rroot = TMP / "r"
+    mkanchor(rroot, "RA", [])
+    mkanchor(rroot, "RB", ["RA"])
+    run(rroot, "rock", "new", "RA", "--line", "original wording")
+    write_control(control_path(rroot, "RA"), "RA",
+                  [header_line("RA"), stone_line("RA", "R0001", "original wording")])
+    write_control(control_path(rroot, "RB"), "RB", [header_line("RA")])
+    run(rroot, "rock", "update")   # all copies agree
+
+    # Author the stone directly — the shape that was losing. Then make the
+    # control files unambiguously OLDER, because a fixture writes everything
+    # inside one second and the whole point is which file is newer.
+    rstone = stone_path(rroot, "RA", "R0001")
+    rewrite_stone_line(rstone, "the 8/17 update, authored in the stone")
+    older = time.time() - 3600
+    for slug in ("RA", "RB"):
+        os.utime(control_path(rroot, slug), (older, older))
+
+    rc = run(rroot, "rock", "update")
+    after = rstone.read_text(encoding="utf-8")
+    if "line:: the 8/17 update, authored in the stone" in after:
+        ok("the authored stone survived a pass with two stale projections")
+    else:
+        no(f"the stale projection reverted the stone — T553 is back:\n{after}")
+    ra_ctl = control_path(rroot, "RA").read_text(encoding="utf-8")
+    rb_ctl = control_path(rroot, "RB").read_text(encoding="utf-8")
+    if ("the 8/17 update" in ra_ctl and "the 8/17 update" in rb_ctl):
+        ok("...and both projections were resynced forward to it")
+    else:
+        no(f"projections were not resynced:\n  RA: {ra_ctl!r}\n  RB: {rb_ctl!r}")
+    if rc == 0:
+        ok("...without aborting the pass")
+    else:
+        no(f"the pass aborted (rc={rc}) — a stale copy is not a conflict")
+
+    # The mtime predicate itself, in isolation: the three verdicts and the
+    # unreadable case. `None` must never be a tie-break — callers propagate on
+    # it and report, and a caller that treated it as "stone wins" would silently
+    # drop every legitimate edit made in a freshly-checked-out tree.
+    class _P:
+        def __init__(self, p):
+            self.path = p
+
+    mt = TMP / "mtime"
+    mt.mkdir(exist_ok=True)
+    fresh, stale = mt / "fresh.md", mt / "stale.md"
+    for f in (fresh, stale):
+        f.write_text("x", encoding="utf-8")
+    then = time.time() - 3600
+    os.utime(stale, (then, then))
+    if st._newer_side(_P(fresh), _P(stale)) == "stone":
+        ok("_newer_side: a newer stone wins")
+    else:
+        no(f"_newer_side said {st._newer_side(_P(fresh), _P(stale))!r} for a newer stone")
+    if st._newer_side(_P(stale), _P(fresh)) == "control":
+        ok("_newer_side: a newer control file wins")
+    else:
+        no("_newer_side did not pick the newer control file")
+    if st._newer_side(_P(fresh), _P(mt / "does-not-exist.md")) is None:
+        ok("_newer_side: an unreadable mtime is indeterminate, not a verdict")
+    else:
+        no("_newer_side gave a verdict against a missing file")
+    if st._newer_side(_P(fresh), _P(fresh)) is None:
+        ok("_newer_side: the same file is indeterminate (inside the band)")
+    else:
+        no("_newer_side separated a file from itself")
+    if st._newer_side(_P(fresh), None) is None:
+        ok("_newer_side: a missing control file is indeterminate")
+    else:
+        no("_newer_side gave a verdict with no control file at all")
 
 finally:
     shutil.rmtree(TMP, ignore_errors=True)

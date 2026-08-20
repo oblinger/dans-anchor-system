@@ -369,7 +369,13 @@ def _kv_set(keys: list, name: str, value: str):
 def _load_stone(path: Path, slug: str, live: bool):
     text = path.read_text(encoding="utf-8")
     keys, body = _parse_stone(text)
-    line = _kv_get(keys, "line", "") or ""
+    # T553 — trailing whitespace in a `line::` is not content, and leaving it in
+    # made two CFO pebbles report a phantom edit on every single pass: the
+    # rendered projection is trimmed on write, so `stone` compared a stored
+    # `… — [[FIN]] ` against a projected `… — [[FIN]]` and called the difference
+    # an edit forever. Trimming here removes the churn at its source rather than
+    # teaching each comparison to ignore it.
+    line = (_kv_get(keys, "line", "") or "").strip()
     appears_raw = _kv_get(keys, "appears", "") or ""
     appears = {a.strip() for a in appears_raw.split(",") if a.strip()}
     sid = path.stem[len(slug) + 1:]
@@ -603,7 +609,35 @@ def remove_stones(cf, targets: set, cfg: dict):
 # --------------------------------------------------------------------------
 # The propagation pass (§ Propagation)
 
-def readback(stones: dict, control: dict, cfg: dict) -> list:
+def _mtime(p):
+    try:
+        return p.stat().st_mtime
+    except (OSError, AttributeError):
+        return None
+
+
+def _newer_side(st, cf, tolerance: float = 2.0):
+    """`"stone"` / `"control"` / `None` — which of the two files was written
+    last, or None when that cannot be told (T553).
+
+    None covers equal-within-`tolerance` and either mtime being unreadable. The
+    two-second band is not superstition: a git checkout, an rsync, or two
+    writes inside one agent turn routinely land both files in the same instant,
+    and a sub-second gap there says nothing about which text a human authored.
+    Callers treat None as a conflict rather than a tie-break, because guessing
+    is the whole defect this discriminator exists to close.
+    """
+    a = _mtime(getattr(st, "path", None))
+    b = _mtime(getattr(cf, "path", None)) if cf is not None else None
+    if a is None or b is None:
+        return None
+    if abs(a - b) <= tolerance:
+        return None
+    return "stone" if a > b else "control"
+
+
+def readback(stones: dict, control: dict, cfg: dict,
+             stats: dict | None = None, notes: list | None = None) -> list:
     """Any line differing from its stone is an edit of the stone (wherever
     found), compared against each stone's ORIGINAL line:: (as of the start of
     the pass), not a running value — so a single edit surrounded by untouched
@@ -621,7 +655,49 @@ def readback(stones: dict, control: dict, cfg: dict) -> list:
     differs". Two projections carrying the SAME new text lose nothing when one
     of them is taken — that is a propagated edit, not a conflict. Only a
     disagreement can discard something, and only disagreement is reported.
+
+    **T553 — a differing projection is not always an edit; it may be STALE.**
+    The rule above reads "any line differing from its stone is an edit of the
+    stone", which silently assumes the projection is the newer side. It is not,
+    whenever a stone's `line::` was authored directly in the stone file — and
+    then this loop pulls the OLDER projection up and overwrites the authored
+    text. [[Hermes]] hit it 2026-08-17: a no-argument pass reported
+    `6 stone file(s) written (0 archived)`, exit 0, no warning, and had replaced
+    six pebbles' `line::` with superseded text, propagating HUD 1 → LUMEN.
+    `LUMEN P0012`'s 8/17 update lost to its own pre-8/17 state. He confirmed the
+    direction rather than inferring it, by hand-correcting HUD's copy and
+    watching that stone drop out of the write set.
+
+    The counter is the other half of why it went unnoticed: `0 archived` reads
+    as "nothing was lost" and is true in the sense the tool means — no *file*
+    was archived — while six files' most meaningful field had been replaced.
+    `stats["reverted"]`/`["propagated"]` below count what actually happens.
+
+    The discriminator is **file mtime**, which answers exactly the question the
+    old rule assumed away: whichever of the stone file and the control file
+    carrying the projection was written last is the authored side.
+
+      stone newer   → the projection is stale. Do not pull it up; `resync`
+                      pushes the stone's value back out, which is the
+                      convergence the design already promises. **This is the
+                      case that was losing data**, and it is the only behaviour
+                      change.
+      control newer → a genuine projection edit. Propagate, as before.
+      neither       → indistinguishable: equal mtimes, or a fresh clone /
+                      `git checkout` / rsync that flattened every mtime in the
+                      tree. Propagate — as before — but report it by name with
+                      both strings, counted as `unadjudicated`.
+
+    Aborting on the indeterminate case was tried first and is wrong: a checkout
+    flattens mtimes across the whole vault, so refusing there would make the
+    tool unusable at exactly the moment nothing is in conflict. What the
+    indeterminate case genuinely owes the user is visibility, and F312 Q6's
+    ruling was "make the loss loud" rather than "make it impossible".
     """
+    if stats is None:
+        stats = {}
+    if notes is None:
+        notes = []
     occ: dict = {}
     for slug in sorted(control):
         cf = control[slug]
@@ -650,8 +726,40 @@ def readback(stones: dict, control: dict, cfg: dict) -> list:
         if len(distinct) > 1:
             collisions.append((key[0], key[1], sorted(edits)))
             continue  # leave the stone alone — the caller aborts before writes
-        if edits and edits[-1][1] != st.line:
-            st.line = edits[-1][1]
+        if not edits or edits[-1][1] == st.line:
+            continue
+        slug, text = edits[-1]
+        # T553 — only take the projection when it is demonstrably the newer
+        # side. An EMPTY `original` is not a replacement: there is nothing to
+        # lose, so an unset line:: is filled without ceremony.
+        if original.strip():
+            side = _newer_side(st, control.get(slug))
+            if side == "stone":
+                stats["kept_stone"] = stats.get("kept_stone", 0) + 1
+                notes.append(
+                    f"kept {key[0]} {key[1]}'s own line — {slug}'s copy is older\n"
+                    f"      stone: {original}\n"
+                    f"      {slug}: {text}")
+                continue
+            stats["replaced"] = stats.get("replaced", 0) + 1
+            if side is None:
+                # Indeterminate. Propagate — today's behaviour — but say so with
+                # both strings, because this is exactly the write that can lose
+                # an authored line and the only remaining case where the tool
+                # cannot tell. Aborting here was tried and is wrong: a fresh
+                # clone, a `git checkout`, or an rsync flattens every mtime in
+                # the tree, so refusing would make the tool unusable precisely
+                # when nothing is actually in conflict.
+                stats["unadjudicated"] = stats.get("unadjudicated", 0) + 1
+                notes.append(
+                    f"replaced {key[0]} {key[1]}'s line from {slug} — mtimes "
+                    f"could not say which is newer, so this one is UNADJUDICATED:\n"
+                    f"      was:  {original}\n"
+                    f"      now:  {text}")
+            else:
+                notes.append(f"replaced {key[0]} {key[1]}'s line from {slug}'s "
+                             f"newer copy")
+        st.line = text
     return collisions
 
 
@@ -895,24 +1003,28 @@ def cmd_update(kind: str, cfg: dict, root: Path, args) -> int:
     # meaningless, so a structural error outranks a content conflict.
     order = topo_order(anchors)  # raises + aborts (no writes yet) on a cycle
 
-    collisions = readback(stones, control, cfg)
+    stats = {"archived": 0}
+    readback_notes: list = []
+    collisions = readback(stones, control, cfg, stats, readback_notes)
     if collisions:
         # F312 Q6 = (C). Abort before any write, like the cycle check below:
         # a half-reconciled tree is worse than an unreconciled one, and the
         # whole point of the ruling is that no edit disappears quietly.
         report = []
         for owner, sid, edits in sorted(collisions):
-            report.append(f"  {owner}:{sid} was edited to {len(set(t for _s, t in edits))} "
-                          f"different values in one pass:")
+            report.append(f"  {owner}:{sid} — {len(set(t for _s, t in edits))} "
+                          f"different values, and no way to tell which is newest:")
             for slug, text in edits:
                 report.append(f"    {slug} says: {text}")
         raise StoneError(
-            f"{len(collisions)} stone(s) edited to conflicting values — nothing "
-            f"was written. Resolve by hand, then re-run.\n" + "\n".join(report))
+            f"{len(collisions)} stone(s) with conflicting values — nothing "
+            f"was written. Resolve by hand, then re-run.\n" + "\n".join(report)
+            + "\n  (A single differing copy is resolved by file mtime and needs "
+              "no attention; these are the ones where two copies disagree, or "
+              "where the mtimes cannot separate the stone from its projection.)")
 
     resync(stones, control, cfg)
 
-    stats = {"archived": 0}
     published: dict = {}
     for slug in order:
         reconcile_own(slug, stones, control, cfg, stats, dry=getattr(args, "dry_run", False))
@@ -949,12 +1061,23 @@ def cmd_update(kind: str, cfg: dict, root: Path, args) -> int:
     skipped = f", {len(ambiguous)} ambiguous slug(s) skipped: {', '.join(sorted(ambiguous))}" if ambiguous else ""
     verb = "would be written" if dry else "written"
     arch = "would be archived" if dry else "archived"
+    # T553 — `0 archived` was the only loss counter, and it counts the wrong
+    # thing: the destructive path here is in-place replacement of a `line::`,
+    # which archives no file at all. These two name it.
+    replaced = stats.get("replaced", 0)
+    kept = stats.get("kept_stone", 0)
+    loss = ""
+    if replaced or kept:
+        loss = (f", {replaced} line(s) replaced from a newer projection"
+                f", {kept} kept against an older one")
     print(
         f"stone: {kind} update{' — DRY RUN, nothing changed' if dry else ''} — "
         f"{n_files} control file(s) {verb}, "
-        f"{n_stones} stone file(s) {verb} ({stats['archived']} {arch}), "
+        f"{n_stones} stone file(s) {verb} ({stats['archived']} {arch}){loss}, "
         f"across {len(anchors)} anchor(s){skipped}"
     )
+    for n in readback_notes:
+        print(f"  {n}")
     return 0
 
 
