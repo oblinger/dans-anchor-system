@@ -51,6 +51,22 @@ Showing the user a rule is fine — he can read one and say whether it sounds ri
 
 > **The test is arithmetic.** If settling the question in front of the user would not also settle the next twenty like it, the question is the wrong size. The repair is to ask for the generality — never to ask twenty times.
 
+### Same loop for facets and templates — one variable changes
+
+**The loop governs facets and templates too** (Dan, 2026-08-20), and the difference between those and a ruleset is not a matter of degree: *"those things are designed specifically to be human viewable. That's the main difference."*
+
+**That has a structural statement already in the system.** [[DAS progressive-disclosure]] layers a document into reader zones by audience — a user-facing TLDR and Overview above, an agent-facing `# BRIEF` below, whose own facet spec says it outright: *"a Brief is something an agent reads before editing the source file. Users glancing at the file should NOT need to read the Brief."* A facet or a template is authored with both zones. **A ruleset has no user-facing zone at all — it is entirely Brief.** That, and not size alone, is why a facet's loop can route through the user directly and Warden's cannot.
+
+**What viewability changes is the localization step, and only that.** Given a wrong page, a ruleset gives the user no clue which of ~60 rulesets produced it, so finding the site is the agent's translation work. Given a wrong page from a template, he can go straight to the artifact: *"I can actually go look at the facet. I can look at the template."*
+
+**Three things it does not change:**
+
+- **The trigger is still an instance.** He reads a facet once, ratifies it, and then — his words — *"just runs with it and ignores it."* Viewability buys a **one-time read at adoption, not standing review**, so drift is still caught by a page that looks wrong rather than by anyone re-reading the spec.
+- **Qualification is still the agent's.** Standing in front of the facet does not tell him how his correction interacts with everything else already stated. *"But then I would probably talk with you about it."*
+- **The scale test is unchanged.** Twenty facets to review is the same failure as twenty exceptions to grade.
+
+> **So viewability is a property to preserve, not an accident of size.** A facet or template that grows past comprehension does not merely get harder to read — it **silently degrades into the Warden mode**, where the user can no longer go look and must wait for the agent to localize. He loses the short path and gains nothing. The disciplines that keep a spec's user-facing zone short are therefore load-bearing for this loop, not cosmetic.
+
 ### Diagnose before repairing — three different sites
 
 One symptom, three causes, and picking the wrong one entrenches the problem:
@@ -61,7 +77,7 @@ One symptom, three causes, and picking the wrong one entrenches the problem:
 | the **rule itself** says the wrong thing | the rule |
 | the rule is right and the artifact still came out wrong | the **template or generator** the artifact came from |
 
-The third is the one most often missed: a rule can be correct and still be innocent, because the thing that produced the page never consulted it.
+The third is the one most often missed: a rule can be correct and still be innocent, because the thing that produced the page never consulted it. It also takes the shortest route back — a template has a user-facing zone, so the user can often localize it himself (§ Same loop for facets and templates).
 
 ### Impact before applying, and pushback only when it is earned
 
@@ -192,4 +208,6 @@ The rule system is a part of **[[SKA]]**, tied to the **ruleset** primitive ([[D
 - **It sets a bar for [[F231 — Warden observability — the why-did-that-happen log|F231]] explainability.** The log's stated job is answering *"did the LLM ignore the steer, or did we never send the right one?"* Under this loop that question is asked **after** the user has objected to a page, which means the log's real workload is retrospective and instance-anchored: given this wrong page, what fired? That is a narrower and more answerable query than continuous observability.
 - **It predicts where new mechanisms will go wrong.** Anything that accumulates a pile for the user to work through — a review queue, a pending-approval list, an ungraded backlog of proposals — is the shape to refuse. `?`-graded exceptions were exactly that pile, which is how the thread started.
 
-**Open.** Whether the same loop governs *facet* and *template* refinement, which § Refinement names as the third repair site but does not develop. The instinct is yes — a template that produces a wrong page is corrected by the same complaint — but no thread has tested it.
+**Resolved same day — facets and templates, yes, with one variable.** Dan: *"I think that the same refinement loop governs facets and templates… but I think the difference is, those things are designed specifically to be human viewable."* Developed as § Same loop for facets and templates. The instinct in the paragraph this replaces was right about the loop and wrong about why it was uncertain: what varies is not whether the loop applies but **whether the artifact has a user-facing zone**, which turns out to be a statement [[DAS progressive-disclosure]] and [[DAS Brief]] already make — a ruleset is entirely Brief, a facet is not. The consequence worth carrying forward is that comprehensibility is now **load-bearing**: a spec that outgrows its user-facing zone loses the short path back to the user and reverts to Warden's longer one, which no size discipline in the system currently frames as a cost of that kind.
+
+**Open.** Nothing from this thread. The nearest untested claim is the one in § Same loop — that a facet's user-facing zone is read once at adoption and not again — which is asserted from Dan's description of his own habit and has not been measured.
