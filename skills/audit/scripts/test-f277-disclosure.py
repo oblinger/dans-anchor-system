@@ -67,6 +67,12 @@ for i in (1, 2, 3):
 check("quarter-drift fires", ap.chk_summary_fresh(f, tmp, "")[0], "fail")
 
 print("summary_fresh — anti-nag (F277 § Not nagging)")
+# These two look again with NO intervening write, so they pin only the
+# no-change case. The case that matters in production — looking again after
+# the document has been edited somewhere unrelated — is T564's, in
+# test-t564-summary-fresh-names-the-toc.py §3, and it was failing here
+# undetected until 2026-08-20 precisely because this file never writes between
+# checks. Same shape as the ad-hoc fixtures this file's docstring indicts.
 check("same drift does NOT re-fire", ap.chk_summary_fresh(f, tmp, "")[0], "pass")
 check("still quiet on a third look", ap.chk_summary_fresh(f, tmp, "")[0], "pass")
 bump(f, 4)

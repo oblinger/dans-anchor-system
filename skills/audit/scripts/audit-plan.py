@@ -4033,6 +4033,21 @@ def _disclosure_summary(f):
     return bool(rows), hashlib.sha1("\n".join(rows).encode()).hexdigest()[:12]
 
 
+def _summary_is_toc(f):
+    """Is the summary region a content-outline TOC rather than a dispatch masthead?
+
+    Both satisfy `_disclosure_summary`, but only a TOC is DERIVED from the
+    section set, so only a TOC goes stale the instant a `##` is added or
+    removed — and only a TOC has a generator to re-run. A masthead's rows name
+    sibling FILES and survive any amount of section churn untouched, so the
+    same advice there would send the agent to regenerate something that is not
+    wrong. Detected by the `[[#…]]` in-document target, which is what makes a
+    row an outline entry rather than a member link.
+    """
+    lines = _strip_fenced(_read(f)).splitlines()
+    return any("[[#" in ln for ln in lines if _SUMMARY_ROW_RE.match(ln))
+
+
 def _disclosure_descriptive(f):
     """Does the summary say anything ABOUT each unit, or only name it?
 
@@ -4149,7 +4164,13 @@ def chk_summary_fresh(target, anchor_root, args):
     Counts changed/added/removed UNITS since the summary was last blessed.
     Blessing is OBSERVED, never self-reported: when the summary region's own
     hash changes, the agent evidently rewrote it, so the current unit set is
-    re-blessed. There is no handshake for an agent to forget or overstate."""
+    re-blessed. There is no handshake for an agent to forget or overstate.
+
+    THE SUMMARY REGION IS THE TOC TABLE OR DISPATCH MASTHEAD, not the prose
+    under a `## Summary` heading — `_disclosure_summary` hashes exactly the
+    rows `_SUMMARY_ROW_RE` matches. Rewriting `## Summary` therefore re-blesses
+    NOTHING, which is worth stating loudly here because the message this
+    checker used to emit invited precisely that and the flag survived it."""
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
@@ -4195,8 +4216,22 @@ def chk_summary_fresh(target, anchor_root, args):
         # how the original prose rule died. Keyed on the unit set rather than a
         # session id — a session is not observable here, and "drift grew since I
         # last complained" is the sharper condition anyway.
-        if prev.get("prompted") == units:
-            return "pass", ""
+        # The suppression key must match WHAT FIRED, or it suppresses nothing.
+        # Keying on the full {name: content-hash} map means any edit anywhere in
+        # the doc mints a new key, so a name-triggered prompt re-fires on every
+        # subsequent write — the exact repetition this block exists to prevent,
+        # reintroduced by the key being finer than the trigger. Measured on the
+        # live registry 2026-08-20: 12 documents standing flagged, several of
+        # them re-prompting on every write for weeks. Content-fraction drift
+        # still keys on the full map, because there "it moved further" IS the
+        # condition to re-prompt on.
+        prompted = prev.get("prompted")
+        frac_fired = bool(changed) and (len(changed) / total) >= DISCLOSURE_DRIFT_FRACTION
+        if prompted is not None:
+            if frac_fired and prompted == units:
+                return "pass", ""
+            if not frac_fired and set(prompted) == set(units):
+                return "pass", ""
         reg[key] = {"summary": summary_hash, "units": old,
                     "scope": scope, "prompted": units}
         _disclosure_save(reg)
@@ -4209,6 +4244,25 @@ def chk_summary_fresh(target, anchor_root, args):
         if removed:
             bits.append(f"{len(removed)} removed")
         noun = "sections" if scope == "file" else "members"
+        # A TOC is derived from the section set, so an added/removed section
+        # means the TOC itself is stale — it is still listing a heading that is
+        # gone, which is a dead `[[#…]]` link a reader can click. That is the
+        # actionable repair, and naming "the summary" instead sends the agent to
+        # rewrite prose the checker does not hash, leaving the flag standing.
+        # `scope == "file"` is load-bearing, not belt-and-braces. A container
+        # page's units are its MEMBER FILES, so its `[[#…]]` outline is not what
+        # drifted and regenerating it would repair nothing — every backlog in
+        # the vault is exactly this shape (a namesake page over a folder, with a
+        # content TOC), and without the gate all six of them got sent to
+        # `md-toc.py` for a change in their sibling set. Found by measuring the
+        # live registry rather than by reasoning about it.
+        if scope == "file" and (added or removed) and _summary_is_toc(f):
+            return "fail", (f"{noun}: {', '.join(bits)} since the summary was last written — "
+                            f"the TOC table still names the old section set, so it now "
+                            f"carries a dead `[[#…]]` row; regenerate it with "
+                            f"`python3 ~/.claude/skills/md/md-toc.py <file>` (never hand-edit "
+                            f"those rows — they carry figure spaces), then re-read the prose "
+                            f"summary and fix it or leave it deliberately")
         return "fail", (f"{noun}: {', '.join(bits)} since the summary was last written — "
                         f"re-read it and decide whether it still serves a reader; "
                         f"fix it or leave it deliberately")
