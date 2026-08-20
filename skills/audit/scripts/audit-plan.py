@@ -7891,6 +7891,9 @@ def execute_plan(plan: dict, cdir: Path | None) -> dict:
     # Rows whose rule DID fire on their target, at a severity `execute_plan`
     # cannot rewrite. Tracked separately so they never masquerade as stale.
     unsuppressable: set[str] = set()
+    # Proposed rows whose rule now passes on their target — see the note at the
+    # assignment below. Kept apart from `stale`, which is about GRADED rows.
+    moot: set[str] = set()
     for g in plan["groupings"]:
         for r in g["rules"]:
             if not r.get("check"):
@@ -7936,16 +7939,36 @@ def execute_plan(plan: dict, cdir: Path | None) -> dict:
                     e = _exception_for(excs, r["id"], tp, anchor_root)
                     if e:
                         unsuppressable.add(e["handle"])
+                # A PROPOSED row whose rule now PASSES on its own target is
+                # moot: the deviation it describes no longer exists, usually
+                # because the checker was fixed upstream rather than because the
+                # page changed. Saying "grade it" there is actively harmful —
+                # grading it `A` installs a permanent blindfold over a rule that
+                # is working. Tracked here, where the verdict is in hand; the
+                # renderers turn it into "retire the row" instead.
+                if status == "pass":
+                    for _lst in (excs, exc_declined):
+                        e = _exception_for(_lst, r["id"], tp, anchor_root) if _lst else None
+                        if e:
+                            moot.add(e["handle"])
                 counts[status] = counts.get(status, 0) + 1
                 results.append({"rule": r["id"], "target": disp, "status": status, "detail": detail})
     # A row that suppressed nothing is either stale — the document was fixed or
     # deleted — or its rule simply did not run at THIS scope. The report must not
     # claim to know which, only that the row did no work, because an unused row
     # left silent is how the table stops being reviewable.
+    # A GRADED row whose rule passed on its own target is not "stale or out of
+    # scope" — it is answerable, and the answer is that the grade is covering
+    # nothing. Splitting it out is what turns the honest-but-inert "the report
+    # must not claim to know which" into a row someone can actually retire; what
+    # is left in `stale` is the genuinely undecidable remainder, a row whose rule
+    # never ran here at all.
     stale = [e["handle"] for e in excs
-             if e["handle"] not in used and e["handle"] not in unsuppressable]
+             if e["handle"] not in used and e["handle"] not in unsuppressable
+             and e["handle"] not in moot]
     return {"counts": counts, "results": results, "stale_exceptions": stale,
             "unsuppressable_exceptions": sorted(unsuppressable),
+            "moot_exceptions": sorted(moot),
             "declined_exceptions": exc_declined, "exception_problems": exc_problems}
 
 
@@ -7963,13 +7986,24 @@ def render_verdicts(report: dict) -> str:
         out.append(line)
     for p in report.get("exception_problems", []):
         out.append(f"! exception row malformed — {p}")
+    moot = set(report.get("moot_exceptions", []))
     for d in report.get("declined_exceptions", []):
-        out.append(f"~ {d['handle']} ({d['rule']}) — {d['declined']}")
+        if d["handle"] in moot:
+            out.append(f"~ {d['handle']} ({d['rule']}) — MOOT: the rule now passes on "
+                       f"`{d['target']}`, so there is nothing to except. Retire the row "
+                       f"— grading it would suppress a rule that is working.")
+        else:
+            out.append(f"~ {d['handle']} ({d['rule']}) — {d['declined']}")
     unsup = report.get("unsuppressable_exceptions", [])
     if unsup:
         out.append("~ exception(s) whose rule ERRORED — the checker crashed, so "
                    "there is no verdict to suppress. Not stale, and not your "
                    f"row's fault; fix the checker: {', '.join(unsup)}")
+    graded_moot = sorted(moot - {d["handle"] for d in report.get("declined_exceptions", [])})
+    if graded_moot:
+        out.append("~ graded exception(s) covering a rule that now PASSES on their "
+                   "own target — the grade suppresses nothing and should be "
+                   f"retired: {', '.join(graded_moot)}")
     stale = report.get("stale_exceptions", [])
     if stale:
         out.append("~ exception(s) that did no work this run (stale, or the rule "
@@ -8622,9 +8656,20 @@ def render_report(plan: dict, mech: dict, man: dict) -> str:
         # A refused or still-ungraded row is neither an accepted deviation nor a
         # stale one, and printing it alongside both is what keeps the table's
         # third state from reading as either of the other two.
+        moot = set(mech.get("moot_exceptions", []))
         for d in declined:
-            out.append(f"- ~ {d['handle']} ({d['rule']} on `{d['target']}`) — "
-                       f"{d['declined']}")
+            # The fourth state, and the one that used to hide inside the third:
+            # a proposal whose rule now PASSES. It reads identically to "waiting
+            # on a grade" while asking for the opposite action, so it gets its
+            # own sentence naming the cost of doing what the old message invited.
+            if d["handle"] in moot:
+                out.append(f"- ~ {d['handle']} ({d['rule']} on `{d['target']}`) — "
+                           f"**moot: the rule now passes on this target.** Retire "
+                           f"the row; grading it would suppress a working rule. "
+                           f"See [[R-exception-discipline]]-13.")
+            else:
+                out.append(f"- ~ {d['handle']} ({d['rule']} on `{d['target']}`) — "
+                           f"{d['declined']}")
         # Distinct from stale, and the distinction is the whole point: this row
         # is well-formed, in scope, and aimed at a rule that really ran — and
         # CRASHED, so there was no verdict for it to rewrite. Reported as stale
@@ -8634,6 +8679,11 @@ def render_report(plan: dict, mech: dict, man: dict) -> str:
                        "there is no verdict to suppress. The row is not stale "
                        "and needs no repair — fix the checker; see "
                        "[[R-exception-discipline]]-08.")
+        for h in sorted(moot - {d["handle"] for d in declined}):
+            out.append(f"- ~ {h} — **moot: the rule now passes on this row's own "
+                       f"target.** The grade is covering nothing; retire the row. "
+                       f"Distinct from stale below, which cannot tell a repaired "
+                       f"deviation from a rule that never ran here.")
         if stale:
             out.append("- ~ did no work this run (stale, or the rule was out of "
                        f"scope): {', '.join(stale)}")

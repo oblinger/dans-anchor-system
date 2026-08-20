@@ -148,6 +148,18 @@ What the audit report's per-rule concentration line does is different and smalle
 
 **Changing a block is retroactive**, so measure before applying: every exception against that rule is re-graded, and the vault search that finds them is a search for the rule id. Raise it with the user only where the consequence looks like something he did not picture — the `Impact before applying` half of § Refinement.
 
+### RULE R-exception-discipline-13 — A row whose rule now passes is moot, and the report says so (stated)
+
+When a row's rule returns **pass on that row's own target**, the deviation the row describes no longer exists — usually because the *checker* was repaired upstream, not because the page changed. The report names that row **moot** and asks for it to be **retired**, and this holds whether the row is proposed (`?`) or graded.
+
+**Why the distinction earns a rule of its own.** Before this, a moot proposal was reported as *"ungraded — suppresses nothing until you grade it"*, which is a request for exactly the wrong act: grading it `A` converts a repaired rule into a permanently blindfolded one, and nothing would ever fire again to reveal that. A moot **graded** row was folded into *"stale, or the rule was out of scope"* — honest, but it discards a distinction the engine can make. A pass is a verdict; only "the rule never ran here" is genuinely undecidable, and that is all `stale` should now mean.
+
+**Measured 2026-08-20, and it is the whole reason this exists.** Of the vault's four exception tables, **six of the fourteen rows were moot and none of them knew it.** [[Eli Exceptions]]'s five were all repaired by [[TINK Backlog#^T561|TINK T561]] — three by narrowing `R-file-association-07` to registry-known facet names, two by exempting the stone store from `R-anchor-page-02` — which is precisely what Eli's own Log had predicted when it wrote *"both belong upstream with the audit engine."* Nothing carried the repair back, so five rows sat asking to be graded for four days. [[TINK Exceptions]]'s single row was moot the same way. Meanwhile [[Warden Exceptions]]'s eight graded rows stayed correctly *undecidable* — their rules never ran at that scope — which is the case this rule must **not** swallow.
+
+**Check pattern:** in `execute_plan`, a `pass` whose (rule, target) matches an exception row — admitted or declined — marks that handle moot; moot handles are excluded from `stale_exceptions` and rendered with the retire message. An engine assertion, guarded by `test-t565-moot-exceptions.py`.
+
+**Why:** an exception is a standing suppression, so a row that outlives its finding is a blindfold nobody chose to put on. `-07` already counts rows that did no work; this says which of them can be answered rather than merely noticed. It also closes the loop that `-06` opens — under `-06` the agent grades, so the agent is also who must be told when *not* to.
+
 ## Position in the catalog
 
 Sits under [[R-process]]. Adopted by any anchor that runs checked rules; the table is created on first use and absent otherwise, so its presence is itself the signal that the anchor has accepted deviations.

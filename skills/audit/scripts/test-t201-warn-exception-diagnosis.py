@@ -130,11 +130,23 @@ def main():
     check("EX001" in rep.get("unsuppressable_exceptions", []),
           "it is reported as fired-but-unsuppressable instead")
 
-    # 4 — a genuinely stale row still reads as stale. Without this the change
+    # 4 — a row that did no work still gets REPORTED. Without this the change
     #     would have traded one misdiagnosis for the opposite one.
+    #
+    #     SUPERSEDED IN PART, 2026-08-20 (T565 / R-exception-discipline-13).
+    #     This used to assert the row lands in `stale_exceptions` specifically.
+    #     A pass on the row's own target is now diagnosed further, as MOOT — the
+    #     rule was repaired, so retire the row — and `stale` keeps only the
+    #     genuinely undecidable remainder, a rule that never ran at this scope.
+    #     T201's concern was that the row must not go SILENT, and that is what is
+    #     asserted here now; which bucket carries it was the mechanism, not the
+    #     point. The undecidable case T201 was really protecting has its own
+    #     coverage in test-t565-moot-exceptions.py §5.
     rep = run(m, "pass")
-    check("EX001" in rep["stale_exceptions"],
-          "a row whose rule PASSES is still stale (no over-correction)")
+    check("EX001" in rep["stale_exceptions"] + rep.get("moot_exceptions", []),
+          "a row whose rule PASSES is still reported, never silent")
+    check("EX001" in rep.get("moot_exceptions", []),
+          "...and is now diagnosed as moot rather than merely stale")
     check(not rep.get("unsuppressable_exceptions"),
           "a passing rule produces no unsuppressable row")
 
