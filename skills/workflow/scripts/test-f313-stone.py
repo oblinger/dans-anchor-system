@@ -961,20 +961,22 @@ try:
     finally:
         st.load_kind_config = real_load
     # The mechanism is armed and DELIBERATELY unused: no shipped kind declares
-    # `required_keys` today. [[DAS Stone Keys]] says `tempo::` is required for a
-    # pebble ("Required: yes", no default), but a sweep on 2026-08-19 found 84
-    # live pebbles without one — every ATT and CFO pebble among them — because
-    # the umbrella-pebble model Dan settled 2026-08-18 uses a pebble as a
-    # CONTAINER pulled by hand, which has no raising condition to declare.
-    # Turning the requirement on would fire on most of the corpus, which is the
-    # skim-the-warnings failure this suite keeps closing. The divergence is
-    # Dan's to settle (TINK T554); until then the config declares nothing and
-    # this asserts that, so switching it on is a deliberate act with a red test
-    # rather than a silent one.
+    # `required_keys` today, and [[DAS Stone Keys]] is why. It marks `tempo::`
+    # Required = yes with no default, AND states its own precondition: "what now
+    # gates arming the requirement is the backfill of the pre-M5 pebbles, which
+    # is a per-owner judgment call (what *is* the tempo of 'sweep 390 person
+    # pages'?), not a mechanical fill."
+    #
+    # Measured 2026-08-19: 84 live pebbles still carry no `tempo::`, every ATT
+    # and CFO pebble among them. Declaring it now would fire on most of the
+    # corpus — the skim-the-warnings failure this suite keeps closing — so the
+    # config stays empty until the backfill lands (TINK T554), and this asserts
+    # that, making the switch-on a deliberate act against a red test rather than
+    # a silent one.
     if not any(c.get("required_keys") for c in real_load().values()):
-        ok("no shipped kind declares required_keys — the spec divergence is open")
+        ok("no shipped kind declares required_keys — the backfill still gates it")
     else:
-        no("a kind declares required_keys — settle TINK T554 before arming it")
+        no("a kind declares required_keys — finish the T554 backfill first")
 
 finally:
     shutil.rmtree(TMP, ignore_errors=True)
