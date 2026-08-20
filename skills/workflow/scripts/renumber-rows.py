@@ -263,7 +263,7 @@ def _apply(f, subs, apply, counter):
     return True
 
 
-def rewrite_qualified(slug, old, new, doc_stem, apply):
+def rewrite_qualified(slug, old, new, doc_stem, apply, old_stem=None):
     """Vault-wide, but ONLY the forms that name this anchor explicitly.
 
     `[[ABIO Backlog#^T002|T002]]` says which anchor it means, so both halves —
@@ -324,6 +324,14 @@ def rewrite_qualified(slug, old, new, doc_stem, apply):
             # by the two link rules above and only the bare ones are left.
             (re.compile(rf"((?<![A-Za-z0-9]){re.escape(slug)} Backlog)#\^{old}\b"),
              rf"\1#^{new}")]
+    if old_stem and doc_stem and old_stem != doc_stem:
+        # Retarget any link the anchor CLI left on the OLD filename. It rewrites
+        # most of them, but not one wrapped in HookAnchor's struck form
+        # (`~~[[HA T013 - Title|T013]]~~`) — two of ~90 renames on 2026-08-19
+        # came out that way, and a link to a file that no longer exists is
+        # exactly the rot this migration must not create.
+        subs.append((re.compile(rf"\[\[{re.escape(old_stem)}(?=[\]|#])"),
+                     f"[[{doc_stem}"))
     if doc_stem:
         # `→ [[TINK012 - Title|T002]]` — the anchor CLI moved the target when it
         # renamed the file; the alias it left behind still says the old id.
@@ -333,6 +341,8 @@ def rewrite_qualified(slug, old, new, doc_stem, apply):
     needles = [f"{slug} Backlog#^{old}", f"{slug} {old}"]
     if doc_stem:
         needles.append(f"[[{doc_stem}")
+    if old_stem and old_stem != doc_stem:
+        needles.append(f"[[{old_stem}")
     changed, counter = [], [0]
     for f in qualified_hosts(needles):
         if _apply(f, subs, apply, counter):
@@ -351,6 +361,11 @@ def rewrite_local(backlog, doc, old, new, apply):
         (re.compile(rf"(?<!#)\^{old}\b"), f"^{new}"),          # `^T002`, `^T002-Q1`
         (re.compile(rf"(?<=\*\*){old}(?=\s+—)"), new),         # the row header
         (re.compile(rf"(?<=·\s){old}(?=\s+—)"), new),          # the doc's H1
+        # `[Blocked T068]` / `[Waiting T068]` — C55 resolves a blocker handle
+        # against this anchor's own rows, so a renumber that leaves the bracket
+        # behind points the row at a blocker that will never exist and can
+        # therefore never unblock it.
+        (re.compile(rf"(?<=\[)(Blocked|Waiting)\s+{old}(?=[\]\s])"), rf"\1 {new}"),
     ]
     changed, counter = [], [0]
     for f in [p for p in (backlog, doc) if p is not None]:
@@ -517,7 +532,9 @@ def main():
     for old, new, title in batch:
         print(f"── {old} → {new}   {title[:70]}")
         doc = find_doc(root, slug, old)
-        doc_stem = None
+        doc_stem = old_stem = None
+        if doc:
+            old_stem = doc.stem
         if doc:
             # The rename runs FIRST: the anchor CLI repoints every inbound
             # `[[old stem]]` as it moves the file, and the alias fixups below
@@ -536,7 +553,8 @@ def main():
 
         run = not args.dry_run
         loc, n_loc = rewrite_local(backlog, doc, old, new, apply=run)
-        qual, n_qual = rewrite_qualified(slug, old, new, doc_stem, apply=run)
+        qual, n_qual = rewrite_qualified(slug, old, new, doc_stem, apply=run,
+                                         old_stem=old_stem)
         print(f"   text: {n_loc} local + {n_qual} qualified edit(s) in "
               f"{len(set(loc) | set(qual))} file(s)")
         for f in sorted(set(loc) | set(qual)):

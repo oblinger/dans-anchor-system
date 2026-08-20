@@ -78,6 +78,7 @@ description: fixture
 - **B18 — an old B row** [Done] — body. ^B18
 - **F003 — untouched** [Ready] — body. ^F003
 - **T009 — cites a foreign row** [Ready] — see [[BBB Backlog#^T002|T002]] for the parallel case. ^T009
+- **T011 — blocked on the colliding row** [Blocked T002] — ~~[[AAA T002 - The Colliding Task|T002]]~~ is the struck form. ^T011
 """
 
 BBB_BACKLOG = """---
@@ -220,6 +221,10 @@ try:
         ok("a FOREIGN block link inside our own backlog was left alone")
     else:
         no("the local pass corrupted a foreign block link in our backlog")
+    if "[Blocked T019]" in txt and "[Blocked T002]" not in txt:
+        ok("a `[Blocked T002]` bracket handle followed the row (C55 resolves it)")
+    else:
+        no("the blocker bracket was left naming a row that no longer exists")
     if "· T019 — The Colliding Task" in doc.read_text(encoding="utf-8"):
         ok("the doc's H1 breadcrumb moved")
     else:
@@ -227,7 +232,8 @@ try:
 
     # ---- D/E/F: the qualified rewrite ------------------------------------
     print("== D/E: qualified links move; the foreign anchor's T002 does not ==")
-    rn.rewrite_qualified("AAA", "T002", "T019", None, apply=True)
+    rn.rewrite_qualified("AAA", "T002", "T019", "AAA019 - The Colliding Task",
+                         apply=True, old_stem="AAA T002 - The Colliding Task")
     q = qmd.read_text(encoding="utf-8")
     if "[[AAA Backlog#^T019|T019]]" in q:
         ok("our qualified link moved — target AND alias together")
@@ -257,10 +263,15 @@ try:
         ok("the foreign anchor's slug-prefixed prose was left alone")
     else:
         no("the prose rule crossed into another anchor")
-    if "[[AAA T002 - The Colliding Task]]" in q:
-        ok("the prose rule stayed out of a fused-filename wiki-link")
+    if "[[AAA019 - The Colliding Task]]" in q:
+        ok("a link to the renamed doc was retargeted, prose rule kept out of it")
     else:
-        no(f"the prose rule reached inside a wiki-link:\n{q}")
+        no(f"the doc link was not retargeted:\n{q}")
+    bltxt = bl.read_text(encoding="utf-8")
+    if "~~[[AAA019 - The Colliding Task|T019]]~~" in bltxt:
+        ok("a STRUCK link — the form anchor update misses — was retargeted")
+    else:
+        no(f"the struck link was left on a filename that no longer exists")
     if "[[AAA Backlog|AAA T019]]" in q:
         ok("a page link whose alias names the row moved too")
     else:
