@@ -125,28 +125,22 @@ So the grade is a verdict on **the alternative**, not on the violation:
 
 **The refusal half has never been used: 11 grades vault-wide are 5 `A`, 5 `B`, 1 `C`, and no `D`, `E` or `F` in the corpus's history** (measured 2026-08-20). That is either an honest record of proposals all being good, or the column drifting back into the binary `-08` was written to prevent. A first `D` is the cheapest way to find out.
 
-### RULE R-exception-discipline-12 — A rule accretes its own grading rules, next to it (stated)
+### RULE R-exception-discipline-12 — Grading guidance is recorded only where it is not already known (stated)
 
-The scale above is general. **Where the line falls for a particular rule is specific**, and it is learned rather than authored: the user reads a run of grades, says *"you are being too loose here"*, and gives a rule that makes the next grade better. `grades::` is where that lands — a short block on the rule itself, holding **predicates, not a gallery of examples**. The first instance, on [[R-file-association]]-07:
+The scale in `-11` is general and the agent applies it unaided: **grade the exception, write nothing down.** A rule grows an `exception-grading::` block only when there is something to record that the grading did not already contain.
 
-```
-grades::
-  at least A - the members are reachable in one click by any route (a masthead
-               subtopic link, a dispatch row, or a control file one level up
-               that lists them): the rule's goal is met and only its shape
-               differs.
-  at least B - the folder holds no member .md at all, so there is nothing the
-               rule could ask for.
-  F          - the members exist, are linked nowhere, and the justification is
-               that the folder name is plural. That restates the finding
-               instead of answering it.
-```
+**The test is provenance, not difficulty.** *"Write it down if you had to think hard"* is unmeasurable, self-reported, and drifts toward writing everything — an agent that has just reasoned carefully feels most like recording the reasoning. The checkable question is **where did this constraint come from?** Exactly two answers earn a line:
 
-**Predicates, because a gallery does not scale and a predicate does.** `MUX-R04 Exceptions.md` disposes of 32 sites with **five** of them — *"use import, not a call site"*, *"pure state read (selector returns value, no side effect)"*, *"environment variable read, typically startup-time, low-frequency"* — each a test the next site can be run through. A table of worked A/B/C examples per rule would be larger than every ruleset combined and would still not answer the case in front of you.
+1. **The user corrected a grade.** This is the case the block exists for, and it is not optional — a ruling that lives only in a conversation is a ruling that expires with the session. Dan, 2026-08-20: *"if I'm not happy with the exceptions that you're drawing… then you and I can have a discussion about that violation and what's a better rule. And there it has to be recorded."* Date and attribute it, because a line from him carries authority a line from the agent does not.
+2. **A measurement the next agent would otherwise re-run.** *Ten of ten `*Pebbles/` folders vault-wide carry no `*Pebbles.md`* is a fact about the corpus, not an opinion about it; re-deriving it costs a vault scan. Record the **finding and its date**, not the conclusion drawn from it — the conclusion is what reasoning is for, and a stale conclusion outlives a stale fact.
 
-**On the rule, not in a sibling rubric file.** A second file is a second copy to keep in sync with the rule it grades, and that is the failure this repo pays for repeatedly: [[TINK Backlog#^T552|T552]] found `R-backlog-04` relaxed in three code sites while its own prose still asserted the old contract, and [[TINK Backlog#^T363|T363]] shipped the checker and the rule text in one commit for exactly that reason. Rule files growing is the cheaper problem, and they grow less than it sounds — **only a rule that actually attracts exceptions ever gets a `grades::` block**, so most never grow at all.
+**What does NOT earn a line is the agent's own correct reasoning**, however hard-won. Recording it produces a second copy of a judgment the agent would reach anyway, which can drift from the judgment and — worse — reads back later as authority when it is only the agent quoting itself. Dan, 2026-08-20: *"if the determinations are so obvious to you, I don't think you even need to write down… you already determined the grade without having any knowledge about what you were supposed to do, just using your reasoning."*
 
-**How it accretes.** A rule carrying graded exceptions and no `grades::` block is the signal that its guidance is still implicit — worth reporting, so the block is written the first time someone grades against that rule rather than the fifth. When a `grades::` block changes, every exception against that rule is re-graded: that is the user's correction propagating, and it is the whole reason the guidance sits in one place.
+> **Measured on this rule's own first draft, one hour old when it was pruned.** The block originally written on [[R-file-association]]-07 held four predicates. Three were the agent restating its own reasoning. The fourth — *"at least B when the folder holds no member `.md` at all"* — was **already wrong**: the same agent graded exactly that case `A` within the hour, because the alternative (inventing member files) is worse than the deviation. A speculative rubric line had contradicted live practice before anyone read it. One line survived the prune, the population count, and it survived because it is evidence rather than opinion.
+
+**The name is `exception-grading::`, not `grades::`.** It holds neither grades nor a grading scale — it holds the few constraints that must shape a grade beyond what reasoning supplies. Renamed 2026-08-20 on Dan's objection: *"I question whether it should be called grades, because I know it's giving you the grade, but it's really the rubric. And it's really about exceptions."*
+
+**The residual risk, stated because sparse recording creates it.** Under `-06` the agent grades and the user audits by pattern — *"I'm seeing a bunch of exceptions all at once about one single rule, and I'm like, no, no, no, you're being too loose here."* That loop needs the user to **notice**, and he has said plainly that reading exception tables is what he does not want to do. Silence between corrections is therefore invisible drift. The mitigation is not more rubric: it is that **a rule accumulating suppressions says so on its own** in the audit report, per `-07`, so the pattern he audits by arrives without him going to look for it.
 
 ## Position in the catalog
 

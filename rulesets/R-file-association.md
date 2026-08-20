@@ -63,23 +63,19 @@ The dispatch area is the masthead **table rows plus the list items below them** 
 
 **Why:** the folder form is only useful if its structure is predictable.
 
-grades::
-  at least A - the members are reachable in one click by any route (a masthead
-               subtopic link, a dispatch row, or a control file one level up
-               that lists them). The rule's goal is met; only its shape differs,
-               and complying would duplicate what the other route already does.
-  at least A - the folder is a machine-written store whose shape is owned
-               elsewhere and uniform across the vault (a `{slug} Pebbles/`, whose
-               control file `stone` keeps one level up). Complying would make
-               this anchor the only deviant one, which is worse than the finding.
-  at least B - the folder holds no member `.md` at all, so there is nothing the
-               rule could ask for. B rather than A because a folder that later
-               grows members should be re-checked, and that is what B means.
-  F          - the members exist, are linked nowhere, and the justification is
-               that the folder name happens to be plural. That restates the
-               finding instead of answering it.
-
-**On this rule's own trigger.** The checker decides "method-3 folder" from `re.search(r"\s+\w+s$", folder)` — the folder NAME, with no test that it holds a facet's items. Every grade above is therefore a grade against a heuristic, not against the rule as written, and the durable fix is [[TINK Backlog#^T561|TINK T561]]. Until it lands, the first two predicates carry the whole population; when it lands, those rows suppress nothing and `R-exception-discipline-07` reports them as stale, which is the signal to delete them.
+exception-grading::
+  measured 2026-08-19 - ten `*Pebbles/` folders exist vault-wide (SV, SYS, MED,
+      BUY, SVH, HA, FIN, Eli, NJ, HERMES) and NOT ONE carries a `*Pebbles.md`.
+      `stone` writes `{slug} P####.md` into the folder and keeps the control
+      file one level up, so the folder is a store, not an anchor. Re-run before
+      treating this as current; it is recorded because re-deriving it costs a
+      vault scan, not because of what it implies.
+  note - this rule's trigger is `re.search(r"\s+\w+s$", folder)`, the folder
+      NAME, with no test that it holds a facet's items. Every exception graded
+      here is therefore graded against a heuristic rather than against the rule
+      as written. Durable fix: [[TINK Backlog#^T561|TINK T561]]; when it lands
+      these rows suppress nothing and `R-exception-discipline-07` reports them
+      stale, which is the signal to delete them.
 
 ## Position in the catalog
 

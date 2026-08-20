@@ -8330,6 +8330,27 @@ def render_report(plan: dict, mech: dict, man: dict) -> str:
     if excepted or probs or stale or declined:
         out.append(f"## accepted deviations ({len(excepted)} suppressed — "
                    f"see `{_anchor_slug(Path(plan['anchor_root']))} Exceptions.md`)")
+        # R-exception-discipline-12 — the concentration line. Under -06 the agent
+        # grades and the user audits BY PATTERN: "I'm seeing a bunch of
+        # exceptions all at once about one single rule, and I'm like, no, no,
+        # no, you're being too loose here" (Dan, 2026-08-20). That loop needs him
+        # to notice, and reading exception tables is precisely what he has said
+        # he does not want to do — so between corrections, drift is invisible.
+        #
+        # The fix is not more rubric. It is that a rule accumulating suppressions
+        # says so itself, above the per-row list, where a skim catches it. Three
+        # is the floor because two is a coincidence and the pair is already
+        # visible in a two-line list.
+        by_rule: dict[str, int] = {}
+        for v in excepted:
+            by_rule[v["rule"]] = by_rule.get(v["rule"], 0) + 1
+        heavy = sorted(((n, r) for r, n in by_rule.items() if n >= 3), reverse=True)
+        for n, rule in heavy:
+            out.append(f"- ⚑ **{rule} is carrying {n} of them here** — one rule "
+                       f"absorbing this many is the shape worth reading before "
+                       f"the rows: either the rule is wrong "
+                       f"([[R-exception-discipline]]-10) or the grading has "
+                       f"drifted loose (-12).")
         for v in excepted:
             out.append(f"- ⊘ {v['rule']} — {v['target']}"
                        + (f"  ({v['detail']})" if v["detail"] else ""))
