@@ -265,7 +265,14 @@ check("the refusal explains the archive is not re-resolvable",
       "cannot be resolved twice" in err, err)
 rc, out, err = run(args("T041.Q2", "set", status="Ready"))
 check("a non-resolve verb is refused on the address", rc != 0)
-check("and it says only resolve takes one", "Only `resolve` does" in err, err)
+# T551 widened this to two verbs — `remove` migrates a row-hosted Q to the
+# row's doc. What the refusal must still do is name the verbs that DO take the
+# address, so a caller told "not this one" is not left guessing.
+check("and it names the verbs that do take one",
+      "Only `resolve` and `remove` do" in err, err)
+check("`remove` on the address is no longer refused",
+      run(args("T041.Q2", "remove"))[2].find(
+          "does not take a row-scoped question address") == -1)
 rc, out, err = run(args("T041.Q2", "resolve", body="x", choice="(Z)"))
 check("an option letter that is not on the list is refused", rc != 0)
 check("and the real options are named",

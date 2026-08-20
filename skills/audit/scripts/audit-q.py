@@ -3310,8 +3310,21 @@ def check_c51_user_action_present(
 # backlog (T550), not a stop-gate, and promoting it to error before it is
 # measured would hand four other anchors a red gate they did not ask for.
 
+# Where a `- **<label>:**` sub-bullet ENDS: at the next labeled sibling. The
+# first spelling enumerated five labels (Next|Verify|User|Resolved|Q<n>), which
+# is the same "name one shape and the next writer uses another" mistake this
+# check's own header warns about — turned on its own terminator. MUX F173 has a
+# one-line `- **User:**` followed by `- **Parked:**` and six changelog
+# sub-bullets; none of those was a listed terminator, so the block ran to the
+# end of the row and swallowed an `(a) … (b)` prose enumeration eight bullets
+# down, reporting `lettered(User)` on a row whose User line carries no options
+# at all. So terminate on the SHAPE of a labeled sub-bullet — a bold run ending
+# in a colon — which no enumeration of labels can fall behind. `- **(A)** Yes`
+# has no colon inside the bold and is therefore NOT a terminator, which is what
+# keeps a genuine lettered question visible; `Q<n>` stays explicit because its
+# bold run ends with a title, not a colon.
 _C57_SUBBULLET_BREAK_RE = re.compile(
-    r"^\s+-\s+\*\*(?:Next|Verify|User|Resolved|Q\d+)\b")
+    r"^\s+-\s+\*\*(?:Q\d+\b|[^*]*:\*\*)")
 
 
 def _row_span_lines(e: BacklogEntry) -> list[str]:

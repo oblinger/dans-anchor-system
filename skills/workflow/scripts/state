@@ -2139,6 +2139,145 @@ def _row_q_spans(lines, row_start, row_end):
     return spans
 
 
+def _row_q_rehomed_in_doc(backlog_path, lines, row_start, row_label, q_num):
+    """The doc that now hosts `<row>.Q<n>`, or None.
+
+    Answers one question and refuses to guess at any other: does the row's
+    arrow-linked doc carry a PENDING question whose block-ID is the row's own
+    `^<row>-Q<n>`? That block-ID is what makes the match provable rather than
+    heuristic — a re-worded title or a re-lettered option list still resolves,
+    while a doc that merely mentions the row does not.
+    """
+    m = _ARROW_POINTER_RE.search(lines[row_start])
+    if not m:
+        return None
+    target = m.group(0).split("[[", 1)[1].rstrip("]").split("|", 1)[0].strip()
+    doc = backlog_path.parent / f"{target}.md"
+    if not doc.exists():
+        return None
+    text = doc.read_text(encoding="utf-8")
+    if f"^{row_label}-Q{q_num}" not in text:
+        return None
+    # Only the doc's PENDING zone counts. A question already archived under
+    # `## Resolved` would make this read "rehomed" for a question nobody can
+    # still answer, which is the one way this guard could wave through a real
+    # loss.
+    head = text.split("## Resolved", 1)[0]
+    return doc if f"^{row_label}-Q{q_num}" in head else None
+
+
+# Ask-format furniture that belongs to the question ABOVE it, not to the row.
+# `_row_q_spans` ends a question at the next sub-bullet at its own indent, and
+# by C9/C19 convention `- **Recommendation:**` / `- **Risk of (A):**` are
+# siblings of the `- **Q<n> —**` header, not children of it. So the span stops
+# one line short of the question's own tail, and removing the question alone
+# strands a recommendation for a question that is no longer there — which no
+# check catches, because every check that reads recommendations starts from a
+# question and finds none to complain about.
+_ROW_Q_FURNITURE_RE = re.compile(
+    r"^(\s*)-\s+\*\*(?:Recommendation|Lean|Risk of\b[^*]*|Damage|On-answer)"
+    r"\s*:?\*\*", re.IGNORECASE)
+
+
+def _extend_over_q_furniture(lines, q_end, row_end, indent):
+    """Push `q_end` past the furniture bullets trailing the question.
+
+    Consumes only sub-bullets at the question's OWN indent whose label is in
+    the furniture set, plus their deeper-indented continuations. Anything else
+    — a sibling `- **Q<n>`, a `- **Next:**`, an unrecognised label — stops the
+    scan, so a question cannot eat its neighbour's lines.
+    """
+    k = q_end
+    while k < row_end:
+        if not lines[k].strip():
+            k += 1
+            continue
+        m = _ROW_Q_FURNITURE_RE.match(lines[k])
+        if not m or len(m.group(1)) != indent:
+            break
+        k += 1
+        while k < row_end and (
+                not lines[k].strip()
+                or len(lines[k]) - len(lines[k].lstrip()) > indent):
+            k += 1
+        q_end = k
+    return q_end
+
+
+def _row_q_remove(slug, backlog_path, row_label, q_num, args):
+    """`remove <anchor> Backlog <row>.Q<n>` — drop a row's legacy inline
+    question once its DOC hosts it (F329 / T550).
+
+    F329 retired inline row questions and told existing ones to "migrate on
+    touch, never by sweep" — but shipped only half the move. `define … Q+` puts
+    the question in the doc; nothing could then take the row's copy away, so
+    every migration stalled with the question in two places at once and C57
+    still flagging the row. `resolve` is not the missing half: it writes an
+    answer, and these questions are open — using it would fabricate a decision
+    to satisfy a lint.
+
+    The guard is what separates this from a delete: the removal is refused
+    unless the row's arrow-linked doc already carries a pending `^<row>-Q<n>`.
+    You cannot use this verb to lose a question, only to stop storing it twice.
+    """
+    reason = getattr(args, "reason", None) or ""
+    icebox_path = be.find_icebox(slug)
+    src_file = None
+    if be.row_in_file(backlog_path, row_label):
+        src_file = backlog_path
+    elif icebox_path and be.row_in_file(icebox_path, row_label):
+        src_file = icebox_path
+    if src_file is None:
+        raise be.BacklogEditError(
+            f"{row_label} not found in {backlog_path.name} or Icebox — "
+            f"nothing to remove")
+    complaint = be.heal_backlog_if_stale(slug, src_file)
+    if complaint:
+        print(complaint, file=sys.stderr)
+
+    lines = src_file.read_text(encoding="utf-8").splitlines()
+    span = _row_span(lines, row_label)
+    if span is None:
+        raise be.BacklogEditError(f"{row_label} not found in {src_file.name}")
+    row_start, row_end = span
+    spans = _row_q_spans(lines, row_start, row_end)
+    match = [s for s in spans if s[0] == q_num]
+    if not match:
+        open_qs = ", ".join(f"Q{n}" for n, _, _ in spans) or "none"
+        raise be.BacklogEditError(
+            f"{row_label} has no pending Q{q_num} — open questions on this "
+            f"row: {open_qs}.")
+    doc = _row_q_rehomed_in_doc(src_file, lines, row_start, row_label, q_num)
+    if doc is None:
+        raise be.BacklogEditError(
+            f"{row_label}.Q{q_num} is not hosted anywhere else — refusing to "
+            f"remove it. This verb migrates a legacy inline question off the "
+            f"row AFTER its doc carries it; it is not a way to delete an open "
+            f"question. Put it in the row's arrow-linked doc first — `state "
+            f"define {slug} <doc> Q+` — keeping the `^{row_label}-Q{q_num}` "
+            f"block-ID so the deep links that point at it still land, then "
+            f"remove the row's copy. To retire the question outright, answer "
+            f"it: `state resolve {slug} Backlog {row_label}.Q{q_num}`.")
+
+    _, q_start, q_end = match[0]
+    indent = len(lines[q_start]) - len(lines[q_start].lstrip())
+    q_end = _extend_over_q_furniture(lines, q_end, row_end, indent)
+    lines = lines[:q_start] + lines[q_end:]
+    row_start, row_end = _row_span(lines, row_label)
+    still_open = be.count_row_pending_qs(lines[row_start + 1:row_end])
+    lines = _rebracket_questions_row(lines, row_start, still_open)
+    keep = [l + "\n" for l in lines]
+    keep = be.restamp_backlog(keep)
+    be.write_backlog_lines(src_file, keep)
+    be._selffire(src_file)
+
+    why = f" — {reason}" if reason.strip() else ""
+    summary = (f"removed {row_label}.Q{q_num} from {src_file.name}; hosted by "
+               f"{doc.stem}{why} — {still_open} still open on the row")
+    _post_conditions_and_print(slug, src_file, summary)
+    return 0
+
+
 def _format_row_resolved_q(q_num, parsed, outcome, note, today, indent):
     """The archived row-Q, as nested bullets in the same order the doc-side
     entry uses — question, then resolution, then the options, then the lean.
@@ -2963,12 +3102,18 @@ def cmd_item(slug, anchor_path, args):
                 f"{args.label} is a row-scoped address and rows live on the "
                 f"Backlog, not {doc_path.name}. A question hosted by a DOC is "
                 f"addressed as `{doc_path.stem} Q{q_num}` — no row prefix.")
+        if args.verb == "remove":
+            # F329's other half. `resolve` answers a row-hosted question in
+            # place; `remove` drops it once the row's DOC hosts it, which is
+            # the move F329 mandated ("migrate on touch") and left impossible.
+            return _row_q_remove(slug, doc_path, row_label, q_num, args)
         if args.verb != "resolve":
             raise be.BacklogEditError(
                 f"{args.verb} does not take a row-scoped question address. "
-                f"Only `resolve` does (T086): a row's inline Q is written by "
-                f"`define`/`set` on the row itself, so the address it needs is "
-                f"the one verb that answers a single question in place.")
+                f"Only `resolve` and `remove` do: a row's inline Q is written "
+                f"by `define`/`set` on the row itself, so the addresses it "
+                f"needs are the two verbs that act on a single question in "
+                f"place — answer it, or migrate it to the row's doc.")
         return _row_q_resolve(slug, doc_path, row_label, q_num, args)
     letters, num = parse_label(args.label)
     if num == "+" and args.verb != "define":
@@ -3968,7 +4113,7 @@ _ALL_VERBS = _ITEM_VERBS + ("show", "mint-id", "drop", "inbox-list",
 _LABEL_HELP = ("item id — F<n>/T<n>/C<n>/Q<n> on Backlog, Q<n> on any "
                "other doc; LETTERS+'+' auto-mints (F+, T+, C+, Q+); "
                "<row>.Q<n> addresses a question hosted inside a Backlog row "
-               "(resolve/show only)")
+               "(resolve/remove/show only)")
 
 
 def _first_positional(argv):
