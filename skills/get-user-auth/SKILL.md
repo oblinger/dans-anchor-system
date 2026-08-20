@@ -213,6 +213,6 @@ callout (step 3) and loop — don't silently move on.
   (grab or liveness probe) — confirm or say you couldn't.
 - ❌ Polling every few seconds (spam) or never (you stall). ~60s, re-printing the
   ask each time.
-- ❌ Asking for the password in chat. A credential in chat is compromised — see
-  `[[feedback_credential_in_chat_rotate]]`. Always route it through the user's
+- ❌ Asking for the password in chat. A credential in chat is compromised and must be
+  ROTATED, not merely deleted from the transcript. Always route it through the user's
   own GUI prompt; never have them paste it to you.

@@ -17,7 +17,7 @@ User directive 2026-07-05: *"BUILD it, and we will see how it does. I will check
 
 **What done looks like.** Two layout rules fire on every markdown write and steer real, fixable findings with **zero false positives** across the whole doc corpus:
 
-- **R-spine-01** — a doc never carries BOTH its own dispatch-masthead and a `:>>` breadcrumb (the two navigation forms are alternatives; per [[feedback_breadcrumb_vs_dispatch_table]]).
+- **R-spine-01** — a doc never carries BOTH its own dispatch-masthead and a `:>>` breadcrumb (the two navigation forms are alternatives).
 - **R-progressive-02** — progressive-disclosure section spacing: every `## H2` is preceded by a blank line, and no trailing blank at EOF.
 
 **How it will be verified.** Repo-wide validation (784 docs) shows only genuine violations and no false positives; `fire_audit` fires the rules verdict-identically through both the audit-plan and warden engines (the golden corpus is re-blessed with the new pass verdicts); and the rules fire live on a real markdown write through the dispatcher.

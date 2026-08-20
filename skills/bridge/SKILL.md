@@ -530,7 +530,7 @@ The skill is the top-of-stack action; internally it calls existing bridge helper
 
 Use a **single self-verifying `.command` file** that (a) attaches to tmux and (b) forks a delayed screencapture in the background so the capture fires while its own tab is guaranteed to be frontmost. This pattern beats the two-file variant (`bridge-attach-*.command` + `bridge-grab-*.command`) because Terminal.app opens each `open <.command>` as a new tab that becomes frontmost — so a separate grab command reliably captures itself, not the attach tab. The single-shot pattern sidesteps the whole tab-focus race.
 
-Per [[reference_remote_mac_gui_via_open_command]] — SSH lives in launchd Background context; `osascript`-driving Terminal.app or invoking `screencapture` from that context intermittently fails with -1712 or hits TCC prompts. An `open`-ed `.command` file runs in the Aqua session cleanly with no permission dialogs.
+SSH lives in launchd Background context; `osascript`-driving Terminal.app or invoking `screencapture` from that context intermittently fails with -1712 or hits TCC prompts. An `open`-ed `.command` file runs in the Aqua session cleanly with no permission dialogs.
 
 ```bash
 ssh oblinger@<host>.local 'cat > /tmp/bridge-attach-<session>.command <<EOF

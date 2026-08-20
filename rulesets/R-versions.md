@@ -28,4 +28,4 @@ Every `<version> <app>.dmg` has a matching pushed git tag — `v<version>` (stan
 
 ### RULE R-versions-05 — The store lives in the repo / an offload, not the snapshotted vault (stated)
 `versions/` lives in the code repository (or a dedicated offload location), never inside the snapshotted vault, so published binaries don't bloat every snapshot.
-**Why:** the vault is snapshotted; DMGs are large and immutable — keeping them out of it keeps `~/ob` lean (per [[feedback_keep_ob_lean]]).
+**Why:** the vault is snapshotted; DMGs are large and immutable — keeping them out of it keeps `~/ob` lean.
