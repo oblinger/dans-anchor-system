@@ -176,15 +176,37 @@ try:
     # A `[BUG]`-shaped title round-trips through ROW_FULL_RE, which is what
     # `set`/`resolve` parse a row line with — the bold runs in its body are the
     # hazard, since the title group is non-greedy to the first `**`.
+    #
+    # The expected id is **F901, not F001** (changed 2026-08-19). F and T now
+    # share one number namespace — `be.DOC_MINTING_KINDS` — because under the
+    # F329 folder form both become `{SLUG}{NNN}` files and two files cannot
+    # share a basename. The fixture carries `T900`, so the shared high-water is
+    # 900 and the next number is 901 whichever letter asks for it. Note the
+    # policy is high-water+1, not lowest-free: `F001` is unused here and stays
+    # unused, exactly as per-letter minting has always behaved.
     bl2 = fresh("ZZT2 Backlog.md")
     mint(bl2, "F+", "Drift terminal window display freezes")
     bug = next(l for l in bl2.read_text(encoding="utf-8").splitlines()
                if "Drift terminal" in l)
     m = be.ROW_FULL_RE.match(bug)
-    if m and m.group("rid") == "F001":
-        ok("a `[BUG] …` row with **bold** in its body parses back as F001")
+    if m and m.group("rid") == "F901":
+        ok("a `[BUG] …` row with **bold** in its body parses back as F901")
     else:
         no(f"ROW_FULL_RE could not parse the minted row: {bug[:100]!r}")
+
+    # The shared namespace itself, asserted directly rather than as a side
+    # effect of the row above: F and T must not hand out the same number.
+    bl3 = fresh("ZZT3 Backlog.md")
+    mint(bl3, "T+", "Session name unification")
+    mint(bl3, "F+", "Drift terminal window display freezes")
+    ids = [be.ROW_FULL_RE.match(l).group("rid")
+           for l in bl3.read_text(encoding="utf-8").splitlines()
+           if be.ROW_FULL_RE.match(l)]
+    minted = [i for i in ids if i in ("T901", "F902")]
+    if len(minted) == 2:
+        ok("T+ then F+ mint T901 then F902 — one shared counter, no collision")
+    else:
+        no(f"F and T did not share a namespace: minted {sorted(set(ids))}")
     if m and m.group("title", ).endswith("2026-05-12"):
         ok("the title group stops at the closing `**`, not at inner bold")
     else:

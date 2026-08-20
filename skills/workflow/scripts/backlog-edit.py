@@ -1971,8 +1971,16 @@ def scan_backlog(text):
 
 
 def next_id_for_kind(row_index, kind):
-    """Highest F<n> or B<n> across the backlog + 1."""
-    pattern = re.compile(rf"^{kind}(\d+)$")
+    """Highest number for `kind` across the backlog + 1.
+
+    A doc-minting kind (`DOC_MINTING_KINDS`) shares one namespace with the
+    other doc-minting kinds, for the reason recorded there: under the F329
+    folder form both become `{SLUG}{NNN}` files, and two files cannot share a
+    basename. Kept in step with `mint_cross_file_id` — the two allocators must
+    agree, or `define` and the `F+`/`T+` path would hand out the same number.
+    """
+    kinds = (DOC_MINTING_KINDS if kind in DOC_MINTING_KINDS else (kind,))
+    pattern = re.compile(rf"^(?:{'|'.join(re.escape(k) for k in kinds)})(\d+)$")
     nums = []
     for rid in row_index.keys():
         m = pattern.match(rid)
@@ -3297,12 +3305,34 @@ def resolve_files_for_edit(slug, backlog_path, horizon, row_id_arg, status):
     return src_file, dst_file, dst_horizon
 
 
+# The kinds whose rows become a FILE named `{SLUG}{NNN}` under the F329 folder
+# form. They share ONE number namespace, because two files cannot carry the
+# same basename in this vault and `{SLUG}{NNN}` drops the letter that used to
+# tell them apart — so `F010` and `T010` in one anchor would both want
+# `SV010.md`. Dan, 2026-08-19: *"both of them should just have the slug
+# followed by the number, without the letter F or T. So we need to keep those
+# distinct."*
+#
+# `B` is deliberately NOT here and must not be added casually: a B row is a
+# bare tracker line (`B18`, `B-mode-walkup`) that mints no document, so it
+# collides with nothing and sharing the counter would only burn F/T numbers.
+# `Q`/`V`/`U` are doc-HOSTED items numbered inside their host (see
+# `_next_item_number`), not rows, and are likewise out of scope.
+DOC_MINTING_KINDS = ("F", "T")
+
+
 def mint_cross_file_id(backlog_path, icebox_path, kind):
-    """Compute the next F/B number across BOTH backlog and icebox.
+    """Compute the next number for `kind` across BOTH backlog and icebox.
 
     Per [[DAS Backlog]] § Icebox interaction: 'F-number namespace is shared
     across backlog AND icebox — no F-number collisions; an item moving
     between the two keeps its F-number.' Same for B-numbers.
+
+    **And for a doc-minting kind the namespace is shared across KINDS too**
+    (`DOC_MINTING_KINDS` above), so an anchor's F and T numbers interleave
+    rather than running as two independent sequences that collide the moment
+    both become `{SLUG}{NNN}` files. The high-water is taken over every
+    doc-minting kind at once; a non-doc kind keeps its own counter.
     """
     # F250 #3 — recognize rows via scan_backlog (ROW_HEADER_RE), which sees
     # TITLE-LESS rows (`- **T002** [Done]`) as well as titled ones. The old
@@ -3310,7 +3340,8 @@ def mint_cross_file_id(backlog_path, icebox_path, kind):
     # the max-scan could return an already-in-use number and `define`'s
     # create-or-replace would then OVERWRITE that live row. Aligns the mint with
     # next_id_for_kind / ROW_HEADER_RE.
-    id_re = re.compile(rf"^{kind}(\d+)$")
+    kinds = (DOC_MINTING_KINDS if kind in DOC_MINTING_KINDS else (kind,))
+    id_re = re.compile(rf"^(?:{'|'.join(re.escape(k) for k in kinds)})(\d+)$")
     highest = 0
     for path in (backlog_path, icebox_path):
         if path is None or not path.is_file():
