@@ -31,6 +31,7 @@ file or folder in the anchor tree, and prints max+1.
 import argparse
 import re
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -51,6 +52,46 @@ def safe_name(text):
 
 
 # ---------------------------------------------------------------- narrative --
+
+def warn_if_gitignored(paths):
+    """Say so when a file `nb` just wrote will never be versioned (T557).
+
+    The facet promises an attachment is *"stored"*, and a reader reads that as
+    kept. `.gitignore` line 62 is a blanket `*.csv`, so `nb append --data
+    results.csv` reported success, put the file on disk, and left it untracked
+    — three true statements adding up to a false impression. A2X found it in
+    use, not in review.
+
+    A **warning** rather than a `.gitignore` exception, deliberately: the
+    exception is a standing commitment about what the vault versions, and that
+    is the user's call. The warning is honest either way and costs nothing if
+    the answer later becomes the exception.
+
+    One batched `git check-ignore` for all files, not one per file: the
+    per-item-at-batch-frequency shape is a defect this repo has paid for
+    before. Any failure — no git, not a repo, an old version — is silence, not
+    a crash; a missing warning must never cost someone their append.
+    """
+    if not paths:
+        return
+    try:
+        r = subprocess.run(
+            ["git", "check-ignore", "--stdin"],
+            input="\n".join(str(p) for p in paths),
+            cwd=paths[0].parent, capture_output=True, text=True, timeout=10,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return
+    hit = [ln for ln in r.stdout.splitlines() if ln.strip()]
+    if not hit:
+        return
+    print(f"nb: warning: {len(hit)} stored file(s) are gitignored — on disk, "
+          f"never versioned:", file=sys.stderr)
+    for ln in hit:
+        print(f"  {Path(ln).name}", file=sys.stderr)
+    print("  Add a notebook exception to .gitignore if these should be kept.",
+          file=sys.stderr)
+
 
 def narrative_path(nbdir: Path) -> Path:
     return nbdir / f"{nbdir.name}.md"
@@ -176,6 +217,8 @@ def cmd_append(args):
         doc.write_text("\n".join(lines).rstrip("\n") + "\n")
 
     # -- data + figure files
+    written = []
+
     def take(src_str):
         src = Path(src_str).expanduser()
         if not src.exists():
@@ -185,6 +228,7 @@ def cmd_append(args):
             base = f"{prefix}-{num} {base}"
         dest = nbdir / base
         shutil.copy2(src, dest)
+        written.append(dest)
         return dest.name
 
     for d in args.data or []:
@@ -197,6 +241,8 @@ def cmd_append(args):
         stem = Path(name).stem  # embeds may be recorded with or without ext; use full name
         if name not in figures:
             figures.append(name)
+
+    warn_if_gitignored(written)
 
     # -- regenerate this cell's narrative block, keep all others, sorted
     blocks[num] = render_block(doc.stem, num, title, summary, figures).split("\n")
@@ -212,7 +258,30 @@ def cmd_append(args):
 # --------------------------------------------------------------------- mint --
 
 def read_anchor_slug(start: Path):
+    """Walk up to the nearest anchor that DECLARES a slug, and return it.
+
+    A slugless `.anchor` does not stop the walk (T557, from A2X's use report).
+    It used to: the first `.anchor` with no `slug:` was fatal, and the error
+    said *"declare one, or pass a path in an anchor that does"* — advice that
+    turns a notebook into an anchor, which is precisely what [[DAS Notebook]]
+    says a notebook folder must not be. HookAnchor's scanner mints a 0-byte
+    `.anchor` in every namesake folder on its rescan, so a notebook acquires
+    one whether or not anyone wanted it; A2X's arrived inside an unrelated
+    commit and came back after the first removal. A 0-byte `.anchor` is a
+    normal vault-wide state besides — `SV/CVT`, `SYS/symlinks`, `SYS/Templates`
+    and ~8 others carry one — so this was never a notebook-only trap.
+
+    Climbing past it is a real trade, not a free fix: [[DAS Dot Anchor]] lets a
+    slug fall back to the folder basename, so an anchor deliberately relying on
+    that fallback now mints in its PARENT's namespace instead of its own. The
+    fallback is refused here on purpose — for the folder that raised this,
+    `A2X013 - Game Break Overview/` , it would mint
+    `A2X013 - Game Break Overview001`. If the walk finds nothing, the slugless
+    anchors it passed are named, so the diagnosis is visible rather than
+    inferred from silence.
+    """
     d = start if start.is_dir() else start.parent
+    passed = []
     while True:
         dot = d / ".anchor"
         if dot.exists():
@@ -220,8 +289,14 @@ def read_anchor_slug(start: Path):
                 sm = re.match(r"^slug:\s*(\S+)", ln.strip())
                 if sm:
                     return sm.group(1), d
-            die(f".anchor at {d} declares no slug: — declare one, or pass a path in an anchor that does")
+            passed.append(d)
         if d.parent == d:
+            if passed:
+                die(f"no .anchor declaring a `slug:` above {start} — passed "
+                    + ", ".join(str(p) for p in passed)
+                    + ". Declare a slug on the enclosing ANCHOR, or delete a "
+                      "stray `.anchor` a notebook folder picked up (a notebook "
+                      "takes none — [[DAS Notebook]]).")
             die(f"no .anchor found walking up from {start}")
         d = d.parent
 
