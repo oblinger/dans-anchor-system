@@ -1553,8 +1553,10 @@ def find_ask_format_files(
                 if not link.target_resolves or link.target_file_path is None:
                     continue
                 stem = link.target_file_path.stem
-                # Feature doc: stem starts with `F<NNN> — `
-                fnum = feature_number(stem)
+                # Feature doc: stem starts with `F<NNN> — `, or the fused
+                # `{SLUG}<NNN> - ` form — which since 2026-08-19 a T-doc also
+                # uses, so the letter must come from the file, not the name.
+                fnum = feature_number(stem, link.target_file_path)
                 if fnum:
                     if link.target_file_path not in seen_paths:
                         seen_paths.add(link.target_file_path)
