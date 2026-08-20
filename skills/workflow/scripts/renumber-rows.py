@@ -183,16 +183,35 @@ def qualified_hosts(needles):
 
 
 def find_doc(root, slug, old):
-    """The row's document, in either the lettered or the fused filename form."""
-    digits = re.sub(r"^[A-Z]+", "", old)
-    for pat in (f"{slug} {old} - *.md", f"{slug}{digits} - *.md",
-                f"{slug} {old} — *.md"):
-        hits = [p for p in root.rglob(pat) if ".git" not in p.parts]
-        if hits:
-            if len(hits) > 1:
-                sys.exit(f"renumber: {old} matches {len(hits)} docs: {hits}")
-            return hits[0]
-    return None
+    """The row's document — the LETTERED filename form only, H1-confirmed.
+
+    The fused form (`SCOUT003 - Title.md`) is deliberately excluded. It is the
+    F-doc spelling: until the T-docs convert, a T row's document always carries
+    its letter, and reaching for `{slug}{digits} - *` finds the FEATURE that
+    happens to share the number — which is the very collision this whole
+    migration exists to remove. An earlier draft did exactly that and renamed
+    SCOUT's F003 and LUMEN's F005 feature docs out from under them.
+
+    The H1 check is the belt to that braces: a document that does not introduce
+    itself as `· {old} —` is not this row's document, whatever it is named.
+    """
+    hits = []
+    for pat in (f"{slug} {old} - *.md", f"{slug} {old} — *.md"):
+        hits.extend(p for p in root.rglob(pat) if ".git" not in p.parts)
+    if not hits:
+        return None
+    if len(hits) > 1:
+        sys.exit(f"renumber: {old} matches {len(hits)} docs: {hits}")
+    doc = hits[0]
+    try:
+        head = doc.read_text(encoding="utf-8")[:4000]
+    except (OSError, UnicodeDecodeError):
+        head = ""
+    if not re.search(rf"^#\s.*·\s*{old}\s+—", head, re.M):
+        sys.exit(f"renumber: {doc.name!r} does not introduce itself as "
+                 f"'· {old} —' — refusing to rename a document that may not be "
+                 f"this row's")
+    return doc
 
 
 WIKI_SPAN = re.compile(r"\[\[[^\[\]]*\]\]")
@@ -262,15 +281,25 @@ def rewrite_qualified(slug, old, new, doc_stem, apply):
         exactly the alias most likely to be left pointing at a dead id. A
         trailing title (`|T002 — Move the repo`) survives untouched.
         """
-        return re.sub(rf"^\|({re.escape(slug)} )?{old}\b",
-                      lambda m: f"|{m.group(1) or ''}{new}", alias)
+        return re.sub(rf"^(\\?\|)({re.escape(slug)} )?{old}\b",
+                      lambda m: f"{m.group(1)}{m.group(2) or ''}{new}", alias)
 
     # ONE regex per whole link, never a free-floating alias rule: a file such as
     # the shared `Q.md` holds `[[ABIO Backlog#^T002|T002]]` and
     # `[[ATT Backlog#^T002|T002]]` side by side, and an alias rule that did not
     # know which link it sat inside would rewrite both.
+    # The `(?<![A-Za-z0-9])` before the slug is load-bearing: without it, slug
+    # `SV` matches inside `TSV Backlog`, and renumbering SV's T001/T002 silently
+    # repointed TeamSaver's block links to ids TSV does not have. One slug in
+    # this vault is a suffix of another; that is enough.
+    #
+    # `\|` and not just `|`: inside a markdown TABLE CELL the alias pipe must be
+    # escaped or it ends the cell, so half the vault's cross-references spell it
+    # `[[SV Backlog#^T006\|SV T006]]`. A pattern that only knows the bare pipe
+    # silently skips every link that lives in a table.
     block_rx = re.compile(
-        rf"\[\[([^\[\]]*?{re.escape(slug)} Backlog)#\^{old}((?:\|[^\[\]]*)?)\]\]")
+        rf"\[\[([^\[\]]*?(?<![A-Za-z0-9]){re.escape(slug)} Backlog)"
+        rf"#\^{old}((?:\\?\|[^\[\]]*)?)\]\]")
     # `Re-homed from A2X T002` — prose, but the slug qualifies it, so it is as
     # unambiguous as a link and gets moved rather than merely reported. It runs
     # only OUTSIDE `[[…]]` (see `outside_links`): a wiki-link's interior is the
@@ -282,12 +311,19 @@ def rewrite_qualified(slug, old, new, doc_stem, apply):
     # names the row. No block anchor, so the rule above never sees it, and the
     # prose rule refuses it because it ends in `]]`. It is still unambiguous.
     plain_rx = re.compile(
-        rf"\[\[([^\[\]|]*{re.escape(slug)} Backlog)\|([^\[\]]*)\]\]")
+        rf"\[\[([^\[\]|]*(?<![A-Za-z0-9]){re.escape(slug)} Backlog)(\\?\|)([^\[\]]*)\]\]")
     named = re.compile(rf"(?<![A-Za-z0-9]){re.escape(slug)} {old}(?![0-9A-Za-z])")
     subs = [(block_rx, lambda m: f"[[{m.group(1)}#^{new}{realias(m.group(2))}]]"),
             (plain_rx,
-             lambda m: f"[[{m.group(1)}|{named.sub(f'{slug} {new}', m.group(2))}]]"),
-            (OutsideLinks(prose_rx), rf"\1 {new}")]
+             lambda m: f"[[{m.group(1)}{m.group(2)}"
+                       f"{named.sub(f'{slug} {new}', m.group(3))}]]"),
+            (OutsideLinks(prose_rx), rf"\1 {new}"),
+            # A bare, unbracketed `ATT Backlog#^Q002` — the shape an Inbox entry
+            # uses inside a code span, where a live wiki-link would be wrong.
+            # Runs LAST, so every `[[…]]` occurrence has already been consumed
+            # by the two link rules above and only the bare ones are left.
+            (re.compile(rf"((?<![A-Za-z0-9]){re.escape(slug)} Backlog)#\^{old}\b"),
+             rf"\1#^{new}")]
     if doc_stem:
         # `→ [[TINK012 - Title|T002]]` — the anchor CLI moved the target when it
         # renamed the file; the alias it left behind still says the old id.
@@ -364,6 +400,41 @@ def rename_doc(doc, slug, new, dry):
     return dest, res
 
 
+def fuse_docs(root, slug, apply):
+    """Rename `{SLUG} T<n> - Title.md` → `{SLUG}<n> - Title.md`, the F300 form.
+
+    The point of the whole exercise: one filename grammar for every row document,
+    the slug fused to a bare number with the kind letter dropped. Safe only once
+    the numbers are unique, which is what `apply` above establishes — run it
+    first or this collides by construction.
+
+    Nothing but the filename moves. The row's alias (`|T025`), the doc's H1
+    (`· T025 —`) and every block anchor keep the letter, exactly as F-docs do:
+    per the /feature convention the fused spelling lives in the filename and
+    nowhere else. `anchor update` repoints the inbound wiki-links.
+    """
+    out = []
+    for doc in sorted(root.rglob(f"{slug} T*.md")):
+        if ".git" in doc.parts:
+            continue
+        m = re.match(rf"^{re.escape(slug)} T(\d+) - (.+)$", doc.stem)
+        if not m:
+            continue
+        dest = doc.with_name(f"{slug}{m.group(1)} - {m.group(2)}.md")
+        if dest.exists():
+            out.append((doc, dest, None, "REFUSED — destination exists"))
+            continue
+        if apply:
+            res = subprocess.run(
+                [str(ANCHOR_CLI), "update", str(doc), str(dest),
+                 "--root", str(VAULT)], capture_output=True, text=True)
+            note = (res.stdout + res.stderr).strip().split("\n")[-1]
+            out.append((doc, dest, res.returncode, note))
+        else:
+            out.append((doc, dest, None, "would rename"))
+    return out
+
+
 def verify(slug, backlog):
     """Every reference that NAMES a row of this anchor which no longer exists.
 
@@ -376,7 +447,7 @@ def verify(slug, backlog):
     live = (set(re.findall(r"\^([A-Z]+\d+)\b", text))
             | {f"{k}{d}" for k, d, _n, _t in scan_rows(backlog)})
     prose = re.compile(rf"(?<![A-Za-z0-9\[]){re.escape(slug)} ([TBQ]\d+)(?![0-9A-Za-z])")
-    block = re.compile(rf"{re.escape(slug)} Backlog#\^([A-Z]+\d+)")
+    block = re.compile(rf"(?<![A-Za-z0-9]){re.escape(slug)} Backlog#\^([A-Z]+\d+)")
     dangling = []
     for f in sorted(VAULT.rglob("*.md")):
         if ".git" in f.parts or "/Yore/" in str(f) or ".history" in f.parts:
@@ -396,7 +467,7 @@ def verify(slug, backlog):
 def main():
     ap = argparse.ArgumentParser(
         description="collapse an anchor's row kinds onto one number namespace")
-    ap.add_argument("action", choices=["plan", "apply", "verify"])
+    ap.add_argument("action", choices=["plan", "apply", "verify", "fuse"])
     ap.add_argument("--anchor", required=True)
     ap.add_argument("--limit", type=int, help="apply only the first N rows")
     ap.add_argument("--dry-run", action="store_true")
@@ -407,6 +478,19 @@ def main():
     backlog = find_backlog(slug)
     root = anchor_root(backlog, slug)
     plan = build_plan(scan_rows(backlog))
+
+    if args.action == "fuse":
+        left = build_plan(scan_rows(backlog))
+        if left:
+            sys.exit(f"{slug}: {len(left)} row(s) still collide — run "
+                     f"`apply` before `fuse`, or the rename creates the very "
+                     f"duplicate basename it exists to prevent")
+        renames = fuse_docs(root, slug, apply=not args.dry_run)
+        print(f"{slug}: {len(renames)} document(s)")
+        for doc, dest, rc, note in renames:
+            print(f"   {doc.name!r} → {dest.name!r}"
+                  + (f"  (rc={rc})" if rc is not None else "") + f"  {note}")
+        return
 
     if args.action == "verify":
         bad = verify(slug, backlog)

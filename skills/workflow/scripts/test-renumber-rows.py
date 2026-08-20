@@ -104,6 +104,14 @@ The doc link [[AAA T002 - The Colliding Task]] is the rename's business, not the
 prose rule's. Routed per [[AAA Backlog|AAA T002]] — a page link whose display
 text names the row, and [[BBB Backlog|BBB T002]] which is not ours.
 Gating rows: TINK T148, AAA T002 — none of those are blocked (em-dash after).
+
+| where | row |
+|---|---|
+| table cell | [[AAA Backlog#^T002\|AAA T002]] |
+| theirs | [[BBB Backlog#^T002\|BBB T002]] |
+
+Inbox trail: `MOVED -> AAA Backlog#^T002` and `MOVED -> BBB Backlog#^T002`.
+Suffix trap: [[XAAA Backlog#^T002|XAAA T002]] belongs to XAAA, not to AAA.
 """
 
 try:
@@ -160,6 +168,21 @@ try:
         ok("the unpadded `B18` was kept unpadded")
     else:
         no(f"B18 was reformatted to {got[1][0]!r}")
+
+    # ---- doc lookup: the fused form belongs to F, and must not be taken ----
+    print("== doc lookup refuses the F-doc that shares the number ==")
+    feat = aaa / "AAA Design" / "AAA Features"
+    feat.mkdir(parents=True)
+    (feat / "AAA002 - A Feature Doc.md").write_text(
+        "# [[AAA]] \u00b7 F002 — A Feature Doc\nintro.\n", encoding="utf-8")
+    if rn.find_doc(aaa, "AAA", "T002") == doc:
+        ok("T002 resolves to its own lettered doc, not `AAA002 - A Feature Doc`")
+    else:
+        no(f"find_doc returned {rn.find_doc(aaa, 'AAA', 'T002')}")
+    if rn.find_doc(aaa, "AAA", "T007") is None:
+        ok("a row with no lettered doc resolves to None, not the F-doc")
+    else:
+        no(f"T007 wrongly matched {rn.find_doc(aaa, 'AAA', 'T007')}")
 
     root = rn.anchor_root(bl, "AAA")
     if root == aaa:
@@ -246,6 +269,26 @@ try:
         ok("the same shape pointing at another anchor was left alone")
     else:
         no("the page-link alias rule crossed anchors")
+    if "[[AAA Backlog#^T019\\|AAA T019]]" in q:
+        ok("an ESCAPED-pipe alias inside a markdown table moved too")
+    else:
+        no(f"the table-cell form `\\|` was skipped:\n{q}")
+    if "[[BBB Backlog#^T002\\|BBB T002]]" in q:
+        ok("the foreign table-cell link was left alone")
+    else:
+        no("the escaped-pipe rule crossed anchors")
+    if "[[XAAA Backlog#^T002\\|XAAA T002]]" in q or "[[XAAA Backlog#^T002|XAAA T002]]" in q:
+        ok("a slug that ENDS with ours (XAAA vs AAA) was not matched")
+    else:
+        no(f"the slug matched inside a longer slug — the SV/TSV bug:\n{q}")
+    if "`MOVED -> AAA Backlog#^T019`" in q:
+        ok("a BARE `SLUG Backlog#^id` in a code span moved")
+    else:
+        no(f"the unbracketed block reference was skipped:\n{q}")
+    if "`MOVED -> BBB Backlog#^T002`" in q:
+        ok("the foreign bare reference was left alone")
+    else:
+        no("the bare-reference rule crossed anchors")
     if "TINK T148, AAA T019 — none of those" in q:
         ok("prose followed by an em-dash still moves (it is a list, not a title)")
     else:
