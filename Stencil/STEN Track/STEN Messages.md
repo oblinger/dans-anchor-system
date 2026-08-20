@@ -32,3 +32,4 @@ description: agent inbox — background-process messages for this anchor; append
 [2026-08-11 15:51:34] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/Stencil/STEN Track/STEN Backlog.md was edited
 [2026-08-12 16:04:16] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/Stencil/STEN Track/STEN Backlog.md was edited
 [2026-08-12 16:04:45] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/Stencil/STEN Track/STEN Backlog.md was edited
+[2026-08-20 09:44:15] [INFO] STEN: inbox drop → STEN Inbox 'AT Mail is a prose template awaiting Stencil — a candidate…' (from tink) — inbox created (at SYS/Bespoke/Skill Agent/dans-anchor-system/Stencil/STEN Track/STEN Backlog.md)

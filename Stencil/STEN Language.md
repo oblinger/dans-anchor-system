@@ -6,6 +6,7 @@ description: "the Stencil language — three constructs and four defaults"
 | --- | --- |
 | Corpus | [[Template Examples]] — the seven cases every construct is derived from |
 | Spec | [[TINK303 - Template DSL - one pattern language for facets, templates, and sections\|F303]] — the commissioning feature |
+| Discussion | [[STEN Language Discussions\|Discussions]] — dated trade-off threads behind the grammar |
 | ... | [[STEN Restated Corpus]],  [[STEN Track]],   |
 
 # Stencil Language
