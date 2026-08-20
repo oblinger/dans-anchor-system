@@ -98,6 +98,12 @@ SHARED_Q = """# Q
 - [[AAA Backlog#^T007|T007]] — ours but not colliding, must not move.
 - [[AAA Backlog#^T002|AAA T002]] — the cross-anchor display form C37 asks for.
 - [[AAA Backlog#^T002|T002 — the colliding task]] — alias carries a title too.
+
+Re-homed from AAA T002 last week; see also BBB T002, which is a different row.
+The doc link [[AAA T002 - The Colliding Task]] is the rename's business, not the
+prose rule's. Routed per [[AAA Backlog|AAA T002]] — a page link whose display
+text names the row, and [[BBB Backlog|BBB T002]] which is not ours.
+Gating rows: TINK T148, AAA T002 — none of those are blocked (em-dash after).
 """
 
 try:
@@ -220,6 +226,30 @@ try:
         ok("an alias carrying a title keeps the title and moves the id")
     else:
         no(f"the titled alias was mangled:\n{q}")
+    if "Re-homed from AAA T019 last week" in q:
+        ok("slug-prefixed PROSE moved — the slug qualifies it as ours")
+    else:
+        no(f"a qualified prose mention was left stale:\n{q}")
+    if "see also BBB T002" in q:
+        ok("the foreign anchor's slug-prefixed prose was left alone")
+    else:
+        no("the prose rule crossed into another anchor")
+    if "[[AAA T002 - The Colliding Task]]" in q:
+        ok("the prose rule stayed out of a fused-filename wiki-link")
+    else:
+        no(f"the prose rule reached inside a wiki-link:\n{q}")
+    if "[[AAA Backlog|AAA T019]]" in q:
+        ok("a page link whose alias names the row moved too")
+    else:
+        no(f"`[[AAA Backlog|AAA T002]]` was left stale:\n{q}")
+    if "[[BBB Backlog|BBB T002]]" in q:
+        ok("the same shape pointing at another anchor was left alone")
+    else:
+        no("the page-link alias rule crossed anchors")
+    if "TINK T148, AAA T019 — none of those" in q:
+        ok("prose followed by an em-dash still moves (it is a list, not a title)")
+    else:
+        no(f"an em-dash after the id wrongly blocked the rewrite:\n{q}")
     if bbl.read_text(encoding="utf-8") == BBB_BACKLOG:
         ok("the foreign anchor's backlog is byte-identical")
     else:

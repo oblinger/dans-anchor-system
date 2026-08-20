@@ -195,6 +195,38 @@ def find_doc(root, slug, old):
     return None
 
 
+WIKI_SPAN = re.compile(r"\[\[[^\[\]]*\]\]")
+
+
+class OutsideLinks:
+    """Adapts a regex so `_apply` runs it only on text OUTSIDE `[[…]]` spans.
+
+    Prose rules must not reach inside a wiki-link: the text there is a filename
+    or an alias, both owned by the link rules, and a filename in particular must
+    keep whatever spelling the file on disk actually has. Rather than bolt more
+    lookaheads onto the prose pattern — which is how ` - ` and ` — ` guards got
+    added, and how a legitimate `ABIO T002 — as gating…` got skipped — the link
+    spans are held out of the substitution entirely.
+
+    Quacks like `re.Pattern` to the extent `_apply` needs: `.subn`.
+    """
+
+    def __init__(self, rx):
+        self.rx = rx
+
+    def subn(self, repl, text):
+        out, total, pos = [], 0, 0
+        for span in WIKI_SPAN.finditer(text):
+            chunk, n = self.rx.subn(repl, text[pos:span.start()])
+            out.append(chunk)
+            out.append(span.group(0))
+            total += n
+            pos = span.end()
+        chunk, n = self.rx.subn(repl, text[pos:])
+        out.append(chunk)
+        return "".join(out), total + n
+
+
 def _apply(f, subs, apply, counter):
     """Run (regex, replacement) pairs over one file. Returns True if changed."""
     try:
@@ -239,14 +271,30 @@ def rewrite_qualified(slug, old, new, doc_stem, apply):
     # know which link it sat inside would rewrite both.
     block_rx = re.compile(
         rf"\[\[([^\[\]]*?{re.escape(slug)} Backlog)#\^{old}((?:\|[^\[\]]*)?)\]\]")
-    subs = [(block_rx, lambda m: f"[[{m.group(1)}#^{new}{realias(m.group(2))}]]")]
+    # `Re-homed from A2X T002` — prose, but the slug qualifies it, so it is as
+    # unambiguous as a link and gets moved rather than merely reported. It runs
+    # only OUTSIDE `[[…]]` (see `outside_links`): a wiki-link's interior is the
+    # link rules' business, and a filename there must keep whatever spelling the
+    # file on disk actually has.
+    prose_rx = re.compile(
+        rf"(?<![A-Za-z0-9])({re.escape(slug)}) {old}(?![0-9A-Za-z])")
+    # `[[VEC Backlog|VEC T003]]` — a link to the backlog PAGE whose display text
+    # names the row. No block anchor, so the rule above never sees it, and the
+    # prose rule refuses it because it ends in `]]`. It is still unambiguous.
+    plain_rx = re.compile(
+        rf"\[\[([^\[\]|]*{re.escape(slug)} Backlog)\|([^\[\]]*)\]\]")
+    named = re.compile(rf"(?<![A-Za-z0-9]){re.escape(slug)} {old}(?![0-9A-Za-z])")
+    subs = [(block_rx, lambda m: f"[[{m.group(1)}#^{new}{realias(m.group(2))}]]"),
+            (plain_rx,
+             lambda m: f"[[{m.group(1)}|{named.sub(f'{slug} {new}', m.group(2))}]]"),
+            (OutsideLinks(prose_rx), rf"\1 {new}")]
     if doc_stem:
         # `→ [[TINK012 - Title|T002]]` — the anchor CLI moved the target when it
         # renamed the file; the alias it left behind still says the old id.
         doc_rx = re.compile(
             rf"\[\[({re.escape(doc_stem)})((?:\|[^\[\]]*)?)\]\]")
         subs.append((doc_rx, lambda m: f"[[{m.group(1)}{realias(m.group(2))}]]"))
-    needles = [f"{slug} Backlog#^{old}"]
+    needles = [f"{slug} Backlog#^{old}", f"{slug} {old}"]
     if doc_stem:
         needles.append(f"[[{doc_stem}")
     changed, counter = [], [0]
@@ -316,10 +364,39 @@ def rename_doc(doc, slug, new, dry):
     return dest, res
 
 
+def verify(slug, backlog):
+    """Every reference that NAMES a row of this anchor which no longer exists.
+
+    The renumber's post-condition, and the only honest one: a run that reports
+    edits has proved nothing about what it left behind. Both qualified forms are
+    checked — `{slug} Backlog#^id` links and `{slug} id` prose — against the ids
+    the backlog actually carries.
+    """
+    text = backlog.read_text(encoding="utf-8")
+    live = (set(re.findall(r"\^([A-Z]+\d+)\b", text))
+            | {f"{k}{d}" for k, d, _n, _t in scan_rows(backlog)})
+    prose = re.compile(rf"(?<![A-Za-z0-9\[]){re.escape(slug)} ([TBQ]\d+)(?![0-9A-Za-z])")
+    block = re.compile(rf"{re.escape(slug)} Backlog#\^([A-Z]+\d+)")
+    dangling = []
+    for f in sorted(VAULT.rglob("*.md")):
+        if ".git" in f.parts or "/Yore/" in str(f) or ".history" in f.parts:
+            continue
+        try:
+            lines = f.read_text(encoding="utf-8").splitlines()
+        except (OSError, UnicodeDecodeError):
+            continue
+        for i, line in enumerate(lines, 1):
+            for form, rx in (("prose", prose), ("block", block)):
+                for m in rx.finditer(line):
+                    if m.group(1) not in live:
+                        dangling.append((form, m.group(1), f, i))
+    return dangling
+
+
 def main():
     ap = argparse.ArgumentParser(
         description="collapse an anchor's row kinds onto one number namespace")
-    ap.add_argument("action", choices=["plan", "apply"])
+    ap.add_argument("action", choices=["plan", "apply", "verify"])
     ap.add_argument("--anchor", required=True)
     ap.add_argument("--limit", type=int, help="apply only the first N rows")
     ap.add_argument("--dry-run", action="store_true")
@@ -330,6 +407,16 @@ def main():
     backlog = find_backlog(slug)
     root = anchor_root(backlog, slug)
     plan = build_plan(scan_rows(backlog))
+
+    if args.action == "verify":
+        bad = verify(slug, backlog)
+        if not bad:
+            print(f"{slug}: clean — every qualified reference resolves")
+            return
+        print(f"{slug}: {len(bad)} DANGLING reference(s)")
+        for form, rid, f, i in bad:
+            print(f"   {form:5} {rid:6} {f.relative_to(VAULT)}:{i}")
+        sys.exit(1)
 
     if args.action == "plan":
         if args.json:
