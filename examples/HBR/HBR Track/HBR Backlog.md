@@ -2,7 +2,7 @@
 description: "work queue"
 ---
 
-| -[[HBR Backlog]]- | → [[DAS]] → [[examples]] → [[HBR\|HARBOR]] → [[HBR Track\|HARBOR TRACK]] → [HBR Backlog](hook://p/HBR%20Backlog)  |
+| -[[HBR Backlog]]- | → [[DAS]] → [[FEX]] → [[HBR\|HARBOR]] → [[HBR Track\|HARBOR TRACK]] → [HBR Backlog](hook://p/HBR%20Backlog)  |
 | --- | --- |
 | Anchor | [[HBR Track]] (parent) |
 | Related | [[HBR Features]],  [[HBR Roadmap]],   |
@@ -15,7 +15,7 @@ Harbor's work queue — horizon H2s, one row per item, status in brackets.
 
 ## Active
 
-- **T001 — Cache eviction** [Active] — evict segments least-recently-served once the segment cache dir passes its byte cap, so a long transcode session cannot fill the disk. ^T001
+- **T004 — Cache eviction** [Active] — evict segments least-recently-served once the segment cache dir passes its byte cap, so a long transcode session cannot fill the disk. ^T004
   - **Next:** Add `cache_max_bytes` to `harbor.toml`, then sweep least-recently-served segments on each segment write once the dir exceeds it.
 
 - **F002 — On-the-Fly Transcode Session** [Active] — → [[F002 — On-the-Fly Transcode Session]] · per-client HLS transcode started on a direct-play miss (US-HBR-4). Container settled (HLS); Q2 resolved (A) — LRU by total bytes against a `cache_max_bytes` cap. ^F002
@@ -27,7 +27,7 @@ Harbor's work queue — horizon H2s, one row per item, status in brackets.
 
 ## Next
 
-- **T002 — Watched-root hot reload** [Ready] — re-scan when a watched root changes, without a restart. ^T002
+- **T005 — Watched-root hot reload** [Ready] — re-scan when a watched root changes, without a restart. ^T005
   - **Next:** Watch the configured roots with an fs-event watcher and re-run the Scanner on the changed subtree only, without restarting the daemon.
 
 ## Done
