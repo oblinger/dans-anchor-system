@@ -5,6 +5,7 @@ description: system design for the rule system — PRD, architecture, rule langu
 | -[[Warden Design]]- | → [[DAS]] → [[Warden]] → [Warden Design](hook://p/Warden%20Design)  |
 | --- | --- |
 | [[Warden PRD]]  | product requirements — the rule system, its goals, and the performance constraint |
+| [[Warden PRD Discussions]]  | design trade-off threads on the PRD — how each claim was settled, and what was rejected |
 | [[Warden Architecture]]  | the unified map: rules, rulesets, `include::` composition, dispatch, the hook subsystem, and the compiler/audit engine |
 | [[Warden Rule]]  | the rule language — the file format for a rule and a ruleset (sentinels, clauses, composition) |
 | [[Warden Semantics]]  | how the engine runs a rule — the condition, the actions, the runnable interpretation environment, and ruleset activation |
@@ -14,7 +15,7 @@ description: system design for the rule system — PRD, architecture, rule langu
 | [[Warden Integration Strategy]]  | what to adopt vs. build (prior art) + the dependency/repository policy |
 | [[Warden Survey]]  | prior-art survey of existing rule/hook systems + recommended adaptation |
 | [[Warden Examples]]  |  |
-| ... | [[F237 — Golden corpus exists in two diverged copies — the drift oracle cannot be trusted]],  [[Warden Consumers]],  [[Warden Interface]],   |
+| ... | [[F237 — Golden corpus exists in two diverged copies — the drift oracle cannot be trusted]],  [[Warden Consumers]],  [[Warden Interface]],  [[Warden PRD Discussions]],   |
 
 # Warden Design
 
