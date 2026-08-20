@@ -758,7 +758,7 @@ ingest_sweep() {
     # This matters for Quick.md ordering: muse always PREPENDS new bullets,
     # so processing oldest-first leaves newest at the TOP naturally. Observed
     # 2026-07-14: out-of-order sweep put a 9:48 bullet above an 11:23 bullet.
-    local candidate count=0 found_count=0 csize fc fs
+    local candidate count=0 found_count=0 blacklisted=0 csize fc fs
     while IFS= read -r candidate; do
         [[ -z "$candidate" ]] && continue
         found_count=$((found_count + 1))
@@ -778,6 +778,7 @@ ingest_sweep() {
         read -r fc fs <<< "$(_failure_get "$failfile" "$candidate")"
         if (( fc >= MUSE_MAX_FAILURES )) && [[ "$fs" == "$csize" ]]; then
             log "sweep: skipping repeatedly-failing file ($fc fails): $candidate"
+            blacklisted=$((blacklisted + 1))
             continue
         fi
         # Wait for iCloud materialization to finish before hashing/transcribing.
@@ -794,7 +795,16 @@ ingest_sweep() {
         fi
     done < <(find "$MUSE_JPR_DIR" -type f -iname '*.m4a' 2>>/tmp/muse-find-stderr.log | sort)
 
-    log "sweep: find returned $found_count candidates; ingested $count new"
+    # A bare `ingested 0 new` is a claim about the corpus; with files sitting in
+    # `.muse.failures` it is really a claim about the instrument, and the two read
+    # identically. That is how a 38-day outage stayed invisible: every run logged
+    # `ingested 0 new` while 20+ real recordings were blacklisted by a dead API
+    # key. The count is now always reported, so a zero has to say WHY it is zero.
+    if (( blacklisted > 0 )); then
+        log "sweep: find returned $found_count candidates; ingested $count new; $blacklisted BLACKLISTED (>= $MUSE_MAX_FAILURES consecutive fails, still skipped every sweep — see $failfile)"
+    else
+        log "sweep: find returned $found_count candidates; ingested $count new"
+    fi
     if [[ -s /tmp/muse-find-stderr.log ]]; then
         log "find stderr: $(tr '\n' '|' < /tmp/muse-find-stderr.log | head -c 400)"
         : > /tmp/muse-find-stderr.log

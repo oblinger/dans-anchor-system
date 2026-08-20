@@ -114,6 +114,31 @@ _failure_clear "$FF" "$P"
 read -r c s <<< "$(_failure_get "$FF" "$P")"
 [[ "$c" == "0" ]] && ok "clear removes the failure row" || no "clear failed: c=$c"
 
+# --- T569: a blacklisted file is COUNTED in the sweep summary ---------------
+# The 38-day MUSE outage was invisible because every run logged `ingested 0 new`
+# while 20+ real recordings sat blacklisted by a dead API key. A zero with files
+# in `.muse.failures` is a claim about the instrument, not about the corpus, and
+# the two used to read identically. These assert the summary can no longer be
+# silent about it — the source is checked rather than a live sweep run, because
+# the failing path needs a stale key and an iCloud container to reproduce.
+echo "== T569 blacklisted files are reported, not silently skipped =="
+SRC="$(cat "$MUSE")"
+[[ "$SRC" == *"blacklisted=\$((blacklisted + 1))"* ]] \
+    && ok "the skip branch increments a blacklisted counter" \
+    || no "skip branch does not count what it skipped"
+[[ "$SRC" == *"BLACKLISTED"* ]] \
+    && ok "the summary line names the blacklisted count" \
+    || no "summary line cannot report blacklisted files"
+[[ "$SRC" == *"still skipped every sweep"* ]] \
+    && ok "...and says the skipping is ONGOING, not a one-off" \
+    || no "message does not convey that the skip repeats every sweep"
+# The counter must be declared in the same `local` as `count`, or `set -u` kills
+# the sweep on the first blacklisted file — which would turn a reporting fix
+# into an outage.
+[[ "$SRC" == *"local candidate count=0 found_count=0 blacklisted=0"* ]] \
+    && ok "the counter is declared local beside count (set -u safe)" \
+    || no "blacklisted is not declared — set -u would abort the sweep"
+
 # --- F2: acquire_lock re-entrancy + stale reclaim + release -----------------
 echo "== F2 shared lock: re-entrant, stale-reclaim, release =="
 MUSE_LOCK_OWNED_BY_ME="no"; rm -rf "$(_lock_dir)"
