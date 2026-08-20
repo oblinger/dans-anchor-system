@@ -17,7 +17,7 @@ Grooming drives every frontier row into exactly one **groomed state**, and each 
 | 2 | **Questions** | `[Questions]` | at least one numbered `Q<n>` reachable from the row — inline `- **Q<n>` sub-bullets, or a `→ [[Feature Doc]]` link to a `## Open Questions` block; each Q satisfies the five-part question bar (identifier + specific question + labeled `**(A)**` options + Recommendation + a live wiki-link to every named artifact) | R-backlog-05 + R-query-08 / R-query-13 / R-query-15 |
 | 3 | **Blocked / Waiting** | `[Blocked]` / `[Waiting …]` / `[Watching …]` | names the *specific* obstacle or awaited/observed event (`[Blocked F<NNN>]` is exempt — the chained link is the description) | R-backlog-06 |
 | 4 | **Verify** | `[Verify]` / `[Verify-by …]` | a `- **Verify:**` sub-bullet stating the concrete yes/no the user answers from where they sit | R-backlog-04 |
-| 5 | **Watching** | `[Watching …]` | a `- **Verify:**` non-recurrence question (R-backlog-04) **and**, for timed forms, an absolute `YYYY-MM-DD` soak-expiry date in the body | R-backlog-04 + R-backlog-07 |
+| 5 | **Watching** | `[Watching …]` | **either** a `- **Verify:**` non-recurrence question **or** a `- **Probe:**` naming the agent-owned deferred check and its trigger (R-backlog-04) — **and**, for timed forms, an absolute `YYYY-MM-DD` soak-expiry date in the body | R-backlog-04 + R-backlog-07 |
 
 Timed `[Waiting Nd/Nh]` forms share the state-3 obstacle contract *and* the state-5 absolute-date contract (R-backlog-07). Transient `[Designing]` (still being planned) and terminal `[Done]` are not groomed exit states — a frontier row must not rest in `[Designing]` after a groom. The cross-cutting rule behind states 2–5 is **references get links**: any artifact a row's body tells the user to look at is a live `[[wiki-link]]` (enforced on the queries surface by R-query-15).
 
@@ -45,9 +45,11 @@ A top-level row under `## Now` / `## Next` with no status bracket (or the bare p
 check:: backlog_verify_concrete
 mend:: backlog-verify-question
 
-Every `[Verify]` / `[Verify-by …]` / `[Watching …]` row carries a `- **Verify:**` sub-bullet stating the concrete yes/no the user can answer from where they sit (do X, observe Y — did Y happen?). The mechanical queries render quotes it verbatim; a Verify row without one renders as an unanswerable ⚠.
+Every `[Verify]` / `[Verify-by …]` row carries a `- **Verify:**` sub-bullet stating the concrete yes/no the user can answer from where they sit (do X, observe Y — did Y happen?). The mechanical queries render quotes it verbatim; a Verify row without one renders as an unanswerable ⚠. **This half is not relaxed by anything below**: `[Verify*]` is the user-owned family, and letting it satisfy the rule with an agent-side field would be a way to park a user check where the user never sees it.
 
-**Check pattern:** for each row whose bracket starts `Verify` or `Watching`, the row's indented sub-bullets include one starting `- **Verify:**`.
+A `[Watching …]` row carries **either** that `- **Verify:**` question **or** a `- **Probe:**` — the F305 agent-owned deferred check, naming its trigger and what to run when it fires. The two are different owners of the same shape, and a Watching row may legitimately be either; T237 relaxed the three code sites (the `define` refusal, F240's ownership gate, audit-q C41) and this is the statement they implement.
+
+**Check pattern:** for each row whose bracket starts `Verify`, the row's indented sub-bullets include one starting `- **Verify:**`; for each row whose bracket starts `Watching`, they include one starting `- **Verify:**` or one starting `- **Probe:**`.
 
 ### RULE R-backlog-05 — `[Questions]` rows keep the bracket promise — a numbered `Q<n>` is reachable (checked)
 check:: backlog_questions_have_numbered_q

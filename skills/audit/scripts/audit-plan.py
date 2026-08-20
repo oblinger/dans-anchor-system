@@ -5523,18 +5523,42 @@ def chk_backlog_frontier_bracketed(target, anchor_root, args):
     return ("pass", "") if not failures else ("fail", "; ".join(failures[:3]))
 
 
+_VERIFY_SUB_RE = re.compile(r"^\s+-\s+\*\*Verify:\*\*")
+_PROBE_SUB_RE = re.compile(r"^\s+-\s+\*\*Probe:\*\*")
+
+
 def chk_backlog_verify_concrete(target, anchor_root, args):
-    """R-backlog-04: every [Verify*]/[Watching*] row carries a `- **Verify:**`
-    sub-bullet with the concrete yes/no the user answers."""
+    """R-backlog-04: a `[Verify*]` row carries a `- **Verify:**` sub-bullet with
+    the concrete yes/no the USER answers; a `[Watching*]` row carries that or a
+    `- **Probe:**` — the F305 agent-owned deferred check and its trigger.
+
+    The Watching half was relaxed by T237, which fixed three code sites (the
+    `define` refusal, F240's ownership gate, audit-q C41) and missed two: the
+    ruleset prose that is the authority they implement, and this checker. So a
+    row moved to its designed `[Watching]`+Probe shape was accepted by `state`
+    and then nagged by Warden on the same write — the read-the-warning-and-
+    ignore-it training the audit discipline exists to prevent (ATT, 2026-08-18).
+
+    The Verify half is deliberately NOT relaxed. `[Verify*]` is the user-owned
+    family; letting a Probe satisfy it would be a way to park a user check where
+    the user never sees it.
+    """
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file to inspect"
     failures = []
     for i, h2, row, subs in _backlog_rows(_read(f)):
         b = _row_bracket(row)
-        if b and (b.startswith("Verify") or b.startswith("Watching")):
-            if not any(re.match(r"^\s+-\s+\*\*Verify:\*\*", s) for s in subs):
+        if not b:
+            continue
+        if b.startswith("Verify"):
+            if not any(_VERIFY_SUB_RE.match(s) for s in subs):
                 failures.append(f"line {i}: [{b}] row has no `- **Verify:**` question")
+        elif b.startswith("Watching"):
+            if not any(_VERIFY_SUB_RE.match(s) or _PROBE_SUB_RE.match(s) for s in subs):
+                failures.append(
+                    f"line {i}: [{b}] row has neither a `- **Verify:**` question "
+                    f"nor a `- **Probe:**` agent-check")
     return ("pass", "") if not failures else ("fail", "; ".join(failures[:3]))
 
 
