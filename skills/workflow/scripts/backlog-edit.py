@@ -2306,25 +2306,38 @@ def _subbullets_to_write(status, eff_verify, eff_next, eff_user, next_text,
     if not wrote_next and next_text is not None and next_text.strip():
         out.append(("Next", next_text.strip()))
 
-    # T123 — a TERMINAL row may still carry and rewrite its `- **Verify:**`
-    # question. `_verify_family("Done")` is False, so the moment a row was
-    # answered and moved to [Done] its question froze at whatever it last said
-    # and every later `set --verify` was skipped, then correctly caught by
-    # T050's post-write guard ("the edit reported success but the file does not
-    # reflect it"). There was no supported way to correct or retire it, so a
-    # closed row went on vouching for a claim later proven false — MUX F237's
-    # question asserted "there is no log anywhere that ever saw 13", which the
-    # agent then disproved, and both lines had to be rewritten by hand outside
-    # `state`.
+    # T123 → T560 — an EXPLICIT `--verify` is honoured whatever the bracket.
     #
-    # Gated on `verify_text`, not `eff_verify`, for the same reason the Next
-    # block above is (T056): an ordinary re-touch of a Done row must not
-    # rewrite — and thereby reorder, since `_ensure_subbullet` re-inserts
-    # directly under the row line — a sub-bullet nobody asked to change.
+    # T123 opened this for TERMINAL rows only: `_verify_family("Done")` is
+    # False, so a row answered and moved to [Done] froze its question at
+    # whatever it last said and every later `set --verify` was skipped — a
+    # closed row went on vouching for a claim later proven false (MUX F237
+    # asserted "there is no log anywhere that ever saw 13", which the agent
+    # then disproved, and both lines had to be rewritten by hand outside
+    # `state`).
+    #
+    # The gate was still too narrow, and this is the FOURTH instance of one
+    # defect: T046 opened Next to any bracket, T236 opened User to any bracket,
+    # and Verify kept a bracket test. [[SCOUT]] hit the remaining hole
+    # 2026-08-19 on a `[Waiting 2026-09-20]` row — neither verify-family nor
+    # terminal, so `--verify` matched no arm, the CLI printed `updated`, and
+    # T050's landing check reverted the file with "the edit reported success
+    # but the file does not reflect it". That message reads like a writer bug
+    # and is really this dispatch declining to write. A parked soak row is
+    # exactly where a Verify question legitimately sits before its date
+    # arrives, which is why the bracket was never the right thing to test.
+    #
+    # Gated on `verify_text`, not `eff_verify`, for the T056 reason the blocks
+    # around it share: an ordinary re-touch must not rewrite — and thereby
+    # reorder, since `_ensure_subbullet` re-inserts directly under the row
+    # line — a sub-bullet nobody asked to change. What it WRITES is
+    # `eff_verify`, never the raw text, so the `· *why-user: …*` trailer the
+    # F240 gate folded in is not silently dropped (the T236 correction, which
+    # T123's raw-`verify_text` write predated).
     wrote_verify = any(lbl == "Verify" for lbl, _ in out)
-    if (not wrote_verify and _terminal_bracket(status)
-            and verify_text is not None and verify_text.strip()):
-        out.append(("Verify", verify_text.strip()))
+    if (not wrote_verify and verify_text is not None and verify_text.strip()
+            and eff_verify and eff_verify.strip()):
+        out.append(("Verify", eff_verify.strip()))
 
     # T236 — an EXPLICIT `--user` is honoured whatever the bracket. This is the
     # THIRD instance of one defect: T046 fixed it for Next, T123 for Verify, and
