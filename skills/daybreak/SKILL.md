@@ -101,7 +101,7 @@ Read `~/ob/kmr/MY/My Dates/MY Dates.md` — the register of recurring annual dat
 
 **The six weeks is Dan's own convention, recovered from his 2022 system** (`Annual.html`: *"month prefix 6-weeks in advance of actual date"*). It was built for posted cards, which have to be bought, written and mailed. An e-card collapses most of that — but the six weeks was really about *deciding what to say*, and it stays the target for anyone who matters. The 14-day window is fine for awareness and demonstrably too late for action: Collette Roney's 1 August birthday was missed in 2026 precisely because nothing surfaced it.
 
-**Surfacing a date is not the work.** A `Card` ✓ row inside the window belongs in the briefing's **Decisions** block with a concrete next action, not in a list of trivia. How a card actually gets sent is [[ADMIN Birthdays]]; the gift half is [[HERMES|Hermes]]'s when a row carries `Gift` ✓.
+**Surfacing a date is not the work.** A `Card` ✓ row inside the window belongs in the briefing's **Decisions** block with a concrete next action, not in a list of trivia. How a card actually gets sent is [[APRF Birthdays]]; the gift half is [[HERMES|Hermes]]'s when a row carries `Gift` ✓.
 
 **Record what went out.** When a card is sent, tick the year into that row's Notes so next year's draft does not repeat itself, and log any promise the card made — *"let's talk in two weeks"* — as a dated [[LUMEN Pebble|pebble]]. The promise is the perishable part.
 

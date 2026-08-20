@@ -15,7 +15,7 @@ description: system design for the rule system — PRD, architecture, rule langu
 | [[Warden Integration Strategy]]  | what to adopt vs. build (prior art) + the dependency/repository policy |
 | [[Warden Survey]]  | prior-art survey of existing rule/hook systems + recommended adaptation |
 | [[Warden Examples]]  |  |
-| ... | [[F237 — Golden corpus exists in two diverged copies — the drift oracle cannot be trusted]],  [[Warden Consumers]],  [[Warden Interface]],  [[Warden PRD Discussions]],   |
+| ... | [[F237 — Golden corpus exists in two diverged copies — the drift oracle cannot be trusted]],  [[Warden Consumers]],  [[Warden Interface]],   |
 
 # Warden Design
 

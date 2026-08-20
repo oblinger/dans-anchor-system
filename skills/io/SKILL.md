@@ -34,7 +34,7 @@ Read from and write to external services. Each sub-skill is an access card with 
 **Use the MCP server for as little as possible.** It is one more moving part on the same single credential store, and two independent failures make it the weakest link:
 
 - **It is not currently reachable as an MCP.** `claude mcp list` reports no servers — an `ANTHROPIC_API_KEY` precedence warning blocks registration, so `ob_boot` re-registers it into a void at every login. The server itself is healthy on `:8000`; only the Claude Code integration is broken. Reaching it means speaking JSON-RPC over HTTP by hand.
-- **Its token expires every 7 days** (the OAuth app is in Testing mode), and nothing probes it — so the credentials rot silently and the first symptom is an unrelated task failing. See [[ATT Backlog#^T022|ATT T022]].
+- **Its token expires every 7 days** (the OAuth app is in Testing mode), and nothing probes it — so the credentials rot silently and the first symptom is an unrelated task failing. See [[ATT Backlog#^T229|ATT T229]].
 
 **One credential store, two clients.** `gsa` and `workspace-mcp` both read `~/.google_workspace_mcp/credentials/{user}@gmail.com.json`. There are not two OAuth paths to repair — one consent fixes both. When re-consenting, **tick "Select all"**: the permission checkboxes default to unchecked, and clicking straight through grants `email`/`profile`/`openid` only, which then fails as HTTP 403 *insufficient scopes* rather than as an auth error.
 

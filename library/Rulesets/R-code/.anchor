@@ -1,1 +1,1 @@
-description: Code-flavored rulesets — language/platform conventions. Contains
+description: "Code-flavored rulesets — language- or platform-specific coding conventions. Not armed: R-mac carries no `where::`, so it defaults to `always`."

@@ -20,7 +20,7 @@ requires:: vault, anchor-cli, skill:workflow, facet:inbox
 
 The runbook for `/inbox` — reads the current anchor's pending Inbox entries, integrates each into the right planning surface, and writes the sanctioned status tag back through `state`.
 
-`/inbox` is the third and final leg of the agent-inbox pattern ([[ATT045 - Agent inbox pattern]], [[TINK Backlog#^T131|T131]]): leg 1 (`state drop`) lets any agent hand another anchor a message without executing anything; leg 2 (`Inbox N` on the status banner) makes a pending drop visible; this skill is what actually reads and acts on it.
+`/inbox` is the third and final leg of the agent-inbox pattern ([[ATT045 - Agent inbox pattern]], [[TINK Backlog#^T395|T395]]): leg 1 (`state drop`) lets any agent hand another anchor a message without executing anything; leg 2 (`Inbox N` on the status banner) makes a pending drop visible; this skill is what actually reads and acts on it.
 
 ## Trigger
 

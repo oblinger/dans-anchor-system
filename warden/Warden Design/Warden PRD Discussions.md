@@ -1,5 +1,5 @@
 ---
-description: "design trade-off threads on the Warden PRD — dated, Problem / Options / Decision"
+description: "design trade-off threads on the PRD — how each claim was settled, and what was rejected"
 ---
 
 # Warden PRD Discussions

@@ -1,1 +1,1 @@
-description: "Architecture rules — **umbrella over 5 mined design-rule families, 15 rules total** (F218, upgraded 2026-07-05):"
+description: Architecture rulesets — patterns for code organization, module structure, dependency direction. Adopt the umbrella to pull all architecture rulesets, or cherry-pick individual sets.

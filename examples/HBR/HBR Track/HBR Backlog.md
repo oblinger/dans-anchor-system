@@ -9,7 +9,7 @@ description: "work queue"
 | ... | [[HBR Messages]],  [[HBR queries]],  [[HBR Rock]],  [[HBR Rocks]],  [[HBR Status]],   |
 
 # HBR Backlog
-<!-- state:backlog wv -->
+<!-- state:backlog 7o -->
 Harbor's work queue — horizon H2s, one row per item, status in brackets.
 
 

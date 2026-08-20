@@ -1,1 +1,1 @@
-description: "Per-facet rulesets. Each child is a thin catalog stub pointing at a `# RULESET R-<facet>` block embedded in its `CAB Facets/<Facet>.md` spec. Children:"
+description: Umbrella ruleset aggregating the per-facet rulesets embedded in DAS facet spec files.
