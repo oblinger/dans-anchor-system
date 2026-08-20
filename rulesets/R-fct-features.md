@@ -40,3 +40,43 @@ The feature-doc H1 reads `# [[{slug}]] · F{n} — {Feature Name}` — a wiki-li
 The `{slug} Features.md` index page lists features newest-first. Each row is a wiki-link to the feature doc — `[[{SLUG}<NNN> - <Title>]]` for the current form, `[[{slug} F<NNN> — <Title>]]` or `[[F<NNN> — <Title>]]` for the two older ones — followed by the lifecycle state in backtick-brackets (e.g. `` `[Done]` ``), an em-dash, and a one-line description. The link must *target* the filename, since that is what Obsidian resolves; the **displayed** text stays bare via the pipe form (`[[TINK300 - Title|F300]]`), which is also what audit-q C37 asks for. The lifecycle state in the index mirrors the `## Status` section of the feature doc.
 **Check pattern:** index rows match `- \[\[(?:(?:[A-Za-z][A-Za-z0-9]*\s+)?F\d+ — |[A-Za-z]+\d+ - ).+\]\] \`\[.+\]\` — `.
 **Why:** the index is the navigation surface; backtick-brackets make lifecycle state scannable at a glance without opening each feature doc.
+
+### RULE R-fct-features-05 — A pending Open Question has earned its way to the user (checked)
+check:: features_question_why_ask
+mend:: features-decide-or-justify
+
+R-fct-features-02 governs where the `## Open Questions` block sits. This rule governs what is allowed to be in it. It is the standing form of F257's who-should-decide gate, and it mirrors both of that gate's refusals:
+
+- **The question must not be agent-territory** — ordering, batching, rollback, a cosmetic rename. Per [[F068 — Assume-and-announce discipline (Drive mode)|F068]] those are never the user's call: pick the sensible option, announce it, and proceed. Refused regardless of justification, because no sentence makes a batching order into something the user holds an opinion the agent lacks.
+- **A `Lean` or `Strong` recommendation carries a `· *why-ask: …*` annotation.** A recommendation is the agent stating it can decide, so asking anyway is the move that needs defending — the annotation is where it names the reason the lean is not enough: an irreversible external action, an interface-sticky name or schema, an architecture lock-in, a taste only the user holds. **`Recommendation: None` — the honest ask — passes untouched**, and that asymmetry is the whole design: the rule taxes confident asks, never uncertain ones.
+
+**This is not merely `audit-q` C50 restated, and the difference is the point.** C50 reaches a feature doc by following `→ [[doc]]` from a `[Questions]` backlog row, so a doc whose row is bracketed anything else — or that has no row at all — is never swept, however many recommendation-bearing questions it is holding. This rule is keyed on the **file**, through this ruleset's `where::`, so the row's bracket cannot hide it. Both predicates and the pending-Q slicing are borrowed from the modules the mint gate and C50 themselves call; nothing about the contract is restated in the checker.
+
+**Measured at arming, 2026-08-20: 784 feature docs, 115 pending questions — 87 clean, 0 agent-territory, 28 carrying a Lean/Strong with no `why-ask`.** The 28 are exactly the population C50 cannot see, concentrated in ten pre-gate MUX-era docs (`F049` 7, `F037` 6, `F079` 3, `F116` 3, and six more with one or two each). They are named rather than smoothed over: each surfaces in its own anchor's audit, where the fix is usually to decide the question rather than to annotate it. The zero on agent-territory is the load-bearing half — the shape F068 refuses outright does not exist anywhere in the corpus.
+
+**Check pattern:** for each pending `**Q<n>` bullet in `## Open Questions` (outside any `### Resolved` / `### Removed` zone), the block fails `backlog-edit.is_agent_territory_question`, and if `recommendation_strength` is `Lean` or `Strong` it satisfies `has_why_ask_annotation`.
+**Why:** the agent's prime directive is to NOT ask ([[Query PRD]]); every question that reaches the user spends attention that a decision the agent was already positioned to make would not have cost. The gate catches this at the mint, but a question can reach a doc by hand or predate the gate, and until this rule the file itself asserted nothing.
+
+## Mend
+
+### MEND features-decide-or-justify
+
+Which fix you need depends on which clause fired.
+
+**"is agent-territory"** — decide it. Ordering, batching, rollback and cosmetic renames are yours under F068: pick the sensible option, say so in the doc's `## Resolved` as an agent decision, and remove the question.
+
+```sh
+state remove <anchor> "<doc path>" Q<n> --reason "agent-territory — decided and announced"
+```
+
+**"carries a recommendation but no `why-ask`"** — the honest first move is to re-read your own lean and ask whether you are asking out of caution rather than need. Four shapes resolve themselves: low-stakes and reversible (assume and announce), ordering or batching (you pick), the answer is already in your analysis or the rules (answer it), mechanically checkable (verify it — F240).
+
+If it survives that — an irreversible external action, an interface-sticky name or schema, an architecture lock-in, or a taste only the user holds — say so:
+
+```sh
+state define <anchor> "<doc path>" Q<n> --why-ask "<one sentence>"
+```
+
+Downgrading the recommendation to `None` to slip the gate is not a fix. `None` means you genuinely have no answer; writing it when you do have one buys silence from the checker by making the doc lie.
+
+For the model, read [[DAS ask-format]] and [[Query PRD]].

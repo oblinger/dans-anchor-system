@@ -107,6 +107,32 @@ sanitize_title() {
         | sed -E 's/^ +| +$//g'
 }
 
+# fallback_title <transcript> — a title derived from the transcript itself, with
+# no network, no credential and no cost. Used when the LLM titler is
+# unreachable.
+#
+# WHY THIS EXISTS. Until 2026-08-20 a failure of the title call ended the
+# ingest: `|| { warn ...; return 1; }` on a step that produces a decorative
+# 3-6 word label. By then Whisper had ALREADY transcribed the memo, so the
+# irreplaceable part -- the content -- was in hand and was thrown away because
+# a cosmetic one could not be generated. Twenty real recordings were lost that
+# way across 38 days when the Anthropic key was revoked (ATT T239).
+#
+# The pipeline already knew how to do this: the suppression branch above writes
+# a locally-derived diagnostic title and never calls the LLM at all. The normal
+# path was the only one without a fallback.
+#
+# Six words of the actual transcript is a genuinely serviceable title -- often
+# better than a generated one, because it is what the person said. Notes titled
+# this way carry `title_source: transcript` in their frontmatter so a later
+# pass can upgrade them, which is a rename rather than a re-ingest.
+fallback_title() {
+    local words
+    words="$(sanitize_title "$1" | cut -d' ' -f1-6)"
+    words="${words:0:48}"
+    printf '%s' "${words:-Untitled}"
+}
+
 # detect_silences <audio-file> — emits one 'start end' pair (seconds, floats)
 # per detected silence >= MUSE_SILENCE_MIN_GAP seconds at noise floor
 # MUSE_SILENCE_NOISE_DB. Empty output = no long silences (or ffmpeg failed —
@@ -580,10 +606,13 @@ ingest_one() {
         suppress="trimmed-wps"
     fi
 
+    local title_source="llm"
+
     # 4. title — skip the LLM call for suppressed items (fixed diagnostic title
     # tells you WHY it was suppressed when browsing the archive)
     local title
     if [[ "$suppress" != "no" ]]; then
+        title_source="suppressed"
         if [[ "$suppress" == "min-words" ]]; then
             title="Suppressed $suppress ${word_count}w ${duration%.*}s"
         else
@@ -591,9 +620,19 @@ ingest_one() {
         fi
     else
         local raw_title
-        raw_title="$("$ASKAI_BIN" "$TITLE_SYSTEM" "$text")" || { warn "title derivation failed (skipping): $audio"; return 1; }
-        title="$(sanitize_title "$raw_title")"
-        [[ -n "$title" ]] || title="Untitled"
+        # NEVER fatal. The transcript is already in hand at this point; losing
+        # it because a decorative label could not be generated is a strictly
+        # worse outcome than an imperfect label. See fallback_title.
+        if raw_title="$("$ASKAI_BIN" "$TITLE_SYSTEM" "$text" 2>/dev/null)"; then
+            title="$(sanitize_title "$raw_title")"
+        else
+            warn "title derivation failed -- keeping the memo with a transcript-derived title: $audio"
+            title=""
+        fi
+        if [[ -z "$title" ]]; then
+            title="$(fallback_title "$text")"
+            title_source="transcript"
+        fi
     fi
 
     # 6. sequence letter — date is YYYY-MM-DD, letter disambiguates same-day items
@@ -613,6 +652,7 @@ ingest_one() {
         printf 'captured: %s\n' "$captured"
         printf 'audio_sha256: %s\n' "$sha"
         printf 'state: %s\n' "$([[ "$suppress" != "no" ]] && echo "suppressed-$suppress" || echo "unreviewed")"
+        printf 'title_source: %s\n' "$title_source"
         printf 'word_count: %s\n' "$word_count"
         printf 'audio_duration_s: %s\n' "$duration"
         printf 'words_per_second: %s\n' "$wps"

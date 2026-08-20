@@ -124,9 +124,18 @@ if rule:
     # off one required field is exactly the sentence that was wrong.
     check("...and no longer says Verify-or-Watching requires Verify",
           bool(re.search(r"bracket starts `Verify` or `Watching`", body)), False)
-# The state table (row 5) is a second copy of the same claim in the same file,
-# and it is the one Atticus found first.
-table_row = re.search(r"^\|\s*5\s*\|\s*\*\*Watching\*\*.*$", text, re.M)
+# The state table is a second copy of the same claim in the same file, and it is
+# the one Atticus found first.
+#
+# MATCHED ON THE STATE NAME, NOT ITS ROW NUMBER (fixed 2026-08-20, T035). This
+# read `^\|\s*5\s*\|` — Watching happened to be state 5 — and broke the moment
+# T035 inserted `[User]` at position 3 and pushed it to 6. Nothing about the
+# claim had changed; the table had simply grown a row above it. An ordinal is
+# not identity here (the numbers are display order, renumbered by any
+# insertion), so pinning one buys a false failure on a correct edit and, worse,
+# would go quietly green if a future edit renumbered some OTHER state into
+# slot 5.
+table_row = re.search(r"^\|\s*\d+\s*\|\s*\*\*Watching\*\*.*$", text, re.M)
 check("the state table's Watching row exists", bool(table_row), True)
 if table_row:
     check("...and it mentions Probe too", "Probe" in table_row.group(0), True)

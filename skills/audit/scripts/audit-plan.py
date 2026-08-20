@@ -5934,6 +5934,204 @@ def chk_backlog_timed_has_expiry_date(target, anchor_root, args):
     return ("pass", "") if not failures else ("fail", "; ".join(failures[:3]))
 
 
+_USER_SUB_RE = re.compile(r"^\s+-\s+\*\*User:\*\*")
+_USER_BRACKET_RE = re.compile(r"(?:\d+\s+)?User")
+_WHY_USER_ACTION_ANNOT_RE = re.compile(r"·\s*\*why-user-action:")
+
+
+def chk_backlog_user_action_named(target, anchor_root, args):
+    """R-backlog-08: a `[User]` row names the user-only action it waits on, in a
+    `- **User:**` sub-bullet, and says which credential or human-only faculty
+    that action needs. The on-write half of F259's contract.
+
+    TWO clauses, because C51 and the F259 mint gate are not the same check and
+    mirroring only the audit would have left half the contract unstated. C51
+    asks whether an ACTION is named; the gate additionally refuses a `[User]`
+    entry without `--why-user-action`, which persists on the row as a
+    `· *why-user-action: …*` trailer. Naming the action says what to do; the
+    justification says why it cannot be the agent doing it — and that second
+    claim is the one that decides whether the row belongs in a person's queue
+    at all. Same two-clause shape as R-backlog-09, for the same reason.
+
+    `[User]` is the one bracket whose whole meaning is *the agent has stopped and
+    the person must act*, and its count folds into the banner's Questions bucket
+    — so an unnamed one costs the user a click into a row that does not say what
+    it wants. That is the shape [[DAS Backlog]] calls a thought-terminating
+    label, and it is worse here than in `[Blocked]`: a blocked row is at least
+    honest that nobody is being asked, whereas an unnamed `[User]` row is
+    addressed to someone and does not tell them what for.
+
+    NO DOC-SIDE EXEMPTION, deliberately, and it is worth saying why since
+    R-backlog-02 sitting a few lines up HAS one. F332 moved exactly one field
+    into the arrow-linked doc — `next::` — and `backlog-edit` reads only that
+    one back; `- **User:**`, `- **Verify:**` and `- **Probe:**` all stay on the
+    row. Granting this rule the same escape would exempt every row in the vault,
+    because the field it would look for is one nothing writes.
+    """
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file to inspect"
+    failures = []
+    for i, h2, row, subs in _backlog_rows(_read(f)):
+        b = _row_bracket(row)
+        if not (b and _USER_BRACKET_RE.fullmatch(b)):
+            continue
+        sub = next((s for s in subs if _USER_SUB_RE.match(s)), None)
+        if sub is None:
+            failures.append(
+                f"line {i}: [{b}] row names no user-only action "
+                f"(no `- **User:**` sub-bullet)")
+        elif not _WHY_USER_ACTION_ANNOT_RE.search(sub):
+            failures.append(
+                f"line {i}: [{b}] row's action names no credential or human-only "
+                f"faculty (no `· *why-user-action: …*`)")
+    return ("pass", "") if not failures else ("fail", "; ".join(failures[:3]))
+
+
+_WHY_USER_ANNOT_RE = re.compile(r"·\s*\*why-user:")
+
+_AQ_MOD = None
+
+
+def _aq_mod():
+    """Lazy import of audit-q — borrowed for `_pending_q_blocks`, the slicing
+    that decides which `**Q<n>` bullets are PENDING (outside any `### Resolved`
+    / `### Removed` zone). That walk is already the single source of truth
+    shared with `state`'s revalidate, both built on `backlog-edit` primitives;
+    a third spelling here would be a third thing to drift, and it would drift
+    invisibly — a checker that disagreed about which Qs are pending would nag
+    resolved questions or ignore live ones, and both look like the corpus being
+    wrong rather than the instrument. Import is side-effect-free (audit-q builds
+    its vault index in `main`, not at module scope) and measured at ~50 ms."""
+    global _AQ_MOD
+    if _AQ_MOD is None:
+        import importlib.util
+        import sys as _sys
+        aq_path = Path(__file__).resolve().parent / "audit-q.py"
+        spec = importlib.util.spec_from_file_location("audit_q_for_plan", aq_path)
+        mod = importlib.util.module_from_spec(spec)
+        # Registered BEFORE exec, unlike `_be_mod` above, and the asymmetry is
+        # load-bearing: audit-q defines `@dataclass` types, and dataclass
+        # construction resolves annotations through `sys.modules[cls.__module__]`.
+        # Executing an unregistered module makes that lookup return None and the
+        # import dies on `'NoneType' object has no attribute '__dict__'` — a
+        # message that names neither dataclasses nor the missing registration.
+        _sys.modules["audit_q_for_plan"] = mod
+        spec.loader.exec_module(mod)
+        _AQ_MOD = mod
+    return _AQ_MOD
+
+
+def chk_features_question_why_ask(target, anchor_root, args):
+    """R-fct-features-05: a pending Open Question in a feature doc has earned
+    its way to the user. The file-scoped half of F257's gate.
+
+    Two clauses, mirroring `backlog-edit.question_mint_gate` exactly:
+
+      1. the question is not AGENT-TERRITORY — ordering, batching, rollback, a
+         cosmetic rename. Those are never the user's call (F068), and the gate
+         refuses them regardless of `--why-ask`, so this clause has no override
+         either.
+      2. a `Lean` / `Strong` recommendation carries a `· *why-ask: …*`
+         annotation. A recommendation is the agent saying it can decide; asking
+         anyway is the thing that needs justifying. `Recommendation: None` — the
+         honest ask — passes untouched and always has.
+
+    THIS IS NOT MERELY C50 PARITY; it closes a reachability hole. C50 walks
+    feature docs by following `→ [[doc]]` from `[Questions]` backlog rows, so a
+    doc whose row is bracketed anything else — or that has no row at all — is
+    never swept, however many recommendation-bearing questions it holds. This
+    rule is keyed on the FILE by `R-fct-features`' `where::`, so the row's
+    bracket cannot hide it.
+
+    Both predicates are borrowed from `backlog-edit`, the module the mint gate
+    itself calls, and the pending-Q slicing from `audit-q` — nothing about the
+    contract is restated here.
+    """
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file to inspect"
+    try:
+        be, aq = _be_mod(), _aq_mod()
+    except Exception as exc:
+        return "error", f"cannot borrow the F257 predicates: {exc}"
+    try:
+        lines = _read(f).splitlines()
+    except Exception as exc:
+        return "error", f"cannot read {f.name}: {exc}"
+    failures = []
+    for q_num, q_line, block in aq._pending_q_blocks(lines):
+        if be.is_agent_territory_question(block):
+            failures.append(
+                f"line {q_line}: Q{q_num} is agent-territory (ordering / batching / "
+                f"rollback / cosmetic rename) — decide it and announce, never ask")
+        elif (be.recommendation_strength(block) in ("Lean", "Strong")
+                and not be.has_why_ask_annotation(block)):
+            failures.append(
+                f"line {q_line}: Q{q_num} carries a recommendation but no "
+                f"`· *why-ask: …*` — a lean means you can likely decide (F068)")
+    return ("pass", "") if not failures else ("fail", "; ".join(failures[:3]))
+
+
+def chk_backlog_verify_is_user_grade(target, anchor_root, args):
+    """R-backlog-09: a surfaced `- **Verify:**` question is one only the USER
+    can answer, and says which human faculty it needs. The on-write half of
+    F240's ownership gate; audit-q C47 is the same check run as a sweep.
+
+    Mirrors both of the mint gate's refusals, because they catch different
+    mistakes and either alone leaves a hole:
+
+      1. the question must not read as a MACHINE EVENT — "did the hook fire",
+         "does the file exist", a bare command to run. That is agent-grade: if
+         the answer lives in a file, a log, or a probe, the agent runs it now
+         and the row never reaches the user's queue. Refused regardless of the
+         justification, exactly as the gate refuses it — a why-user sentence
+         attached to a machine question does not make it the user's.
+
+      2. it must carry the `· *why-user: …*` annotation naming the faculty —
+         taste, preference, ratification, passive-use observation. Without it
+         the row asserts the user is better positioned and never says why, and
+         that claim is the entire basis for spending their attention.
+
+    The phrasing test is BORROWED from `backlog-edit.is_mechanical_verify`, the
+    same function the mint gate and audit-q C47 call — never re-implemented
+    (T120). A second copy of a heuristic is a second thing to drift, and the
+    drift would be silent in the direction that matters: a checker that had
+    quietly stopped agreeing with the writer would nag rows `state` accepts.
+
+    Rows with a `- **Probe:**` and no `- **Verify:**` are untouched — R-backlog-04
+    lets a `[Watching]` row be agent-owned, and this rule is about what reaches
+    the user, so a row that surfaces nothing has nothing to justify.
+    """
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file to inspect"
+    try:
+        is_mech = _be_mod().is_mechanical_verify
+    except Exception as exc:
+        return "error", f"cannot borrow is_mechanical_verify from backlog-edit: {exc}"
+    failures = []
+    for i, h2, row, subs in _backlog_rows(_read(f)):
+        b = _row_bracket(row)
+        if not b or not (b.startswith("Verify") or b.startswith("Watching")):
+            continue
+        for s in subs:
+            if not _VERIFY_SUB_RE.match(s):
+                continue
+            q = s.split("**Verify:**", 1)[1].strip()
+            if is_mech(q):
+                failures.append(
+                    f"line {i}: [{b}] Verify question reads as a machine event — "
+                    f"agent-grade, so run it now and set [Done], or [Waiting] "
+                    f"with an agent-check plan")
+            elif not _WHY_USER_ANNOT_RE.search(q):
+                failures.append(
+                    f"line {i}: [{b}] Verify question names no human faculty "
+                    f"(no `· *why-user: …*`)")
+            break
+    return ("pass", "") if not failures else ("fail", "; ".join(failures[:3]))
+
+
 # -- R-agenda (T071 wire-up) ---------------------------------------------------
 # The Agenda facet's rules were written with `check::` refs before any checker
 # existed, so all nine sat inert — and inert is invisible, because
@@ -7647,6 +7845,10 @@ CHECKERS = {
     "backlog_questions_have_numbered_q": chk_backlog_questions_have_numbered_q,
     "backlog_blocker_named": chk_backlog_blocker_named,
     "backlog_timed_has_expiry_date": chk_backlog_timed_has_expiry_date,
+    "backlog_user_action_named": chk_backlog_user_action_named,
+    "backlog_verify_is_user_grade": chk_backlog_verify_is_user_grade,
+    # R-fct-features (T035 — F257 gate, file-scoped)
+    "features_question_why_ask": chk_features_question_why_ask,
     # R-diagram-geometry / R-svg-hygiene / R-c4
     "svg_geometry_overlap": chk_svg_geometry_overlap,
     "svg_label_collision": chk_svg_label_collision,
