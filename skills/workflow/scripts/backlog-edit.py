@@ -1979,6 +1979,11 @@ def next_id_for_kind(row_index, kind):
     basename. Kept in step with `mint_cross_file_id` — the two allocators must
     agree, or `define` and the `F+`/`T+` path would hand out the same number.
     """
+    if kind in RETIRED_KINDS:
+        raise BacklogEditError(
+            f"'{kind}' is a retired row kind (2026-08-19) — a B row is a task, "
+            f"so it is a T. The vault's last 14 were folded into T that day. "
+            f"Mint a T instead.")
     kinds = (DOC_MINTING_KINDS if kind in DOC_MINTING_KINDS else (kind,))
     pattern = re.compile(rf"^(?:{'|'.join(re.escape(k) for k in kinds)})(\d+)$")
     nums = []
@@ -2559,12 +2564,12 @@ def perform_edit(
     # Resolve the actual row_id (mint if requested).
     if rest is None:
         # Mint a new id.
-        if kind == "F":
-            new_num = next_id_for_kind(row_index, "F")
-            row_id = format_row_id("F", new_num)
-        else:
-            new_num = next_id_for_kind(row_index, "B")
-            row_id = format_row_id("B", new_num)
+        # `T` is the default for anything that is not a feature. It used to be
+        # `B`, but B rows were folded into T on 2026-08-19 and the kind is
+        # retired — minting one here would quietly resurrect it.
+        mint_kind = "F" if kind == "F" else "T"
+        new_num = next_id_for_kind(row_index, mint_kind)
+        row_id = format_row_id(mint_kind, new_num)
         existing = None
     else:
         row_id = f"{kind}{rest}"
@@ -3313,12 +3318,20 @@ def resolve_files_for_edit(slug, backlog_path, horizon, row_id_arg, status):
 # followed by the number, without the letter F or T. So we need to keep those
 # distinct."*
 #
-# `B` is deliberately NOT here and must not be added casually: a B row is a
-# bare tracker line (`B18`, `B-mode-walkup`) that mints no document, so it
-# collides with nothing and sharing the counter would only burn F/T numbers.
-# `Q`/`V`/`U` are doc-HOSTED items numbered inside their host (see
-# `_next_item_number`), not rows, and are likewise out of scope.
+# `B` is deliberately NOT here, but not because it is safe — because it is
+# RETIRED. Dan, 2026-08-19: *"B really gets renamed to T, because those are
+# tasks, and Qs get renamed to T."* All 14 B rows and 7 standalone Q rows in the
+# vault were folded into T that day and none remain, so the only thing a fresh
+# B mint could do is reintroduce a kind the model no longer has. `RETIRED_KINDS`
+# below refuses it. `Q`/`V`/`U` survive as doc-HOSTED items numbered inside
+# their host (see `_next_item_number`) — the retirement is of the standalone
+# ROW, not of questions.
 DOC_MINTING_KINDS = ("F", "T")
+# `Q` is NOT listed here even though standalone Q rows are equally retired: the
+# F329 gate already refuses `Backlog Q+` with a message that says WHY (questions
+# live in documents) and names where to put it instead. A second, vaguer refusal
+# firing first would replace a good error with a worse one.
+RETIRED_KINDS = ("B",)
 
 
 def mint_cross_file_id(backlog_path, icebox_path, kind):
@@ -3340,6 +3353,11 @@ def mint_cross_file_id(backlog_path, icebox_path, kind):
     # the max-scan could return an already-in-use number and `define`'s
     # create-or-replace would then OVERWRITE that live row. Aligns the mint with
     # next_id_for_kind / ROW_HEADER_RE.
+    if kind in RETIRED_KINDS:
+        raise BacklogEditError(
+            f"'{kind}' is a retired row kind (2026-08-19) — a B row is a task, "
+            f"so it is a T. The vault's last 14 were folded into T that day. "
+            f"Mint a T instead.")
     kinds = (DOC_MINTING_KINDS if kind in DOC_MINTING_KINDS else (kind,))
     id_re = re.compile(rf"^(?:{'|'.join(re.escape(k) for k in kinds)})(\d+)$")
     highest = 0
