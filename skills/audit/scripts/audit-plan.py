@@ -8330,17 +8330,22 @@ def render_report(plan: dict, mech: dict, man: dict) -> str:
     if excepted or probs or stale or declined:
         out.append(f"## accepted deviations ({len(excepted)} suppressed — "
                    f"see `{_anchor_slug(Path(plan['anchor_root']))} Exceptions.md`)")
-        # R-exception-discipline-12 — the concentration line. Under -06 the agent
-        # grades and the user audits BY PATTERN: "I'm seeing a bunch of
-        # exceptions all at once about one single rule, and I'm like, no, no,
-        # no, you're being too loose here" (Dan, 2026-08-20). That loop needs him
-        # to notice, and reading exception tables is precisely what he has said
-        # he does not want to do — so between corrections, drift is invisible.
+        # R-exception-discipline-12 — the concentration line, and it is aimed at
+        # the AGENT, not the user.
         #
-        # The fix is not more rubric. It is that a rule accumulating suppressions
-        # says so itself, above the per-row list, where a skim catches it. Three
-        # is the floor because two is a coincidence and the pair is already
-        # visible in a two-line list.
+        # Written first on the theory that it would carry the pattern to Dan,
+        # which [[Warden PRD]] § Refinement then made wrong the same day: he
+        # reads the vault, not rules, not exception tables, and not audit
+        # reports. His dissatisfaction arrives from a page that looks wrong, and
+        # no report can beat that or substitute for it.
+        #
+        # What survives is the other reader. The agent DOES read this report, and
+        # one rule absorbing several suppressions in a single run is the shape it
+        # should reconsider before adding a sixth — either the rule is wrong
+        # (-10) or its own grading has drifted loose (-12). Self-correction
+        # ahead of the user noticing, which is the only kind that saves him a
+        # conversation. Three is the floor: two is a coincidence, and a two-row
+        # list already shows it.
         by_rule: dict[str, int] = {}
         for v in excepted:
             by_rule[v["rule"]] = by_rule.get(v["rule"], 0) + 1

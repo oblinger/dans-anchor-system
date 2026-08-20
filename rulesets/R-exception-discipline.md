@@ -140,7 +140,13 @@ The scale in `-11` is general and the agent applies it unaided: **grade the exce
 
 **The name is `exception-grading::`, not `grades::`.** It holds neither grades nor a grading scale — it holds the few constraints that must shape a grade beyond what reasoning supplies. Renamed 2026-08-20 on Dan's objection: *"I question whether it should be called grades, because I know it's giving you the grade, but it's really the rubric. And it's really about exceptions."*
 
-**The residual risk, stated because sparse recording creates it.** Under `-06` the agent grades and the user audits by pattern — *"I'm seeing a bunch of exceptions all at once about one single rule, and I'm like, no, no, no, you're being too loose here."* That loop needs the user to **notice**, and he has said plainly that reading exception tables is what he does not want to do. Silence between corrections is therefore invisible drift. The mitigation is not more rubric: it is that **a rule accumulating suppressions says so on its own** in the audit report, per `-07`, so the pattern he audits by arrives without him going to look for it.
+**The residual risk, stated because sparse recording creates it.** Under `-06` the agent grades and the user audits by pattern. That loop needs someone to notice, and between corrections there is no growing artifact to catch an eye.
+
+**The mitigation is not a report the user reads.** [[Warden PRD]] § Refinement is the governing statement: he reads the vault, not rules, not exception tables, and not audit reports — *"a screwed up page screams at me."* A loose exception reaches him as a page that looks wrong, which is a better instrument than any summary, and the correction he gives then lands here. So the honest answer to drift-between-corrections is that **the vault is the detector**, and this block is where the fix is recorded once he has fired.
+
+What the audit report's per-rule concentration line does is different and smaller: it is aimed at **the agent**, which is who reads audit reports. One rule absorbing several suppressions in a run is the shape to reconsider before adding a sixth — either the rule is wrong (`-10`) or the grading has drifted (`-12`) — and catching that unprompted is the only kind of self-correction that saves the user a conversation.
+
+**Changing a block is retroactive**, so measure before applying: every exception against that rule is re-graded, and the vault search that finds them is a search for the rule id. Raise it with the user only where the consequence looks like something he did not picture — the `Impact before applying` half of § Refinement.
 
 ## Position in the catalog
 

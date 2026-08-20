@@ -29,6 +29,52 @@ One declarative rule language and one runtime:
 - **Cheap enough to be everywhere.** The system instruments **almost every tool use and agent action**. That is only viable if the per-moment cost is negligible, so performance is a first-class product requirement, not an afterthought (§ Performance).
 - **Implicit by default, explicit on demand.** Most rules fire implicitly via the compiler/installer; the `/audit` pipeline is the thorough explicit backstop over the same corpus.
 
+## Refinement — the corpus improves from instances, never from review
+
+**Stated 2026-08-20, as a discovery rather than a design.** Dan: *"I don't think we ever said that before. I'm not sure we even designed it, but I'm quite certain now that it's the right way."* It had been the operating model for months; nothing recorded it, so nothing could be built to serve it.
+
+**The user does not read rules, and is not expected to.** He reads the vault. *"I almost never look at your rules… I look at my vault, and when my vault is wrong, we talk about it."* The same holds for exception tables — more so, since a table of graded deviations is the least legible artifact the system produces. **A wrong page announces itself; a wrong rule does not.** So the corpus cannot be kept right by reviewing the corpus, and any design that depends on the user auditing rules or exceptions is depending on something that will not happen.
+
+**Refinement is therefore driven by dissatisfaction with an instance.** The user brings a page that is wrong and — usually — a claim about the general principle it violates. That is the whole of his side, and it is deliberately the side he is fluent in.
+
+**The translation is the agent's, and it is the hard half.** *"I can talk at the level of instances, and I can even say the general rule that it's violating, and then you have to look at all the other rules and try to figure out what's the consistent rule for what the user's saying."* The agent holds the corpus the user cannot: it must find the statement that captures what the user means **and stays consistent with everything else already said**, which is a different and larger question than the instance in front of them.
+
+> **The asymmetry is the design.** The user is fluent in instances; the agent is fluent in the corpus. The loop is built so each side only ever speaks the language it is fluent in, and the agent owns the translation between them. Every mechanism in this system that asks the user to read a rule, grade a deviation, or review a table is working against that, and should be re-examined.
+
+### Diagnose before repairing — three different sites
+
+One symptom, three causes, and picking the wrong one entrenches the problem:
+
+| The instance is wrong because… | Repair site |
+|---|---|
+| a deviation was **graded** too generously (or refused too harshly) | `exception-grading::` on the rule — [[R-exception-discipline]]-12 |
+| the **rule itself** says the wrong thing | the rule |
+| the rule is right and the artifact still came out wrong | the **template or generator** the artifact came from |
+
+The third is the one most often missed: a rule can be correct and still be innocent, because the thing that produced the page never consulted it.
+
+### Impact before applying, and pushback only when it is earned
+
+A rule or grading change is retroactive by nature — it re-decides every instance already decided under the old text. **So the agent measures the blast radius before applying it**, and this is already the practice for rules: a change is routinely reported as *"this would rewrite N places"* before it lands. `-12` extends the same duty to exception grading, because a changed `exception-grading::` block re-grades every exception against that rule.
+
+**Raise it with the user only when the agent genuinely doubts the consequence is intended** — showing a sample of the affected instances if that is what makes the doubt concrete. A confirmation requested on every change is the conversation this loop exists to replace; a change applied silently across 300 places the user did not picture is the failure the measurement exists to prevent. The judgment about which one this is belongs to the agent.
+
+### Cross-anchor is a query, not a mechanism
+
+Exception **tables** are per-anchor, because a deviation is a fact about one tree. **Grading guidance is not** — it lives on the rule, and rulesets are intrinsically cross-anchor, so a correction given once applies everywhere the rule does. That is the right split, and it is why `exception-grading::` sits on the rule rather than in any anchor.
+
+Seeing every exception against a rule is then **a vault search for the rule id**, run at the moment a change is on the table — which is exactly when it is wanted. Dan, 2026-08-20: *"I'm not sure you need to do that very much… you can search for the rule number and you can find all of the exception tables."* Standing cross-anchor surveillance was considered and declined: it would monitor continuously for a signal needed only at change time, and it runs against this PRD's own Non-Goal — *"cross-anchor / vault-global rule orchestration beyond per-anchor active-set resolution."*
+
+### The loop, run twice, on 2026-08-20
+
+The session that produced this section is itself an instance of it, which is the best evidence that it was already the operating model.
+
+**Round one.** The instance: [[Eli Exceptions]], five rows, every grade `?`. The user's claim: *"I want to push back on the idea that it's my responsibility to generate those grades."* The agent's rule said the opposite — `R-exception-discipline-06`, *"grading it is the user's act."* The agent searched the corpus and found the user was right by evidence he had not cited: `MUX-R04 Exceptions.md` auto-grades 32 sites from a scanner with no user in the loop. `-06` had been over-read from a narrower instruction about the spine rules. Rule rewritten; five exceptions graded.
+
+**Round two.** The instance: the fix itself — a rubric block the agent had just written. The user's claim: *"if the determinations are so obvious to you, I don't think you even need to write down."* The agent found its own one-hour-old block held four predicates of which three restated its own reasoning and one was **already contradicted** by a grade it had issued in the interim. `-12` rewritten to record only what reasoning does not already supply.
+
+Neither round required the user to read a rule. Both produced a durable change to one.
+
 ## Goals
 
 - A constraint is **declared once** in the rule language and enforced everywhere it applies, with **no per-rule plumbing**.
@@ -36,6 +82,7 @@ One declarative rule language and one runtime:
 - One **unified moment taxonomy** ([[Warden Events]]) subsumes every existing trigger surface (`compact`, `markdown-write`, `skill:*`) and is open-ended.
 - The implicit (compiler) and explicit (audit) paths produce **identical verdicts** over the same corpus.
 - A **Python reference** implementation and a **Rust performance** implementation are behavior-identical, with Rust owning the hot path.
+- **Refinable from instances** (§ Refinement): the corpus is corrected by the user objecting to a *page*, never by the user reviewing rules — so every mechanism that would require him to read a rule, grade a deviation, or audit a table is a design smell.
 - **Explainability** *(commissioned 2026-07-06, [[F231 — Warden observability — the why-did-that-happen log|F231]])*: the user and the agent can **look back and understand why something happened the way it did** — which rules were considered and fired at a moment, what each said or denied, what actions were taken, and what was suppressed or throttled. When Warden misbehaves, the log answers "did the LLM ignore the steer, or did we never send the right one?"
 
 ## Non-Goals
@@ -49,6 +96,7 @@ One declarative rule language and one runtime:
 - **As an agent**, I want to be steered at the moment a constraint applies (e.g. corrected before asking the user a question Commit-mode already answers), so I don't bother the user — *via implicit firing + steer messages.*
 - **As the user**, I want to declare a new standing constraint once and trust it is enforced for every agent, so guardrails don't depend on prose nobody re-reads — *via authoring a rule + activating it through the anchor's traits.*
 - **As the user**, I want to audit an anchor's conformance on demand and get an actionable report, so I can catch drift — *via `/audit anchor`.*
+- **As the user**, I want to complain about a *page that is wrong* and have the agent work out which rule, grading, or template caused it and what the consistent correction is — so I never have to hold the rule corpus in my head — *via § Refinement.*
 - **As a facet/skill author**, I want to ship my spec with its rules embedded and have them enforced wherever my facet is present, so the spec and its enforcement never diverge — *via an embedded `# RULESET`.*
 
 ## Capabilities (what the system must do)
