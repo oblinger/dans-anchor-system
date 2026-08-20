@@ -992,6 +992,23 @@ def sub_anchor_roots(target: Path) -> set[Path]:
     return roots
 
 
+def _is_state_backlog_namesake(f: Path) -> bool:
+    """True when `f` IS a folder-form backlog's namesake page — `X/X.md`
+    carrying the machine `<!-- state:backlog -->` stamp (F329).
+
+    The sibling of `_is_folder_doc_marker`, which asks the same question from
+    the `.anchor` side. Both read the stamp rather than the folder shape,
+    because the stamp is written by `state` and cannot be acquired by accident.
+    """
+    if f.parent.name != f.stem:
+        return False
+    try:
+        head = f.read_text(encoding="utf-8", errors="replace")[:2000]
+    except OSError:
+        return False
+    return re.search(r"<!--\s*state:backlog\b", head) is not None
+
+
 def _is_folder_doc_marker(dot: Path) -> bool:
     """True when this `.anchor` sits beside a folder-form backlog namesake
     (F329) — a `<!-- state:backlog -->`-stamped `X/X.md`. HookAnchor's scanner
@@ -3973,6 +3990,29 @@ def chk_summary_present_iff_complex(target, anchor_root, args):
         return "pass", ""
     if not any(m.suffix == ".md" and m != f for m in f.parent.iterdir()):
         return "pass", ""      # nothing to summarize yet
+    if _is_state_backlog_namesake(f):
+        # T363 Q1 = (A), 2026-08-19. A folder-form backlog (F329) IS an index
+        # doc fronting a folder, and its members are listed — as derived pointer
+        # rows in `## Now` / `## Next` / `## Later`, which carry status and
+        # horizon a masthead link-list could not. The rule exists so a reader
+        # reaches the members from the index; here they already can.
+        #
+        # Reported by SONAR after four writes produced four identical warnings,
+        # then by LUMEN and again by SONAR — it fires on EVERY `state` mutation
+        # to 13 folders across 9 anchors, and three sessions logged it as known
+        # noise. A rule that is correct, unactionable and permanent trains
+        # agents to skim the whole warning tier, which is the tier carrying the
+        # findings that are actionable.
+        #
+        # Keyed to the machine `state:backlog` stamp, NOT to "the body has
+        # links": the narrow key is what stops any future index doc claiming
+        # the same exemption for prose that happens to link a sibling.
+        #
+        # The one thing the horizon body genuinely cannot show is a doc whose
+        # row RETIRED — SONAR017, an open question to Dan, unreferenced for
+        # three days. That gap is real and is closed separately by audit-q C58,
+        # which is what makes this exemption safe to state.
+        return "pass", ""
     has, _ = _disclosure_summary(f)
     if has:
         return "pass", ""
