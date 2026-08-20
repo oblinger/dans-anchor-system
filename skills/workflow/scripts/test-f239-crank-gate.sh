@@ -40,6 +40,34 @@ printf 'slug: F239FIX\ntitle: F239 Fixture\n' > "$FIX_ROOT/.anchor"
 ok()   { echo "PASS  $1"; PASS=$((PASS+1)); }
 bad()  { echo "FAIL  $1"; FAIL=$((FAIL+1)); }
 
+# fixture_doc [row-id] [doc-basename] — mint the doc a parked row points at.
+# Post-F329 a [Questions] row is groomed by POINTING at its question, not by
+# carrying it: an inline `- **Q<n>` sub-bullet is a C57 finding and the worklist
+# counts findings (F258), so a row that hosts its own question is not groomed.
+fixture_doc() {
+    local rid="${1:-T001}"
+    local base="${2:-F239FIX001 - Fixture parked on a question}"
+    cat > "$TRACK/$base.md" <<EOF
+---
+description: Fixture doc hosting the parked question for the F239 crank-gate test.
+---
+
+# [[F239FIX]] · $rid — ${base#* - }
+A fixture row parked on a question the user must answer.
+
+## Open Items
+
+- **Q1 — Which approach?** — pick one. ^$rid-Q1
+  - **(A)** one.
+  - **(B)** two.
+- **Recommendation:** None
+
+## Status
+
+**Questions** — parked on Q1.
+EOF
+}
+
 hook_run() {  # $1 = transcript path → hook stdout; hook rc in $HOOK_RC
     python3 - "$FIX_ROOT" "$1" <<'PY' | python3 "$HOOK"
 import json, sys
@@ -116,15 +144,19 @@ fi
 # (F244 superseded F239's stamp-freshness ceremony: worklist-empty is the gate;
 # a [Questions] row is a groomed state, not a worklist item.)
 "$STATE" crank "$FIX_ROOT" start >/dev/null
-# A GENUINELY groomed [Questions] row carries a reachable inline Q (post-F258 the
-# worklist counts audit-q findings, so a target-less [Questions] row is NOT groomed).
+# A GENUINELY groomed [Questions] row points at the doc that holds its question
+# (post-F258 the worklist counts audit-q findings, so a target-less [Questions]
+# row is NOT groomed — and post-F329 an INLINE Q is itself one of those findings).
+fixture_doc T003 "F239FIX003 - Parked, groomed"
 {
-  printf -- '- **T003 — Parked, groomed** [Questions] — a groomed row ^T003\n'
-  printf -- '  - **Q1 — Which approach?** — pick one ^T003-Q1\n'
-  printf -- '    - **(A)** one.\n'
-  printf -- '    - **(B)** two.\n'
-  printf -- '  - **Recommendation:** None\n'
+  printf -- '- **T003 — Parked, groomed** [Questions] — → [[F239FIX003 - Parked, groomed|T003]] — a groomed row ^T003\n'
+  printf -- '  - **User:** Which approach — the fork and the record are in the doc.\n'
 } >> "$BACKLOG"
+# Plain tail, NOT the canonical TRIAGE line: B2's transcript would let this stop
+# through the stamp+echo handshake no matter what the worklist held, so reusing
+# it left the assertion untested. This makes worklist-emptiness the only thing
+# that can allow the stop.
+transcript "Work done."
 BLOCK=$(hook_run "$TRANSCRIPT")
 if echo "$BLOCK" | grep -q '"decision": "block"'; then
     bad "B3: a groomed [Questions] row must not block (worklist stays empty) — hook out: $BLOCK"
@@ -136,16 +168,19 @@ fi
 # ---------- Case C — an all-parked [Questions] frontier is groomed → ALLOW ----------
 # (F244: no CRANK-READY ceremony — a fully groomed frontier, even all-parked, is
 # a legal stop; the user can answer the parked question.)
+#
+# The row points at a doc and the question lives there — post-F329 that IS what
+# groomed means, and an inline `- **Q<n>` on the row is a C57 finding, which the
+# worklist counts (F258). The pre-F329 fixture shape made this case fail while
+# looking like a gate bug; it was the fixture that had gone stale.
+fixture_doc  # T001's doc, holding the question the row points at
 cat > "$BACKLOG" <<'EOF'
 # F239FIX Backlog
 
 ## Now
 
-- **T001 — Fixture parked on a question** [Questions] — groomed, nothing ready ^T001
-  - **Q1 — Which approach?** — pick one ^T001-Q1
-    - **(A)** one.
-    - **(B)** two.
-  - **Recommendation:** None
+- **T001 — Fixture parked on a question** [Questions] — → [[F239FIX001 - Fixture parked on a question|T001]] — groomed, nothing ready ^T001
+  - **User:** Which approach — the fork and the record are in the doc.
 
 ## Done
 EOF
