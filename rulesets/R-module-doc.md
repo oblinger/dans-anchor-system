@@ -5,11 +5,11 @@ description:: per-module source documentation — one doc per source module unde
 
 What `/audit module-doc` checks on a module doc. Cardinality: many — one per source module, mirroring the repo tree. Format of this set: [[DAS Ruleset]].
 
-> **Not armed 2026-08-11 ([[TINK Backlog#^T212|T212]]), and the blocker is three independent unsatisfiabilities stacked on one selector.** Measured against the real corpus — **443 module docs across 14 anchors**, the largest single population any dormant ruleset claims.
+> **Not armed 2026-08-11 ([[TINK Backlog#^T349|T349]]), and the blocker is three independent unsatisfiabilities stacked on one selector.** Measured against the real corpus — **443 module docs across 14 anchors**, the largest single population any dormant ruleset claims.
 >
 > **(1) The folder name is a generation stale.** The selector says `{slug} Dev/`; the corpus and [[DAS Dev Dispatch]] both say `{slug} Dev Docs/` (*"root-level folder, Gen-3"*). Zero folders in the vault are named `* Dev` — 14 are named `* Dev Docs`. [[R-dev-dispatch]] already spells it the current way; this set was never updated with it.
 >
-> **(2) Every one of those 14 folders carries its own `.anchor`**, so `sub_anchor_roots` drops the entire folder from the parent anchor's scope. The selector is written from the parent's point of view (`{anchor}/**/{slug} Dev Docs/**`) and is therefore unsatisfiable from **both** ends at once — out of scope from the parent, and from the folder itself `{anchor}` *is* the Dev Docs folder, so the pattern demands a second one nested inside. This is [[TINK Backlog#^T164|T164]]'s folder-shaped-facet defect exactly; `_match_file_glob`'s own-directory-name candidate was added for it, and does not reach this case, because —
+> **(2) Every one of those 14 folders carries its own `.anchor`**, so `sub_anchor_roots` drops the entire folder from the parent anchor's scope. The selector is written from the parent's point of view (`{anchor}/**/{slug} Dev Docs/**`) and is therefore unsatisfiable from **both** ends at once — out of scope from the parent, and from the folder itself `{anchor}` *is* the Dev Docs folder, so the pattern demands a second one nested inside. This is [[TINK Backlog#^T522|T522]]'s folder-shaped-facet defect exactly; `_match_file_glob`'s own-directory-name candidate was added for it, and does not reach this case, because —
 >
 > **(3) `{slug}` resolves to the wrong slug there.** None of the 14 `.anchor` files declares `slug:`, so `_anchor_name` falls back to the basename and `{slug}` expands to `DKT Dev Docs`, not `DKT`. The pattern becomes `DKT Dev Docs *.md` while every real file is `DKT Something.md`. Verified on DKT, OBU and DMUX: **0 targets, from every direction tried.**
 >

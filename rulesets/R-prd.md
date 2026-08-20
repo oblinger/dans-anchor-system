@@ -68,7 +68,7 @@ No file named `{slug} Open Questions.md` exists alongside the PRD. Open question
 
 ### RULE R-prd-07 — Design Workflow references modern phase names (checked)
 
-> **`design_workflow_modern_names` NOT wired 2026-08-11 ([[TINK Backlog#^T212|T212]]), and the reason is the set's selector, not the checker.** The checker is faithful — it reads the `## Design Workflow` section structurally and looks for the retired phase names. Run over the corpus this set actually selects: **96 of 97 PRDs fail, and 96 of them fail on `no ## Design Workflow section`**. Only **4 documents in the entire vault carry that H2** ([[DAS Audit PRD]], [[Mini PRD]], [[DKT PRD]], [[MUX PRD]]).
+> **`design_workflow_modern_names` NOT wired 2026-08-11 ([[TINK Backlog#^T349|T349]]), and the reason is the set's selector, not the checker.** The checker is faithful — it reads the `## Design Workflow` section structurally and looks for the retired phase names. Run over the corpus this set actually selects: **96 of 97 PRDs fail, and 96 of them fail on `no ## Design Workflow section`**. Only **4 documents in the entire vault carry that H2** ([[DAS Audit PRD]], [[Mini PRD]], [[DKT PRD]], [[MUX PRD]]).
 >
 > So the finding is not *"this PRD names a retired phase"* — nothing in the vault does. It is *"this file is not a CAB PRD"*, said 96 times, about SVAR / SVAI / PlayOn / ClaudiMux documents that were never written to this form and are selected only because `where:: file:{anchor}/**/* PRD.md` matches a filename. A rule that condemns 99% of its corpus is unusable in exactly the way [[R-naming]]-01's header records at 39%: it cannot be acted on, and it teaches a reader to skip the set.
 >
@@ -98,7 +98,7 @@ The PRD does NOT contain a `## Design Constraints` H2 with DC-numbered entries. 
 
 ### RULE R-prd-10 — Dispatch table carries a Stories row with proper-name display (checked)
 
-> **`dispatch_table_stories_row` NOT wired 2026-08-11 ([[TINK Backlog#^T212|T212]]) — same measurement, same cause as `-07` above.** 96 of 97 selected PRDs fail, and **10 documents in the vault link a `* Stories` page at all**. The checker is sound: it derives the expected name from the PRD's own basename rather than the folder, reads the fence-stripped text so a quoted table is not mistaken for the dispatch table, and stops at the first table. It is asking a well-formed question of 96 documents that are not this kind of document.
+> **`dispatch_table_stories_row` NOT wired 2026-08-11 ([[TINK Backlog#^T349|T349]]) — same measurement, same cause as `-07` above.** 96 of 97 selected PRDs fail, and **10 documents in the vault link a `* Stories` page at all**. The checker is sound: it derives the expected name from the PRD's own basename rather than the folder, reads the fence-stripped text so a quoted table is not mistaken for the dispatch table, and stops at the first table. It is asking a well-formed question of 96 documents that are not this kind of document.
 >
 > Wire it when the set's `where::` selects CAB PRDs instead of files named `* PRD.md`; the finding count on the real population is then small enough to act on.
 

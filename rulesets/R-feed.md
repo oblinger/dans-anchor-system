@@ -11,7 +11,7 @@ It is the **first ruleset for a corpus-level graph**. [[DAS anchor-dag]] — the
 
 **Not adopted by any umbrella**, and it must not be: the rules below select no file, so there is nothing for an umbrella to bind them to.
 
-> **Reviewed and left dormant 2026-08-11 ([[TINK Backlog#^T212|T212]]) — the disposition above is right, and the `where::` line above it is right by accident.**
+> **Reviewed and left dormant 2026-08-11 ([[TINK Backlog#^T349|T349]]) — the disposition above is right, and the `where::` line above it is right by accident.**
 >
 > This set's `where:: file:**/.anchor` is the class-(a) unmatchable form measured on [[R-code-repository]] (anchor-mode scope is `target.rglob("*.md")`, so a `file:` selector naming a non-`.md` path resolves to the empty set). Everywhere else that form is a defect. **Here the empty set is the correct answer** — the header two paragraphs up says plainly that these rules select no file — so the ruleset behaves exactly as intended, for a reason that has nothing to do with what it wrote.
 >

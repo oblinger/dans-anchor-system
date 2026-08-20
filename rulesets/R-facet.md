@@ -30,7 +30,7 @@ Pending — each lands as its DAS facet's RULESET block is drafted: R-architectu
 
 ## Adoption
 
-**There is no adoption.** This section used to document a one-liner — `include:: [[R-facet]]` in an anchor's `{slug} Decisions.md` — as the way a new anchor became CAB-conformant in one move. No code has ever read that line. It is removed rather than corrected in place, because a documented recipe that quietly does nothing is worse than an absent one: three separate defects ([[TINK Backlog#^T164|T164]], [[DAS Stone]]'s inert arming, [[TINK Backlog#^T208|T208]]) each began with an agent following it and reasonably concluding the facet was covered.
+**There is no adoption.** This section used to document a one-liner — `include:: [[R-facet]]` in an anchor's `{slug} Decisions.md` — as the way a new anchor became CAB-conformant in one move. No code has ever read that line. It is removed rather than corrected in place, because a documented recipe that quietly does nothing is worse than an absent one: three separate defects ([[TINK Backlog#^T522|T522]], [[DAS Stone]]'s inert arming, [[TINK Backlog#^T208|T208]]) each began with an agent following it and reasonably concluding the facet was covered.
 
 What the three use cases it advertised actually need today:
 

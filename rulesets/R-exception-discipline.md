@@ -55,7 +55,11 @@ The table is `| EX | Rule | Target | Grade | Justification |`. **Rule** is one r
 
 ### RULE R-exception-discipline-06 — Grade `?` is a proposal and suppresses nothing (stated)
 
-An agent may write an exception row at any time, graded `?` — except against a rule marked `confirm:: user` (`-09`), where it asks first. The row is durable and reviewable in the anchor's own tree, and it **suppresses nothing** — the finding still fails. Grading it is the user's act, and that column is the whole approval gate.
+An agent may write an exception row at any time, and **the agent grades it** — except against a rule marked `confirm:: user` (`-09`), where it asks first. A row left `?` is a genuine "I cannot decide this", not the default posture; it is durable and reviewable in the anchor's own tree, and it **suppresses nothing** — the finding still fails.
+
+**Corrected 2026-08-20.** This rule previously read *"grading it is the user's act, and that column is the whole approval gate"*, which was over-read from Dan's narrower 2026-08-08 instruction about the **spine** rules quoted in `-09` — a statement about how *rare* spine deviations should be, not about who awards letters. The vault's own practice had always been the other way: **`MUX-R04 Exceptions.md` auto-grades 32 uncovered sites High/Medium/Low from the scanner with no user in the loop**, and its Disposition column reads `Pending review` — the user's review is an audit, not a gate. Dan, 2026-08-20: *"I did not grade it, it graded it… I think I want to push back on the idea that it's my responsibility to generate those grades. Or even to approve those grades. I didn't do any of that."*
+
+**The user's role is audit, and it is triggered by pattern, not by row.** He reads grades when something smells — *"I'm seeing a bunch of exceptions all at once about one single rule, and I'm like, no, no, no, you're being too loose here"* — and the correction he gives is a **grading rule** (`-12`), after which everything against that rule is re-graded. That is why the scale matters more than any individual letter: a table of well-reasoned grades is auditable in one pass, and a table of `?` is a pile of homework handed back.
 
 **Check pattern:** a row graded `?` never rewrites a verdict; only `A`–`F` does. An engine assertion, guarded by `test-f314-exceptions.py` on both the `--run` and the on-write paths, since a file's content cannot evidence it.
 
@@ -102,22 +106,47 @@ An exception says **the rule is right and this instance is a justified deviation
 
 ### RULE R-exception-discipline-11 — What each grade means (stated)
 
-`-08` says what each grade *does*. This says what each one *is*, so the column is a judgment with a shared meaning rather than six letters used at whim. The scale below was read off the corpus rather than invented — each band cites the live row that defines it.
+`-08` says what each grade *does*. This says what each one *is*.
 
-| Grade | Means | Live instance |
+**One question generates the whole scale, and it is the question a coding agent already answers without being taught:** *if I did NOT take this exception, what would I do instead — and how bad is that?* Dan, 2026-08-20, on how the MUX and Warden tables came to be graded: *"the agent itself went through the code and noticed when the rules were being violated. And then it had to consider, well, what if I don't do this? What would I do instead? And how bad is that? And then it would grade it. Its rubric was really the agent's ability to program."*
+
+So the grade is a verdict on **the alternative**, not on the violation:
+
+| Grade | The alternative is… | Live instance |
 |---|---|---|
-| **A** | **Right by design.** The rule's *goal* is met, by a deliberate different design. Nothing here wants fixing. | [[Warden Exceptions]] EX001 — two dispatcher implementations kept in parallel on purpose, Python as behavioural oracle and Rust as the installed hot path. |
-| **B** | **Premise does not hold here — yet.** The rule assumes something not true of this corpus at its current scale or stage. **A `B` names the condition that would revive it.** | [[Warden Exceptions]] EX003 — no `interfaces/` package because the engine is a small procedural pipeline whose contracts are data schemas; *"revisit if the engine grows a second implementation."* |
-| **C** | **Accepted cost.** The deviation is a genuine wart and the fix costs more than it buys. **A `C` states the cost**, so a later reader can re-weigh it rather than re-derive it. | [[Warden Exceptions]] EX008 — renumbering a substantially-complete roadmap would break historical references, which `stable-ids` itself forbids. |
-| **D** | **Should be fixed; not now.** Read and refused, with a reason it is not urgent. The finding goes on failing and the row is the record of the decision. | none yet |
-| **E** | **Should be fixed.** No accepted justification; the row survives only so the same proposal is not made again. | none yet |
-| **F** | **The proposal is wrong.** The deviation should not exist and the justification is mistaken. | none yet |
+| **A** | **worse than the deviation.** Complying would duplicate content, break a convention the rest of the corpus depends on, or invent files that exist only to satisfy a checker. The rule's goal is already met by another route. | [[Warden Exceptions]] EX001 — two dispatchers in parallel on purpose, Python the behavioural oracle, Rust the installed hot path. |
+| **B** | **right, but premature.** It would be correct at a larger scale or a later stage; here the rule's premise does not hold yet. **A `B` names the condition that revives it.** | [[Warden Exceptions]] EX003 — no `interfaces/` package while the engine is a small procedural pipeline; *"revisit if the engine grows a second implementation."* |
+| **C** | **right, and expensive.** Worth doing in the abstract, not worth its cost now. **A `C` states the cost**, so a later reader re-weighs it rather than re-deriving it. | [[Warden Exceptions]] EX008 — renumbering a substantially-complete roadmap breaks historical references, which `stable-ids` itself forbids. |
+| **D** | **right and affordable — just not now.** Read and refused with a reason it is not urgent; the finding goes on failing and the row records the decision. | none yet |
+| **E** | **right, affordable, and there is no reason not to.** The row survives only so the same proposal is not made twice. | none yet |
+| **F** | **not needed — there is nothing to excuse**, or the justification is mistaken about what the rule asks. | none yet |
 
-**A–C suppress and D–F do not (`-08`), so the working line is between `C` and `D`** — *is this deviation something we are content to live with?* The letters within each half are how much of an itch it leaves, and they are worth distinguishing because `A` never needs revisiting while `B` and `C` both carry a condition under which they should be.
+**A–C suppress and D–F do not (`-08`), so the working line falls between "the alternative is not worth taking" and "it is."** That line is what a reader should be able to check quickly; the letter within each half says how much of an itch is left, which is why `A` never needs revisiting while `B` and `C` both carry the condition under which they should be.
 
-**The refusal half has never been used: 11 grades vault-wide are 5 `A`, 5 `B`, 1 `C`, and no `D`, `E` or `F` in the corpus's history** (measured 2026-08-20). That is either an honest record of proposals all being good, or the column drifting back into the binary `-08` was written to prevent. A first `D` is the cheapest way to find out which.
+**The refusal half has never been used: 11 grades vault-wide are 5 `A`, 5 `B`, 1 `C`, and no `D`, `E` or `F` in the corpus's history** (measured 2026-08-20). That is either an honest record of proposals all being good, or the column drifting back into the binary `-08` was written to prevent. A first `D` is the cheapest way to find out.
 
-**Grading stays the user's act (`-06`).** An agent proposes `?` and may recommend a letter in the justification; it does not award one. The rubric exists so the recommendation is legible and the decision is one glance rather than a re-derivation.
+### RULE R-exception-discipline-12 — A rule accretes its own grading rules, next to it (stated)
+
+The scale above is general. **Where the line falls for a particular rule is specific**, and it is learned rather than authored: the user reads a run of grades, says *"you are being too loose here"*, and gives a rule that makes the next grade better. `grades::` is where that lands — a short block on the rule itself, holding **predicates, not a gallery of examples**. The first instance, on [[R-file-association]]-07:
+
+```
+grades::
+  at least A - the members are reachable in one click by any route (a masthead
+               subtopic link, a dispatch row, or a control file one level up
+               that lists them): the rule's goal is met and only its shape
+               differs.
+  at least B - the folder holds no member .md at all, so there is nothing the
+               rule could ask for.
+  F          - the members exist, are linked nowhere, and the justification is
+               that the folder name is plural. That restates the finding
+               instead of answering it.
+```
+
+**Predicates, because a gallery does not scale and a predicate does.** `MUX-R04 Exceptions.md` disposes of 32 sites with **five** of them — *"use import, not a call site"*, *"pure state read (selector returns value, no side effect)"*, *"environment variable read, typically startup-time, low-frequency"* — each a test the next site can be run through. A table of worked A/B/C examples per rule would be larger than every ruleset combined and would still not answer the case in front of you.
+
+**On the rule, not in a sibling rubric file.** A second file is a second copy to keep in sync with the rule it grades, and that is the failure this repo pays for repeatedly: [[TINK Backlog#^T552|T552]] found `R-backlog-04` relaxed in three code sites while its own prose still asserted the old contract, and [[TINK Backlog#^T363|T363]] shipped the checker and the rule text in one commit for exactly that reason. Rule files growing is the cheaper problem, and they grow less than it sounds — **only a rule that actually attracts exceptions ever gets a `grades::` block**, so most never grow at all.
+
+**How it accretes.** A rule carrying graded exceptions and no `grades::` block is the signal that its guidance is still implicit — worth reporting, so the block is written the first time someone grades against that rule rather than the fifth. When a `grades::` block changes, every exception against that rule is re-graded: that is the user's correction propagating, and it is the whole reason the guidance sits in one place.
 
 ## Position in the catalog
 

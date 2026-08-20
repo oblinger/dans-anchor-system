@@ -1,7 +1,7 @@
 # RULESET R-subs
 where:: `file:{anchor}/**/* Subs/**, !**/DAS *.md`
 description:: the `{slug} Subs/` subprojects zone — week-scale sub-efforts numbered from the anchor's F-mint
-selector-note:: Spelled `* Subs/` rather than `{slug} Subs/` for the same reason as [[R-wp]]'s selector ([[TINK Backlog#^T164|T164]]): a folder zone is audited scoped on itself, where `{slug}` resolves to the zone's own folder name and would match nothing.
+selector-note:: Spelled `* Subs/` rather than `{slug} Subs/` for the same reason as [[R-wp]]'s selector ([[TINK Backlog#^T522|T522]]): a folder zone is audited scoped on itself, where `{slug}` resolves to the zone's own folder name and would match nothing.
 
 What `/audit` checks on an anchor's Subs zone. Cardinality: one zone per anchor, many subprojects within. Format of this set: [[DAS Ruleset]]. Facet spec: [[DAS Subs]]. All rules ship (stated) — the convention is one day old with one live instance ([[A2X Subs]]); checkers wait for a second instance to show which invariants actually bind.
 

@@ -5,7 +5,7 @@ description:: the DAS Output family index — the output / published-doc facet g
 
 What `/audit` checks on this facet-group index page. It is a grouped-Container anchor page (chassis governed by `R-anchor-page`); the rules here are the **group-membership** invariants for the output facet family. Format of this set: [[DAS Ruleset]].
 
-> **Armed 2026-08-11 ([[TINK Backlog#^T212|T212]]), after the same two repairs the other group sets needed.**
+> **Armed 2026-08-11 ([[TINK Backlog#^T349|T349]]), after the same two repairs the other group sets needed.**
 >
 > **The selector named every anchor for a rule about one page.** It read `where:: anchor`, which fires once per anchor — 1,395 of them in the vault — while both rules here are claims about a single file, [[DAS Output]]. Measured before repair by arming the four group sets in [[R-anchor]] and taking TINK's judgment manifest: **988 items before, 996 after — 8 new judgments on an anchor holding none of the four pages**, every one N/A by construction, times the whole vault. Repointed at the page itself, the cost is 8 judgments on the `facets` anchor and **zero everywhere else**. This is the [[R-git]] shape read one level in: an anchor-scoped selector standing in for the scope the vocabulary does not have, except that here the scope it wanted — one named file — was available all along.
 >
