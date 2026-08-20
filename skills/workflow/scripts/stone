@@ -925,6 +925,46 @@ def _normalize_control(lines: list) -> list:
     return out + body
 
 
+def _mint_warnings(cf, slug: str, sid: str, keys: list, cfg: dict) -> list:
+    """What a fresh mint does NOT do, said out loud (T554).
+
+    [[Hermes]], 2026-08-17, on a `stone pebble new` that reported success:
+    *"Both are invisible at mint time. Nothing in the output distinguishes a
+    working pebble from one that will never raise, and the failure only shows
+    up as absence."* Neither condition below is a bug in what the mint WRITES —
+    unpublished-at-mint is the design (case E: publishing is the human act of
+    moving the line below the self-header), and this script is kind-generic so
+    it has never known which keys a kind requires. The defect is that the
+    output claimed unqualified success for a stone that cannot work yet, and
+    absence is the hardest failure to notice.
+
+    Reporting only. Refusing, or growing a `--tempo` flag to satisfy the
+    requirement, is new CLI surface and is not this function's call to make.
+    """
+    out = []
+    hdr = _find_header_index(cf.lines, slug, cfg)
+    if hdr is not None:
+        try:
+            own = next(i for i, l in enumerate(cf.lines) if f"|{slug}" in l
+                       and sid in l)
+        except StopIteration:
+            own = None
+        if own is not None and own < hdr:
+            out.append(
+                f"UNPUBLISHED — the line sits ABOVE {slug}'s self-header, which "
+                f"is where a new stone starts by design. It raises nothing and "
+                f"propagates nowhere until it is moved BELOW the header.")
+    missing = [k for k in cfg.get("required_keys", [])
+               if not dict(keys).get(k, "").strip()]
+    if missing:
+        out.append(
+            f"MISSING {', '.join(k + '::' for k in missing)} — required per "
+            f"[[DAS Stone Keys]]. Without it the stone has no raising "
+            f"condition and will never surface. Add it to {slug} {sid}.md by "
+            f"hand.")
+    return out
+
+
 def cmd_new(kind: str, cfg: dict, root: Path, args) -> int:
     anchors, ambiguous = discover_anchors(root)
     slug = args.anchor
@@ -971,6 +1011,8 @@ def cmd_new(kind: str, cfg: dict, root: Path, args) -> int:
     _write_stone(st)
 
     print(f"stone: minted {slug} {sid} in {folder.name}/, inserted into {cpath.name}")
+    for w in _mint_warnings(cf, slug, sid, keys, cfg):
+        print(f"  {w}")
     return 0
 
 

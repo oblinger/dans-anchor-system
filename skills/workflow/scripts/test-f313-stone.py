@@ -146,6 +146,15 @@ def run(root, *argv):
     return st.main(["stone", *argv, "--root", str(root)])
 
 
+def capture(root, *argv):
+    """`run`, returning its stdout — for asserting on what a verb SAYS, not
+    only on what it writes (T554)."""
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        run(root, *argv)
+    return buf.getvalue()
+
+
 def move_line(path, needle, before_needle):
     """Move the (single) line containing `needle` to sit immediately before
     the (single) line that equals `before_needle` exactly. Test-fixture
@@ -890,6 +899,82 @@ try:
         ok("_newer_side: a missing control file is indeterminate")
     else:
         no("_newer_side gave a verdict with no control file at all")
+
+    # ============================================================
+    # S. the mint says what it did NOT do (T554, 2026-08-19)
+    #
+    # Hermes, 2026-08-17, on a `stone pebble new` that reported success:
+    # "Both are invisible at mint time. Nothing in the output distinguishes a
+    # working pebble from one that will never raise, and the failure only shows
+    # up as absence." Neither condition is a bug in what the mint WRITES —
+    # unpublished-at-mint is the design (case E), and this script is
+    # kind-generic so it never knew which keys a kind requires. The defect is
+    # the unqualified success message, because absence is the hardest failure
+    # to notice.
+    # ============================================================
+    print("== S: the mint reports what will stop the stone surfacing ==")
+    sroot = TMP / "s"
+    mkanchor(sroot, "SA", [])
+    out = capture(sroot, "rock", "new", "SA", "--line", "first, no header yet")
+    if "UNPUBLISHED" not in out:
+        ok("no self-header yet — nothing to warn about")
+    else:
+        no(f"warned UNPUBLISHED on a control file with no header:\n{out}")
+
+    insert_self_section(control_path(sroot, "SA"), "SA")
+    out = capture(sroot, "rock", "new", "SA", "--line", "second, above the header")
+    if "UNPUBLISHED" in out:
+        ok("a stone minted above the self-header says so")
+    else:
+        no(f"mint stayed silent about an unpublished stone:\n{out}")
+    # And it is telling the truth: the line really is above the header.
+    txt = control_path(sroot, "SA").read_text(encoding="utf-8").splitlines()
+    i_new = next(i for i, l in enumerate(txt) if "R0002" in l)
+    i_hdr = next(i for i, l in enumerate(txt) if l.strip() == header_line("SA"))
+    if i_new < i_hdr:
+        ok("...and the warning matches the file (line above header)")
+    else:
+        no("the warning fired but the line is below the header")
+
+    # required_keys is per-kind and rock declares none, so the key warning must
+    # not fire here — the narrowness is the point.
+    if "MISSING" not in out:
+        ok("a kind with no required_keys warns about no keys")
+    else:
+        no(f"rock warned about a required key it does not declare:\n{out}")
+    # `main` reloads the kind config from disk, so inject the declaration there
+    # rather than into this file's cached copy.
+    real_load = st.load_kind_config
+
+    def _with_required(*a, **k):
+        cfgs = real_load(*a, **k)
+        cfgs["rock"] = dict(cfgs["rock"], required_keys=["tempo"])
+        return cfgs
+
+    st.load_kind_config = _with_required
+    try:
+        out = capture(sroot, "rock", "new", "SA", "--line", "third")
+        if "MISSING tempo::" in out:
+            ok("a declared required key that the mint cannot write is named")
+        else:
+            no(f"required_keys was ignored by the mint:\n{out}")
+    finally:
+        st.load_kind_config = real_load
+    # The mechanism is armed and DELIBERATELY unused: no shipped kind declares
+    # `required_keys` today. [[DAS Stone Keys]] says `tempo::` is required for a
+    # pebble ("Required: yes", no default), but a sweep on 2026-08-19 found 84
+    # live pebbles without one — every ATT and CFO pebble among them — because
+    # the umbrella-pebble model Dan settled 2026-08-18 uses a pebble as a
+    # CONTAINER pulled by hand, which has no raising condition to declare.
+    # Turning the requirement on would fire on most of the corpus, which is the
+    # skim-the-warnings failure this suite keeps closing. The divergence is
+    # Dan's to settle (TINK T554); until then the config declares nothing and
+    # this asserts that, so switching it on is a deliberate act with a red test
+    # rather than a silent one.
+    if not any(c.get("required_keys") for c in real_load().values()):
+        ok("no shipped kind declares required_keys — the spec divergence is open")
+    else:
+        no("a kind declares required_keys — settle TINK T554 before arming it")
 
 finally:
     shutil.rmtree(TMP, ignore_errors=True)
