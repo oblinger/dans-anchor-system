@@ -8334,10 +8334,12 @@ def render_report(plan: dict, mech: dict, man: dict) -> str:
         # the AGENT, not the user.
         #
         # Written first on the theory that it would carry the pattern to Dan,
-        # which [[Warden PRD]] § Refinement then made wrong the same day: he
-        # reads the vault, not rules, not exception tables, and not audit
-        # reports. His dissatisfaction arrives from a page that looks wrong, and
-        # no report can beat that or substitute for it.
+        # which [[Warden PRD]] § Refinement then made wrong the same day. Not
+        # because a report is off-limits — one rule or one deviation is fine to
+        # put in front of him — but because a LIST is an at-scale artifact, and
+        # settling one row of it would not settle the next. His dissatisfaction
+        # arrives from a page that looks wrong, and what he gives back is a
+        # generality that re-decides every row at once.
         #
         # What survives is the other reader. The agent DOES read this report, and
         # one rule absorbing several suppressions in a single run is the shape it

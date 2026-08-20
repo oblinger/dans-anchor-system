@@ -29,17 +29,27 @@ One declarative rule language and one runtime:
 - **Cheap enough to be everywhere.** The system instruments **almost every tool use and agent action**. That is only viable if the per-moment cost is negligible, so performance is a first-class product requirement, not an afterthought (§ Performance).
 - **Implicit by default, explicit on demand.** Most rules fire implicitly via the compiler/installer; the `/audit` pipeline is the thorough explicit backstop over the same corpus.
 
-## Refinement — the corpus improves from instances, never from review
+## Refinement — dissatisfaction with an instance, settled as a generality
 
 **Stated 2026-08-20, as a discovery rather than a design.** Dan: *"I don't think we ever said that before. I'm not sure we even designed it, but I'm quite certain now that it's the right way."* It had been the operating model for months; nothing recorded it, so nothing could be built to serve it.
 
-**The user does not read rules, and is not expected to.** He reads the vault. *"I almost never look at your rules… I look at my vault, and when my vault is wrong, we talk about it."* The same holds for exception tables — more so, since a table of graded deviations is the least legible artifact the system produces. **A wrong page announces itself; a wrong rule does not.** So the corpus cannot be kept right by reviewing the corpus, and any design that depends on the user auditing rules or exceptions is depending on something that will not happen.
+**The user does not review the corpus.** He reads the vault. *"I almost never look at your rules… I look at my vault, and when my vault is wrong, we talk about it."* **A wrong page announces itself; a wrong rule does not** — which is why the corpus cannot be kept right by reading the corpus, and why refinement starts from an instance that came out wrong.
 
-**Refinement is therefore driven by dissatisfaction with an instance.** The user brings a page that is wrong and — usually — a claim about the general principle it violates. That is the whole of his side, and it is deliberately the side he is fluent in.
+**But the instance is only the trigger. The exchange itself is conducted in generalities.**
 
-**The translation is the agent's, and it is the hard half.** *"I can talk at the level of instances, and I can even say the general rule that it's violating, and then you have to look at all the other rules and try to figure out what's the consistent rule for what the user's saying."* The agent holds the corpus the user cannot: it must find the statement that captures what the user means **and stays consistent with everything else already said**, which is a different and larger question than the instance in front of them.
+> **The asymmetry is the design.** The user is fluent in instances, and strong at **eliciting the rule an instance violates**. The agent is fluent in the corpus, and strong at **propagating that rule's consequences and assessing how it interacts with every rule already in force**. Both sides speak in generalities — that is the currency; the instance is what lets the user reach one. Each side speaks the language it is fluent in, and the agent owns the translation between them.
 
-> **The asymmetry is the design.** The user is fluent in instances; the agent is fluent in the corpus. The loop is built so each side only ever speaks the language it is fluent in, and the agent owns the translation between them. Every mechanism in this system that asks the user to read a rule, grade a deviation, or review a table is working against that, and should be re-examined.
+**The rule the user hands over is under-qualified, and that is expected rather than a failure.** He can name the principle the instance violates. He cannot state the conditions under which it holds, the cases it must not reach, or where it collides with what is already stated — **the qualification problem**, and it is the agent's half of the work. Dan, 2026-08-20: *"the rule has the qualification problem, that it's not a fully qualified rule, and you're the expert in figuring out the interactions between those rules."*
+
+**So the agent's reply is a generality too, not a list.** Having propagated the new rule, the useful thing to hand back is not the N affected instances but the **collision**: *"these two things we have said conflict in this area."* That is a question of the right size — one the user settles with a single determination — whereas N instances hands him the corpus. Dan: *"you can come back and you can say, well, there's two different rules that we've said here and they conflict in this area. That's the kind of thing you can come back with, because then I can make a general determination there."*
+
+### What breaks the loop is scale, not exposure
+
+Showing the user a rule is fine — he can read one and say whether it sounds right. Asking him to judge a single deviation is fine. **What breaks is asking him to operate at scale across the corpus**, and that is the thing to re-examine wherever a mechanism implies it.
+
+**Per-instance rulings are the trap, because they do not settle the next one.** A determination about one exception leaves the following exception exactly as open as before, so a loop built on them converges on nothing while consuming the user's attention linearly. That is why he must be asked for a *general* statement even when the instance in front of him is concrete — not because the instance is beneath him, but because only the generality scales.
+
+> **The test is arithmetic.** If settling the question in front of the user would not also settle the next twenty like it, the question is the wrong size. The repair is to ask for the generality — never to ask twenty times.
 
 ### Diagnose before repairing — three different sites
 
@@ -82,7 +92,7 @@ Neither round required the user to read a rule. Both produced a durable change t
 - One **unified moment taxonomy** ([[Warden Events]]) subsumes every existing trigger surface (`compact`, `markdown-write`, `skill:*`) and is open-ended.
 - The implicit (compiler) and explicit (audit) paths produce **identical verdicts** over the same corpus.
 - A **Python reference** implementation and a **Rust performance** implementation are behavior-identical, with Rust owning the hot path.
-- **Refinable from instances** (§ Refinement): the corpus is corrected by the user objecting to a *page*, never by the user reviewing rules — so every mechanism that would require him to read a rule, grade a deviation, or audit a table is a design smell.
+- **Refinable from instances, settled in generalities** (§ Refinement): the corpus is corrected by the user objecting to a *page*, and the correction he gives is a general statement the agent then qualifies and propagates. Showing him one rule or one deviation is fine; **any mechanism that would have him work at scale across the corpus is a design smell**, because per-instance rulings never settle the next instance.
 - **Explainability** *(commissioned 2026-07-06, [[F231 — Warden observability — the why-did-that-happen log|F231]])*: the user and the agent can **look back and understand why something happened the way it did** — which rules were considered and fired at a moment, what each said or denied, what actions were taken, and what was suppressed or throttled. When Warden misbehaves, the log answers "did the LLM ignore the steer, or did we never send the right one?"
 
 ## Non-Goals
@@ -96,7 +106,7 @@ Neither round required the user to read a rule. Both produced a durable change t
 - **As an agent**, I want to be steered at the moment a constraint applies (e.g. corrected before asking the user a question Commit-mode already answers), so I don't bother the user — *via implicit firing + steer messages.*
 - **As the user**, I want to declare a new standing constraint once and trust it is enforced for every agent, so guardrails don't depend on prose nobody re-reads — *via authoring a rule + activating it through the anchor's traits.*
 - **As the user**, I want to audit an anchor's conformance on demand and get an actionable report, so I can catch drift — *via `/audit anchor`.*
-- **As the user**, I want to complain about a *page that is wrong* and have the agent work out which rule, grading, or template caused it and what the consistent correction is — so I never have to hold the rule corpus in my head — *via § Refinement.*
+- **As the user**, I want to complain about a *page that is wrong*, say what principle I think it breaks, and have the agent work out which rule, grading, or template caused it, qualify my half-stated principle against everything else already said, and tell me where it collides — so I settle one general question instead of N instances — *via § Refinement.*
 - **As a facet/skill author**, I want to ship my spec with its rules embedded and have them enforced wherever my facet is present, so the spec and its enforcement never diverge — *via an embedded `# RULESET`.*
 
 ## Capabilities (what the system must do)
@@ -154,3 +164,32 @@ The rule system is a part of **[[SKA]]**, tied to the **ruleset** primitive ([[D
 1. ~~**Where does the compiler live and when does it run?**~~ **Resolved by the build (2026-07-02):** `warden compile` runs explicitly (CLI / on rule change) and caches on the scan-index hash; the hooks load the pre-compiled artifacts from `~/.warden/` — no per-hook or per-session compile.
 2. ~~**Rust ↔ Python boundary for rule-authored Python.**~~ **Resolved by F213 phase 2 (2026-07-05):** Rust owns selection; rule-authored Python crosses as an IPC round-trip to the warm resident daemon (~3.7 ms with a Python body firing) — cheap enough that code-carrying rules are not confined to post-hoc moments.
 3. ~~**Budget enforcement.**~~ **Resolved advisory-first (M5, 2026-07-05):** an over-budget fire is LOGGED to `hook.log` (`OVER-BUDGET <moment> fired in X ms`), never dropped — both dispatchers time each moment against the § Performance budgets. Demote-to-audit stays a future escalation to take only if advisory data shows a persistent offender.
+
+# Discussion
+
+## 2026-08-20 — How the rule corpus is refined, and who holds which half
+
+**Problem.** Warden's PRD described what a rule *is* and how it fires, and said nothing about how the corpus becomes and stays *right*. The implicit model was that the user reviews rules. He does not, has not, and — measured against the size the corpus reached — could not. The gap surfaced through exceptions rather than rules: [[Eli Exceptions]] carried five rows graded `?`, waiting on a review that was never going to arrive, because `R-exception-discipline-06` said grading was the user's act.
+
+**Options considered.**
+
+**(A) Make the review cheaper.** A grading rubric so the user could judge each deviation at a glance; a gallery of worked A/B/C examples per rule. Rejected — it optimises the wrong step. The user's objection was not that grading was *hard*, it was that it was *his*: *"I have to cognitively get into each one of these areas to understand what's going on, to have a meaningful opinion. It's not a very good use of time."* A cheaper per-item review is still per-item.
+
+**(B) Push the corpus to the user in summary.** Reports that surface concentrations, cross-anchor counts, drift dashboards. Rejected, and this is the option that took two rounds to kill because the agent proposed it twice under different names. A summary of N findings is still an at-scale artifact: settling one row does not settle the next, so the user's attention is consumed linearly no matter how well the list is sorted. It also runs against the standing Non-Goal on cross-anchor orchestration.
+
+**(C) Refinement from instances, settled in generalities.** Adopted. The user brings a page that came out wrong plus his claim about the principle it breaks; the agent qualifies that principle against the whole corpus, propagates it, and hands back **collisions** rather than lists.
+
+**Decision.** (C), recorded as § Refinement. Three things in it are load-bearing and were not obvious at the start of the thread:
+
+1. **Both sides speak in generalities.** The first draft framed this as instances-vs-corpus, which was wrong: the user is *strong* at eliciting the rule an instance violates, and that rule is a generality. What he cannot do is qualify it. Dan's correction: *"The user is fluent in instances and strong in identifying the rule violated by an instance. The agent is fluent in the corpus and is strong in assessing the global consequences and interaction of any given rule."*
+2. **The qualification problem is the agent's half**, and naming it is what makes the division honest — the user's rule arrives *deliberately* under-qualified, and treating that as an incomplete request rather than a normal handoff is what would push the corpus back onto him.
+3. **The failure test is scale, not exposure.** The first draft said any mechanism asking the user to read a rule or grade a deviation was a smell; that is too strong and would forbid the conversation this whole loop is made of. The real line: *"every mechanism that tries to ask the user to operate at scale across the corpus is working against that."*
+
+**How this sits with the rest of Warden.**
+
+- **It explains the read/fire/run North Star's blind spot.** § Overview argues the guardrail, the documentation and the runnable code cannot drift because they are one artifact. True — and it says nothing about whether that one artifact is *right*. § Refinement is the missing half: one artifact solves drift *between* representations, and the instance-driven loop is what corrects the artifact itself.
+- **It is the product justification for `deny` being floor-gated and for `tell` being the default action** ([[Warden Semantics]]). A `tell` that steers wrongly produces a page the user can see and object to, which feeds the loop. A `deny` that fires wrongly produces *nothing* — no artifact, no instance, no complaint — so a mis-stated `deny` is invisible to the only detector the system has.
+- **It sets a bar for [[F231 — Warden observability — the why-did-that-happen log|F231]] explainability.** The log's stated job is answering *"did the LLM ignore the steer, or did we never send the right one?"* Under this loop that question is asked **after** the user has objected to a page, which means the log's real workload is retrospective and instance-anchored: given this wrong page, what fired? That is a narrower and more answerable query than continuous observability.
+- **It predicts where new mechanisms will go wrong.** Anything that accumulates a pile for the user to work through — a review queue, a pending-approval list, an ungraded backlog of proposals — is the shape to refuse. `?`-graded exceptions were exactly that pile, which is how the thread started.
+
+**Open.** Whether the same loop governs *facet* and *template* refinement, which § Refinement names as the third repair site but does not develop. The instinct is yes — a template that produces a wrong page is corrected by the same complaint — but no thread has tested it.
