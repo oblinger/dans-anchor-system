@@ -137,6 +137,20 @@ _FIELD_RE = re.compile(r"^([a-z][a-z_-]*)::\s*(.*)$")
 # fix as much as to the defect.
 _WIKILINK_RE = re.compile(r"\[\[([^\[\]]*?)\]\]")
 
+# The OTHER link spelling — a markdown inline link, `[text](target)`. Extracted
+# 2026-08-20 from the one non-primitive site that spelled it by hand
+# (`chk_dispatch_cell_narrative`, which already routed its wiki-links through
+# `_WIKILINK_RE` and then inlined this one beneath it), on `structure-lint`'s
+# ratchet. Byte-identical to the literal it replaces, so the extraction cannot
+# move a verdict — which is why it needs no population measurement, unlike a
+# primitive that generalizes.
+#
+# The lint files it under `wiki-link`, which is the wrong CLASS for the right
+# FINDING: `CLASSES["wiki-link"]` matches `\[\[` and this pattern opens `\[[`,
+# a `\[` beside a character class. Worth knowing before the next such report is
+# read as a stray wiki-link matcher.
+_MDLINK_RE = re.compile(r"\[[^\]]*\]\([^)]*\)")
+
 
 def _strip_link_target(raw: str) -> str:
     """`[[DAS Brief#RULESET R-brief|embedded body]]` → `DAS Brief#RULESET R-brief`."""
@@ -1007,6 +1021,25 @@ def _is_state_backlog_namesake(f: Path) -> bool:
     except OSError:
         return False
     return re.search(r"<!--\s*state:backlog\b", head) is not None
+
+
+def _is_notebook_namesake(f: Path) -> bool:
+    """True when `f` IS a notebook's narrative page — `X/X.md` carrying the
+    machine `<!-- notebook -->` marker (F334).
+
+    The third member of the family with `_is_state_backlog_namesake` and
+    `_is_folder_doc_marker`, and keyed the same way and for the same reason:
+    on a marker a script writes, never on the folder's shape or its name. The
+    folder shape is what a page LOOKS like; the marker is what a tool DECLARED,
+    and only the second cannot be acquired by accident.
+    """
+    if f.parent.name != f.stem:
+        return False
+    try:
+        head = f.read_text(encoding="utf-8", errors="replace")[:2000]
+    except OSError:
+        return False
+    return re.search(r"<!--\s*notebook\b", head) is not None
 
 
 def _is_folder_doc_marker(dot: Path) -> bool:
@@ -3797,7 +3830,7 @@ def chk_dispatch_cell_narrative(target, anchor_root, args):
             continue
         right = cells[1]
         stripped = _WIKILINK_RE.sub("", right)
-        stripped = re.sub(r"\[[^\]]*\]\([^)]*\)", "", stripped)
+        stripped = _MDLINK_RE.sub("", stripped)
 
         def _short_tag(m):
             words = m.group(1).split()
@@ -4012,6 +4045,26 @@ def chk_summary_present_iff_complex(target, anchor_root, args):
         # row RETIRED — SONAR017, an open question to Dan, unreferenced for
         # three days. That gap is real and is closed separately by audit-q C58,
         # which is what makes this exemption safe to state.
+        return "pass", ""
+    if _is_notebook_namesake(f):
+        # T556, 2026-08-20 — same family, and the facet had already ruled.
+        # [[DAS Notebook]]: "A notebook folder is NOT a sub-anchor — it takes
+        # no functional `.anchor` and no dispatch table; the `<!-- notebook -->`
+        # marker on the namesake is the machine-readable discriminator."
+        # The narrative already carries one H2 per cell, each linking that
+        # cell's doc, so a masthead would restate every link in the body.
+        #
+        # Reported by A2X, who declined to fix it locally and was right to:
+        # restructuring a notebook index is a facet decision, and guessing
+        # would put a table on every notebook in the vault. It fired on EVERY
+        # `nb append` — A2X013 is at 16 cells, so 16 identical warnings.
+        #
+        # Residual, stated because the T363 exemption came with its own: a cell
+        # doc sitting in the folder that the narrative does NOT link would be
+        # invisible here, exactly as a retired row's doc was. It is a much
+        # smaller hole — `nb append` is the facet's only sanctioned write
+        # surface and it writes the block and the doc in one act — so an orphan
+        # cell can only arrive by hand, which the facet already forbids.
         return "pass", ""
     has, _ = _disclosure_summary(f)
     if has:
@@ -7163,6 +7216,15 @@ def chk_valid_spine(target, anchor_root, args):
         return "error", f"cannot classify: {e}"
     if not p.fronts_folder:
         return "pass", "not an anchor entry page — spine scope is F308 Q6"
+    if _is_notebook_namesake(f):
+        # T556, 2026-08-20. A `<!-- notebook -->` namesake fronts a folder, so
+        # `fronts_folder` is true — but [[DAS Notebook]] rules that folder is
+        # NOT an anchor: "no functional `.anchor` and no dispatch table". This
+        # rule's scope is anchor ENTRY pages, and a notebook narrative is not
+        # one; it is the artifact stream's own front matter. Keyed to the
+        # marker `nb` writes, never to the folder shape — the same key
+        # `_is_state_backlog_namesake` uses, for the same reason.
+        return "pass", "a notebook narrative, not an anchor entry page"
     # has_spine FIRST. A page that is nothing but a `:>>` breadcrumb passes on
     # its spine, and also matches the stub shape — reporting it as "a pointer
     # stub" would be a true verdict for a false reason, which is worse in a log
