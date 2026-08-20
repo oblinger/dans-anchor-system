@@ -1,7 +1,7 @@
 # RULESET R-template
 include::
 where:: `file: **/_* Template.md, **/_* Template/**`
-description:: the Template facet — a domain-specific, folder-local structure for the items in one folder/tree
+description:: the Template facet — a live specimen whose anchor and scope are both read off the artifact
 
 ### RULE R-template-01 — the exemplar IS a live instance, never a description (checked)
 The **exemplar** — everything above the `template notes` cut-line (R-template-08) — is **live markdown** (real H1, frontmatter, sections) with bare `{{PLACEHOLDERS}}`; it is **not** wrapped in code fences and is **not** a `## How to use` description of a template.
@@ -34,7 +34,7 @@ A folder that contains a `_*/` folder template has a `Template` row in its dispa
 **Why:** the template is the folder's "start here" affordance; without the row it's invisible to anyone working in the folder.
 
 ### RULE R-template-06 — every template is reachable (sampled)
-A folder-level template is reachable from its folder's dispatch (R-template-05); a reused/elevated template is reachable from the folders it governs (per § Scope & applicability).
+A folder-level template is reachable from its folder's dispatch (R-template-05); a template elevated up the ladder is reachable from the folders it governs (per [[DAS Template]] § Scope).
 **Check pattern:** no `_*` template is unreachable from any dispatch or governed folder. *(Audit category: `orphan-template`.)*
 **Why:** an unreachable template is dead meta-content — it can't be found at the moment it matters.
 
@@ -52,3 +52,22 @@ A placeholder holding **one line** sits in **inline braces** (`{{event title}}`)
 In a **folder template** (`_{pattern} Template/`), every `{{VARIABLE}}` across the folder name, the member file names, and the bodies binds to **one unified value** — a single substitution fills the folder name, the marker name, sibling member names (e.g. `{{DISK_LABEL}} Manifest.md`), and the H1s together. A member file whose name carries an **unbound** variable is a **repeatable slot** — one instance per value (the inter-file analog of the intra-file `### ...`); no `...`-in-filename is used.
 **Check pattern:** member names reuse the folder template's variables (one namespace); a member with an unbound-variable name is treated as repeatable; no literal `...` appears in a filename.
 **Why:** unifying the namespace is what makes "name the folder and every file inside it from one value" work; and an unbound filename variable already means "one per value," so filename repetition needs no extra glyph.
+
+### RULE R-template-11 — the first line declares the anchor; whole-file is the default (stated)
+A document template's **anchor** — the thing it describes the shape of — is read off its first line, never declared in a key. A specimen opening with an ordinary `# H1` anchors at the **document root** and governs the whole file; a specimen opening with a **depth marker** anchors at any heading whose text matches it and governs only the subtree beneath. Depth **floats** (`# LOG` and `## LOG` are the same anchor) and headings inside the specimen are relative to it. A directory template anchors at a directory and the question does not arise. Model: [[DAS Template]] § Anchor.
+
+**Whole-file is the default and carries no marker**, which is why nothing in the corpus changes: all 29 file templates and 7 folder templates measured 2026-08-20 are already conformant by construction, having been written before the marker existed.
+
+**Check pattern:** *(stated, not yet checked)* the first non-frontmatter line is either an `# H1` (root anchor) or a depth marker (heading anchor). **Arming waits on [[TINK303 - Template DSL - one pattern language for facets, templates, and sections|F303]]/[[STEN Language]] pinning the marker's literal syntax** — the two forms are specified in meaning (*"this deep or deeper"* vs *"exactly this deep"*) and not yet in glyph, and a checker written against a guessed spelling would have to be rewritten the moment the real one lands.
+**Why:** a template is a specimen, so its own form is the most reliable place to state what it is about; and a default that needs no marker is what makes the change free for everything already written.
+
+### RULE R-template-12 — two templates over one document have disjoint anchors (stated)
+More than one template may govern the same document — that is the whole point of anchoring — **provided their anchors are disjoint**. The same anchor claimed twice is a **defect**, not something to reconcile: there is deliberately no merge algorithm, because each template describes only what sits under its own anchor and **elides** what another owns.
+
+Two consequences that are each a defect in their own right:
+
+- **A wrong picture beats no picture only in the wrong direction.** Under a heading another template owns, the outer template shows the heading and **nothing beneath it**. Half an example there contradicts the spec that actually owns the region, which is worse than the silence, because a reader cannot tell it is partial.
+- **Name and form must agree.** The `_{Name} Section Template.md` spelling is readability, not mechanism — it keeps such a file inside the `_* Template` family this ruleset selects on. **If the name says Section and the first line anchors at the root (or the reverse), the form wins and the name is the defect.** Measured 2026-08-20: **zero** files carry that name anywhere in the vault, so this clause currently has no corpus — it is written now so that the first one authored is checked, not so that a pass today means anything.
+
+**Check pattern:** *(stated, not yet checked)* no two templates in scope for one document resolve to the same anchor; a template whose basename contains ` Section Template` opens with a depth marker rather than an `# H1`. Both halves depend on parsing the marker, so both arm with R-template-11.
+**Why:** disjointness is what lets templates conjoin the way rules already do (`R-backlog` and `R-markdown` govern one file with no merge step), and it is the property that let the section rung collapse into an ordinary anchored template ([[TINK302 - Section templates and the scope ladder|F302]] Q4). A collision is the one case that breaks it, so it has to be nameable.
