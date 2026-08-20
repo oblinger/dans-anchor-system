@@ -13,11 +13,11 @@
 //
 // RUN:
 //   swift calendar-write.swift list
-//   swift calendar-write.swift create [--dry-run]  < event.json
+//   swift calendar-write.swift create <event.json> [--dry-run]
 //   swift calendar-write.swift show   <eventIdentifier>
 //   swift calendar-write.swift delete <eventIdentifier>
 //
-// create reads JSON on STDIN, deliberately — event notes are multi-line and
+// create reads JSON from a FILE, deliberately — event notes are multi-line and
 // shell argument quoting mangles them (a trailing newline is silently eaten by
 // command substitution, which has already corrupted one document this week).
 //
@@ -135,10 +135,20 @@ case "delete":
     } catch { die("delete failed: \(error.localizedDescription)", 4) }
 
 case "create":
-    let input = FileHandle.standardInput.readDataToEndOfFile()
+    // A path, not stdin: `swift file.swift` runs the interpreter, which
+    // consumes stdin itself and leaves the script reading empty. Measured
+    // 2026-08-20. `-` still means stdin, for a compiled binary.
+    var input = Data()
+    if let path = args.first, path != "-" {
+        guard let d = FileManager.default.contents(atPath: path)
+        else { die("cannot read \(path)", 3) }
+        input = d
+    } else {
+        input = FileHandle.standardInput.readDataToEndOfFile()
+    }
     guard !input.isEmpty,
           let spec = (try? JSONSerialization.jsonObject(with: input)) as? [String: Any]
-    else { die("create expects a JSON object on stdin", 3) }
+    else { die("create expects a JSON object — pass a file path (or `-` for stdin)", 3) }
 
     guard let title = spec["title"] as? String, !title.isEmpty else { die("title is required", 3) }
     guard let startStr = spec["start"] as? String, let rawStart = parseDate(startStr)
