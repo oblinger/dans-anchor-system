@@ -49,6 +49,7 @@ from __future__ import annotations
 import gzip
 import json
 import os
+import pathlib
 import re
 import sys
 import subprocess
@@ -1882,25 +1883,41 @@ def format_row_id(kind, rest_or_num):
 # bodies in R-pathguard / R-state-region and the audit scripts are exec'd or
 # run in isolation and cannot import, so they carry the same grammar inline
 # with a pointer here.
-FEATURE_STEM_RE = re.compile(r"^(?:[A-Za-z][A-Za-z0-9]*\s+)?(F\d+)\s+—")
+FEATURE_STEM_PREFIX_RE = re.compile(r"^(?:[A-Za-z][A-Za-z0-9]*\s+)?(F\d+)\s+—")
 FEATURE_STEM_FUSED_RE = re.compile(r"^[A-Za-z]+(\d+)\s+-\s+")
 
 
-def feature_number(stem):
-    """Return the bare `F<n>` a feature-doc stem names, or None.
+def feature_number(stem, path=None):
+    """Return the bare row handle a document stem names (`F300`, `T287`), or None.
 
-    The fused F300 form has no `F` in it, so this RECONSTRUCTS the identifier
-    rather than matching it: `TINK300 - Title` → `F300`. Everything outside the
-    filename — backlog rows, block-IDs, `Q.md`, `queries.md`, chat — still says
-    `F300`, and this is the single seam where the two spellings meet.
+    The fused form has no letter in it — `TINK300 - Title` — so this
+    RECONSTRUCTS the identifier rather than matching it. Until 2026-08-19 only
+    features used that spelling and reconstructing an `F` was always right.
+    T-docs now use it too, and a `HA287 - Soak…` T-doc read back as `F287` sent
+    audit-q hunting for a feature that does not exist and reporting the row's
+    questions as missing.
+
+    So the letter comes from the document itself when we have it: the H1
+    breadcrumb (`# [[HA]] · T287 — Title`) still carries the kind, because the
+    fused spelling lives in the filename and nowhere else. With no path to read,
+    `F` remains the fallback — that is what every pre-2026-08-19 fused doc is.
     """
-    m = FEATURE_STEM_RE.match(stem)
+    m = FEATURE_STEM_PREFIX_RE.match(stem)
     if m:
         return m.group(1)
     m = FEATURE_STEM_FUSED_RE.match(stem)
-    if m:
-        return "F" + m.group(1)
-    return None
+    if not m:
+        return None
+    letter = "F"
+    if path is not None:
+        try:
+            head = pathlib.Path(path).read_text(encoding="utf-8")[:4000]
+        except (OSError, UnicodeDecodeError):
+            head = ""
+        h1 = re.search(rf"^#\s.*·\s*([A-Z])0*{int(m.group(1))}\s+—", head, re.M)
+        if h1:
+            letter = h1.group(1)
+    return letter + m.group(1)
 
 # --------------------------------------------------------------------------
 # Backlog scanning
@@ -4006,7 +4023,7 @@ def _container_id_for_feature(feature_path):
     `^TINK298---Title-Q1` instead would strand every link into the doc while
     looking like it worked.
     """
-    return feature_number(feature_path.stem) or feature_path.stem
+    return feature_number(feature_path.stem, feature_path) or feature_path.stem
 
 
 def _format_q_bullet(q_num, container_id, body):

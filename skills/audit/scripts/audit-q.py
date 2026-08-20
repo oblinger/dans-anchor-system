@@ -336,15 +336,31 @@ F_NUMBER_PREFIX_RE = re.compile(r"^(?:[A-Za-z][A-Za-z0-9]*\s+)?(F\d+)\s+—")
 F_NUMBER_FUSED_RE = re.compile(r"^[A-Za-z]+(\d+)\s+-\s+")
 
 
-def feature_number(stem):
-    """Return the bare `F<n>` a feature-doc stem names, or None."""
+def feature_number(stem, path=None):
+    """Return the bare row handle a doc stem names (`F300`, `T287`), or None.
+
+    The fused form carries no letter, so it is RECONSTRUCTED. Since 2026-08-19
+    T-docs use that spelling too, and reconstructing an `F` unconditionally made
+    `HA287 - Soak…` read as `F287` — a feature that does not exist — so C35/C46
+    reported the row's questions as unreachable. The doc's H1 breadcrumb still
+    carries the kind; `F` stays the fallback when there is no path to read.
+    Canonical copy: `backlog_edit.feature_number`."""
     m = F_NUMBER_PREFIX_RE.match(stem)
     if m:
         return m.group(1)
     m = F_NUMBER_FUSED_RE.match(stem)
-    if m:
-        return "F" + m.group(1)
-    return None
+    if not m:
+        return None
+    letter = "F"
+    if path is not None:
+        try:
+            head = Path(path).read_text(encoding="utf-8")[:4000]
+        except (OSError, UnicodeDecodeError):
+            head = ""
+        h1 = re.search(rf"^#\s.*·\s*([A-Z])0*{int(m.group(1))}\s+—", head, re.M)
+        if h1:
+            letter = h1.group(1)
+    return letter + m.group(1)
 # F089 (C18) — Verify-by bracket date extraction (parses the date for expiry check)
 VERIFY_BY_DATE_RE = re.compile(r"^Verify-by\s+(\d{4})-(\d{2})-(\d{2})\b")
 
@@ -1575,7 +1591,7 @@ def find_ask_format_files(
                     if feature_file in seen_feat:
                         continue
                     seen_feat.add(feature_file)
-                    fnum = feature_number(feature_file.stem)
+                    fnum = feature_number(feature_file.stem, feature_file)
                     if fnum:
                         out.append((fnum, feature_file))
             queries_file = backlog_track_dir(backlog_file) / f"{name} queries.md"
@@ -3316,7 +3332,7 @@ def check_c23_designing_resolves(entries: list[BacklogEntry]) -> list[Finding]:
                 continue
             container_id = e.identifier
             # Container_id for feature-doc Qs is the F-number from the doc stem.
-            fnum = feature_number(target_file.stem)
+            fnum = feature_number(target_file.stem, target_file)
             if fnum:
                 container_id = fnum
             # extract_q_entries returns all Q-headers below ## Open Questions H2
@@ -3418,7 +3434,7 @@ def check_c24_questions_count_match(entries: list[BacklogEntry]) -> list[Finding
             if target_file is None or not target_file.is_file():
                 continue  # link-resolution issue belongs to C1/C22, not here
             container_id = e.identifier
-            fnum = feature_number(target_file.stem)
+            fnum = feature_number(target_file.stem, target_file)
             if fnum:
                 container_id = fnum
             actual = len(extract_q_entries(target_file, container_id))
@@ -4464,7 +4480,7 @@ def check_c35_ask_md_drift(
                 continue  # link resolution belongs to C1/C22
             # Only feature docs participate (skip non-F<n> targets like
             # `[[DAS ...]]` references inside descriptive text).
-            fnum = feature_number(target_file.stem)
+            fnum = feature_number(target_file.stem, target_file)
             if not fnum:
                 continue
             container_id = fnum
@@ -5131,7 +5147,7 @@ def apply_c23_fix(backlog_file: Path,
             if target_file is None or not target_file.is_file():
                 continue
             container_id = e.identifier
-            fnum = feature_number(target_file.stem)
+            fnum = feature_number(target_file.stem, target_file)
             if fnum:
                 container_id = fnum
             pending = len(extract_q_entries(target_file, container_id))
@@ -5216,7 +5232,7 @@ def apply_c24_fix(backlog_file: Path,
             if target_file is None or not target_file.is_file():
                 continue
             container_id = e.identifier
-            fnum = feature_number(target_file.stem)
+            fnum = feature_number(target_file.stem, target_file)
             if fnum:
                 container_id = fnum
             actual = len(extract_q_entries(target_file, container_id))
@@ -6571,7 +6587,7 @@ def main() -> int:
         if not fd_path.is_file():
             print(f"error: feature doc not found: {fd_path}", file=sys.stderr)
             return 2
-        cid = feature_number(fd_path.stem) or fd_path.stem
+        cid = feature_number(fd_path.stem, fd_path) or fd_path.stem
         ask_format_files = [(cid, fd_path)]
     else:
         reachable = args.scope != "all"
