@@ -108,7 +108,16 @@ _spec.loader.exec_module(be)
 # ============================================================
 
 
-def resolve_anchor(anchor_arg):
+# The verbs that address an Inbox and never touch a backlog (T131). `cmd_drop`
+# already knows it — its last lines read `if backlog_path is not None:` — but
+# `resolve_anchor` imposed the precondition one layer above, so the knowledge
+# never got a chance to matter. Measured 2026-08-20 (T562): **65 of 95
+# slug-declaring anchors in the vault hold no backlog**, so `state drop <SLUG>`
+# was refusing two thirds of the named anchors there are.
+_BACKLOG_FREE_VERBS = ("drop", "inbox-list", "inbox-tag")
+
+
+def resolve_anchor(anchor_arg, verb=None):
     """Resolve the mandatory `<anchor>` positional to (slug, anchor_path).
 
     Two modes: a directory holding `.anchor`, or a slug looked up by the vault
@@ -167,6 +176,26 @@ def resolve_anchor(anchor_arg):
     # Diagnostic only. WHICH side is authoritative is T203 Q1 and unresolved;
     # this changes no resolution, it just says what it found. Runs on the
     # failure path alone, so the vault walk costs nothing on the normal path.
+    # T562 — an Inbox verb has no business needing a backlog. When exactly one
+    # anchor answers to this slug, that IS the anchor, and `drop` /
+    # `inbox-list` / `inbox-tag` can run on it. The other verbs fall through to
+    # the diagnostics below unchanged: those messages were written carefully
+    # against real incidents (ATT's PROS/BOONE rename, the SV drop) and none of
+    # them is improved by resolving further.
+    #
+    # **Exactly one, never the first of several.** An ambiguous slug still
+    # fails, because silently picking one would deliver a message to an anchor
+    # the sender did not mean — and a drop is fire-and-forget, so nobody would
+    # ever find out. `or_named` returns declared hits first, so a declaration
+    # beats a folder-name coincidence, and one of each is still two.
+    #
+    # The cost is a full vault walk, but only here: `_anchors_declaring_slug`
+    # runs on the failure path alone, and for these verbs the failure path is
+    # now sometimes a success.
+    if verb in _BACKLOG_FREE_VERBS:
+        answering = _anchors_declaring_slug(anchor_arg, or_named=True)
+        if len(answering) == 1:
+            return anchor_arg, answering[0]
     declared = _anchors_declaring_slug(anchor_arg)
     if declared:
         where = ", ".join(str(d) for d in declared[:3])
@@ -199,12 +228,20 @@ def resolve_anchor(anchor_arg):
     )
 
 
-def _anchors_declaring_slug(slug):
+def _anchors_declaring_slug(slug, *, or_named=False):
     """Every anchor whose `.anchor` declares exactly `slug: <slug>`.
+
+    With `or_named=True`, also every anchor whose FOLDER is named `<slug>` and
+    whose `.anchor` declares no slug at all. That is not a second guess: per
+    [[DAS Dot Anchor]] a slug falls back to the folder basename when `.anchor`
+    is silent, and most of the vault relies on it — of the anchors T562 could
+    not reach, `SVH` declared a slug and `BUY` / `FIN` / `NJ` / `SYS` did not,
+    so a declared-only lookup answers one case in five. Declared hits are
+    returned first, so a declaration always wins over a coincidence of naming.
 
     Failure-path only — a full walk, deliberately not cached, because it runs
     once per failed resolution and never on a successful one."""
-    hits = []
+    hits, named = [], []
     for root, dirs, files in os.walk(be.VAULT_ROOT, followlinks=True):
         if any(frag in root + "/" for frag in be.SKIP_PATH_FRAGMENTS):
             dirs[:] = []
@@ -215,12 +252,17 @@ def _anchors_declaring_slug(slug):
             txt = (Path(root) / ".anchor").read_text(encoding="utf-8", errors="replace")
         except OSError:
             continue
+        declared = None
         for ln in txt.splitlines():
             m = _ANCHOR_SLUG_RE.match(ln.strip())
-            if m and m.group(1) == slug:
-                hits.append(Path(root))
+            if m:
+                declared = m.group(1)
                 break
-    return hits
+        if declared == slug:
+            hits.append(Path(root))
+        elif or_named and declared is None and Path(root).name == slug:
+            named.append(Path(root))
+    return hits + named if or_named else hits
 
 
 _ANCHOR_SLUG_RE = re.compile(r"^slug:\s*(\S+)\s*$")
@@ -4453,7 +4495,7 @@ def main(argv):
     args = parser.parse_args(argv[1:])
 
     try:
-        slug, anchor_path = resolve_anchor(args.anchor)
+        slug, anchor_path = resolve_anchor(args.anchor, args.verb)
     except be.BacklogEditError as e:
         print(f"state: {e}", file=sys.stderr)
         return 2

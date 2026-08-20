@@ -53,8 +53,12 @@ state summary-line <anchor> --recommend R   # the canonical closing line (F248)
 
 `<anchor>` is a **mandatory positional on every verb**, resolved two ways:
 
-1. **SLUG** — the normal form; looked up by the vault scan. Errors if no `{slug} Backlog.md` is found.
+1. **SLUG** — the normal form; looked up by the vault scan. For the backlog verbs, errors if no `{slug} Backlog.md` is found.
 2. **PATH** — a directory containing `.anchor`; the slug is read from that file's `slug:` line. For anchors not yet reachable by name.
+
+**The Inbox verbs need no backlog** ([[TINK Backlog#^T562|T562]], 2026-08-20). `drop` / `inbox-list` / `inbox-tag` write and read `{slug} Inbox.md`, which has nothing to do with a backlog — but slug resolution ran through `find_backlog` for every verb, so an anchor that tracks without a backlog could not be addressed by name at all. Measured: **1,466 vault anchors answer to a unique slug and 1,430 of them hold no backlog**, so `state drop <SLUG>` reached about 36 of them. For these three verbs the slug now resolves to the anchor that answers to it — the one whose `.anchor` **declares** that slug, or, when `.anchor` declares none, the one whose **folder is named** it ([[DAS Dot Anchor]]'s basename fallback; four of the five anchors that surfaced this declared no slug). Declarations are matched first, so a declaration beats a naming coincidence.
+
+**Exactly one, never the first of several.** An ambiguous slug still errors. A drop is fire-and-forget — no reply, no ack, and the sender never comes back to check — so delivering to the wrong anchor because two answered is a message nobody ever finds. The backlog verbs are unchanged in every respect, including their error text, which was written against real incidents and diagnoses more than a resolution would.
 
 **Nothing is inferred (F293).** v2 accepted the anchor as an optional `-a` flag and, when it was omitted, walked cwd upward to the nearest `.anchor`. That made the same command write to a different anchor depending on where the caller was standing, with nothing in the output naming which one it picked — *"a bug waiting to happen"* (Dan, 2026-08-01). `state` is a called tool, not a typed one, so the address is spelled out. Removing the inference is also what let the whole address become positional: an optional argument cannot sit in the middle of other positionals, which is the only reason the anchor was ever a flag.
 
@@ -297,7 +301,7 @@ Every mutation runs the full sync in one call — this is the atomic-propagation
 
 ## EXAMPLES
 
-```
+```bash
 # row: mint a new Designing feature, default horizon Now — parse "added F<NNN>" from stdout
 echo '- **F+ — Sparse-checkout docs migration** [Designing]' | state define SKA Backlog F+
 
