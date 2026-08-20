@@ -63,6 +63,8 @@ It detects every hard overlap (`label ∩ box`), slides each offending edge-labe
 
 ## Description sidecar — `{base}.desc.md`
 
+*Why the sidecar exists, and the three habits that keep it from decaying into a changelog, are stated once in [[DAS Diagramming]] § 3 — this section is the mechanics.* The elevation this file used to call an open question landed there 2026-08-20; the convention is not a facet, it is part of the diagramming discipline.
+
 Every figure authored via `/viz diagram` ships with a **description sidecar** at `{base}.desc.md` next to the `.svg`. The sidecar captures the user's *stated intent* — what the figure should convey, what is deliberately included, what is deliberately omitted, layout decisions, style decisions, audit-posture relaxations. The sidecar is the durable record of editorial choices that are NOT visible in the SVG itself; without it, the next agent to touch the figure is one user-correction away from re-introducing something the user already rejected.
 
 ### When to create
@@ -85,46 +87,17 @@ Before any subsequent SVG edit — **read the sidecar first** to recall the user
 
 ### Shape
 
-Body-only markdown (no YAML frontmatter — vault convention). Suggested skeleton:
+Body-only markdown (no YAML frontmatter — vault convention). **The skeleton is not printed here — read a real one:** [[F143-3-facets.desc|F143-3-facets.desc.md]] in `library/figures/`, a 30-line sidecar for a live figure, with [[F143-1-top-level.desc|F143-1-top-level.desc.md]] as the fuller 94-line case. Three more sit beside them.
 
-```markdown
-# {Figure title}
-description:: Stated intent for `{base}.svg`. Maintained alongside the SVG by `/viz diagram`; rewritten as the user clarifies (never appended).
+*(This section used to carry a fenced markdown skeleton. A fence makes markdown inert — the headings stop being headings and the wiki-links stop resolving — so the house rule is to show example markdown live or to link a real instance. Linking is the better half of that here: a real sidecar cannot drift out of agreement with the convention the way a hand-copied skeleton can, and the examples-are-real-instances rule already asks for it.)*
 
-## What it conveys
-
-{One paragraph naming the figure's purpose and intended reader.}
-
-## Layout
-
-{Box positions, sizing intentions, any deliberate geometric choices (e.g. "Facets is deliberately shorter to let arrow X pass over its top").}
-
-## Per-element content
-
-{Title, each box's text rows, the caption — what each piece is and why it's there.}
-
-## Arrows
-
-{Which arrows exist, which are labeled, which are unlabeled — and why each choice.}
-
-## What it does NOT contain
-
-{The deliberate omissions. As load-bearing as the inclusions. "No example lists" / "no caption" / "no labels on the obvious arrows" — capture these so they aren't re-added on the next iteration.}
-
-## Audit posture
-
-{Which R-diagram rules are deliberately relaxed and why. Which are fully met.}
-
-## Color palette
-
-{Locked colors, if part of a figure family with shared semantics.}
-```
+The sections a sidecar reaches for, in the order they tend to appear: **What it conveys** (purpose and intended reader), **Layout** (positions, sizing, deliberate geometry), **Per-element content**, **Arrows** (which exist, which are labeled, and why), **What it does NOT contain** — the deliberate omissions, as load-bearing as the inclusions — **Audit posture** (which `R-diagram` rules are relaxed and why), **Color palette**, and **Source**.
 
 H1 matches the figure title (not necessarily the file basename). H2 set adapts to the figure — drop empty sections, add new ones as the user's constraints accumulate. Body is tight prose + tables where they help; not bullet-lists for their own sake.
 
-### Whether to elevate to a DAS facet
+### Whether to elevate to a DAS facet — settled 2026-08-20, and the answer was neither
 
-Open question. The `.desc.md` convention may eventually warrant a proper DAS facet (with embedded rules, like the other facets) once the convention proves load-bearing across many figures. For now it lives here in `/viz diagram`; if and when the pattern earns elevation, file a backlog row to extract.
+This asked whether the `.desc.md` convention should become a DAS facet once it proved load-bearing, and invited a backlog row when it did. [[TINK Backlog#^T566|T566]] is that row, and it moved the convention to a third place the question did not offer: **[[DAS Diagramming]]**, a discipline. A facet is the wrong kind — a facet spec describes a *document shape* and is detected by a `where::` selector, whereas the sidecar's substance is a set of habits (author it in the same turn, edit in place never append, read it before the next edit) that no selector reaches. The mechanics stay here; the judgement is stated once over there.
 
 ## Glance the PNG preview every time
 

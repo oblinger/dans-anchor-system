@@ -4,7 +4,7 @@ description: "`/viz` produces visual artifacts — diagrams, charts, mockups, sl
 
 | -[[DAS Viz]]- | : `/viz` produces visual artifacts — diagrams, charts, mockups, slides, formatted docs.<br>→ [[DAS]] → [docs](hook://docs) → [DAS Viz](hook://p/DAS%20Viz)  |
 | --- | --- |
-| Related | [[skills/viz/SKILL.md\|SKILL]],   |
+| Related | [[skills/viz/SKILL.md\|SKILL]],  [[DAS Diagramming]] (the judgement), |
 | [[DAS Viz Design\|Design]]  |  |
 | ... |  |
 
@@ -13,6 +13,8 @@ description: "`/viz` produces visual artifacts — diagrams, charts, mockups, sl
 
 Trigger phrases: "draw," "diagram," "mockup," "chart this," "plot data," "timeline chart," "excalidraw," or "convert this to PDF." Output lands in `~/ob/data/MyDesk/` by default with a slug-and-timestamp filename, so you can find what you generated across sessions without it scattering through `/tmp`. First-time use on a new machine needs a one-time setup step (install Inter + JetBrains Mono fonts, pandoc + tectonic for docx/pdf, Node for Excalidraw) — see the skill's setup section.
 
+
+**Before reaching for a tool, [[DAS Diagramming]] asks whether the figure earns its place at all** — and, once it does, requires the editable source to ship beside the export and a `{base}.desc.md` sidecar to record what the figure deliberately leaves out. That discipline is the judgement half; this page is the tools, and [[R-diagram]] is the checks.
 
 ## Capability matrix — viewing, clicking, round-trip editing
 
