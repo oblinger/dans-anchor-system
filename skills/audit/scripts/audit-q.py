@@ -80,6 +80,12 @@ Checks applied to Q.md, each anchor's backlog, and each feature/Questions doc:
        F329's mint-time gate names only the first, which is why the other
        three accumulated unseen. Warning: this is a migration population, not
        a stop-gate.                                                  (report).
+  C58: F329/T363 — a member doc of a folder-form backlog that NO file in the
+       vault links. The horizon sections list every LIVE row, which is what
+       makes the folder reachable from its index; a doc whose row RETIRED has
+       nothing pointing at it. SONAR017 was an open question to Dan, orphaned
+       by the F329 hoist and unreferenced for three days. Vault-scoped by
+       necessity — an orphan is defined by an absence.               (report).
   D1:  Q.md per-anchor banners derived from each anchor's backlog
        (not validated — overwritten on every run).
 
@@ -3429,6 +3435,95 @@ def check_c57_row_hosts_question(
                 f"and questions live in docs. Mint the row's doc, move the "
                 f"record and the fork into it, and leave the sub-bullet as a "
                 f"one-line ask that links the doc. The row keeps its id."
+            ),
+            mechanically_fixable=False,
+        ))
+    return findings
+
+
+# ============================================================
+# C58 — a row document nothing in the vault links (F329 / T363)
+# ============================================================
+#
+# F329 hoisted each live row's record into `{slug} Track/{slug} Backlog/` as its
+# own doc. The backlog's horizon sections list every LIVE row, so for those the
+# folder is fully reachable from its index — which is the argument that a
+# folder-form backlog needs no dispatch table (T363 Q1 (A)).
+#
+# That argument is true for live rows and false for retired ones. When a row is
+# removed, its doc stays in the folder with nothing pointing at it. [[SONAR]]
+# found the consequence 2026-08-19: `SONAR017` was a live question addressed to
+# Dan carrying `Recommendation: None`, lost its backlog row in the F329 hoist,
+# and had **no reference anywhere in the vault for three days** — not retired,
+# not parked, just gone. Three more carried `Status: User` blocks claiming an
+# unsent note was owed, months after their rows retired.
+#
+# So the reachability the spine rule protects is real, and a masthead is not
+# what protects it: a dispatch table would list the orphans, but so does this,
+# without giving `state` a machine-maintained table to fight over in the most
+# parser-sensitive file in the anchor.
+#
+# Deliberately vault-scoped rather than backlog-scoped: an orphan is defined by
+# the ABSENCE of any inbound link, which cannot be decided from inside one
+# folder.
+
+
+def _vault_wikilink_targets(vault_root: Path) -> set[str]:
+    """Every basename any `[[wiki-link]]` in the vault names, once.
+
+    Alias and anchor parts are dropped, so `[[X|Y]]` and `[[X#^id]]` both count
+    as a reference to `X`. Struck links (`~~[[X]]~~`) count too — a struck
+    pointer is a different defect (T550) and must not read as an orphan here.
+    """
+    targets: set[str] = set()
+    for p in vault_root.rglob("*.md"):
+        s = str(p)
+        if "/.trash" in s or "/Yore/" in s:
+            continue
+        try:
+            text = p.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        for m in re.finditer(r"\[\[([^\[\]|#]+)", text):
+            targets.add(m.group(1).strip())
+    return targets
+
+
+def check_c58_orphan_row_docs(
+    backlog_file: Path, linked: set[str],
+) -> list[Finding]:
+    """C58 (F329 / T363): a member doc of a folder-form backlog that NO file in
+    the vault links, so no reader can reach it and no audit can see its claims.
+
+    Report-only, and the repair is genuinely a judgement call: the doc is
+    either still live and owes its row back, or it is finished and belongs in
+    the anchor's `## Done` history — and only its content says which. `SONAR017`
+    was the first kind; the three beside it were the second.
+
+    `{slug} Chores.md` is exempt: it is written by `audit-q --fix` as a
+    residual sink and is deliberately linked from nowhere.
+    """
+    folder = backlog_file.parent
+    if folder.name != backlog_file.stem:
+        return []  # not the folder-doc form (F329); nothing to front
+    findings: list[Finding] = []
+    for p in sorted(folder.glob("*.md")):
+        if p.stem == folder.name or p.stem.endswith(" Chores"):
+            continue
+        if p.stem in linked:
+            continue
+        findings.append(Finding(
+            severity="warning",
+            surface_file=p,
+            surface_line=1,
+            code="C58",
+            message=(
+                f"'{p.stem}' is linked from nowhere in the vault — its backlog "
+                f"row is gone and the horizon sections are what make this "
+                f"folder reachable, so nothing can reach it. Read it: if it is "
+                f"still live (SONAR017 was an open question to Dan, unreferenced "
+                f"for three days) restore its row; if it is finished, link it "
+                f"from the anchor's `## Done` history."
             ),
             mechanically_fixable=False,
         ))
@@ -6873,6 +6968,9 @@ def main() -> int:
     findings.extend(check_c12_verify_by_rationale(anchor_backlogs))
     # F089 — C13/C14/C15/C16/C18 walk each anchor's backlog entries
     today = date.today()
+    # C58 walks every .md in the vault once, lazily — only when a folder-form
+    # backlog is actually in scope, and never more than once per invocation.
+    _c58_linked: set[str] | None = None
     f089_fixes_applied: list[str] = []
     for name, backlog_file in sorted(anchor_backlogs.items()):
         entries = backlog_entries(backlog_file, vault_index)
@@ -6884,6 +6982,9 @@ def main() -> int:
         findings.extend(check_c47_verify_ownership(entries, backlog_file))
         findings.extend(check_c51_user_action_present(entries, backlog_file))
         findings.extend(check_c57_row_hosts_question(entries, backlog_file))
+        if _c58_linked is None:
+            _c58_linked = _vault_wikilink_targets(VAULT_ROOT)
+        findings.extend(check_c58_orphan_row_docs(backlog_file, _c58_linked))
         findings.extend(check_c18_verify_by_expired(entries, today))
         findings.extend(check_c23_designing_resolves(entries))
         findings.extend(check_c24_questions_count_match(entries))
