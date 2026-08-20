@@ -3934,8 +3934,28 @@ def chk_toc_table_iff_long(target, anchor_root, args):
     # every md-toc-generated TOC read as absent (false R-doc-structure-03 fail,
     # 2026-07-08 MUX Backlog).
     toc_rows = sum(1 for ln in lines if re.match(r"^\|\s*(?:\*\*)?\[\[#", ln))
-    if len(lines) >= 300 and toc_rows < 2:
-        return "fail", f"{len(lines)} lines with no TOC table — a long doc carries a content-outline table (`[[#…]]` links)"
+    # T555 — length was never the whole trigger. The rule's own Check pattern
+    # reads *"estimate length by content (**heading count** + body lines as a
+    # page proxy)"*, and only the body-lines half was ever implemented. A doc
+    # with too few headings cannot benefit from a TOC at any length: the H1 is
+    # not a TOC row, so fewer than 4 headings yields a table of 0–2 rows, which
+    # is friction with no navigation value and the opposite of this rule's own
+    # rationale.
+    #
+    # Reported from `Log/VOX/`, where a `type: vox-transcript` doc carries an H1
+    # and a `## Transcript` and nothing else. **The corpus had already voted**:
+    # `2026-08-15 Juan — game break signals and metrics.md` is 1,072 lines with
+    # no TOC and `2026-08-10 Lewis on Singapore.md` is 6,631 — the rule had been
+    # firing and being ignored, which is how a warning tier stops being read.
+    #
+    # Measured vault-wide 2026-08-20 before choosing the number: 381 docs fire
+    # today; a `< 4` gate silences 40 of them and leaves 341. Both transcripts
+    # above carry exactly **3** headings, so 4 is the smallest threshold that
+    # answers the report — not a round number picked for looking reasonable.
+    headings = sum(1 for ln in lines if _ANY_HEADING_RE.match(ln))
+    if len(lines) >= 300 and toc_rows < 2 and headings >= 4:
+        return "fail", (f"{len(lines)} lines and {headings} headings with no TOC table "
+                        f"— a long doc carries a content-outline table (`[[#…]]` links)")
     return "pass", ""
 
 
