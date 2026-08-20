@@ -977,6 +977,75 @@ _VERIFY_BY_RE = re.compile(r"^Verify-by\s+(\d{4}-\d{2}-\d{2})", re.I)
 _BLOCKED_HANDLE_RE = re.compile(
     r"^Blocked\s+([A-Za-z][A-Za-z0-9_\-]*(?:\.[A-Za-z0-9_\-]+)*)\s*$", re.I)
 
+# T551 — a pebble handle, `<SLUG> P<digits>`. Note the SPACE: `_BLOCKED_HANDLE_RE`
+# above forbids one inside the handle, so `[Blocked ATT P0004]` matches nothing
+# there and names no edge — which is why these rows have always rendered as
+# ordinary blocked rows rather than promoting anything. Hyphenated and bare
+# forms are accepted too; no backlog row id begins with `P`, so there is nothing
+# for a bare `P0004` to be confused with.
+_PEBBLE_BLOCKED_RE = re.compile(
+    r"^Blocked\s+(?:[A-Za-z][A-Za-z0-9]*[\s\-])?P\d+\s*$", re.I)
+
+
+def pebble_suppressed_ids(rows: list[Row], name: str) -> set[str]:
+    """Row identifiers Q.md must not show — those parked behind a pebble.
+
+    Dan, 2026-08-18: *"There shouldn't be any references to things blocked on
+    pebbles that are visible to me."* Under the umbrella-pebble model a pebble
+    is a cohesive chunk of work and the rows belonging to it hang off it,
+    parked, until he pulls the whole pebble — so a `[Blocked <SLUG> P####]` row
+    is **inventory inside a container he already knows about**, and putting it
+    on his screen defeats the point of having containerised it (*"I'm getting
+    overwhelmed by the size of the backlog"*).
+
+    **Transitive, and that is the load-bearing half.** ATT T193 is
+    `[Blocked T192]` and T192 is pebble-blocked; suppressing only the direct
+    edge leaks the container straight back onto the screen through the chain.
+    The closure runs to a fixed point, so any depth works and a cycle
+    terminates.
+
+    **Q.md only.** The per-anchor `{slug} queries.md` is the agent's working
+    view and keeps showing every row — the anchor's own agent must still see
+    its inventory. Atticus was explicit about this, and it is why the
+    suppression is applied to the ROW SET handed to one of the two renders
+    rather than built into `build_queries_body`: the renderer stays total over
+    whatever it is given (F284), and the divergence between the two surfaces is
+    one named filter at one call site instead of a mode flag threaded through
+    the render.
+
+    Note this is deliberately NOT the data-side fix. Atticus tried that first —
+    moving the four rows to `## Parked` — and C16 moved them straight back,
+    correctly, since `[Blocked]` belongs in `## Later`. Mis-bracketing rows to
+    hide them would be worse than the symptom; only the renderer can express
+    "real, tracked, and not on this surface."
+    """
+    prefix = f"{name}-".casefold()
+
+    def edge(r: Row) -> Optional[str]:
+        """The row id this row waits on, or None. Mirrors `gated_by`'s handle
+        normalisation so the two agree about what an edge points at."""
+        m = _BLOCKED_HANDLE_RE.match(r.bracket)
+        if not m:
+            return None
+        handle = m.group(1)
+        if handle.casefold().startswith(prefix):
+            handle = handle[len(prefix):]
+        return handle
+
+    suppressed = {r.identifier for r in rows
+                  if _PEBBLE_BLOCKED_RE.match(r.bracket)}
+    changed = True
+    while changed:
+        changed = False
+        for r in rows:
+            if r.identifier in suppressed:
+                continue
+            target = edge(r)
+            if target and target in suppressed:
+                suppressed.add(r.identifier)
+                changed = True
+    return suppressed
+
 # A frontmatter description this function wrote, in any generation of its
 # wording. The anchor name, the optional quote, and the credited engine
 # (`by triage`, `by queries-render.py`) all drifted over time and none of them
@@ -2176,7 +2245,14 @@ def main() -> int:
     # separate horizon render for Q.md. Build the queries body once (pure), copy it
     # into the Q.md section under the queue-file banner (which links to queries.md),
     # and write queries.md itself with its anchor-linked banner.
-    body = build_queries_body(name, banner, rows, vault_index, next_actions,
+    # T551 — Q.md is Dan's screen and drops rows parked behind a pebble (and
+    # anything chained to one); `{name} queries.md` below is the agent's working
+    # view and keeps them. One renderer, two row sets — see
+    # `pebble_suppressed_ids` for why the divergence lives here rather than
+    # inside the render.
+    hidden = pebble_suppressed_ids(rows, name)
+    qmd_rows = [r for r in rows if r.identifier not in hidden]
+    body = build_queries_body(name, banner, qmd_rows, vault_index, next_actions,
                               verify_questions, backlog_file)
 
     # Compose section = queue-file banner + the same queries body.
