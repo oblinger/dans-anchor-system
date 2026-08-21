@@ -77,7 +77,7 @@ set-id: OB
 | [[R-log]]  | Structural rules for the {slug} Log facet — folder shape, entry filename pattern, dispatch dispatch, content scope. |
 | [[R-mac]]  | macOS app development — code signing, TCC permissions, sandboxing, and build conventions. Applies when an anchor builds a macOS `.app` bundle (Swift / Obj-C / Catalyst / Electron-on-macOS / any framework producing a macOS app). |
 | [[R-markdown]]  | Mechanical + authoring rules for every markdown document; cited by every facet and skill that produces markdown. |
-| [[R-masterguard]]  | The master archive is a write-once surface (ATT T178) — deny any Bash command that writes into `/Volumes/<X>/__MASTERS__/` unless a write session is explicitly open on that volume. Rides `anchor-base`; fires at `tool:pre:Bash`. |
+| [[R-masterguard]]  | The master archive is a write-once surface (ATT T178) — deny any Bash command that writes into `/Volumes/<X>/__MASTERS__/` unless a write session is explicitly open on that volume. Rides the **Atticus anchor only**, not `anchor-base` (ATT T182); fires at `tool:pre:Bash`. |
 | [[R-messages]]  | the Messages facet — agent's per-anchor background-process inbox, distinct from the user's Inbox |
 | [[R-module-doc]]  | per-module source documentation — one doc per source module under `{slug} Dev/` |
 | [[R-naming]]  | file-naming facet — `{slug} <X>.md` default + explicit exception allowlist |
