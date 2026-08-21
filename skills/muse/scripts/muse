@@ -80,10 +80,14 @@ MUSE_SWEEP_LOCKDIR=""
 # coreutils provides `gtimeout`). Empty → commands run unguarded (best-effort).
 TIMEOUT_BIN="$(command -v timeout 2>/dev/null || command -v gtimeout 2>/dev/null || true)"
 MUSE_IO_TIMEOUT="${MUSE_IO_TIMEOUT:-120}"   # seconds for a single hash/transcribe
-# F252 F8c — a candidate that fails this many consecutive sweeps is marked in
-# `.muse.failures` and skipped (with a periodic log) so a permanently-broken
-# file stops burning file_stable + Whisper on every pass.
-MUSE_MAX_FAILURES="${MUSE_MAX_FAILURES:-3}"
+# T569 — what may permanently stop retrying a recording is a POSITIVE reading of
+# the AUDIO, never a count of failures. `.muse.failures` still counts, but the
+# count is an instrument now: it is reported and never gates. The gate is
+# `audio_readable` below. See § The rule, T569.
+#
+# Retained only so an operator can still cap retries in an emergency; 0 (the
+# default) means "never stop retrying a readable recording", which is the rule.
+MUSE_MAX_FAILURES="${MUSE_MAX_FAILURES:-0}"
 
 TITLE_SYSTEM='Give a 3-6 word title for this voice memo. Plain words, no punctuation, no quotes. Only respond with the title itself.'
 
@@ -265,6 +269,93 @@ _recorded_size() {
 # burning file_stable + Whisper on every sweep. `.muse.failures` lines are
 # "<count> <size> <path>"; the size lets a genuinely-changed file (iCloud
 # finally materialized) reset the counter and get retried.
+# T569 — the positive test. Dan, 2026-08-20: "We should have a positive way of
+# understanding whether or not it's possible to transcribe the audio. And if
+# not, we can fail it the first time. And if so, then we just keep trying until
+# we can get it."
+#
+# Reading an ERROR tells you nothing durable — the error set is open, a new
+# failure path defaults to whatever the last `else` branch happened to be, and
+# almost every error muse can raise is a property of the ENVIRONMENT (lock
+# contention, hash timeout, an unmaterialized iCloud file, a 401 from the title
+# call) rather than of the recording. Reading the AUDIO is a closed question
+# with one answer, so that is what decides.
+#
+# Three outcomes, and the third is the one that matters:
+#   readable    — a decodable audio stream with a real duration. RETRY FOREVER.
+#   unreadable  — materialized, and ffprobe finds no playable audio in it. This
+#                 recording will never transcribe; reject it on the FIRST
+#                 failure and say so loudly.
+#   unknown     — no ffprobe, or the file is not fully materialized. We cannot
+#                 make a positive claim, so we make none: treat as retryable.
+#
+# `unknown` fails toward keeping the data, which is the whole point. A voice
+# recording is the one artifact here with no second copy, so the cost of
+# retrying a dead file forever (some wasted CPU, loudly reported) is not
+# comparable to the cost of discarding a live one (gone).
+audio_readable() {  # <path> — echoes readable|unreadable|unknown
+    local audio="$1" probe_bin duration streams size blocks
+    probe_bin="${FFPROBE_BIN:-/opt/homebrew/bin/ffprobe}"
+    [[ -x "$probe_bin" ]] || probe_bin="$(command -v ffprobe || true)"
+    # No instrument means no reading. Never let a missing binary reject a file.
+    [[ -n "$probe_bin" ]] || { echo unknown; return; }
+
+    # An iCloud placeholder and a truncated capture look IDENTICAL to ffprobe —
+    # both are "Invalid data found" — so a negative reading is only trustworthy
+    # once the bytes are actually here. `stat -f %b` reports 512-byte blocks
+    # allocated locally; a dataless file reports its logical size with almost
+    # none. Verified 2026-08-20 against the live JPR corpus.
+    size="$(stat -f '%z' "$audio" 2>/dev/null || echo 0)"
+    blocks="$(stat -f '%b' "$audio" 2>/dev/null || echo 0)"
+    if (( size > 0 )) && (( blocks * 512 < size )); then echo unknown; return; fi
+
+    streams="$("$probe_bin" -v error -select_streams a -show_entries stream=codec_type \
+        -of csv=p=0 "$audio" 2>/dev/null || true)"
+    duration="$("$probe_bin" -v error -show_entries format=duration -of csv=p=0 \
+        "$audio" 2>/dev/null || true)"
+    # BOTH are required. The 646-byte stub in the live corpus carries a valid
+    # `codec_type=audio` line and `duration=N/A` — a container announcing a
+    # stream that holds no samples. A stream declaration is not audio.
+    #
+    # `d+0` is load-bearing, not defensive noise. `-v d=N/A` assigns a STRING,
+    # so bare `d > 0` compares "N/A" against "0" lexically — 'N' sorts above
+    # '0', so the durationless stub read as READABLE and kept retrying forever.
+    # Caught on the live corpus 2026-08-20 after the synthetic fixture missed
+    # it; `+0` forces the numeric conversion that makes "N/A" the 0 it is.
+    if [[ "$streams" == *audio* ]] && awk -v d="$duration" 'BEGIN { exit !(d+0 > 0) }' 2>/dev/null; then
+        echo readable
+    else
+        echo unreadable
+    fi
+}
+
+# T569 — the permanent list, and the ONLY thing that may write to it is an
+# `unreadable` verdict from audio_readable. Rows are "<size> <verdict-date>
+# <path>"; the size is what lets a REPAIRED file back in, since repairing a
+# recording changes its bytes and a different file deserves a fresh reading.
+_rejected_get() {  # echoes "<size>" for path, or "" if absent
+    local rf="$1" path="$2"
+    [[ -f "$rf" ]] || { echo ""; return; }
+    awk -v want="$path" '
+        { p = substr($0, length($1) + length($2) + 3)
+          if (p == want) { s = $1; f = 1 } }
+        END { if (f) print s; else print "" }
+    ' "$rf"
+}
+_rejected_add() {  # <rf> <path> <size> <date>
+    local rf="$1" path="$2" size="$3" date="$4"
+    _rejected_drop "$rf" "$path"
+    printf '%s %s %s\n' "$size" "$date" "$path" >> "$rf"
+}
+_rejected_drop() { # <rf> <path>
+    local rf="$1" path="$2" tmp
+    [[ -f "$rf" ]] || return 0
+    tmp="$(mktemp)"
+    awk -v want="$path" '
+        { p = substr($0, length($1) + length($2) + 3); if (p != want) print }
+    ' "$rf" > "$tmp" && mv "$tmp" "$rf"
+}
+
 _failure_get() {   # echoes "<count> <size>" for path, or "0 -1" if absent
     local ff="$1" path="$2"
     [[ -f "$ff" ]] || { echo "0 -1"; return; }
@@ -561,7 +652,11 @@ ingest_one() {
     [[ -x "$ffprobe_bin" ]] || ffprobe_bin="$(command -v ffprobe || true)"
     duration=""
     [[ -n "$ffprobe_bin" ]] && duration="$("$ffprobe_bin" -v error -show_entries format=duration -of csv=p=0 "$audio" 2>/dev/null || true)"
-    if [[ -n "$duration" ]] && awk -v d="$duration" 'BEGIN { exit !(d > 0) }'; then
+    # `d+0` for the same reason as in audio_readable: ffprobe answers `N/A` for
+    # a container with no decodable samples, and a bare `d > 0` compares that
+    # string against "0" lexically and calls it a valid duration — which then
+    # feeds "N/A" into the w/d below. Same trap, same file, found together.
+    if [[ -n "$duration" ]] && awk -v d="$duration" 'BEGIN { exit !(d+0 > 0) }'; then
         have_duration="yes"
         wps="$(awk -v w="$word_count" -v d="$duration" 'BEGIN { printf "%.3f", w/d }')"
     else
@@ -737,6 +832,7 @@ ingest_sweep() {
     local hashfile="$MUSE_ITEMS_DIR/.muse.hashes"
     touch "$hashfile"
     local failfile="$MUSE_ITEMS_DIR/.muse.failures"
+    local rejfile="$MUSE_ITEMS_DIR/.muse.rejected"
 
     # Acquire the shared lock (skip this pass if another sweep/ingest holds it).
     acquire_lock skip || return 0
@@ -758,7 +854,10 @@ ingest_sweep() {
     # This matters for Quick.md ordering: muse always PREPENDS new bullets,
     # so processing oldest-first leaves newest at the TOP naturally. Observed
     # 2026-07-14: out-of-order sweep put a 9:48 bullet above an 11:23 bullet.
-    local candidate count=0 found_count=0 blacklisted=0 csize fc fs
+    # All counters share one `local` with `count`: under `set -u` an undeclared
+    # counter aborts the sweep on the first file that touches it, turning a
+    # reporting change into an outage. Guarded by a test for exactly this.
+    local candidate count=0 found_count=0 rejected=0 retrying=0 csize fc fs rsize
     while IFS= read -r candidate; do
         [[ -z "$candidate" ]] && continue
         found_count=$((found_count + 1))
@@ -773,12 +872,24 @@ ingest_sweep() {
                 continue
             fi
         fi
-        # F8c — skip a file that failed the last MUSE_MAX_FAILURES sweeps at the
-        # same size (a size change resets the counter via _failure_bump).
+        # T569 — skip only a recording ALREADY READ as unplayable. A size change
+        # means a different file (a repair, a re-sync), so it gets a fresh
+        # reading rather than inheriting the old verdict.
+        rsize="$(_rejected_get "$rejfile" "$candidate")"
+        if [[ -n "$rsize" && "$rsize" == "$csize" ]]; then
+            rejected=$((rejected + 1))
+            continue
+        fi
+        [[ -n "$rsize" ]] && _rejected_drop "$rejfile" "$candidate"
+        # The failure count no longer gates anything — it is carried so the
+        # summary can say how long a readable recording has been retrying.
+        # Counting happens on the OUTCOME below, never here: a file with a
+        # failure row that turns out to be unplayable this pass belongs in the
+        # rejected count only, and counting it up front reported it as both.
         read -r fc fs <<< "$(_failure_get "$failfile" "$candidate")"
-        if (( fc >= MUSE_MAX_FAILURES )) && [[ "$fs" == "$csize" ]]; then
-            log "sweep: skipping repeatedly-failing file ($fc fails): $candidate"
-            blacklisted=$((blacklisted + 1))
+        # The emergency cap. Default 0 = never fires; see MUSE_MAX_FAILURES.
+        if (( MUSE_MAX_FAILURES > 0 )) && (( fc >= MUSE_MAX_FAILURES )) && [[ "$fs" == "$csize" ]]; then
+            log "sweep: MUSE_MAX_FAILURES=$MUSE_MAX_FAILURES cap reached ($fc fails) — skipping: $candidate"
             continue
         fi
         # Wait for iCloud materialization to finish before hashing/transcribing.
@@ -792,19 +903,41 @@ ingest_sweep() {
         else
             warn "ingest failed: $candidate"
             _failure_bump "$failfile" "$candidate" "$csize"
+            # T569 — read the audio, and let the AUDIO decide. This runs only on
+            # the failure path, so a healthy sweep pays nothing for it.
+            local verdict
+            verdict="$(audio_readable "$candidate")"
+            case "$verdict" in
+                unreadable)
+                    # Fail it the first time. There is no reason to spend three
+                    # sweeps re-confirming that a file with no playable audio in
+                    # it still has no playable audio in it.
+                    _rejected_add "$rejfile" "$candidate" "$csize" "$(date +%F)"
+                    _failure_clear "$failfile" "$candidate"
+                    rejected=$((rejected + 1))
+                    log "sweep: UNPLAYABLE — no decodable audio (ffprobe); will not retry unless the file changes: $candidate"
+                    ;;
+                *)
+                    # readable, or we could not tell. Either way we keep trying.
+                    retrying=$((retrying + 1))
+                    ;;
+            esac
         fi
     done < <(find "$MUSE_JPR_DIR" -type f -iname '*.m4a' 2>>/tmp/muse-find-stderr.log | sort)
 
-    # A bare `ingested 0 new` is a claim about the corpus; with files sitting in
-    # `.muse.failures` it is really a claim about the instrument, and the two read
+    # A bare `ingested 0 new` is a claim about the corpus; with files still
+    # failing it is really a claim about the instrument, and the two read
     # identically. That is how a 38-day outage stayed invisible: every run logged
-    # `ingested 0 new` while 20+ real recordings were blacklisted by a dead API
-    # key. The count is now always reported, so a zero has to say WHY it is zero.
-    if (( blacklisted > 0 )); then
-        log "sweep: find returned $found_count candidates; ingested $count new; $blacklisted BLACKLISTED (>= $MUSE_MAX_FAILURES consecutive fails, still skipped every sweep — see $failfile)"
-    else
-        log "sweep: find returned $found_count candidates; ingested $count new"
-    fi
+    # `ingested 0 new` while 20+ real recordings were dropped by a dead API key.
+    #
+    # The two counts are reported separately because they mean opposite things.
+    # `retrying` is a live problem in the ENVIRONMENT and should be acted on —
+    # every one of those is a real recording muse can read and has not yet
+    # filed. `unplayable` is a settled fact about the FILES and needs nothing.
+    local tail=""
+    (( retrying > 0 )) && tail+="; $retrying RETRYING (readable audio, still failing — the environment is broken, see $failfile)"
+    (( rejected > 0 )) && tail+="; $rejected unplayable (no decodable audio; not retried — see $rejfile)"
+    log "sweep: find returned $found_count candidates; ingested $count new$tail"
     if [[ -s /tmp/muse-find-stderr.log ]]; then
         log "find stderr: $(tr '\n' '|' < /tmp/muse-find-stderr.log | head -c 400)"
         : > /tmp/muse-find-stderr.log

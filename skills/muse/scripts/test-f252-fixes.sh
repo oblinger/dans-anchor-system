@@ -114,30 +114,140 @@ _failure_clear "$FF" "$P"
 read -r c s <<< "$(_failure_get "$FF" "$P")"
 [[ "$c" == "0" ]] && ok "clear removes the failure row" || no "clear failed: c=$c"
 
-# --- T569: a blacklisted file is COUNTED in the sweep summary ---------------
+# --- T569: the AUDIO decides whether to stop retrying, never a failure count -
 # The 38-day MUSE outage was invisible because every run logged `ingested 0 new`
-# while 20+ real recordings sat blacklisted by a dead API key. A zero with files
-# in `.muse.failures` is a claim about the instrument, not about the corpus, and
-# the two used to read identically. These assert the summary can no longer be
-# silent about it — the source is checked rather than a live sweep run, because
-# the failing path needs a stale key and an iCloud container to reproduce.
-echo "== T569 blacklisted files are reported, not silently skipped =="
+# while 20+ real recordings sat blacklisted by a dead API key. Two separate
+# defects produced that, and the second is what these guard.
+#
+# Reporting (fixed first): a zero with files still failing is a claim about the
+# instrument, not the corpus, and the two used to read identically.
+#
+# Policy (Dan's ruling, 2026-08-20): "We should have a positive way of
+# understanding whether or not it's possible to transcribe the audio. And if
+# not, we can fail it the first time. And if so, then we just keep trying until
+# we can get it." The three-strike blacklist is GONE — not retuned. It counted
+# failures, and a failure count is an open-ended reading of the ENVIRONMENT;
+# every one of the 20+ lost recordings failed on a cosmetic LLM title call
+# AFTER Whisper had already transcribed it, so not one of them was ever a
+# failure to transcribe audio. `audio_readable` replaces it with a closed
+# reading of the FILE.
+echo "== T569 the audio decides — positive readability, not a failure count =="
+
+# 1. The probe reads audio, and BOTH conditions are required. Real fixtures
+#    beat synthetic ones here: these two shapes are what the live corpus held.
+if command -v ffmpeg >/dev/null 2>&1 && command -v ffprobe >/dev/null 2>&1; then
+    REAL_FFPROBE="$(command -v ffprobe)"
+    GOOD="$TMP/good.m4a"; STUB="$TMP/stub.m4a"; TRUNC="$TMP/trunc.m4a"
+    ffmpeg -v error -f lavfi -i "sine=frequency=440:duration=2" -c:a aac "$GOOD" -y 2>/dev/null
+    # A container that DECLARES an audio stream but holds no samples — the
+    # 646-byte stub in the live corpus, which reports codec_type=audio with
+    # duration=N/A. A stream declaration is not audio.
+    # Built by REMUXING rather than truncating. A `head -c 646` of a valid file
+    # produces something ffprobe rejects outright, which is the easy case and is
+    # NOT what the live corpus held: the real 646-byte stub announced
+    # `codec_type=audio` with `duration=N/A`, and that shape walked straight
+    # past the first version of this probe. The synthetic fixture passed while
+    # the real file failed — so the fixture now imitates the file, not the idea.
+    ffmpeg -v error -i "$GOOD" -t 0 -c copy "$STUB" -y 2>/dev/null || head -c 646 "$GOOD" > "$STUB"
+    # A recording whose moov atom never got flushed (JPR crashed mid-write) —
+    # the 76 MB file in the live corpus.
+    head -c 4096 "$GOOD" > "$TRUNC"
+    FFPROBE_BIN="$REAL_FFPROBE"
+    [[ "$(audio_readable "$GOOD")" == readable ]] \
+        && ok "real audio with a duration reads READABLE" \
+        || no "a valid recording did not read readable — this would be data loss"
+    # This is the assertion that failed on the live corpus while its synthetic
+    # predecessor passed. `duration=N/A` with a declared audio stream.
+    [[ "$(/opt/homebrew/bin/ffprobe -v error -show_entries format=duration -of csv=p=0 "$STUB" 2>/dev/null)" == "N/A" ]] \
+        && ok "the stub fixture really does report duration=N/A (it imitates the live file)" \
+        || no "the stub fixture is not the shape it is supposed to test"
+    [[ "$(audio_readable "$STUB")" == unreadable ]] \
+        && ok "a stream declaration with duration=N/A reads UNREADABLE" \
+        || no "a sample-less container passed as readable (awk string-compare trap?)"
+    [[ "$(audio_readable "$TRUNC")" == unreadable ]] \
+        && ok "a truncated capture (no moov atom) reads UNREADABLE" \
+        || no "a truncated capture passed as readable"
+    # An iCloud placeholder and a truncated capture are INDISTINGUISHABLE to
+    # ffprobe — both are "Invalid data found". So a negative reading is only
+    # trusted once the bytes are local. Without this guard, every recording that
+    # synced slowly would be permanently rejected.
+    SPARSE="$TMP/sparse.m4a"
+    dd if=/dev/zero of="$SPARSE" bs=1 count=0 seek=10000000 2>/dev/null
+    [[ "$(audio_readable "$SPARSE")" == unknown ]] \
+        && ok "an unmaterialized (dataless) file reads UNKNOWN, not unreadable" \
+        || no "a dataless file was rejected — slow iCloud sync would lose recordings"
+    FFPROBE_BIN="/nonexistent-ffprobe"
+else
+    echo "  SKIP: ffmpeg/ffprobe absent — probe fixtures not built"
+fi
+
+# 2. Fail-open is the load-bearing half. A voice recording is the one artifact
+#    with no second copy, so anything that is not a POSITIVE reading of broken
+#    audio must keep the file alive.
+#
+#    Setting FFPROBE_BIN alone does NOT test this: audio_readable deliberately
+#    falls back to `command -v ffprobe`, so the real binary gets found and the
+#    assertion measures nothing. The PATH has to be emptied too. An instrument
+#    test that cannot actually remove the instrument is the precise failure
+#    this row is about, and it turned up here on the first run.
+touch "$TMP/whatever.m4a"
+mkdir -p "$TMP/nobin"
+[[ "$(PATH="$TMP/nobin"; FFPROBE_BIN="/nonexistent-ffprobe"; audio_readable "$TMP/whatever.m4a")" == unknown ]] \
+    && ok "no ffprobe anywhere → UNKNOWN, never unreadable (a missing tool cannot reject)" \
+    || no "a verdict was produced with no instrument to produce it"
+
 SRC="$(cat "$MUSE")"
-[[ "$SRC" == *"blacklisted=\$((blacklisted + 1))"* ]] \
-    && ok "the skip branch increments a blacklisted counter" \
-    || no "skip branch does not count what it skipped"
-[[ "$SRC" == *"BLACKLISTED"* ]] \
-    && ok "the summary line names the blacklisted count" \
-    || no "summary line cannot report blacklisted files"
-[[ "$SRC" == *"still skipped every sweep"* ]] \
-    && ok "...and says the skipping is ONGOING, not a one-off" \
-    || no "message does not convey that the skip repeats every sweep"
-# The counter must be declared in the same `local` as `count`, or `set -u` kills
-# the sweep on the first blacklisted file — which would turn a reporting fix
-# into an outage.
-[[ "$SRC" == *"local candidate count=0 found_count=0 blacklisted=0"* ]] \
-    && ok "the counter is declared local beside count (set -u safe)" \
-    || no "blacklisted is not declared — set -u would abort the sweep"
+# 3. Both duration comparisons force numeric conversion. Without `+0`, awk
+#    compares the STRING "N/A" against "0" and 'N' sorts high, so a durationless
+#    container reads as having a valid duration. Two sites, same trap: the
+#    readability probe and the WPS suppression predicate. Pinned by count so a
+#    third site cannot be added in the broken form.
+[[ "$(grep -c 'exit !(d+0 > 0)' "$MUSE")" == "2" ]] \
+    && ok "both duration tests use d+0 (numeric), not the string compare" \
+    || no "a duration comparison compares strings — 'N/A' > '0' is TRUE in awk"
+[[ "$SRC" != *'exit !(d > 0)'* ]] \
+    && ok "no bare string-compare duration test survives anywhere" \
+    || no "a bare 'd > 0' duration test is still present"
+
+# 4. The count must never gate again. This is the assertion that would have
+#    caught the original design, and it is a NEGATIVE one on purpose.
+[[ "$SRC" != *"blacklisted=\$((blacklisted + 1))"* ]] \
+    && ok "the three-strike blacklist counter is gone, not retuned" \
+    || no "a blacklist counter still exists — the failure count still gates"
+[[ "$SRC" == *"MUSE_MAX_FAILURES:-0"* ]] \
+    && ok "MUSE_MAX_FAILURES defaults to 0 — never stop retrying readable audio" \
+    || no "a nonzero default failure cap survives"
+[[ "$SRC" == *"_rejected_add \"\$rejfile\""* && "$SRC" == *"unreadable)"* ]] \
+    && ok "only an UNREADABLE verdict may write the permanent list" \
+    || no "something other than the audio can permanently reject a recording"
+
+# 5. Fail it the FIRST time. Three sweeps re-confirming that a file with no
+#    audio in it still has no audio in it is waste, and it delayed the signal.
+[[ "$SRC" == *"will not retry unless the file changes"* ]] \
+    && ok "an unplayable file is rejected on the first failure and says so" \
+    || no "rejection is not reported at the moment it happens"
+
+# 6. The two counts mean OPPOSITE things and must not be reported as one.
+#    `retrying` is a live environment fault to act on; `unplayable` is settled.
+[[ "$SRC" == *"RETRYING (readable audio, still failing"* ]] \
+    && ok "the summary names retrying files as an ENVIRONMENT fault" \
+    || no "summary does not distinguish a broken environment from a broken file"
+[[ "$SRC" == *"unplayable (no decodable audio; not retried"* ]] \
+    && ok "...and names unplayable files separately, as settled" \
+    || no "summary conflates unplayable files with retrying ones"
+
+# 7. A repaired file gets a fresh reading. The size is on the rejection row so
+#    that repairing a recording — which changes its bytes — readmits it.
+[[ "$SRC" == *"_rejected_drop \"\$rejfile\" \"\$candidate\""* ]] \
+    && ok "a size change drops the rejection so a repaired file is re-read" \
+    || no "a repaired recording could never get back in"
+
+# 8. Every counter shares one `local` with `count`: under `set -u` an undeclared
+#    counter aborts the sweep on the first file that touches it, which would
+#    turn a reporting change into an outage. This caught exactly that once.
+[[ "$SRC" == *"local candidate count=0 found_count=0 rejected=0 retrying=0"* ]] \
+    && ok "all counters declared local beside count (set -u safe)" \
+    || no "a counter is undeclared — set -u would abort the sweep"
 
 # --- F2: acquire_lock re-entrancy + stale reclaim + release -----------------
 echo "== F2 shared lock: re-entrant, stale-reclaim, release =="
