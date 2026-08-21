@@ -236,6 +236,68 @@ def _control_path(anchor_path: Path, slug: str, cfg: dict) -> Path:
     return _track_dir(anchor_path, slug) / (cfg["control"].format(slug=slug) + ".md")
 
 
+# --------------------------------------------------------------------------
+# The merged per-node list (T574)
+#
+# `stone` writes one control file per kind, because a kind decides which file a
+# line lands in. Dan reads one long scrollable list instead — column 2 of the
+# MuxUX `lists` view — and MuxUX cannot join the two at display time: a pane
+# carries exactly one `path`, deliberately, because the show session addresses
+# panes by index against a single declared target. So the join has to produce a
+# file, and `update` is where it happens: the merged list was a second command
+# for two days and went stale exactly as often as someone forgot it, which is
+# worse than the two panes it replaced because a dropped stone looks like no
+# stone rather than like a missing one.
+
+# `{slug} Stones.md` and NOT `{slug} All.md`: `HUD All` is already an anchor of
+# its own, and a second file by that name makes every `[[HUD All]]` in the vault
+# ambiguous. The interim script's first run created exactly that collision.
+MERGED_SUFFIX = "Stones"
+
+# Pebbles first, rocks last — Dan, 2026-08-21: "all the pebbles go first ...
+# stones at the end of the list." `sleeper` is deliberately absent: a sleeper is
+# a worked-out goal with no commitment to ever wake it, so it does not belong on
+# a daily surface. Adding it is one word here if that changes.
+MERGE_ORDER = ["pebble", "rock"]
+
+
+def _merged_path(anchor_path: Path, slug: str) -> Path:
+    return _track_dir(anchor_path, slug) / f"{slug} {MERGED_SUFFIX}.md"
+
+
+def _merged_body(anchor_path: Path, slug: str, cfg_all: dict,
+                 live_kind: str, live_lines: list) -> str | None:
+    """This node's control lines across every merged kind, in MERGE_ORDER.
+
+    The kind being updated is read from `live_lines` (this pass's in-memory
+    result) and every other kind from disk — which is what lets `stone pebble
+    update` alone write a file that still carries the rocks, and what makes
+    `--dry-run` render what WOULD be written rather than what is still there.
+
+    Only lines that open `[[` survive: frontmatter, the `-[[X Pebble|X]]-`
+    header and any prose are dropped. The merged file gets no frontmatter and
+    no generated-by banner of its own, because it is rendered raw in a MuxUX
+    pane and anything that is not a stone line is visible garbage there (Dan,
+    2026-08-21: "don't give this thing any front matter. It just looks like
+    garbage inside the HUD view"). Note that this rules out reusing
+    `_default_control_lines`, which writes frontmatter.
+    """
+    out = []
+    for kind in MERGE_ORDER:
+        kcfg = cfg_all.get(kind)
+        if kcfg is None:
+            continue
+        if kind == live_kind:
+            lines = live_lines
+        else:
+            cpath = _control_path(anchor_path, slug, kcfg)
+            if not cpath.is_file():
+                continue
+            lines = cpath.read_text(encoding="utf-8").splitlines()
+        out.extend(ln for ln in lines if ln.startswith("[["))
+    return ("\n".join(out) + "\n") if out else None
+
+
 def _stone_number_re(slug: str, cfg: dict):
     """Matches EXACTLY `{slug} {PREFIX}{NNNN}` — the full stone name, digits and all.
 
@@ -1088,6 +1150,31 @@ def cmd_update(kind: str, cfg: dict, root: Path, args) -> int:
                 print(f"  would write {cf.path}")
             n_files += 1
 
+    # T574 — the merged per-node list, written by the same pass that wrote the
+    # control files above, so it cannot be the command someone forgets.
+    #
+    # A node opts in by HAVING the file: an existing `{slug} Stones.md` is kept
+    # current, and one that does not exist is never created. That is deliberate.
+    # `update` walks every anchor in the vault (33 carry a control file today)
+    # while five nodes actually display a merged list, and minting the other 28
+    # would put a derived file into anchors nobody reads one in. To opt a node
+    # in, `touch "{slug} Track/{slug} Stones.md"` — the next pass fills it. To
+    # opt out, delete it; nothing here brings it back.
+    cfg_all = load_kind_config()
+    n_merged = 0
+    for slug, cf in control.items():
+        mpath = _merged_path(anchors[slug].path, slug)
+        if not mpath.is_file():
+            continue
+        body = _merged_body(anchors[slug].path, slug, cfg_all, kind, cf.lines)
+        if body is None or body == mpath.read_text(encoding="utf-8"):
+            continue
+        if not dry:
+            mpath.write_text(body, encoding="utf-8")
+        else:
+            print(f"  would write {mpath}")
+        n_merged += 1
+
     n_stones = 0
     for st in stones.values():
         if st.live != st.orig_live or st.line != st.orig_line or set(st.appears) != st.orig_appears:
@@ -1115,6 +1202,7 @@ def cmd_update(kind: str, cfg: dict, root: Path, args) -> int:
     print(
         f"stone: {kind} update{' — DRY RUN, nothing changed' if dry else ''} — "
         f"{n_files} control file(s) {verb}, "
+        f"{n_merged} merged list(s) {verb}, "
         f"{n_stones} stone file(s) {verb} ({stats['archived']} {arch}){loss}, "
         f"across {len(anchors)} anchor(s){skipped}"
     )

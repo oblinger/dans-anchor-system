@@ -978,6 +978,94 @@ try:
     else:
         no("a kind declares required_keys — finish the T554 backfill first")
 
+    # ============================================================
+    # T. the merged per-node list — `{slug} Stones.md` (T574)
+    #
+    # `update` writes one control file per kind; Dan reads one list. The merge
+    # used to be a second command (`stone_merge.py`) and therefore ran exactly
+    # as often as someone remembered it — which is worse than the two panes it
+    # replaced, because a merged list that looks current and is not hides a
+    # dropped stone rather than showing a gap. Folding it into `update` is the
+    # whole point, so the assertion that matters is that ONE command does it.
+    # ============================================================
+    print("== T: `update` writes the merged per-node list ==")
+    mroot = TMP / "m"
+    mkanchor(mroot, "MG", [])
+    run(mroot, "rock", "new", "MG", "--line", "the rock")
+    run(mroot, "pebble", "new", "MG", "--line", "pebble one")
+    run(mroot, "pebble", "new", "MG", "--line", "pebble two")
+    merged = mroot / "MG" / "MG Track" / "MG Stones.md"
+
+    # Opt-in by existence. `update` walks every anchor in the vault, and only a
+    # handful of nodes display a merged list — minting one everywhere would put
+    # a derived file into anchors nobody reads one in.
+    run(mroot, "pebble", "update")
+    if not merged.exists():
+        ok("a node with no `{slug} Stones.md` is not given one")
+    else:
+        no("update created a merged list for a node that had not opted in")
+
+    merged.touch()
+    out = capture(mroot, "pebble", "update")
+    lines = merged.read_text(encoding="utf-8").splitlines()
+
+    # ONE command, and the kind it did not update is still in the output: the
+    # rock line comes off disk while the pebbles come from this pass's memory.
+    if len(lines) == 3 and any("R0001" in l for l in lines):
+        ok("`pebble update` alone writes the merged list, rocks included")
+    else:
+        no(f"merged list is not one pass's worth of both kinds: {lines!r}")
+
+    # Dan, 2026-08-21: "all the pebbles go first ... stones at the end."
+    kinds = ["P" if "P000" in l else "R" for l in lines]
+    if kinds == sorted(kinds, key=lambda k: 0 if k == "P" else 1) and "R" in kinds:
+        ok("pebbles first, rocks last")
+    else:
+        no(f"merge order is wrong: {kinds!r}")
+
+    # No frontmatter, no header, no banner — the file is rendered RAW in a
+    # MuxUX pane, so anything that is not a stone line is visible garbage
+    # there. `_default_control_lines` writes frontmatter, which is exactly the
+    # helper it would have been natural to reuse; this is the assertion that
+    # catches that reuse.
+    if all(l.startswith("[[") for l in lines):
+        ok("merged list is stone lines only — no frontmatter, header or banner")
+    else:
+        no(f"merged list carries non-stone content: {lines!r}")
+
+    if "1 merged list(s) written" in out:
+        ok("the pass says it wrote a merged list")
+    else:
+        no(f"merged-list write was silent:\n{out}")
+
+    # Idempotent, and honest about it: a second pass writes nothing and says 0.
+    out = capture(mroot, "pebble", "update")
+    if "0 merged list(s) written" in out:
+        ok("an unchanged merged list is not rewritten")
+    else:
+        no(f"merged list churns on a no-op pass:\n{out}")
+
+    # --dry-run has to cover it too, or `--dry-run` stops meaning "no writes".
+    run(mroot, "pebble", "new", "MG", "--line", "pebble three")
+    before = merged.read_text(encoding="utf-8")
+    out = capture(mroot, "pebble", "update", "--dry-run")
+    if merged.read_text(encoding="utf-8") == before and "would write" in out:
+        ok("--dry-run reports the merged write and performs none of it")
+    else:
+        no(f"--dry-run touched the merged list:\n{out}")
+
+    # The one-level-deep glob the interim script used covered 5 nodes; `stone`
+    # walks the whole vault, where 33 anchors carry a control file. Widening to
+    # all 33 was the silent behaviour change this design avoids, so assert the
+    # gate directly: a sibling anchor with stones and no merged file gets none.
+    mkanchor(mroot, "MH", [])
+    run(mroot, "pebble", "new", "MH", "--line", "sibling pebble")
+    run(mroot, "pebble", "update")
+    if not (mroot / "MH" / "MH Track" / "MH Stones.md").exists():
+        ok("a sibling anchor in the same pass is not given a merged list either")
+    else:
+        no("update minted a merged list across the vault, not only where opted in")
+
 finally:
     shutil.rmtree(TMP, ignore_errors=True)
 
