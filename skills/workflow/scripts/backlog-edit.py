@@ -417,6 +417,79 @@ def is_derived_row_body(body):
     return bool(body) and body.lstrip().startswith("→ [[")
 
 
+def _warn_body_discarded_on_derived_row(lines, row_id, body, body_provided):
+    """Say out loud that a `--body`'s prose is about to be thrown away (T578).
+
+    On a pointer-led row only the LINK is the caller's; everything after the
+    `—` regenerates from the doc, which `regenerate_derived_row` documents as
+    deliberate electric-zone doctrine. The behaviour is right. The silence is
+    not: `state` printed `updated <row>` and the prose never reached the file.
+
+    Reported by MUX 2026-08-20 and reproduced here in a fixture — a plain row
+    takes `--body`, a doc-backed row reports the same success and keeps the
+    doc's text. **Why the silence is worse than the discard:** the caller is
+    usually a script sweeping many rows, so a batch correction reports N
+    successes and lands N-k, and the k that silently reverted are exactly the
+    doc-backed — i.e. most substantial — rows. MUX caught it only by grepping
+    afterwards for the string they had removed.
+
+    Warn rather than refuse, which is a deliberate departure from the fix the
+    row proposed, because refusing measurably breaks a live caller: the
+    `/feature` mint path sets a row's pointer with `--body "→ [[doc|F] — F —
+    Title"`, and its trailing text is discarded by this same rule. A refusal
+    would turn every feature mint into an error. The link half genuinely
+    lands, so the honest report is "half of what you asked for", not a failure.
+
+    `verify_write_landed`'s F332 branch is what let this pass — for two
+    derived bodies it compares only the wiki-link target and returns clean.
+    That comparison is correct GIVEN this contract (the trailing text is not
+    the caller's to set); it just could not be the thing that announced it.
+    """
+    if not body_provided:
+        return
+    # Read the PLACED row rather than the `--body` argument. A body with no
+    # pointer does not stay pointerless: T174's carry puts the row's existing
+    # `→ [[doc]]` back on, which makes it derived, which sends it through the
+    # same discard — so a caller who passes plain prose to a doc-backed row
+    # loses it too, and checking the raw argument would miss exactly that case
+    # (found while testing the first cut of this warning).
+    row_i = None
+    for i, line in enumerate(lines):
+        rm = ROW_HEADER_RE.match(line)
+        if rm and len(rm.group(1)) == 0 and rm.group(2) == row_id:
+            row_i = i
+            break
+    if row_i is None:
+        return
+    m = ROW_FULL_RE.match(lines[row_i])
+    if not m:
+        return
+    placed = (m.group("body") or "").strip()
+    if not is_derived_row_body(placed):
+        return
+    # Strip the pointer by SHAPE, not by splitting on one separator character.
+    # Two writers produce this line and they do not agree: the canonical F332
+    # form joins with an em-dash, while T174's carry joins with `·`. Splitting
+    # on `—` alone silently skipped every carried body — which is the larger
+    # half of the bug, since a caller passing plain prose to a doc-backed row
+    # gets the pointer carried on and only then loses the prose.
+    tail = re.sub(r"^→\s*\[\[[^\]]*\]\]\s*[—·-]?\s*", "", placed)
+    if not tail.strip() or tail.strip() == placed:
+        return                      # pointer only — nothing was discarded
+    doc = arrow_doc_path(placed)
+    if doc is None:
+        return
+    derived = (doc_derived_line(doc) or "").strip()
+    if _strip_trailing_anchors(tail.strip()) == derived:
+        return                      # the caller wrote what the doc already says
+    sys.stderr.write(
+        f"state: {row_id} is a doc-backed row, so the text after its `→ [[…]]` "
+        f"pointer regenerates from the doc and the prose you passed to --body "
+        f"was NOT written. The link landed; nothing else did. To change what "
+        f"the row says, use `--next \"<text>\"` (which writes both the row and "
+        f"the doc's `next::`), or edit the doc directly.\n")
+
+
 def regenerate_derived_row(lines, row_id):
     """F332 — rewrite a placed derived row's body to the canonical
     `→ [[<doc>|<row_id>]] — <derived line>` form, reading the derived line
@@ -3027,6 +3100,7 @@ def perform_edit(
     # This is also the on-touch migration: any doc-backed row whose body leads
     # with the pointer collapses to the canonical pure-link form here.
     if status != "delete":
+        _warn_body_discarded_on_derived_row(lines, row_id, body, body_provided)
         regenerate_derived_row(lines, row_id)
 
     # T128 — hold the pre-edit bytes so a failed post-condition can be UNDONE.
