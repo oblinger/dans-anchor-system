@@ -5935,6 +5935,106 @@ def chk_backlog_timed_has_expiry_date(target, anchor_root, args):
 
 
 _STEN_ANCHOR_RE = re.compile(r"^(\.\.\.|==)\s+\S")
+# R-template-08's cut-line, matched leniently exactly as that rule specifies:
+# the phrase `template notes` flanked by >=3 dashes, case- and spacing-
+# insensitive, with the scissors optional.
+#
+# "DASHES OF ANY KIND" IS LITERAL, and the first draft of this read `-{3,}` —
+# ASCII hyphen only. The canonical form the corpus actually uses is
+# `✂ ──── template notes ──── ✂`, whose rule is U+2500 BOX DRAWINGS LIGHT
+# HORIZONTAL. So the ASCII-only class matched **zero of 29** live templates,
+# and because a missing cut-line makes R-template-13/-14 defer to R-template-08,
+# both new checkers returned `pass` on the entire corpus while checking
+# nothing. Caught by measuring the rules before trusting them; it would have
+# read as a clean green forever.
+_DASH = "\\-\u2010-\u2015\u2212\u2500\u2501"
+_CUTLINE_RE = re.compile(
+    rf"^\s*(?:✂\s*)?[{_DASH}]{{3,}}\s*template\s+notes\s*[{_DASH}]{{3,}}(?:\s*✂)?\s*$", re.I)
+_STENCIL_DECL_RE = re.compile(r"^\s*stencil::\s*(\S+)\s*$")
+_PATH_DECL_RE = re.compile(r"^\s*path::\s*(\S.*?)\s*$")
+_STENCIL_VERSION_RE = re.compile(r"^V\d+\.\d+$")
+
+
+def _is_template_file(f):
+    """The ` Template` suffix prefilter of R-template-04 — title-case T."""
+    return f.name.endswith(" Template.md")
+
+
+def _template_notes(f):
+    """The lines BELOW the cut-line, where declarations live — or None when the
+    file has no cut-line at all.
+
+    Returning None rather than [] matters: no cut-line means R-template-08 is
+    the violated rule, and reporting `stencil:: missing` on such a file would
+    send the author to add a declaration into a region that does not exist."""
+    lines = _read(f).splitlines()
+    for i, ln in enumerate(lines):
+        if _CUTLINE_RE.match(ln):
+            return lines[i + 1:]
+    return None
+
+
+def chk_template_stencil_declared(target, anchor_root, args):
+    """R-template-13: a stencil template declares `stencil:: V1.0` below the
+    cut-line, and that declaration — not the filename — is what makes it one.
+
+    MIGRATION: the filename stays a fallback on purpose. Measured 2026-08-20,
+    **0 of 36** templates in the vault carried this declaration, so making it
+    the sole test of templatehood on day one would have made every template in
+    the vault stop being a template at once. Detection is therefore `stencil::`
+    if present, else the ` Template` suffix — and a template detected only by
+    its suffix is a FINDING, never a non-template. The fallback comes out when
+    the count reaches zero, not before.
+    """
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file to inspect"
+    if not _is_template_file(f):
+        return "pass", "not a template specimen"
+    notes = _template_notes(f)
+    if notes is None:
+        return "pass", "no cut-line — R-template-08's finding, not this one"
+    decl = next((m.group(1) for m in
+                 (_STENCIL_DECL_RE.match(ln) for ln in notes) if m), None)
+    if decl is None:
+        return "fail", ("no `stencil::` declaration below the cut-line — the file is "
+                        "a template only by its filename, which R-template-13 keeps "
+                        "as a migration fallback. Add `stencil:: V1.0`")
+    if not _STENCIL_VERSION_RE.match(decl):
+        return "fail", (f"`stencil:: {decl}` is not a version — the form is `V<major>.<minor>`, "
+                        f"e.g. `V1.0`. The token names which STEN grammar the specimen "
+                        f"was written against, so it has to be readable as one")
+    return "pass", ""
+
+
+def chk_template_path_declared(target, anchor_root, args):
+    """R-template-14: a template declares the path it instantiates to.
+
+    Required even when the exemplar is empty — a blank template still has to
+    say what it makes, which is the case that shows the declaration is doing
+    real work rather than restating the filename.
+    """
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file to inspect"
+    if not _is_template_file(f):
+        return "pass", "not a template specimen"
+    notes = _template_notes(f)
+    if notes is None:
+        return "pass", "no cut-line — R-template-08's finding, not this one"
+    paths = [m.group(1) for m in (_PATH_DECL_RE.match(ln) for ln in notes) if m]
+    if not paths:
+        # The fix is mechanically derivable during migration, so the message
+        # carries it rather than making the author reconstruct the old rule.
+        derived = f.name[:-len(" Template.md")].lstrip("_")
+        return "fail", (f"no `path::` declaration below the cut-line — add one naming the "
+                        f"file this template produces. Derived from the current filename "
+                        f"that is `path:: {derived}.md`")
+    if len(paths) > 1:
+        return "fail", (f"{len(paths)} `path::` declarations — a template produces one "
+                        f"path; a repeatable member expresses that with a free variable "
+                        f"in its path (R-template-10), not with a second line")
+    return "pass", ""
 _HEADING_RE = re.compile(r"^(#{1,6})\s+(.*)$")
 
 
@@ -7917,6 +8017,8 @@ CHECKERS = {
     "backlog_blocker_named": chk_backlog_blocker_named,
     "backlog_timed_has_expiry_date": chk_backlog_timed_has_expiry_date,
     "template_anchor_declared": chk_template_anchor_declared,
+    "template_stencil_declared": chk_template_stencil_declared,
+    "template_path_declared": chk_template_path_declared,
     "backlog_user_action_named": chk_backlog_user_action_named,
     "backlog_verify_is_user_grade": chk_backlog_verify_is_user_grade,
     # R-fct-features (T035 — F257 gate, file-scoped)

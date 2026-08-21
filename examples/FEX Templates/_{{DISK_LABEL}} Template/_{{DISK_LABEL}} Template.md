@@ -34,11 +34,14 @@ See `{{DISK_LABEL}} Manifest.md` in this folder for the full file listing.
 
 ✂ ──── template notes ──── ✂
 
+stencil:: V1.0
+path:: {{DISK_LABEL}}/{{DISK_LABEL}}.md
+
 - **`{{DISK_LABEL}}`** — short label for the disk (e.g. `Crucible`). The **unified key**: it names the **folder**, this **marker file**, the **`{{DISK_LABEL}} Manifest.md`** beside it, and the **H1** — one substitution fills every site.
 
 NOTES:
 - Worked **folder template** for a `Disks/`-style folder (see [[DAS Template Folders]]) — a disk is a *folder*, not a single file, because its record spans more than one document: this marker plus a generated manifest.
-- **Folder name:** strip the leading `_` and trailing ` Template` from the folder → `{{DISK_LABEL}}/`; the marker inside strips the same way → `{{DISK_LABEL}}.md`. The whole folder clones as a unit — one folder per disk.
+- **Folder name:** the `path::` above declares both at once — `{{DISK_LABEL}}/{{DISK_LABEL}}.md` names the folder and the marker inside it, which is a destination a filename could never have expressed (a filename is one path segment). The whole folder clones as a unit — one folder per disk.
 - **Unified variables:** every `{{DISK_LABEL}}` — folder name, marker name, manifest name, and the bodies — binds to one value; fill it once and the whole folder updates together.
 - **Repeating files:** a file whose name carries an **unbound** variable is a *repeatable slot* — add one per value, no `...` needed. (E.g. a `Nodes/` folder holding `_{{PURCHASE_DATE}} {{HOSTNAME}} Template.md` gets one record per machine.) The unbound variable in the name *is* the "repeats" signal — the inter-file analog of the intra-file `### ...`.
 - **Placeholder forms, multi-line braces, and `### ...`** work exactly as in a [[DAS Template Files|file template]].

@@ -24,10 +24,13 @@ A section whose content repeats after creation (a LOG, a change history) ships *
 **Check pattern:** a repeating section carries a `{{…}}`-pattern + a `...`/`### ...` marker whose heading-level matches the repeating unit; no fake *filled* entry (`### 2026-06-29 — …`) appears. *(Audit category: `template-has-fake-cumulative-entries`.)*
 **Why:** an empty header taught nothing about the shape; a *filled* entry invites pollution. A variableized pattern + a level-marked `...` shows the shape and what repeats without inviting a fake row.
 
-### RULE R-template-04 — naming is `_{pattern} Template`; the middle IS the instance-name pattern (checked)
-File templates are `_{pattern} Template.md`; folder templates are `_{pattern} Template/` holding a same-named marker. **Strip the leading `_` and the trailing ` Template` and what remains is the instance name** — so the `{pattern}` middle is the *instance-filename (or folder-name) pattern*, and is usually **variableized**, often **composite** (e.g. `_{{PURCHASE_DATE}} {{HOSTNAME}} Template.md` → `{{PURCHASE_DATE}} {{HOSTNAME}}.md`). The leading underscore is structural (sort-to-top + meta marker).
-**Check pattern:** the basename matches `^_.+ Template(\.md)?$`; a folder template holds a same-named marker; a constant middle (`_Computer Template.md`) that would clone every instance to one name is flagged.
-**Why:** the strip rule is how an instance gets its name; a constant middle produces collisions (every clone named the same), so the middle must carry the variable(s) that distinguish instances.
+### RULE R-template-04 — the filename is a human label; only the ` Template` suffix is required (checked)
+A template's filename carries **no mechanism**. Any semantic name the author likes is legal — `_Computer Template.md`, `_Disk Template/` — and by convention it opens with a leading `_` so it sorts to the top of the folder and reads as meta. **The one requirement is the suffix ` Template`, in title case**, and even that is a cheap **prefilter** rather than proof: what makes a file a stencil template is the declaration inside it (R-template-13).
+
+**This rule was reversed on 2026-08-20 ([[TINK570 - Template identity moves inside the document|F570]] Q1), and the previous form is worth stating because the corpus is still full of it.** It used to read: strip the `_` and the ` Template` and what remains **is** the instance-name pattern — so the middle had to be variableized, and a *constant* middle like `_Computer Template.md` was a **defect**, on the grounds that every clone would collide on one name. That produced names like `_{{PURCHASE_DATE}} {{HOSTNAME}} Template.md` and `_{{DATE}} {{REPORT_TITLE}} Buy Survey Template.md`, unreadable in an `ls` precisely because they were carrying machinery. Dan: *"I think it generates very weird file names."* With the output path declared inside the document (R-template-14), the collision that justified the old rule cannot happen, and **the exact form the old rule flagged is now the recommended one.**
+
+**Check pattern:** the basename ends ` Template` (`.md` for a file template) or ` Template/` for a folder template, with title-case `T`. A leading `_` is conventional and not required. No constraint on the middle — a constant middle is correct.
+**Why:** a filename is read by humans in a listing far more often than it is parsed by anything, and the machinery it used to carry is now declared where it can also say things a filename cannot.
 
 ### RULE R-template-05 — folder templates carry a Template dispatch row (checked)
 A folder that contains a `_*/` folder template has a `Template` row in its dispatch table linking the template. Detail: [[DAS Template Folders]].
@@ -49,10 +52,45 @@ A placeholder holding **one line** sits in **inline braces** (`{{event title}}`)
 **Check pattern:** multi-line values use line-spanning `{{ … }}`; single-line values use inline `{{…}}`. No positional guessing is relied on.
 **Why:** an explicit brace-span removes ambiguity about whether a value is one line or a block, and survives reflow where a position-based convention (inline vs own-line) would not.
 
-### RULE R-template-10 — folder templates share one variable namespace; an unbound filename variable repeats (checked)
-In a **folder template** (`_{pattern} Template/`), every `{{VARIABLE}}` across the folder name, the member file names, and the bodies binds to **one unified value** — a single substitution fills the folder name, the marker name, sibling member names (e.g. `{{DISK_LABEL}} Manifest.md`), and the H1s together. A member file whose name carries an **unbound** variable is a **repeatable slot** — one instance per value (the inter-file analog of the intra-file `### ...`); no `...`-in-filename is used.
-**Check pattern:** member names reuse the folder template's variables (one namespace); a member with an unbound-variable name is treated as repeatable; no literal `...` appears in a filename.
-**Why:** unifying the namespace is what makes "name the folder and every file inside it from one value" work; and an unbound filename variable already means "one per value," so filename repetition needs no extra glyph.
+### RULE R-template-10 — a folder template declares a path per member; repetition is a free variable (checked)
+In a **folder template**, the folder and each member declare their own `path::` (R-template-14), all binding against **one shared variable namespace** — so a single substitution fills the folder name, the marker, and every sibling member together. A member whose declared path holds a **free** variable is a **repeatable slot**: one instance per binding.
+
+**Repetition needs no template-specific rule any more**, which is the point of the rewrite. *One instance per binding of a free variable* is [[STEN Language]]'s **many-by-variable** default, stated once for the whole language; a folder member is simply that default applied to a path. The `...`-in-a-filename glyph this rule used to forbid is still not used, and now there is nothing left for it to have meant.
+
+**Rewritten 2026-08-20 (F570).** The previous form unified the namespace across the folder *name*, the member *filenames* and the bodies — correct while filenames were the mechanism, and describing something that no longer exists now that paths are declared.
+
+**Check pattern:** every declared `path::` in a folder template resolves against the same variable namespace; a member path holding an unbound variable is read as repeatable; no literal `...` appears in a declared path.
+**Why:** unifying the namespace is what makes *name the folder and everything in it from one value* work; and expressing repetition as a free variable means the folder case and the in-document case are the same rule rather than two.
+
+### RULE R-template-13 — a stencil template declares itself, and declares its language version (checked)
+check:: template_stencil_declared
+Below the `template notes` cut-line (R-template-08), a stencil template carries
+
+`stencil:: V1.0`
+
+and that declaration — **not the filename** — is what makes the file a stencil template. Ruled by Dan 2026-08-20 ([[TINK570 - Template identity moves inside the document|F570]] Q1 (A)), with the `V` prefix his: *"let's put a V in front of 1.0 — so stencil, V1.0."*
+
+**Two jobs, and the second is the one that will matter longest.** The first is disambiguation: a user file that merely happens to end in `Template` is not a stencil, and before this there was no way to say so. The second is **migration** — the token names the language version the specimen was written against, so when [[STEN Language]] changes, every template says which grammar to read it under. Nothing else in the corpus can do that, and a body of specimens with no version is a body that can only ever be migrated by hand.
+
+**It lives below the cut-line, which is what makes it free.** That region already means *everything here is about the template and is removed on clone*, so the declaration cannot leak into an instance. Frontmatter was the obvious alternative and was rejected for exactly that reason: frontmatter **is inherited by the clone**, so every instance would carry a stray `stencil:: V1.0` unless something stripped it.
+
+**Migration — the filename remains a fallback, deliberately.** No template in the corpus carried this declaration when the rule landed (measured 2026-08-20: **0 of 36**). If the declaration were the *sole* test from day one, every template in the vault would stop being a template at once. So detection is: **a `stencil::` declaration if present, else the ` Template` suffix** — and a template detected only by its suffix is a **finding**, never a non-template. The fallback is removed when the count reaches zero, not before.
+
+**Check pattern:** a file detected as a template carries a `stencil::` line below the cut-line whose value matches `V\d+\.\d+`. Absent → fail, naming the file. Present but unparseable → fail.
+**Why:** identity by filename cannot express a version and cannot be made unambiguous; a declaration does both, and the version is what makes a future grammar change survivable.
+
+### RULE R-template-14 — a template declares the path it instantiates to (checked)
+check:: template_path_declared
+Below the cut-line, beside the variable definitions, a template declares
+
+`path:: {{PURCHASE_DATE}} {{HOSTNAME}}.md`
+
+naming the file it produces. This replaces the strip-the-filename derivation R-template-04 used to carry, and it is **required even when the exemplar is empty** — a blank template still has to say what it makes, which is the case that shows the declaration is doing real work rather than restating the name.
+
+**A declared path can express what a filename structurally cannot.** A filename is one path segment, so a template could only ever produce a **sibling in its own folder**. A declared path carries structure — `{{YEAR}}/{{MONTH}}/{{SLUG}}.md` — and can place an instance into a subtree. That is a new capability rather than a tidier spelling of an old one, and it is the strongest argument for the change.
+
+**Check pattern:** every template carries exactly one `path::` line below the cut-line; its value is non-empty; every `{{UPPER_SNAKE}}` variable in it is defined in the variables list (R-template-02). During migration a template with no `path::` is a finding, and the value derivable from its filename — strip the leading `_` and the trailing ` Template` — is what the fix writes.
+**Why:** the name of the thing a template produces is a property of the template, not of where the template happens to be filed; declaring it also lets a template place its instance somewhere other than beside itself.
 
 ### RULE R-template-11 — a specimen opening below `# H1` declares its anchor (checked)
 check:: template_anchor_declared

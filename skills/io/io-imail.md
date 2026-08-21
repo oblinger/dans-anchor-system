@@ -19,6 +19,19 @@ Read, search, and access email through Apple Mail using AppleScript. No OAuth to
 
 **Drafting an email?** The user's required draft format lives in [[DAS formats]] § Email draft — live markdown (never fenced) so the rendered view pastes into Mail as rich text; `To:`/`CC:`/`Subject:` lines always; bold/italic/lists/plain-URLs allowed; no blockquotes, wiki-links, or em-dashes.
 
+## Composing — staging a draft for the user to send
+
+**The user sends; the agent never does.** Use `scripts/stage-email.applescript`, which creates a visible Mail.app draft and stops — it contains no `send` verb.
+
+```
+osascript ~/.claude/skills/io/scripts/stage-email.applescript \
+  "<to>" "<cc>" "<subject>" "<body-file>" "<from-address>"
+```
+
+`to` and `cc` are comma-separated (`""` for no cc); **the body is a file path, not a string** — quoting a real note through `osascript -e` silently eats paragraphs. Full discipline, the gotchas, and the verify-against-Sent-Mail step: **[[AREC Stage Email]]**.
+
+**Two traps worth repeating here:** `item 1 of outgoing messages` is the **oldest** draft, so verify a fresh one with `last item`; and `sender` must be set inside the `tell msg` block rather than in the `make new` properties.
+
 ## Reading Recent Messages
 
 ```applescript
