@@ -30,16 +30,6 @@
   "status": "error"
  },
  {
-  "rule": "R-anchor-page-15",
-  "target": "{anchor}",
-  "status": "pass"
- },
- {
-  "rule": "R-code-repository-02",
-  "target": "{anchor}",
-  "status": "pass"
- },
- {
   "rule": "R-design-02",
   "target": "{anchor}",
   "status": "pass"
@@ -47,6 +37,21 @@
  {
   "rule": "R-design-04",
   "target": "{anchor}",
+  "status": "pass"
+ },
+ {
+  "rule": "R-dispatch-table-09",
+  "target": "FX1 Notes.md",
+  "status": "pass"
+ },
+ {
+  "rule": "R-dispatch-table-10",
+  "target": "FX1 Notes.md",
+  "status": "pass"
+ },
+ {
+  "rule": "R-dispatch-table-15",
+  "target": "FX1 Notes.md",
   "status": "pass"
  },
  {
@@ -62,11 +67,6 @@
  {
   "rule": "R-doc-structure-03",
   "target": "FX1 Notes.md",
-  "status": "pass"
- },
- {
-  "rule": "R-dot-anchor-03",
-  "target": "{anchor}",
   "status": "pass"
  },
  {
@@ -91,11 +91,6 @@
  },
  {
   "rule": "R-markdown-06",
-  "target": "FX1 Notes.md",
-  "status": "pass"
- },
- {
-  "rule": "R-markdown-11",
   "target": "FX1 Notes.md",
   "status": "pass"
  },

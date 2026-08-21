@@ -904,6 +904,112 @@ fn governed_moved(ir: &Ir) -> Vec<String> {
     moved
 }
 
+// ── F328: the DAS hook registry — Warden executes it for free (mirror of
+// `warden_hook.run_registry`) ────────────────────────────────────────────────
+//
+// One file (~/.config/anchor-system/hooks/registry): each line is a moment,
+// whitespace, one executable path — no inline arguments (grammar owned by
+// DAS's hook-install / hook-run). Warden is already spawned at the moment, so
+// fanning out from here costs zero additional processes; on Warden-less
+// machines the `hook-run` fallback does the same job over the same file, and
+// both executors log to the same file in the same line format. A failing
+// child is logged with its exit status and never suppresses its neighbours
+// or the hook itself. A child's stdout is returned as a tell — it joins the
+// steers on the same `additionalContext` surface its output would have landed
+// on as a separate settings.json entry. (Structured hook-decision JSON from a
+// registry child is not interpreted — a hook that needs `permissionDecision`
+// keeps its own settings.json entry rather than a registry line.)
+
+fn registry_path() -> PathBuf {
+    if let Ok(p) = std::env::var("DAS_HOOK_REGISTRY") {
+        if !p.is_empty() {
+            return PathBuf::from(p);
+        }
+    }
+    PathBuf::from(std::env::var("HOME").unwrap_or_default())
+        .join(".config/anchor-system/hooks/registry")
+}
+
+fn registry_log(line: &str) {
+    let path = std::env::var("DAS_HOOK_LOG")
+        .ok()
+        .filter(|p| !p.is_empty())
+        .map(PathBuf::from)
+        .unwrap_or_else(|| {
+            PathBuf::from(std::env::var("HOME").unwrap_or_default())
+                .join(".config/anchor-system/hooks/hook-run.log")
+        });
+    if let Some(dir) = path.parent() {
+        let _ = std::fs::create_dir_all(dir);
+    }
+    if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open(&path) {
+        let _ = writeln!(f, "{line}");
+    }
+}
+
+/// Run every registry line matching this event's moments, in file order.
+/// Returns the children's non-empty stdouts as tells. Never panics outward.
+pub fn run_registry(data: &Value, raw: &str) -> Vec<String> {
+    let Ok(text) = std::fs::read_to_string(registry_path()) else {
+        return vec![];
+    };
+    let moments = event_to_moments(data);
+    let mut tells: Vec<String> = Vec::new();
+    for line in text.lines() {
+        let t = line.trim();
+        if t.is_empty() || t.starts_with('#') {
+            continue;
+        }
+        let Some((m, rest)) = t.split_once(char::is_whitespace) else { continue };
+        let cmd = rest.trim();
+        if cmd.is_empty() || !moments.iter().any(|mm| mm == m) {
+            continue;
+        }
+        let ts = chrono::Local::now().format("%Y-%m-%d %H:%M:%S").to_string();
+        let spawned = std::process::Command::new(cmd)
+            .stdin(std::process::Stdio::piped())
+            .stdout(std::process::Stdio::piped())
+            .spawn();
+        let mut child = match spawned {
+            Ok(c) => c,
+            Err(e) => {
+                registry_log(&format!("{ts}  {m}  error={e}  {cmd}"));
+                continue;
+            }
+        };
+        // Threaded stdin write: the event JSON can exceed the pipe buffer
+        // (an Edit's tool_input carries file content), and a child that
+        // writes before it reads would deadlock a same-thread write+drain.
+        let payload = raw.as_bytes().to_vec();
+        let mut si = child.stdin.take();
+        let writer = std::thread::spawn(move || {
+            if let Some(ref mut s) = si {
+                let _ = s.write_all(&payload);
+            }
+        });
+        let out = child.wait_with_output();
+        let _ = writer.join();
+        match out {
+            Ok(o) => {
+                if o.status.success() {
+                    registry_log(&format!("{ts}  {m}  ok  {cmd}"));
+                } else {
+                    registry_log(&format!(
+                        "{ts}  {m}  exit={}  {cmd}",
+                        o.status.code().unwrap_or(-1)
+                    ));
+                }
+                let text = String::from_utf8_lossy(&o.stdout).trim().to_string();
+                if !text.is_empty() {
+                    tells.push(text);
+                }
+            }
+            Err(e) => registry_log(&format!("{ts}  {m}  error={e}  {cmd}")),
+        }
+    }
+    tells
+}
+
 /// The F131 deny sentinel — a steer carrying this prefix is a veto, converted
 /// to a real `permissionDecision: deny` at a PreToolUse event (mirror of
 /// `warden_hook.DENY_SENTINEL`).
@@ -968,10 +1074,18 @@ pub fn run_hook() -> i32 {
     };
     // 3. dispatch — any panic is caught so the tool call is never broken.
     let event = str_field(&data, "hook_event_name").to_string();
-    let steers = std::panic::catch_unwind(|| dispatch(&data)).unwrap_or_else(|_| {
+    let mut steers = std::panic::catch_unwind(|| dispatch(&data)).unwrap_or_else(|_| {
         log("ERROR panic in dispatch");
         vec![]
     });
+    // F328: fan out to the DAS hook registry at this event's moments —
+    // children's stdout joins the steers as agent-visible context.
+    steers.extend(
+        std::panic::catch_unwind(|| run_registry(&data, &raw)).unwrap_or_else(|_| {
+            log("ERROR panic in run_registry");
+            vec![]
+        }),
+    );
     emit(&event, &steers);
     0
 }

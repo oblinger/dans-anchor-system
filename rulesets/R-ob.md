@@ -23,7 +23,9 @@ set-id: OB
 | [[R-api]]  | facet spec this doc follows |
 | [[R-arch]]  | Architecture rulesets — patterns for code organization, module structure, dependency direction. Adopt the umbrella to pull all architecture rulesets, or cherry-pick individual sets. |
 | [[R-architecture]]  | spec for the `{slug} Architecture.md` entry-point design facet — section spine, mandatory visual figure, subsystem dispatch + link convention, API content kept off the page |
+| [[R-at-entity]]  | the `@`-prefixed entity page — placement, forms, and which of three containers an entry belongs in |
 | [[R-backlog]]  | what /audit doc checks on a backlog file |
+| [[R-backupguard]]  | The estate's backup drives are one agent's custody — deny **every** write to `/Volumes/<X>/` from any anchor but [[ATT\|Atticus]], at `tool:pre:Bash`, `tool:pre:Write` and `tool:pre:Edit`. Fails closed: an unrecognised volume is treated as a backup drive, not waved through. Rides `anchor-base`, so it fires vault-wide; the exemption is the `masterguard` trait, which only Atticus's `.anchor` declares. Commissioned by Dan on [[ATT Backlog#^T182\|ATT T182]], 2026-08-21: *"no other agent may write to a backup… That way, we have one agent who's got the sole responsibility."* |
 | [[R-brief]]  | agent-facing per-file editing-and-maintenance content paired with a source file |
 | [[R-bringhurst-typography]]  | Bringhurst-style typographic discipline for diagrams. |
 | [[R-c4]]  | C4-model semantic conventions; the "what does this diagram mean?" rules. |
@@ -77,7 +79,7 @@ set-id: OB
 | [[R-log]]  | Structural rules for the {slug} Log facet — folder shape, entry filename pattern, dispatch dispatch, content scope. |
 | [[R-mac]]  | macOS app development — code signing, TCC permissions, sandboxing, and build conventions. Applies when an anchor builds a macOS `.app` bundle (Swift / Obj-C / Catalyst / Electron-on-macOS / any framework producing a macOS app). |
 | [[R-markdown]]  | Mechanical + authoring rules for every markdown document; cited by every facet and skill that produces markdown. |
-| [[R-masterguard]]  | The master archive is a write-once surface (ATT T178) — deny any Bash command that writes into `/Volumes/<X>/__MASTERS__/` unless a write session is explicitly open on that volume. Rides the **Atticus anchor only**, not `anchor-base` (ATT T182); fires at `tool:pre:Bash`. |
+| [[R-masterguard]]  | The master archive is a write-once surface (ATT T178) — deny any Bash command that writes into `/Volumes/<X>/__MASTERS__/` unless a write session is explicitly open on that volume. Rides the **Atticus anchor only** (`traits: [Container, masterguard]`) — Dan's ruling on [[ATT Backlog#^T182\|ATT T182]], 2026-08-21: disk custody is one agent's job, and every *other* agent is walled off from backup drives entirely by `R-backupguard` rather than gated by this rule. Fires at `tool:pre:Bash` — which means a `Write`/`Edit` tool call to a master path is **not** caught here; see [[ATT Backlog#^T252\|T252]]. |
 | [[R-messages]]  | the Messages facet — agent's per-anchor background-process inbox, distinct from the user's Inbox |
 | [[R-module-doc]]  | per-module source documentation — one doc per source module under `{slug} Dev/` |
 | [[R-naming]]  | file-naming facet — `{slug} <X>.md` default + explicit exception allowlist |

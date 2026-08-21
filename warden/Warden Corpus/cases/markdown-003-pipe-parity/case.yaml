@@ -1,9 +1,0 @@
-id: markdown-003-pipe-parity
-family: markdown
-mode: doc
-target: FX7 Notes.md
-provenance: authored (T224 — a pipe is escaped by an ODD run of backslashes, not by the presence of one)
-engine: audit-plan
-blessed_against: 907a770d3373-fbf10893e03e
-note: >-
-markdown-001-dirty on purpose: that case already fails R-markdown-01 on the

@@ -506,6 +506,73 @@ def audit_on_write(file_path: Path) -> list[str]:
     return [head + "\n" + "\n".join(lines)]
 
 
+# ── F328: the DAS hook registry — Warden executes it for free ────────────────
+#
+# One file (~/.config/anchor-system/hooks/registry): each line is a moment,
+# whitespace, one executable path — no inline arguments (grammar owned by DAS's
+# hook-install / hook-run). Warden is already spawned at the moment, so fanning
+# out from here costs zero additional processes; on Warden-less machines the
+# `hook-run` fallback does the same job over the same file. Both executors log
+# to the same file in the same line format, so "what fired when" reads uniform
+# regardless of which executor fired it. A failing child is logged with its
+# exit status and never suppresses its neighbours or the hook itself.
+#
+# A child's stdout is returned as a tell: it joins the steers on the same
+# `additionalContext` surface its output would have landed on as a separate
+# settings.json entry. (Structured hook-decision JSON from a registry child is
+# not interpreted — a hook that needs `permissionDecision` keeps its own
+# settings.json entry rather than a registry line.)
+
+def _registry_path() -> Path:
+    p = os.environ.get("DAS_HOOK_REGISTRY", "")
+    return Path(p) if p else Path.home() / ".config/anchor-system/hooks/registry"
+
+
+def _registry_log(line: str) -> None:
+    p = os.environ.get("DAS_HOOK_LOG", "")
+    path = Path(p) if p else Path.home() / ".config/anchor-system/hooks/hook-run.log"
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with open(path, "a") as f:
+            f.write(line + "\n")
+    except OSError:
+        pass
+
+
+def run_registry(data: dict, raw: str) -> list[str]:
+    """Run every registry line matching this event's moments, in file order.
+
+    Returns the children's non-empty stdouts as tells. Never raises."""
+    import subprocess
+    try:
+        text = _registry_path().read_text()
+    except OSError:
+        return []
+    moments = event_to_moments(data)
+    tells: list[str] = []
+    for line in text.splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+        parts = stripped.split(None, 1)
+        if len(parts) != 2 or parts[0] not in moments:
+            continue
+        moment, cmd = parts[0], parts[1].rstrip()
+        ts = time.strftime("%Y-%m-%d %H:%M:%S")
+        try:
+            res = subprocess.run([cmd], input=raw, capture_output=True, text=True)
+        except OSError as e:
+            _registry_log(f"{ts}  {moment}  error={e}  {cmd}")
+            continue
+        if res.returncode == 0:
+            _registry_log(f"{ts}  {moment}  ok  {cmd}")
+        else:
+            _registry_log(f"{ts}  {moment}  exit={res.returncode}  {cmd}")
+        if res.stdout.strip():
+            tells.append(res.stdout.strip())
+    return tells
+
+
 DENY_SENTINEL = "DENY: "
 
 
@@ -548,6 +615,9 @@ def main(argv=None) -> int:
     # 3. dispatch — fail-safe: a Warden bug must never break the tool call.
     try:
         steers = dispatch(data)
+        # F328: fan out to the DAS hook registry at this event's moments —
+        # children's stdout joins the steers as agent-visible context.
+        steers = steers + run_registry(data, raw)
         emit(data.get("hook_event_name", ""), steers)
     except Exception as e:  # noqa: BLE001 — deliberate catch-all fail-safe
         _log(f"ERROR {type(e).__name__}: {e}")

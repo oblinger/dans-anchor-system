@@ -30,7 +30,13 @@ _PROC = None
 
 
 def _env(home: Path, **extra) -> dict:
-    return {**os.environ, "WARDEN_HOME": str(home), **extra}
+    # F328: pin the DAS hook registry to a scratch path so live registry
+    # entries can never fire inside a differential run.
+    base = {**os.environ, "WARDEN_HOME": str(home),
+            "DAS_HOOK_REGISTRY": str(home / "das-registry"),
+            "DAS_HOOK_LOG": str(home / "das-hook.log")}
+    base.update(extra)
+    return base
 
 
 def _compiled_home() -> Path:
@@ -183,6 +189,36 @@ def main():
             _diff_case("non-string cwd (F232 C3)",
                        {"hook_event_name": "PreToolUse", "tool_name": "Bash",
                         "tool_input": {"command": "echo hi"}, "cwd": 42}, env)
+            # 12. F328 — both engines execute the DAS hook registry
+            # identically: matching lines fire in file order, a child's
+            # stdout joins additionalContext, a broken child is logged with
+            # its exit and suppresses nothing, non-matching moments stay
+            # silent. The log collects one pair of entries per engine.
+            reg_home = Path(td) / "reg"
+            reg_home.mkdir()
+            tell = reg_home / "tell.sh"
+            tell.write_text("#!/bin/bash\necho reg-tell\n")
+            tell.chmod(0o755)
+            broken = reg_home / "broken.sh"
+            broken.write_text("#!/bin/bash\nexit 3\n")
+            broken.chmod(0o755)
+            registry = reg_home / "registry"
+            registry.write_text(f"prompt:submit\t{broken}\n"
+                                f"prompt:submit\t{tell}\n"
+                                f"tool:pre:Bash\t{tell}\n")
+            reg_log = reg_home / "log.txt"
+            env_r = _env(home, DAS_HOOK_REGISTRY=str(registry),
+                         DAS_HOOK_LOG=str(reg_log))
+            py, rs = _both({"hook_event_name": "UserPromptSubmit",
+                            "cwd": str(plain)}, env_r)
+            assert py == rs, f"F328 registry: python {py!r} != rust {rs!r}"
+            ctx = (py or {}).get("hookSpecificOutput", {}).get("additionalContext", "")
+            assert "reg-tell" in ctx, f"F328 registry: tell missing from {py!r}"
+            log_text = reg_log.read_text()
+            assert log_text.count("exit=3") == 2, f"broken child unlogged: {log_text}"
+            assert log_text.count("  ok  ") == 2, f"working child unlogged: {log_text}"
+            assert "tool:pre:Bash" not in log_text, f"moment filter leaked: {log_text}"
+            print("PASS  differential: F328 registry fan-out (fire, isolate, filter)")
     finally:
         if _PROC and _PROC.poll() is None:
             _PROC.kill()
