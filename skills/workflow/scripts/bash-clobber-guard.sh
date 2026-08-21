@@ -30,9 +30,10 @@ esac
 exec /usr/bin/env python3 - "$input" <<'PYEOF'
 # Parse the payload properly (vault paths contain spaces — naive splitting
 # is wrong on this filesystem by construction). Advisory: every exit is 0.
-import json, os, shlex, sys, time
+import json, mmap, os, shlex, sys, time
 
 THRESHOLD = int(os.environ.get("SYS_CLOBBER_THRESHOLD", "600"))
+WINDOW = int(os.environ.get("SYS_CLOBBER_WINDOW", str(32 * 1024 * 1024)))
 SCOPE = os.environ.get("SYS_CLOBBER_SCOPE",
                        os.path.expanduser("~") + "/ob/")
 
@@ -40,10 +41,74 @@ try:
     payload = json.loads(sys.argv[1])
     command = payload.get("tool_input", {}).get("command", "")
     cwd = payload.get("cwd", "") or os.getcwd()
+    transcript = payload.get("transcript_path", "")
 except Exception:
     sys.exit(0)
 if not command:
     sys.exit(0)
+
+
+def seen_by_this_session(path, transcript):
+    """Has THIS session read `path`? True / False / None when unknowable.
+
+    T577 — why this exists beside the age test. On 2026-08-20 Sonar listed the
+    vault root, saw no `CRM/`, spent ~20 MINUTES designing with Dan, then
+    created the anchor with `cat > CRM/CRM.md`. Atticus had created and
+    committed the same two files inside that window. Both were silently
+    replaced; this guard stat'd them, found them older than the 600s threshold,
+    and said nothing. Sonar named the failure exactly: *"I had checked the
+    directory and it was empty, so I treated a check from several minutes
+    earlier as current. A staleness check that ran a few minutes ago is not a
+    staleness check."*
+
+    No threshold fixes that, because the dangerous span is not "written seconds
+    ago" but "written while the other agent was thinking", and a design
+    conversation is tens of minutes long. **Age is a proxy for the question
+    that actually matters: have I seen this file's current bytes?** That is the
+    compare-and-swap the harness already enforces for `Write`/`Edit` and that
+    the Bash path bypasses entirely — so asking it here closes the hole rather
+    than moving it.
+
+    Searches for `"file_path":"<path>"`, the shape a Read/Write/Edit tool call
+    takes in the transcript, NOT a bare path substring: a bare path also
+    matches the agent merely discussing the file, which would suppress the
+    warning in precisely Sonar's case. mmap because a long session's transcript
+    runs to tens of MB and this must stay cheap.
+
+    Returns None — never False — when the transcript cannot be read. An absent
+    measurement supports no claim, and a guard that manufactures a warning out
+    of its own blindness gets muted, which costs more than it saves.
+
+    ONLY THE LAST `WINDOW` BYTES ARE SCANNED, and that is a claim rather than a
+    shortcut. Measured on a live session 2026-08-21: a 248 MB transcript takes
+    **97 ms** to scan end to end, which this cannot spend on every `cp` across
+    15 sessions, and which grows without bound as a session runs. Bounding it
+    makes the cost O(window) forever. It also sharpens what a False means: not
+    *"never read in this session"* but *"not read RECENTLY"* — and a read from
+    200 MB of transcript ago is stale knowledge of the file anyway, so warning
+    on it is right rather than a concession.
+    """
+    if not transcript or not os.path.isfile(transcript):
+        return None
+    try:
+        needle = ('"file_path":"' + json.dumps(path)[1:-1] + '"').encode()
+        with open(transcript, "rb") as fh:
+            size = os.fstat(fh.fileno()).st_size
+            if size == 0:
+                return None
+            start = max(0, size - WINDOW)
+            # mmap's offset must be allocation-granularity aligned; round DOWN
+            # so the window is never smaller than asked for.
+            offset = (start // mmap.ALLOCATIONGRANULARITY) * mmap.ALLOCATIONGRANULARITY
+            mm = mmap.mmap(fh.fileno(), size - offset,
+                           access=mmap.ACCESS_READ, offset=offset)
+            try:
+                return mm.find(needle) != -1
+            finally:
+                mm.close()
+    except (OSError, ValueError):
+        return None
+
 
 try:
     tokens = shlex.split(command)
@@ -122,5 +187,12 @@ for t in targets:
               f"re-read the current file and merge rather than overwrite "
               f"(T187: a stale whole-file copy silently reverts newer work "
               f"and its tests keep passing).")
+    elif seen_by_this_session(path, transcript) is False:
+        warned.add(path)
+        print(f"⚠ [clobber-guard] this command overwrites {path}, and this "
+              f"session has never read it. Age says nothing here — whatever "
+              f"you are about to write was not derived from what is currently "
+              f"in that file, so anything another session put there is lost "
+              f"without a diff. Read it first, then merge (T577).")
 sys.exit(0)
 PYEOF

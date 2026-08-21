@@ -113,5 +113,74 @@ out=$(payload_bash "git status" | "$GUARD"); rc=$?
 out=$(printf 'not json' | "$GUARD"); rc=$?
 [ $rc -eq 0 ] && [ -z "$out" ] && ok || bad "guard: garbage stdin must be silent"
 
+# ── T577: read-provenance, the signal age is a proxy for ────────────────────
+#
+# THE CASE THIS SECTION EXISTS FOR, measured 2026-08-20. Sonar listed the vault
+# root, saw no `CRM/`, spent ~20 MINUTES designing with Dan, then created the
+# anchor with `cat > CRM/CRM.md`. Atticus had created and committed the same
+# files inside that window. Both were silently replaced — this guard stat'd
+# them, found them older than 600s, and said nothing. Sonar: *"a staleness
+# check that ran a few minutes ago is not a staleness check."*
+#
+# No threshold fixes it: the dangerous span is not "written seconds ago" but
+# "written while the other agent was thinking", and a design conversation is
+# tens of minutes long. So the guard now also asks whether THIS session has
+# ever read the target — the compare-and-swap the harness enforces for
+# Write/Edit and the Bash path bypasses.
+
+transcript="$TMP/transcript.jsonl"
+payload_bash_t() {
+    python3 -c 'import json,sys; print(json.dumps({"tool_name":"Bash","tool_input":{"command":sys.argv[1]},"cwd":sys.argv[2],"transcript_path":sys.argv[3]}))' \
+        "$1" "$TMP" "$2"
+}
+
+# A transcript in which this session read something else entirely.
+printf '{"tool_name":"Read","tool_input":{"file_path":"%s/unrelated.md"}}\n' "$TMP" > "$transcript"
+
+# Sonar's exact shape: an hour-old file this session has never read.
+out=$(payload_bash_t "cp '$young' '$old'" "$transcript" | "$GUARD"); rc=$?
+[ $rc -eq 0 ] && case "$out" in *"never read it"*) ok ;; *) bad "guard: an unread old target must warn — this is the Sonar case (got: '$out')" ;; esac
+
+# Same file, once the transcript shows this session read it. Quiet: the
+# content being written CAN have been derived from what is there, and a guard
+# that nags anyway is one that gets muted.
+printf '{"tool_name":"Read","tool_input":{"file_path":"%s"}}\n' "$old" >> "$transcript"
+out=$(payload_bash_t "cp '$young' '$old'" "$transcript" | "$GUARD"); rc=$?
+[ $rc -eq 0 ] && [ -z "$out" ] && ok || bad "guard: a target this session read must be silent (got: '$out')"
+
+# A bare path mention is NOT a read. The needle is `"file_path":"<path>"`
+# deliberately: matching a bare substring would count the agent merely
+# discussing the file, which is exactly what Sonar did before clobbering it.
+printf '{"tool_name":"Bash","tool_input":{"command":"ls %s"}}\n' "$TMP/mentioned.md" > "$transcript"
+printf 'x\n' > "$TMP/mentioned.md"
+touch -t "$(date -v-1H '+%Y%m%d%H%M.%S')" "$TMP/mentioned.md"
+out=$(payload_bash_t "cp '$young' '$TMP/mentioned.md'" "$transcript" | "$GUARD"); rc=$?
+[ $rc -eq 0 ] && case "$out" in *"never read it"*) ok ;; *) bad "guard: mentioning a path is not reading it (got: '$out')" ;; esac
+
+# Unknowable is not False. A missing or empty transcript must produce NO
+# warning — an absent measurement supports no claim, and a guard that shouts
+# out of its own blindness gets muted, which costs more than it saves.
+out=$(payload_bash_t "cp '$young' '$old'" "$TMP/no-such-transcript.jsonl" | "$GUARD"); rc=$?
+[ $rc -eq 0 ] && [ -z "$out" ] && ok || bad "guard: an unreadable transcript must not manufacture a warning (got: '$out')"
+
+: > "$TMP/empty.jsonl"
+out=$(payload_bash_t "cp '$young' '$old'" "$TMP/empty.jsonl" | "$GUARD"); rc=$?
+[ $rc -eq 0 ] && [ -z "$out" ] && ok || bad "guard: an empty transcript must not warn (mmap of 0 bytes) (got: '$out')"
+
+# A payload with no transcript_path at all — every pre-T577 caller, and every
+# case above this section. The guard must behave exactly as it did before.
+out=$(payload_bash "cp '$young' '$old'" | "$GUARD"); rc=$?
+[ $rc -eq 0 ] && [ -z "$out" ] && ok || bad "guard: no transcript_path must fall back to pre-T577 behaviour (got: '$out')"
+
+# The age warning still owns the fresh case, and says the age thing rather
+# than the provenance thing — two different findings, two different fixes.
+out=$(payload_bash_t "cp '$old' '$young'" "$transcript" | "$GUARD"); rc=$?
+[ $rc -eq 0 ] && case "$out" in *"modified"*"ago"*) ok ;; *) bad "guard: a fresh target must still get the AGE warning (got: '$out')" ;; esac
+
+# Out of scope stays out of scope on the new path too.
+printf 'x\n' > "$TMP/../outside.md" 2>/dev/null || true
+out=$(payload_bash_t "cp '$young' /etc/hosts" "$transcript" | "$GUARD"); rc=$?
+[ $rc -eq 0 ] && [ -z "$out" ] && ok || bad "guard: out-of-scope target must be silent on the provenance path (got: '$out')"
+
 echo "t187-clobber-hooks: $pass passed, $fail failed"
 [ $fail -eq 0 ]
