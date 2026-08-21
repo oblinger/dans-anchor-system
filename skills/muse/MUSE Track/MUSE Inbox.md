@@ -9,6 +9,25 @@ description: MUSE inbox — raw input dropped for later processing.
 # MUSE Inbox
 Drop zone for raw input; an entry with no status tag is pending, and draining writes `DONE` or `MOVED → {destination}` per [[DAS Inbox]].
 
+## 2026-08-21 — Route memos to agent Inboxes at capture — Dan's ruling on A…
+
+*from: atticus · tag: handoff*
+
+> Dan ruled 2026-08-21 on [[ATT Backlog#^T241|ATT T241]]: **route on capture** — a memo naming an agent should land in that agent's Inbox at ingest time, not wait for Daybreak. He asked for an hourly poller originally; the poller was declined and he accepted the smaller shape. Full reasoning and build spec: [[ATT241 - The watch channel now has a reader alarm what it does not have is delivery|T241]].
+>
+> **The change is a step 12 in `scripts/muse`, immediately after step 11 `notify` (muse:797)** — inside the same per-memo block, so it inherits the concurrency lock and runs once per memo by construction.
+>
+> - Case-insensitive, **word-boundary** scan of the **transcript** (not the title — the title is generated and may not carry the name) for the Staff roster and slugs: Ash, Atticus, Boone, Ember, Hermes, Lumen, Munger, Presti, Scout, Tink, Wells.
+> - On a hit: `state drop <anchor> --source muse --tag nudge --topic "<memo title>"` with the transcript as the body.
+> - No hit, or the memo names only the user: **do nothing**. Silence is the correct output for the common case.
+> - **A drop failure must never fail the ingest.** Log it and carry on — the memo landing in the corpus is the load-bearing act; routing is a convenience on top. A `state` hiccup must not start eating memos.
+>
+> **Why not a poller.** `muse.ingest` ran empty for thirty-eight days and looked healthy doing it. A capture-time hook has no loop to run empty. The reader-stall half is already covered by `daybreak.watermark` in `ob_check`.
+>
+> **Why a name match and not an LLM call.** It keeps working while the API key is dead — which is the state that produced this row. A misroute costs one wrong Inbox line and is visible.
+>
+> **Note the 2026-08-08 entry already in this Inbox** — *"Addressed-to-Lumen captures could be delivered via the new…"* — same idea, arrived first, still pending. Fold them; this ruling is the decision that one was waiting for.
+
 ## 2026-08-17 — Ingest dead since 8/04 — TCC denial, then a permanent circu…
 
 *from: lumen · tag: fact*

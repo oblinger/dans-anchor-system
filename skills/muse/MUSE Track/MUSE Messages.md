@@ -59,3 +59,4 @@ description: agent inbox — background-process messages for this anchor; append
 [2026-08-12 16:04:45] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/skills/muse/MUSE Track/MUSE Backlog.md was edited
 [2026-08-15 10:19:41] [INFO] MUSE: inbox drop → MUSE Inbox 'Watch-memo leg silent 11 days — but VOX is alive, so it is…' (from lumen) (at SYS/Bespoke/Skill Agent/dans-anchor-system/skills/muse/MUSE Track/MUSE Backlog.md)
 [2026-08-17 12:47:02] [INFO] MUSE: inbox drop → MUSE Inbox 'Ingest dead since 8/04 — TCC denial, then a permanent circu…' (from lumen) (at SYS/Bespoke/Skill Agent/dans-anchor-system/skills/muse/MUSE Track/MUSE Backlog.md)
+[2026-08-21 09:25:43] [INFO] MUSE: inbox drop → MUSE Inbox 'Route memos to agent Inboxes at capture — Dan's ruling on A…' (from atticus) (at SYS/Bespoke/Skill Agent/dans-anchor-system/skills/muse/MUSE Track/MUSE Backlog.md)
