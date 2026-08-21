@@ -103,6 +103,25 @@ check("frontmatter then H1",
 check("frontmatter + breadcrumb then a bare `###` still FAILS",
       run("---\nd: e\n---\n\n:>> [[a]] → [b](hook://p/b) \n### {{D}}\nx.\n")[0], "fail")
 
+print("3b. A specimen with NO heading is legal — Dan's T567 Q1 ruling, 2026-08-20")
+# Open world: a stencil says what is present, never what is absent, so one that
+# says nothing constrains nothing. These pass on the RULE, not on a gap in the
+# regex — which is why they are asserted rather than left to the corpus.
+check("plain prose, no heading anywhere", run("Just a title line.\n\nnotes.\n")[0], "pass")
+check("a genuinely blank specimen", run("\n")[0], "pass")
+# The live shape that motivated the ruling: a tag line, not a heading, on top.
+# `#pp.` has no space after the hashes, so it is not a heading — and the read
+# stops there even though `# LOG` sits further down. Intended, and load-bearing:
+# the anchor is read from where the specimen STARTS.
+check("a `#pp.` tag line above a later `# LOG`",
+      run("#pp.   [{{ROLE}}]({{URL}})\n{{CONTACT}}\n\n# LOG\n\n### {{date}}\n")[0], "pass")
+check("...and the same file read from its `# LOG` alone would also pass",
+      run("# LOG\n\n### {{date}}\n")[0], "pass")
+# The distinction the rule actually draws: silence is unambiguous, a fragment
+# claiming a whole document is not. So headingless passes where `##` fails.
+check("but a `##` fragment still fails — silence and ambiguity are different",
+      run("## {{X}}\nbody.\n")[0], "fail")
+
 print("4. The two real specimens in the vault — found by SHAPE, not by name")
 vault = Path.home() / "ob" / "kmr"
 real = {}
@@ -145,8 +164,15 @@ if m:
     check("...carries the measured counts", "24 root-anchored" in b, True)
     check("...records WHY the earlier zero was wrong",
           "the name is not the mechanism" in b, True)
-    check("...scopes out the no-heading case deliberately",
-          "no heading at all is deliberately out of scope" in b, True)
+    # Was: "no heading at all is deliberately out of scope". Dan ruled it LEGAL
+    # on 2026-08-20 (T567 Q1), so the prose moved and this assertion moved with
+    # it — that is the whole point of pinning prose to a test.
+    check("...states the no-heading case as LEGAL, not undecided",
+          "with no heading at all is LEGAL" in b, True)
+    check("...gives open world as the reason, not an exemption",
+          "open world" in b and "never what is absent" in b, True)
+    check("...no longer calls the case undecided",
+          "no heading at all is deliberately out of scope" in b, False)
 m12 = re.search(r"### RULE R-template-12\b.*?(?=\n### RULE |\n## |\Z)", text, re.S)
 check("R-template-12 exists", bool(m12), True)
 if m12:

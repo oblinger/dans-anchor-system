@@ -6080,11 +6080,17 @@ def chk_template_anchor_declared(target, anchor_root, args):
     The two markers are `# ... NAME` (this depth or deeper) and `# == NAME`
     (exactly this depth), specified in `STEN Language` since M2, 2026-08-07.
 
-    NOT CHECKED HERE: a specimen with no heading at all. One exists and is
-    arguably legitimate — a meeting-transcript template whose top is plain text
-    — so refusing it needs a ruling rather than a regex, and refusing it *by
-    accident* inside a rule about anchors would be the wrong place to have that
-    argument.
+    PASSES DELIBERATELY: a specimen with no heading at all. Ruled legal by Dan
+    2026-08-20 (T567 Q1) on the open-world default — a stencil says what is
+    present, never what is absent, so a stencil that says nothing constrains
+    nothing. It anchors at the document root by the same no-marker default that
+    governs an `# H1`. This is a stated rule now, not the undecided
+    out-of-scope note it replaced.
+
+    Note the first-heading read stops at the first non-spine line, so a
+    specimen opening on a tag line (`#pp.`) or plain prose is headingless here
+    even when an `# H1` sits further down. That is intended: the anchor is read
+    from where the specimen starts.
     """
     f = _as_file(target, anchor_root)
     if f is None:
