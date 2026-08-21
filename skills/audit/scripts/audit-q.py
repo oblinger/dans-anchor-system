@@ -2321,6 +2321,10 @@ def check_c19_option_bullets(q_entries: list[QEntry]) -> list[Finding]:
                             # two findings that cannot be fixed without making
                             # the row unmintable.
                             "Damage:", "On answer:",
+                            # T160 piece 8 — same list, same omission.
+                            "Risk of",
+                            # T160 piece 8 — same list, same omission.
+                            "Risk of",
                             "Recommendation",
                         )):
                             continue
@@ -2362,6 +2366,10 @@ def check_c19_option_bullets(q_entries: list[QEntry]) -> list[Finding]:
                             # without. C20 already treats both as part of the
                             # group; this list had not been told.
                             "Damage:", "On answer:",
+                            # T160 piece 8 — same list, same omission.
+                            "Risk of",
+                            # T160 piece 8 — same list, same omission.
+                            "Risk of",
                             # Inline Recommendation lines are NOT options.
                             # Legacy docs sometimes have a rich inline Rec
                             # alongside the stub-Rec terminator; skip those.
