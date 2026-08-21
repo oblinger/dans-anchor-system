@@ -2,7 +2,7 @@
 description: "Devtools Test — what decides whether the artifact is allowed to proceed"
 ---
 
-| -[[Devtools Test]]- | : what decides whether the artifact is allowed to proceed<br>→ [[DAS]] → [[examples]] → [DVT](hook://DVT) → [Devtools Test](hook://p/Devtools%20Test)  |
+| -[[Devtools Test]]- | : what decides whether the artifact is allowed to proceed<br>→ [[DAS]] → [[FEX]] → [[Devtools\|DVT]] → [Devtools Test](hook://p/Devtools%20Test)  |
 | --- | --- |
 | Related | [[Devtools]] (parent),  [[DAS spine]],  [[FEX Spine Examples]], |
 | [[Devtools Unit\|Unit]]  | fast, hermetic, run on every save; the only tier permitted to block the watch loop |

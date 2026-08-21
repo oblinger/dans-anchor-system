@@ -1,4 +1,4 @@
-| -[[Mini PRD]]- | : Product requirements for Mini.<br>→ [[DAS]] → [[examples]] → [[Mini]] → [Mini PRD](hook://p/Mini%20PRD)  |
+| -[[Mini PRD]]- | : Product requirements for Mini.<br>→ [[DAS]] → [[FEX]] → [[Mini]] → [Mini PRD](hook://p/Mini%20PRD)  |
 | --- | --- |
 | [[Mini Stories]]  | one user story — index for US-MINI-1 (folder-form per [[DAS Stories]]) |
 | ... |  |

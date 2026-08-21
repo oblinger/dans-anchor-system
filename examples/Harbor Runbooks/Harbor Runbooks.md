@@ -1,7 +1,7 @@
 ---
 ---
 
-| -[[Harbor Runbooks]]- | : canonical grouped-spine exemplar — direct children sorted under plain labels<br>→ [[DAS]] → [FEX](hook://FEX) → [Harbor Runbooks](hook://p/Harbor%20Runbooks)  |
+| -[[Harbor Runbooks]]- | : canonical grouped-spine exemplar — direct children sorted under plain labels<br>→ [[DAS]] → [[FEX]] → [Harbor Runbooks](hook://p/Harbor%20Runbooks)  |
 | --- | --- |
 | Related | [[FEX Spine Examples]],  [[Devtools]],  [[DAS spine]],  [[DAS progressive-disclosure]],   |
 | **Incident** | [[Harbor Runbook Egress Stall]],  [[Harbor Runbook Auth Storm]],  [[Harbor Runbook Cert Expiry]],   |

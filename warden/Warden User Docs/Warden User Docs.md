@@ -2,7 +2,7 @@
 description: Warden user documentation — the manual for writing and running rules
 ---
 
-| -[[Warden User Docs]]- | : the manual — how to write and run Warden rules<br>→ [[DAS]] → [[WARD]] → [Warden User Docs](hook://p/Warden%20User%20Docs)  |
+| -[[Warden User Docs]]- | : the manual — how to write and run Warden rules<br>→ [[DAS]] → [[Warden]] → [Warden User Docs](hook://p/Warden%20User%20Docs)  |
 | --- | --- |
 | [[Warden Examples]]  | worked examples of every rule-execution mode (start here) |
 | ... | [[Warden Examples Extended]],   |

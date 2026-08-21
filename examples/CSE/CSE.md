@@ -1,6 +1,6 @@
 ---
 ---
-| -[[CSE]]- | : Common Skill Example — reference anchor — a fully-wired example of a DAS skill anchor<br>→ [[DAS]] → [FEX](hook://FEX) → [CSE](hook://p/CSE)  |
+| -[[CSE]]- | : Common Skill Example — reference anchor — a fully-wired example of a DAS skill anchor<br>→ [[DAS]] → [[FEX]] → [CSE](hook://p/CSE)  |
 | --- | --- |
 | Skill | [[CSE/SKILL\|SKILL.md]],  [[FEX CSE\|User Docs]],   |
 | [[CSE Design\|Design]]  | [[CSE PRD\|PRD]],   |

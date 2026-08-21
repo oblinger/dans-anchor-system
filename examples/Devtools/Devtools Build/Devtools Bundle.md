@@ -1,3 +1,6 @@
+---
+description: "links the objects into one artifact and records what went into it"
+---
 :>> [[DAS]] → [[examples]] → [DVT](hook://DVT) → [DVTB](hook://DVTB) → [Devtools Bundle](hook://p/Devtools%20Bundle)
 # Devtools Bundle
 Links the objects into one artifact and records what went into it.

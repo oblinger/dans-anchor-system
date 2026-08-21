@@ -2,7 +2,7 @@
 description: "Devtools Ship — what puts the artifact in front of people"
 ---
 
-| -[[Devtools Ship]]- | : what puts the artifact in front of people<br>→ [[DAS]] → [[examples]] → [DVT](hook://DVT) → [Devtools Ship](hook://p/Devtools%20Ship)  |
+| -[[Devtools Ship]]- | : what puts the artifact in front of people<br>→ [[DAS]] → [[FEX]] → [[Devtools\|DVT]] → [Devtools Ship](hook://p/Devtools%20Ship)  |
 | --- | --- |
 | Related | [[Devtools]] (parent),  [[DAS spine]],  [[FEX Spine Examples]], |
 | [[Devtools Release\|Release]]  | cuts the version and freezes the inputs Bundle recorded |

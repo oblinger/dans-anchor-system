@@ -288,7 +288,7 @@ osascript -e 'tell application "Safari" to get URL of every tab of window 1'   #
 
 ### 7. Log the outcome — and this half does not end at the button
 
-Once the user reports what they bought, record it: a dated entry in [[BUY Log]], a **Done** line in [[BUY Purchasing]], the inventory entry under [[My Stuff]], and — for consumables — the $/unit reference on the category page (e.g. [[BUY Tea]]) so the next run starts from real numbers instead of re-deriving them.
+Once the user reports what they bought, record it: a dated entry in [[BUY Orders]], a **Done** line in [[BUY Purchasing]], the inventory entry under [[My Stuff]], and — for consumables — the $/unit reference on the category page (e.g. [[BUY Tea]]) so the next run starts from real numbers instead of re-deriving them.
 
 **Then keep going.** Per [[HERMES Mandate]], the record layer is owned end to end: **read the order mail to confirm the purchase actually went through** (a staged cart is not an order), verify what arrived matches the listing, and put any return deadline somewhere that will raise it. Read the order history rather than inferring from what was staged — on 2026-08-17 the tabs said one thing and the orders page said both finalists were bought, at prices that differed from the quoted ones. **This applies to purchases other agents make too**, not only ones that ran through this skill.
 

@@ -254,3 +254,4 @@ description: agent inbox — background-process messages for this anchor; append
 [2026-08-11 23:03:50] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
 [2026-08-11 23:03:52] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md was edited
 [2026-08-13 14:53:09] [INFO] Warden: inbox drop → Warden Inbox 'Your hook engines now execute the DAS hook registry (TINK F…' (from tink) (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)
+[2026-08-20 20:14:54] [INFO] Warden: inbox drop → Warden Inbox 'A compiled ruleset cache wrote itself into the vault root' (from atticus) (at SYS/Bespoke/Skill Agent/dans-anchor-system/warden/Warden Track/Warden Backlog.md)

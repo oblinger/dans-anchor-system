@@ -1,5 +1,5 @@
 ---
-description: dated work products — papers, reports, polished outputs
+description: "`/wp <name>` creates a new dated **work product** folder inside the current anchor's `{slug} WP/` folder."
 group: folder
 ---
 

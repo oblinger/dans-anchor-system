@@ -2,7 +2,7 @@
 description: "Harbor's ingest pipeline — pulls media off disk into the catalog."
 ---
 
-| -[[HBR Ingest]]- | → [[DAS]] → [[examples]] → [[HBR\|HARBOR]] → [HBR Ingest](hook://p/HBR%20Ingest)  |
+| -[[HBR Ingest]]- | → [[DAS]] → [[FEX]] → [[HBR\|HARBOR]] → [HBR Ingest](hook://p/HBR%20Ingest)  |
 | --- | --- |
 | Anchor | [[HBR Components]] (parent) |
 | Related | [[HBR Serve]] (sibling group),  [[HBR Operate]] (sibling group), |

@@ -8,7 +8,7 @@ description: User guides for hygiene skills — keep anchors clean, conformant, 
 | [[DAS Dupes\|Dupes]]  | `/dupes` sweeps the vault for duplicate `.md` filenames — files with the same basename in two or more places — and emits a confidence-ranked **edit list** (`E1`, `E2`, ...) of proposed fixes: delet… |
 | [[DAS Maintain\|Maintain]]  | `/maintain` is the discipline that keeps **derived files in sync with their sources** inside an anchor. |
 | [[DAS Rewire\|Rewire]]  | Idempotent structural repair for any anchor. |
-| [[DAS Rule\|Rule]]  | How to manage project rules — creating rules, checking violations, grading exceptions, driving fixes |
+| ~~[[DAS Rule\|Rule]]~~  | How to manage project rules — creating rules, checking violations, grading exceptions, driving fixes |
 | [[DAS Slug Scan\|Slug Scan]]  | `/slug-scan` discovers anchors that have a slug (a short ID like `ODC`, `HA`, `SKA`) and syncs them into the slug index table at `~/ob/kmr/SYS/SYS Topic/slug/SLUG.md`. |
 | [[DAS Tidy\|Tidy]]  | `/tidy` validates an anchor's folder structure against its CAB type spec and fixes the structural issues it finds — naming compliance (every file and folder prefixed with `{slug}`), broken links fr… |
 | --- | |

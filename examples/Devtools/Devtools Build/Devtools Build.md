@@ -2,9 +2,9 @@
 description: "Devtools Build — what turns source into a shippable artifact"
 ---
 
-| -[[Devtools Build]]- | : what turns source into a shippable artifact<br>→ [[DAS]] → [[examples]] → [DVT](hook://DVT) → [Devtools Build](hook://p/Devtools%20Build)  |
+| -[[Devtools Build]]- | : what turns source into a shippable artifact<br>→ [[DAS]] → [[FEX]] → [[Devtools\|DVT]] → [Devtools Build](hook://p/Devtools%20Build)  |
 | --- | --- |
-| Related | ~~[[Devtools]]~~ (parent),  [[DAS spine]],  [[FEX Spine Examples]], |
+| Related | [[Devtools]] (parent),  [[DAS spine]],  [[FEX Spine Examples]], |
 | [[Devtools Compile\|Compile]]  | typechecks and emits objects; the only step allowed to fail loudly on a warning |
 | [[Devtools Bundle\|Bundle]]  | links the objects into one artifact and records what went into it |
 | [[Devtools Watch\|Watch]]  | the incremental loop developers actually live in; correctness is Compile's job, not its own |

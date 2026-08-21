@@ -2,7 +2,7 @@
 description: "Harbor dev docs — source layout for contributors"
 ---
 
-| -[[HBR Dev Docs]]- | → [[DAS]] → [[examples]] → [[HBR\|HARBOR]] → [HBR Dev Docs](hook://p/HBR%20Dev%20Docs)  |
+| -[[HBR Dev Docs]]- | → [[DAS]] → [[FEX]] → [[HBR\|HARBOR]] → [HBR Dev Docs](hook://p/HBR%20Dev%20Docs)  |
 | --- | --- |
 | Anchor | [[HBR]] (parent) |
 | Related | [[HBR Architecture]],   |

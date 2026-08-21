@@ -24,6 +24,7 @@ Every row is one thing Lumen does in the morning, in order. Detail follows below
 | **Calendar** | Fetch today's events. Necessary but **not sufficient** — see Mail, below. |
 | **Dates** | Read `MY Dates.md` for birthdays and anniversaries coming up. Card rows need six weeks, not two. |
 | **Mail** | Surface only messages matching `LUMEN Watchlist.md`. Skip entirely if it is empty. Then run `appointment-scan.py` — some appointments never reach a calendar and live only in mail. |
+| **Doctor** | Read [[SYS Doctor Report]] — the two top sections only. Surface what CHANGED, and name how long anything failing has been failing. |
 | **Hot** | Read [[Rocks]] — the live block only — for what the user has declared currently matters. |
 | **Loose** | Scan [[Quick]] and Lumen's own `## Now` for anything captured since the last run. |
 | **Today** | Choose 3–5 items *across* domains and put them on screen, decisions first. |
@@ -54,6 +55,17 @@ cd "$HOME/ob/kmr/Log/MUSE" && for f in MUSE*.md; do
   [[ "$cap" > "$WM" ]] && printf '%s\t%s\n' "$cap" "$f"
 done | sort
 ```
+
+**Never diagnose the channel from the watermark.** On 2026-08-20 the briefing told Dan *"the watch channel has been dead for sixteen days — MUSE has written nothing since 2026-08-04"*. The corpus held **ten items** captured after that date, most addressed to Lumen by name, including two undelivered instructions to other agents and one asking us to fix message delivery. What was actually sixteen days old was **the watermark**, and its date got reported as the corpus's. The reader had stopped reading and then described its own silence as the world's.
+
+So the two questions are separate and must be asked separately:
+
+| Question | Answered by | Failure it catches |
+|---|---|---|
+| *Is the channel receiving?* | the newest `captured:` in `Log/MUSE/`, and [[SYS Doctor Report]]'s `muse.ingest` line | ingest is broken — nothing new is arriving |
+| *Has anything gone unread?* | the gap between that newest `captured:` and the watermark | **the reader stalled** — items arrived and were never surfaced |
+
+**A large gap is the louder finding of the two**, because a dead ingest loses nothing that was ever captured, while a stalled reader silently swallows instructions that did arrive. If the gap exceeds about two days, say so in the briefing as a **Decision** and name the count — *"ten voice items have never been surfaced"* — before doing anything else with them.
 
 **Advance the watermark only at the end of a completed run**, to the newest `captured:` actually surfaced. An interrupted run leaves it unchanged and loses nothing.
 
@@ -118,6 +130,24 @@ Mail is filtered through `LUMEN Design/LUMEN Watchlist.md` — a definition list
 It reads its senders from the Watchlist — never its own copy — and prints one line per appointment, soonest first, or nothing when there is nothing. **Anything it prints goes into Today with its clock time**, ranked by the hard-clock-first rule, exactly as a calendar event would be. Treat silence as a real answer: it is quiet on days with no appointment, verified against 2026-08-05.
 
 **Do not treat the calendar as complete on its own.** The class is *senders who mail appointments without an `.ics`*, and Sutter is only the instance that exposed it — when another one turns up, it goes in the Watchlist rather than into the script.
+
+## Doctor
+
+Read `~/ob/kmr/SYS/SYS Doctor/SYS Doctor Report.md` — one file, overwritten by every run, written inside `ob_daily` so by breakfast it carries **this** morning's findings. Dan put it in the morning himself, 2026-08-20: *"my idea is Lumen is part of her morning, we'll just look at the doctor report."*
+
+**Read the top two sections and stop there** unless they point deeper.
+
+| Section | What Daybreak does with it |
+|---|---|
+| `## Changed since the last run` | The only section that always earns its place. It states explicitly when nothing changed, so there is never anything to diff. Nothing changed + nothing failing → the channel is done, say nothing. |
+| `## Failing` | Each line carries **since when**, and the duration is usually the whole contribution — *failing since 2026-07-13 (38 days)* is a different conversation from the same line with no date. |
+| `## Stale` | A check that stopped **running**. Flag it distinctly from one that is failing: a dead instrument reads exactly like a passing one, which is the failure the anchor exists over. |
+
+**Where a finding goes on screen.** A newly-broken thing that needs Dan — a credential to rotate, a drive to plug in — is a **Decision**, with the duration in the line. Everything else is a **Gap**. A finding that is merely still-failing does not get re-raised every morning; it moves to Gaps and stays there, because a line Dan has already seen four times stops being information.
+
+**Never report a clean run as "the estate is healthy."** The report says so about itself in its own last section, and it is not modesty: the coverage model — what *ought* to be watched — does not exist yet, so today it watches a handful of things and **every surface with no check on it is invisible there and indistinguishable from a working one**. When Dan asks whether everything is OK, the honest answer is *"the N registered checks pass"*.
+
+**The report is read, never written.** [[Atticus]] owns it and every check in it; findings route to him, not into Lumen's backlog. What Lumen owns is the reading — [[MUSE]] ingest failed for thirty-eight days while printing a log line byte-identical to a healthy sweep, and the defect was not the instrument, it was that **nothing had a reader**. This step is the reader.
 
 ## What goes on screen
 

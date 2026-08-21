@@ -1,3 +1,6 @@
+---
+description: "the incremental loop developers actually live in; correctness is Compile's job, not its own"
+---
 :>> [[DAS]] → [[examples]] → [DVT](hook://DVT) → [DVTB](hook://DVTB) → [Devtools Watch](hook://p/Devtools%20Watch)
 # Devtools Watch
 The incremental loop developers actually live in; correctness is Compile's job, not its own.

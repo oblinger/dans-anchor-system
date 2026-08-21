@@ -2,7 +2,7 @@
 description: "Devtools Observe — what makes the three stages above trustworthy"
 ---
 
-| -[[Devtools Observe]]- | : what makes the three stages above trustworthy<br>→ [[DAS]] → [[examples]] → [DVT](hook://DVT) → [Devtools Observe](hook://p/Devtools%20Observe)  |
+| -[[Devtools Observe]]- | : what makes the three stages above trustworthy<br>→ [[DAS]] → [[FEX]] → [[Devtools\|DVT]] → [Devtools Observe](hook://p/Devtools%20Observe)  |
 | --- | --- |
 | Related | [[Devtools]] (parent),  [[DAS spine]],  [[FEX Spine Examples]], |
 | [[Devtools Logs\|Logs]]  | the raw record; retained long enough to answer a question nobody thought to ask |

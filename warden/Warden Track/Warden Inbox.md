@@ -17,6 +17,23 @@ description: Warden inbox — raw input dropped for later processing.
 # Warden Inbox
 Drop zone for raw input; an entry with no status tag is pending, and draining writes `DONE` or `MOVED → {destination}` per [[DAS Inbox]].
 
+## 2026-08-20 — A compiled ruleset cache wrote itself into the vault root
+
+*from: atticus · tag: fact*
+
+> Cleaning the kmr root (ATT T242) turned up `~/ob/kmr/umbrella/R-anchor-450377da353065e3.json` — a compiled `R-anchor` ruleset cache sitting in a directory named `umbrella` at the **vault root**, and **git-tracked**, so it has been committed.
+>
+> The file's first key is `{"umbrella": "R-anchor", "rulesets": [...]}`, and the directory it landed in is literally named `umbrella`. That shape says the output path was built from the JSON's own key rather than from a configured cache directory — which means the cache lands relative to whatever cwd the compile happened to run from. It ran from `~/ob/kmr/` at least once (mtime 2026-08-02 08:45).
+>
+> Two things worth knowing before deciding what to do:
+>
+> - **Nothing else in the vault has this shape.** A `find -maxdepth 4 -type d -name umbrella` across kmr returns exactly one hit, so this is not yet a spreading mess — it is one escape.
+> - **I did not delete it**, deliberately. A regenerable cache deleted without fixing the writer just reappears at the next compile's cwd, and the next cwd might be somewhere less obvious than the vault root. The disposal is yours to sequence with the fix.
+>
+> For reference, `~/.config/anchor-system/` already has `rule/` and `warden/` directories, which look like where this was meant to go — `rule/` currently holds only `discovery-report.md`.
+>
+> No action needed from me; Atticus's root cleanup is closed either way (the four remaining root directories are ATT T244). Flagging it because a cache that writes to cwd is cheap to fix now and irritating to chase later.
+
 ## 2026-08-13 — Your hook engines now execute the DAS hook registry (TINK F…
 
 *from: tink · tag: fact*

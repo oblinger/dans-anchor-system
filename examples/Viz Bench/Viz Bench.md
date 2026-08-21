@@ -2,7 +2,7 @@
 description: "Viz Bench — a fixed set of reference figures drafted by different techniques (Scribe / D2 / Draw.io) from different starting points (formal spec / natural text), so the inputs and outputs can be compared side by side."
 ---
 
-| -[[Viz Bench]]- | : figure-drafting techniques compared across a fixed reference set<br>→ [[DAS]] → [FEX](hook://FEX) → [Viz Bench](hook://p/Viz%20Bench)  |
+| -[[Viz Bench]]- | : figure-drafting techniques compared across a fixed reference set<br>→ [[DAS]] → [[FEX]] → [Viz Bench](hook://p/Viz%20Bench)  |
 | --- | --- |
 | Related | ~~[[viz]]~~ (the skill under test),  [[R-diagram]] / [[R-svg-jiggle]] (the Scribe rules),  ~~[[drawio-skill]]~~ (the Draw.io engine) |
 | Members | [[Gallery — Draw.io\|Draw.io Gallery]],  [[Gallery\|Scribe + D2 Gallery]],   |

@@ -21,16 +21,15 @@ Read, search, and access email through Apple Mail using AppleScript. No OAuth to
 
 ## Composing — staging a draft for the user to send
 
-**The user sends; the agent never does.** Use `scripts/stage-email.applescript`, which creates a visible Mail.app draft and stops — it contains no `send` verb.
+**Use `~/ob/grove/commons/arec/stage-email`.** It creates exactly one visible composition window and **never sends**.
 
 ```
-osascript ~/.claude/skills/io/scripts/stage-email.applescript \
-  "<to>" "<cc>" "<subject>" "<body-file>" "<from-address>"
+stage-email --to A[,B] [--cc C] --subject S --body-file F --from ADDR [--wait N]
 ```
 
-`to` and `cc` are comma-separated (`""` for no cc); **the body is a file path, not a string** — quoting a real note through `osascript -e` silently eats paragraphs. Full discipline, the gotchas, and the verify-against-Sent-Mail step: **[[AREC Stage Email]]**.
+**It refuses (exit 3) while any draft is already open, and clears nothing.** That is the whole safety property: an agent that closes existing drafts to simplify its own verification destroys whatever the user was editing — which happened on 2026-08-20. On exit 3, tell the user what is in the way and retry with `--wait 180`.
 
-**Two traps worth repeating here:** `item 1 of outgoing messages` is the **oldest** draft, so verify a fresh one with `last item`; and `sender` must be set inside the `tell msg` block rather than in the `make new` properties.
+Full routine, gotchas and constraints: [[AREC Stage Email]].
 
 ## Reading Recent Messages
 

@@ -1,3 +1,6 @@
+---
+description: "typechecks and emits objects; the only step allowed to fail loudly on a warning"
+---
 :>> [[DAS]] → [[examples]] → [DVT](hook://DVT) → [DVTB](hook://DVTB) → [Devtools Compile](hook://p/Devtools%20Compile)
 # Devtools Compile
 Typechecks and emits objects; the only step allowed to fail loudly on a warning.
