@@ -24,8 +24,12 @@ Read, search, and access email through Apple Mail using AppleScript. No OAuth to
 **Use `~/ob/grove/commons/arec/stage-email`.** It creates exactly one visible composition window and **never sends**.
 
 ```
-stage-email --to A[,B] [--cc C] --subject S --body-file F --from ADDR [--wait N]
+stage-email --to A[,B] [--cc C] --subject S --body-file F --from ADDR --agent SLUG [--wait N] [--routine]
 ```
+
+**Every recipient is staged with a safety catch — a trailing `@` on the address, followed by the staging agent's one- or two-letter tag** (`will@fractional.ai@s`) — so Mail refuses the message locally and it cannot leave the machine. **Dan deletes that tail to arm the draft**; that is the deliberate act that makes sending his. **Always pass `--agent`**: the catch is the only place an agent name can be written that cannot ride along on the sent message, so it never goes in the subject, the body or a header. Pass `--routine` only when the destination is genuinely low-stakes. **It also reads the draft back after staging** (window count, subject, recipients, sender, body) and exits 6 rather than reporting a success it did not verify — two staging attempts on 2026-08-21 returned 0 while the window came up blank.
+
+**Fixtures never use a real contact — test against `wef234@gmail.com`.**
 
 **It refuses (exit 3) while any draft is already open, and clears nothing.** That is the whole safety property: an agent that closes existing drafts to simplify its own verification destroys whatever the user was editing — which happened on 2026-08-20. On exit 3, tell the user what is in the way and retry with `--wait 180`.
 

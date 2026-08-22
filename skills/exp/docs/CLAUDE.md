@@ -55,7 +55,7 @@ exp build                                  # ZIP experiments into deliverable bu
 - Commands are sent to remote via `printf '%s\n' "$cmd" | ssh cat > _run.cmd` to avoid shell quoting problems
 - The watcher runs commands via `setsid` so `exp stop` can kill the process group without killing the watcher
 - `exp init` is idempotent — safe to call repeatedly; use `-f` to force teardown and re-init
-- The hardcoded helpers path in `exp.sh` (`/Users/oblinger/ob/kmr/SYS/Bespoke/Remote Experimenter`) is used to push `exp-watcher.sh` to remotes
+- `exp-watcher.sh` is pushed to remotes from `$EXP_HELPERS_DIR`, which `exp.sh` derives from its own `BASH_SOURCE` — self-relative, so the toolkit moves without edits. (It was once a hardcoded `SYS/Bespoke/Remote Experimenter` path; that folder no longer exists and the code no longer references it.)
 - `_exp-gather-remote()` makes ONE SSH call per remote to collect all monitoring data (PID, disk, GPU, watcher, tail) using `===SECTION===` markers — safe to run while experiments execute
 
 ## Maintainer Role

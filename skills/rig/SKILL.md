@@ -48,6 +48,10 @@ rig ssh <name>     # refresh the alias and connect
 
 Before starting and after finishing, `rig ls` is the check: it lists **everything in the account**, including machines rig did not create, and prints the running burn rate. That is deliberate — the machine costing you money is the one nobody remembers making.
 
+**3. When gcloud auth has expired, trigger it — never hand Dan the command.** Expired credentials make `rig ls` refuse, which blinds the standing cost check: no agent can see whether a box is billing. **Just run `gcloud auth login` yourself.** It opens a browser window in Dan's GUI session and he approves it there — that is the whole interaction, and it is the one he has asked for. Ruled by Dan 2026-08-21: *"agents should just know, if they want to have authority, they just silently push it to me and I approve it. Because there's nothing I can do — it expires all the freaking time."*
+
+**Pasting `gcloud auth login` into chat for Dan to type is a spec violation**, not a courtesy — it is the same error as any other "could you run this", and it is specifically called out in the global rule *never ask the user to run a shell command — you run it.* The credential expires constantly and by design; treat reauth as routine plumbing the agent performs, not as a decision to escalate. Trigger it, confirm the browser window actually came up, say plainly that a Google sign-in is waiting, and poll until it lands. **Ask which identity first: work credentials live in Chrome Beta (`dan@sportsvisio.com`), personal in plain Chrome (`oblinger@gmail.com`), and a bare `gcloud auth login` defaults to the personal browser.** The `get-user-auth` skill has the full pattern (surface a bold callout, re-print it each cycle so it never scrolls off, resume the moment it clears).
+
 ## What it gives the rest of the system
 
 **An ssh alias.** After `rig up <name>`, `ssh <name>` works. rig maintains a delimited block in `~/.ssh/config` and rewrites the stanza on every `up`, which is also how it repairs the ephemeral-IP problem — cloud machines almost always return on a new address after a stop/start, and anything holding the old one silently points at nothing.
@@ -68,6 +72,7 @@ Keep adapters thin. They encode *your* choices — image family, key, which zone
 
 ## Gotchas
 
+- **`rig ls` refusing usually means expired gcloud credentials, not a broken rig.** Reauth is the fix and it is the agent's job — see § Two things an agent must get right #3. Do not report "rig ls is broken" or ask Dan to log in; trigger `gcloud auth login` and let him click.
 - **rig's ssh key must have no passphrase.** rig authenticates non-interactively. A passphrase-protected key fails as `Permission denied (publickey)` — identical to having no key at all, because ssh offers the key and then cannot sign with it. Diagnose with `ssh-keygen -y -f <key>`: if it prompts, that is the cause.
 - **GPU stockouts are routine.** `up` retries across the configured zones; the cloud names which zones have capacity only after the request fails.
 - **A cloud's word for "stopped" may read like "destroyed."** GCE reports a stopped instance as `TERMINATED`. It still exists, and `rig up` starts it again.

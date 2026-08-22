@@ -92,6 +92,48 @@ resolved differently under a bare SSH shell than under the console session.)
   (Accessibility, etc.) combine: drive the GUI **over there** (Method A via `open` in
   the remote's Aqua session) while the user watches that machine's screen.
 
+## Method C — browser-approval reauth (OAuth CLIs: `gcloud`, and its kin)
+
+Some credentials need neither a typed secret nor a GUI trust dialog: the command
+opens the user's **browser**, they click *Approve* in an already-signed-in session,
+and the CLI writes its own token. `gcloud auth login` is the canonical case; `gh auth
+login --web`, `op signin` in browser mode and most OAuth device flows behave the same.
+
+**Just run it.** There is nothing to hand over and nothing to protect from the
+transcript — the secret never passes through you. Trigger the command, confirm the
+browser window actually came up, tell the user in one line that a sign-in is waiting
+and what account it wants, and poll per the runbook until it clears.
+
+**These credentials expire constantly and by design.** Treat reauth as routine
+plumbing the agent performs, not as an escalation. Dan, 2026-08-21, on gcloud:
+*"agents should just know, if they want to have authority, they just silently push it
+to me and I approve it. Because there's nothing I can do — it expires all the freaking
+time. It's really annoying."*
+
+### Which browser — the account decides, and getting it wrong signs you into the wrong identity
+
+Dan keeps two Chrome installs, each holding a different Google identity. **Route by which account the credential is for** (ruled by Dan 2026-08-21):
+
+| Credential wanted | Browser | Account |
+|---|---|---|
+| **Work** | `/Applications/Google Chrome Beta.app` | `dan@sportsvisio.com` |
+| **Personal** | `/Applications/Google Chrome.app` | `oblinger@gmail.com` |
+
+**The system default is plain Chrome, so a bare `gcloud auth login` lands in the *personal* browser.** That is correct for a personal credential and wrong for a work one — and the failure is quiet, because the account chooser will happily offer a work account in the personal browser and the auth succeeds against the wrong identity.
+
+To target a browser, take the URL rather than letting the command launch one:
+
+    gcloud auth login --no-launch-browser        # prints the auth URL
+    open -a "Google Chrome Beta" "<the URL>"     # or "Google Chrome" for personal
+
+**Ask which identity the task needs before triggering.** Cloud spend, project access and audit trails all follow the account, so this is not cosmetic — see the standing rule that **work credentials do not get used for personal work** (a job-application take-home billed to an employer's cloud project is the case that produced this rule).
+
+**Never paste the command into chat for the user to type.** That is the same error as
+any other "could you run this" and it is already forbidden by the global rule *never
+ask the user to run a shell command — you run it*. It is especially wrong here,
+because the user's entire job is one click they cannot make until an agent opens the
+window.
+
 ## Runbook
 
 ### 1. Pop the prompt in the user's GUI session
@@ -213,6 +255,11 @@ callout (step 3) and loop — don't silently move on.
   (grab or liveness probe) — confirm or say you couldn't.
 - ❌ Polling every few seconds (spam) or never (you stall). ~60s, re-printing the
   ask each time.
+- ❌ Pasting an OAuth reauth command (`gcloud auth login` and kin) into chat for the
+  user to run. Nothing is being protected by that — the agent can open the browser
+  window itself, and until it does, the user has nothing to click. See Method C.
+- ❌ Reporting a tool as broken when its credential has merely expired ("`rig ls`
+  refuses"). Expiry is the normal state of these tokens; reauth and continue.
 - ❌ Asking for the password in chat. A credential in chat is compromised and must be
   ROTATED, not merely deleted from the transcript. Always route it through the user's
   own GUI prompt; never have them paste it to you.

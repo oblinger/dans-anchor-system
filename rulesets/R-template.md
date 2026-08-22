@@ -2,7 +2,7 @@
 include::
 import:: skills/audit/scripts/audit-plan.py
 where:: `file: **/_* Template.md, **/_* Template/**`
-description:: the Template facet — a live specimen whose anchor and scope are both read off the artifact
+description:: the Template facet — a domain-specific, folder-local structure for the items in one folder/tree
 
 ### RULE R-template-01 — the exemplar IS a live instance, never a description (checked)
 The **exemplar** — everything above the `template notes` cut-line (R-template-08) — is **live markdown** (real H1, frontmatter, sections) with bare `{{PLACEHOLDERS}}`; it is **not** wrapped in code fences and is **not** a `## How to use` description of a template.

@@ -42,9 +42,13 @@ You'll be told an experiment folder path (e.g., `/Users/oblinger/.../002d_random
 
 ### 1. Set up
 
+**Nothing to source.** `exp` is a dispatcher on `$PATH` (`~/bin/exp` → the `exp` skill's `scripts/exp`); every verb below is invoked as `exp <verb>`, not as a shell function. Confirm it is reachable before you start:
+
 ```bash
-source "/Users/oblinger/ob/kmr/SYS/Bespoke/Remote Experimenter/exp.sh"
+exp list
 ```
+
+If that prints the configured remotes, you are set up. If it prints `command not found`, stop and say so — do not hunt for a script to source.
 
 ### 2. Read reference docs
 
