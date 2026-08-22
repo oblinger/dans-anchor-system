@@ -2442,6 +2442,278 @@ def cmd_x(args):
         sys.exit(1)
 
 
+# ---------------------------------------------------------------------------
+# Browser lease (ATT T183)
+#
+# Several agents share one host, and the browser is one surface per machine:
+# the last navigation wins no matter which tmux window issued it, so an agent
+# can read a page it believes it opened and be reading someone else's. Per-agent
+# windows (ATT T171) fixed the shared *keyboard*; this fixes the shared browser.
+#
+# The lease lives here rather than in bridge because this is the code path that
+# actually moves the browser — the only placement that cannot be skipped.
+#
+# Two properties are load-bearing and easy to erode:
+#   * The gate applies to AGENTS ONLY. Dan types `surf` himself; a lease that
+#     refused an unclaimed call would refuse him. `CLAUDECODE` in the
+#     environment is what distinguishes a harness session from a human shell.
+#   * Expiry is a STEAL, never a release. Dan: "I don't want the agents to do
+#     that, otherwise they're gonna end up sloppily locking it up too long."
+#     The record therefore distinguishes released_by: agent from :expiry.
+# ---------------------------------------------------------------------------
+
+LEASE_PATH = '/tmp/ctrl-browser.lease.json'
+LEASE_LOG = os.path.expanduser('~/.config/ctrl/browser-lease.jsonl')
+LEASE_DEFAULT_MINUTES = 3
+
+# Every ctrl command that moves the shared browser. `box` / `trot` / `outbox` /
+# `edit` / `screen` are NOT browser commands and must not be gated. `x` is
+# gated conditionally — see _command_is_browser.
+BROWSER_COMMANDS = {
+    'search', 'navigate', 'surf', 'new-tab', 'tab',
+    'jsearch', 'jpage', 'jgetlist', 'jjpage',
+    'cpage', 'clist', 'cupload', 'cclick', 'ctype', 'cfill',
+    'cwait', 'cexec', 'cnativefile',
+}
+
+
+def _lease_identity():
+    """(session_id, agent_label) for the caller. The session is the holder.
+
+    Bridge refuses to auto-derive an agent slug (T171/T176) because the harness
+    exposes no per-agent value — but it does expose a per-SESSION one, and the
+    session is the right holder anyway. The slug rides alongside as a label: it
+    is what makes the expiry notice addressable, but the lease never depends
+    on it.
+    """
+    session = os.environ.get('CLAUDE_CODE_SESSION_ID') or ''
+    agent = os.environ.get('BRIDGE_AGENT') or ''
+    return session, agent
+
+
+def _in_harness():
+    """True when a Claude Code session is driving. A human shell is untouched."""
+    return bool(os.environ.get('CLAUDECODE'))
+
+
+def _command_is_browser(command, argv_rest):
+    """Does this invocation move the browser?
+
+    `x excal` / `x excalsave` upload through Chrome, so they count; other
+    macros do not.
+    """
+    if command in BROWSER_COMMANDS:
+        return True
+    if command == 'x':
+        return bool(argv_rest) and argv_rest[0].startswith('excal')
+    return False
+
+
+def _lease_log(event, record, note=None):
+    """Append one event to the lease record. Best effort — never fails a call."""
+    try:
+        os.makedirs(os.path.dirname(LEASE_LOG), exist_ok=True)
+        entry = dict(record or {})
+        entry['event'] = event
+        entry['at'] = time.time()
+        if note:
+            entry['note'] = note
+        with open(LEASE_LOG, 'a') as f:
+            f.write(json.dumps(entry) + '\n')
+    except Exception as e:
+        print(f"ctrl: could not write lease record: {e}", file=sys.stderr)
+
+
+def _lease_read():
+    """Current lease dict, or None when the file is absent or unreadable.
+
+    An unreadable lease file is reported and treated as absent: refusing every
+    browser command because a JSON file got truncated would be worse than the
+    collision the lease exists to prevent, and the message says what happened.
+    """
+    try:
+        with open(LEASE_PATH) as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return None
+    except Exception as e:
+        print(f"ctrl: browser lease at {LEASE_PATH} is unreadable ({e}) — "
+              f"treating as unheld", file=sys.stderr)
+        return None
+
+
+def _lease_write(record):
+    tmp = LEASE_PATH + '.tmp'
+    with open(tmp, 'w') as f:
+        json.dump(record, f, indent=2)
+    os.replace(tmp, LEASE_PATH)
+
+
+def _lease_expired(record, now=None):
+    return (now or time.time()) >= record.get('deadline', 0)
+
+
+def _lease_describe(record):
+    who = record.get('agent') or (record.get('session_id') or '?')[:12] or '?'
+    left = record.get('deadline', 0) - time.time()
+    reason = record.get('reason') or 'no reason given'
+    if left > 0:
+        return f"{who} holds it for another {int(left)}s — \"{reason}\""
+    return f"{who} held it until {int(-left)}s ago — \"{reason}\""
+
+
+def _notify_former_holder(record):
+    """Tell the agent that failed to release. Expiry is an error, not a path.
+
+    Routed through `state drop` into that agent's Inbox — the same capture-time
+    routing T241 approved. A routing failure is returned to the caller and
+    printed; it never fails the acquire that triggered it, because refusing a
+    claim over an undeliverable courtesy note would be the wrong trade.
+    """
+    agent = record.get('agent')
+    if not agent:
+        return 'no agent label on the stolen lease — nobody to notify'
+    state = os.path.expanduser('~/.claude/skills/workflow/scripts/state')
+    held = int(time.time() - record.get('acquired', time.time()))
+    reason = record.get('reason') or 'no reason given'
+    msg = (f"Your `ctrl` browser lease expired and was stolen. You held it {held}s "
+           f"for \"{reason}\" and never called `ctrl release`. Expiry is an error "
+           f"path, not a release path — anything you read from the browser after "
+           f"your deadline may have been another agent's page.")
+    try:
+        r = subprocess.run(
+            [state, 'drop', agent, msg, '--source', 'ctrl', '--tag', 'nudge',
+             '--topic', 'browser lease expired and was stolen'],
+            capture_output=True, text=True, timeout=20)
+        if r.returncode != 0:
+            return f"state drop to '{agent}' failed: {(r.stderr or r.stdout).strip()[:200]}"
+        return None
+    except Exception as e:
+        return f"state drop to '{agent}' failed: {e}"
+
+
+def cmd_own(args):
+    """Claim the shared browser."""
+    minutes = args.minutes if args.minutes is not None else args.for_minutes
+    if minutes is None:
+        minutes = LEASE_DEFAULT_MINUTES
+    if minutes <= 0:
+        print("ctrl own: duration must be positive", file=sys.stderr)
+        sys.exit(1)
+
+    session, agent = _lease_identity()
+    agent = args.agent or agent
+    now = time.time()
+
+    current = _lease_read()
+    stolen_from = None
+    if current and not _lease_expired(current, now):
+        if current.get('session_id') and current['session_id'] == session:
+            pass  # a re-claim by the holder just extends the deadline
+        else:
+            print(f"ctrl own: the browser is already claimed — "
+                  f"{_lease_describe(current)}", file=sys.stderr)
+            sys.exit(1)
+    elif current:
+        stolen_from = current
+
+    record = {
+        'session_id': session,
+        'agent': agent,
+        'reason': args.reason or '',
+        'acquired': now,
+        'deadline': now + minutes * 60,
+        'pid': os.getpid(),
+        'host': os.uname().nodename,
+    }
+    _lease_write(record)
+
+    if stolen_from:
+        problem = _notify_former_holder(stolen_from)
+        _lease_log('steal', dict(stolen_from, released_by='expiry'), note=problem)
+        held_over = int(now - stolen_from.get('deadline', now))
+        print(f"ctrl own: STOLE an expired lease from "
+              f"{stolen_from.get('agent') or 'an unlabelled session'} "
+              f"({held_over}s past its deadline, never released).", file=sys.stderr)
+        if problem:
+            print(f"ctrl own: could not notify the former holder — {problem}",
+                  file=sys.stderr)
+
+    _lease_log('acquire', record)
+    print(f"ctrl: browser claimed for {minutes} min"
+          + (f" — \"{args.reason}\"" if args.reason else "")
+          + ". Call `ctrl release` when done; expiry is an error, not a release.")
+
+
+def cmd_release(args):
+    """Drop the shared browser lease."""
+    session, _ = _lease_identity()
+    current = _lease_read()
+    if not current:
+        print("ctrl release: no browser lease is held.", file=sys.stderr)
+        sys.exit(1)
+    if current.get('session_id') and current['session_id'] != session and not args.force:
+        print(f"ctrl release: that lease is not yours — {_lease_describe(current)}. "
+              f"Use --force only if you know the holder is gone.", file=sys.stderr)
+        sys.exit(1)
+    try:
+        os.remove(LEASE_PATH)
+    except FileNotFoundError:
+        pass
+    _lease_log('release', dict(current, released_by='agent'))
+    held = int(time.time() - current.get('acquired', time.time()))
+    print(f"ctrl: browser released after {held}s.")
+
+
+def cmd_lease(args):
+    """Report who holds the browser. Never gated — a read is not a claim."""
+    current = _lease_read()
+    if not current:
+        print("browser: unclaimed")
+        return
+    state_word = 'EXPIRED' if _lease_expired(current) else 'held'
+    print(f"browser: {state_word} — {_lease_describe(current)}")
+    if args.json:
+        print(json.dumps(current, indent=2))
+
+
+def _enforce_browser_lease(command, argv_rest):
+    """Fail closed on a browser command issued by an agent without a lease.
+
+    The refusal states the protocol, which is the point: the agent learns the
+    contract at the moment of use, from a refusal, rather than from
+    documentation it never read. Every gated call runs this, so an agent
+    cannot act on a stale belief that it still holds the lease.
+    """
+    if not _command_is_browser(command, argv_rest):
+        return
+    if not _in_harness():
+        return  # a human shell — untouched, by design
+
+    session, _agent = _lease_identity()
+    current = _lease_read()
+
+    if current is None:
+        held_by = "nobody holds it"
+    elif _lease_expired(current):
+        held_by = f"the lease has EXPIRED — {_lease_describe(current)}"
+    elif current.get('session_id') != session:
+        held_by = _lease_describe(current)
+    else:
+        return  # we hold it, and this re-check is what proves it still stands
+
+    print(
+        f"ctrl {command}: refused — this host's browser is a single shared surface "
+        f"and you do not hold it ({held_by}).\n"
+        f"  claim:   ctrl own [minutes]      (default {LEASE_DEFAULT_MINUTES}, "
+        f"--reason \"what for\")\n"
+        f"  release: ctrl release            (always — expiry is an error, not a release)\n"
+        f"  who:     ctrl lease\n"
+        f"Without this the last navigation wins, and you may read another agent's page.",
+        file=sys.stderr)
+    sys.exit(1)
+
+
 def print_usage():
     """Print custom usage information."""
     usage_text = """CTRL - Environment Control Tool
@@ -2532,6 +2804,21 @@ Chrome CDP Commands (Uses your real Chrome browser):
     cnativefile <file>          Handle macOS native file picker dialog
         <file>                  Path to file to select
         --wait-time <sec>       Seconds to wait for dialog (default: 1.0)
+
+Browser lease (agents only — a human shell is never gated):
+    own [minutes]               Claim this host's shared browser
+        [minutes]               Deadline before an expiry steal (default 3).
+                                NOT permission to skip releasing.
+        --for <N>               Same as the positional duration
+        --reason "<text>"       What you are claiming it for
+        --as <slug>             Agent label to record (default $BRIDGE_AGENT)
+
+    release                     Drop the lease. Always do this — expiry is an
+                                error path, not a release path.
+        --force                 Release another session's lease (only when gone)
+
+    lease                       Report who holds the browser
+        --json                  Also print the raw lease record
 
 Extended Commands (Macros):
     x excal <file>              Load .excalidraw file into Excalidraw
@@ -2742,6 +3029,29 @@ def parse_arguments():
     screen_parser.add_argument('screen_args', nargs=argparse.REMAINDER,
         help='Passed through to screen.py (e.g. "grab /tmp/s.png", "click 100 200")')
 
+    # Browser lease (ATT T183) — claim / drop / inspect the shared browser
+    own_parser = subparsers.add_parser('own',
+        help='Claim this host\'s shared browser before driving it')
+    own_parser.add_argument('minutes', nargs='?', type=int, default=None,
+        help=f'Deadline in minutes (default {LEASE_DEFAULT_MINUTES}). The number is '
+             f'the deadline before an expiry steal, NOT permission to skip releasing.')
+    own_parser.add_argument('--for', dest='for_minutes', type=int, default=None,
+        metavar='N', help='Same as the positional duration')
+    own_parser.add_argument('--reason', help='What you are claiming it for')
+    own_parser.add_argument('--as', dest='agent', metavar='SLUG',
+        help='Agent label to record (defaults to $BRIDGE_AGENT). Makes the '
+             'expiry notice addressable; the lease does not depend on it.')
+
+    release_parser = subparsers.add_parser('release',
+        help='Drop the browser lease (always do this — expiry is an error)')
+    release_parser.add_argument('--force', action='store_true',
+        help='Release a lease held by another session (only when it is gone)')
+
+    lease_parser = subparsers.add_parser('lease',
+        help='Report who holds the browser')
+    lease_parser.add_argument('--json', action='store_true',
+        help='Also print the raw lease record')
+
     return parser.parse_args()
 
 
@@ -2901,7 +3211,14 @@ def main():
         'tab': cmd_tab,
         'edit': cmd_edit,
         'screen': cmd_screen,
+        'own': cmd_own,
+        'release': cmd_release,
+        'lease': cmd_lease,
     }
+
+    # ATT T183 — one gate, on the one dispatch every browser command passes
+    # through. Runs per invocation, so it is also the per-call re-check.
+    _enforce_browser_lease(args.command, getattr(args, 'args', None) or [])
 
     handler = command_handlers.get(args.command)
     if handler:

@@ -527,6 +527,20 @@ class AgentView:
         turn-bearing rules are skipped wholesale for an unbound agent."""
         return bool(self._session)
 
+    @property
+    def session_id(self) -> str:
+        """The id of the session that produced this event; `""` when unbound.
+
+        Cheap and non-lazy — it reads the payload the view was built from and
+        touches no transcript. Added 2026-08-21 for ATT T183, where a rule has
+        to answer "is the caller the holder of a lease?" and **`os.environ` is
+        not the answer**: python rule bodies execute inside the resident daemon,
+        so `os.environ['CLAUDE_CODE_SESSION_ID']` is whichever session happened
+        to start the daemon, not the one whose tool call is being judged. That
+        read is wrong for every session but one, and it fails silently.
+        """
+        return (self._session or {}).get("session_id") or ""
+
     def _records(self) -> list[dict]:
         """The one transcript-tail read of the pass, shared by the classifier
         and the turn view."""
