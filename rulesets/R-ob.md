@@ -49,6 +49,7 @@ set-id: OB
 | [[R-diagram-geometry]]  | Hard-fail geometric correctness for hand-authored diagrams — overlap, floating endpoints, tunneling, text overflow, label-association ambiguity, label-label collision. |
 | [[R-discussion]]  | planning trade-offs |
 | [[R-dispatch-group]]  | the DAS Dispatch family index — the per-section sub-folder dispatch-page facet group |
+| [[R-dispatch-guard]]  | The `tool:pre` veto twin of [[R-dispatch-table]]-06 — a Write/Edit (and, best-effort, a Bash heredoc) that would put narrative prose in a masthead RIGHT cell is **denied** before the bytes land, not advised after. Rides `anchor-base`. Ratcheted: only a NEW offending cell denies, so the 1,374-cell legacy corpus stays editable and cleanable. |
 | [[R-dispatch-table]]  | The shape every dispatch table must take — masthead-placement law, member-zone mechanics, and pipe-escaped cell links. |
 | [[R-doc]]  | Everything checked when auditing a document — markdown + file + dispatch-table conventions plus the doc-facet rulesets (Doc Structure, Ruleset, Brief, Discussion, Log, Messages, Query, Backlog) and the design-doc facet rulesets (PRD, Architecture, Testing, Decisions, Stories). |
 | [[R-doc-facet]]  | what makes a content region a document facet (vs. a structural file/folder) |
@@ -84,6 +85,7 @@ set-id: OB
 | [[R-messages]]  | the Messages facet — agent's per-anchor background-process inbox, distinct from the user's Inbox |
 | [[R-module-doc]]  | per-module source documentation — one doc per source module under `{slug} Dev/` |
 | [[R-naming]]  | file-naming facet — `{slug} <X>.md` default + explicit exception allowlist |
+| [[R-ob-commons]]  | The commons operating model — repos whose history is machine-owned. Agents never commit or push them; an hourly sweep does, without attribution. Members: the vault (`~/ob/kmr`) and `~/ob/grove/commons`. |
 | [[R-one-path]]  | For each operation there is exactly one current implementation path; superseded code is deleted, never parallel-maintained. |
 | [[R-openspec]]  | OpenSpec mappability guards — the constraints that keep DAS structure mechanically projectable onto the OpenSpec layout (specs / changes / templates / schema.yaml), so the future TAS extraction stays a filter, not a rewrite. |
 | [[R-output-group]]  | the DAS Output family index — the output / published-doc facet group page |
@@ -133,7 +135,7 @@ set-id: OB
 
 # RULESET R-ob
 description:: Umbrella folder-file for Ob's rulesets — applies to every anchor Dan owns. Children rolled up via `include::` below. The markdown rule formerly here (D-OB01) moved out in 2026-06-09 since it's not Ob-specific; it now lives in [[R-markdown]] under [[R-doc]] (via the interim `R-md`, deleted 2026-08-11). Commit-discipline and em-dash rules pending capture as their own rulesets.
-include:: [[R-ob-cmd-proc]], [[R-ob-observability]], [[R-ob-state-mgt]], [[R-ob-remote-ops]], [[R-ob-browser-lease]] 
+include:: [[R-ob-cmd-proc]], [[R-ob-observability]], [[R-ob-state-mgt]], [[R-ob-remote-ops]], [[R-ob-browser-lease]], [[R-ob-commons]] 
 
 
 # Notes
