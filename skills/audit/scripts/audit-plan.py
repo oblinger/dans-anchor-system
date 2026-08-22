@@ -3856,10 +3856,20 @@ def chk_dispatch_cell_narrative(target, anchor_root, args):
     gloss — and the rule says it belongs on the destination page's own head
     (H1 + orientation line) or `## Overview`, not the table that points at it.
 
-    Ships `warn`, not `fail`, matching this ruleset's own precedent for -07/-08
-    (R-dispatch-table.md's postmortem): there is no safe automatic repair —
-    deciding whether displaced prose is already covered elsewhere in the body,
-    or where it should land, is a judgment call, not a mechanical fix.
+    Ships `fail` since 2026-08-22, on Dan's direct instruction: "let's just
+    change the rule so that you cannot write a table with more than 2 words
+    … let's just see what happens when the system is forced to do that."
+
+    It shipped `warn` from 2026-08-14, on the reasoning that a rule with no
+    safe automatic repair should stay advisory until the corpus is clean.
+    That deadlocked, because `execute_on_write` surfaces only `fail`: the rule
+    was invisible at the one moment it could have been obeyed for free, so the
+    corpus never cleaned. Measured the day of the flip — 1,374 hand-typed
+    prose cells across 370 of the vault's 1,028 masthead docs, and no agent
+    had ever been told about one of them. The escape is the exception table
+    ([[R-exception-discipline]], grade A–C suppresses); there is still no
+    `fix::`, so the on-write path emits the message and leaves the repair to
+    the agent, which is what -06's MEND is written for.
     """
     f = _as_file(target, anchor_root)
     if f is None:
@@ -3887,10 +3897,16 @@ def chk_dispatch_cell_narrative(target, anchor_root, args):
             return "" if len(words) <= 2 else m.group(0)
 
         stripped = re.sub(r"\(([^)]*)\)", _short_tag, stripped)
+        # A code span is a pointer, not prose. A `Ground truth` row naming
+        # `~/ob/kmr/.obsidian/` and its filenames says where the page's facts
+        # live; Dan blessed exactly that shape 2026-08-22 — "spiritually the
+        # ground truth section here is good" — in the same breath as rejecting
+        # the prose row beside it. 22 cells vault-wide are code-span-only.
+        stripped = re.sub(r"`[^`]*`", "", stripped)
         if re.search(r"\w", stripped):
             offenders.append(f"'{cells[0].strip()}' row: {right.strip()[:80]!r}")
     if offenders:
-        return "warn", ("dispatch table right cell carries narrative beyond a short "
+        return "fail", ("dispatch table right cell carries narrative beyond a short "
                         "(<=2 word) parenthetical tag — " + "; ".join(offenders[:4])
                         + " — move the explanation to the destination page's own "
                         "head or this doc's ## Overview (R-dispatch-table-06)")
