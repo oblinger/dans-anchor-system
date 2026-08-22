@@ -51,6 +51,17 @@ def body(ctx):
     # subcommand or as a -C path.
     ARGFUL = {"-C", "-c", "--git-dir", "--work-tree", "--namespace", "--exec-path"}
 
+    # A `cd` earlier in the SAME command line moves the base for every git that
+    # follows it.  Without this the rule judged by session cwd alone, which is
+    # wrong in both directions: `cd ~/ob/grove/warden && git commit` was denied
+    # (false positive, hit live 2026-08-22), and `cd ~/ob/kmr && git commit`
+    # from outside would have passed (false negative -- the one that matters).
+    cd_base = None
+    for k, w in enumerate(words):
+        if w == "cd" and (k == 0 or words[k - 1][-1:] in (";", "&", "|", "(")) \
+                and k + 1 < len(words) and not words[k + 1].startswith("-"):
+            cd_base = words[k + 1]
+
     for k in starts:
         toks = words[k + 1:]
         target, sub, i = None, None, 0
@@ -71,7 +82,7 @@ def body(ctx):
         if sub not in WRITES:
             continue
 
-        base = target if target else sess_cwd
+        base = target or cd_base or sess_cwd
         if not base:
             continue  # cannot resolve where this would run -- don't guess
         try:
@@ -90,6 +101,17 @@ def body(ctx):
         # one of them is a satellite that KEEPS the commit-in-the-turn norm.
         # A path-prefix test would have silently blocked all five, which is the
         # opposite of what this rule is for.  km handles them as EXTRA_REPOS.
+        # An UNRESOLVABLE target is never denied.  A shell variable the rule
+        # cannot see -- `git -C "$D" commit`, D set earlier in the same line --
+        # survives shlex and expandvars as the literal `$D` and resolves to a
+        # path that does not exist.  Walking up from a phantom lands in the
+        # vault and denies a satellite (hit live 2026-08-22, on two different
+        # variables).  Failing OPEN here is deliberate: this guard exists to
+        # break a habit, not to defeat a determined bypass, and a false
+        # positive blocking legitimate satellite work costs far more than a
+        # false negative letting one commit through.
+        if not here.exists():
+            continue
         repo = None
         probe = here
         while True:
