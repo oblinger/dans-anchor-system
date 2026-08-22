@@ -397,15 +397,58 @@ def dispatch(data: dict) -> list[str]:
     # candidates out of it and stat only those.
     if "tool:post:Bash" in moments:
         cmd = _str((data.get("tool_input") or {}).get("command"))
-        for moved in _md_paths_in_command(cmd, cwd):
+        floor = _bash_pre_floor(_str(data.get("session_id")))
+        for moved in _md_paths_in_command(cmd, cwd, floor):
             owner = find_anchor(moved.parent)
             if owner is None or "audit-on-write" not in wf.effective_traits(ir, owner):
                 continue
             steers.extend(_doc_fire(moved, owner, "Bash", "tool:post:Bash"))
+    # The floor stamp for the NEXT tool:post:Bash (mirror of hook.rs): a call
+    # whose write lands more than FRESH_SECS before the call RETURNS has a
+    # stale mtime at post time, and recency alone drops it silently (measured
+    # 2026-08-22: `sed -i … x.md && sleep 25` took zero doc-fires).
+    if "tool:pre:Bash" in moments:
+        _stamp_bash_pre(_str(data.get("session_id")))
     return steers
 
 
-def _md_paths_in_command(cmd: str, cwd: Path) -> list[Path]:
+def _bash_pre_dir() -> Path:
+    return warden_home() / "bash-pre"
+
+
+def _safe_sid(session_id: str) -> str:
+    return "".join(c for c in session_id if c.isalnum() or c in "-_")
+
+
+def _stamp_bash_pre(session_id: str) -> None:
+    """Record "a Bash call started now" for this session (F297 leg 3 floor)."""
+    sid = _safe_sid(session_id)
+    if not sid:
+        return
+    try:
+        d = _bash_pre_dir()
+        d.mkdir(parents=True, exist_ok=True)
+        (d / sid).write_text(str(time.time()))
+    except OSError:
+        pass
+
+
+def _bash_pre_floor(session_id: str) -> float | None:
+    """The mtime floor for this session's current Bash call, if a pre-stamp
+    exists. Consumers OR this with the recency window, so a missing stamp
+    degrades to today's behavior, never below it. One second of slack for the
+    stamp-write/file-write race."""
+    sid = _safe_sid(session_id)
+    if not sid:
+        return None
+    try:
+        return max(float((_bash_pre_dir() / sid).read_text().strip()) - 1.0, 0.0)
+    except (OSError, ValueError):
+        return None
+
+
+def _md_paths_in_command(cmd: str, cwd: Path,
+                         floor: float | None = None) -> list[Path]:
     """Markdown paths a Bash command names that were written by it.
 
     Two filters, and both matter. **Existence** keeps a false token cheap: a
@@ -437,14 +480,16 @@ def _md_paths_in_command(cmd: str, cwd: Path) -> list[Path]:
                 j += 1
             tok, i = cmd[i:j], j
         tok = tok.strip("<>|;&()`,:=")
-        if not tok.endswith(".md"):
+        if not tok.endswith((".md", ".markdown")):
             continue
         path = Path(tok).expanduser() if tok.startswith(("/", "~")) else cwd / tok
         try:
             st = path.stat()
         except OSError:
             continue
-        if not path.is_file() or (now - st.st_mtime) > FRESH_SECS:
+        recent = (now - st.st_mtime) <= FRESH_SECS
+        since_start = floor is not None and st.st_mtime >= floor
+        if not path.is_file() or not (recent or since_start):
             continue
         if path not in out:
             out.append(path)
@@ -635,6 +680,84 @@ def run_registry(data: dict, raw: str) -> list[str]:
     return tells
 
 
+# ── settings-registration staleness (2026-08-22; mirror of hook.rs) ─────────
+#
+# A session's hook registration is frozen at session start: editing
+# ~/.claude/settings.json changes nothing for any LIVE session, and nothing
+# says so (measured cost 45 min, 2026-08-22). Warden fires at SessionStart
+# (matcher `*`), so it records what settings.json looked like when the session
+# registered and says, once, on a later fire that the file has moved. Advisory
+# only; every path is fail-quiet.
+
+def _file_stamp(p: Path) -> str | None:
+    """`mtime_ns:len` — engine-agnostic (hook.rs computes the identical string,
+    and the two engines share the stamp dir; a content hash would need the
+    same algorithm on both sides forever)."""
+    try:
+        st = p.stat()
+        return f"{st.st_mtime_ns}:{st.st_size}"
+    except OSError:
+        return None
+
+
+def _settings_staleness_at(data: dict, settings_path: Path,
+                           stamp_dir: Path) -> str | None:
+    sid = "".join(c for c in _str(data.get("session_id"))
+                  if c.isalnum() or c in "-_")
+    if not sid:
+        return None
+    cur = _file_stamp(settings_path)
+    if cur is None:
+        return None
+    try:
+        stamp_dir.mkdir(parents=True, exist_ok=True)
+    except OSError:
+        return None
+    f = stamp_dir / sid
+    if _str(data.get("hook_event_name")) == "SessionStart":
+        try:
+            cutoff = time.time() - 7 * 24 * 3600
+            for e in stamp_dir.iterdir():
+                if e.stat().st_mtime < cutoff:
+                    e.unlink(missing_ok=True)
+        except OSError:
+            pass
+        try:
+            f.write_text(cur)
+        except OSError:
+            pass
+        return None
+    try:
+        prev = f.read_text().strip()
+    except OSError:
+        try:
+            f.write_text(cur)  # pre-feature session: adopt silently
+        except OSError:
+            pass
+        return None
+    if prev == cur:
+        return None
+    try:
+        f.write_text(cur)  # one steer per change, not per call
+    except OSError:
+        pass
+    return (f"[warden] {settings_path} changed after this session started. "
+            "A session's hook registration is frozen at session start, so if "
+            "the change touched `hooks`, THIS session is still running the old "
+            "registration — restart (exit and relaunch/resume) to pick it up. "
+            "Rule content (rulesets, compiled IR) is NOT affected: it reloads "
+            "live.")
+
+
+def _settings_staleness(data: dict) -> str | None:
+    try:
+        return _settings_staleness_at(
+            data, Path.home() / ".claude/settings.json",
+            warden_home() / "settings-stamp")
+    except Exception:  # noqa: BLE001 — advisory only, never in the way
+        return None
+
+
 DENY_SENTINEL = "DENY: "
 
 
@@ -680,6 +803,12 @@ def main(argv=None) -> int:
         # F328: fan out to the DAS hook registry at this event's moments —
         # children's stdout joins the steers as agent-visible context.
         steers = steers + run_registry(data, raw)
+        # Settings-registration staleness — one advisory line when
+        # settings.json moved under a live session (mirror of hook.rs).
+        stale = _settings_staleness(data)
+        if stale:
+            _log(f"SETTINGS-STALE steer issued (session {_str(data.get('session_id'))})")
+            steers = steers + [stale]
         emit(data.get("hook_event_name", ""), steers)
     except Exception as e:  # noqa: BLE001 — deliberate catch-all fail-safe
         _log(f"ERROR {type(e).__name__}: {e}")

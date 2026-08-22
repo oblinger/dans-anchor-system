@@ -827,7 +827,8 @@ pub fn dispatch(data: &Value) -> Vec<String> {
     // files. The command string is already in hand, so read the candidates out
     // of it and stat only those.
     if moments.iter().any(|m| m == "tool:post:Bash") {
-        for moved in md_paths_in_command(str_field(event_ti, "command"), &cwd) {
+        let floor = bash_pre_floor(str_field(data, "session_id"));
+        for moved in md_paths_in_command(str_field(event_ti, "command"), &cwd, floor) {
             let p = PathBuf::from(&moved);
             let Some(a) = p.parent().and_then(find_anchor) else { continue };
             if !effective(&a).iter().any(|t| t == "audit-on-write") {
@@ -836,7 +837,48 @@ pub fn dispatch(data: &Value) -> Vec<String> {
             steers.extend(doc_fire(&moved, &a, "Bash", "tool:post:Bash"));
         }
     }
+    // The floor stamp for the NEXT tool:post:Bash — a call whose write happens
+    // more than FRESH_SECS before the call RETURNS (a script that writes then
+    // builds, a probe that writes then waits) has a stale mtime at post time,
+    // and the recency filter alone silently drops it (measured 2026-08-22:
+    // `sed -i … x.md && sleep 25` took zero doc-fires). Anything modified
+    // after the call STARTED was modified by (or during) the call.
+    if moments.iter().any(|m| m == "tool:pre:Bash") {
+        stamp_bash_pre(str_field(data, "session_id"));
+    }
     steers
+}
+
+/// Record "a Bash call started now" for this session (F297 leg 3 floor).
+fn stamp_bash_pre(session_id: &str) {
+    let sid: String = session_id
+        .chars()
+        .filter(|c| c.is_ascii_alphanumeric() || *c == '-' || *c == '_')
+        .collect();
+    if sid.is_empty() {
+        return;
+    }
+    let dir = warden_home().join("bash-pre");
+    let _ = std::fs::create_dir_all(&dir);
+    let _ = std::fs::write(dir.join(sid), format!("{}", now_ts()));
+}
+
+/// The mtime floor for this session's current Bash call, if a pre-stamp exists.
+/// Consumers OR this with the recency window, so a missing/late stamp (pre-
+/// feature session, overlapping background calls) degrades to today's behavior,
+/// never below it.
+fn bash_pre_floor(session_id: &str) -> Option<SystemTime> {
+    let sid: String = session_id
+        .chars()
+        .filter(|c| c.is_ascii_alphanumeric() || *c == '-' || *c == '_')
+        .collect();
+    if sid.is_empty() {
+        return None;
+    }
+    let text = std::fs::read_to_string(warden_home().join("bash-pre").join(sid)).ok()?;
+    let ts: f64 = text.trim().parse().ok()?;
+    // one second of slack — filesystem timestamps and the stamp write race
+    Some(UNIX_EPOCH + Duration::from_secs_f64((ts - 1.0).max(0.0)))
 }
 
 /// Markdown paths a Bash command names that were written by it — the candidate
@@ -849,7 +891,9 @@ pub fn dispatch(data: &Value) -> Vec<String> {
 /// used rather than an mtime snapshot on purpose: a snapshot cannot fire on a
 /// path's FIRST write, which is exactly the case that created a bad dispatch
 /// table in the first place.
-fn md_paths_in_command(cmd: &str, cwd: &Path) -> Vec<String> {
+/// `floor`: when Some, a file modified at/after it also counts as fresh —
+/// the per-session tool:pre:Bash stamp, closing the write-then-wait miss.
+fn md_paths_in_command(cmd: &str, cwd: &Path, floor: Option<SystemTime>) -> Vec<String> {
     const FRESH_SECS: u64 = 20;
     let now = std::time::SystemTime::now();
     let chars: Vec<char> = cmd.chars().collect();
@@ -884,7 +928,7 @@ fn md_paths_in_command(cmd: &str, cwd: &Path) -> Vec<String> {
         };
         i = next;
         let t = tok.trim_matches(|ch: char| "<>|;&()`,:=".contains(ch));
-        if !t.ends_with(".md") {
+        if !t.ends_with(".md") && !t.ends_with(".markdown") {
             continue;
         }
         let path = if t.starts_with('/') {
@@ -901,13 +945,18 @@ fn md_paths_in_command(cmd: &str, cwd: &Path) -> Vec<String> {
         if !md.is_file() {
             continue;
         }
-        let fresh = md
-            .modified()
-            .ok()
+        let modified = md.modified().ok();
+        let recent = modified
             .and_then(|m| now.duration_since(m).ok())
             .map(|d| d.as_secs() <= FRESH_SECS)
             .unwrap_or(false);
-        if !fresh {
+        // OR the per-call floor: written any time since this Bash call started
+        // is a write by this call, however long the call ran afterwards.
+        let since_start = match (modified, floor) {
+            (Some(m), Some(f)) => m >= f,
+            _ => false,
+        };
+        if !recent && !since_start {
             continue;
         }
         let s = path.to_string_lossy().to_string();
@@ -1113,6 +1162,93 @@ pub fn run_registry(data: &Value, raw: &str) -> Vec<String> {
     tells
 }
 
+// ── settings-registration staleness (2026-08-22) ────────────────────────────
+//
+// A Claude Code session's hook registration is frozen at session start: editing
+// `~/.claude/settings.json` changes nothing for any LIVE session, and nothing
+// says so — an operator can "fix" the hooks, watch a running session not pick
+// them up, and burn the afternoon disbelieving the fix (measured cost 45 min,
+// 2026-08-22, on the PostToolUse `Bash|Write|Edit` matcher widening). Warden is
+// already invoked at SessionStart (matcher `*`), so it can remember what
+// settings.json looked like when THIS session registered and say, on any later
+// fire, that the file has moved since. Advisory only — a steer, never a block —
+// and every path is fail-quiet.
+
+/// Stamp of a file: `mtime_ns:len`. Deliberately NOT a content hash — the
+/// Python reference engine shares the stamp dir, and two engines hashing the
+/// same bytes with different algorithms would each see the other's stamp as
+/// "changed" forever. The cost is one spurious steer on a byte-identical
+/// rewrite, which is rare and one advisory line.
+fn file_stamp(p: &Path) -> Option<String> {
+    let md = std::fs::metadata(p).ok()?;
+    let ns = md
+        .modified()
+        .ok()?
+        .duration_since(UNIX_EPOCH)
+        .ok()?
+        .as_nanos();
+    Some(format!("{ns}:{}", md.len()))
+}
+
+/// Testable core: compare/record `settings_path`'s stamp for this session in
+/// `stamp_dir`. Returns the one-time steer when the file changed under a live
+/// session. SessionStart records silently; an unknown session (started before
+/// this feature) adopts silently — no false alarm it cannot substantiate.
+fn settings_staleness_at(data: &Value, settings_path: &Path, stamp_dir: &Path) -> Option<String> {
+    let sid: String = str_field(data, "session_id")
+        .chars()
+        .filter(|c| c.is_ascii_alphanumeric() || *c == '-' || *c == '_')
+        .collect();
+    if sid.is_empty() {
+        return None;
+    }
+    let cur = file_stamp(settings_path)?;
+    let _ = std::fs::create_dir_all(stamp_dir);
+    let f = stamp_dir.join(&sid);
+    if str_field(data, "hook_event_name") == "SessionStart" {
+        // prune dead sessions' stamps while here (>7 days; the dir stays small)
+        if let Ok(rd) = std::fs::read_dir(stamp_dir) {
+            let cutoff = SystemTime::now() - Duration::from_secs(7 * 24 * 3600);
+            for e in rd.flatten() {
+                if let Ok(md) = e.metadata() {
+                    if md.modified().map(|m| m < cutoff).unwrap_or(false) {
+                        let _ = std::fs::remove_file(e.path());
+                    }
+                }
+            }
+        }
+        let _ = std::fs::write(&f, &cur);
+        return None;
+    }
+    match std::fs::read_to_string(&f) {
+        Err(_) => {
+            let _ = std::fs::write(&f, &cur); // pre-feature session: adopt silently
+            None
+        }
+        Ok(prev) if prev.trim() == cur => None,
+        Ok(_) => {
+            let _ = std::fs::write(&f, &cur); // one steer per change, not per call
+            Some(format!(
+                "[warden] {} changed after this session started. A session's hook \
+                 registration is frozen at session start, so if the change touched \
+                 `hooks`, THIS session is still running the old registration — \
+                 restart (exit and relaunch/resume) to pick it up. Rule content \
+                 (rulesets, compiled IR) is NOT affected: it reloads live.",
+                settings_path.display()
+            ))
+        }
+    }
+}
+
+fn settings_staleness(data: &Value) -> Option<String> {
+    let home = std::env::var("HOME").ok()?;
+    settings_staleness_at(
+        data,
+        &PathBuf::from(home).join(".claude/settings.json"),
+        &warden_home().join("settings-stamp"),
+    )
+}
+
 /// The F131 deny sentinel — a steer carrying this prefix is a veto, converted
 /// to a real `permissionDecision: deny` at a PreToolUse event (mirror of
 /// `warden_hook.DENY_SENTINEL`).
@@ -1189,6 +1325,13 @@ pub fn run_hook() -> i32 {
             vec![]
         }),
     );
+    // Settings-registration staleness (2026-08-22) — one advisory line when
+    // settings.json moved under a live session. Fail-quiet like everything else.
+    if let Ok(Some(s)) = std::panic::catch_unwind(|| settings_staleness(&data)) {
+        log(&format!("SETTINGS-STALE steer issued (session {})",
+                     str_field(&data, "session_id")));
+        steers.push(s);
+    }
     emit(&event, &steers);
     0
 }
@@ -1367,6 +1510,38 @@ mod tests {
         );
         assert_eq!(daemon_cmd_script("python3 "), None);
         assert_eq!(daemon_cmd_script(""), None);
+    }
+
+    #[test]
+    fn settings_staleness_fires_once_per_change_and_adopts_unknown_sessions() {
+        let td = std::env::temp_dir().join(format!("warden-rs-stale-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&td);
+        std::fs::create_dir_all(&td).unwrap();
+        let settings = td.join("settings.json");
+        let stamps = td.join("stamps");
+        std::fs::write(&settings, "{\"hooks\": 1}").unwrap();
+        let start = json!({"hook_event_name": "SessionStart", "session_id": "s-1"});
+        let tool = json!({"hook_event_name": "PreToolUse", "tool_name": "Bash",
+                          "session_id": "s-1"});
+        // SessionStart records silently
+        assert_eq!(settings_staleness_at(&start, &settings, &stamps), None);
+        // unchanged file → silent
+        assert_eq!(settings_staleness_at(&tool, &settings, &stamps), None);
+        // changed file → exactly one steer, then silent again
+        std::thread::sleep(Duration::from_millis(20)); // ensure the mtime moves
+        std::fs::write(&settings, "{\"hooks\": 2}").unwrap();
+        let steer = settings_staleness_at(&tool, &settings, &stamps);
+        assert!(steer.as_deref().unwrap_or("").contains("changed after this session started"),
+                "{steer:?}");
+        assert_eq!(settings_staleness_at(&tool, &settings, &stamps), None);
+        // a session with no recorded stamp (started pre-feature) adopts silently
+        let other = json!({"hook_event_name": "PostToolUse", "tool_name": "Edit",
+                           "session_id": "s-2"});
+        assert_eq!(settings_staleness_at(&other, &settings, &stamps), None);
+        // no session id → never anything
+        assert_eq!(settings_staleness_at(&json!({"hook_event_name": "PreToolUse"}),
+                                         &settings, &stamps), None);
+        let _ = std::fs::remove_dir_all(&td);
     }
 
     #[test]

@@ -3838,6 +3838,52 @@ def chk_dispatch_link_case_drift(target, anchor_root, args):
     return "pass", "masthead link case matches disk"
 
 
+def masthead_narrative_offenders(text, stem):
+    """R-dispatch-table-06's core test over TEXT — no filesystem access. Returns
+    the doc's own masthead rows whose RIGHT cell carries narrative beyond
+    links + a ≤2-word parenthetical + code spans, as (left label, right cell)
+    pairs (right cell .strip()'d, so a pair is a stable identity for the cell).
+
+    Split out of `chk_dispatch_cell_narrative` (which formats these into its
+    verdict) so the `tool:pre` veto path (R-dispatch-guard, 2026-08-22) can run
+    the identical test against the PROPOSED content of a Write/Edit before it
+    lands on disk — one definition of "narrative cell" for both the post-write
+    audit and the pre-write deny, per Dan's instruction the same day: "change
+    the rule so that you cannot write a table with more than 2 words."
+    """
+    rows = _masthead_rows(text, stem)
+    if len(rows) < 3:
+        return []
+    marker_cells = {"...", "…", "---", "^^^", "+++", "!!!"}
+    offenders = []
+    for ln in rows[2:]:
+        cells = _row_cells(ln)
+        if not cells:
+            continue
+        if cells[0].strip() in marker_cells:
+            break
+        if len(cells) < 2:
+            continue
+        right = cells[1]
+        stripped = _WIKILINK_RE.sub("", right)
+        stripped = _MDLINK_RE.sub("", stripped)
+
+        def _short_tag(m):
+            words = m.group(1).split()
+            return "" if len(words) <= 2 else m.group(0)
+
+        stripped = re.sub(r"\(([^)]*)\)", _short_tag, stripped)
+        # A code span is a pointer, not prose. A `Ground truth` row naming
+        # `~/ob/kmr/.obsidian/` and its filenames says where the page's facts
+        # live; Dan blessed exactly that shape 2026-08-22 — "spiritually the
+        # ground truth section here is good" — in the same breath as rejecting
+        # the prose row beside it. 22 cells vault-wide are code-span-only.
+        stripped = re.sub(r"`[^`]*`", "", stripped)
+        if re.search(r"\w", stripped):
+            offenders.append((cells[0].strip(), right.strip()))
+    return offenders
+
+
 def chk_dispatch_cell_narrative(target, anchor_root, args):
     """R-dispatch-table-06 — a masthead's RIGHT cell is nearly pure links: at
     most one short (<=2 word) parenthetical tag per link, no other prose.
@@ -3878,33 +3924,8 @@ def chk_dispatch_cell_narrative(target, anchor_root, args):
     rows = _masthead_rows(text, f.stem)
     if len(rows) < 3:
         return "pass", "no self-masthead" if not rows else "no content rows"
-    marker_cells = {"...", "…", "---", "^^^", "+++", "!!!"}
-    offenders = []
-    for ln in rows[2:]:
-        cells = _row_cells(ln)
-        if not cells:
-            continue
-        if cells[0].strip() in marker_cells:
-            break
-        if len(cells) < 2:
-            continue
-        right = cells[1]
-        stripped = _WIKILINK_RE.sub("", right)
-        stripped = _MDLINK_RE.sub("", stripped)
-
-        def _short_tag(m):
-            words = m.group(1).split()
-            return "" if len(words) <= 2 else m.group(0)
-
-        stripped = re.sub(r"\(([^)]*)\)", _short_tag, stripped)
-        # A code span is a pointer, not prose. A `Ground truth` row naming
-        # `~/ob/kmr/.obsidian/` and its filenames says where the page's facts
-        # live; Dan blessed exactly that shape 2026-08-22 — "spiritually the
-        # ground truth section here is good" — in the same breath as rejecting
-        # the prose row beside it. 22 cells vault-wide are code-span-only.
-        stripped = re.sub(r"`[^`]*`", "", stripped)
-        if re.search(r"\w", stripped):
-            offenders.append(f"'{cells[0].strip()}' row: {right.strip()[:80]!r}")
+    offenders = [f"'{label}' row: {right[:80]!r}"
+                 for label, right in masthead_narrative_offenders(text, f.stem)]
     if offenders:
         return "fail", ("dispatch table right cell carries narrative beyond a short "
                         "(<=2 word) parenthetical tag — " + "; ".join(offenders[:4])

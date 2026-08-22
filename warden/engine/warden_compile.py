@@ -826,7 +826,7 @@ def _include_target(target: str) -> str:
 # one compiled source.
 ANCHOR_BASE_TRAITS = ("audit-on-write", "ob-remote-ops", "state-region", "ios",
                       "code-mirror", "pathguard", "backupguard",
-                      "ob-browser-lease")
+                      "ob-browser-lease", "dispatch-guard")
 
 
 def anchor_trait_map(vault: Path) -> dict[Path, list[str]]:
