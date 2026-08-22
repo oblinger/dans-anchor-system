@@ -360,18 +360,86 @@ def parse_backlog(backlog_file: Path) -> list[Row]:
 # and appends the QFix residual suffix.
 
 
+def _row_basename_is_own_doc(basename: str, identifier: str) -> bool:
+    """Does `basename` name the doc belonging to row `identifier`?
+
+    T581. This delegates to `audit_q`'s regexes rather than re-stating the
+    rule, because the rule is that **three naming conventions coexist in the
+    vault permanently** and any local copy of it goes stale the moment a
+    fourth appears:
+
+        F332 — Title        legacy, everything before 2026-08-02
+        TINK F332 - Title   F298, the one morning that convention lasted
+        TINK332 - Title     F300, current — the kind letter is DROPPED
+
+    What this replaced was `basename.startswith(f"{identifier} ")`, a test
+    written against the legacy form — the only one of the three that puts the
+    row's identifier at the head of the filename. Under F298 and F300 it
+    matches NOTHING, so every row minted since 2026-08-02 failed the own-doc
+    test and fell through to the caller's `matches[0]` fallback. That is
+    invisible almost everywhere, because on most rows the first arrow IS the
+    own-doc arrow — which is exactly why it survived: the fallback and the
+    correct answer agree until a row mentions another doc first.
+
+    `audit_q` hit this same stale test as `_basename_is_own_doc` and fixed it
+    2026-08-19, after C57 false-fired on eight migrated rows and C24/C48/C50
+    turned out to have been silently passing on them for the same reason. The
+    fix was never propagated here; this is that propagation.
+
+    ONE DELIBERATE DIFFERENCE from audit_q's version: the fused form carries no
+    kind letter, so `TINK575` is ambiguous between T575 and F575, and audit_q
+    resolves it by reading the target doc's H1. There is no resolved path at
+    pick time here, so the number match stands alone — which audit_q's own
+    docstring already licenses for its unresolved-link case: *slug+number is
+    unique within an anchor by construction*.
+    """
+    want = audit_q._ROW_ID_RE.match(identifier or "")
+    if not want:
+        return False
+    letter, number = want.group(1).upper(), int(want.group(2))
+    m = audit_q._OWN_DOC_LETTERED_RE.match(basename)
+    if m:
+        return m.group(1).upper() == letter and int(m.group(2)) == number
+    m = audit_q._OWN_DOC_FUSED_RE.match(basename)
+    return bool(m) and int(m.group(1)) == number
+
+
 def _pick_arrow_link(line: str, identifier: str) -> Optional[str]:
     """T012: choose the row's OWN doc among its `→ [[…]]` links — prefer the
-    LAST one whose basename opens with the row's identifier (`F230 — …` for
-    row F230), else the FIRST arrow link. A plain first-match (the old
-    `ARROW_LINK_RE.search`) picks a prose arrow on rows like F149 whose
-    own-doc arrow trails several prose arrows; plain last-match fails on
-    F220-style rows with a prose arrow after the own-doc one."""
-    matches = [m.group(1) for m in ARROW_LINK_RE.finditer(line)]
+    LAST one whose basename names the row's own doc, else the FIRST arrow
+    link. A plain first-match (the old `ARROW_LINK_RE.search`) picks a prose
+    arrow on rows like F149 whose own-doc arrow trails several prose arrows;
+    plain last-match fails on F220-style rows with a prose arrow after the
+    own-doc one.
+
+    T581 — CODE SPANS ARE STRIPPED FIRST, and that is not a nicety. A backlog
+    row may *write about* the pointer syntax, and rows about the backlog
+    machinery routinely do: T578's body says `--body` is discarded "when the
+    row carries a `→ [[doc]]` pointer". Scanning the raw line read that
+    illustration as T578's own pointer and rendered a dead `[[doc]]` link on
+    [[TINK queries]] where the row's identity belongs — on the surface Dan
+    reads, not in a log. `backlog-edit.py`'s F102 gate warns about this exact
+    hazard in its refusal text and audit-q's C57 strips spans before the same
+    scan; this was the one reader that did not.
+    """
+    # Decide on the STRIPPED line, but return text sliced from the ORIGINAL.
+    # `_strip_code_spans` replaces each span with an equal number of spaces, so
+    # the two strings are the same length and a match's offsets mean the same
+    # thing in both — which is the whole reason it pads instead of deleting.
+    #
+    # Slicing the stripped text instead would blank any code span inside a
+    # link's DISPLAY ALIAS, and rows carry those: ATT's F054 alias is
+    # ``F054 — `bridge run`: unattended remote work…``, which came back with
+    # eleven spaces where the command name belongs. Caught by diffing the old
+    # picker against the new one across every backlog in the vault before
+    # shipping — it was the only row of 3 that changed for the wrong reason.
+    stripped = _strip_code_spans(line)
+    matches = [line[m.start(1):m.end(1)] for m in ARROW_LINK_RE.finditer(stripped)]
     if not matches:
         return None
     own = [m for m in matches
-           if m.split("#")[0].split("|")[0].strip().startswith(f"{identifier} ")]
+           if _row_basename_is_own_doc(
+               m.split("#")[0].split("|")[0].strip(), identifier)]
     return own[-1] if own else matches[0]
 
 
