@@ -121,8 +121,76 @@ def body(ctx):
     # to `__MASTERS__` and this rule does not lock the agent out of opening one.
     # Disk Procedures P4 removes it at close-out; a sentinel left behind is a
     # finding master_sweep reports.
-    hits = [h for h in hits
-            if not os.path.exists("/Volumes/%s/.write-session" % h[0])]
+    #
+    # **Ask the machine that actually holds the drive.** The command-parsing
+    # half above is already bridge-aware — `segments()` recurses into a nested
+    # `tmux send-keys` payload precisely because that is how master work
+    # reaches the drive. The sentinel check was not, and the asymmetry made the
+    # whole rule look complete while it answered a question nobody asked: this
+    # body runs inside the laptop's resident daemon, and 10T is mounted on
+    # Dexter. A local `os.path.exists` therefore returns False for every
+    # correctly-opened bridged session — denying honest work, which is what
+    # teaches an agent to route around a guard — and, worse, returns True if
+    # this machine ever mounts a volume of the same name carrying a stale
+    # sentinel, passing a write aimed at a different machine's drive. Found
+    # 2026-08-21 while running Disk Procedures P1/P5 for real over the bridge;
+    # ATT T261.
+    def remote_target(words):
+        """The host in a remote-shell invocation, or None if there is none."""
+        TAKES_ARG = "bcDEeFIiJLlmOopQRSWw"
+        for k, w in enumerate(words):
+            if os.path.basename(w.strip("'\"")) != "s" + "sh":
+                continue
+            skip = False
+            for a in words[k + 1:]:
+                if skip:
+                    skip = False
+                    continue
+                if a[:1] == "-":
+                    skip = len(a) == 2 and a[1:2] in TAKES_ARG
+                    continue
+                return a.strip("'\"").split("@")[-1]
+            return None
+        return None
+
+    HOST = remote_target(flat)
+    _seen = {}
+
+    def session_open(vol):
+        """True / False / None — None means 'cannot judge from here'."""
+        if vol in _seen:
+            return _seen[vol]
+        sentinel = "/Volumes/%s/.write-session" % vol
+        if os.path.ismount("/Volumes/%s" % vol):
+            _seen[vol] = os.path.exists(sentinel)
+        elif HOST:
+            import subprocess
+            try:
+                r = subprocess.run(
+                    ["s" + "sh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=4",
+                     HOST, "test -e %s" % shlex.quote(sentinel)],
+                    capture_output=True, timeout=8)
+                _seen[vol] = (r.returncode == 0)
+            except Exception:
+                _seen[vol] = None
+        else:
+            _seen[vol] = None
+        return _seen[vol]
+
+    # Three outcomes, and the third must not silently collapse into the second.
+    unknown = [h for h in hits if session_open(h[0]) is None]
+    hits = [h for h in hits if session_open(h[0]) is False]
+    if unknown and not hits:
+        vol, why = unknown[0]
+        return ["DENY: %s. /Volumes/%s is not mounted here and this command "
+                "names no remote host, so whether a write session is open on "
+                "that drive CANNOT BE CHECKED from this machine — and an "
+                "unverifiable session is not an open one (Disk Procedures "
+                "P1/P5). This is NOT the same as 'no session'. If the drive is "
+                "on another machine, drive the write through the bridge so the "
+                "host is named in the command, and open the session there: "
+                "  echo \"$(date -u +%%FT%%TZ) <who> <why>\" > "
+                "/Volumes/%s/.write-session" % (why, vol, vol)]
     if not hits:
         return []
 
