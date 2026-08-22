@@ -13,8 +13,22 @@ DONE_FILE="$WATCH_DIR/_done"
 PYTHON="/venv/main/bin/python"
 TAG="${EXP_REMOTE_NAME:+[$EXP_REMOTE_NAME] }"
 
+# How commands get their own process group — decided once, announced once.
+# `setsid` is part of util-linux: absent on macOS entirely and on minimal
+# containers. Calling it unguarded means every command on such a host returns
+# `setsid: command not found` and exit 127 — which the watcher then reports as
+# the COMMAND's exit code, so the experiment takes the blame for the watcher.
+# `set -m` (POSIX job control) makes a backgrounded job a process-group leader
+# too, which is the only property `kill -- -$CMD_PID` below needs.
+if command -v setsid >/dev/null 2>&1; then
+    EXP_PGROUP_MODE="setsid"
+else
+    EXP_PGROUP_MODE="set -m"
+fi
+
 echo "========================================"
 echo "  ${TAG}Watcher ready.  Waiting for commands."
+echo "  ${TAG}process groups via: $EXP_PGROUP_MODE"
 echo "========================================"
 echo ""
 
@@ -43,10 +57,17 @@ while true; do
         echo ">>> ${TAG}started $(date '+%H:%M:%S')"
         echo ""
 
-        # Execute from /workspace in its own session (setsid) so killing
-        # the command can never affect the watcher process.
+        # Execute from /workspace in its OWN PROCESS GROUP so killing the
+        # command can never affect the watcher process. See EXP_PGROUP_MODE
+        # above for why this is not an unguarded `setsid`.
         cd "$WATCH_DIR"
-        setsid bash -c "$CMD" &
+        if [ "$EXP_PGROUP_MODE" = "setsid" ]; then
+            setsid bash -c "$CMD" &
+        else
+            set -m
+            bash -c "$CMD" &
+            set +m
+        fi
         CMD_PID=$!
         echo "$CMD_PID" > "$WATCH_DIR/_pid"
 
