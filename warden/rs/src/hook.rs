@@ -812,7 +812,110 @@ pub fn dispatch(data: &Value) -> Vec<String> {
             steers.extend(doc_fire(&moved, &a, "Bash", "tool:post:Bash"));
         }
     }
+
+    // F297 leg 3 — MARKDOWN a script wrote. Leg 2 above fires on
+    // `governed_paths`, which excludes markdown by construction: "markdown
+    // needs no entry, since the write hook has always seen markdown". That
+    // premise is false. The write hook sees markdown produced by the Write and
+    // Edit TOOLS; it never sees `cat > x.md`, `sed -i … x.md`, or a python
+    // heredoc. Measured 2026-08-22 — one agent logged 768 `tool:pre:Bash`
+    // against 10 Edit/Write in a day, and `OBS Setup.md` took ZERO doc-fires
+    // while its dispatch table was rewritten three times.
+    //
+    // Widening `governed_paths` to markdown is the wrong repair: `governed_moved`
+    // stats every entry on every Bash call, and the vault holds ~8k markdown
+    // files. The command string is already in hand, so read the candidates out
+    // of it and stat only those.
+    if moments.iter().any(|m| m == "tool:post:Bash") {
+        for moved in md_paths_in_command(str_field(event_ti, "command"), &cwd) {
+            let p = PathBuf::from(&moved);
+            let Some(a) = p.parent().and_then(find_anchor) else { continue };
+            if !effective(&a).iter().any(|t| t == "audit-on-write") {
+                continue;
+            }
+            steers.extend(doc_fire(&moved, &a, "Bash", "tool:post:Bash"));
+        }
+    }
     steers
+}
+
+/// Markdown paths a Bash command names that were written by it — the candidate
+/// set for F297 leg 3. See the call site for why `governed_paths` cannot serve.
+///
+/// Two filters, and both matter. **Existence** keeps a false token cheap: a
+/// non-path that happens to end `.md` costs one `stat` and never a steer.
+/// **Recency** is what separates a write from a read — `grep foo x.md` leaves
+/// mtime alone, so only a file touched during this call survives. Recency is
+/// used rather than an mtime snapshot on purpose: a snapshot cannot fire on a
+/// path's FIRST write, which is exactly the case that created a bad dispatch
+/// table in the first place.
+fn md_paths_in_command(cmd: &str, cwd: &Path) -> Vec<String> {
+    const FRESH_SECS: u64 = 20;
+    let now = std::time::SystemTime::now();
+    let chars: Vec<char> = cmd.chars().collect();
+    let mut out: Vec<String> = Vec::new();
+    let mut i = 0usize;
+    while i < chars.len() {
+        let c = chars[i];
+        // A quoted run is ONE token, spaces included — vault paths have spaces
+        // ("TINK Track/TINK Backlog.md"), so splitting on whitespace alone
+        // would shred exactly the paths this needs to see.
+        let (tok, next) = if c == '\'' || c == '"' {
+            let start = i + 1;
+            let mut j = start;
+            while j < chars.len() && chars[j] != c {
+                j += 1;
+            }
+            (chars[start..j.min(chars.len())].iter().collect::<String>(), j + 1)
+        } else if c.is_whitespace() {
+            i += 1;
+            continue;
+        } else {
+            let start = i;
+            let mut j = i;
+            while j < chars.len()
+                && !chars[j].is_whitespace()
+                && chars[j] != '\''
+                && chars[j] != '"'
+            {
+                j += 1;
+            }
+            (chars[start..j].iter().collect::<String>(), j)
+        };
+        i = next;
+        let t = tok.trim_matches(|ch: char| "<>|;&()`,:=".contains(ch));
+        if !t.ends_with(".md") {
+            continue;
+        }
+        let path = if t.starts_with('/') {
+            PathBuf::from(t)
+        } else if let Some(rest) = t.strip_prefix("~/") {
+            match std::env::var("HOME") {
+                Ok(h) => PathBuf::from(h).join(rest),
+                Err(_) => continue,
+            }
+        } else {
+            cwd.join(t)
+        };
+        let Ok(md) = std::fs::metadata(&path) else { continue };
+        if !md.is_file() {
+            continue;
+        }
+        let fresh = md
+            .modified()
+            .ok()
+            .and_then(|m| now.duration_since(m).ok())
+            .map(|d| d.as_secs() <= FRESH_SECS)
+            .unwrap_or(false);
+        if !fresh {
+            continue;
+        }
+        let s = path.to_string_lossy().to_string();
+        if !out.contains(&s) {
+            out.push(s);
+        }
+    }
+    out
 }
 
 /// One doc-fire — the daemon's audit pass over `file`, owned by anchor `afile`.

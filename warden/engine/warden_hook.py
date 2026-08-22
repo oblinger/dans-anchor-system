@@ -386,7 +386,69 @@ def dispatch(data: dict) -> list[str]:
             if owner is None or "audit-on-write" not in wf.effective_traits(ir, owner):
                 continue
             steers.extend(_doc_fire(moved, owner, "Bash", "tool:post:Bash"))
+
+    # F297 leg 3 — MARKDOWN a script wrote (mirror of `hook.rs`). Leg 2 fires on
+    # `governed_paths`, which excludes markdown by construction: "markdown needs
+    # no entry, since the write hook has always seen markdown". False — the
+    # write hook sees the Write and Edit TOOLS, never `cat > x.md`, `sed -i`, or
+    # a python heredoc. Widening `governed_paths` is the wrong repair, since
+    # `_governed_moved` stats every entry per Bash call against ~8k vault
+    # markdown files; the command string is already in hand, so read the
+    # candidates out of it and stat only those.
+    if "tool:post:Bash" in moments:
+        cmd = _str((data.get("tool_input") or {}).get("command"))
+        for moved in _md_paths_in_command(cmd, cwd):
+            owner = find_anchor(moved.parent)
+            if owner is None or "audit-on-write" not in wf.effective_traits(ir, owner):
+                continue
+            steers.extend(_doc_fire(moved, owner, "Bash", "tool:post:Bash"))
     return steers
+
+
+def _md_paths_in_command(cmd: str, cwd: Path) -> list[Path]:
+    """Markdown paths a Bash command names that were written by it.
+
+    Two filters, and both matter. **Existence** keeps a false token cheap: a
+    non-path ending `.md` costs one stat and never a steer. **Recency** is what
+    separates a write from a read — `grep foo x.md` leaves mtime alone, so only
+    a file touched during this call survives. Recency rather than an mtime
+    snapshot on purpose: a snapshot cannot fire on a path's FIRST write, which
+    is exactly the case that produced a bad dispatch table to begin with.
+    """
+    FRESH_SECS = 20
+    now = time.time()
+    out: list[Path] = []
+    i, n = 0, len(cmd)
+    while i < n:
+        c = cmd[i]
+        # A quoted run is ONE token, spaces included — vault paths have spaces
+        # ("TINK Track/TINK Backlog.md"), so splitting on whitespace alone would
+        # shred exactly the paths this needs to see.
+        if c in "'\"":
+            j = cmd.find(c, i + 1)
+            j = n if j < 0 else j
+            tok, i = cmd[i + 1:j], j + 1
+        elif c.isspace():
+            i += 1
+            continue
+        else:
+            j = i
+            while j < n and not cmd[j].isspace() and cmd[j] not in "'\"":
+                j += 1
+            tok, i = cmd[i:j], j
+        tok = tok.strip("<>|;&()`,:=")
+        if not tok.endswith(".md"):
+            continue
+        path = Path(tok).expanduser() if tok.startswith(("/", "~")) else cwd / tok
+        try:
+            st = path.stat()
+        except OSError:
+            continue
+        if not path.is_file() or (now - st.st_mtime) > FRESH_SECS:
+            continue
+        if path not in out:
+            out.append(path)
+    return out
 
 
 def _doc_fire(file: Path, owner: Path, tool: str, budget_moment: str) -> list[str]:
