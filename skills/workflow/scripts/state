@@ -3734,17 +3734,46 @@ def cmd_inbox_tag(slug, anchor_path, args):
             f"inbox-tag: no entry dated {args.date}"
             + (f" matching --topic {args.topic!r}" if args.topic else "")
             + f" in {inbox_path.name}")
-    if len(matches) > 1:
-        candidates = "; ".join(f'"{lines[i][3:][:60]}"' for i in matches)
+
+    # T583 — AN ALREADY-TAGGED ENTRY IS NOT A CANDIDATE, and the ambiguity
+    # check has to know that BEFORE it counts.
+    #
+    # Reported by Atticus 2026-08-21 from a live ATT Inbox: two same-day
+    # entries with BYTE-IDENTICAL topics ("browser lease expired and was
+    # stolen" — the second written by ctrl's new lease-steal path, so the
+    # duplication is structural rather than a typo). Tagging the first
+    # succeeded. Tagging the second counted the already-DONE first among the
+    # candidates, refused with "2 entries dated … — disambiguate with --topic",
+    # and listed a processed entry as one of the choices.
+    #
+    # `--date` and `--topic` are the ONLY selectors, so when the topics are
+    # identical there is nothing left to disambiguate WITH: the entry becomes
+    # permanently untaggable and inflates that anchor's `Inbox N` forever —
+    # a counter that can only ever go up, on the banner whose whole job is to
+    # say whether there is anything to drain.
+    #
+    # Partitioning rather than simply filtering, because the plain filter
+    # (which is what the report proposed) turns an explicit attempt to re-tag
+    # ONE processed entry into "no entry dated …", which is both wrong and
+    # less helpful than the message that already exists. So: untagged entries
+    # are the candidates; if there are none but the date did match, the
+    # already-tagged message is still what you get.
+    pending = [i for i in matches if not audit_q._INBOX_DONE_RE.search(lines[i])]
+
+    if not pending:
+        first = lines[matches[0]][3:]
         raise be.BacklogEditError(
-            f"inbox-tag: {len(matches)} entries dated {args.date} — "
+            f"inbox-tag: {first!r} already carries a status tag — "
+            f"inbox-tag never overwrites a processed entry"
+            + (f" ({len(matches)} entries matched and all are tagged)"
+               if len(matches) > 1 else ""))
+    if len(pending) > 1:
+        candidates = "; ".join(f'"{lines[i][3:][:60]}"' for i in pending)
+        raise be.BacklogEditError(
+            f"inbox-tag: {len(pending)} UNTAGGED entries dated {args.date} — "
             f"disambiguate with --topic (candidates: {candidates})")
 
-    idx = matches[0]
-    if audit_q._INBOX_DONE_RE.search(lines[idx]):
-        raise be.BacklogEditError(
-            f"inbox-tag: {lines[idx][3:]!r} already carries a status tag — "
-            f"inbox-tag never overwrites a processed entry")
+    idx = pending[0]
 
     new_line = f"{lines[idx]}    `{tag}`"
     lines[idx] = new_line

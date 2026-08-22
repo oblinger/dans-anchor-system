@@ -612,6 +612,36 @@ def warden_hook(payload):
     the same logic reached as a standalone process, and both paths run this
     function, so there is only one gate.
     """
+    # T584 — THE GATE MUST NOT MEASURE ITS OWN CHECKER.
+    #
+    # `_llm_ask_check` spawns `claude -p` to classify the agent's final message,
+    # and that subprocess ends a turn like any other, firing this same Stop
+    # hook inside itself. The recursion guard for it lives at the TOP OF
+    # `_llm_ask_check` — which stops the checker spawning another checker, and
+    # is reached far too late to stop anything else: the triage-line check and
+    # `_triage_log` run BEFORE it, so every checker stop was logged as a real
+    # agent stop.
+    #
+    # The checker emits JSON, never a TRIAGE line, so each of those is a
+    # STRUCTURALLY GUARANTEED `missing`. Measured 2026-08-21 across the 16 days
+    # of warn-mode data: 4 of the 5 real-anchor `missing` records that carry a
+    # `msg_tail` are verbatim ask-check JSON (`{"asking": ...}`), and SV logged
+    # a clean record and a checker record one second apart. `msg_tail` was
+    # added precisely so this read could tell a real defect from an artefact —
+    # it worked, and nobody had run the read.
+    #
+    # The cost is not just a noisy log. D4's whole plan is *"read the rate after
+    # a week of real use, promote to blocking once it is a known number"*, and
+    # the number was never the agents' — it was inflated by the instrument
+    # observing itself, which is why it could not be promoted. And in `enforce`
+    # mode this would BLOCK the checker's subprocess: a crank sentinel covers
+    # its cwd, so it arms, and it can never satisfy a gate that wants a TRIAGE
+    # line it has no way to print.
+    #
+    # So the guard belongs here, at the entrypoint, not one stage in.
+    if os.environ.get(LLM_RECURSION_ENV):
+        return None
+
     cwd = (payload.get("cwd") or os.getcwd()).rstrip("/")
 
     crank = _crank_sentinel_for(cwd)
