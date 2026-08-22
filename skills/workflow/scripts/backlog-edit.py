@@ -1345,6 +1345,7 @@ def _status_needs_user(status):
 
 # Matches one ` · *why-user-action: …*` trailer, greedily enough to catch a run
 # of them. Used to strip before re-appending so the annotation cannot double.
+_WHY_USER_RE = re.compile(r"(?:\s*·\s*\*why-user:[^*]*\*)+\s*$")
 _WHY_USER_ACTION_RE = re.compile(r"(?:\s*·\s*\*why-user-action:[^*]*\*)+\s*$")
 
 
@@ -2330,7 +2331,7 @@ def _row_field(lines, row_id, label):
 
 def _subbullets_to_write(status, eff_verify, eff_next, eff_user, next_text,
                          verify_text=None, probe_text=None, eff_probe=None,
-                         user_text=None, why_user_action=None):
+                         user_text=None, why_user_action=None, why_user=None):
     """Which companion sub-bullets this edit attaches, as `[(label, text), …]`.
 
     Pure, so the dispatch is pinned by tests instead of living inline in
@@ -2400,15 +2401,18 @@ def _subbullets_to_write(status, eff_verify, eff_next, eff_user, next_text,
     # exactly where a Verify question legitimately sits before its date
     # arrives, which is why the bracket was never the right thing to test.
     #
-    # Gated on `verify_text`, not `eff_verify`, for the T056 reason the blocks
-    # around it share: an ordinary re-touch must not rewrite — and thereby
+    # Gated on the caller having TOUCHED the field — `verify_text`, or
+    # `why_user`, which rewrites the trailer on it (T593, the T236 shape) —
+    # never on `eff_verify`, for the T056 reason the blocks around it share: an ordinary re-touch must not rewrite — and thereby
     # reorder, since `_ensure_subbullet` re-inserts directly under the row
     # line — a sub-bullet nobody asked to change. What it WRITES is
     # `eff_verify`, never the raw text, so the `· *why-user: …*` trailer the
     # F240 gate folded in is not silently dropped (the T236 correction, which
     # T123's raw-`verify_text` write predated).
     wrote_verify = any(lbl == "Verify" for lbl, _ in out)
-    if (not wrote_verify and verify_text is not None and verify_text.strip()
+    verify_touched = (verify_text is not None and verify_text.strip()) or (
+        why_user is not None and why_user.strip())
+    if (not wrote_verify and verify_touched
             and eff_verify and eff_verify.strip()):
         out.append(("Verify", eff_verify.strip()))
 
@@ -2965,6 +2969,17 @@ def perform_edit(
                 eff_verify = verify_ownership_gate(
                     status, row_id, eff_verify, why_user
                 )
+    elif (status != "delete" and eff_verify
+            and why_user and why_user.strip()):
+        # T593 — a row NOT in the Verify family may still carry a Verify
+        # question (a parked [Waiting] soak row holds it before its date
+        # arrives — the T560 shape), and its why-user trailer has to be
+        # reachable. The F240 REFUSAL stays scoped to rows entering the
+        # family; rewriting the annotation here is just an edit, and without
+        # this branch --why-user was accepted, threaded, and dropped — wiping
+        # any trailer the row already carried in the same write.
+        eff_verify = (_WHY_USER_RE.sub("", eff_verify).strip()
+                      + f" · *why-user: {why_user.strip()}*").strip()
 
     # F259 — user-action ownership gate. Fires when the row ENTERS [User] or
     # its `- **User:**` action is (re)written; a same-status re-touch keeps the
@@ -3059,7 +3074,7 @@ def perform_edit(
     if status not in ("same", "delete"):
         for label, text in _subbullets_to_write(
             status, eff_verify, eff_next, eff_user, next_text, verify_text,
-            probe_text, eff_probe, user_text, why_user_action
+            probe_text, eff_probe, user_text, why_user_action, why_user
         ):
             # F332 — a Next satisfied by the doc's `next::` never lands as a
             # row sub-bullet (removals, text=None, still apply).
