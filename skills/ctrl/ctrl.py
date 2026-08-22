@@ -497,9 +497,71 @@ def perform_jsearch(query: str, output_path: str = None) -> List[dict]:
         return []
 
 
+# TINK T586 — the pane this is about to type into may not be a shell.
+#
+# Anything not in this set means a program owns the pane's foreground, so
+# `send-keys` types into THAT rather than at a prompt. The most common such
+# program on this machine is `claude` itself.
+_BOX_SHELLS = {"bash", "zsh", "sh", "fish", "dash", "ksh", "tcsh", "csh"}
+
+
+def _box_occupant(session_name: str):
+    """What is running in `session_name`, or None when it is an idle shell.
+
+    WHY THIS EXISTS. On 2026-08-21 `ctrl box "<cmd>"` — used exactly as the
+    global CLAUDE.md recommends it, to start a long-running process — sent its
+    keystrokes into **a live Claude Code prompt**, because `trot` was hosting
+    an agent mid-turn. Both sends buffered into that agent's input box. It was
+    caught by reading the pane and cleared with `C-u` before the turn ended;
+    nothing was submitted, but only because someone looked.
+
+    A stray line typed at a shell is noise. A stray line typed at a Claude
+    agent that is mid-turn buffers onto its input and **submits as a user
+    instruction** when the turn ends — handing that agent a shell command as
+    though the user had asked for it. That is why this is a refusal and not a
+    warning.
+
+    Two sibling tools already do this and neither needed inventing: `bridge
+    tmux` refuses a window that is busy or was written to in the last 30s and
+    names the occupant, and `yoke zap` stages its task on disk first and pokes
+    only an idle pane. `ctrl` is the oldest and most-used of the three and was
+    the one without the guard.
+
+    Returns the foreground command name when the pane is occupied, else None.
+    Fails OPEN (returns None) when tmux cannot be asked — a broken probe must
+    not make `ctrl box` unusable.
+    """
+    try:
+        r = subprocess.run(
+            ['tmux', 'display-message', '-p', '-t', session_name,
+             '#{pane_current_command}'],
+            capture_output=True, text=True, timeout=5)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if r.returncode != 0:
+        return None
+    cmd = (r.stdout or "").strip()
+    if not cmd or cmd in _BOX_SHELLS:
+        return None
+    return cmd
+
+
 def execute_box_command(command: str, session_name: str = "trot"):
     """Execute command in a named tmux session."""
     current_dir = os.getcwd()  # Get caller's current working directory
+
+    occupant = _box_occupant(session_name)
+    if occupant:
+        print(f"⛔ ctrl box: session '{session_name}' is running "
+              f"`{occupant}`, not an idle shell — refusing to type into it.",
+              file=sys.stderr)
+        print(f"   Keystrokes sent to a busy pane land on whatever is there. "
+              f"If that is a `claude` agent they buffer onto its input and "
+              f"submit as a USER INSTRUCTION when its turn ends (T586).",
+              file=sys.stderr)
+        print(f"   Use a scratch session instead:  "
+              f"ctrl box --session <name> \"<command>\"", file=sys.stderr)
+        sys.exit(1)
 
     try:
         # Check if box session exists
@@ -2915,11 +2977,16 @@ def parse_arguments():
     trot_parser.add_argument('box_command', nargs='+', help='Command to execute')
 
     # Box command - alias for trot (backward compatibility)
-    box_parser = subparsers.add_parser('box', help='Execute command in box tmux session (alias for trot)')
+    box_parser = subparsers.add_parser('box', help='Execute command in a scratch tmux session (default: trot)')
+    box_parser.add_argument('--session', dest='session_name', default='trot',
+                            help='tmux session to run in (default: trot). Use a distinct '
+                                 'name when trot is hosting an agent — T586.')
     box_parser.add_argument('box_command', nargs='+', help='Command to execute in box')
 
     # Outbox command - get output from session
-    outbox_parser = subparsers.add_parser('outbox', help='Get output from trot/box tmux session')
+    outbox_parser = subparsers.add_parser('outbox', help='Get output from a scratch tmux session (default: trot)')
+    outbox_parser.add_argument('--session', dest='session_name', default='trot',
+                               help='tmux session to read (default: trot)')
     outbox_parser.add_argument('lines', nargs='?', type=int, default=50, help='Number of lines to retrieve (default: 50)')
 
     # Numbered box/outbox commands (box2-box9, outbox2-outbox9)
