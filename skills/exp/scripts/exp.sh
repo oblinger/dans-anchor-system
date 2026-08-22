@@ -799,6 +799,27 @@ exp-exe() {
     local timeout="${_EXP_ARGS[1]:-300}"
     local remote_tmux="watcher-$EXP_REMOTE_NAME"
 
+    # A multi-line command is REFUSED here, before any remote is contacted.
+    # _run.cmd is line 1 nonce, line 2 command, and exp-watcher.sh's read loop
+    # assigns CMD="$line" per line — so only the LAST line survives. Earlier
+    # lines are dropped, the survivor runs, and a clean exit writes "Done":
+    # the truncation is invisible from both ends. Refusing on the sender side
+    # protects every remote already running an old watcher; teaching the
+    # watcher to accumulate would only help after `exp init -r` re-pushes it.
+    # Trailing newlines are harmless (printf adds one anyway); an INTERIOR one
+    # is what truncates. Strip the tail, then test what is left.
+    local _cmd_probe="$cmd"
+    while [[ "$_cmd_probe" == *$'\n' ]]; do _cmd_probe="${_cmd_probe%$'\n'}"; done
+    if [[ "$_cmd_probe" == *$'\n'* ]]; then
+        echo ">>> [$EXP_REMOTE_NAME] ERROR: the command must be a single line." >&2
+        echo "    The remote _run.cmd protocol keeps only the LAST line, so a" >&2
+        echo "    multi-line command would run just its final line and report" >&2
+        echo "    success. Join the lines with '&&' or ';', or put the script in" >&2
+        echo "    the experiment folder and run it with one line." >&2
+        _exp-log "EXE refused-multiline remote=$EXP_REMOTE_NAME"
+        return 1
+    fi
+
     # Ensure watcher is alive on remote; restart if needed
     if ! _exp-watcher-alive; then
         echo ">>> [$EXP_REMOTE_NAME] Watcher not running. Restarting..."
