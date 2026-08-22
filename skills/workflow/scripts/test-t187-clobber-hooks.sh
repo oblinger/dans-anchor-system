@@ -18,6 +18,28 @@ export SYS_CLOBBER_SCOPE="$TMP/"
 export SYS_READ_AGE_THRESHOLD=600
 export SYS_CLOBBER_THRESHOLD=600
 
+# ── T577(A): the guard DENIES rather than warning ───────────────────────────
+#
+# Dan ruled T577 Q1 (A) on 2026-08-21. The guard's output changed shape with
+# it: instead of prose on stdout it emits the `permissionDecision: deny`
+# envelope — the surface `~/.claude/bash-guard.sh` has blocked `tccutil reset`
+# through for months, chosen over a bare `exit 2` because the whole lesson of
+# T577 is not to ship a guard down a channel nobody has watched work.
+#
+# So every assertion below asks about the DECISION, not about a substring of
+# prose. `denied` extracts the decision; `reason` extracts the explanation the
+# agent actually receives.
+denied() { printf '%s' "$1" | python3 -c 'import json,sys
+raw=sys.stdin.read().strip()
+if not raw: print("allow"); raise SystemExit
+try: print(json.loads(raw)["hookSpecificOutput"]["permissionDecision"])
+except Exception: print("malformed")'; }
+reason() { printf '%s' "$1" | python3 -c 'import json,sys
+raw=sys.stdin.read().strip()
+if not raw: raise SystemExit
+try: print(json.loads(raw)["hookSpecificOutput"]["permissionDecisionReason"])
+except Exception: pass'; }
+
 pass=0 fail=0
 ok()  { pass=$((pass+1)); }
 bad() { fail=$((fail+1)); echo "FAIL: $1"; }
@@ -56,7 +78,7 @@ out=$(printf 'not json at all' | "$READAGE"); rc=$?
 
 # cp onto a young target — the T187 incident shape — must warn.
 out=$(payload_bash "cp '$TMP/src.py' '$young'" | "$GUARD"); rc=$?
-[ $rc -eq 0 ] && case "$out" in *"[clobber-guard]"*"young file.md"*) ok ;; *) bad "guard: cp onto young target should warn (got: '$out')" ;; esac
+[ $rc -eq 0 ] && [ "$(denied "$out")" = deny ] && case "$(reason "$out")" in *"young file.md"*) ok ;; *) bad "guard: cp onto young target should warn (got: '$out')" ;; esac || bad "guard: cp onto young target should warn (got: '$out') (no deny)"
 
 # cp onto an old target — silent.
 out=$(payload_bash "cp '$TMP/src.py' '$old'" | "$GUARD"); rc=$?
@@ -64,11 +86,11 @@ out=$(payload_bash "cp '$TMP/src.py' '$old'" | "$GUARD"); rc=$?
 
 # mv onto a young target — warns.
 out=$(payload_bash "mv /tmp/x '$young'" | "$GUARD"); rc=$?
-[ $rc -eq 0 ] && case "$out" in *"[clobber-guard]"*) ok ;; *) bad "guard: mv onto young target should warn (got: '$out')" ;; esac
+[ $rc -eq 0 ] && [ "$(denied "$out")" = deny ] && ok || bad "guard: mv onto young target should warn (got: '$out')"
 
 # Redirect onto a young target — warns.
 out=$(payload_bash "echo hi > '$young'" | "$GUARD"); rc=$?
-[ $rc -eq 0 ] && case "$out" in *"[clobber-guard]"*) ok ;; *) bad "guard: > onto young target should warn (got: '$out')" ;; esac
+[ $rc -eq 0 ] && [ "$(denied "$out")" = deny ] && ok || bad "guard: > onto young target should warn (got: '$out')"
 
 # Append redirect — NOT a clobber, silent.
 out=$(payload_bash "echo hi >> '$young'" | "$GUARD"); rc=$?
@@ -95,11 +117,11 @@ rm -f "$sysf"
 
 # Compound command: safe first half, clobber second half — warns.
 out=$(payload_bash "ls -la && cp /tmp/x '$young'" | "$GUARD"); rc=$?
-[ $rc -eq 0 ] && case "$out" in *"[clobber-guard]"*) ok ;; *) bad "guard: clobber after && should warn (got: '$out')" ;; esac
+[ $rc -eq 0 ] && [ "$(denied "$out")" = deny ] && ok || bad "guard: clobber after && should warn (got: '$out')"
 
 # Relative target resolved against payload cwd — warns.
 out=$(payload_bash "cp /tmp/x 'young file.md'" | "$GUARD"); rc=$?
-[ $rc -eq 0 ] && case "$out" in *"[clobber-guard]"*) ok ;; *) bad "guard: relative target via cwd should warn (got: '$out')" ;; esac
+[ $rc -eq 0 ] && [ "$(denied "$out")" = deny ] && ok || bad "guard: relative target via cwd should warn (got: '$out')"
 
 # Unbalanced quotes — heuristic fails open, silent, exit 0.
 out=$(payload_bash "echo 'unclosed > '$young'" | "$GUARD"); rc=$?
@@ -139,7 +161,7 @@ printf '{"tool_name":"Read","tool_input":{"file_path":"%s/unrelated.md"}}\n' "$T
 
 # Sonar's exact shape: an hour-old file this session has never read.
 out=$(payload_bash_t "cp '$young' '$old'" "$transcript" | "$GUARD"); rc=$?
-[ $rc -eq 0 ] && case "$out" in *"never read it"*) ok ;; *) bad "guard: an unread old target must warn — this is the Sonar case (got: '$out')" ;; esac
+[ $rc -eq 0 ] && [ "$(denied "$out")" = deny ] && case "$(reason "$out")" in *"has not been read by this session"*) ok ;; *) bad "guard: an unread old target must warn — this is the Sonar case (got: '$out')" ;; esac || bad "guard: an unread old target must warn — this is the Sonar case (got: '$out') (no deny)"
 
 # Same file, once the transcript shows this session read it. Quiet: the
 # content being written CAN have been derived from what is there, and a guard
@@ -155,7 +177,7 @@ printf '{"tool_name":"Bash","tool_input":{"command":"ls %s"}}\n' "$TMP/mentioned
 printf 'x\n' > "$TMP/mentioned.md"
 touch -t "$(date -v-1H '+%Y%m%d%H%M.%S')" "$TMP/mentioned.md"
 out=$(payload_bash_t "cp '$young' '$TMP/mentioned.md'" "$transcript" | "$GUARD"); rc=$?
-[ $rc -eq 0 ] && case "$out" in *"never read it"*) ok ;; *) bad "guard: mentioning a path is not reading it (got: '$out')" ;; esac
+[ $rc -eq 0 ] && [ "$(denied "$out")" = deny ] && case "$(reason "$out")" in *"has not been read by this session"*) ok ;; *) bad "guard: mentioning a path is not reading it (got: '$out')" ;; esac || bad "guard: mentioning a path is not reading it (got: '$out') (no deny)"
 
 # Unknowable is not False. A missing or empty transcript must produce NO
 # warning — an absent measurement supports no claim, and a guard that shouts
@@ -175,12 +197,58 @@ out=$(payload_bash "cp '$young' '$old'" | "$GUARD"); rc=$?
 # The age warning still owns the fresh case, and says the age thing rather
 # than the provenance thing — two different findings, two different fixes.
 out=$(payload_bash_t "cp '$old' '$young'" "$transcript" | "$GUARD"); rc=$?
-[ $rc -eq 0 ] && case "$out" in *"modified"*"ago"*) ok ;; *) bad "guard: a fresh target must still get the AGE warning (got: '$out')" ;; esac
+[ $rc -eq 0 ] && [ "$(denied "$out")" = deny ] && case "$(reason "$out")" in *"was modified"*"ago"*) ok ;; *) bad "guard: a fresh target must still cite AGE, not provenance (got: '$(reason "$out")')" ;; esac || bad "guard: a fresh target was not denied"
+
+# The two branches must never converge on one message: "modified 30s ago" and
+# "has not been read" have DIFFERENT remedies (wait and merge, vs read then
+# merge), so a block carrying the wrong one sends the reader to the wrong fix.
+# Asserted on the SAME payload as the case above, which is what makes this a
+# real check rather than a second look at an empty string — the first cut of
+# this case sat before `payload_bash_t` was defined, produced no output, and
+# passed vacuously.
+case "$(reason "$out")" in
+    *"has not been read by this session"*) bad "guard: the AGE branch emitted the PROVENANCE message" ;;
+    *"was modified"*) ok ;;
+    *) bad "guard: the age branch said neither thing: '$(reason "$out")'" ;;
+esac
 
 # Out of scope stays out of scope on the new path too.
 printf 'x\n' > "$TMP/../outside.md" 2>/dev/null || true
 out=$(payload_bash_t "cp '$young' /etc/hosts" "$transcript" | "$GUARD"); rc=$?
 [ $rc -eq 0 ] && [ -z "$out" ] && ok || bad "guard: out-of-scope target must be silent on the provenance path (got: '$out')"
+
+# ── T577(A): the override, and the shape it must refuse ─────────────────────
+#
+# A blocking guard with no way past it is a trap. The escape is a REASON, not
+# an assent: `CLOBBER_OK=1` is what an override degrades into once it becomes
+# reflex, so it is rejected and falls through to the deny that tells you what
+# to type. The gate never judges whether the sentence is any good — having to
+# compose one is the entire filter.
+export SYS_CLOBBER_LOG_DIR="$TMP/clobberlog"
+
+out=$(payload_bash_t "CLOBBER_OK=1 cp '$young' '$old'" "$transcript" | "$GUARD")
+[ "$(denied "$out")" = deny ] && ok || bad "guard: a bare CLOBBER_OK=1 must not pass"
+
+out=$(payload_bash_t "CLOBBER_OK=true cp '$young' '$old'" "$transcript" | "$GUARD")
+[ "$(denied "$out")" = deny ] && ok || bad "guard: CLOBBER_OK=true must not pass"
+
+out=$(payload_bash_t "CLOBBER_OK='generated artefact, rebuilt wholesale every run' cp '$young' '$old'" "$transcript" | "$GUARD")
+[ -z "$out" ] && ok || bad "guard: a reasoned CLOBBER_OK must allow (got: '$out')"
+
+# The record is the half that makes a blocking guard reviewable — T577's whole
+# finding was that nobody could tell whether the advisory had ever spoken, and
+# shipping a BLOCKING version with the same blind spot repeats it at higher
+# cost. Blocks and overrides both land, and the override carries its reason.
+log="$TMP/clobberlog/refusals.jsonl"
+[ -s "$log" ] && ok || bad "guard: nothing was written to the refusal log"
+grep -q '"kind": *"block:' "$log" && ok || bad "guard: no block recorded in the log"
+grep -q '"kind": *"override:' "$log" && ok || bad "guard: no override recorded in the log"
+grep -q 'rebuilt wholesale every run' "$log" && ok || bad "guard: the override reason was not recorded"
+
+# Logging must never be the thing that blocks a command.
+SYS_CLOBBER_LOG_DIR=/dev/null/nope \
+  out=$(SYS_CLOBBER_LOG_DIR=/dev/null/nope payload_bash_t "cp '$young' '$old'" "$transcript" | "$GUARD")
+[ "$(denied "$out")" = deny ] && ok || bad "guard: an unwritable log changed the verdict"
 
 echo "t187-clobber-hooks: $pass passed, $fail failed"
 [ $fail -eq 0 ]
