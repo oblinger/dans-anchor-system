@@ -36,6 +36,13 @@ MUSE_LOG_FILE="${MUSE_LOG_FILE:-$HOME/ob/kmr/Log/MUSE/Log Muse.md}"
 MUSE_JPR_DIR="${MUSE_JPR_DIR:-$HOME/Library/Mobile Documents/iCloud~com~openplanetsoftware~Just-Press-Record/Documents}"
 MUSE_INLINE_MAX_CHARS="${MUSE_INLINE_MAX_CHARS:-80}"
 MUSE_NOTIFICATION_SOUND="${MUSE_NOTIFICATION_SOUND:-Tink}"
+# Off by default (Dan, 2026-08-23): the banner fires once per INGESTED
+# recording, not once per sweep, so a run of memos produces a run of
+# popups with a chime each. The ingest is already visible where it
+# matters -- a bullet in Quick.md and a line in Log Muse.md -- so the
+# notification was duplicating a signal the user already gets, on the
+# one channel that interrupts. Set MUSE_NOTIFY=1 to bring it back.
+MUSE_NOTIFY="${MUSE_NOTIFY:-0}"
 # Suppression thresholds for accidental / low-content recordings (per user
 # 2026-07-14; three-part predicate per F001 2026-07-17). Suppressed items
 # STILL write the item file + hashfile entry (audio history preserved, no
@@ -452,6 +459,7 @@ EOF
 
 notify() {
     local msg="$1"
+    [[ "$MUSE_NOTIFY" == "1" ]] || return 0
     osascript -e "display notification \"$msg\" with title \"MUSE\" sound name \"$MUSE_NOTIFICATION_SOUND\"" 2>/dev/null || true
 }
 

@@ -87,7 +87,8 @@ Environment variables — read in-process by the ingest script:
 | `MUSE_CLAUDE_SESSION` | `SYS` | tmux session name `_muse_do` injects into |
 | `MUSE_ACTIVATE_APP` | `Terminal` | AppleScript app `_muse_do` brings to the front |
 | `MUSE_INLINE_MAX_CHARS` | `80` | Short-vs-long threshold. `≤` this many chars → raw-text bullet, no link. `>` → Markdown link with title text |
-| `MUSE_NOTIFICATION_SOUND` | `Tink` | macOS notification chime |
+| `MUSE_NOTIFY` | `0` | macOS notification on ingest. **Off by default** (Dan, 2026-08-23) — it fired once per ingested recording, so a run of memos meant a run of banners; the ingest already shows up in `Quick.md` and `Log Muse.md`. Set `1` to restore. |
+| `MUSE_NOTIFICATION_SOUND` | `Tink` | macOS notification chime (only when `MUSE_NOTIFY=1`) |
 | `MUSE_JPR_DIR` | `~/Library/Mobile Documents/iCloud~com~openplanetsoftware~Just-Press-Record/Documents` | Root scanned by `muse ingest --sweep` |
 | `WHISPER_BIN` / `WHISPER_MODEL` / `FFMPEG_BIN` | (mirrors VOX) | Consumed by `_transcribe` |
 | `ANTHROPIC_KEY_FILE` | `~/.config/anthropic/api_key` | Consumed by `_askAI` |
