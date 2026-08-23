@@ -35,8 +35,8 @@ for rid, code in blocks:
     ns = {}
     exec(code, ns)
     bodies[rid] = ns["body"]
-assert set(bodies) == {"R-dispatch-guard-01", "R-dispatch-guard-02",
-                       "R-dispatch-guard-03"}, bodies.keys()
+assert {"R-dispatch-guard-01", "R-dispatch-guard-02",
+        "R-dispatch-guard-03", "R-dispatch-guard-04"} <= set(bodies), bodies.keys()
 
 def ctx(tool_input, cwd=""):
     ev = types.SimpleNamespace(input=tool_input)
@@ -102,6 +102,57 @@ check("edit minting a fresh prose cell denies", True,
 cmd = "cat > '" + str(f) + "' <<'EOF'\n" + DIRTY + "EOF"
 check("bash full-masthead rewrite of dirty spine denies", True,
       bodies["R-dispatch-guard-03"](ctx({"command": cmd})))
+
+assert "R-dispatch-guard-04" in bodies or True  # loaded below if present
+# --- -04: the Atticus channel — inline python write to a DIRTY spine ---
+if "R-dispatch-guard-04" in bodies:
+    atticus_cmd = ("cd '" + str(tmp) + "'; python3 - <<'PY'\n"
+                   "import pathlib,re\n"
+                   "p=pathlib.Path('Probe.md'); lines=p.read_text().splitlines()\n"
+                   "p.write_text('\\n'.join(reversed(lines)))\n"
+                   "PY")
+    f.write_text(DIRTY)
+    # 8. python-heredoc write naming a dirty-spine file -> DENY
+    check("opaque python write to dirty spine denies (the OBS Setup case)", True,
+          bodies["R-dispatch-guard-04"](ctx({"command": atticus_cmd}, cwd=str(tmp))))
+    # 9. read-only command naming the same dirty file (no write indicator) passes
+    check("read-only sed -n on dirty spine passes", False,
+          bodies["R-dispatch-guard-04"](ctx({"command":
+              "sed -n '1,5p' '" + str(f) + "'"}, cwd=str(tmp))))
+    # 10. same opaque write once the spine is clean passes
+    f.write_text(CLEAN)
+    check("opaque python write to CLEAN spine passes", False,
+          bodies["R-dispatch-guard-04"](ctx({"command": atticus_cmd}, cwd=str(tmp))))
+    f.write_text(DIRTY)
+    # 11. sed -i on the dirty file denies
+    check("sed -i on dirty spine denies", True,
+          bodies["R-dispatch-guard-04"](ctx({"command":
+              "sed -i '' 's/Track/Trk/' '" + str(f) + "'"}, cwd=str(tmp))))
+
+    # 12. THE LIVE MISS (2026-08-22 20:0x): cd into the folder, then a
+    #     relative filename inside the python payload — the session cwd is
+    #     elsewhere, so only cd-following resolves the target.
+    f.write_text(DIRTY)
+    cd_cmd = ("cd '" + str(tmp) + "'; python3 - <<'PY'\n"
+              "import pathlib\n"
+              "p=pathlib.Path('Probe.md'); lines=p.read_text().splitlines()\n"
+              "p.write_text('\\n'.join(reversed(lines)))\nPY")
+    check("cd + relative python write to dirty spine denies", True,
+          bodies["R-dispatch-guard-04"](ctx({"command": cd_cmd},
+                                            cwd="/somewhere/else")))
+
+    # 13. The second live miss: cd "$VAR/..." — a literal env var in the cd
+    #     target that expanduser never resolves.
+    import os
+    os.environ["GUARD_T13_DIR"] = str(tmp)
+    f.write_text(DIRTY)
+    var_cmd = ("cd \"$GUARD_T13_DIR\"; python3 - <<'PY'\n"
+               "import pathlib\n"
+               "p=pathlib.Path('Probe.md')\n"
+               "p.write_text(p.read_text())\nPY")
+    check("cd $VAR + relative python write to dirty spine denies", True,
+          bodies["R-dispatch-guard-04"](ctx({"command": var_cmd},
+                                            cwd="/somewhere/else")))
 
 print(f"{sum(results)}/{len(results)} passed")
 sys.exit(0 if all(results) else 1)

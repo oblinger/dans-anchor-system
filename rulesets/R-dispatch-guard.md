@@ -169,8 +169,7 @@ def body(ctx):
         sess = getattr(getattr(ctx, "agent", None), "_session", None) or {}
         sess_cwd = sess.get("cwd") or ""
         for t in cands:
-            if t.startswith("~/"):
-                t = os.path.expanduser(t)
+            t = os.path.expanduser(os.path.expandvars(t))
             p = Path(t)
             if not p.is_absolute():
                 if not sess_cwd:
@@ -217,3 +216,121 @@ def body(ctx):
 Best-effort by construction — the command string is all a Bash pre-hook has. **What it catches:** a heredoc or quoted-payload command whose text contains the target file's own identity cell (`-[[stem…]]-`) plus offending rows — the full-masthead rewrite, which is the form the measured misses actually took. **Stated residue, deliberately accepted:** (1) a script that *computes* the content (`python3 gen.py`) is invisible pre-hoc — it is caught post-hoc by the F297 leg-3 doc-fire steer instead; (2) a `sed -i`/append of a single row without the identity cell in the command falls through to the same post-hoc steer; (3) a `<<-`-style tab-indented heredoc misses the line-anchored row regex. Tightening any of these means denying commands whose effect cannot be seen, which fails the fail-open bar.
 
 **Why:** without this leg, "cannot write" would be true of the polite tools only — and the same day's measurement showed one agent at 768 Bash calls against 10 Edit/Write.
+
+### RULE R-dispatch-guard-04 — an opaque Bash write aimed at a dirty spine is denied (when:: tool:pre:Bash)
+
+```python
+def body(ctx):
+    ev = getattr(ctx, "event", None)
+    inp = getattr(ev, "input", None) or {}
+    cmd = inp.get("command") or ""
+    if ".md" not in cmd:
+        return []
+    # Write-indicator tokens: the command itself carries a raw write mechanism.
+    # Sanctioned generators (state, md-toc, audit-dispatch, queries-render)
+    # pass naturally — their command lines name a script, not a write call.
+    inds = ("write_text(", ".write(", "writelines", "sed -i", "perl -i",
+            "tee ", "shutil.", "os.rename", "os.replace", ">>", ">")
+    if not any(i in cmd for i in inds) and " mv " not in f" {cmd}"             and " cp " not in f" {cmd}" and not cmd.startswith(("mv ", "cp ")):
+        return []
+    try:
+        from pathlib import Path
+        import os
+        import re
+        # Quoted spans are scanned ANYWHERE in the command — not only at
+        # whitespace boundaries — because the escape this rule closes names
+        # its target as pathlib.Path('OBS Setup.md'): a greedy \S+ token walk
+        # eats straight through those quotes and never sees the filename.
+        cands = []
+        for pat in (r"'([^']+\.(?:md|markdown))'",
+                    r'"([^"]+\.(?:md|markdown))"'):
+            for t in re.findall(pat, cmd, re.I):
+                if t not in cands:
+                    cands.append(t)
+        for t in re.findall(r"(\S+)", cmd):
+            t = t.strip("<>|;&()`,:='\"")
+            if t.lower().endswith((".md", ".markdown")) and t not in cands:
+                cands.append(t)
+        if not cands:
+            return []
+        import warden_docfire as wdf
+        wdf.refresh_audit_plan()
+        ap = wdf.ap
+        sess = getattr(getattr(ctx, "agent", None), "_session", None) or {}
+        sess_cwd = sess.get("cwd") or ""
+        # Follow `cd` inside the command (the R-ob-commons lesson, 7882d729):
+        # the escape's real shape is `cd '<dir>'; python3 - <<PY ...
+        # Path('OBS Setup.md')` — relative to the cd target, NOT the session
+        # cwd, and resolving against the session cwd finds nothing and
+        # fail-opens. Best-effort: the LAST cd before the write wins.
+        eff_cwd = sess_cwd
+        cds = re.findall(r"(?:^|[;&|]|&&|\|\|)\s*cd\s+(?:'([^']+)'"
+                         r"|\"([^\"]+)\"|([^\s;&|]+))", cmd)
+        if cds:
+            a, b, c = cds[-1]
+            # expandvars first (R-ob-commons 7882d729's other half): the
+            # live escape wrote `cd "$HOME/ob/..."` — a literal $HOME that
+            # expanduser alone never resolves.
+            d = os.path.expanduser(os.path.expandvars(a or b or c))
+            if not os.path.isabs(d) and eff_cwd:
+                d = os.path.join(eff_cwd, d)
+            if os.path.isdir(d):
+                eff_cwd = d
+        for t in cands:
+            t = os.path.expanduser(os.path.expandvars(t))
+            p = Path(t)
+            if not p.is_absolute():
+                # Try the cd-derived cwd first, then the session cwd.
+                resolved = None
+                for base in (eff_cwd, sess_cwd):
+                    if base and (Path(base) / p).is_file():
+                        resolved = Path(base) / p
+                        break
+                if resolved is None:
+                    continue
+                p = resolved
+            if not p.is_file():
+                continue
+            try:
+                disk = p.read_text(encoding="utf-8")
+            except OSError:
+                continue
+            # Only spine-bearing pages, and only while the DISK spine is
+            # already illegal. A write mechanism aimed at such a page cannot
+            # be inspected pre-hoc (the content is computed at run time), so
+            # while the spine is dirty the opaque channel is closed entirely.
+            offenders = ap.masthead_narrative_offenders(disk, p.stem)
+            if not offenders:
+                continue
+            # A genuinely read-only naming of the file beside an unrelated
+            # redirect is the accepted false-positive cost; the deny message
+            # names the clean escape (Edit/Write) in one line.
+            anchor = next((d for d in [p.parent, *p.parent.parents]
+                           if (d / ".anchor").is_file()), None)
+            if anchor is not None:
+                excs, _, _ = ap.load_exceptions(anchor)
+                if excs and (ap._exception_for(excs, "R-dispatch-table-06", p, anchor)
+                             or ap._exception_for(excs, "R-dispatch-guard-04", p, anchor)):
+                    continue
+            rows = "; ".join(f"{lbl} row: {right[:60]!r}"
+                             for lbl, right in offenders[:2])
+            return ["DENY: " + p.name + " carries an ILLEGAL spine (more than 2 "
+                    "words in a row — " + rows + "), and this command writes it "
+                    "through a channel the guard cannot inspect (inline python / "
+                    "sed -i / redirect / mv). While the spine is dirty, opaque "
+                    "writes to the page are refused outright — this is the exact "
+                    "channel Atticus used to keep editing an illegal spine on "
+                    "2026-08-22. Clean the spine FIRST via the Edit tool (move "
+                    "each sentence to the destination page's own head/description "
+                    "or this doc's ## Overview — `warden mend R-dispatch-table-06` "
+                    "— leaving pure links), then the page is writable again. "
+                    "Deliberate deviation → a graded row (A–C) in the anchor's "
+                    "`{slug} Exceptions.md`."]
+        return []
+    except Exception:
+        return []  # fail-open: a guard bug must never block a command
+```
+
+The closing of the measured escape: -03 inspects a command's *payload* and therefore only sees full-masthead heredocs, so a `python3 - <<'PY'` that reads the file, rearranges lines, and `write_text`s the result was invisible — and that is precisely how Atticus reordered [[OBS Setup]]'s spine four times on 2026-08-22 while its `Related` row stood illegal (transcript `d375418e`, 19:58:48 among others; zero warden events, because the pre-hook had nothing to test and the file field of a Bash event is empty). This rule does not try to compute the result; it refuses the *channel*: a command that names a spine-bearing `.md` whose ON-DISK masthead is already illegal, and that carries a raw write mechanism (`write_text` / `.write(` / `sed -i` / `perl -i` / `tee` / redirect / `mv`/`cp` onto it), is denied until the spine is cleaned through an inspectable tool. A clean spine reopens the opaque channel (sanctioned generators and ordinary scripting keep working); re-dirtying through it is the stated remaining residue, caught post-hoc by the F297 doc-fire and re-frozen at the next touch.
+
+**Why:** Dan, on finding the escape: *"I don't care what happened. I care that it's still not fixed … I would like you to try to reorder the spine in this document and find yourself blocked for it."* The acceptance test for this rule is exactly that — an Edit-tool reorder of a dirty spine is refused by -02, and the python-heredoc replay of Atticus's own command shape is refused here.
