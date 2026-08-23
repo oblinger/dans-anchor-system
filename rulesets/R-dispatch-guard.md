@@ -1,6 +1,6 @@
 # RULESET R-dispatch-guard
 include::
-description:: The `tool:pre` veto twin of [[R-dispatch-table]]-06 — a Write/Edit (and, best-effort, a Bash heredoc) that would put more than 2 words in a row in a masthead RIGHT cell is **denied** before the bytes land, not advised after. Rides `anchor-base`. Ratcheted: only a NEW offending cell denies, so the 1,374-cell legacy corpus stays editable and cleanable.
+description:: The `tool:pre` veto twin of [[R-dispatch-table]]-06 — a Write/Edit (and, best-effort, a Bash heredoc) that would put more than 2 words in a row in a masthead RIGHT cell is **denied** before the bytes land, not advised after. Rides `anchor-base`. Touch means clean (ratchet removed 2026-08-22): any write that emits or changes a spine must leave the WHOLE spine legal, legacy cells included; only body-only Edits pass on a dirty doc.
 
 > [!info] Provenance
 > Commissioned by Dan 2026-08-22: *"let's just change the rule so that you cannot write a table with more than 2 words … ideally 0 words. But if modifiers are critical, you can add them, but it can't be more than two words. Let's just see what happens when the system is forced to do that."* The doc-rule flip (`warn`→`fail` on R-dispatch-table-06) the same day only produced a post-write advisory the writing agent could ignore — "cannot write" requires the F131 veto path (`tool:pre` + `DENY: `), which is this ruleset. Same relationship as [[R-pathguard]] (deny) to [[R-state-region]] (advisory): the doc-rule names the law, this ruleset blocks the act.
@@ -9,7 +9,7 @@ description:: The `tool:pre` veto twin of [[R-dispatch-table]]-06 — a Write/Ed
 >
 > **One definition of a violating cell, shared.** All three bodies call `audit-plan.masthead_narrative_offenders(text, stem)` — the exact function `chk_dispatch_cell_narrative` (the R-dispatch-table-06 checker) formats its verdict from — via the daemon-resident `warden_docfire.ap` binding, which `refresh_audit_plan()` keeps current. The deny and the audit can therefore never disagree about what a violation is.
 >
-> **The ratchet.** Deny only when the PROPOSED content contains an offending `(left label, right cell)` pair the CURRENT file does not. An edit elsewhere in a legacy-violating doc passes; deleting or trimming prose passes; only introducing (or rewording — a reword is a fresh chance to obey) a prose cell is refused. Without this, every one of the 361 legacy docs would be frozen — uneditable AND uncleanable.
+> **Touch means clean — the ratchet is gone.** The original ship kept a ratchet (only a NEW offending cell denied) so the 361 legacy docs stayed editable. It lasted hours: Atticus added a clean links-only row to [[ATT]]'s spine while two illegal cells stood beside it, and the guard waved it through — Dan, same day: *"Atticus can edit his spine even though it's completely illegal. I don't understand how you can think this is fixed."* The rule now: **-01 Write** denies whenever the proposed bytes carry any offending cell (a Write emits the whole masthead — legacy prose rides along and is refused with it; body-only work belongs in Edit); **-02 Edit** denies when the result carries any offender AND the edit changed the masthead region — a body-only edit on a dirty doc still passes; **-03 Bash** (full-masthead writes only) denies on any offender, even a byte-identical re-emit. A dirty legacy doc is therefore body-editable via Edit, and its spine is cleanable — but its spine cannot be modified without being fully cleaned.
 >
 > **The escape is the exception table** ([[R-exception-discipline]], grades A–C suppress), consulted against `R-dispatch-table-06` first (the law being enforced) and this ruleset's own rule id second — a row that suppresses the audit also unlocks the write, one record for both surfaces.
 >
@@ -37,16 +37,11 @@ def body(ctx):
         after = ap.masthead_narrative_offenders(proposed, p.stem)
         if not after:
             return []
-        before = []
-        if p.is_file():
-            try:
-                before = ap.masthead_narrative_offenders(
-                    p.read_text(encoding="utf-8"), p.stem)
-            except OSError:
-                before = []
-        new = [o for o in after if o not in before]
-        if not new:
-            return []  # ratchet: no NEW offense — legacy docs stay editable
+        # NO ratchet (removed 2026-08-22, the ATT.md escape): a Write emits the
+        # whole masthead, so legacy prose rides along in the proposed bytes and
+        # is refused with it — touch means clean. Body-only work belongs in
+        # the Edit tool, which passes when the spine region is untouched.
+        new = after
         anchor = next((d for d in [p.parent, *p.parent.parents]
                        if (d / ".anchor").is_file()), None)
         if anchor is not None:
@@ -55,15 +50,16 @@ def body(ctx):
                          or ap._exception_for(excs, "R-dispatch-guard-01", p, anchor)):
                 return []
         rows = "; ".join(f"{lbl} row: {right[:70]!r}" for lbl, right in new[:3])
-        return ["DENY: this write puts prose in a dispatch-table RIGHT cell — "
-                + rows + ". A spine right cell never carries more than 2 words in a "
-                "row — links, code spans, and <=2-word tags only "
+        return ["DENY: this write emits a spine carrying more than 2 words in a "
+                "row — " + rows + ". Touch means clean: every offending cell "
+                "must be legal in the same write, legacy ones included "
                 "(R-dispatch-table-06; Dan 2026-08-22: 'a hard rule that says you "
                 "can't write a spine that has more than 2 words in a row'). "
-                "Move the sentence to the "
-                "destination page's own head/description or this doc's ## Overview "
-                "(`warden mend R-dispatch-table-06`), then rewrite the row as pure "
-                "links. Deliberate deviation → a graded row (A–C) in the anchor's "
+                "Move each sentence to the destination page's own head/description "
+                "or this doc's ## Overview (`warden mend R-dispatch-table-06`), "
+                "then rewrite the rows as pure links — or use the Edit tool for "
+                "body-only changes, which passes when the spine is untouched. "
+                "Deliberate deviation → a graded row (A–C) in the anchor's "
                 "`{slug} Exceptions.md`."]
     except Exception:
         return []  # fail-open: a guard bug must never block a write
@@ -106,10 +102,14 @@ def body(ctx):
         after = ap.masthead_narrative_offenders(proposed, p.stem)
         if not after:
             return []
-        before = ap.masthead_narrative_offenders(text, p.stem)
-        new = [o for o in after if o not in before]
-        if not new:
-            return []  # ratchet: untouched legacy prose never blocks the edit
+        # NO per-cell ratchet (removed 2026-08-22, the ATT.md escape: adding a
+        # clean row beside two legacy-illegal cells sailed through). The gate
+        # is now the masthead REGION: a body-only edit leaves the spine's rows
+        # byte-identical and passes even on a dirty doc — the moment the edit
+        # changes any spine row, the whole spine must come out legal.
+        if ap._masthead_rows(proposed, p.stem) == ap._masthead_rows(text, p.stem):
+            return []
+        new = after
         anchor = next((d for d in [p.parent, *p.parent.parents]
                        if (d / ".anchor").is_file()), None)
         if anchor is not None:
@@ -118,21 +118,21 @@ def body(ctx):
                          or ap._exception_for(excs, "R-dispatch-guard-02", p, anchor)):
                 return []
         rows = "; ".join(f"{lbl} row: {right[:70]!r}" for lbl, right in new[:3])
-        return ["DENY: this edit puts prose in a dispatch-table RIGHT cell — "
-                + rows + ". A spine right cell never carries more than 2 words in a "
-                "row — links, code spans, and <=2-word tags only "
-                "(R-dispatch-table-06; Dan 2026-08-22: 'a hard rule that says you "
-                "can't write a spine that has more than 2 words in a row'). "
-                "Move the sentence to the "
-                "destination page's own head/description or this doc's ## Overview "
-                "(`warden mend R-dispatch-table-06`), then rewrite the row as pure "
-                "links. Deliberate deviation → a graded row (A–C) in the anchor's "
-                "`{slug} Exceptions.md`."]
+        return ["DENY: this edit touches a spine that carries more than 2 words "
+                "in a row — " + rows + ". Touch means clean: an edit that "
+                "changes any spine row must leave the WHOLE spine legal, legacy "
+                "cells included (R-dispatch-table-06; Dan 2026-08-22: 'a hard "
+                "rule that says you can't write a spine that has more than 2 "
+                "words in a row'). Clean the offending cells in this same edit — "
+                "move each sentence to the destination page's own head/description "
+                "or this doc's ## Overview (`warden mend R-dispatch-table-06`) and "
+                "leave pure links. Deliberate deviation → a graded row (A–C) in "
+                "the anchor's `{slug} Exceptions.md`."]
     except Exception:
         return []  # fail-open: a guard bug must never block an edit
 ```
 
-Applies the Edit's own `old_string → new_string` replacement to the current file in memory and denies iff the RESULT carries a masthead-prose cell the current file does not. The comparison is against the whole-file outcome, so an edit that merely moves existing prose rows around without adding one passes, and an edit that rewords a prose cell is denied — a reword is a fresh chance to obey the rule.
+Applies the Edit's own `old_string → new_string` replacement to the current file in memory and denies iff the RESULT carries any offending cell AND the masthead region changed. Body-only edits pass on a dirty doc; any edit that changes a spine row — adding a clean one included — must leave the whole spine legal.
 
 **Why:** same as -01; Edit is the tool that actually rewrote `OBS Setup.md`'s table three times on 2026-08-22 with zero pushback at the moment of writing.
 
@@ -185,16 +185,11 @@ def body(ctx):
             after = ap.masthead_narrative_offenders(cmd, stem)
             if not after:
                 continue
-            before = []
-            if p.is_file():
-                try:
-                    before = ap.masthead_narrative_offenders(
-                        p.read_text(encoding="utf-8"), stem)
-                except OSError:
-                    before = []
-            new = [o for o in after if o not in before]
-            if not new:
-                continue
+            # NO ratchet (removed 2026-08-22): this leg only sees full-masthead
+            # writes, and writing the whole spine while any cell is illegal is
+            # the violation itself — even a byte-identical re-emit of legacy
+            # prose. Touch means clean.
+            new = after
             base = p.parent  # p is absolute by here (relative targets skipped)
             anchor = next((d for d in [base, *base.parents]
                            if (d / ".anchor").is_file()), None)
