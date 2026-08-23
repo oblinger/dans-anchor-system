@@ -1,11 +1,13 @@
 # RULESET R-dispatch-guard
 include::
-description:: The `tool:pre` veto twin of [[R-dispatch-table]]-06 — a Write/Edit (and, best-effort, a Bash heredoc) that would put narrative prose in a masthead RIGHT cell is **denied** before the bytes land, not advised after. Rides `anchor-base`. Ratcheted: only a NEW offending cell denies, so the 1,374-cell legacy corpus stays editable and cleanable.
+description:: The `tool:pre` veto twin of [[R-dispatch-table]]-06 — a Write/Edit (and, best-effort, a Bash heredoc) that would put more than 2 words in a row in a masthead RIGHT cell is **denied** before the bytes land, not advised after. Rides `anchor-base`. Ratcheted: only a NEW offending cell denies, so the 1,374-cell legacy corpus stays editable and cleanable.
 
 > [!info] Provenance
 > Commissioned by Dan 2026-08-22: *"let's just change the rule so that you cannot write a table with more than 2 words … ideally 0 words. But if modifiers are critical, you can add them, but it can't be more than two words. Let's just see what happens when the system is forced to do that."* The doc-rule flip (`warn`→`fail` on R-dispatch-table-06) the same day only produced a post-write advisory the writing agent could ignore — "cannot write" requires the F131 veto path (`tool:pre` + `DENY: `), which is this ruleset. Same relationship as [[R-pathguard]] (deny) to [[R-state-region]] (advisory): the doc-rule names the law, this ruleset blocks the act.
 >
-> **One definition of "narrative cell", shared.** All three bodies call `audit-plan.masthead_narrative_offenders(text, stem)` — the exact function `chk_dispatch_cell_narrative` (the R-dispatch-table-06 checker) formats its verdict from — via the daemon-resident `warden_docfire.ap` binding, which `refresh_audit_plan()` keeps current. The deny and the audit can therefore never disagree about what a violation is.
+> **The criterion is a flat word-run cap, hardened 2026-08-22.** Dan, declining the F594 adaptive-tuning path for this rule: *"I was happy to just have a hard rule that says you can't write a spine that has more than 2 words in a row in it … it's just gonna be harsh on that point at this stage."* Links and code spans break a run and count zero; any third consecutive word — parenthesized or not — is a violation.
+>
+> **One definition of a violating cell, shared.** All three bodies call `audit-plan.masthead_narrative_offenders(text, stem)` — the exact function `chk_dispatch_cell_narrative` (the R-dispatch-table-06 checker) formats its verdict from — via the daemon-resident `warden_docfire.ap` binding, which `refresh_audit_plan()` keeps current. The deny and the audit can therefore never disagree about what a violation is.
 >
 > **The ratchet.** Deny only when the PROPOSED content contains an offending `(left label, right cell)` pair the CURRENT file does not. An edit elsewhere in a legacy-violating doc passes; deleting or trimming prose passes; only introducing (or rewording — a reword is a fresh chance to obey) a prose cell is refused. Without this, every one of the 361 legacy docs would be frozen — uneditable AND uncleanable.
 >
@@ -54,9 +56,11 @@ def body(ctx):
                 return []
         rows = "; ".join(f"{lbl} row: {right[:70]!r}" for lbl, right in new[:3])
         return ["DENY: this write puts prose in a dispatch-table RIGHT cell — "
-                + rows + ". A masthead right cell is links plus at most a 2-word "
-                "parenthetical (R-dispatch-table-06; Dan 2026-08-22: 'you cannot "
-                "write a table with more than 2 words'). Move the sentence to the "
+                + rows + ". A spine right cell never carries more than 2 words in a "
+                "row — links, code spans, and <=2-word tags only "
+                "(R-dispatch-table-06; Dan 2026-08-22: 'a hard rule that says you "
+                "can't write a spine that has more than 2 words in a row'). "
+                "Move the sentence to the "
                 "destination page's own head/description or this doc's ## Overview "
                 "(`warden mend R-dispatch-table-06`), then rewrite the row as pure "
                 "links. Deliberate deviation → a graded row (A–C) in the anchor's "
@@ -115,9 +119,11 @@ def body(ctx):
                 return []
         rows = "; ".join(f"{lbl} row: {right[:70]!r}" for lbl, right in new[:3])
         return ["DENY: this edit puts prose in a dispatch-table RIGHT cell — "
-                + rows + ". A masthead right cell is links plus at most a 2-word "
-                "parenthetical (R-dispatch-table-06; Dan 2026-08-22: 'you cannot "
-                "write a table with more than 2 words'). Move the sentence to the "
+                + rows + ". A spine right cell never carries more than 2 words in a "
+                "row — links, code spans, and <=2-word tags only "
+                "(R-dispatch-table-06; Dan 2026-08-22: 'a hard rule that says you "
+                "can't write a spine that has more than 2 words in a row'). "
+                "Move the sentence to the "
                 "destination page's own head/description or this doc's ## Overview "
                 "(`warden mend R-dispatch-table-06`), then rewrite the row as pure "
                 "links. Deliberate deviation → a graded row (A–C) in the anchor's "
@@ -199,9 +205,10 @@ def body(ctx):
                     continue
             rows = "; ".join(f"{lbl} row: {right[:70]!r}" for lbl, right in new[:3])
             return ["DENY: this command writes prose into a dispatch-table RIGHT "
-                    "cell of " + p.name + " — " + rows + ". A masthead right cell "
-                    "is links plus at most a 2-word parenthetical "
-                    "(R-dispatch-table-06). Move the sentence to the destination "
+                    "cell of " + p.name + " — " + rows + ". A spine right cell "
+                    "never carries more than 2 words in a row — links, code "
+                    "spans, and <=2-word tags only (R-dispatch-table-06). "
+                    "Move the sentence to the destination "
                     "page's own head/description or the doc's ## Overview "
                     "(`warden mend R-dispatch-table-06`), then write the row as "
                     "pure links — and prefer the Edit/Write tools over shell "

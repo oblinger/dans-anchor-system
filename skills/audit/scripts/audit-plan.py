@@ -3840,16 +3840,27 @@ def chk_dispatch_link_case_drift(target, anchor_root, args):
 
 def masthead_narrative_offenders(text, stem):
     """R-dispatch-table-06's core test over TEXT — no filesystem access. Returns
-    the doc's own masthead rows whose RIGHT cell carries narrative beyond
-    links + a ≤2-word parenthetical + code spans, as (left label, right cell)
-    pairs (right cell .strip()'d, so a pair is a stable identity for the cell).
+    the doc's own masthead rows whose RIGHT cell carries more than TWO words
+    in a row outside links and code spans, as (left label, right cell) pairs
+    (right cell .strip()'d, so a pair is a stable identity for the cell).
+
+    The criterion is Dan's hard cap, restated 2026-08-22 when he declined the
+    adaptive-tuning path (F594) in favor of a flat rule: "a hard rule that
+    says you can't write a spine that has more than 2 words in a row in it
+    … it's just gonna be harsh on that point at this stage." Links and code
+    spans are pointers — they carry no word count and they BREAK a run.
+    Everything else counts, parenthesized or not: `(two words)` and bare
+    `two words` both pass; any fragment of three or more words fails. The
+    earlier form allowed a ≤2-word modifier only inside parentheses — strict
+    in the wrong dimension (bare two-word tags failed) while stating the same
+    cap. Punctuation-only tokens (·, —, commas) neither count nor break a
+    run, so `quick, dirty, old` is three words and fails.
 
     Split out of `chk_dispatch_cell_narrative` (which formats these into its
     verdict) so the `tool:pre` veto path (R-dispatch-guard, 2026-08-22) can run
     the identical test against the PROPOSED content of a Write/Edit before it
-    lands on disk — one definition of "narrative cell" for both the post-write
-    audit and the pre-write deny, per Dan's instruction the same day: "change
-    the rule so that you cannot write a table with more than 2 words."
+    lands on disk — one definition of a violating cell for both the post-write
+    audit and the pre-write deny.
     """
     rows = _masthead_rows(text, stem)
     if len(rows) < 3:
@@ -3865,22 +3876,20 @@ def masthead_narrative_offenders(text, stem):
         if len(cells) < 2:
             continue
         right = cells[1]
-        stripped = _WIKILINK_RE.sub("", right)
-        stripped = _MDLINK_RE.sub("", stripped)
-
-        def _short_tag(m):
-            words = m.group(1).split()
-            return "" if len(words) <= 2 else m.group(0)
-
-        stripped = re.sub(r"\(([^)]*)\)", _short_tag, stripped)
-        # A code span is a pointer, not prose. A `Ground truth` row naming
-        # `~/ob/kmr/.obsidian/` and its filenames says where the page's facts
-        # live; Dan blessed exactly that shape 2026-08-22 — "spiritually the
-        # ground truth section here is good" — in the same breath as rejecting
-        # the prose row beside it. 22 cells vault-wide are code-span-only.
-        stripped = re.sub(r"`[^`]*`", "", stripped)
-        if re.search(r"\w", stripped):
-            offenders.append((cells[0].strip(), right.strip()))
+        # Links and code spans are pointers: zero words, and a run-breaker —
+        # replaced by a hard separator so text on either side of a link is two
+        # runs, not one. The code-span carve-out keeps the `Ground truth` row
+        # naming `~/ob/kmr/.obsidian/` legal (Dan blessed that shape
+        # 2026-08-22: "spiritually the ground truth section here is good");
+        # 22 cells vault-wide are code-span-only.
+        stripped = _WIKILINK_RE.sub("\x00", right)
+        stripped = _MDLINK_RE.sub("\x00", stripped)
+        stripped = re.sub(r"`[^`]*`", "\x00", stripped)
+        for frag in stripped.split("\x00"):
+            words = [t for t in frag.split() if re.search(r"\w", t)]
+            if len(words) > 2:
+                offenders.append((cells[0].strip(), right.strip()))
+                break
     return offenders
 
 
@@ -3894,13 +3903,15 @@ def chk_dispatch_cell_narrative(target, anchor_root, args):
     owned per R-dispatch-table-13 and never hand-authored narrative. The LEFT
     cell is exempt (R-06: "describing the row itself is fine there").
 
-    Check: strip every wiki-link (`[[Target]]` / `[[Target\\|Display]]`) and
-    markdown link (`[text](url)`) from the right cell, then strip every
-    parenthetical group of <=2 whitespace-separated words (the rule's allowed
-    tag, e.g. `(historical)`, `(archived)`). Any word character left over is
-    narrative that escaped the cap — a paragraph, a sentence fragment, a `**bold**`
-    gloss — and the rule says it belongs on the destination page's own head
-    (H1 + orientation line) or `## Overview`, not the table that points at it.
+    Check: replace every wiki-link (`[[Target]]` / `[[Target\\|Display]]`),
+    markdown link (`[text](url)`), and code span with a run-breaking
+    separator, then count words in each remaining fragment of the right cell.
+    Any fragment of three or more words is a violation — Dan's hard cap,
+    restated 2026-08-22: "you can't write a spine that has more than 2 words
+    in a row." A ≤2-word modifier passes with or without parentheses; a
+    sentence, a `**bold**` gloss, or any third consecutive word belongs on
+    the destination page's own head (H1 + orientation line) or `## Overview`,
+    not the table that points at it.
 
     Ships `fail` since 2026-08-22, on Dan's direct instruction: "let's just
     change the rule so that you cannot write a table with more than 2 words
@@ -3927,11 +3938,11 @@ def chk_dispatch_cell_narrative(target, anchor_root, args):
     offenders = [f"'{label}' row: {right[:80]!r}"
                  for label, right in masthead_narrative_offenders(text, f.stem)]
     if offenders:
-        return "fail", ("dispatch table right cell carries narrative beyond a short "
-                        "(<=2 word) parenthetical tag — " + "; ".join(offenders[:4])
+        return "fail", ("dispatch table right cell carries more than 2 words in a "
+                        "row — " + "; ".join(offenders[:4])
                         + " — move the explanation to the destination page's own "
                         "head or this doc's ## Overview (R-dispatch-table-06)")
-    return "pass", "right cells are links + short tags only"
+    return "pass", "right cells are links + <=2-word tags only"
 
 
 def chk_toc_table_iff_long(target, anchor_root, args):
