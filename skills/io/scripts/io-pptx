@@ -1,0 +1,421 @@
+#!/usr/bin/env python3
+"""io-pptx — live-coordinated PowerPoint (.pptx) reader/editor for the `io` skill.
+
+Treats a local .pptx as if it were live-editable alongside a running PowerPoint:
+  - before every READ  : flush PowerPoint's in-memory copy to disk (save that
+                         presentation by name) so we read the user's latest state.
+  - after  every WRITE : reload that presentation in PowerPoint from disk, so it
+                         shows the change AND can't silently clobber it on a later save.
+
+Edits go through python-pptx, which round-trips the XML package in place — parts it
+doesn't model (charts, media, themes, transitions) survive untouched. Text replacement
+preserves the paragraph's formatting by reusing the first run's font for the new text.
+(Caveat: mixed run-level formatting WITHIN a replaced text frame — a bolded word
+mid-bullet — collapses to the first run's style.)
+
+Subcommands:
+  probe     <file>                                   slides, layouts, shape inventory
+  read      <file> [--slide N] [--format md|json]    titles, bullets, tables, notes
+  set       <file> (--slide N | --title-contains S) [--shape NAME] --value "..."
+  set-notes <file> (--slide N | --title-contains S) --value "..."
+  add       <file> --title "..." [--bullets "..."] [--layout NAME|N]
+  flush     <file>      handshake halves for ad-hoc python-pptx work:
+  reload    <file>      flush before your reads, reload after your writes
+
+Live coordination is on by default; pass --no-live to skip the PowerPoint handshake.
+"""
+import argparse, copy, json, platform, subprocess, sys
+from pathlib import Path
+
+IS_MAC = platform.system() == "Darwin"   # live PowerPoint coordination is macOS/AppleScript-only
+
+try:
+    from pptx import Presentation
+    from pptx.util import Inches
+except ImportError:
+    sys.exit("io-pptx: python-pptx not installed (python3 -m pip install python-pptx)")
+
+LIVE = True   # toggled off by --no-live
+
+
+# ──────────────────── live PowerPoint coordination (AppleScript) ────────────────────
+
+def _osa(script):
+    try:
+        r = subprocess.run(["osascript", "-e", script],
+                           capture_output=True, text=True, timeout=25)
+        out = r.stdout.strip()
+        if out:
+            return out
+        err = r.stderr.strip().splitlines()
+        return f"err({err[-1]})" if err else ""
+    except Exception as e:
+        return f"err({e})"
+
+
+def _ppt_running():
+    if not IS_MAC:
+        return False   # no AppleScript off-Mac → live ops cleanly skip; disk ops still work
+    return _osa('tell application "System Events" to (exists process "Microsoft PowerPoint")') == "true"
+
+
+def flush_live(path, verbose=False):
+    """Save the target presentation in PowerPoint (by name) if open & dirty, so disk == live."""
+    if not LIVE or not _ppt_running():
+        return "skip"
+    name = Path(path).name.replace('"', '')
+    res = _osa(f'''
+tell application "Microsoft PowerPoint"
+  if (name of presentations) contains "{name}" then
+    set pres to presentation "{name}"
+    if not (saved of pres) then save pres
+    return "flushed"
+  else
+    return "not-open"
+  end if
+end tell''')
+    if verbose:
+        print(f"  [live] flush: {res}", file=sys.stderr)
+    return res
+
+
+def reload_live(path, verbose=False):
+    """If the presentation is open in PowerPoint, close-without-saving and reopen → shows disk.
+
+    Window-stability contract: the reopened window is put back exactly where the
+    old one was — same position, same size, same display, full-screen restored if
+    it was full-screen — and PowerPoint is only activated if it was already the
+    frontmost app. The reload must never rearrange the user's screen."""
+    if not LIVE or not _ppt_running():
+        return "skip"
+    name = Path(path).name.replace('"', '')
+    stem = Path(path).stem.replace('"', '')
+    posix = str(Path(path).resolve())
+    res = _osa(f'''
+tell application "Microsoft PowerPoint"
+  if not ((name of presentations) contains "{name}") then return "not-open"
+end tell
+-- capture the window's geometry / state before the close
+set hadWin to false
+set wasFull to false
+set wasFront to false
+set winPos to {{0, 0}}
+set winSize to {{0, 0}}
+tell application "System Events"
+  tell process "Microsoft PowerPoint"
+    set wasFront to frontmost
+    set wins to (windows whose name contains "{stem}")
+    if (count of wins) > 0 then
+      set w to item 1 of wins
+      set hadWin to true
+      try
+        set wasFull to value of attribute "AXFullScreen" of w
+      end try
+      set winPos to position of w
+      set winSize to size of w
+    end if
+  end tell
+end tell
+tell application "Microsoft PowerPoint"
+  close presentation "{name}" saving no
+  open POSIX file "{posix}"
+  if wasFront then activate
+end tell
+-- put the reopened window back where the old one was
+if hadWin then
+  tell application "System Events"
+    tell process "Microsoft PowerPoint"
+      repeat with i from 1 to 20
+        set wins to (windows whose name contains "{stem}")
+        if (count of wins) > 0 then exit repeat
+        delay 0.25
+      end repeat
+      if (count of wins) > 0 then
+        set w to item 1 of wins
+        -- PowerPoint re-cascades the window as the document finishes loading,
+        -- overriding an early restore — keep re-applying until it sticks.
+        repeat with i from 1 to 8
+          set position of w to winPos
+          set size of w to winSize
+          delay 0.3
+          if (position of w) = winPos and (size of w) = winSize then exit repeat
+        end repeat
+        if wasFull then
+          try
+            set value of attribute "AXFullScreen" of w to true
+          end try
+        end if
+      end if
+    end tell
+  end tell
+end if
+return "reloaded"''')
+    if verbose:
+        print(f"  [live] reload: {res}", file=sys.stderr)
+    return res
+
+
+# ───────────────────────── helpers ─────────────────────────
+
+def _load(path):
+    p = Path(path)
+    if not p.exists():
+        sys.exit(f"io-pptx: no such file: {path}")
+    return Presentation(path)
+
+
+def _slide_title(slide):
+    try:
+        if slide.shapes.title is not None and slide.shapes.title.has_text_frame:
+            return slide.shapes.title.text_frame.text.strip()
+    except Exception:
+        pass
+    return ""
+
+
+def _pick_slide(prs, args):
+    """Resolve --slide N (1-based) or --title-contains S to (index, slide)."""
+    slides = list(prs.slides)
+    if getattr(args, "slide", None):
+        n = args.slide
+        if not 1 <= n <= len(slides):
+            sys.exit(f"io-pptx: --slide {n} out of range (deck has {len(slides)} slides)")
+        return n, slides[n - 1]
+    tc = getattr(args, "title_contains", None)
+    if tc:
+        hits = [(i + 1, s) for i, s in enumerate(slides) if tc.lower() in _slide_title(s).lower()]
+        if not hits:
+            sys.exit(f"io-pptx: no slide title contains {tc!r}")
+        if len(hits) > 1:
+            sys.exit(f"io-pptx: --title-contains {tc!r} matches slides "
+                     f"{', '.join(str(i) for i, _ in hits)} — narrow it or use --slide N")
+        return hits[0]
+    sys.exit("io-pptx: need --slide N or --title-contains S")
+
+
+def _pick_shape(slide, name):
+    """Shape by name; default = the title placeholder."""
+    if name:
+        for sh in slide.shapes:
+            if sh.name == name:
+                return sh
+        have = ", ".join(repr(sh.name) for sh in slide.shapes)
+        sys.exit(f"io-pptx: no shape named {name!r} on that slide (have: {have})")
+    if slide.shapes.title is not None:
+        return slide.shapes.title
+    sys.exit("io-pptx: slide has no title placeholder — name a shape with --shape")
+
+
+def _set_text_preserving(tf, text):
+    """Replace a text frame's content, reusing the first run's font for every new run.
+
+    Lines separated by \\n become paragraphs; leading tabs set indent level.
+    """
+    model_rPr = None
+    for para in tf.paragraphs:
+        for run in para.runs:
+            rPr = run._r.find('{http://schemas.openxmlformats.org/drawingml/2006/main}rPr')
+            if rPr is not None:
+                model_rPr = copy.deepcopy(rPr)
+            break
+        if model_rPr is not None:
+            break
+
+    lines = text.split("\n") or [""]
+    # trim to one paragraph, one run
+    while len(tf.paragraphs) > 1:
+        p = tf.paragraphs[-1]._p
+        p.getparent().remove(p)
+    first = tf.paragraphs[0]
+    for r in list(first.runs)[1:]:
+        r._r.getparent().remove(r._r)
+    if not first.runs:
+        first.add_run()
+
+    def fill(para, line):
+        level = len(line) - len(line.lstrip("\t"))
+        para.level = min(level, 8)
+        run = para.runs[0] if para.runs else para.add_run()
+        run.text = line.lstrip("\t")
+        if model_rPr is not None:
+            old = run._r.find('{http://schemas.openxmlformats.org/drawingml/2006/main}rPr')
+            if old is not None:
+                run._r.remove(old)
+            run._r.insert(0, copy.deepcopy(model_rPr))
+
+    fill(first, lines[0])
+    for line in lines[1:]:
+        fill(tf.add_paragraph(), line)
+
+
+# ───────────────────────── subcommands ─────────────────────────
+
+def cmd_probe(args):
+    flush_live(args.file, args.verbose)
+    prs = _load(args.file)
+    print(f"deck: {len(prs.slides)} slide(s)  "
+          f"[{prs.slide_width.inches:.1f}x{prs.slide_height.inches:.1f} in]")
+    for i, slide in enumerate(prs.slides, 1):
+        title = _slide_title(slide) or "(no title)"
+        notes = "  +notes" if (slide.has_notes_slide
+                               and slide.notes_slide.notes_text_frame.text.strip()) else ""
+        print(f"slide {i}: {title!r}  (layout: {slide.slide_layout.name}){notes}")
+        for sh in slide.shapes:
+            kind = str(sh.shape_type).split(" ")[0] if sh.shape_type is not None else "?"
+            bits = [kind]
+            if sh.is_placeholder:
+                bits.append(f"ph:{str(sh.placeholder_format.type).split(' ')[0]}")
+            if sh.has_text_frame and sh.text_frame.text.strip():
+                preview = " / ".join(sh.text_frame.text.strip().splitlines())
+                bits.append(f'"{preview[:60]}"')
+            print(f"  shape {sh.name!r}: {'  '.join(bits)}")
+    print("layouts: " + ", ".join(repr(l.name) for l in prs.slide_layouts))
+
+
+def _slide_dict(i, slide):
+    d = {"slide": i, "title": _slide_title(slide), "layout": slide.slide_layout.name,
+         "bodies": [], "tables": [], "notes": ""}
+    for sh in slide.shapes:
+        if sh.has_text_frame and sh != slide.shapes.title:
+            paras = [{"level": p.level, "text": p.text} for p in sh.text_frame.paragraphs
+                     if p.text.strip()]
+            if paras:
+                d["bodies"].append({"shape": sh.name, "paragraphs": paras})
+        if sh.has_table:
+            tbl = [[c.text for c in row.cells] for row in sh.table.rows]
+            d["tables"].append({"shape": sh.name, "rows": tbl})
+    if slide.has_notes_slide:
+        d["notes"] = slide.notes_slide.notes_text_frame.text.strip()
+    return d
+
+
+def cmd_read(args):
+    flush_live(args.file, args.verbose)
+    prs = _load(args.file)
+    slides = list(prs.slides)
+    idxs = range(1, len(slides) + 1)
+    if args.slide:
+        if not 1 <= args.slide <= len(slides):
+            sys.exit(f"io-pptx: --slide {args.slide} out of range (deck has {len(slides)})")
+        idxs = [args.slide]
+    data = [_slide_dict(i, slides[i - 1]) for i in idxs]
+    if args.format == "json":
+        print(json.dumps(data, ensure_ascii=False, indent=2))
+        return
+    for d in data:
+        print(f"## Slide {d['slide']} — {d['title'] or '(no title)'}  (layout: {d['layout']})")
+        for body in d["bodies"]:
+            for p in body["paragraphs"]:
+                print("  " * p["level"] + "- " + p["text"])
+        for t in d["tables"]:
+            rows = t["rows"]
+            if rows:
+                print("| " + " | ".join(rows[0]) + " |")
+                print("| " + " | ".join("---" for _ in rows[0]) + " |")
+                for r in rows[1:]:
+                    print("| " + " | ".join(c.replace("|", "\\|") for c in r) + " |")
+        if d["notes"]:
+            print("> notes: " + d["notes"].replace("\n", " / "))
+        print()
+
+
+def cmd_set(args):
+    flush_live(args.file, args.verbose)
+    prs = _load(args.file)
+    i, slide = _pick_slide(prs, args)
+    sh = _pick_shape(slide, args.shape)
+    if not sh.has_text_frame:
+        sys.exit(f"io-pptx: shape {sh.name!r} has no text frame")
+    _set_text_preserving(sh.text_frame, args.value)
+    prs.save(args.file)
+    res = reload_live(args.file, args.verbose)
+    print(f"set slide {i} shape {sh.name!r} = {args.value!r}  (live: {res})")
+
+
+def cmd_set_notes(args):
+    flush_live(args.file, args.verbose)
+    prs = _load(args.file)
+    i, slide = _pick_slide(prs, args)
+    slide.notes_slide.notes_text_frame.text = args.value
+    prs.save(args.file)
+    res = reload_live(args.file, args.verbose)
+    print(f"set slide {i} notes = {args.value!r}  (live: {res})")
+
+
+def cmd_add(args):
+    flush_live(args.file, args.verbose)
+    prs = _load(args.file)
+    layouts = list(prs.slide_layouts)
+    layout = None
+    if args.layout:
+        try:
+            layout = layouts[int(args.layout) - 1]
+        except (ValueError, IndexError):
+            layout = next((l for l in layouts if l.name.lower() == args.layout.lower()), None)
+        if layout is None:
+            sys.exit(f"io-pptx: no layout {args.layout!r} (have: "
+                     + ", ".join(repr(l.name) for l in layouts) + ")")
+    else:
+        layout = next((l for l in layouts if "title and content" in l.name.lower()),
+                      layouts[1] if len(layouts) > 1 else layouts[0])
+    slide = prs.slides.add_slide(layout)
+    if slide.shapes.title is not None:
+        slide.shapes.title.text_frame.text = args.title
+    if args.bullets:
+        body = next((sh for sh in slide.placeholders
+                     if sh != slide.shapes.title and sh.has_text_frame), None)
+        if body is None:
+            sys.exit("io-pptx: layout has no body placeholder for --bullets")
+        _set_text_preserving(body.text_frame, args.bullets)
+    prs.save(args.file)
+    res = reload_live(args.file, args.verbose)
+    print(f"added slide {len(prs.slides)} {args.title!r} (layout: {layout.name})  (live: {res})")
+
+
+# ───────────────────────── CLI ─────────────────────────
+
+def main():
+    ap = argparse.ArgumentParser(prog="io-pptx", description="Live-coordinated PowerPoint reader/editor.")
+    ap.add_argument("--no-live", action="store_true", help="skip the PowerPoint save/reload handshake")
+    ap.add_argument("-v", "--verbose", action="store_true", help="print live-handshake results to stderr")
+    sub = ap.add_subparsers(dest="cmd", required=True)
+
+    p = sub.add_parser("probe"); p.add_argument("file"); p.set_defaults(func=cmd_probe)
+
+    p = sub.add_parser("flush", help="save the presentation in PowerPoint so disk == live (run before ad-hoc reads)")
+    p.add_argument("file"); p.set_defaults(func=lambda a: print(f"flush: {flush_live(a.file, a.verbose)}"))
+
+    p = sub.add_parser("reload", help="reload the presentation in PowerPoint from disk (run after ad-hoc writes)")
+    p.add_argument("file"); p.set_defaults(func=lambda a: print(f"reload: {reload_live(a.file, a.verbose)}"))
+
+    p = sub.add_parser("read")
+    p.add_argument("file")
+    p.add_argument("--slide", type=int, help="1-based slide number (default: all)")
+    p.add_argument("--format", choices=["md", "json"], default="md")
+    p.set_defaults(func=cmd_read)
+
+    for name, fn in (("set", cmd_set), ("set-notes", cmd_set_notes)):
+        p = sub.add_parser(name)
+        p.add_argument("file")
+        p.add_argument("--slide", type=int, help="1-based slide number")
+        p.add_argument("--title-contains", help="locate slide by title text (resilient to reordering)")
+        if name == "set":
+            p.add_argument("--shape", help="shape name (default: the title placeholder)")
+        p.add_argument("--value", required=True, help=r"new text; \n splits paragraphs, leading tabs indent")
+        p.set_defaults(func=fn)
+
+    p = sub.add_parser("add")
+    p.add_argument("file")
+    p.add_argument("--title", required=True)
+    p.add_argument("--bullets", help=r"body text; \n splits bullets, leading tabs indent")
+    p.add_argument("--layout", help="layout name or 1-based index (default: Title and Content)")
+    p.set_defaults(func=cmd_add)
+
+    args = ap.parse_args()
+    global LIVE
+    LIVE = not args.no_live
+    args.func(args)
+
+
+if __name__ == "__main__":
+    main()

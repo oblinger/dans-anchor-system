@@ -38,6 +38,8 @@ Your job folder is a **project directory** containing experiment folders. When y
 
 ## When You Receive a Task
 
+**Before you finish: write the `Figures and Tables` section.** The last H1 of the run page is `{{name}} Figures and Tables`, and it holds **every** figure and **every** table the run produced — inline, rendered in the document, never a link to an `output/` folder. Markdown tables are fine; the rule is that the reader does not click. Explain each one: how to read it, what to look at, and what it cannot show. It is a superset of the writeup — figures that did not make the writeup still belong here, so nothing the run learned is invisible. Assets close the section. Ruled by Dan 2026-08-23.
+
 You'll be told an experiment folder path (e.g., `/Users/oblinger/.../002d_random_row_shift`). Execute these steps **in order**. Do not skip any step.
 
 ### 1. Set up

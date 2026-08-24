@@ -8,7 +8,7 @@ description: >
   "what's on my calendar", "read my calendar", "what do I have today",
   "pull my health data", "what's my sleep/heart rate", "check my apple health".
   "search my mail fast", "search all my accounts at once".
-  Subcommands: /io gsheet, /io gslide, /io gdoc, /io gdrive, /io gmail, /io imail, /io local-mail, /io ical, /io ihealth, /io notion.
+  Subcommands: /io gsheet, /io gslide, /io gdoc, /io gdrive, /io gmail, /io imail, /io local-mail, /io ical, /io ihealth, /io excel, /io pptx, /io notion.
 tools: Read, Write, Edit, Bash, Glob, Grep, WebFetch, WebSearch
 user_invocable: true
 ---
@@ -55,6 +55,7 @@ Read from and write to external services. Each sub-skill is an access card with 
 | **Google** | `/io gmail` | [[io-gmail]] | **Gmail API** (working) — one account's *complete* server-side history, archive included. ~1 s where the local route takes ~10 min. `in:anywhere` is mandatory or the search misses ~99%. |
 | **Google** | `/io gauth` | → `/fix gauth` | Re-authorize Google OAuth (when token expires) |
 | **Microsoft** | `/io excel` | [[io-excel]] | **Excel** — local `.xlsx`, live-coordinated (save-before-read / reload-after-write), formatting-preserving |
+| **Microsoft** | `/io pptx` | [[io-pptx]] | **PowerPoint** — local `.pptx`, live-coordinated (same handshake as excel); slides/bullets/notes via python-pptx, unmodeled parts survive |
 | **Notion** | `/io notion` | [[io-notion]] | Notion pages and databases (TBD) |
 
 ## Auth

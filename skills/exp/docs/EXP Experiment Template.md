@@ -1,177 +1,202 @@
-
 # EXP Experiment Template
 
-Standard format for individual experiment specs. Each experiment lives in its own folder (`Q1_02_name/Q1_02_name.md`) alongside its `code.py` and `output/` directory. The spec serves two audiences: the **worker** who runs it (reads top-down before the experiment) and the **reviewer** who reads results (reads the overview, then jumps to Results).
+One page per run, named for its folder, beside its script and its outputs. The write-up sits on top; the execution record follows. The design half is written before dispatch and frozen there; the run half is appended after. This is also the "results template" yoke's writeup gate refers to.
 
+The `run::` execution contract lives in the sibling `{run} Setup.md`. **Nothing on the page links outside its own folder** — the folder has to survive being zipped and read months later out of context.
 
-## Experiment Document Structure
+Everything from here to the scissors is the template, as live markdown. `{{curly braces}}` mark what you supply.
 
-```markdown
-## Open Questions                          {{delete this section when all are resolved}}
 ---
-# Q1_02 — Experiment Title
 
-*{{one specific, answerable question}}*
+# {{Run name}} Writeup
 
-*Why care?* {{1-2 sentences: what decision or understanding depends on this result}}
+**Question:** {{one line}}
 
-## Background
-{{what we know, prior experiments, the gap this addresses}}
+## Potential Approaches
 
-## Approach
-{{bullet summary: data, model, measurement, analysis}}
+**{{the primary choice}}**
+1. **{{option}}** — {{what it does, and what it tests}}
+2. **{{option}}** — {{what it does, and what it tests}}
+
+**{{a second, orthogonal choice}}**
+1. **{{option}}** — {{what it does, and what it costs}}
+2. **{{option}}** — {{what it does, and what it costs}}
+
+**Chosen: {{n · n · …}}** — {{why, and why not the others}}
+
+{{Any choice that decides whether the whole run means anything gets a paragraph here.}}
 
 ## Expectations
-{{what you expect and why; what would change your mind}}
 
-## Key Result
+1. {{outcome}} → {{what it would mean}}
+2. {{outcome}} → {{what it would mean}}
+3. {{outcome}} → {{what it would mean}}
+- {{rider}} → {{what it would mean}}
 
-> [!summary] {{headline sentence with key number(s), with confidence qualifier}}
+**Expected: {{n}}**, because {{mechanism}}
 
-{{key figure → summary table}}
+**Would change my mind:** {{the observation}}
 
-## Discussion
-{{interpretation, confidence, connections to prior experiments, new questions}}
+## Result
 
-### Details                                   {{optional — only if supporting findings warrant it}}
-{{supporting findings with additional figures; otherwise move to Detailed Results below the line}}
+{{The claim, in bold, one sentence with the number in it. Then the figure, and one line saying what to look at.}}
 
----
+## The but
 
-## Detailed Approach
-{{step-by-step code description, concrete examples}}
-
-## Config
-{{parameters, values, and why}}
-
-## Dependencies
-{{checkpoints, prior experiment outputs needed}}
-
-## Output Files
-{{list of files produced with descriptions}}
-
-## Detailed Results
-{{raw tables, per-layer breakdowns, anything too granular for above}}
-
-
-
-# Additional Figures
-{{figures not featured in Key Result — one-line description each, reviewer can promote}}
-{{Use H1 and blank lines above for strong visual separation from the reference material}}
-```
+{{The limitation, before a reader has to ask.}}
 
 ---
 
+# {{Run name}} Experiment
 
+## Answer criterion
 
-### Open Questions
-A design-phase gate. Lives ABOVE the title. Each entry is an unresolved design decision. When all are answered, delete the entire section and the HR below it — the experiment is ready to run.
+{{The form the answer must take.}}
 
-```markdown
-## Open Questions
-1. Should we test both FT and base, or just FT?
-2. What alpha value for the ridge probe?
+## Controls
+
+- {{control}} — rules out {{what}}
+- **Instrument check** — {{what proves the manipulation fired}}
+
+## Timebox
+
+{{Budget, and what gets cut if it is blown.}}
+
+## Threats
+
+{{What would make the result meaningless whichever way it comes out.}}
+
 ---
-```
 
+## Environment
 
+## What Ran
 
-### Overview Paragraph
-One paragraph immediately after the title, before any spec sections. Filled in AFTER the experiment runs (leave blank in the spec). This is the 30-second version — a reviewer who reads only this paragraph gets the headline finding, the key number, and the confidence level.
+## Findings
 
-Example from Q1_02:
-> "To put rigorous error bars on the 98.4% accuracy from Q1_01, we ran two complementary analyses: bootstrap resampling of the test set and retraining with 5 different random seeds. The headline result: **98.0% ± 0.47pp across seeds**, with a 95% CI of [97.1%, 99.0%]."
+## Verdict
 
-This is NOT a summary of the spec — it's a summary of the RESULT. Leave it blank until the experiment completes.
+## Next
 
+## Assets
 
+---
 
-### Question (italic line after title)
-One specific, answerable question in italics, immediately after the title — no H2 header. Not a topic, not a goal — a question with a measurable answer. Frame it so you'll know when you've answered it.
+# ✂ Filling it in
 
-Good: *At which layer does digit identity become linearly decodable?*
-Bad: *Investigate how layers encode information.*
+## The two blocks
 
-**Italic prefix signposts** — sparingly, use a short italic prefix to orient the reader when the structure isn't self-evident: *Why care?* before motivation, *The surprise:* before an unexpected finding, *We found:* before a headline result. These read as a researcher signposting their thinking. If every paragraph has one, it's a template — use them only where they genuinely help.
+**Potential Approaches** and **Expectations** share one form: mutually-exclusive options, numbered, then a committed choice with the reasoning under it.
 
+**Numbered items are mutually exclusive** — exactly one gets built, or exactly one comes true. Forcing candidates into a numbered list is what surfaces the option you had not considered; a list of two obviously-incomplete alternatives reads as obviously incomplete.
 
+**Approaches usually need several lists, not one.** A design is a technique choice *plus* orthogonal ones — where the behaviour is measured, how deep, how much, which positions. Each is its own question, gets its own bold header, and gets its own numbered options. Flattening them into a row of dots under one list is how a design decision gets defaulted instead of made.
 
-### *Why care?*
-Optional italic signpost, not a heading. Use when Background alone doesn't make the stake obvious. 1-2 sentences answering: what decision or understanding depends on this result? Example: "*Why care?* If the gap shrinks, most of E00's benefit was regularization in disguise, not dark knowledge."
+**Expectations need one list**, of outcomes, plus dotted riders that can accompany any of them.
 
+**Each option needs enough words to stand on its own.** A bare *"Rank 1"* is a note to yourself, not a design — someone who was not in the conversation has to be able to read it. What belongs under **Chosen:** / **Expected:** is the reasoning *for the choice*; what each option means stays with the option.
 
+**None of this notation belongs in the document.** A reader does not need to be told what a numbered list means.
 
-### Background
-What motivates this experiment. 2-4 bullets:
-- What do prior experiments tell us? (reference by number)
-- What gap or open question does this address?
-- Why does this matter for the broader research question?
+### An expectation block, worked
 
-This is context for the worker AND for the reviewer. A reader seeing this experiment for the first time should understand why it exists.
+The numbered outcomes have to cover the space, **including the boring one and the broken one**. A list that omits *"nothing happened and the instrument was fine"* and *"nothing happened because the instrument never fired"* cannot tell those apart when the number comes back zero.
 
+Live example, from a rank-1 ablation of a truth direction in a 24-layer model:
 
+1. Damage at L10 → the probe and the answer are one computation, found eight layers before it surfaces.
+2. Damage at L18 but not L10 → the model carries a readable representation for eight layers without committing to use it.
+3. No damage anywhere, instrument check fires → the fact is redundant or distributed; rank-1 removal does not disturb it.
+4. No damage anywhere, instrument check silent → not a result. Plumbing.
+- The topic control hurts as much as the truth direction → whatever moved was not about truth.
+- Steering moves the answer where ablation does not → influence without necessity.
+- The direct-effect cosine is near zero → any effect is indirect. Expected, and not evidence against.
 
-### Approach
-Bullet summary of what the code does — enough for the worker to understand the experiment without reading the detailed approach. 4-6 bullets:
-- What data transformation (if any)?
-- What model(s) — fine-tuned, base, or both?
-- What is extracted — hidden states, attention, behavioral output?
-- What analysis — probes, statistics, visualization?
+**Expected: 3**, because the lens shows the answer gap flat below +1.3 through L17 and then jumping to +8.3 in one block. Almost nothing about the answer is in the residual before L18, so a direction read at L10 that fed the answer should have left an accumulating trace, and there is none. The probe meanwhile stays at 0.84 through L24 — signal present at many depths at once is the profile that shrugs off one rank-1 removal.
 
+**Would change my mind:** a drop at L18 that clears the topic control. That is outcome 2, and it is falsifiable on this rig inside the timebox.
 
+Note what the block does. Each numbered outcome names a *reading*, not just a number — so the run cannot come back and be argued about. The riders attach to any outcome and each would change what it means. The commitment is one line with a mechanism behind it: **the *because* is what gets graded, and being right is not.**
 
-### Expectations
-Predictions BEFORE seeing results. Sets up the narrative payoff in "Which outcome matched?" A short paragraph or a couple of bullets — no fixed categories. Two things matter:
+Freeze it at dispatch. Editing it after results is the most visible way to lose a reader's trust.
 
-- **What you expect and why** — the mechanism reasoning. "We expect accuracy to plateau by layer 8 because that's where D01 showed digit identity becoming linearly separable." The *because* clause is where understanding lives.
-- **What would change your mind** — the key alternative. "If accuracy keeps climbing through layer 20, that would suggest the later layers encode something beyond identity." Only include this if there's a genuinely meaningful alternative — don't invent one to fill a slot.
+### Who writes the approach, and what the agent does with it
 
-Sometimes there's only one prediction. Sometimes there are three real alternatives. Let the experiment dictate the shape, not a template.
+**The approach is the researcher's, in the researcher's words.** It is the part of the run that carries their judgement, so it is the part that has to be captured rather than composed. Take it down as dictated. Tidying the wording is fine; substituting your own framing for theirs is not, even when yours is tighter.
 
+**Then critique it — that is the job, and it is not optional.** After the approach has been stated, say plainly whether you would have done something different:
 
+- If a genuinely better approach is indicated, say so, say why, and say what it would cost. Do not soften it into a question.
+- If the difference is in the noise and what was proposed is reasonable, **accept it and move on.** Manufacturing an objection to look thorough wastes the researcher's attention and teaches them to ignore the next one.
+- If the approach is not well formed — a step missing, a control that would not rule out what it claims, a term used two ways — say that too. That is a correction, not a critique.
 
-### Key Result
-The worker fills this in after the experiment runs. The core principle: **headline first, then evidence.** Someone skimming should get the answer from the first two things they see — the callout and the key figure.
+The order matters. Critique **after** the approach is stated, never during, or the approach on the page ends up being a negotiated compromise rather than a record of what the researcher actually thought.
 
-**Structure:**
+**Where the researcher has already written structure into the page, extend it — never replace it.** That includes whitespace: if they wrote no blank line between a heading and its list, do not add one. A structure being edited is a structure being communicated.
 
-1. **Headline in a `> [!summary]` callout** — one sentence with key number(s) and a confidence qualifier. Use hedging that reflects actual certainty ("likely," "appears to," "consistent with") — don't state single-seed results as established facts. No bold inside the callout.
+**Write the choice in words, never as an index tuple.** `Chosen: 1 · 1 · 4 · 1 · 1` is compact and unreadable — nobody decodes five indices against five lists. Name what was chosen in a sentence or two, in the same order the questions appear.
 
-2. **Key figure** — the single most important figure, immediately after. One sentence saying what to look at.
+### A potential-approaches block, worked
 
-3. **Summary table** — all key numbers at a glance.
+**A design is rarely one choice.** It is usually a technique choice plus several orthogonal ones — where the behaviour is measured, how deep the intervention goes, how much is removed, which positions are touched. Each of those is its own mutually-exclusive question and each deserves its own short list, because burying them as a flat row of dots is how a design decision gets defaulted instead of made.
 
-```markdown
-> [!summary] Distillation likely reshapes internal representations. CKA is 0.552 vs 0.445 (+0.107 gap), large and consistent with E02, but single-seed.
+Give every question a bold header and number its options. **Each option needs enough words to be understood by someone who was not in the conversation** — a bare *"Rank 1"* is a note to yourself, not a design.
 
-![CKA alignment](output/cka_results.png)
+Live example, from a rank-1 ablation of a truth direction in a 24-layer model:
 
-| Metric | Hard | Distilled | Gap |
-|--------|------|-----------|-----|
-| CKA with teacher | 0.445 | 0.552 | +0.107 |
-```
+**What we do to the direction**
+1. **Ablation** — project the direction out of the residual stream and see whether the model still states the fact. Tests whether it is *needed*.
+2. **Steering** — add α·v̂ at a range of strengths and see whether the answer moves with dose. Tests whether it has *influence*.
+3. **Directed patching** — copy across only the v̂ component from another item, leaving everything else alone. Tests whether that one coordinate carries the fact.
 
-### Discussion
-Interpretation and synthesis — NOT a restatement of key results. Three things to cover:
-- How does this connect to prior experiments?
-- What's the most interesting or unexpected thing?
-- What new questions does this raise?
+**What behaviour we score**
+1. **A full statement** — the exact position the direction was fitted at.
+2. **A completion prompt** — the natural behavioural setting, one token before the direction was learned.
 
-Include a *Confidence:* note: how sure (high/moderate/low), what supports it (effect size, sample count, consistency), and the main caveat (single seed, no significance test, etc.). Whether expectations were confirmed or surprised, weave that in naturally.
+**How deep we intervene**
+1. **One layer at a time, all of them** — gives a curve, but the model may rebuild the direction at the next layer, so a null is ambiguous.
+2. **Only the two named depths** — cheap, but no curve and no room to be surprised.
+3. **Every layer at once** — closes the rebuild escape; says nothing about where.
+4. **Both 1 and 3.**
 
-### Details (optional)
-Only include this section above the `---` if supporting findings warrant it (e.g., per-class breakdowns, temperature curves). Otherwise, supporting material goes to **Detailed Results** below the line. Each finding starts with a **bold claim sentence**, then evidence. Figures immediately followed by their interpretation.
+**How much of the direction we remove**
+1. **Rank 1** — the probe direction alone: one line in activation space.
+2. **Rank k** — the top k directions of its subspace. Matters because if the property is carried by a plane rather than a line, removing the line leaves it intact and the null is false.
 
-**Figure triage** — figures that don't make the cut go to **Additional Figures** below the HR. Each gets a one-line description so the reviewer can promote any that deserve elevation.
+**Chosen: 1 · 1 · 4 · 1.** Ablation first because necessity is the claim being made. The second choice is the one that decides whether the run means anything: score the prompt instead of the statement and a null is fully explained by the direction not transferring across positions — a fact about the setup, not about the model.
 
+Three things to copy from this. **Options that are known-weak are still chosen and said so** — rank 1 is the setting most likely to manufacture a false null, and it goes in Threats rather than being quietly upgraded. **The choice that could invalidate everything gets its own paragraph** below the lists, not a clause inside one. And **do not list a straw option to look thorough** — "do nothing" is not a candidate approach, and putting it on the list only makes a reader wonder what they missed.
 
+**The measurement must be independent of the manipulation.** Reading a probe after intervening on the direction that probe reads is circular, and the circularity does not show up in the numbers.
 
-### Below the HR — Reference Material
-Everything below the `---` is for auditing, not for narrative reading.
+## Controls
 
-- **Detailed Approach** — step-by-step code description. Include concrete examples of data transformations. Enough for someone to reimplement.
-- **Config** — parameter values with brief justification: `ALPHA: 1.0 (ridge default, no tuning needed for 10K samples)`
-- **Dependencies** — file paths to checkpoints and prior experiment outputs needed
-- **Output Files** — list of actual files produced, with one-line descriptions
-- **Detailed Results** — raw tables, per-layer breakdowns, anything too granular for the main Results section
-- **Additional Figures** — uses `# Additional Figures` (H1) with 2-3 blank lines above it for strong visual separation. Contains figures the worker generated but chose not to feature in Key Result. Each gets a one-line description. The reviewer scans this section and promotes any that deserve a spot in the narrative. Keeps the Key Result section focused while ensuring nothing is lost.
+Each control rules out a specific alternative explanation, and if you cannot name that alternative in one line, it is not a control.
+
+**Random baselines are usually the weak version.** In a thousand dimensions a random vector is nearly orthogonal to everything, so beating it is close to free. The sharp control is a *different meaningful* quantity built by the identical pipeline — same construction, same norm, a property you are not claiming.
+
+**The instrument check is separate and mandatory.** A manipulation that changed nothing and one that never fired produce identical numbers.
+
+## Timebox
+
+State the budget out loud when the run starts. When it is blown, say so and name the choice — extend, cut, or move on. A run that quietly keeps going is the failure this section exists to prevent.
+
+## Threats
+
+What would make the result meaningless **whichever way it comes out**. Confounds, and seams — a quantity derived in one setting and applied in another, a direction fitted at one token position and used at a different one. A threat named beforehand reads as judgement; the same threat named afterwards reads as an excuse.
+
+## Result and Findings
+
+**Result** is the headline and the one figure. **Findings** below is the full evidence. The duplication is deliberate: the top is what gets quoted, the bottom is what gets audited.
+
+Lead each finding with the claim and follow with the number. A point estimate with no spread reads as not knowing what was measured.
+
+## Verdict
+
+Met or not met, against the answer criterion — not against whether the result was pleasing. Then say which numbered outcome came true and whether the expectation's reasoning survived even where its number did not.
+
+**A negative result gets the full treatment** and says what it licenses: a fact surviving an intervention means redundancy, not irrelevance.
+
+## Why the write-up is on top
+
+A run is read far more often than it is executed, almost always by someone deciding whether to trust it. Leading with question, candidates, expectation and result means the first screen answers *what did this settle and how much should I believe it*. Everything below the rule is for auditing.
