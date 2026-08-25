@@ -40,6 +40,9 @@ else bad "standalone round trip — nonce $n never came back"; fi
 
 echo "== 2. --in hosts the box as a WINDOW in the named session =="
 tmux new-session -d -s "$HOST"
+# The host's own original window — NOT another ctrl box, which would legitimately
+# carry the declaration and make the no-leak check below vacuously fail.
+ORIGWIN=$(tmux list-windows -t "=$HOST" -F '#{window_id}' | head -1)
 n=$(nonce)
 "$CTRL" box --session "$BOX" --in "$HOST" "echo $n" >/dev/null 2>&1
 sleep 1
@@ -135,6 +138,34 @@ if "$CTRL" outbox --session "$BOX4" --in "$HOST" 40 2>/dev/null | grep -q "^$n$"
     ok "fresh hosted box created and written to past a busy sibling window"
 else bad "fresh hosted box refused/failed — occupant probed the wrong pane"; fi
 sleep 11
+
+echo "== 10. a box DECLARES itself a console via @muxux-kind =="
+# MuxUX classifies by sniffing pane_current_command, and claude's argv0 is a
+# bare version string — so any pane that has run claude is captured as an
+# agent and relaunched as one. A box is a shell; the option says so. Same
+# declared-not-sniffed shape as F160's bridge re-stamp.
+BOX5="${BOX}-decl"
+"$CTRL" box --session "$BOX5" --in "$HOST" "true" >/dev/null 2>&1
+sleep 1
+if [ "$(tmux show-options -w -v -t "=$HOST:=$BOX5" @muxux-kind 2>/dev/null)" = "console" ]; then
+    ok "hosted box declares @muxux-kind=console"
+else bad "hosted box carries no @muxux-kind declaration"; fi
+# and it must be visible in a -F format, which is how a capture would read it
+if [ "$(tmux list-panes -t "=$HOST:=$BOX5" -F '#{@muxux-kind}' 2>/dev/null | head -1)" = "console" ]; then
+    ok "declaration is readable from a list-panes format"
+else bad "declaration not readable from a format string"; fi
+# a sibling window must NOT inherit it
+if [ -z "$(tmux list-panes -t "=$HOST:$ORIGWIN" -F '#{@muxux-kind}' 2>/dev/null | head -1)" ]; then
+    ok "declaration does not leak to sibling windows"
+else bad "declaration leaked to a sibling window"; fi
+
+BOX6="${BOX}-decl-alone"
+"$CTRL" box --session "$BOX6" --standalone "true" >/dev/null 2>&1
+sleep 1
+if [ "$(tmux show-options -v -t "=$BOX6:" @muxux-kind 2>/dev/null)" = "console" ]; then
+    ok "standalone box declares @muxux-kind=console at session scope"
+else bad "standalone box carries no session-scope declaration"; fi
+tmux kill-session -t "=$BOX6" 2>/dev/null
 
 echo
 if [ "$fails" -eq 0 ]; then echo "PASS — box hosting"; exit 0; fi

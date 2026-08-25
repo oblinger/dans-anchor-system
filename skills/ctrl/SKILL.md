@@ -66,7 +66,13 @@ Two tmux behaviors this relies on, both verified rather than assumed:
   that already exists; otherwise it reads whatever the user is looking at (in a MuxUX frame, almost
   always a `claude` pane) and refuses every first box. `send-keys` does **not** share that fallback.
 
-Test: `tests/live/test-box-hosting.sh` — 14 checks, real tmux round trips, scratch sessions only.
+A box also **declares itself a console** — `@muxux-kind console`, set on the window when hosted and on
+the session when standalone. MuxUX otherwise classifies by sniffing `pane_current_command`, and
+claude's argv0 is a bare version string, so any pane that has ever run claude is captured as an agent
+and relaunched as one on the next restore. Declared-not-sniffed is the shape F160 already uses for
+bridge sessions. The option is inert to anything that does not look for it.
+
+Test: `tests/live/test-box-hosting.sh` — 18 checks, real tmux round trips, scratch sessions only.
 
 ## Safari — navigate and extract
 

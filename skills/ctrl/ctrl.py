@@ -625,6 +625,7 @@ def _ensure_box(name: str, host):
             # stop resolving mid-command. Pin the name.
             _tmux('set-window-option', '-t', f'={host}:={name}',
                   'automatic-rename', 'off')
+            _declare_console(f'={host}:={name}', window=True)
             time.sleep(0.5)
     elif not _session_live(name):
         print(f"📦 Creating new tmux session: {name}")
@@ -632,8 +633,34 @@ def _ensure_box(name: str, host):
         if not r or r.returncode != 0:
             err = r.stderr if r else 'tmux unreachable'
             raise Exception(f"Failed to create tmux session: {err}")
+        _declare_console(f'={name}:', window=False)
         time.sleep(0.5)
     return _box_target(name, host)
+
+
+def _declare_console(target: str, window: bool):
+    """Stamp a box as a CONSOLE, so MuxUX never reincarnates it as an agent.
+
+    MuxUX classifies a session by SNIFFING: `pane_to_leaf` reads
+    `pane_current_command`, and claude's argv0 is a bare version string
+    (`2.1.245`), so any pane that has ever run claude is persisted as
+    `CLAUDE(cwd)`; on the next restore `resolve_agent`'s last-ditch fallback
+    sees a claude-history folder and launches an agent into it. That is how a
+    `ctrl box` grew a live Lumen agent and started capturing dictation clicks
+    (MUX T322) — a box is a shell, and nothing on it said so.
+
+    A sniff cannot be made right, because the evidence it reads is genuinely
+    ambiguous. So declare instead of inferring: a tmux user option on the box
+    itself, which MuxUX reads at capture. This is the shape F160 already uses
+    for bridge sessions, whose host/remote_command are likewise not
+    recoverable from a pane scan.
+
+    Best-effort: a tmux that rejects the option leaves the box working and
+    merely un-declared. User options are inert to everything that does not
+    look for them, so this is safe even before MuxUX reads it.
+    """
+    verb = 'set-window-option' if window else 'set-option'
+    _tmux(verb, '-t', target, '@muxux-kind', 'console')
 
 
 def _find_box(name: str, host):
