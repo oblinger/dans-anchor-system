@@ -33,9 +33,40 @@ question is not "which command extracts best" but **"which browser is signed in.
 | `ctrl outbox [N]` | Read last N lines from the trot/box session (default 50) |
 | `ctrl box2..box9 "<cmd>"` | Additional independent sessions `box2`…`box9` |
 | `ctrl outbox2..outbox9 [N]` | Read from the corresponding numbered session |
+| `--in <session>` | Host the box as a tmux **window** in `<session>` — it appears as a tab |
+| `--standalone` | Force a box of its own, ignoring `primary_session` |
 
 Sessions persist across Claude Code sessions. **Always prefix `cd /path &&`** — the session's working
 directory is not yours.
+
+### Where a box lives
+
+A box is a tmux **target**, not always a session of its own. By default it is created as a *window*
+inside the session named by `primary_session` in the [[MY User Environment]] doc (`## tmux`), so it
+shows up as a **tab in the MuxUX frame bound to that session** instead of floating as a separate
+window. Read the key with `anchor-system env tmux primary_session`.
+
+That default is **advisory**: the key is resolved, the session is checked for liveness, and a
+standalone box is used when it is absent — which is what makes the key safe to carry in a
+vault-synced file, since on a machine with no such session it simply does not resolve. An **explicit**
+`--in` naming a dead session is a caller error and fails loudly instead; only the implicit default
+falls back, and it says so on stderr.
+
+Why it exists: a detached box session could only be seen by binding a whole MuxUX frame to it, and
+that is how `trot` came to be misread as an agent frame and started capturing dictation clicks
+(MUX T322/T323).
+
+Two tmux behaviors this relies on, both verified rather than assumed:
+
+- **`automatic-rename` is on by default**, so a hosted box's window would be renamed to whatever it
+  is running and its `=host:=name` target would stop resolving mid-command. The name is pinned off
+  at creation.
+- **`display-message` on a window that does not exist does not fail** — it silently resolves to the
+  host session's *current* window and exits 0. So the T586 occupant guard only ever probes a box
+  that already exists; otherwise it reads whatever the user is looking at (in a MuxUX frame, almost
+  always a `claude` pane) and refuses every first box. `send-keys` does **not** share that fallback.
+
+Test: `tests/live/test-box-hosting.sh` — 14 checks, real tmux round trips, scratch sessions only.
 
 ## Safari — navigate and extract
 

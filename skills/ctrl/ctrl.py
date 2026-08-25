@@ -497,6 +497,158 @@ def perform_jsearch(query: str, output_path: str = None) -> List[dict]:
         return []
 
 
+def _add_box_host_args(p):
+    """`--in` / `--standalone` — where a box lives. See § Box hosting."""
+    p.add_argument('--in', dest='host_session', metavar='SESSION', default=None,
+                   help='Host the box as a tmux WINDOW in SESSION, so it shows '
+                        'up as a tab in the MuxUX frame bound to it. Defaults '
+                        'to `primary_session` from the User Environment doc '
+                        'when that session is live.')
+    p.add_argument('--standalone', action='store_true',
+                   help='Force a standalone tmux session, ignoring '
+                        'primary_session.')
+
+
+# ── Box hosting — a box is a tmux TARGET, not always a session (MUX T323) ──
+#
+# Historically `ctrl box` created a DETACHED SESSION (`trot`) floating outside
+# the user's MuxUX window. The only way to see it was to bind a separate MuxUX
+# frame to it — and that is what let `trot` be misread as an agent frame and
+# start capturing dictation clicks (MUX T322).
+#
+# A box may instead be HOSTED: created as a tmux *window* inside an existing
+# session, so it shows up as a TAB in the MuxUX frame bound to that session
+# rather than as its own window. The host defaults to `primary_session` in the
+# F182 User Environment doc (`~/ob/kmr/MY/MY User Environment.md`).
+#
+# That default is ADVISORY BY DESIGN: the key is resolved, the session is
+# checked for liveness, and a standalone box is used when it is absent. That
+# fallback is what makes the key safe to carry in a vault-synced file — on a
+# machine with no such session (Dexter, a fresh box) it simply does not
+# resolve. An EXPLICIT `--in` naming a dead session is a caller error and
+# fails loudly instead; only the implicit default falls back.
+#
+# Targets are built with tmux's `=` exact-match prefix. A bare `-t trot`
+# PREFIX-MATCHES, so it silently resolves to a session named `trotsomething`;
+# `=trot:` does not. The trailing colon is load-bearing — `-t =trot` is not a
+# valid pane target, `-t =trot:` is.
+
+# realpath, NOT abspath: `ctrl` is invoked through the `~/bin/ctrl` symlink,
+# and abspath does not follow symlinks — it would resolve the sibling skill to
+# `~/anchor-system/scripts/`, which does not exist, and the fail-soft below
+# would silently report "no primary_session" on a machine that has one.
+_USER_ENV_SCRIPT = os.path.join(
+    os.path.dirname(os.path.realpath(__file__)),
+    "..", "anchor-system", "scripts", "user_env.py")
+
+
+def _user_env_get(section: str, key: str):
+    """One scalar from the F182 User Environment doc, or None.
+
+    Fails SOFT on every error — a missing doc, a missing accessor, a parse
+    failure. None of those may make `ctrl box` unusable; they only mean the
+    box is not hosted.
+    """
+    try:
+        import importlib.util
+        if not os.path.exists(_USER_ENV_SCRIPT):
+            return None
+        spec = importlib.util.spec_from_file_location(
+            "_ctrl_user_env", _USER_ENV_SCRIPT)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        v = mod.get(section, key)
+        return v.strip() if isinstance(v, str) and v.strip() else None
+    except Exception:
+        return None
+
+
+def _tmux(*args, timeout=5):
+    """Run a tmux command; None when tmux cannot be reached at all."""
+    try:
+        return subprocess.run(['tmux', *args], capture_output=True,
+                              text=True, timeout=timeout)
+    except (OSError, subprocess.SubprocessError):
+        return None
+
+
+def _session_live(name: str) -> bool:
+    r = _tmux('has-session', '-t', f'={name}')
+    return bool(r and r.returncode == 0)
+
+
+def _window_live(host: str, name: str) -> bool:
+    r = _tmux('list-windows', '-t', f'={host}', '-F', '#{window_name}')
+    if not r or r.returncode != 0:
+        return False
+    return any(line.strip() == name for line in r.stdout.splitlines())
+
+
+def _box_target(name: str, host):
+    """tmux target for a box — exact-matched, pane-resolvable."""
+    return f'={host}:={name}' if host else f'={name}:'
+
+
+def resolve_box_host(explicit=None, standalone=False):
+    """Which session hosts the box, or None for a standalone box."""
+    if standalone:
+        return None
+    if explicit:
+        if not _session_live(explicit):
+            print(f"⛔ ctrl box: --in '{explicit}' is not a live tmux session.",
+                  file=sys.stderr)
+            sys.exit(1)
+        return explicit
+    host = _user_env_get('tmux', 'primary_session')
+    if not host:
+        return None
+    if not _session_live(host):
+        # Surfaced, not silent: the key IS set, so its session going missing
+        # is a state worth seeing. An unset key is normal and says nothing.
+        print(f"ctrl box: primary_session '{host}' is not live — "
+              f"using a standalone box.", file=sys.stderr)
+        return None
+    return host
+
+
+def _ensure_box(name: str, host):
+    """Create the box if it is absent. Returns its tmux target."""
+    if host:
+        if not _window_live(host, name):
+            print(f"📦 Creating box window {host}:{name}")
+            r = _tmux('new-window', '-d', '-t', f'={host}', '-n', name)
+            if not r or r.returncode != 0:
+                err = r.stderr if r else 'tmux unreachable'
+                raise Exception(f"Failed to create box window: {err}")
+            # `automatic-rename` is ON by default, so the shell would rename
+            # this window to whatever runs in it — and `=host:=name` would
+            # stop resolving mid-command. Pin the name.
+            _tmux('set-window-option', '-t', f'={host}:={name}',
+                  'automatic-rename', 'off')
+            time.sleep(0.5)
+    elif not _session_live(name):
+        print(f"📦 Creating new tmux session: {name}")
+        r = _tmux('new-session', '-d', '-s', name)
+        if not r or r.returncode != 0:
+            err = r.stderr if r else 'tmux unreachable'
+            raise Exception(f"Failed to create tmux session: {err}")
+        time.sleep(0.5)
+    return _box_target(name, host)
+
+
+def _find_box(name: str, host):
+    """Locate an EXISTING box without creating one; None when there is none.
+
+    Hosted first, then a standalone session of the same name — so `outbox`
+    keeps reading a box created before hosting was turned on.
+    """
+    if host and _window_live(host, name):
+        return _box_target(name, host)
+    if _session_live(name):
+        return _box_target(name, None)
+    return None
+
+
 # TINK T586 — the pane this is about to type into may not be a shell.
 #
 # Anything not in this set means a program owns the pane's foreground, so
@@ -505,8 +657,8 @@ def perform_jsearch(query: str, output_path: str = None) -> List[dict]:
 _BOX_SHELLS = {"bash", "zsh", "sh", "fish", "dash", "ksh", "tcsh", "csh"}
 
 
-def _box_occupant(session_name: str):
-    """What is running in `session_name`, or None when it is an idle shell.
+def _box_occupant(target: str):
+    """What is running in `target`, or None when it is an idle shell.
 
     WHY THIS EXISTS. On 2026-08-21 `ctrl box "<cmd>"` — used exactly as the
     global CLAUDE.md recommends it, to start a long-running process — sent its
@@ -533,7 +685,7 @@ def _box_occupant(session_name: str):
     """
     try:
         r = subprocess.run(
-            ['tmux', 'display-message', '-p', '-t', session_name,
+            ['tmux', 'display-message', '-p', '-t', target,
              '#{pane_current_command}'],
             capture_output=True, text=True, timeout=5)
     except (OSError, subprocess.SubprocessError):
@@ -546,11 +698,30 @@ def _box_occupant(session_name: str):
     return cmd
 
 
-def execute_box_command(command: str, session_name: str = "trot"):
-    """Execute command in a named tmux session."""
+def execute_box_command(command: str, session_name: str = "trot",
+                        host_session=None, standalone: bool = False):
+    """Execute command in a box — a tmux window in `host_session`, or a
+    standalone session of its own. See § Box hosting above."""
     current_dir = os.getcwd()  # Get caller's current working directory
 
-    occupant = _box_occupant(session_name)
+    host = resolve_box_host(host_session, standalone)
+    # The occupant guard MUST probe the target we are about to write to, not
+    # merely some box of that name — `_find_box`'s hosted→standalone fallback
+    # is a READ convenience and would check a different pane than `_ensure_box`
+    # writes to. The write target is deterministic, so compute it directly;
+    # `_box_occupant` fails open when it does not exist yet.
+    target = _box_target(session_name, host)
+
+    # Probe ONLY a box that already exists. `display-message -p -t
+    # '=Drift:=nosuchwindow'` does not fail — it SILENTLY resolves to the host
+    # session's CURRENT window and exits 0. So probing a hosted box before it
+    # is created reads whatever the user happens to be looking at, which in a
+    # MuxUX frame is almost always a `claude` pane, and refuses every first
+    # box into a host. (`send-keys` does NOT share that fallback — it errors
+    # with "can't find window" — so this was a false refusal rather than a
+    # stray-write risk. Verified against tmux on 2026-08-25.)
+    exists = _window_live(host, session_name) if host else _session_live(session_name)
+    occupant = _box_occupant(target) if exists else None
     if occupant:
         print(f"⛔ ctrl box: session '{session_name}' is running "
               f"`{occupant}`, not an idle shell — refusing to type into it.",
@@ -564,33 +735,13 @@ def execute_box_command(command: str, session_name: str = "trot"):
         sys.exit(1)
 
     try:
-        # Check if box session exists
-        check_result = subprocess.run(
-            ['tmux', 'has-session', '-t', session_name],
-            capture_output=True,
-            text=True
-        )
-
-        # Create session if it doesn't exist
-        if check_result.returncode != 0:
-            print(f"📦 Creating new tmux session: {session_name}")
-            create_result = subprocess.run(
-                ['tmux', 'new-session', '-d', '-s', session_name],
-                capture_output=True,
-                text=True
-            )
-
-            if create_result.returncode != 0:
-                raise Exception(f"Failed to create tmux session: {create_result.stderr}")
-
-            # Small delay to ensure session is ready
-            time.sleep(0.5)
+        target = _ensure_box(session_name, host)
 
         print(f"📦 Executing in box: {command}")
 
         # First, change to the caller's current working directory
         cd_result = subprocess.run(
-            ['tmux', 'send-keys', '-t', session_name, f'cd "{current_dir}"', 'Enter'],
+            ['tmux', 'send-keys', '-t', target, f'cd "{current_dir}"', 'Enter'],
             capture_output=True,
             text=True
         )
@@ -603,7 +754,7 @@ def execute_box_command(command: str, session_name: str = "trot"):
 
         # Send the actual command to the session
         send_result = subprocess.run(
-            ['tmux', 'send-keys', '-t', session_name, command, 'Enter'],
+            ['tmux', 'send-keys', '-t', target, command, 'Enter'],
             capture_output=True,
             text=True
         )
@@ -611,31 +762,30 @@ def execute_box_command(command: str, session_name: str = "trot"):
         if send_result.returncode != 0:
             raise Exception(f"Failed to send command to session: {send_result.stderr}")
 
-        print(f"✅ Command sent to box")
+        where = f"{host}:{session_name}" if host else session_name
+        print(f"✅ Command sent to box ({where})")
 
     except Exception as e:
         print(f"Error executing box command: {e}", file=sys.stderr)
         sys.exit(1)
 
 
-def get_box_output(lines: int = 50, session_name: str = "trot"):
-    """Get the last N lines from a named tmux session."""
+def get_box_output(lines: int = 50, session_name: str = "trot",
+                   host_session=None, standalone: bool = False):
+    """Get the last N lines from a box. See § Box hosting above."""
 
     try:
-        # Check if box session exists
-        check_result = subprocess.run(
-            ['tmux', 'has-session', '-t', session_name],
-            capture_output=True,
-            text=True
-        )
+        host = resolve_box_host(host_session, standalone)
+        target = _find_box(session_name, host)
 
-        if check_result.returncode != 0:
-            print(f"Error: No box session exists. Run 'ctrl box <command>' first.", file=sys.stderr)
+        if target is None:
+            print(f"Error: No box '{session_name}' exists. "
+                  f"Run 'ctrl box <command>' first.", file=sys.stderr)
             sys.exit(1)
 
         # Capture the pane content
         capture_result = subprocess.run(
-            ['tmux', 'capture-pane', '-t', session_name, '-p', '-S', f'-{lines}'],
+            ['tmux', 'capture-pane', '-t', target, '-p', '-S', f'-{lines}'],
             capture_output=True,
             text=True
         )
@@ -729,14 +879,18 @@ def cmd_box(args):
 
     session_name = getattr(args, 'session_name', 'trot')
     command = ' '.join(args.box_command)
-    execute_box_command(command, session_name)
+    execute_box_command(command, session_name,
+                        host_session=getattr(args, 'host_session', None),
+                        standalone=getattr(args, 'standalone', False))
 
 
 def cmd_outbox(args):
     """Handle the outbox command - get output from a named tmux session."""
     session_name = getattr(args, 'session_name', 'trot')
     lines = args.lines if args.lines else 50
-    get_box_output(lines, session_name)
+    get_box_output(lines, session_name,
+                   host_session=getattr(args, 'host_session', None),
+                   standalone=getattr(args, 'standalone', False))
 
 
 def cmd_jsearch(args):
@@ -2975,6 +3129,7 @@ def parse_arguments():
     # Trot command - execute in persistent tmux session (primary name)
     trot_parser = subparsers.add_parser('trot', help='Execute command in trot tmux session')
     trot_parser.add_argument('box_command', nargs='+', help='Command to execute')
+    _add_box_host_args(trot_parser)
 
     # Box command - alias for trot (backward compatibility)
     box_parser = subparsers.add_parser('box', help='Execute command in a scratch tmux session (default: trot)')
@@ -2982,22 +3137,26 @@ def parse_arguments():
                             help='tmux session to run in (default: trot). Use a distinct '
                                  'name when trot is hosting an agent — T586.')
     box_parser.add_argument('box_command', nargs='+', help='Command to execute in box')
+    _add_box_host_args(box_parser)
 
     # Outbox command - get output from session
     outbox_parser = subparsers.add_parser('outbox', help='Get output from a scratch tmux session (default: trot)')
     outbox_parser.add_argument('--session', dest='session_name', default='trot',
                                help='tmux session to read (default: trot)')
     outbox_parser.add_argument('lines', nargs='?', type=int, default=50, help='Number of lines to retrieve (default: 50)')
+    _add_box_host_args(outbox_parser)
 
     # Numbered box/outbox commands (box2-box9, outbox2-outbox9)
     for n in range(2, 10):
         bp = subparsers.add_parser(f'box{n}', help=f'Execute command in box{n} tmux session')
         bp.add_argument('box_command', nargs='+', help='Command to execute')
         bp.set_defaults(session_name=f'box{n}')
+        _add_box_host_args(bp)
 
         op = subparsers.add_parser(f'outbox{n}', help=f'Get output from box{n} tmux session')
         op.add_argument('lines', nargs='?', type=int, default=50, help='Number of lines to retrieve')
         op.set_defaults(session_name=f'box{n}')
+        _add_box_host_args(op)
 
     # JSON Search command
     jsearch_parser = subparsers.add_parser('jsearch', help='Perform Google search and return JSON results')
