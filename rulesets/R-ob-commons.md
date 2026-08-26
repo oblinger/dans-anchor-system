@@ -1,9 +1,13 @@
 # RULESET R-ob-commons
 include::
-description:: The commons operating model — repos whose history is machine-owned. Agents never commit or push them; an hourly sweep does, without attribution. Members: the vault (`~/ob/kmr`) and `~/ob/grove/commons`.
+description:: The commons operating model — repos whose history is machine-owned. Agents never commit or push them; a sweep does, without attribution. Members: the vault (`~/ob/kmr`), `~/ob/grove/commons`, and `~/ob/bin`.
 
 > [!info] Provenance
 > Ruled by Dan 2026-08-22, after measuring that agent commits in the vault were both costly and unreliable: `git` itself is fast (0.12s status, 0.22s add on a 1.0 GB repo), but every commit is a tool-call round trip plus real reasoning about what to stage — and with 15 concurrent sessions an agent staging broadly commits *other* agents' half-finished work under its own message, so the provenance being paid for was already partly false. The vault has carried an hourly `km` commit-and-push since long before this rule; the rule stops agents duplicating it. Dan: *"there's just no provenance, no attribution. That's it. I think I'd rather that."*
+>
+> **`~/ob/bin` joined 2026-08-26**, on Dan's ruling, and it is the clearest case yet. `repo_sweep`'s own header already named it as the motivating example — *"a repo touched by whichever agent needed it is a repo nobody is responsible for, which is how `~/ob/bin` reached 87 uncommitted files and six months without a push."* The evidence was produced the same hour by the agent proposing it: a `git add -A` for an `ob_check` change swept up `Keyboard Maestro Macros.kmsync`, a binary another process had touched, and committed it under a message about a level/visibility split. That is precisely the failure this ruleset exists to prevent, committed by an agent who had read the ruleset.
+>
+> It differs from the vault in two ways that the deny message now states rather than papers over: the sweep is **daily** (`ob_daily` → `repo_sweep`), not hourly, and it **never pushes**. So "your work is saved" means committed locally and snapshotted by restic — not that it left the machine.
 >
 > **Deliberately NOT a member: the other 18 repos under `~/ob/grove/`** (warden, dict-a-mux, ob-utils, sv, …). Those are code repos with release discipline, and `repo_sweep`'s design states the opposite norm for them — *"an agent commits the repo it touched in the turn it touched it; every commit this task makes means the norm failed"*. Adding one is a one-line change to `COMMONS` below; do it only on an explicit ruling.
 
@@ -22,8 +26,22 @@ def body(ctx):
 
     # The repos whose history is machine-owned. Paths, not names: a worktree or
     # a symlinked alias resolves into one of these or it does not.
-    COMMONS = [Path.home() / "ob" / "kmr",
-               Path.home() / "ob" / "grove" / "commons"]
+    #
+    # Each member carries the sentence describing THE SWEEP THAT ACTUALLY COVERS
+    # IT, because they differ and a guard whose explanation is false teaches the
+    # agent to distrust the guard. The vault is swept hourly and pushed; ~/ob/bin
+    # is swept daily and never pushed. Telling a bin author "an hourly sweep
+    # pushes everything" would be two lies in one clause.
+    COMMONS = {
+        Path.home() / "ob" / "kmr":
+            "an hourly `km` sweep commits and pushes everything",
+        Path.home() / "ob" / "grove" / "commons":
+            "an hourly `km` sweep commits and pushes everything",
+        Path.home() / "ob" / "bin":
+            "the daily `repo_sweep` (run by `ob_daily`) commits everything, and "
+            "restic snapshots every 10 minutes -- note it does NOT push, so this "
+            "repo's commits stay on this machine",
+    }
 
     try:
         words = shlex.split(cmd)
@@ -123,22 +141,22 @@ def body(ctx):
             probe = probe.parent
         if repo is None:
             continue  # not in a repo at all -- nothing to guard
-        for root in COMMONS:
+        for root, sweep in COMMONS.items():
             try:
                 rroot = root.resolve()
             except OSError:
                 continue
             if repo == rroot:
                 return ["DENY: `git %s` inside %s -- this repo is COMMONS: its history "
-                        "is machine-owned. An hourly `km` sweep commits and pushes "
-                        "everything, so your work IS being saved; you do not commit it, "
-                        "and there is no attribution by design. Reads (`git show`, "
-                        "`git log`, `git diff`) are still open -- use them freely. "
-                        "Record WHY a change was made in the document itself (a dated "
-                        "bullet, a `## History` line, the BRIEF), which is where this "
-                        "vault's durable reasoning has always lived. "
+                        "is machine-owned. %s, so your work IS being saved; you do not "
+                        "commit it, and there is no attribution by design. Reads "
+                        "(`git show`, `git log`, `git diff`) are still open -- use them "
+                        "freely. Record WHY a change was made where the change lives -- "
+                        "a dated bullet, a `## History` line, the BRIEF, or for a script, "
+                        "a comment and its module doc -- because there is no commit "
+                        "message to carry it. "
                         "See ~/ob/kmr/CLAUDE.md -- The commons: you do not commit here."
-                        % (sub, str(rroot).replace(str(Path.home()), "~"))]
+                        % (sub, str(rroot).replace(str(Path.home()), "~"), sweep)]
     return []
 ```
 
