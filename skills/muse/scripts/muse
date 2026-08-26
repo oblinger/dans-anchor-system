@@ -87,6 +87,7 @@ MUSE_SWEEP_LOCKDIR=""
 # coreutils provides `gtimeout`). Empty → commands run unguarded (best-effort).
 TIMEOUT_BIN="$(command -v timeout 2>/dev/null || command -v gtimeout 2>/dev/null || true)"
 MUSE_IO_TIMEOUT="${MUSE_IO_TIMEOUT:-120}"   # seconds for a single hash/transcribe
+MUSE_MATERIALIZE_WAIT="${MUSE_MATERIALIZE_WAIT:-20}"  # seconds to wait for iCloud to re-download an evicted file
 # T569 — what may permanently stop retrying a recording is a POSITIVE reading of
 # the AUDIO, never a count of failures. `.muse.failures` still counts, but the
 # count is an instrument now: it is reported and never gates. The gate is
@@ -276,6 +277,29 @@ _recorded_size() {
 # burning file_stable + Whisper on every sweep. `.muse.failures` lines are
 # "<count> <size> <path>"; the size lets a genuinely-changed file (iCloud
 # finally materialized) reset the counter and get retried.
+# ATT handoff 2026-08-25 — iCloud EVICTS local copies under space pressure,
+# leaving a 0-byte dataless stub whose ledger/Finder size is still real. muse
+# used to read the stub, score a decode failure, and a routine eviction read
+# as permanent data loss. Detect datalessness (zero size, or fewer blocks
+# allocated than the logical size needs), ask iCloud for the bytes, and wait
+# briefly — measured materialization on the live corpus was under 8 seconds.
+_materialize() {  # <path> — returns 0 once the file looks fully local
+    local path="$1" size blocks waited=0
+    size="$(stat -f '%z' "$path" 2>/dev/null || echo 0)"
+    blocks="$(stat -f '%b' "$path" 2>/dev/null || echo 0)"
+    (( size > 0 )) && (( blocks * 512 >= size )) && return 0
+    command -v brctl >/dev/null 2>&1 || return 1
+    brctl download "$path" 2>/dev/null || true
+    while (( waited < MUSE_MATERIALIZE_WAIT )); do
+        sleep 2; waited=$((waited + 2))
+        size="$(stat -f '%z' "$path" 2>/dev/null || echo 0)"
+        blocks="$(stat -f '%b' "$path" 2>/dev/null || echo 0)"
+        (( size > 0 )) && (( blocks * 512 >= size )) && return 0
+    done
+    return 1
+}
+
+
 # T569 — the positive test. Dan, 2026-08-20: "We should have a positive way of
 # understanding whether or not it's possible to transcribe the audio. And if
 # not, we can fail it the first time. And if so, then we just keep trying until
@@ -314,7 +338,12 @@ audio_readable() {  # <path> — echoes readable|unreadable|unknown
     # none. Verified 2026-08-20 against the live JPR corpus.
     size="$(stat -f '%z' "$audio" 2>/dev/null || echo 0)"
     blocks="$(stat -f '%b' "$audio" 2>/dev/null || echo 0)"
-    if (( size > 0 )) && (( blocks * 512 < size )); then echo unknown; return; fi
+    # A ZERO logical size is also no reading: iCloud eviction can leave a
+    # 0-byte dataless stub (ATT handoff 2026-08-25), and a 0-byte file is
+    # indistinguishable from one whose bytes are elsewhere. Unknown, not
+    # unreadable — rejecting a stub turns a routine eviction into what looks
+    # like permanent data loss.
+    if (( size == 0 )) || (( blocks * 512 < size )); then echo unknown; return; fi
 
     streams="$("$probe_bin" -v error -select_streams a -show_entries stream=codec_type \
         -of csv=p=0 "$audio" 2>/dev/null || true)"
@@ -900,6 +929,14 @@ ingest_sweep() {
             log "sweep: MUSE_MAX_FAILURES=$MUSE_MAX_FAILURES cap reached ($fc fails) — skipping: $candidate"
             continue
         fi
+        # A dataless stub is not the recording — bring the bytes back first
+        # (no-op for a fully-local file; ATT handoff 2026-08-25).
+        if ! _materialize "$candidate"; then
+            warn "dataless in iCloud, did not materialize in ${MUSE_MATERIALIZE_WAIT}s — will retry next sweep: $candidate"
+            retrying=$((retrying + 1))
+            continue
+        fi
+        csize="$(stat -f '%z' "$candidate" 2>/dev/null || echo 0)"
         # Wait for iCloud materialization to finish before hashing/transcribing.
         if ! file_stable "$candidate"; then
             warn "size unstable after ~30s (still uploading?) — skipping: $candidate"
