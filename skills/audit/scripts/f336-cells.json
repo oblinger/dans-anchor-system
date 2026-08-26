@@ -133,6 +133,9 @@
   "Architecture": {
    "{anchor}/{slug} Design/{slug} Architecture/": 8
   },
+  "Proj": {
+   "{anchor}/{slug} Proj/": 2
+  },
   "Subs": {
    "{anchor}/{slug} Subs/": 2
   },

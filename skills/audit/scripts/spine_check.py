@@ -337,11 +337,15 @@ def check(path: Path) -> list[tuple[str, int, str]]:
 
 
 def walk(root: Path):
+    from spine import mirror_roots, in_mirror_route     # one copy of the rule, in the shared classifier
+    mirrors = mirror_roots()
     for p in sorted(root.rglob("*.md")):
         if any(x in SKIP_DIRS for x in p.parts):
             continue
         if not p.is_file():          # this vault has DIRECTORIES named *.md
             continue
+        if in_mirror_route(p, mirrors):
+            continue                 # ships to a repo; the spine is not its shape
         yield p
 
 

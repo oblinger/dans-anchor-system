@@ -2577,7 +2577,9 @@ def _hosted_pending_items(backlog_path, body, letters):
                 f"* Track/* Features/{stem}.md",
                 f"* Design/* Features/{stem}/{stem}.md",
                 f"* Track/* Features/{stem}/{stem}.md",
-                # F331 subs — root-level `{slug} Subs/`, folder-doc form.
+                # F331/F596 proj — root-level `{slug} Proj/` (legacy `{slug} Subs/`), folder-doc form.
+                f"* Proj/{stem}/{stem}.md",
+                f"* Proj/{stem}.md",
                 f"* Subs/{stem}/{stem}.md",
                 f"* Subs/{stem}.md",
                 # F329 — T-docs live directly in the folder-form backlog
@@ -3570,7 +3572,8 @@ def _candidate_feature_dirs(slug, backlog_path):
         anchor_root / f"{slug} Design" / f"{slug} Features",  # new canonical
         track_dir / f"{slug} Features",                       # legacy sibling
         anchor_root / f"{slug} Features",                     # older flat variant
-        anchor_root / f"{slug} Subs",                          # F331 subs
+        anchor_root / f"{slug} Proj",                          # F596 proj
+        anchor_root / f"{slug} Subs",                          # F331 subs (legacy)
         track_dir / f"{slug} Backlog",                         # F329 T-docs
     ]
 

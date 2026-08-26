@@ -24,7 +24,7 @@ Every row is one thing Lumen does in the morning, in order. Detail follows below
 | **Calendar** | Fetch today's events. Necessary but **not sufficient** — see Mail, below. |
 | **Dates** | Read `MY Dates.md` for birthdays and anniversaries coming up. Card rows need six weeks, not two. |
 | **Mail** | Surface only messages matching `LUMEN Watchlist.md`. Skip entirely if it is empty. Then run `appointment-scan.py` — some appointments never reach a calendar and live only in mail. |
-| **Doctor** | Read [[SYS Doctor Report]] — the two top sections only. Surface what CHANGED, and name how long anything failing has been failing. |
+| **Doctor** | Launch any due `ob_check` **agent** check, then read [[SYS Doctor Report]] — the two top sections only. Surface what CHANGED, and name how long anything failing has been failing. |
 | **Hot** | Read [[Rocks]] — the live block only — for what the user has declared currently matters. |
 | **Loose** | Scan [[Quick]] and Lumen's own `## Now` for anything captured since the last run. |
 | **Today** | Choose 3–5 items *across* domains and put them on screen, decisions first. |
@@ -132,6 +132,24 @@ It reads its senders from the Watchlist — never its own copy — and prints on
 **Do not treat the calendar as complete on its own.** The class is *senders who mail appointments without an `.ics`*, and Sutter is only the instance that exposed it — when another one turns up, it goes in the Watchlist rather than into the script.
 
 ## Doctor
+
+**First, run the agent checks — nothing else will.** `ob_check run` executes the `machine` checks and deliberately stops there ([[ATT048 - ob_check - a health-message queue any script can post to|ATT F048]]); the `agent` kind exists for judgements a grep cannot make, and **Daybreak is its only invoker**. That invoker went unbuilt for the anchor's first weeks, and `daily.log.review` — the check whose job is to read the nightly sweep — sat stale sixteen days as a result. Wired 2026-08-25 by [[LUMEN035 - Daybreak runs the agent checks|F035]].
+
+    python3 ~/.claude/skills/daybreak/scripts/agent-checks-due.py
+
+It prints one `topic<TAB>doc_path` line per check that is **due**, and nothing at all when nothing is. **Treat silence as a real answer** — it means every agent check has posted inside its own `max_age`, which is the ordinary morning.
+
+**Enumeration comes from the registry, never from a list written here.** The script filters `kind == "agent"` out of `ob_check checks --json`; each entry carries its own `max_age`, `last_seen`, and a resolved `doc_path`. Hard-coding today's one check into this file would reproduce the original defect one layer up — the *second* agent check would be registered and silently never run.
+
+- **A check inside its window is skipped**, so a second Daybreak run in the same hour spawns nothing. A check that has *never* posted has no `last_seen` and is always due.
+- **One background subagent per line printed, and the brief is the doc.** The whole instruction is *read `doc_path` and do what it says* — the doc carries the field contract, the level vocabulary, and its own `ob_check post` line. The launcher stays ignorant of any check's content, which is what lets a new check be added without touching Daybreak.
+- **Fire and move on; never block.** A wedged subagent must not be able to swallow the morning. If a check has not posted by the time the drain renders, its result lands in tomorrow's — and its topic goes stale on the third day, which is precisely the signal `max_age` exists to give.
+
+**Then fold in the drain**, after the launches, so the morning's own posts are in this render rather than a day late:
+
+    ob_check drain
+
+**If `ob_check` is unreachable, say so in the briefing and continue** — the same rule as the calendar. A briefing that admits a channel was unreachable beats one that quietly dropped it.
 
 Read `~/ob/kmr/SYS/SYS Doctor/SYS Doctor Report.md` — one file, overwritten by every run, written inside `ob_daily` so by breakfast it carries **this** morning's findings. Dan put it in the morning himself, 2026-08-20: *"my idea is Lumen is part of her morning, we'll just look at the doctor report."*
 

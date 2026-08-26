@@ -1,7 +1,7 @@
 # RULESET R-chores
 where:: `file:{anchor}/**/* Chores.md, !**/DAS *.md`
 description:: the `{slug} Chores.md` sub-surface work file — flat list of items the user is neither aware of nor interested in
-selector-note:: Spelled `* Chores.md` rather than `{slug} Chores.md` for the same reason as [[R-subs]]'s selector ([[TINK Backlog#^T522|T522]]): when audited scoped on its own containing folder, `{slug}` can resolve to the wrong segment and match nothing.
+selector-note:: Spelled `* Chores.md` rather than `{slug} Chores.md` for the same reason as [[R-proj]]'s selector ([[TINK Backlog#^T522|T522]]): when audited scoped on its own containing folder, `{slug}` can resolve to the wrong segment and match nothing.
 
 What `/audit` checks on an anchor's Chores file. Cardinality: one per anchor, elective, present-or-empty. Format of this set: [[DAS Ruleset]]. Facet spec: [[DAS Chores]]. All rules ship (stated) — the facet is one day old with one live instance; checkers wait for a population.
 

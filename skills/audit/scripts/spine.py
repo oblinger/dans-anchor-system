@@ -454,12 +454,58 @@ def is_fixture(p: Path) -> bool:
     return "fixture" in parts and any("Corpus" in d for d in parts)
 
 
+MIRROR_INDEX = Path("~/.config/anchor-system/mirror-routes.json").expanduser()
+
+
+def mirror_roots() -> list:
+    """Folders `.anchor` declares under `mirror:` as copied into an external repo.
+
+    The spine is a VAULT convention: a `:>>` breadcrumb and a dispatch masthead
+    are built from wiki-links and `hook://` URIs, and both render as literal
+    noise on GitHub. So a doc that leaves the vault must not be graded as though
+    it stayed -- and, more sharply, must never be REPAIRED as though it stayed,
+    because `spine fix --vault` writes by default and would silently re-add the
+    header a human had just stripped on purpose.
+
+    Ruled by Dan 2026-08-25: *"anything that's gonna get mapped to the
+    repository ... should be exempt. If it's not getting mapped to repository,
+    then it should not be exempt."* That test is exactly this index, which is
+    why the routes are read rather than listed here -- `R-code-mirror` already
+    consumes the same file, and a second copy of the list drifts the first time
+    a route moves. An anchor page sitting outside every route (sv-pipe's own
+    `SVP.md`) keeps the rule, which is the ruling working in both directions.
+
+    An absent or unreadable index yields no exemptions: this fails toward MORE
+    checking, never less.
+    """
+    try:
+        import json
+        data = json.loads(MIRROR_INDEX.read_text())
+        return [Path(r["here"]) for r in data.get("routes", []) if r.get("here")]
+    except Exception:
+        return []
+
+
+def in_mirror_route(p: Path, roots=None) -> bool:
+    roots = mirror_roots() if roots is None else roots
+    for root in roots:
+        try:
+            p.resolve().relative_to(root.resolve())
+            return True
+        except (ValueError, OSError):
+            continue
+    return False
+
+
 def walk(root: Path):
+    mirrors = mirror_roots()
     for p in sorted(root.rglob("*.md")):
         if not p.is_file() or any(d in SKIP_DIRS for d in p.parts):
             continue
         if is_fixture(p):
             continue
+        if in_mirror_route(p, mirrors):
+            continue                 # ships to a repo; the spine is not its shape
         yield p
 
 

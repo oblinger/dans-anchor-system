@@ -117,6 +117,8 @@ import argparse
 import os
 import re
 import sys
+import unicodedata
+from urllib.parse import unquote
 
 # --- Warden self-fire (fork 9 option A, 2026-07-13) -------------------------
 # Script-written files bypass Warden's PostToolUse hook (agent tool calls
@@ -598,8 +600,22 @@ def _resolve_wiki(parsed: dict, source_file: Path,
     }
 
 
+def _github_heading_slug(heading: str) -> str:
+    """GitHub-style anchor slug for a heading — the form standard markdown
+    links use as fragments (`#tape--the-store`). Lets C22 verify a
+    slug-fragment link against the target's raw heading text."""
+    s = unicodedata.normalize("NFKD", heading).strip().lower()
+    s = re.sub(r"[^\w\- ]", "", s)
+    return s.replace(" ", "-")
+
+
 def _parse_markdown(text: str, path: str, source_file: Path) -> dict:
-    """Parse markdown link [text](path). Resolve path relative to source_file."""
+    """Parse markdown link [text](path). Resolve path relative to source_file.
+
+    The path is URL-decoded first: standard markdown encodes spaces as `%20`
+    (the F049 wiki-link conversion emits exactly that), and the on-disk
+    filename is the decoded form."""
+    path = unquote(path)
     target_heading = None
     if "#" in path:
         path_part, anchor = path.split("#", 1)
@@ -621,7 +637,16 @@ def _parse_markdown(text: str, path: str, source_file: Path) -> dict:
     target_anchor_resolves: Optional[bool] = None
     target_line = 0
     if target_file and target_heading:
-        line_num = headings_in(target_file).get(target_heading, 0)
+        hmap = headings_in(target_file)
+        line_num = hmap.get(target_heading, 0)
+        if line_num == 0:
+            # Slug-form fragment (GitHub-style `#some-heading`) — compare
+            # against each heading's computed slug.
+            want = _github_heading_slug(target_heading)
+            for h, ln in hmap.items():
+                if _github_heading_slug(h) == want:
+                    line_num = ln
+                    break
         target_anchor_resolves = line_num > 0
         target_line = line_num
     return {

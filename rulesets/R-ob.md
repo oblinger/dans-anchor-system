@@ -49,7 +49,7 @@ set-id: OB
 | [[R-diagram-geometry]]  | Hard-fail geometric correctness for hand-authored diagrams — overlap, floating endpoints, tunneling, text overflow, label-association ambiguity, label-label collision. |
 | [[R-discussion]]  | planning trade-offs |
 | [[R-dispatch-group]]  | the DAS Dispatch family index — the per-section sub-folder dispatch-page facet group |
-| [[R-dispatch-guard]]  | The `tool:pre` veto twin of [[R-dispatch-table]]-06 — a Write/Edit (and, best-effort, a Bash heredoc) that would put narrative prose in a masthead RIGHT cell is **denied** before the bytes land, not advised after. Rides `anchor-base`. Ratcheted: only a NEW offending cell denies, so the 1,374-cell legacy corpus stays editable and cleanable. |
+| [[R-dispatch-guard]]  | The `tool:pre` veto twin of [[R-dispatch-table]]-06 — a Write/Edit (and, best-effort, a Bash heredoc) that would put more than 2 words in a row in a masthead RIGHT cell is **denied** before the bytes land, not advised after. Rides `anchor-base`. Touch means clean (ratchet removed 2026-08-22): any write that emits or changes a spine must leave the WHOLE spine legal, legacy cells included; only body-only Edits pass on a dirty doc. |
 | [[R-dispatch-table]]  | The shape every dispatch table must take — masthead-placement law, member-zone mechanics, and pipe-escaped cell links. |
 | [[R-doc]]  | Everything checked when auditing a document — markdown + file + dispatch-table conventions plus the doc-facet rulesets (Doc Structure, Ruleset, Brief, Discussion, Log, Messages, Query, Backlog) and the design-doc facet rulesets (PRD, Architecture, Testing, Decisions, Stories). |
 | [[R-doc-facet]]  | what makes a content region a document facet (vs. a structural file/folder) |
@@ -95,6 +95,7 @@ set-id: OB
 | [[R-prd]]  | facet spec this doc follows |
 | [[R-process]]  | Process rulesets — feature lifecycle, verification tiers, state transitions. Adopt the umbrella to pull all process rulesets. |
 | [[R-progressive]]  | layout conventions of progressive disclosure — checked on every markdown doc |
+| [[R-proj]]  | the `{slug} Proj/` subprojects zone — a dated reverse-chronological stream of project folders (renamed from Subs) |
 | [[R-project-page]]  | Rules every Project Page instance must satisfy — presence of a `website/` folder, the Jekyll cayman front matter, and the deploy script. |
 | [[R-query]]  | the `{slug} queries.md` format |
 | [[R-roadmap]]  | facet spec for the project sequencing-design doc — milestones, shapes, and numbering |
@@ -113,7 +114,6 @@ set-id: OB
 | [[R-stone]]  | Structural rules for a stone group — folder location and naming, the control file, the header-by-link-target rule, stone numbering, and the key block's position. |
 | [[R-stories]]  | Structural rules for the {slug} Stories facet — folder shape, story file naming, dispatch table, bidirectional linking. |
 | [[R-stream]]  | Rules ADDED by the dated specialization on top of [[R-file-association]] — newest-first ordering + prepend immutability, the parallel-entry-skeleton invariant, and ISO-date entry-file naming. |
-| [[R-subs]]  | the `{slug} Subs/` subprojects zone — week-scale sub-efforts numbered from the anchor's F-mint |
 | [[R-sugiyama]]  | Sugiyama-style graph-drawing aesthetics; quality rules below the hard-fail threshold. |
 | [[R-svg-hygiene]]  | File-format hygiene for hand-authored SVG diagrams. |
 | [[R-svg-jiggle]]  | Geometry-aware layout-repair ("jiggle") for hand-authored SVG diagrams — detect a named, explicit issue list, then resolve each issue with the cheapest resolution that closes it without opening a new one. |

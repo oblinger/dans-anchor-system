@@ -10,3 +10,6 @@ traits:
 - doc
 - arch
 - process
+mirror:
+- here: Warden Corpus
+  there: /Users/oblinger/ob/grove/warden/Warden Corpus
