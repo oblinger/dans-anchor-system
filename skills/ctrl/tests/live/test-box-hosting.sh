@@ -167,6 +167,32 @@ if [ "$(tmux show-options -v -t "=$BOX6:" @muxux-kind 2>/dev/null)" = "console" 
 else bad "standalone box carries no session-scope declaration"; fi
 tmux kill-session -t "=$BOX6" 2>/dev/null
 
+echo "== 11. per-agent derivation: box-<SLUG> from the nearest .anchor (T598) =="
+WORK=$(mktemp -d)
+printf 'slug: CTRLTEST%s\n' "$$" > "$WORK/.anchor"
+DBOX="box-CTRLTEST$$"
+n=$(nonce)
+( cd "$WORK" && "$CTRL" box --standalone "echo $n" >/dev/null 2>&1 )
+sleep 1
+if tmux has-session -t "=$DBOX" 2>/dev/null; then ok "derived session $DBOX exists"
+else bad "derived session $DBOX missing"; fi
+if ( cd "$WORK" && "$CTRL" outbox --standalone 40 2>/dev/null ) | grep -q "^$n$"; then
+    ok "derived round trip through the same derivation"
+else bad "derived round trip — nonce $n never came back"; fi
+
+echo "== 12. --session still overrides the derivation =="
+n=$(nonce)
+( cd "$WORK" && "$CTRL" box --session "$BOX" --standalone "echo $n" >/dev/null 2>&1 )
+sleep 1
+if "$CTRL" outbox --session "$BOX" --standalone 40 2>/dev/null | grep -q "^$n$"; then
+    ok "--session override lands in the named box"
+else bad "--session override — nonce $n never came back"; fi
+if "$CTRL" outbox --session "$DBOX" --standalone 40 2>/dev/null | grep -q "^$n$"; then
+    bad "override leaked into the derived box"
+else ok "derived box did not receive the overridden command"; fi
+tmux kill-session -t "=$DBOX" 2>/dev/null
+rm -rf "$WORK"
+
 echo
 if [ "$fails" -eq 0 ]; then echo "PASS — box hosting"; exit 0; fi
 echo "FAIL — $fails check(s)"; exit 1

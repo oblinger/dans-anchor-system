@@ -676,6 +676,62 @@ def _find_box(name: str, host):
     return None
 
 
+# ── Per-agent boxes (TINK T598, decided by Dan 2026-08-25) ──
+#
+# `ctrl box` used to default every caller into ONE shared session (`trot`).
+# Three live failures came from that sharing: two agents interleaving the
+# cd/command send-keys pair ran A's command in B's directory; `outbox` scraped
+# another agent's output as its own; and the T586 occupant guard turned every
+# collision into a refusal, so any long-running process in trot broke every
+# other agent's `ctrl box`. The fix is identity, not locking: each caller gets
+# its own box by default. `--session` stays the explicit override, and the
+# `trot` subcommand still names Dan's own box — his trigger passes it
+# explicitly.
+
+def _derive_box_name():
+    """Per-caller box name: `box-<SLUG>` from the nearest .anchor, else
+    `box-<session>-w<window>` from $TMUX_PANE, else legacy `trot`.
+
+    The anchor slug is preferred for legibility (`box-LUMEN` reads as whose
+    box it is); the pane identity is exact and free (every agent inherits
+    $TMUX_PANE). Names are sanitized to [A-Za-z0-9_-]: tmux silently rewrites
+    a dot to `_` in session names, and a name that mutates stops resolving.
+    """
+    import re as _re
+
+    def clean(s):
+        s = _re.sub(r'[^A-Za-z0-9_-]+', '-', s).strip('-')
+        return s or None
+
+    d = os.getcwd()
+    while True:
+        a = os.path.join(d, '.anchor')
+        if os.path.isfile(a):
+            try:
+                with open(a) as fh:
+                    for line in fh:
+                        if line.strip().startswith('slug:'):
+                            slug = clean(line.split(':', 1)[1].strip())
+                            if slug:
+                                return f'box-{slug}'
+            except OSError:
+                pass
+            break  # marker with no slug: fall through to pane identity
+        parent = os.path.dirname(d)
+        if parent == d:
+            break
+        d = parent
+    pane = os.environ.get('TMUX_PANE')
+    if pane:
+        r = _tmux('display-message', '-p', '-t', pane,
+                  '#{session_name}-w#{window_index}')
+        if r and r.returncode == 0:
+            ident = clean(r.stdout.strip())
+            if ident:
+                return f'box-{ident}'
+    return 'trot'
+
+
 # TINK T586 — the pane this is about to type into may not be a shell.
 #
 # Anything not in this set means a program owns the pane's foreground, so
@@ -904,7 +960,9 @@ def cmd_box(args):
         print("Error: No command provided", file=sys.stderr)
         sys.exit(1)
 
-    session_name = getattr(args, 'session_name', 'trot')
+    # `box` with no --session derives a per-caller name (T598); the `trot`
+    # subcommand and box2-9 arrive with session_name already set.
+    session_name = getattr(args, 'session_name', 'trot') or _derive_box_name()
     command = ' '.join(args.box_command)
     execute_box_command(command, session_name,
                         host_session=getattr(args, 'host_session', None),
@@ -913,7 +971,7 @@ def cmd_box(args):
 
 def cmd_outbox(args):
     """Handle the outbox command - get output from a named tmux session."""
-    session_name = getattr(args, 'session_name', 'trot')
+    session_name = getattr(args, 'session_name', 'trot') or _derive_box_name()
     lines = args.lines if args.lines else 50
     get_box_output(lines, session_name,
                    host_session=getattr(args, 'host_session', None),
@@ -3159,17 +3217,19 @@ def parse_arguments():
     _add_box_host_args(trot_parser)
 
     # Box command - alias for trot (backward compatibility)
-    box_parser = subparsers.add_parser('box', help='Execute command in a scratch tmux session (default: trot)')
-    box_parser.add_argument('--session', dest='session_name', default='trot',
-                            help='tmux session to run in (default: trot). Use a distinct '
-                                 'name when trot is hosting an agent — T586.')
+    box_parser = subparsers.add_parser('box', help='Execute command in a scratch tmux box (default: per-caller box-<SLUG>)')
+    box_parser.add_argument('--session', dest='session_name', default=None,
+                            help='box name to run in (default: derived per caller — '
+                                 'box-<anchor slug>, falling back to the caller tmux '
+                                 'pane identity; T598). `ctrl trot` still targets '
+                                 "Dan's own trot box.")
     box_parser.add_argument('box_command', nargs='+', help='Command to execute in box')
     _add_box_host_args(box_parser)
 
     # Outbox command - get output from session
-    outbox_parser = subparsers.add_parser('outbox', help='Get output from a scratch tmux session (default: trot)')
-    outbox_parser.add_argument('--session', dest='session_name', default='trot',
-                               help='tmux session to read (default: trot)')
+    outbox_parser = subparsers.add_parser('outbox', help='Get output from a scratch tmux box (default: per-caller box)')
+    outbox_parser.add_argument('--session', dest='session_name', default=None,
+                               help='box to read (default: derived per caller, same as `ctrl box`)')
     outbox_parser.add_argument('lines', nargs='?', type=int, default=50, help='Number of lines to retrieve (default: 50)')
     _add_box_host_args(outbox_parser)
 
