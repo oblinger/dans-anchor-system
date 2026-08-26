@@ -3977,6 +3977,23 @@ def chk_toc_table_iff_long(target, anchor_root, args):
     if f.name.endswith(" Inbox.md") or f.name.endswith(" Messages.md"):
         return "pass", "append-only log — its outline is the entry list itself"
     lines = _strip_fenced(_read(f)).splitlines()
+    # LUMEN F034 (2026-08-25) — the append-only exemption above, generalized
+    # to the SHAPE it was always about: a dated chronological log. LUMEN Day
+    # is eighteen dated `##` sections growing ~23 lines a day; its content
+    # outline IS its dated-H2 list in the order they appear, so a TOC restates
+    # the document and grows a row every morning without bound (and rotation is
+    # no remedy — a fresh day-log re-crosses 300 lines in ~13 days). Gate on
+    # the structure, never on a filename suffix: a `" Day.md"` suffix would
+    # silently exempt ordinary docs like `ASR Test Day.md`, and a silent wrong
+    # exemption is worse than the advisory. Threshold: 4+ H2s, ≥80% opening
+    # with an ISO date.
+    h2s = [ln for ln in lines if ln.startswith("## ")]
+    # An optional weekday prefix is part of the dated shape — LUMEN Day's own
+    # headings read `## Tue 2026-08-25 · W35`.
+    dated_h2s = sum(1 for ln in h2s if re.match(
+        r"##\s+(?:(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)\s+)?\d{4}-\d{2}-\d{2}\b", ln))
+    if len(h2s) >= 4 and dated_h2s >= 0.8 * len(h2s):
+        return "pass", "dated chronological log — its outline is the entry list itself"
     # First cell may be bold — md-toc.py (the sanctioned TOC generator) emits
     # `| **[[#Section]]** |`, which the bare `\[\[#` pattern missed, making
     # every md-toc-generated TOC read as absent (false R-doc-structure-03 fail,
