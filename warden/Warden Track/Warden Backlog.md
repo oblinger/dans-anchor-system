@@ -2,7 +2,7 @@
 description: "deferred work — roadmap milestones M0–M5"
 ---
 # Warden Backlog
-<!-- state:backlog ua -->
+<!-- state:backlog 3j -->
 
 > **This queue is RETIRED — 2026-08-11. Every open row moved to [[TINK Backlog]]; nothing new is filed here.**
 > Dan's direction: *"I wonder whether or not we should have a backlog for Warden. You're the only person really working that backlog, and I think it really can cause things to get gummed up when there's this other backlog out there. Why don't we pull everything from the warden backlog into your backlog?"* Warden's work is [[TINK|Tink]]'s work and always has been, so a second queue only split the view of what is live.
