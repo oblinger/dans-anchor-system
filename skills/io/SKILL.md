@@ -60,11 +60,15 @@ Read from and write to external services. Each sub-skill is an access card with 
 
 ## Auth
 
-Google API: OAuth at `~/.google_workspace_mcp/credentials/{user}@gmail.com.json` — **one file, both clients** (`gsa` and `workspace-mcp`). Token expires every 7 days (Testing mode). Personal account only. Re-consent via `/io gauth`, and see § Routing policy for the "Select all" trap that silently grants zero API scopes.
+Google API: OAuth at `~/.google_workspace_mcp/credentials/{account}.json` — **one directory, both clients** (`gsa` and `workspace-mcp`), one file per authorized account. Token expires every 7 days (Testing mode). Re-consent via `/io gauth`, and see § Routing policy for the "Select all" trap that silently grants zero API scopes.
 
-Apple surfaces (`imail`, `ical`, `ihealth`) carry **no auth here** — they run on TCC grants that do not expire, which is the whole reason they rank first.
+**There is more than one account, and the account is a parameter on every `g*` surface.** `gsa --account <email>` (or `$GSA_ACCOUNT` for a whole session) selects the identity for sheets, slides, docs, drive search **and** gmail; omitted, everything runs as `oblinger@gmail.com`. `gsa gmail accounts` lists what is authorized and which scopes each holds — check it before concluding a document is missing, because **a file you cannot see is far more often the wrong identity than a real absence**: the personal account gets a clean `404` on a SportsVisio doc, which reads exactly like "no such file".
 
-Last full re-consent: **2026-08-05**, 41 scopes granted (Gmail, Sheets, Docs, Drive, Slides all live).
+Until 2026-08-28 `--account` was parsed in the `gmail` branch alone, which was backwards — `dan@sportsvisio.com` holds documents/drive/spreadsheets/presentations and **no** Gmail scope, so the one service it could be addressed on was the one it is not authorized for. The flag is now global.
+
+Apple surfaces (`imail`, `ical`, `ihealth`) carry **no auth here** — they run on TCC grants that do not expire, which is the whole reason they rank first. They are also the only surfaces that are natively multi-account: `imail` reads every mailbox on this Mac at once, where each `g*` call speaks as exactly one identity.
+
+Last full re-consent: **2026-08-05**, 41 scopes granted on `oblinger@gmail.com` (Gmail, Sheets, Docs, Drive, Slides all live). `dan@sportsvisio.com` last granted 2026-08-13, 6 scopes, and its refresh token is **expired or revoked** as of 2026-08-28 — `gsa auth dan@sportsvisio.com` re-consents it.
 
 IDs accept full Google URLs or bare document IDs.
 
