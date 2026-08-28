@@ -1,3 +1,6 @@
+---
+description: idempotent structural repair for any anchor
+---
 | -[[rewire]]- | : idempotent structural repair for any anchor<br>→ [[DAS]] → [[SKL]] → [rewire](hook://p/rewire)  |
 | --- | --- |
 | Related | [[DAS Skills]],  [[DAS Dispatch Table]],  [[DAS Anchor Tree]],   |

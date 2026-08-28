@@ -1,4 +1,5 @@
 ---
+description: example grouped-dispatch collection (> 15 members)
 ---
 
 | -[[Devtools]]- | : example grouped-dispatch collection (> 15 members)<br>→ [[DAS]] → [[FEX]] → [Devtools](hook://p/Devtools)  |

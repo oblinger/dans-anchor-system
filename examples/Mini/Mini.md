@@ -1,4 +1,5 @@
 ---
+description: example project anchor — the MINIMAL design-docs world, counterpart to [[HBR]]
 ---
 
 | -[[Mini]]- | : example project anchor — the MINIMAL design-docs world, counterpart to [[HBR]]<br>→ [[DAS]] → [[FEX]] → [Mini](hook://p/Mini)  |

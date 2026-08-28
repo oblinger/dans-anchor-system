@@ -1,4 +1,5 @@
 ---
+description: "dated feature specs for the Warden engine"
 ---
 | -[[Warden Features]]- | : dated feature specs for the Warden engine<br>→ [[DAS]] → [[Warden]] → [[Warden Track]] → [Warden Features](hook://p/Warden%20Features)  |
 | --- | --- |
@@ -13,4 +14,3 @@
 | ... | [[F216 — Agent-state model — sensing what the agent is doing]],  [[F217 — Conversation-content gating — rules on what was said]],  [[F218 — Design-rules catalog — ship with skills, adopt per-application]],  [[F219 — Activation self-audit rules — base-trait + ruleset-reachability]],  [[F220 — Live hook install + kill switch]],  [[F221 — Live-integration test class]],  [[F222 — Doc-fire on write]],  [[F223 — Markdown-discipline layout rules]],  [[F229 — Retire bespoke vault-wide hooks — M4 completion]],  [[F231 — Warden observability — the why-did-that-happen log]],  [[F232 — Latent-bug audit 2026-07-06 — findings register]],  [[F234 — Fable scan — Warden engine]],   |
 
 # Warden Features
-

@@ -1,3 +1,6 @@
+---
+description: the per-group skill documentation pillar, one folder per skill group
+---
 | -[[skill-docs]]- | : the per-group skill documentation pillar, one folder per skill group<br>→ [[DAS]] → [skill-docs](hook://p/skill-docs)  |
 | --- | --- |
 | Related | [[DAS Skills]],  [[SKL]],   |

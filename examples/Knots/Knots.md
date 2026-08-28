@@ -1,5 +1,6 @@
 ---
 traits: [Topic]
+description: example Topic anchor — an evergreen knowledge hub routing to its sub-topics
 ---
 
 | -[[Knots]]- | : Knot Tying — example Topic anchor — an evergreen knowledge hub routing to its sub-topics<br>→ [[DAS]] → [[FEX]] → [Knots](hook://p/Knots)  |

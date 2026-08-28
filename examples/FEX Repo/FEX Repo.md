@@ -1,4 +1,5 @@
 ---
+description: a fake skills repository — the primitives in miniature
 ---
 | -[[FEX Repo]]- | : a fake skills repository — the primitives in miniature<br>→ [[DAS]] → [[FEX]] → [FEX Repo](hook://p/FEX%20Repo)  |
 | --- | --- |

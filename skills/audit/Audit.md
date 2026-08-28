@@ -1,5 +1,5 @@
 ---
-description: Audit — SKA skill anchor; design tree + dispatch for `/audit`.
+description: "SKA skill anchor for `/audit`"
 ---
 
 | -[[Audit]]- | : SKA skill anchor for `/audit`<br>→ [[DAS]] → [[SKL]] → [Audit](hook://p/Audit)  |

@@ -1,4 +1,5 @@
 ---
+description: the golden corpus — recorded expected verdicts that pin engine behavior
 ---
 # Warden Corpus
 

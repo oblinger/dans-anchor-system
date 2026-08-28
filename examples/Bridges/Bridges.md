@@ -1,4 +1,5 @@
 ---
+description: example list-dispatch collection (≤ 15 members)
 ---
 
 | -[[Bridges]]- | : example list-dispatch collection (≤ 15 members)<br>→ [[DAS]] → [[FEX]] → [Bridges](hook://p/Bridges)  |

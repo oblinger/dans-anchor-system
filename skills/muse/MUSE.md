@@ -1,6 +1,6 @@
 ---
 aliases: [Muse]
-description: Voice-memo ingestion + review-and-do pipeline — watch/phone recordings become inbox items, executed via Claude in a tmux session.
+description: "Voice-memo ingestion + review-and-do pipeline"
 ---
 
 | -[[MUSE]]- | : Voice-memo ingestion + review-and-do pipeline<br>→ [[DAS]] → [[SKL]] → [MUSE](hook://p/MUSE)  |

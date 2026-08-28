@@ -1,4 +1,5 @@
 ---
+description: canonical grouped-spine exemplar — direct children sorted under plain labels
 ---
 
 | -[[Harbor Runbooks]]- | : canonical grouped-spine exemplar — direct children sorted under plain labels<br>→ [[DAS]] → [[FEX]] → [Harbor Runbooks](hook://p/Harbor%20Runbooks)  |
