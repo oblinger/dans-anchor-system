@@ -6961,7 +6961,7 @@ def chk_rocks_member_ranked(target, anchor_root, args):
 
 def _stone_control_suffixes() -> set:
     """`{" Rock", " Pebble"}` — the fixed WORD half of every kind's `control`
-    template, which `DAS Stone Kinds.json` guarantees is of the shape
+    template, which the DAS kind table guarantees is of the shape
     `{slug} WORD`. `stone` derives its own header detection the same way, so the
     two cannot drift apart."""
     out = set()
@@ -7107,7 +7107,8 @@ def chk_rocks_folder_note_catchall(target, anchor_root, args):
 # rather than written once per kind. Nothing below names `pebble` or `rock` —
 # every per-kind fact (folder name, control-file name, stone prefix, digit
 # count, the two display aliases) is read from the file `stone` itself reads,
-# `facets/DAS Stone Kinds.json`. A third kind therefore needs no code change
+# the DAS kind table (markdown; located by `stone_kinds_doc` in F080 config).
+# A third kind therefore needs no code change
 # here; it needs its folder glob added to `R-stone`'s `where::`, which is the
 # one remaining place a kind is named twice.
 #
@@ -7117,16 +7118,39 @@ def chk_rocks_folder_note_catchall(target, anchor_root, args):
 # silently exempt from a ruleset reporting itself as covering them — the same
 # vacuous-green shape this whole task exists to end.
 
-_STONE_KINDS_PATH = (
-    Path(__file__).resolve().parents[3] / "facets" / "DAS Stone Kinds.json"
-)
 _STONE_KINDS_CACHE: dict | None = None
 
 
-def _stone_kinds() -> dict:
-    """`{kind: cfg}` from the DAS kind config — the same file `stone` reads.
+def _stone_kinds_path():
+    """Where the kind table lives — `stone_kinds_doc` in F080 config."""
+    return _stone_kinds_mod().resolve_doc_path()
 
-    An unreadable or malformed config yields `{}`, and every checker below then
+
+def _stone_kinds_mod():
+    """The workflow skill's kind-table parser, BORROWED not copied (T120).
+
+    Both this file and `stone` read kinds through it, so the two cannot drift
+    apart — which is exactly what happened while the declarations were JSON
+    and `DAS Stone.md` carried a hand-kept second copy of the same table."""
+    global _STONE_KINDS_MOD
+    if _STONE_KINDS_MOD is None:
+        import importlib.util
+        mp = (Path(__file__).resolve().parent.parent.parent
+              / "workflow" / "scripts" / "stone-kinds.py")
+        spec = importlib.util.spec_from_file_location("stone_kinds_for_plan", mp)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        _STONE_KINDS_MOD = mod
+    return _STONE_KINDS_MOD
+
+
+_STONE_KINDS_MOD = None
+
+
+def _stone_kinds() -> dict:
+    """`{kind: cfg}` from the DAS kind table — the same table `stone` reads.
+
+    An unreadable or malformed table yields `{}`, and every checker below then
     returns an explicit `error` rather than a quiet pass. A stone rule that
     cannot see its kinds has verified nothing and must not report that it has;
     a silent pass here is precisely the instrument-reads-zero failure that
@@ -7135,12 +7159,13 @@ def _stone_kinds() -> dict:
     global _STONE_KINDS_CACHE
     if _STONE_KINDS_CACHE is None:
         try:
-            data = json.loads(_STONE_KINDS_PATH.read_text(encoding="utf-8"))
+            mod = _stone_kinds_mod()
+            data = mod.load_kinds()
             _STONE_KINDS_CACHE = {
                 k: v for k, v in data.items()
-                if not k.startswith("_") and isinstance(v, dict) and "folder" in v
+                if isinstance(v, dict) and "folder" in v
             }
-        except (OSError, ValueError):
+        except Exception:
             _STONE_KINDS_CACHE = {}
     return _STONE_KINDS_CACHE
 
@@ -8272,6 +8297,16 @@ def load_exceptions(anchor_root: Path) -> tuple[list[dict], list[dict], list[str
         handle, rule, target, grade, why = (c.strip() for c in cells[:5])
         if not _EXC_HANDLE_RX.match(handle):
             continue                      # header, separator, or prose row
+        # A path in a markdown table is written in backticks by every other
+        # convention in this vault, so authors write them here too — and the
+        # glob matcher took them literally, so the row matched nothing and
+        # `problems` stayed empty, which is the worst of the three possible
+        # outcomes: an exception that reads as granted and suppresses nothing.
+        # Measured 2026-08-27 on the vault's only file-scoped row (SV EX001,
+        # graded A, target `SV Patents/SV Patents.md`, suppressing nothing
+        # since the day it was written). Stripped rather than rejected: the
+        # backticked form is the one a careful author writes.
+        target = target.strip("`").strip()
         bad = []
         if not _EXC_RULE_RX.match(rule):
             bad.append(f"rule {rule!r} is not a rule id")
