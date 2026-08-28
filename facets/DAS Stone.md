@@ -1,5 +1,5 @@
 ---
-description: the shared facet behind pebbles and rocks — one file per item, a hand-arranged control file that orders them, and propagation along the feed DAG
+description: the shared facet behind pebbles, sleepers and rocks — one file per item, a control file that orders them (by hand or by machine), and propagation along the feed DAG
 group: folder
 ---
 
@@ -9,10 +9,10 @@ group: folder
 | Examples | [[LUMEN Pebble\|Pebbles — a second Kind]],  [[HBR Rocks\|Rocks]],   |
 | Related | [[DAS Backlog]],  [[DAS Agenda]],   |
 | Rules | [[R-stone]],   |
-| ... | [[anchor-page]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Page]],  [[DAS Anchor Tree]],  [[DAS API Design]],  [[DAS Architecture]],  [[DAS Aspects]],  [[DAS Brief]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Chores]],  [[DAS Claude]],  [[DAS CLI]],  [[DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[facets/DAS Decisions]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Design Folder]],  [[DAS Dev Dispatch]],  [[DAS Discussion]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Features]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Interface]],  [[DAS Log]],  [[DAS Messages]],  [[DAS Module Doc]],  [[DAS Move]],  [[DAS Naming]],  [[DAS Notebook]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS PRD]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Roadmap]],  [[DAS Ruleset]],  [[DAS Skill]],  [[DAS Specs]],  [[DAS Status]],  [[DAS Stories]],  [[DAS Subs]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS Track]],  [[DAS User Dispatch]],  [[DAS UX Design]],  [[DAS Versions]],  [[DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
+| ... | [[anchor-page]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Page]],  [[DAS Anchor Tree]],  [[DAS API Design]],  [[DAS Architecture]],  [[DAS Aspects]],  [[DAS At Entity]],  [[DAS Brief]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Chores]],  [[DAS Claude]],  [[DAS CLI]],  [[DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[facets/DAS Decisions]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Design Folder]],  [[DAS Dev Dispatch]],  [[DAS Discussion]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facet]],  [[DAS Facets]],  [[DAS Features]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Interface]],  [[DAS Log]],  [[DAS Messages]],  [[DAS Module Doc]],  [[DAS Move]],  [[DAS Naming]],  [[DAS Notebook]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS PRD]],  [[DAS Primitives]],  [[DAS Proj]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Roadmap]],  [[DAS Rocks]],  [[DAS Ruleset]],  [[DAS Skill]],  [[DAS Specs]],  [[DAS Status]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS Track]],  [[DAS User Dispatch]],  [[DAS UX Design]],  [[DAS Versions]],  [[DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
 
 # DAS Stone
-Facet spec for a **stone group** — a `{slug} Track/{slug} {Kind}s/` folder holding one file per item, ordered by a hand-arranged control file, and propagated to downstream anchors along the `feeds:` DAG.
+Facet spec for a **stone group** — a `{slug} Track/{slug} {Kind}s/` folder holding one file per item, ordered by a control file that a human or a machine may arrange, and propagated to downstream anchors along the `feeds:` DAG.
 
 **TLDR** — Pebbles and rocks are the same shape of thing at two sizes, so they are one facet parameterised by **kind**, not two facets that resemble each other.
 
@@ -22,19 +22,39 @@ Facet spec for a **stone group** — a `{slug} Track/{slug} {Kind}s/` folder hol
 
 ## What a stone group is
 
-A **stone** is one unit of work-worth-naming: a **pebble** is small and nagging, a **rock** is a multi-week chunk. Both materialise identically — a folder under the anchor's Track facet, one markdown file per stone, and a **control file** carrying the human's ordering.
+A **stone** is one unit of work-worth-naming: a **pebble** is small and nagging, a **rock** is a multi-week chunk. All materialise identically — a folder under the anchor's Track facet, one markdown file per stone, and a **control file** carrying the ordering.
 
-The kinds are open-ended and declared in configuration. Nothing about `pebble` or `rock` is hard-coded; they are the two that ship.
+The kinds are open-ended and declared in configuration. Nothing about `pebble`, `sleeper` or `rock` is hard-coded; they are the three that ship.
 
-| | `pebble` | `rock` |
-|---|---|---|
-| folder | `{slug} Pebbles/` | `{slug} Rocks/` |
-| control file | `{slug} Pebble` | `{slug} Rock` |
-| stone file | `{slug} P0001` | `{slug} R0001` |
-| stone display | `{slug}:` | `{slug}:` |
-| header display | `-[[…\|{slug}]]-` | `-[[…\|{slug}]]-` |
+| | `pebble` | `sleeper` | `rock` |
+|---|---|---|---|
+| folder | `{slug} Pebbles/` | `{slug} Sleepers/` | `{slug} Rocks/` |
+| control file | `{slug} Pebble` | `{slug} Sleeper` | `{slug} Rock` |
+| stone file | `{slug} P0001` | `{slug} S0001` | `{slug} R0001` |
+| stone display | `{slug}:` | `{slug}:` | `{slug}:` |
+| header display | `-[[…\|{slug}]]-` | `-[[…\|{slug}]]-` | `-[[…\|{slug}]]-` |
+
+**This table is the source of truth, and `stone` parses it.** It is located by `stone_kinds_doc` in `~/.config/anchor-system/global.yaml` — the table is content, its address is configuration (Dan, 2026-08-28). Until that day the declarations lived in `facets/DAS Stone Kinds.json`, the one non-markdown file among 77 markdown facets, and this table was a hand-kept second copy of it. It had already drifted: `sleeper` shipped into the JSON while this table still said *"they are the two that ship"*, and nobody noticed. The JSON did not prevent a second copy, it created one. Deleted; the parse lives in `skills/workflow/scripts/stone-kinds.py` and `audit-plan.py` borrows it rather than copying it.
 
 Folder names default to plural per [[DAS Facets]]; the control-file name is **configuration, not convention** — it is invisible to the mechanism, because a header is identified by what it links to rather than by what it is called.
+
+## A control file may be machine-maintained — a script or an agent may reorder, add and delete stones
+
+**Ruled by Dan, 2026-08-28.** In his words: *"there can be a script which reorders and adds and deletes stones. And I think the agent can also do that. So all of the above is allowed."*
+
+This facet previously described the control file as *hand-arranged* in three places, including its own `description::`. That wording was never a constraint anyone chose — it described the only two kinds that existed, both of which a human ranks. Read as a rule it would have refused a whole class of legitimate group: one whose ordering is **derivable**, such as a chronological register sorted by the date it presses.
+
+**Three things are now explicitly legal**, and the distinction between them does not matter to the mechanism:
+
+- a human arranging the control file by hand, as [[LUMEN Pebble]] and the rock groups do;
+- an **agent** rewriting it as part of its own work;
+- a **script** regenerating it wholesale on a schedule.
+
+**Nothing about the file format changes**, and that is the point. A generated control file is the same file — the same header line, the same `[[{slug} P0001|{slug}:]]` stone lines, the same `feeds:` propagation. Identity still comes from the link target (`R-stone-04`), never from who typed it. So a group may switch between hand and machine arrangement, in either direction, with no migration.
+
+**What this does NOT license.** A generated control file still may not invent an ordering the source does not carry: if the sort key is a date, the file is sorted by date and nothing else, so a reader can reconstruct it. And the merged `{node} Stones.md` at a feed node was already generated before this ruling — the precedent was half-established; this completes it rather than opening a door.
+
+**The graph-sizing rule is a different rule and is untouched.** [[Stones]] says *"create a stone group only when you are willing to sit down and rank that anchor's work against itself."* That governs **how many hand-kept surfaces the graph should have**, not what a stone is. Reading it as an object-model constraint is what briefly disqualified [[Traffic]] from being a stone node on 2026-08-28; [[SONAR|Sonar]] published that argument and withdrew it the same day. A group whose order is derived costs a human nothing to keep, so the sizing rule does not bear on it at all.
 
 ## The one idea everything else follows from
 
@@ -51,6 +71,8 @@ This inverts the usual split, and the inversion is the point:
 - **Agents** create, edit and delete **stone files**. They do not normally touch a control file.
 - **The user** arranges **control files** — order, grouping, what is published.
 - **`stone`** keeps the two consistent and propagates along the feed DAG.
+
+**When an agent does need to change the order, the verb is `stone <kind> move`, never an edit** (T602, 2026-08-28). `new` always mints at the top and `update` reconciles rather than reorders, so a stone that belonged *behind* existing work had no route but hand-editing a machine-maintained file — the one thing this tool exists to prevent. Hit live on `AUP Pebble.md`, where `P0003` minted above `P0001`. `move <ANCHOR> <ID> --after|--before <ID> | --to-top | --to-bottom` rewrites the line order in place and travels only within the stone's own **run** of lines: a move that would carry it across a header is refused, because that changes which source the stone is filed under rather than its rank. Guard: case U in `test-f313-stone.py`, which also pins that the next `update` leaves a hand-chosen order alone.
 
 ## A backlog row deferred on a stone is linked from that stone's roadmap
 
@@ -79,7 +101,7 @@ A stone carries `key:: value` parameters, **at the top of the file, above the pr
 
 ## Rules
 
-**Four of the six are `checked` and armed, since 2026-08-11.** `R-stone-01`, `-02`, `-04` and `-06` carry `check::` refs into `audit-plan.py`. **The arming that counts is [[R-anchor]]'s `include::`, not [[R-facet]]'s** — `/audit anchor` resolves `R-anchor`, which names [[R-rocks]] and now [[R-stone]] directly; `R-facet` is one of the 60 rulesets outside that closure, so adding a set to it changes nothing that runs. Both were updated, and it is worth knowing which one did the work. The four checkers are **kind-generic**: not one of them names `pebble` or `rock`. Every per-kind fact — folder name, control-file name, stone prefix, digit count, and the two display aliases — is read from `DAS Stone Kinds.json`, the same file `stone` reads, so a third kind needs no code written. The one place a kind is still named twice is this ruleset's `where::` glob, which lists the folder shapes to select; adding a kind means adding its folder there.
+**Four of the six are `checked` and armed, since 2026-08-11.** `R-stone-01`, `-02`, `-04` and `-06` carry `check::` refs into `audit-plan.py`. **The arming that counts is [[R-anchor]]'s `include::`, not [[R-facet]]'s** — `/audit anchor` resolves `R-anchor`, which names [[R-rocks]] and now [[R-stone]] directly; `R-facet` is one of the 60 rulesets outside that closure, so adding a set to it changes nothing that runs. Both were updated, and it is worth knowing which one did the work. The four checkers are **kind-generic**: not one of them names `pebble` or `rock`. Every per-kind fact — folder name, control-file name, stone prefix, digit count, and the two display aliases — is read from the kind table in this doc, the same table `stone` reads, so a third kind needs no code written. The one place a kind is still named twice is this ruleset's `where::` glob, which lists the folder shapes to select; adding a kind means adding its folder there.
 
 **Two of the six stay `stated`, and that is the answer rather than a delay.** `R-stone-05` asserts what *the mint refuses*, which is behaviour of the `stone` script rather than content of any document; it wants a guard test, the shape [[R-exception-discipline]]-03 already uses. `R-stone-03` forbids *deriving* a prefix from a kind's name — a claim about how a value was chosen, which no file can evidence. Forcing a `check::` onto either would buy a coverage claim and no coverage.
 

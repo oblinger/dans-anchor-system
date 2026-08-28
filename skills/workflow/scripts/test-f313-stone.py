@@ -48,6 +48,9 @@ vault: every call passes `--root <tempdir>` explicitly.
      feed edge            quotes the offending name, but drops only its OWN
                           edge: every healthy edge still reconciles (T599).
   O. zero-work pass   — a run with nothing to do still prints its counts.
+  U. move             — `stone <kind> move` reorders one stone within its own
+                        run of lines, the order survives the next `update`,
+                        and a move that would cross a header is refused (T602).
 
 Each behaviour above was red-checked by hand during development (broken,
 confirmed the corresponding section fails, restored, confirmed green again);
@@ -1080,6 +1083,105 @@ try:
         ok("a sibling anchor in the same pass is not given a merged list either")
     else:
         no("update minted a merged list across the vault, not only where opted in")
+
+    # ============================================================
+    print("== U: `move` reorders a control file, and the order survives update ==")
+    # ============================================================
+    # T602 (2026-08-28): `new` always mints at the top and `update` reconciles
+    # rather than reorders, so a stone that belonged *behind* existing work
+    # could only be moved by hand-editing a machine-maintained file. Hit live
+    # on `AUP Pebble.md`. The second half of this case is the load-bearing
+    # half: a reorder the next pass silently undoes is not a reorder.
+    uroot = TMP / "u"
+    mkanchor(uroot, "UA", [])
+    for n in ("first", "second", "third"):
+        run(uroot, "pebble", "new", "UA", "--line", n)
+    # `control_path` is the rock helper; this case mints pebbles, which is the
+    # kind the live incident happened on.
+    cp = uroot / "UA" / "UA Track" / "UA Pebble.md"
+    PCFG = st.load_kind_config()["pebble"]
+
+    def _ids(path):
+        return [c[2] for l in path.read_text(encoding="utf-8").splitlines()
+                for c in (st.classify_line(l, PCFG),) if c[0] == "stone"]
+
+    # Minted newest-first, so the file reads P0003, P0002, P0001.
+    if _ids(cp) == ["P0003", "P0002", "P0001"]:
+        ok("the fixture starts in mint order, newest at the top")
+    else:
+        no(f"unexpected mint order: {_ids(cp)}")
+
+    run(uroot, "pebble", "move", "UA", "P0003", "--after", "P0001")
+    if _ids(cp) == ["P0002", "P0001", "P0003"]:
+        ok("--after places the stone directly below its reference")
+    else:
+        no(f"--after put it at {_ids(cp)}")
+
+    run(uroot, "pebble", "move", "UA", "P0003", "--to-top")
+    if _ids(cp) == ["P0003", "P0002", "P0001"]:
+        ok("--to-top returns it to the head of its run")
+    else:
+        no(f"--to-top put it at {_ids(cp)}")
+
+    run(uroot, "pebble", "move", "UA", "P0002", "--before", "P0003")
+    if _ids(cp) == ["P0002", "P0003", "P0001"]:
+        ok("--before places the stone directly above its reference")
+    else:
+        no(f"--before put it at {_ids(cp)}")
+
+    # THE point of the verb: `update` must not put it back.
+    ordered = _ids(cp)
+    run(uroot, "pebble", "update")
+    if _ids(cp) == ordered:
+        ok("...and the next `update` leaves the hand-chosen order alone")
+    else:
+        no(f"update re-sorted a deliberate order: {ordered} -> {_ids(cp)}")
+
+    # A no-op says so instead of rewriting the file — the vault's most
+    # repeated defect shape is a pass that cannot be told apart from one that
+    # never ran (R-feed-04).
+    before_bytes = cp.read_bytes()
+    out = capture(uroot, "pebble", "move", "UA", "P0002", "--to-top")
+    if cp.read_bytes() == before_bytes and "already there" in out:
+        ok("a move that changes nothing says so and writes nothing")
+    else:
+        no(f"a no-op move rewrote the file or was silent:\n{out}")
+
+    def _fails(root, *argv):
+        """(rc, stderr) — `main` converts a StoneError into rc 1 plus a line on
+        stderr, so a caller asserting on the exception would never see one."""
+        buf = io.StringIO()
+        with contextlib.redirect_stderr(buf):
+            rc = run(root, *argv)
+        return rc, buf.getvalue()
+
+    # An unknown id is a typo, and a typo must not read as success.
+    rc, err = _fails(uroot, "pebble", "move", "UA", "P9999", "--to-top")
+    if rc != 0 and "P9999" in err:
+        ok("an unknown stone id fails and quotes the id")
+    else:
+        no(f"unknown id was accepted (rc={rc}) or failed without naming it: {err!r}")
+
+    # A reference in another run would change which SOURCE the stone is filed
+    # under — a different operation wearing this one's clothes.
+    mkanchor(uroot, "UB", ["UA"])
+    ubcp = uroot / "UB" / "UB Track" / "UB Pebble.md"
+    write_control(ubcp, "UB", [st._render_header("UA", PCFG)])
+    _ualines = cp.read_text(encoding="utf-8").splitlines()
+    _ualines.insert(st._content_start(_ualines), st._render_header("UA", PCFG))
+    cp.write_text("\n".join(_ualines) + "\n", encoding="utf-8")
+    run(uroot, "pebble", "update")
+    bcp = ubcp
+    run(uroot, "pebble", "new", "UB", "--line", "local to UB")
+    rc, err = _fails(uroot, "pebble", "move", "UB", "P0001", "--after", "P0003", "--owner", "UB")
+    if rc != 0 and "same run" in err:
+        ok("a move across a header is refused, naming why")
+    else:
+        no(f"cross-run move was accepted (rc={rc}) or refused wrongly: {err!r}")
+    if bcp.exists():
+        ok("the downstream control file is intact after the refusal")
+    else:
+        no("the refused move destroyed the downstream control file")
 
 finally:
     shutil.rmtree(TMP, ignore_errors=True)

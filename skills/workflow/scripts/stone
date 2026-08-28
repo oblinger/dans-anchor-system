@@ -29,8 +29,10 @@ This is the mechanical half only.
             aborts with NO writes.
 
 Kind config (folder, control-file name, stone-number prefix, digits, the two
-display-alias templates) is DAS-side JSON, not code and not ~/.config/:
-`<DAS>/facets/DAS Stone Kinds.json`. Nothing about a kind is hard-coded here.
+display-alias templates) is a MARKDOWN TABLE in a DAS facet doc — DAS is
+markdown-first — located by `stone_kinds_doc` in ~/.config/anchor-system/
+global.yaml. The table is content; its address is configuration. Nothing about
+a kind is hard-coded here. Parsed by stone-kinds.py beside this file.
 
 Root resolution mirrors backlog-edit.py's `ANCHOR_VAULT_ROOT` / VAULT_ROOT
 convention (F269) so fixture tests never touch the real vault: `--root`, else
@@ -66,23 +68,31 @@ DEFAULT_ROOT = (
     else Path.home() / "ob" / "kmr"
 )
 
-_KIND_CONFIG_PATH = (
-    Path(__file__).resolve().parents[3] / "facets" / "DAS Stone Kinds.json"
-)
+# Kind declarations come from the markdown table in the doc named by
+# `stone_kinds_doc` (~/.config/anchor-system/global.yaml). The parse lives in
+# stone-kinds.py beside this file and is BORROWED by audit-plan.py, never
+# copied (T120) — the JSON this replaced had already drifted from the
+# human-readable table of the same facts, and two parsers would drift the same
+# way.
 
 
-def load_kind_config(path: Path = _KIND_CONFIG_PATH) -> dict:
-    if not path.is_file():
-        raise StoneError(
-            f"kind config not found at {path} — DAS ships pebble/rock "
-            "pre-configured; if this file moved, the path baked into `stone` "
-            "needs to move with it"
-        )
+def _stone_kinds_mod():
+    import importlib.util
+    mp = Path(__file__).resolve().parent / "stone-kinds.py"
+    spec = importlib.util.spec_from_file_location("stone_kinds_for_stone", mp)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def load_kind_config(path: Path | None = None) -> dict:
+    """`{kind: cfg}` from the DAS kind table. Raises rather than degrading —
+    a mint that cannot read its kinds must not guess a folder name."""
+    mod = _stone_kinds_mod()
     try:
-        data = json.loads(path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError as e:
-        raise StoneError(f"kind config {path} is not valid JSON: {e}")
-    return {k: v for k, v in data.items() if not k.startswith("_")}
+        return mod.load_kinds(path)
+    except mod.StoneKindsError as e:
+        raise StoneError(str(e))
 
 
 def _control_suffix(cfg: dict) -> str:
@@ -1094,6 +1104,123 @@ def cmd_new(kind: str, cfg: dict, root: Path, args) -> int:
     return 0
 
 
+def _stone_run(lines: list, idx: int, cfg: dict) -> tuple:
+    """(start, end) of the contiguous run of stone-lines containing `idx`.
+
+    The run — not the file — is the unit a move may travel within. A control
+    file groups imported stones under a header per source ([[R-stone]]-04), and
+    "top of the file" would carry a stone across a header into someone else's
+    group, which reads as a propagation bug rather than as a reorder. Bounding
+    the move by the blank line or header that already separates the groups
+    means the file's structure decides what `--to-top` means, and the caller
+    cannot ask for something the format does not mean."""
+    start = idx
+    while start > 0 and classify_line(lines[start - 1], cfg)[0] == "stone":
+        start -= 1
+    end = idx
+    while end + 1 < len(lines) and classify_line(lines[end + 1], cfg)[0] == "stone":
+        end += 1
+    return start, end
+
+
+def _locate_stone(lines: list, sid: str, owner: str | None, cfg: dict) -> int:
+    """Index of the block line carrying `sid`, or raise naming what it found."""
+    hits = [(i, cls[1]) for i, line in enumerate(lines)
+            for cls in (classify_line(line, cfg),)
+            if cls[0] == "stone" and cls[2] == sid
+            and (owner is None or cls[1] == owner)]
+    if len(hits) == 1:
+        return hits[0][0]
+    if not hits:
+        # An inline header holds its stones inside one line, so a stone that is
+        # present but not on a line of its own must say so rather than read as
+        # absent — the two need different fixes and only one is a typo.
+        for i, line in enumerate(lines):
+            cls = classify_line(line, cfg)
+            if cls[0] != "header":
+                continue
+            _head, payload = _header_payload(line, cls[2])
+            for chunk in _split_inline(payload or ""):
+                sub = classify_stone_chunk(chunk, cfg)
+                if sub and sub[1] == sid and (owner is None or sub[0] == owner):
+                    raise StoneError(
+                        f"stone: {sid} sits inside the inline header on line "
+                        f"{i + 1}, not on a line of its own — reorder that "
+                        f"header's comma list by hand, or split it to the "
+                        f"block form first")
+        raise StoneError(f"stone: no line in this control file names {sid}")
+    owners = ", ".join(sorted({o for _i, o in hits}))
+    raise StoneError(
+        f"stone: {sid} appears {len(hits)} times in this control file "
+        f"(owners: {owners}) — name the owner with `--owner <SLUG>`")
+
+
+def cmd_move(kind: str, cfg: dict, root: Path, args) -> int:
+    """Reorder one stone's line within its own run in a control file (T602).
+
+    `pebble new` always mints at the top and `pebble update` reconciles feeds
+    rather than moving rows, so a stone that belongs *behind* existing work had
+    no route but hand-editing a machine-maintained file — which is the one
+    thing this tool exists to prevent. Hit live on `AUP Pebble.md` 2026-08-28.
+    """
+    anchors, ambiguous = discover_anchors(root)
+    slug = args.anchor
+    if slug in ambiguous:
+        raise _ambiguous_error(slug, ambiguous[slug], "it is the move target")
+    if slug not in anchors:
+        raise StoneError(f"no anchor {slug!r} (.anchor) found under {root}")
+
+    cpath = _control_path(anchors[slug].path, slug, cfg)
+    if not cpath.is_file():
+        raise StoneError(f"stone: {cpath} does not exist — nothing to reorder")
+    lines = cpath.read_text(encoding="utf-8").splitlines()
+
+    src = _locate_stone(lines, args.stone, args.owner, cfg)
+    start, end = _stone_run(lines, src, cfg)
+
+    if args.to_top:
+        dest = start
+    elif args.to_bottom:
+        dest = end
+    else:
+        ref_id = args.after or args.before
+        ref = _locate_stone(lines, ref_id, None, cfg)
+        if not (start <= ref <= end):
+            raise StoneError(
+                f"stone: {args.stone} and {ref_id} are not in the same run of "
+                f"lines (lines {src + 1} and {ref + 1}) — a move never crosses "
+                f"a header or a blank line, because that would change which "
+                f"source a stone is filed under, not merely its rank")
+        if ref == src:
+            raise StoneError(f"stone: {args.stone} cannot be placed relative to itself")
+        # `dest` indexes the list AFTER the line is popped, so a reference
+        # below the mover shifts up by one first.
+        ref_after_pop = ref - 1 if ref > src else ref
+        dest = ref_after_pop + 1 if args.after else ref_after_pop
+
+    if dest == src:
+        print(f"stone: {args.stone} is already there — {cpath.name} unchanged")
+        return 0
+
+    before = _find_all_stone_occurrences(lines, cfg)
+    line = lines.pop(src)
+    lines.insert(dest, line)
+    after = _find_all_stone_occurrences(lines, cfg)
+    # A reorder that loses or duplicates a stone is a corruption of a
+    # machine-maintained file, and the next `update` would propagate it. Cheap
+    # to assert, and the only assertion that catches an off-by-one here.
+    if before != after:
+        raise StoneError(
+            f"stone: refusing to write — the reorder changed which stones the "
+            f"file names ({len(before)} -> {len(after)}). This is a bug in "
+            f"`stone move`; {cpath} is untouched")
+
+    cpath.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    print(f"stone: moved {args.stone} from line {src + 1} to line {dest + 1} "
+          f"in {cpath.name}")
+    return 0
+
+
 def cmd_update(kind: str, cfg: dict, root: Path, args) -> int:
     anchors, ambiguous = discover_anchors(root)
     if not anchors:
@@ -1266,6 +1393,18 @@ def build_parser(cfg_all: dict) -> argparse.ArgumentParser:
         nw.add_argument("--body", default=None, help="prose body (optional)")
         nw.add_argument("--root", default=None, help="scan root (default: $ANCHOR_VAULT_ROOT or ~/ob/kmr)")
 
+        mv = verb_subs.add_parser("move", help="reorder one stone within its run in a control file")
+        mv.add_argument("anchor", help="the anchor whose control file is being reordered")
+        mv.add_argument("stone", help="the stone id to move, e.g. P0003")
+        mv.add_argument("--owner", default=None,
+                        help="disambiguate when two anchors' stones share an id")
+        mv.add_argument("--root", default=None, help="scan root (default: $ANCHOR_VAULT_ROOT or ~/ob/kmr)")
+        where = mv.add_mutually_exclusive_group(required=True)
+        where.add_argument("--after", metavar="ID", help="place it directly below this stone")
+        where.add_argument("--before", metavar="ID", help="place it directly above this stone")
+        where.add_argument("--to-top", action="store_true", help="first in its run")
+        where.add_argument("--to-bottom", action="store_true", help="last in its run")
+
         up = verb_subs.add_parser("update", help="reconcile + propagate along feeds:")
         up.add_argument("--root", default=None, help="scan root (default: $ANCHOR_VAULT_ROOT or ~/ob/kmr)")
         up.add_argument("--dry-run", action="store_true",
@@ -1284,6 +1423,8 @@ def main(argv) -> int:
     try:
         if args.verb == "new":
             return cmd_new(args.kind, cfg, root, args)
+        if args.verb == "move":
+            return cmd_move(args.kind, cfg, root, args)
         if args.verb == "update":
             return cmd_update(args.kind, cfg, root, args)
     except StoneError as e:
