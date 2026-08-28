@@ -44,8 +44,9 @@ vault: every call passes `--root <tempdir>` explicitly.
                         mint; still allowed to CONSUME via feeds:.
   M. --dry-run        — reports every write AND every archive (a file MOVE),
                         performs none of them, and the wet pass still does.
-  N. unresolvable     — a `feeds:` name matching no anchor refuses the pass,
-     feed edge            quotes the offending name, and writes nothing.
+  N. unresolvable     — a `feeds:` name matching no anchor fails the pass and
+     feed edge            quotes the offending name, but drops only its OWN
+                          edge: every healthy edge still reconciles (T599).
   O. zero-work pass   — a run with nothing to do still prints its counts.
 
 Each behaviour above was red-checked by hand during development (broken,
@@ -659,20 +660,33 @@ try:
         no("the wet run did not do what the dry run promised")
 
     # ============================================================
-    # N. an unresolvable name in `feeds:` is named, not ignored
-    #    ([[DAS feed]] invariant 2, R-feed-03)
+    # N. an unresolvable name in `feeds:` is named, not ignored — and it
+    #    takes down its own edge only ([[DAS feed]] invariant 2, R-feed-03)
     #
     # Case I covers acyclicity and case J covers a DUPLICATE slug; a name that
     # matches NO anchor was implemented and never asserted. It is the invariant
     # whose failure is the least visible of the three: an unresolvable source
     # supplies zero stones and is indistinguishable from a source that happens
     # to be empty, so a typo'd feed edge stays invisible forever.
+    #
+    # **Amended 2026-08-27 (T599).** The blast radius was wrong, and it cost a
+    # real outage: one retired slug in one `.anchor` aborted reconciliation for
+    # every anchor in the vault, so a control file had to be hand-edited — the
+    # exact thing the tool exists to prevent. A dangling edge is now SKIPPED,
+    # named on stderr, and still exits non-zero; the rest of the DAG
+    # reconciles. Unlike a cycle, a missing source contributes no stones, so
+    # skipping its one edge changes nothing downstream of it. The third
+    # assertion below is therefore inverted: it used to demand that nothing was
+    # written, and now demands that the healthy edge WAS.
     # ============================================================
-    print("== N: a feeds: name matching no anchor is reported by name ==")
+    print("== N: a feeds: name matching no anchor is named, and only its own edge is dropped ==")
     nroot = TMP / "n"
     mkanchor(nroot, "SRC", [])
     mkanchor(nroot, "DST", ["SRC", "TYPPO"])
     run(nroot, "rock", "new", "SRC", "--line", "a real stone")
+    # Published, or the healthy edge would carry nothing and the assertion
+    # below could not tell "skipped the bad edge" from "skipped everything".
+    insert_self_section(control_path(nroot, "SRC"), "SRC")
     write_control(control_path(nroot, "DST"), "DST", [header_line("SRC")])
     before_n = _tree_bytes(nroot)
 
@@ -682,7 +696,7 @@ try:
     msg = err.getvalue()
 
     if rc != 0:
-        ok(f"an unresolvable feed edge refuses the pass (rc={rc})")
+        ok(f"an unresolvable feed edge still fails the pass (rc={rc})")
     else:
         no("an unresolvable feed edge was tolerated — a typo'd source is a silent zero")
 
@@ -691,10 +705,11 @@ try:
     else:
         no(f"...but the message does not name TYPPO: {msg!r}")
 
-    if _tree_bytes(nroot) == before_n:
-        ok("...and nothing was written, as with a cycle")
+    dst_text = control_path(nroot, "DST").read_text(encoding="utf-8")
+    if _tree_bytes(nroot) != before_n and "R0001" in dst_text:
+        ok("...and the healthy SRC edge still reconciled — one bad edge is not an outage")
     else:
-        no("an unresolvable edge aborted the pass but still wrote files")
+        no("a dangling edge suppressed the healthy edge too — the T599 outage shape")
 
     # ============================================================
     # O. a pass with nothing to do SAYS so ([[DAS feed]] invariant 3, R-feed-04)

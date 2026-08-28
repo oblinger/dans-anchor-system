@@ -67,7 +67,7 @@ A control line differing from its stone is an **edit of the stone** wherever it 
 Any pass that walks the feed DAG holds all three. They are stated as rules in [[R-feed]] and guard-tested in `test-f313-stone.py`.
 
 - **Acyclic, reported as a path.** A cycle makes ownership circular, and ownership is what write-back rests on. Reported as `A → B → C → A` and the pass aborts before writing anything — never as a boolean, because a cycle you cannot locate is a cycle nobody fixes. (`R-feed`-02, case I.)
-- **Every edge resolves.** A name matching no anchor refuses the pass and is quoted. This is the least visible of the three and the reason the others are not enough: an unresolvable source supplies zero stones and is *indistinguishable from a source that happens to be empty*, so a typo'd edge would otherwise stay invisible forever. (`R-feed`-03, case N.)
+- **Every edge resolves.** A name matching no anchor is quoted and fails the pass — but drops only its own edge; the rest of the DAG still reconciles. This is the least visible of the three and the reason the others are not enough: an unresolvable source supplies zero stones and is *indistinguishable from a source that happens to be empty*, so a typo'd edge would otherwise stay invisible forever. The narrower blast radius is 2026-08-27 (T599): a whole-pass abort meant one retired slug in one `.anchor` took reconciliation offline vault-wide, and unlike a cycle a missing source poisons nothing downstream of itself. (`R-feed`-03, case N.)
 - **No silent empty.** A pass reports its counts on a run with nothing to do exactly as on a busy one — a pass that prints nothing when it does nothing cannot be told apart from a pass that never ran. (`R-feed`-04, case O.)
 
 ## Members

@@ -320,16 +320,32 @@ def _stone_files(folder: Path, slug: str, cfg: dict) -> list:
 # --------------------------------------------------------------------------
 # Topological order over the feed DAG, cycle reported as a path (F312 Inv. 1)
 
-def topo_order(anchors: dict) -> list:
+def topo_order(anchors: dict, dangling: list = None) -> list:
+    """Order the feed DAG; a cycle is fatal, a dangling edge need not be.
+
+    T599 (2026-08-27) — one retired slug left standing in one `.anchor`'s
+    `feeds:` aborted reconciliation for **every** anchor in the vault, so a
+    control file had to be hand-edited, which is the exact thing this tool
+    exists to prevent. A missing source contributes no stones, so skipping
+    that one edge changes nothing downstream of it and leaves the rest of the
+    DAG intact — unlike a cycle, which makes "which value is downstream"
+    meaningless and stays fatal. Pass a `dangling` list to collect
+    `(slug, src)` for each skipped edge; the caller names them and exits
+    non-zero so the stale edge cannot pass unnoticed. Called without one, the
+    strict contract is unchanged and it still raises.
+    """
     indeg = {s: 0 for s in anchors}
     consumers = {s: [] for s in anchors}  # source -> [downstream slugs]
     for x in anchors.values():
         for src in x.feeds:
             if src not in anchors:
-                raise StoneError(
-                    f"{x.slug}: feeds: names {src!r}, no such anchor found "
-                    "under the scanned root — every edge must resolve"
-                )
+                if dangling is None:
+                    raise StoneError(
+                        f"{x.slug}: feeds: names {src!r}, no such anchor found "
+                        "under the scanned root — every edge must resolve"
+                    )
+                dangling.append((x.slug, src))
+                continue
             consumers[src].append(x.slug)
             indeg[x.slug] += 1
     order = []
@@ -1105,7 +1121,11 @@ def cmd_update(kind: str, cfg: dict, root: Path, args) -> int:
 
     # The DAG is checked FIRST: a cycle makes "which value is downstream"
     # meaningless, so a structural error outranks a content conflict.
-    order = topo_order(anchors)  # raises + aborts (no writes yet) on a cycle
+    # A cycle still raises and aborts before any write; a dangling edge is
+    # collected instead (T599) — it is skipped, named below, and turns the
+    # exit code non-zero without taking the other ~200 anchors offline.
+    dangling: list = []
+    order = topo_order(anchors, dangling)
 
     stats = {"archived": 0}
     readback_notes: list = []
@@ -1208,6 +1228,18 @@ def cmd_update(kind: str, cfg: dict, root: Path, args) -> int:
     )
     for n in readback_notes:
         print(f"  {n}")
+    # On stderr, where the StoneError this replaced went: a dangling edge is
+    # still a defect the run refuses to pass silently — it just no longer
+    # takes the rest of the vault down with it (T599).
+    for slug, src in sorted(dangling):
+        print(f"stone: warning: {slug}: feeds: names {src!r}, no such anchor "
+              f"under the scanned root — edge skipped, nothing propagated "
+              f"from it", file=sys.stderr)
+    if dangling:
+        print(f"stone: {len(dangling)} dangling feeds edge(s) skipped — "
+              f"drop or correct the slug in the .anchor named above",
+              file=sys.stderr)
+        return 1
     return 0
 
 

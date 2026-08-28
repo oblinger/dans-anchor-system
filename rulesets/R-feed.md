@@ -39,11 +39,13 @@ An anchor's `.anchor` names the anchors it draws **from**. No key declares the o
 
 ### RULE R-feed-03 — Every name in a `feeds:` list resolves to an anchor (stated)
 
-A pass refuses, naming the offending string, when a declared source matches no anchor under the scanned root.
+A pass **fails**, naming the offending string, when a declared source matches no anchor under the scanned root — and drops **only that edge**: every healthy edge in the DAG still reconciles.
 
-**Check pattern:** stated; guard test `test-f313-stone.py` case N — an anchor declaring `feeds: SRC, TYPPO` refuses the pass, quotes `TYPPO` in the message, and writes nothing.
+**Check pattern:** stated; guard test `test-f313-stone.py` case N — an anchor declaring `feeds: SRC, TYPPO` exits non-zero, quotes `TYPPO` on stderr, and still propagates SRC's published stone into it.
 
 **Why:** this is the least visible of the three invariants and the reason the other two are not enough. An unresolvable source supplies zero items and is **indistinguishable from a source that happens to be empty**, so without an explicit check a typo'd feed edge is invisible forever — the anchor simply never receives anything and nothing ever says why.
+
+**Blast radius, amended 2026-08-27 ([[TINK Backlog#^T599|T599]]).** This rule used to abort the whole pass, as R-feed-02 does for a cycle, and that cost a real outage: one retired slug (`MLI`) left standing in one `.anchor` took `stone pebble update` offline for **all ~1,575 anchors**, so a control file had to be hand-edited — precisely the hand-editing the tool exists to prevent. The two cases are not alike. A cycle makes *which value is downstream* meaningless, so no part of the answer is trustworthy; a missing source contributes nothing, so skipping its one edge changes nothing anywhere else. Naming it plus a non-zero exit keeps the defect just as loud without making the rest of the vault hostage to it.
 
 ### RULE R-feed-04 — A pass reports its counts, including when they are zero (stated)
 
