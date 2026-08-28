@@ -1,12 +1,34 @@
 ---
-description: execution state — backlog + feature specs for the Warden engine
+description: "execution state for the Warden engine — feature specs and the exception register; the work itself is queued as TINK rows, never here"
 ---
 
 | -[[Warden Track]]- | → [[DAS]] → [[Warden]] → [Warden Track](hook://p/Warden%20Track)  |
 | --- | --- |
-| [[Warden Backlog]]  | deferred work — roadmap milestones M0–M5 |
-| [[Warden Features]]  | dated feature specs (F209–F217, F017) |
+| [[Warden Features]]  | feature specs |
 | ... | [[Design-Rules Catalog Proposal]],  [[Warden Audit 2026-07-12]],  [[Warden Dev Ruleset]],  [[Warden Exceptions]],  [[Warden Inbox]],  [[Warden Messages]],  [[Warden queries]],   |
 
 # Warden Track
+Execution state for the Warden engine — feature specs, the exception register, and the inbox. **There is no Warden backlog and there must not be one.**
 
+## Warden has no queue of its own — and its inbox is the half that bites
+
+**Ruled by Dan twice, 2026-08-11 and again 2026-08-28.** Warden's work is [[TINK|Tink]]'s work and always has been, so a second queue only split the view of what is live: *"You're the only person really working that backlog, and I think it really can cause things to get gummed up when there's this other backlog out there."* File Warden work as a **TINK** row.
+
+`Warden Backlog.md` was retired 2026-08-11 and **deleted 2026-08-28**, once the file was confirmed to hold 53 rows of which every one was `[Done]`. Its only irreplaceable content was the id map below: the twelve open rows were re-minted under TINK numbers because every old id collided with an existing TINK row, so none could carry its number across.
+
+| was | is |
+|---|---|
+| `WARD F236` | [[TINK Backlog#^F321\|F321]] |
+| `WARD F237` | [[TINK Backlog#^F322\|F322]] |
+| `WARD F230` | [[TINK Backlog#^F323\|F323]] |
+| `WARD F234` | [[TINK Backlog#^F324\|F324]] |
+| `WARD T002` | [[TINK Backlog#^T354\|T354]] |
+| `WARD T014` | [[TINK Backlog#^T355\|T355]] |
+| `WARD T016` | [[TINK Backlog#^T356\|T356]] |
+| `WARD T009` | [[TINK Backlog#^T357\|T357]] |
+| `WARD T018` | [[TINK Backlog#^T358\|T358]] |
+| `WARD T019` | [[TINK Backlog#^T375\|T375]] |
+| `WARD T022` | [[TINK Backlog#^T376\|T376]] |
+| `WARD T020` | [[TINK Backlog#^T536\|T536]] |
+
+**Removing the backlog did not remove the trap, and the inbox is what bit.** An anchor with no session still *receives*. [[Warden Inbox]] held **six undrained drops on 2026-08-28, the oldest 17 days old** — and one of them, a still-live fixer that destroys wiki-links, had grown from 14 at-risk files to 27 while it sat. Nothing surfaced it, because a backlog banner counts rows and an inbox is not rows. **Anything dropped here is drained into TINK** ([[TINK Backlog#^T604\|T604]]–[[TINK Backlog#^T608\|T608]] are that batch), and it is worth checking on any pass that touches this tree. It is the same shape [[TINK Backlog#^T571\|T571]] measured, and the reason `audit-q` C59 exists.

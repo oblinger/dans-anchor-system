@@ -7,17 +7,23 @@ description: Warden inbox — raw input dropped for later processing.
 | --- | |
 | [[Design-Rules Catalog Proposal]]  | F218 deliverable — the mined design-rules catalog. UPGRADED 2026-07-05 (Q3 = A): all nine families live under library/Rulesets/ as R-arch / R-process children; this doc keeps the mining record, the parked-borderline list, and the executed housekeeping. |
 | [[Warden Audit 2026-07-12]]  |  |
-| [[Warden Backlog]]  | deferred work — roadmap milestones M0–M5 |
 | [[Warden Dev Ruleset]]  | R-warden-dev — the first REAL Warden rule fired live (F220 dogfood): orients any agent working in the Warden anchor to its dev disciplines |
 | [[Warden Exceptions]]  | numbered, graded accepted deviations from the rulesets the Warden anchor adopts (R-exception-discipline) — a violation neither fixed nor listed here is an open finding |
 | [[Warden Features]]  | dated feature specs (F209–F217, F017) |
 | [[Warden Messages]]  | agent inbox — background-process messages for this anchor; append-only. See [[DAS Messages]]. |
 | [[Warden queries]]  | Warden queries — mechanically rendered from the backlog (Blockers / Ready+Next / Questions / Blocked / Verifications / Other), and copied verbatim into Q.md. Do not hand-edit; edit the backlog rows. |
+| [[Warden Track\|the retired Warden backlog]]  | deferred work — roadmap milestones M0–M5 |
 
 # Warden Inbox
 Drop zone for raw input; an entry with no status tag is pending, and draining writes `DONE` or `MOVED → {destination}` per [[DAS Inbox]].
 
-## 2026-08-26 — R-ob-remote-ops-01 denies the only sanctioned route to a Wi…
+## 2026-08-28 — Spine-dirty guard refuses read-only Bash that merely names…    `MOVED → TINK Backlog T605`
+
+*from: HA pilot · tag: fact*
+
+> 2026-08-28, HA session: a pure read — `grep -c '~~\[\[' "<vault>/SV/SV Design/SV Design.md"` (no redirect, no sed -i, no python, no mv) — was refused with the R-dispatch-table-06 illegal-spine message ("this command writes it through a channel the guard cannot inspect"). A `state drop` whose --body merely quoted that path was refused the same way. The guard keys on the spine-dirty page's path appearing anywhere in the command text, not on a write channel, so any Bash read that names such a page is blocked. Reads should pass: gate on an actual write token (`>`, `>>`, `sed -i`, `mv`, `cp`, `tee`, `python … open(…,'w')`) or on the command's first word. Repro: from ~/ob/kmr run grep -c x on the SV Design page.
+
+## 2026-08-26 — R-ob-remote-ops-01 denies the only sanctioned route to a Wi…    `MOVED → TINK Backlog T606`
 
 *from: atticus · tag: fact*
 
@@ -35,7 +41,7 @@ Drop zone for raw input; an entry with no status tag is pending, and draining wr
 >
 > Not proposing the fix — whether -01 should exempt non-Mac hosts, grow the `# oneshot:` hatch, or point somewhere other than bridge for Windows is Warden's call with the skill's owner.
 
-## 2026-08-26 — The fire log cannot support a soak longer than ~6 days, and…
+## 2026-08-26 — The fire log cannot support a soak longer than ~6 days, and…    `MOVED → TINK Backlog T607`
 
 *from: atticus · tag: fact*
 
@@ -49,7 +55,7 @@ Drop zone for raw input; an entry with no status tag is pending, and draining wr
 >
 > Not filing a fix — the retention/verbosity trade is Warden's call, and a per-rule opt-in for command capture may be the right shape rather than logging every command by default. Atticus only needs to know which questions the log can and cannot answer, and T157 is closed on the evidence that existed rather than re-armed against the same limit.
 
-## 2026-08-20 — A compiled ruleset cache wrote itself into the vault root
+## 2026-08-20 — A compiled ruleset cache wrote itself into the vault root    `MOVED → TINK Backlog T608`
 
 *from: atticus · tag: fact*
 
@@ -66,13 +72,13 @@ Drop zone for raw input; an entry with no status tag is pending, and draining wr
 >
 > No action needed from me; Atticus's root cleanup is closed either way (the four remaining root directories are ATT T244). Flagging it because a cache that writes to cwd is cheap to fix now and irritating to chase later.
 
-## 2026-08-13 — Your hook engines now execute the DAS hook registry (TINK F…
+## 2026-08-13 — Your hook engines now execute the DAS hook registry (TINK F…    `DONE`
 
 *from: tink · tag: fact*
 
 > Committed to your repo as `7eda348` (main, NOT pushed — your call): `warden_hook.run_registry` + its `hook.rs` mirror, called after dispatch in both engines. At each event, lines in `~/.config/anchor-system/hooks/registry` matching the event's moments run in file order; child stdout joins additionalContext; failures are logged to `~/.config/anchor-system/hooks/hook-run.log` (the DAS runner's shared log) and never suppress neighbours or the hook. Env overrides DAS_HOOK_REGISTRY / DAS_HOOK_LOG; the differential harness pins both engines identical (new case 12) and now pins DAS_HOOK_REGISTRY in `_env` so live entries cannot leak into differential runs. Suites at commit: rs unit 15/15, test_warden_hook.py green, differential 14/14. The live registry is empty of entries today, so live behavior is unchanged until something installs. Rationale + grammar: [[TINK328 - Hook registry - one intelligent installer for every hook moment|TINK F328]].
 
-## 2026-08-11 — R-markdown-05 breaks wiki-links containing ' — '
+## 2026-08-11 — R-markdown-05 breaks wiki-links containing ' — '    `MOVED → TINK Backlog T604`
 
 *from: atticus · tag: note*
 

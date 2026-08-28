@@ -61,7 +61,7 @@ Every git repository outside the vault that carries uncommitted changes is named
 
 **Why the window rather than a write ledger.** The honest trigger would be *the repos this session wrote to*, and warden has no session-end moment and no per-session write ledger to read — building one is a larger change than the norm is worth. Recency is the available proxy and it is sound in the direction that matters: a repo the agent only **read** is never dirty on account of that read, so reading cannot trip the rule. It over-reports only when a second agent dirtied the same repo within the window, and there the correct action is identical.
 
-**Never auto-commit, and never push.** The rule reports; the agent commits. A partially-finished edit is better surfaced as something the agent must answer than swept into a commit, because the norm's whole value is a message describing real intent. Pushing is deliberately excluded — it needs credentials and a judgement about permanent public history (see [[Warden Backlog|WARDEN T021]], where four repos are blocked on exactly that judgement).
+**Never auto-commit, and never push.** The rule reports; the agent commits. A partially-finished edit is better surfaced as something the agent must answer than swept into a commit, because the norm's whole value is a message describing real intent. Pushing is deliberately excluded — it needs credentials and a judgement about permanent public history (see [[Warden Track|WARDEN T021]], where four repos are blocked on exactly that judgement).
 
 ```python
 import os
