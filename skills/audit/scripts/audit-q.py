@@ -86,6 +86,15 @@ Checks applied to Q.md, each anchor's backlog, and each feature/Questions doc:
        nothing pointing at it. SONAR017 was an open question to Dan, orphaned
        by the F329 hoist and unreferenced for three days. Vault-scoped by
        necessity — an orphan is defined by an absence.               (report).
+  C59: T571 — findings that have been present for 7+ days. Every vault-wide
+       pass records each finding's first-seen date in
+       `~/.config/anchor-system/audit-q-seen.json` and forgets the ones that
+       are gone; anything at or past the threshold produces ONE finding on the
+       sweeping anchor's backlog. Routing a finding elsewhere reported success
+       and graded nothing — four findings routed 2026-08-09 were still
+       byte-identical eighteen days later and no surface said so, because
+       without a first-seen date "still broken" and "broken again" are the
+       same observation.                                              (report).
   D1:  Q.md per-anchor banners derived from each anchor's backlog
        (not validated — overwritten on every run).
 
@@ -114,6 +123,7 @@ from datetime import date
 from pathlib import Path
 from typing import Optional
 import argparse
+import json
 import os
 import re
 import sys
@@ -5909,6 +5919,129 @@ def route_findings_to_qfix(
     return log
 
 
+# ---------------------------------------------------------------------------
+# C59 — the persistence ledger (TINK T571)
+#
+# Routing a finding to another anchor reports success and then grades nothing.
+# Measured 2026-08-20 and again 2026-08-27: of six findings routed on 08-09,
+# four were still byte-identical eleven and eighteen days later, and no surface
+# anywhere said so — the drop landed, the sweep re-found the same finding, and
+# each run reported it as if it were new. What was missing is not a router but
+# a MEMORY: without a first-seen date, "still broken" and "broken again" are
+# the same observation, so persistence is invisible by construction.
+#
+# The ledger is deliberately NOT a record of routing. `state drop`'s message is
+# prose an agent wrote, not a finding key, so a drop cannot be matched back to
+# the finding it was about; and a finding that persists is worth naming whether
+# or not anyone ever routed it. First-seen is the smaller fact that answers the
+# question routing was only a proxy for.
+PERSIST_LEDGER = Path.home() / ".config" / "anchor-system" / "audit-q-seen.json"
+PERSIST_DAYS = 7
+
+
+def _persist_key(f: "Finding") -> str:
+    """Identity of a finding across runs: where, which check, what it said.
+
+    The line number is deliberately excluded — an edit anywhere above a finding
+    shifts it, and a key that moves would reset the clock on exactly the
+    findings that have been sitting longest.
+    """
+    try:
+        rel = f.surface_file.relative_to(VAULT_ROOT).as_posix()
+    except ValueError:
+        rel = f.surface_file.name
+    return f"{rel}|{f.code}|{f.message}"
+
+
+def update_persistence_ledger(findings: list["Finding"],
+                              today: Optional[str] = None,
+                              write: bool = True,
+                              path: Optional[Path] = None) -> list[tuple[str, str, int]]:
+    """Record today's findings, forget the ones that are gone, and return
+    `(key, first_seen, age_days)` for every finding at least PERSIST_DAYS old.
+
+    Keys absent from today's run are dropped rather than kept: a fixed finding
+    must leave no residue, or the ledger becomes its own stale surface — the
+    defect this whole check exists to catch, one layer up.
+    """
+    path = path or PERSIST_LEDGER
+    today = today or date.today().isoformat()
+    try:
+        prior = json.loads(path.read_text(encoding="utf-8"))
+        if not isinstance(prior, dict):
+            prior = {}
+    except (OSError, ValueError):
+        prior = {}
+
+    current = {_persist_key(f) for f in findings}
+    ledger = {k: prior.get(k, today) for k in current}
+
+    if write:
+        try:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            # Atomic replace: ~15 sessions share this file, and a torn write
+            # would be read back as an empty ledger — which resets every clock
+            # silently, the one failure this check must not have.
+            tmp = path.with_suffix(f".{os.getpid()}.tmp")
+            tmp.write_text(json.dumps(ledger, indent=1, sort_keys=True),
+                           encoding="utf-8")
+            os.replace(tmp, path)
+        except OSError:
+            pass                      # a read-only ledger still reports below
+
+    out = []
+    for k, first in sorted(ledger.items()):
+        try:
+            age = (date.fromisoformat(today) - date.fromisoformat(first)).days
+        except ValueError:
+            continue
+        if age >= PERSIST_DAYS:
+            out.append((k, first, age))
+    return out
+
+
+def check_c59_persistent_findings(
+    persistent: list[tuple[str, str, int]],
+    anchor_backlogs: dict[str, Path],
+    owner: str = "TINK",
+) -> list["Finding"]:
+    """One aggregate finding, on the sweeping anchor, when anything has been
+    open PERSIST_DAYS or more.
+
+    One rather than one-per-item on purpose: the individual findings are
+    already reported by their own checks and routed to their own anchors, and
+    reporting them twice would make a run of 34 findings read as 68. What is
+    new here is a single fact about the *sweep* — that N of the things it
+    reported are not new — and that fact belongs to whoever runs the sweep.
+    """
+    if not persistent or owner not in anchor_backlogs:
+        return []
+    by_anchor: dict[str, int] = {}
+    for key, _first, _age in persistent:
+        rel = key.split("|", 1)[0]
+        # Name the anchor that owns it, not the top-level folder: "SYS (3)"
+        # covers three different Pilots and tells none of them anything.
+        who = _resolve_owning_anchor(VAULT_ROOT / rel, anchor_backlogs) or rel.split("/", 1)[0]
+        by_anchor[who] = by_anchor.get(who, 0) + 1
+    oldest = max(a for _k, _f, a in persistent)
+    worst = ", ".join(f"{a} ({n})" for a, n in
+                      sorted(by_anchor.items(), key=lambda kv: -kv[1])[:5])
+    return [Finding(
+        severity="warning",
+        surface_file=anchor_backlogs[owner],
+        surface_line=1,
+        code="C59",
+        message=(
+            f"{len(persistent)} finding(s) have been present for "
+            f"{PERSIST_DAYS}+ days (oldest {oldest}d) across {len(by_anchor)} "
+            f"tree(s) — {worst}. Reporting a finding is not fixing it: these "
+            f"survived at least one prior sweep unchanged. Drive them down or "
+            f"except them; `audit-q --scope all` lists each one."
+        ),
+        mechanically_fixable=False,
+    )]
+
+
 def report_stale_qfix_rows(
     findings: list[Finding], anchor_backlogs: dict[str, Path]
 ) -> list[str]:
@@ -7096,6 +7229,14 @@ def main() -> int:
     # (2026-06-04): every check has an agent-side fix path; routing puts the
     # residual where the owning Pilot's next /ask or /groom will see it
     # and drive it to zero under the 100%-fix rule.
+    # C59 — the persistence ledger (T571). Vault-wide passes only: a scoped run
+    # sees one anchor, so recording its findings as "everything seen today"
+    # would forget every other anchor's clock. `--dry` refuses to write
+    # anywhere, and that includes here.
+    if args.scope in ("q", "all") and not args.anchor:
+        persistent = update_persistence_ledger(findings, write=not args.dry)
+        findings.extend(check_c59_persistent_findings(persistent, all_backlogs))
+
     qfix_routing_log: list[str] = []
     if args.fix:
         qfix_routing_log = route_findings_to_qfix(findings, anchor_backlogs)
