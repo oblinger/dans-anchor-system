@@ -117,3 +117,58 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
+
+
+def test_command_text_helpers():
+    """T605 / T609 — the `tool:pre:Bash` rules judge a command's SHAPE, and the
+    helpers that give them that shape are pinned here.
+
+    Both defects were the same mistake at different grains: reading text that is
+    DATA (a heredoc body, a quoted argument) as if it were shell. The fixtures
+    below pin both directions, because the cheap fix in each case would have
+    blinded the rule rather than sharpening it.
+    """
+    import warden_fire as wf
+    nl = chr(10)
+
+    # --- T609: heredoc bodies -------------------------------------------
+    doc = nl.join(["cat > n.md <<'EOF'", "bad: ssh h 'make test'", "EOF"])
+    assert "ssh h" not in wf.strip_heredoc_bodies(doc), \
+        "a documentation heredoc body must not be tokenized as command position"
+    shell = nl.join(["bash <<EOF", "ssh h 'make test'", "EOF"])
+    assert "ssh h" in wf.strip_heredoc_bodies(shell), \
+        "a heredoc fed to a SHELL is code -- its body must be retained"
+    assert wf.strip_heredoc_bodies('cat <<<"ssh h uptime"') == 'cat <<<"ssh h uptime"', \
+        "a herestring is not a heredoc"
+    assert wf.strip_heredoc_bodies("ssh h uptime") == "ssh h uptime", \
+        "a command with no heredoc is unchanged"
+
+    # --- T605: quoted spans are data ------------------------------------
+    assert wf.mask_quoted("""a 'bcd' e""") == "a '   ' e", "quote contents blanked, delimiters kept"
+    assert len(wf.mask_quoted('x "yz" w')) == len('x "yz" w'), "mask is length-preserving"
+
+    # --- T605: `>` only counts when it writes a FILE ---------------------
+    def writes(cmd):
+        ops = wf.mask_quoted(cmd)
+        return bool(wf.REDIRECT_RE.search(ops) or wf.MOVE_COPY_RE.search(ops))
+
+    # Reads. `2>&1` is the commonest suffix in the corpus and duplicates a file
+    # descriptor -- it creates nothing. Treating it as a write is what made a
+    # pure `grep -c` on a spine-dirty page refuse.
+    assert not writes("grep -c foo a.md 2>&1"), "2>&1 is fd duplication, not a file write"
+    assert not writes("ls >&2"), ">&2 is fd duplication, not a file write"
+    assert not writes("grep foo a.md | head -1"), "a pipe is not a redirect"
+    assert not writes("cat a.md"), "a plain read is not a write"
+    assert not writes('state drop X "a path -> another"'), \
+        "an arrow inside a quoted argument is prose, not a redirect"
+    assert not writes('echo "cp is mentioned here" a.md'), \
+        "mv/cp inside a quoted argument is prose, not command position"
+
+    # Writes -- the fix must not open a hole.
+    assert writes("echo x > a.md"), "truncating redirect"
+    assert writes("cat a.md >> b.md"), "appending redirect"
+    assert writes("cp /tmp/x.md a.md"), "cp in command position"
+    assert writes("mv /tmp/x.md a.md"), "mv in command position"
+    assert writes("foo; cp /tmp/x.md a.md"), "cp after a separator is command position"
+    assert writes("echo x 2>/tmp/err.log"), "2>file really does write a file"
+    print("PASS  command_text_helpers (T605 / T609)")

@@ -226,12 +226,24 @@ def body(ctx):
     cmd = inp.get("command") or ""
     if ".md" not in cmd:
         return []
-    # Write-indicator tokens: the command itself carries a raw write mechanism.
+    # Judge the write MECHANISM on the command with quoted spans blanked, so
+    # prose naming a path or an arrow is not read as shell (T605). Two shapes
+    # were denying pure reads: `2>&1` -- the commonest suffix in the corpus --
+    # matched a bare `">" in cmd` even though duplicating a file descriptor
+    # writes no file at all, and `" cp "` matched those letters inside a
+    # `state drop` body. Reproduced 2026-08-28: `grep -c foo <page>` passed and
+    # the same command with `2>&1` denied.
     # Sanctioned generators (state, md-toc, audit-dispatch, queries-render)
     # pass naturally — their command lines name a script, not a write call.
+    try:
+        import warden_fire as _wf
+        ops = _wf.mask_quoted(cmd)
+        writes = bool(_wf.REDIRECT_RE.search(ops) or _wf.MOVE_COPY_RE.search(ops))
+    except Exception:
+        ops, writes = cmd, (">" in cmd)      # deny-side conservative
     inds = ("write_text(", ".write(", "writelines", "sed -i", "perl -i",
-            "tee ", "shutil.", "os.rename", "os.replace", ">>", ">")
-    if not any(i in cmd for i in inds) and " mv " not in f" {cmd}"             and " cp " not in f" {cmd}" and not cmd.startswith(("mv ", "cp ")):
+            "tee ", "shutil.", "os.rename", "os.replace")
+    if not writes and not any(i in ops for i in inds):
         return []
     try:
         from pathlib import Path

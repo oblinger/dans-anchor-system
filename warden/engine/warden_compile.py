@@ -826,7 +826,12 @@ def _include_target(target: str) -> str:
 # one compiled source.
 ANCHOR_BASE_TRAITS = ("audit-on-write", "ob-remote-ops", "state-region", "ios",
                       "code-mirror", "pathguard", "backupguard",
-                      "ob-browser-lease", "dispatch-guard", "ob-commons")
+                      "ob-browser-lease", "dispatch-guard", "ob-commons",
+                      # Raw-automation hygiene (2026-08-28). Always-on for the
+                      # same reason as ob-remote-ops and ob-browser-lease: the
+                      # Mac's GUI is one surface per MACHINE, so an anchor-scoped
+                      # version would leave every other anchor free to drive it.
+                      "ob-osascript")
 
 
 def anchor_trait_map(vault: Path) -> dict[Path, list[str]]:

@@ -330,6 +330,47 @@ _HEREDOC_OPEN_RE = re.compile(
 _SHELL_WORDS = {"bash", "sh", "zsh", "ksh", "dash", "eval", "source", "."}
 
 
+def mask_quoted(cmd: str, fill: str = " ") -> str:
+    """`cmd` with the CONTENTS of every quoted span blanked, quotes kept.
+
+    Length-preserving, so an offset found in the mask is the offset in `cmd`.
+    The delimiters survive so a redirect target still reads as one token; only
+    what a human wrote *inside* them goes away.
+
+    Same principle as `strip_heredoc_bodies` at a smaller grain: a quoted span
+    is data, and scanning it for operators reads prose as shell. This is what
+    made `state drop <anchor> "... a path -> another ..."` look like a
+    redirection to R-dispatch-guard-04. T605.
+    """
+    out = list(cmd)
+    i, n = 0, len(cmd)
+    while i < n:
+        ch = cmd[i]
+        if ch in ("'", '"'):
+            j = i + 1
+            while j < n and cmd[j] != ch:
+                if ch == '"' and cmd[j] == "\\" and j + 1 < n:
+                    j += 1                 # a backslash escape inside "..."
+                j += 1
+            for k in range(i + 1, min(j, n)):
+                if out[k] != "\n":
+                    out[k] = fill
+            i = j + 1
+            continue
+        i += 1
+    return "".join(out)
+
+
+# A `>` that actually creates or appends to a FILE. `2>&1` and `>&2` duplicate a
+# file descriptor and write nothing, and they are the commonest suffix in the
+# corpus — which is why a bare `">" in cmd` test made every `grep … 2>&1` read
+# look like a write (T605).
+REDIRECT_RE = re.compile(r"(?:^|[\s;|&(])(?:\d|&)?>>?\s*(?!&)\S")
+
+# `mv` / `cp` in command position — not the letters appearing inside prose.
+MOVE_COPY_RE = re.compile(r"(?:^|[;|&(])\s*(?:sudo\s+)?(?:mv|cp)\s")
+
+
 def strip_heredoc_bodies(cmd: str) -> str:
     """`cmd` with every heredoc BODY removed and its opener line kept.
 
