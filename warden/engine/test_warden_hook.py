@@ -242,7 +242,7 @@ def test_pathguard_veto():
             # R-pathguard-02's message WAS carried across to the F293 verb-first
             # grammar correctly; only this assertion stayed on `state <doc>`.
             assert len(denies) == 1, denies
-            assert "state <define|resolve|remove> <anchor> <doc>" in denies[0], denies
+            assert "state <define|set|resolve|remove> <anchor> <doc>" in denies[0], denies
             # ...but an edit elsewhere in the same doc passes
             clean = pre("Edit", file_path=str(fdoc), old_string="prose", new_string="better prose")
             assert not [s for s in clean if s.startswith(wh.DENY_SENTINEL)], clean
@@ -386,6 +386,38 @@ def test_bridge_guard():
                 "smuggled tmux; separator wrongly passed"
             assert denied('ssh haorui.local "nohup ./long.sh &"'), \
                 "quoted nohup backgrounding wrongly passed"
+
+            # T609: a heredoc BODY is data, not command position. Prose that
+            # documents the anti-pattern -- which is exactly what an agent
+            # writes when filing a bug about this rule, and what was refused
+            # three times on 2026-08-28 -- must pass. A heredoc fed to a SHELL
+            # is real code and must still deny, which is why the strip is not
+            # blanket: the cheap version of this fix would close a
+            # documentation false-positive and open a real evasion.
+            nl = chr(10)
+            doc = nl.join(["cat > note.md <<'EOF'",
+                           "bad: ssh haorui.local 'make test' -- use bridge",
+                           "EOF"])
+            assert not denied(doc), "prose inside a heredoc body wrongly denied"
+            tick = nl.join(["cat > note.md <<'EOF'",
+                            "the anti-pattern is `ssh haorui.local 'make test'`",
+                            "EOF"])
+            assert not denied(tick), "backticked code span in a heredoc wrongly denied"
+            assert denied("ssh haorui.local 'make test'"), \
+                "stripping must not blind the rule on an ordinary one-shot"
+            # The shell case is asserted on the STRIPPER, not on denied(): the
+            # rule's separator set is `; & | (` and does NOT include a newline,
+            # so command-position ssh on line 2 of any multi-line command is
+            # missed regardless of heredocs -- a separate pre-existing gap,
+            # filed as T611. What is this change's job is that the body of a
+            # heredoc fed to a shell is RETAINED, so the day the separator set
+            # learns about newlines, this evasion is already closed.
+            import warden_fire as _wf
+            shell = nl.join(["bash <<EOF", "ssh haorui.local 'make test'", "EOF"])
+            assert "ssh haorui.local" in _wf.strip_heredoc_bodies(shell), \
+                "heredoc fed to a SHELL is code -- its body must be retained"
+            assert "ssh haorui.local" not in _wf.strip_heredoc_bodies(doc), \
+                "documentation heredoc body must be stripped"
     finally:
         os.environ["WARDEN_HOME"] = old if old else str(home)
     print("PASS  bridge_guard (F183)")

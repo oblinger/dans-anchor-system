@@ -31,6 +31,7 @@ import argparse
 import importlib.util
 import json
 import re
+import shlex
 import sys
 import types
 from pathlib import Path
@@ -312,6 +313,73 @@ def main(argv=None):
     for s in steers:
         print(s)
     return 0
+
+
+# ---------------------------------------------------------------------------
+# Command-text helpers for `tool:pre:Bash` rules
+# ---------------------------------------------------------------------------
+
+# `<<EOF` / `<<'EOF'` / `<<"EOF"` / `<<-EOF`. `<<<word` (herestring) is NOT a
+# heredoc and deliberately does not match — after `<<` comes `<`, which is
+# neither a quote nor an identifier start.
+_HEREDOC_OPEN_RE = re.compile(
+    r"""<<-?\s*(?:'([^']*)'|"([^"]*)"|([A-Za-z_][A-Za-z0-9_]*))""")
+
+# A heredoc fed to one of these IS command position — `bash <<EOF … ssh h c … EOF`
+# really runs the ssh. Those bodies are kept.
+_SHELL_WORDS = {"bash", "sh", "zsh", "ksh", "dash", "eval", "source", "."}
+
+
+def strip_heredoc_bodies(cmd: str) -> str:
+    """`cmd` with every heredoc BODY removed and its opener line kept.
+
+    A heredoc body is data the shell hands to a program on stdin, not command
+    position — and it is also the one place an agent routinely writes *about*
+    commands, so a rule that tokenizes the raw text reads documentation as
+    execution. `R-ob-remote-ops-01` has now been patched three times for
+    prose-vs-code misreads: a quoted `--body` argument (2026-07-06), a trailing
+    pipe defeating the tmux exemption (2026-08-13), and a markdown code span
+    whose opening backtick made prose tokenize as command substitution
+    (2026-08-28). The third denied the write that was *filing the report about
+    it*, which is the corrosive part — the way to get a note past the rule is to
+    describe the command less precisely, so the record degrades toward vagueness
+    exactly where it should be sharpest.
+
+    **A body fed to a shell is kept**, because there it genuinely is code. That
+    is the whole reason this is not a blanket strip: the cheap version of this
+    fix would open a real evasion (`bash <<EOF` … `EOF`) while closing a
+    documentation false-positive, trading a loud wrong answer for a silent one.
+
+    Lives in the dispatcher rather than in a ruleset because two rules in two
+    different ruleset files need it and each ruleset block compiles to its own
+    module. `warden_fire` is already imported whenever any rule body runs, so a
+    rule reaching for it costs no import. T609.
+    """
+    lines = cmd.split("\n")
+    out, i = [], 0
+    while i < len(lines):
+        line = lines[i]
+        out.append(line)
+        i += 1
+        delims = [m.group(1) or m.group(2) or m.group(3)
+                  for m in _HEREDOC_OPEN_RE.finditer(line)]
+        if not delims:
+            continue
+        try:
+            opener_words = set(shlex.split(line))
+        except ValueError:
+            opener_words = set(line.split())
+        if opener_words & _SHELL_WORDS:
+            continue                      # really is code — leave it alone
+        # Consume each heredoc in the order the shell reads them. `<<-` allows an
+        # indented terminator, so compare on the stripped line either way.
+        for delim in delims:
+            while i < len(lines) and lines[i].strip() != delim:
+                i += 1
+            if i < len(lines):
+                out.append(lines[i])      # keep the terminator; it ends nothing else
+                i += 1
+    return "\n".join(out)
 
 
 if __name__ == "__main__":

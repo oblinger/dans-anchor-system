@@ -14,6 +14,15 @@ def body(ctx):
     cmd = inp.get("command") or ""
     if "ssh" not in cmd:
         return []
+    # A heredoc BODY is data, not command position — and it is where an agent
+    # writes *about* commands, so tokenizing it reads documentation as
+    # execution. Bodies fed to a shell are kept, because there it really is
+    # code. T609; the helper carries the reasoning.
+    try:
+        import warden_fire as _wf
+        cmd = _wf.strip_heredoc_bodies(cmd)
+    except Exception:
+        pass                              # deny-side conservative: judge the raw text
     # Tokenize shell-aware (shlex): a quoted string is ONE token, so prose
     # mentioning `; ssh …` inside an argument never reads as a command-position
     # ssh (live false-positive 2026-07-06 — a --body text containing
@@ -88,6 +97,15 @@ def body(ctx):
     cmd = inp.get("command") or ""
     if "tmux" not in cmd:
         return []
+    # A heredoc BODY is data, not command position — and it is where an agent
+    # writes *about* commands, so tokenizing it reads documentation as
+    # execution. Bodies fed to a shell are kept, because there it really is
+    # code. T609; the helper carries the reasoning.
+    try:
+        import warden_fire as _wf
+        cmd = _wf.strip_heredoc_bodies(cmd)
+    except Exception:
+        pass                              # deny-side conservative: judge the raw text
     import shlex
     try:
         _words = shlex.split(cmd)
