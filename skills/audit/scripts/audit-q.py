@@ -7229,12 +7229,19 @@ def main() -> int:
     # (2026-06-04): every check has an agent-side fix path; routing puts the
     # residual where the owning Pilot's next /ask or /groom will see it
     # and drive it to zero under the 100%-fix rule.
-    # C59 — the persistence ledger (T571). Vault-wide passes only: a scoped run
-    # sees one anchor, so recording its findings as "everything seen today"
-    # would forget every other anchor's clock. `--dry` refuses to write
-    # anywhere, and that includes here.
+    # C59 — the persistence ledger (T571).
+    #
+    # Written by `--scope q` alone, and that is not the same restriction as
+    # "vault-wide". `q` and `all` enumerate DIFFERENT populations — 14 findings
+    # against 204 on the same vault, because `all` reaches docs no backlog
+    # links. Letting both write would make each pass prune the other's keys,
+    # so alternating between them would reset the clock on every finding the
+    # other one cannot see: a ledger that forgets fastest exactly when it is
+    # consulted most. `all` still READS it and reports, which is what a wider
+    # scope should do. `--dry` refuses to write anywhere, here included.
     if args.scope in ("q", "all") and not args.anchor:
-        persistent = update_persistence_ledger(findings, write=not args.dry)
+        persistent = update_persistence_ledger(
+            findings, write=(args.scope == "q" and not args.dry))
         findings.extend(check_c59_persistent_findings(persistent, all_backlogs))
 
     qfix_routing_log: list[str] = []

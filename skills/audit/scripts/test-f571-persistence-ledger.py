@@ -126,8 +126,18 @@ check("a shifted line number keeps the original first-seen date",
 print("\nA read-only pass reports without recording")
 
 before = LEDGER.read_text()
-aq.update_persistence_ledger([f_fresh], today=NOW, write=False, path=LEDGER)
+out = aq.update_persistence_ledger([f_fresh], today=NOW, write=False, path=LEDGER)
 check("--dry leaves the ledger byte-identical", LEDGER.read_text(), before)
+
+# `--scope all` sees a different, wider population than `--scope q` (204
+# findings against 14 on the same vault). If both wrote, each pass would prune
+# the other's keys and alternating between them would reset every clock.
+wider = [f_stale] + [finding(f"EMBER/unreached-{i}.md") for i in range(5)]
+out = aq.update_persistence_ledger(wider, today=NOW, write=False, path=LEDGER)
+check("a wider read-only scope prunes nothing", LEDGER.read_text(), before)
+check("...and still reports what the narrow ledger already knew",
+      [(k.split("|")[0].rsplit("/", 1)[-1], a) for k, _f, a in out],
+      [("EMBER007 - a.md", 11)])
 
 print(f"\n{sum(results)}/{len(results)} passed")
 sys.exit(0 if all(results) else 1)
