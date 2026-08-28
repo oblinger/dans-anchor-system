@@ -5086,7 +5086,11 @@ def chk_md_em_dash(target, anchor_root, args):
     # paired fence runs anywhere on a line, so a zero-width-space-escaped nested
     # fence left the real inner block exposed — and `fix_md_em_dash` then rewrote
     # the code it exposed.
+    # Link targets are masked on top of code (T604): the interior of a `[[…]]`
+    # is a FILENAME, and converting a spaced double-hyphen there breaks the link
+    # rather than improving the prose.
     masked = _mask_code(_read(target))
+    masked = _blank_regions(masked, _link_target_regions(masked))
     hits = [f"line {ln}" for ln, raw in enumerate(masked.splitlines(), 1) if " -- " in raw][:5]
     if hits:
         return "fail", "spaced double-hyphen em-dash — " + ", ".join(hits)
@@ -5325,6 +5329,43 @@ def _blank_regions(text: str, regions, fill: str = " ") -> str:
             if out[i] != "\n":
                 out[i] = fill
     return "".join(out)
+
+
+def _link_target_regions(text: str) -> list[tuple[int, int]]:
+    """Char ranges of LINK TARGETS — the `[[…]]` interior up to its display pipe,
+    and the `(…)` of a `[text](url)`.
+
+    T604. A wiki-link target is a FILENAME, and a filename may legitimately hold
+    a spaced double-hyphen; rewriting it to an em-dash points the link at a file
+    that does not exist. That corruption is silent in all three directions at
+    once — Obsidian renders a dead link as ordinary prose, the fixer reports
+    success, and the write that triggered the pass was somewhere else in the file
+    entirely. Caught in the act on `SV/SV People/SV Individuals/@Sports Visio.md`
+    and confirmed by `git diff`. Blast radius 27 files on 2026-08-28, up from the
+    14 first counted on 2026-08-11 — which is the rate it grows at while unfixed.
+
+    Only the TARGET is masked, never the display half: display text is prose the
+    reader actually sees, so ` -- ` there is exactly what R-markdown-05 is for.
+    The pipe is where one stops and the other starts — and it is matched in both
+    the bare `|` and the table-escaped `\|` form (R-markdown-01 escapes every
+    pipe inside a table cell), because `find` stops at the `|` either way and the
+    stray backslash left in front of it is target, not prose.
+
+    Distinct from [[TINK Backlog#^T375|T375]], which fixed three CODE-masking
+    defects in this same fixer: a wiki-link is not code, so none of that
+    machinery ever looked at one.
+    """
+    regions = []
+    for m in _WIKILINK_RE.finditer(text):
+        start = m.start() + 2          # past the `[[`
+        inner = m.group(1)
+        cut = inner.find("|")
+        regions.append((start, start + (len(inner) if cut == -1 else cut)))
+    # `[text](url)` — the url only. The `)`-free body matches the convention
+    # `_ends_with_terminal_link` already uses for the same construct.
+    for m in re.finditer(r"\]\(([^)\n]*)\)", text):
+        regions.append((m.start(1), m.end(1)))
+    return regions
 
 
 # A code-span delimiter is a backtick run matched by a run of EXACTLY the same
@@ -7230,8 +7271,20 @@ def _stone_control(folder: Path, slug: str, cfg: dict) -> Path:
 
     It sits BESIDE the group folder, not inside it, so it is never itself
     selected by the `where::` glob — a folder-scope rule reads it, and reports
-    against the group."""
-    return folder.parent / (cfg["control"].format(slug=slug) + ".md")
+    against the group.
+
+    **Except for a container-named kind**, where folder and control resolve to
+    the same name and the control file is the folder note. Per [[DAS Facets]]
+    (Dan, 2026-08-18): a word is singular when it names the container, plural
+    when it names the elements. `Rocks` names the elements so `HBR Rock.md` has
+    its own place beside `HBR Rocks/`; `Book` names the container, so
+    `SONAR Book.md` can only live inside `SONAR Book/`. The glob concern above
+    does not bite: `chk_stone_members_numbered` already exempts a `{folder}.md`
+    inside the folder as the group's own anchor page."""
+    name = cfg["control"].format(slug=slug) + ".md"
+    if cfg["control"] == cfg["folder"]:
+        return folder / name
+    return folder.parent / name
 
 
 def _stone_number_rx(slug: str, cfg: dict):
@@ -7284,7 +7337,7 @@ def _stone_gate(target, anchor_root, folder_scope: bool):
     `(None, None, None, None, verdict)` when it should not."""
     if not _stone_kinds():
         return None, None, None, None, ("error", (
-            f"no readable kind config at {_STONE_KINDS_PATH} — R-stone is "
+            f"no readable kind table at {_stone_kinds_path()} — R-stone is "
             "parameterised by kind and cannot judge anything without it"))
     f = _as_file(target, anchor_root)
     if f is None:
@@ -7339,6 +7392,20 @@ def chk_stone_members_numbered(target, anchor_root, args):
     page = folder / f"{folder.name}.md"
     if f == page or f.name == f"{cfg['folder'].format(slug=slug)}.md":
         return "pass", "the group's own anchor page, not a stone"
+    # A kind declares its member-naming shape in the table's `stone file` row;
+    # `member` is derived from it, never written separately. A dated kind names
+    # members `YYYY-MM-DD <Title>` — the date is the CREATION date and is NOT
+    # the ordering key (ordering lives in the control file, which may be
+    # machine-generated from any key). It satisfies R-stone-02's actual intent:
+    # unique, monotonic, never recycled. Ruled by Dan 2026-08-28.
+    if cfg.get("member") == "dated":
+        if re.match(r"^\d{4}-\d{2}-\d{2} \S", f.stem):
+            return "pass", f"{f.stem} — dated"
+        return "fail", (
+            f"{f.stem!r} is not `YYYY-MM-DD <Title>` — this kind declares "
+            "date-named members in the DAS kind table's `stone file` row, and "
+            "the date is the creation stamp that makes the name unique and "
+            "non-recycling. Ordering is the control file's job, not the name's.")
     rx = _stone_number_rx(slug, cfg)
     if rx.match(f.stem):
         return "pass", f"{f.stem} — numbered"
@@ -8650,11 +8717,18 @@ def fix_md_em_dash(target, anchor_root, args):
     """
     text = _read(target)
     raw_lines = text.split("\n")
-    masked_lines = _mask_code(text).split("\n")
+    code_masked = _mask_code(text)
+    # Two masks, deliberately. Backtick PARITY is judged on the code-masked line
+    # alone, because blanking a link target could itself change that parity and
+    # turn the refusal below into noise. Where to SUBSTITUTE is judged on the
+    # link-masked line, so a filename holding ` -- ` is left alone (T604).
+    parity_lines = code_masked.split("\n")
+    masked_lines = _blank_regions(
+        code_masked, _link_target_regions(code_masked)).split("\n")
     out, skipped, changed = [], [], False
     for i, raw in enumerate(raw_lines):
         m = masked_lines[i] if i < len(masked_lines) else ""
-        if m.count("`") % 2:
+        if (parity_lines[i] if i < len(parity_lines) else "").count("`") % 2:
             skipped.append(i + 1)
             out.append(raw)
             continue
