@@ -32,6 +32,23 @@ A heart is usually a table, sometimes a figure with a table beneath it. It comes
 
 **The labelled form is a heart, not a section.** The heading leads *straight* into the table — nothing between them. A heading that opens with prose is an ordinary section, and the zone has ended; the checker draws exactly that line, and got it wrong until 2026-08-10 (see § How it is checked).
 
+## The fact card — the third form, and where a spine's prose goes
+Ruled by Dan 2026-08-29 on [[2026-08-19 Legacy Athletics]] ([[TINK623 - R-dispatch-table-06 six days on 434 of 1,604 mastheads (27%) violate|TINK T623]]): *"the spine indexes a page in the context of other pages — it is always outward-facing. The heart is always inward-facing: the meat, the summary, the most important content of a page."* That sentence is the whole discriminator, and it settles a case the two forms above did not name.
+
+**A fact card is a heart.** A two-column table whose left cells are labels and whose right cells are the page's own facts — `Status`, `Counterparty`, `Their people`, `Value`, `Volume`, `Dates`, `Waiting on`, `Tech owes`, `Next` on an engagement page; `Role`, `Where met`, `Last contact`, `Owes / owed` on a person page — is inward-facing by construction: every cell is about *this* page's subject. It carries the page the way [[Disk]]'s drive table does, and it takes either shape — **bare** under the orientation line, or **labelled** under an H2 such as `## Card`. Nothing changes about the rule that a heart never routes: a fact card may *contain* links, but no row of it exists to send the reader elsewhere.
+
+**It had been living in the spine, which is why the 2-word cap read it as narrative.** The [[SV Proj Template]] put the card in the masthead position, and six days of R-dispatch-table-06 at `fail` measured 434 mastheads carrying prose — the worst of them precisely these cards and the `@` person summaries. The cap was right that the spine must be links-only; it was wrong about what to do with the words, and had nowhere to send them because the pages had no heart. Dan, looking at Legacy Athletics: *"definitely it does not belong in the spine of the page. But this document doesn't have a heart — and it deserves to have a heart."*
+
+**The migration rule — a spine cell that talks about this page moves to the heart; one that explains another page moves to that page.** Concretely, for a masthead row whose right cell fails the cap:
+
+1. If the row is a **fact about this page's subject** (a status, a counterparty, a value, a date, a next step) — it becomes a row of the fact card, directly below the H1's orientation line. The spine row is dropped, or kept as a links-only row if it also pointed somewhere.
+2. If the row **explains a destination** ("[[X]] — the tool that does Y") — the explanation goes onto X's own top line (H1 + first sentence, `description:` frontmatter), and the spine row keeps only the link and at most a two-word tag.
+3. If the row is **neither** — commentary, history, a caveat — it goes into the body below the heart, never above it.
+
+Nothing is deleted in the move; the cap becomes satisfiable *without loss*, which is the condition for re-arming it (R-dispatch-table-06 sits at `warn` and [[R-dispatch-guard]] returns early until this migration has run over the pages it would otherwise destroy).
+
+**A template follows.** The fact card is a shape with an extent, so it gets a template beside the bare and labelled ones — the `SV Proj Template` card, moved below the H1, is the first specimen; minting it is the next step of T623, not this paragraph.
+
 ## What a heart is not
 **A heart never routes to children.** If the element under the H1 is handing the reader other pages, that is spine work wearing a different hat — and a page whose spine and content are the same table simply has no heart. [[Harbor Hops]] is that case deliberately; [[Devtools]] is the contrast, carrying a masthead that routes and a pipeline table that does not.
 
