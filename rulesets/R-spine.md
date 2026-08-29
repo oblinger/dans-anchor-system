@@ -1,6 +1,6 @@
 # RULESET R-spine
 include::
-where:: `always`
+where:: `always, !mirror`
 confirm:: user
 description:: the routing zone every document opens with — which of the two forms a document gets, and the fixed line order that follows
 import:: skills/audit/scripts/audit-plan.py
@@ -144,6 +144,23 @@ A `---` or `^^^` marker declares that the machine writes the rows beneath it. Wh
 
 **Why:** a degenerate list or stream reads as "there is nothing here" when the truth is usually "this page has the wrong shape". 103 vault instances.
 
+### RULE R-spine-11 — a mirrored doc carries no spine (checked)
+where:: `mirror`
+check:: mirrored_doc_has_no_spine
+mend:: spine-mirrored
+
+A doc inside a declared `here:` mirror route is copied into an external repo, where a `:>>` breadcrumb and a dispatch masthead are wiki-links and `hook://` URIs that render as literal noise. So it must carry **no spine at all** — not merely go ungraded.
+
+**Check pattern:** the file sits under a `here:` route in `~/.config/anchor-system/mirror-routes.json` and carries a `:>>` breadcrumb or a dispatch identity row → fail.
+
+**Why the prohibition rather than an exemption.** The two fail in opposite directions. An exemption says *do not look*, so a mirrored doc that acquires a breadcrumb — someone runs `spine fix` against a route not yet declared, or a doc is moved into a route carrying its vault masthead with it — is invisible forever, and the noise arrives on GitHub instead of in the audit. A prohibition says *look, and expect nothing*, so the same doc is a finding on the next pass. Ruled by Dan 2026-08-28: *"the rule should be mirrored docs cannot have a spine, because it just doesn't mean anything in the receiver's environment. I think it's probably the better rule."*
+
+**It also removes an asymmetry.** `spine fix --vault` had already been taught to skip these routes, so without this rule two mechanisms encoded *do not repair* and nothing at all encoded *do not carry*. One rule, read by both, is the smaller surface.
+
+**Adoption is nearly free, measured 2026-08-28.** Across the 4 resolvable routes there are 184 markdown docs; **zero** carry a breadcrumb and **one** carries a masthead — `prj/Alien Biology/Alien Biology Framework/ABIO Docs/ABIO Docs.md`. The rule starts at one finding, not at the 138 the old direction was suppressing.
+
+**No `fix::`, deliberately.** Stripping a spine deletes authored rows, and which of them belong on the vault side of the route is a judgement; a fixer that guessed would destroy writing that has nowhere else to live. The `where:: mirror` selector is the exact inverse of the `, !mirror` this set now carries at ruleset level, so the two cannot drift: a doc is governed by -01…-10 or by -11, never by both and never by neither.
+
 ## Why this set was silent, and what changed on 2026-08-10
 
 **A rule nobody hears is not a rule.** [[Stones]] was created on 2026-08-10 with its H1 above the spine and a breadcrumb-first identity cell — the exact two shapes `R-spine-04` and `-05` exist to catch — and the write hook said nothing. Four failures were stacked, each on its own sufficient:
@@ -164,6 +181,15 @@ A `---` or `^^^` marker declares that the machine writes the rows beneath it. Wh
 Sits under [[R-doc]], beside [[R-progressive]] and [[R-dispatch-table]] — the three that between them govern a document's opening and its body. Applies to every markdown doc (`always`); each rule decides internally whether and how it constrains a given doc.
 
 ## Mend
+
+### MEND spine-mirrored
+
+This file is copied into an external repository, so its spine is noise there rather than routing. Delete the `:>>` breadcrumb or the dispatch masthead from this file.
+
+If the routing is genuinely wanted, it belongs on a vault-side page that is **not** inside the route — sv-pipe's own `SVP.md` is the worked example: it sits outside all four routes and keeps its spine, which is Dan's ruling working in both directions (*"anything that is going to get mapped to the repository should be exempt. If it is not getting mapped to repository, then it should not be exempt."*).
+
+Do not add the route to the exemption list to silence this. The routes are read from `~/.config/anchor-system/mirror-routes.json`, which `code sync` generates; if this file is not actually mirrored, the index is what is wrong.
+
 
 Remediation messages for these rules — what to actually do when one fires. Reached as `warden mend R-spine-<nn>`; wired by the `mend::` line on each rule. State the fix, point at the facet, never restate it.
 

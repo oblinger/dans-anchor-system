@@ -76,15 +76,15 @@ def main():
     m = _load()
 
     # 0 — parse_selector recognises the kind at all, and leaves the others alone.
-    check(m.parse_selector("group: file") == ("group", "file"),
+    check(m.parse_selector("group: file") == ("group", "file", None),
           "`group:` parses as its own selector kind")
-    check(m.parse_selector("always") == ("always", ""),
+    check(m.parse_selector("always") == ("always", "", None),
           "`always` still parses as always (control)")
-    check(m.parse_selector("sentinel: ^# X") == ("sentinel", "^# X"),
+    check(m.parse_selector("sentinel: ^# X") == ("sentinel", "^# X", None),
           "`sentinel:` still parses as sentinel (control)")
-    check(m.parse_selector("file: *.md") == ("file", "*.md"),
+    check(m.parse_selector("file: *.md") == ("file", "*.md", None),
           "`file:` still parses as file (control)")
-    check(m.parse_selector("**/*.md") == ("file", "**/*.md"),
+    check(m.parse_selector("**/*.md") == ("file", "**/*.md", None),
           "a bare glob is still a file glob (control)")
 
     root, files = build({

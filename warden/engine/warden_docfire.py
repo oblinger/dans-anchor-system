@@ -225,10 +225,10 @@ def trait_rows(target: Path) -> list[tuple[dict, dict]]:
     names: set[str] = set()
     for rid in eligible:
         row = rules.get(rid) or {}
-        kind, arg = ap.parse_selector(row.get("where") or "always")
+        kind, arg, mir = ap.parse_selector(row.get("where") or "always")
         if kind == "anchor":
             continue
-        if ap.match_targets(kind, arg, scope_files, anchor_root):
+        if ap.match_targets(kind, arg, scope_files, anchor_root, mir):
             names.add(_ruleset_of(row.get("source") or ""))
     rows: list[tuple[dict, dict]] = []
     for name in sorted(n for n in names if n):
@@ -273,10 +273,10 @@ def fire_audit(target: Path, mode: str) -> list[dict]:
         if not action or action.get("kind") != "check":
             continue
         where = row["where"] or "always"
-        kind, arg = ap.parse_selector(where)
+        kind, arg, mir = ap.parse_selector(where)
         if mode == "doc" and kind == "anchor":
             continue  # anchor-structure rules are N/A at the doc level
-        tgts = ap.match_targets(kind, arg, scope_files, anchor_root)
+        tgts = ap.match_targets(kind, arg, scope_files, anchor_root, mir)
         if tgts and rs.get("source"):
             src_abs = (ap.REPO_ROOT / rs["source"]).resolve()
             tgts = [t for t in tgts if t.resolve() != src_abs]
@@ -321,10 +321,10 @@ def fire_on_write(target: Path, rows: list[tuple[dict, dict]] | None = None) -> 
         if not action or action.get("kind") != "check":
             continue
         where = row["where"] or "always"
-        kind, arg = ap.parse_selector(where)
+        kind, arg, mir = ap.parse_selector(where)
         if kind == "anchor":
             continue
-        tgts = ap.match_targets(kind, arg, scope_files, anchor_root)
+        tgts = ap.match_targets(kind, arg, scope_files, anchor_root, mir)
         if tgts and rs.get("source"):
             src_abs = (ap.REPO_ROOT / rs["source"]).resolve()
             tgts = [t for t in tgts if t.resolve() != src_abs]

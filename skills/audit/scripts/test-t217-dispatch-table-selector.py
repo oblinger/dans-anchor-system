@@ -190,9 +190,9 @@ check("the file no longer opens with frontmatter",
 print("\nThe measurement — the sentinel keeps every masthead and every finding")
 
 _, _scope = ap.enumerate_scope(ap.REPO_ROOT, "anchor")
-_kind, _arg = ap.parse_selector(_where)
+_kind, _arg, _mir = ap.parse_selector(_where)
 _targets = ap.match_targets(_kind, _arg, _scope, ap.REPO_ROOT)
-_always = ap.match_targets(*ap.parse_selector("always"), _scope, ap.REPO_ROOT)
+_always = ap.match_targets(*ap.parse_selector("always")[:2], _scope, ap.REPO_ROOT)
 
 check("the sentinel selects a strict subset of every-markdown — the `always` "
       "default and the every-markdown glob were the same set here, which is why "
@@ -238,7 +238,7 @@ check("named at a Python file, the selector still selects nothing",
       ap.match_targets(_kind, _arg, _one, _root), [])
 check("...where `always` would have selected it — the 15 masthead rules that "
       "used to run there, three of them returning a green check:: verdict",
-      len(ap.match_targets(*ap.parse_selector("always"), _one, _root)), 1)
+      len(ap.match_targets(*ap.parse_selector("always")[:2], _one, _root)), 1)
 
 # An anchor page IS selected — the sentinel must not have narrowed to nothing.
 _anchor_page = ap.REPO_ROOT / "DAS.md"

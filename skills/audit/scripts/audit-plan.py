@@ -742,20 +742,51 @@ def effective_confirm(rule: dict, ruleset: dict) -> str | None:
     return rule.get("confirm") or ruleset.get("confirm") or None
 
 
-def parse_selector(where: str) -> tuple[str, str]:
-    """(kind, arg). kind ∈ always|file|anchor|sentinel|group. Bare glob → ('file', glob)."""
+# A trailing `, !mirror` on ANY selector kind, and the bare kind `mirror`.
+_MIRROR_SUFFIX_RE = re.compile(r",\s*!mirror\s*$")
+
+
+def parse_selector(where: str) -> tuple[str, str, str | None]:
+    """(kind, arg, mirror). kind ∈ always|file|anchor|sentinel|group|mirror.
+    Bare glob → ('file', glob, None). `mirror` ∈ None | 'only' | 'exclude'.
+
+    F600. Mirror-ness is a MODIFIER on the line, not a word in the glob
+    vocabulary, and the positive rule is what settles that. `!`-negation is
+    implemented in exactly one of the five kinds — inside `_match_file_glob` —
+    so only a `file:` glob can exclude anything, and `R-spine` says `always`,
+    which cannot exclude at all. Making `mirror` a glob term would have forced
+    `R-spine` to restate its scope as a path pattern, and worse, would have left
+    the positive direction with no honest spelling: `R-spine-11` must SELECT
+    mirrored docs, and `file:mirror` is a lie about what the term is.
+
+    As a suffix it reads the same in both directions and composes with every
+    kind: `where:: always, !mirror` excludes them, `where:: mirror` selects
+    them, and `group:` / `sentinel:` inherit the modifier for free.
+
+    A spine is a vault convention — a `:>>` breadcrumb and a dispatch masthead
+    built from wiki-links and `hook://` URIs — and both render as literal noise
+    on GitHub. Dan, 2026-08-28: *"the rule should be mirrored docs cannot have a
+    spine, because it just doesn't mean anything in the receiver's
+    environment."*
+    """
     w = where.strip()
+    mirror = None
+    if _MIRROR_SUFFIX_RE.search(w):
+        mirror = "exclude"
+        w = _MIRROR_SUFFIX_RE.sub("", w).strip()
+    if w == "mirror":
+        return "mirror", "", "only"
     if w == "always":
-        return "always", ""
+        return "always", "", mirror
     if w == "anchor":
-        return "anchor", ""
+        return "anchor", "", mirror
     if w.startswith("file:"):
-        return "file", w[len("file:"):].strip()
+        return "file", w[len("file:"):].strip(), mirror
     if w.startswith("sentinel:"):
-        return "sentinel", w[len("sentinel:"):].strip()
+        return "sentinel", w[len("sentinel:"):].strip(), mirror
     if w.startswith("group:"):
-        return "group", w[len("group:"):].strip()
-    return "file", w  # bare glob
+        return "group", w[len("group:"):].strip(), mirror
+    return "file", w, mirror  # bare glob
 
 
 def _glob_to_relpattern(glob: str) -> str:
@@ -936,8 +967,34 @@ def declared_groups(path: Path) -> set[str]:
     return {v.strip().strip("\"'").lower() for v in raw.split(",") if v.strip()}
 
 
-def match_targets(kind: str, arg: str, scope_files: list[Path], anchor_root: Path) -> list[Path]:
-    if kind == "always":
+def match_targets(kind: str, arg: str, scope_files: list[Path], anchor_root: Path,
+                  mirror: str | None = None) -> list[Path]:
+    """Files in scope this selector governs. `mirror` post-filters the result:
+    'exclude' drops docs inside a declared mirror route, 'only' keeps just them
+    (F600). The filter runs LAST, after the kind has chosen, so it composes with
+    every kind rather than being re-implemented inside each."""
+    out = _match_targets_kind(kind, arg, scope_files, anchor_root)
+    if mirror is None and kind != "mirror":
+        return out
+    try:
+        # `_spine_sibling`, not a bare import: it is the one loader that finds
+        # these modules however audit-plan was entered (script, or imported by
+        # warden_docfire), and it is what keeps the audit and the `spine` CLI
+        # from drifting into two notions of what a mirror route is.
+        spine = _spine_sibling("spine")
+        roots = spine.mirror_roots()
+    except Exception:
+        # An unreadable route index yields no exemptions: fail toward MORE
+        # checking, never less -- the same direction `spine.mirror_roots` takes.
+        return out if mirror != "only" else []
+    if mirror == "only" or kind == "mirror":
+        return [p for p in out if p.is_file() and spine.in_mirror_route(p, roots)]
+    return [p for p in out if not (p.is_file() and spine.in_mirror_route(p, roots))]
+
+
+def _match_targets_kind(kind: str, arg: str, scope_files: list[Path],
+                        anchor_root: Path) -> list[Path]:
+    if kind in ("always", "mirror"):
         return list(scope_files)
     if kind == "group":
         want = {g.strip().lower() for g in arg.split(",") if g.strip()}
@@ -1262,10 +1319,10 @@ def plan_one(target: Path, mode: str, cdir: Path | None, warnings: list[str],
         flat = str(write_flat_file(rs, cdir).relative_to(cdir)) if cdir else None
         matched_rules = []
         for r in rs["rules"]:
-            kind, arg = parse_selector(effective_where(r, rs))
+            kind, arg, mir = parse_selector(effective_where(r, rs))
             if mode == "doc" and kind == "anchor":
                 continue  # anchor-structure rules are N/A at the doc level
-            tgts = match_targets(kind, arg, scope_files, anchor_root)
+            tgts = match_targets(kind, arg, scope_files, anchor_root, mir)
             # A facet spec is the SOURCE of its embedded ruleset, never an instance
             # of it — e.g. DAS Decisions.md (spec of R-decisions) matches the
             # `* Decisions.md` selector but must not be audited as a Decisions
@@ -7957,6 +8014,53 @@ def chk_spine_h1_present(target, anchor_root, args):
                     "it sits but never what it is called")
 
 
+def chk_mirrored_doc_has_no_spine(target, anchor_root, args):
+    """R-spine-11 — a doc inside a declared mirror route carries NO spine.
+
+    The positive half of F600, and the reason it is positive rather than an
+    exemption: **an exemption and a prohibition fail in opposite directions.**
+    An exemption says *do not look*, so a mirrored doc that acquires a
+    breadcrumb — someone runs `spine fix` against a route not yet declared, or a
+    doc is moved into a route carrying its vault masthead with it — is invisible
+    forever, and the noise arrives on GitHub instead of in the audit. A
+    prohibition says *look, and expect nothing*, so the same doc is a finding on
+    the next pass. The exemption buys silence; the rule buys silence PLUS the
+    guarantee that the silence was earned.
+
+    Dan, 2026-08-28: *"the rule should be mirrored docs cannot have a spine,
+    because it just doesn't mean anything in the receiver's environment."* A
+    `:>>` breadcrumb and a dispatch masthead are built from wiki-links and
+    `hook://` URIs; both render as literal noise once the file is on GitHub.
+
+    Adoption cost, measured 2026-08-28 across the 4 resolvable routes: 184
+    markdown docs, ZERO carrying a breadcrumb and ONE carrying a masthead
+    (`prj/Alien Biology/Alien Biology Framework/ABIO Docs/ABIO Docs.md`). So the
+    rule starts life at one finding rather than at the 138 the old direction was
+    suppressing — the corpus already obeys it, and what was missing was anything
+    that said so.
+
+    No `fix::`. Stripping a spine deletes authored rows, and which of them
+    belong on the vault side of the route is a judgement; a fixer that guessed
+    would destroy writing that has nowhere else to live.
+    """
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    try:
+        mod = _spine_module()
+        p = mod.Spine(f)
+    except Exception as e:
+        return "error", f"cannot classify: {e}"
+    if not p.has_spine:
+        return "pass", "no spine — correct for a mirrored doc"
+    return "fail", (
+        f"a mirrored doc carries a {p.shape()} spine — this file is copied into "
+        f"an external repo, where a `:>>` breadcrumb and a dispatch masthead are "
+        f"wiki-links and `hook://` URIs that render as literal noise. Move the "
+        f"routing to a vault-side page that is not inside the route, and delete "
+        f"the spine here.")
+
+
 def chk_valid_spine(target, anchor_root, args):
     """Does this page open with a spine AT ALL — the one question under the
     eight shapes.
@@ -8159,6 +8263,7 @@ CHECKERS = {
     # `error`, which `execute_on_write` deliberately never surfaces. Silent in
     # both directions: the rules looked shipped and the writes looked clean.
     "valid_spine": chk_valid_spine,
+    "mirrored_doc_has_no_spine": chk_mirrored_doc_has_no_spine,
     "spine_h1_present": chk_spine_h1_present,
     "identity_cell_description_first": chk_identity_cell_description_first,
     "orientation_line_adjoins_h1": chk_orientation_line_adjoins_h1,
