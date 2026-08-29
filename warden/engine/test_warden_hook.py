@@ -240,7 +240,7 @@ def test_pathguard_veto():
             assert len(denies) == 1, denies
             # 01 — queries page Edit denied with the renderer redirect
             denies = [s for s in pre("Edit", file_path=str(anchor / "FX queries.md"),
-                                     old_string="a", new_string="b")
+                                     old_string="- **T001 — a row** [Ready] — a", new_string="- **T001 — a row** [Ready] — b")
                       if s.startswith(wh.DENY_SENTINEL)]
             assert len(denies) == 1 and "queries-render.py" in denies[0], denies
             # 02 — feature-doc edit INSIDE ## Open Questions denied...
@@ -316,7 +316,7 @@ def test_pathguard_veto():
                     f"slug: FX\ntraits: [Commit]\ntraits-: [{optout}]\n", encoding="utf-8")
                 steers = wh.dispatch({"hook_event_name": "PreToolUse", "tool_name": "Edit",
                                       "tool_input": {"file_path": str(anchor / "FX Backlog.md"),
-                                                     "old_string": "a", "new_string": "b"},
+                                                     "old_string": "- **T001 — a row** [Ready] — a", "new_string": "- **T001 — a row** [Ready] — b"},
                                       "cwd": str(anchor)})
                 assert not [s for s in steers
                             if s.startswith(wh.DENY_SENTINEL)], (optout, steers)
@@ -330,7 +330,7 @@ def test_pathguard_veto():
                 "slug: FX\ntraits: [pathguard]\ntraits-: [anchor-base]\n", encoding="utf-8")
             steers = wh.dispatch({"hook_event_name": "PreToolUse", "tool_name": "Edit",
                                   "tool_input": {"file_path": str(anchor / "FX Backlog.md"),
-                                                 "old_string": "a", "new_string": "b"},
+                                                 "old_string": "- **T001 — a row** [Ready] — a", "new_string": "- **T001 — a row** [Ready] — b"},
                                   "cwd": str(anchor)})
             assert [s for s in steers if s.startswith(wh.DENY_SENTINEL)], steers
     finally:
