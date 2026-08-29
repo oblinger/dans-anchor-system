@@ -297,7 +297,8 @@ def test_pathguard_veto():
                 denies = [s for s in wh.dispatch(
                     {"hook_event_name": "PreToolUse", "tool_name": "Edit",
                      "tool_input": {"file_path": str(anchor / "FX Backlog.md"),
-                                    "old_string": "a", "new_string": "b"},
+                                    "old_string": "- **T001 — a row** [Ready] — a",
+                                    "new_string": "- **T001 — a row** [Ready] — b"},
                      "cwd": elsewhere})
                     if s.startswith(wh.DENY_SENTINEL)]
                 assert len(denies) == 1, denies
