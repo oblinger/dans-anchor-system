@@ -101,6 +101,24 @@ with tempfile.TemporaryDirectory() as td:
           "except 0" in ap.render_verdicts(rep), True)
 
 
+# ── 1b. a row one cell short of the header is a problem, not a silent shift (T620) ──
+
+with tempfile.TemporaryDirectory() as td:
+    root, doc, other = build_anchor(
+        td, "| EX001 | R-spine-02 | FIX Thing.md | B | deliberate.  FIX | user |\n")
+    rows, declined, problems = ap.load_exceptions(root)
+    check("a short row is reported", len(problems), 1)
+    check("the problem names the cell count against the header",
+          "6 cells against the header's 7" in (problems[0] if problems else ""), True)
+    check("a short row is not admitted", rows, [])
+    # an aliased wiki-link's pipe is escaped and must not count as a column
+    root, doc, other = build_anchor(
+        td, "| EX002 | R-spine-02 | FIX Thing.md | B | see [[FIX Thing\\|the doc]]. | FIX | user |\n")
+    rows, declined, problems = ap.load_exceptions(root)
+    check("an escaped link pipe is not a column", problems, [])
+    check("the aliased row is admitted", len(rows), 1)
+
+
 # ── 2. a graded row suppresses that rule at that target ─────────────────────
 
 with tempfile.TemporaryDirectory() as td:

@@ -37,6 +37,7 @@ VOX_HASHES="${VOX_HASHES:-$VOX_DIR/.vox.hashes}"  # sha256 index for content ded
 # is present; otherwise the filename falls back to the email subject.
 # Canonical credential read — the `keys` store, never a second copy (ATT T239).
 KEYS_BIN="${KEYS_BIN:-$HOME/ob/bin/keys}"
+VOX_AUTH_FAILED=0   # set by api_post when no key is accepted (T619)
 TITLE_MODEL="${VOX_TITLE_MODEL:-claude-haiku-4-5-20251001}"
 
 # Overview generation (optional): a second tool-less Anthropic API call turns the
@@ -145,6 +146,14 @@ api_post() {
                 -H "content-type: application/json" \
                 -d "$payload" 2>>"$LOG")" || return 1
         fi
+    fi
+    # T619 — a credential fault must not hide inside "degrades gracefully".
+    # If the response is STILL an authentication_error after the keys-store
+    # retry, every key this machine has is bad; record it so the note itself
+    # says so (see the callout in the doc assembly) rather than only the log.
+    if printf '%s' "$resp" | grep -q '"type"[[:space:]]*:[[:space:]]*"authentication_error"'; then
+        VOX_AUTH_FAILED=1
+        log "api: authentication_error from every available key — the note will carry a credential warning"
     fi
     printf '%s' "$resp"
 }
@@ -451,6 +460,12 @@ handle_vox() {
         echo
         echo "![[${name}.$ext]]"
         echo
+        if [[ "$VOX_AUTH_FAILED" == 1 ]]; then
+            # T619 — loud on purpose. A silent transcript-only note is how a
+            # broken key survives for days; the callout is the signal.
+            echo "> ⚠️ **vox: title and TO-DOs/Overview NOT generated — the Anthropic API rejected every available key (authentication_error).** Check \`ANTHROPIC_API_KEY\` in the environment and \`keys get ANTHROPIC_API_KEY\`, then re-run. Log: \`$LOG\`."
+            echo
+        fi
         if [[ -n "$overview" ]]; then
             printf '%s\n' "$overview"
             echo

@@ -8792,6 +8792,7 @@ def load_exceptions(anchor_root: Path) -> tuple[list[dict], list[dict], list[str
     admitted: list[dict] = []
     declined: list[dict] = []
     problems: list[str] = []
+    header_n = 0
     for ln in _read(fp).splitlines():
         if not _is_table_row(ln):
             continue
@@ -8799,8 +8800,28 @@ def load_exceptions(anchor_root: Path) -> tuple[list[dict], list[dict], list[str
         if len(cells) < 5:
             continue
         handle, rule, target, grade, why = (c.strip() for c in cells[:5])
+        if handle.upper() == "EX" and rule.strip().lower() == "rule":
+            header_n = len(cells)         # the header row fixes the column count
+            continue
         if not _EXC_HANDLE_RX.match(handle):
-            continue                      # header, separator, or prose row
+            continue                      # separator or prose row
+        # T620 (Presti, 2026-08-28) — a row one cell SHORT of the header still
+        # renders, and the eye cannot see it: the F601 migration wrote
+        # `{justification}  {requester} | {grader} |` (two spaces where a pipe
+        # belongs) on ten rows across Warden and ATT, so Requester read empty,
+        # Grader held the requester, and the grader ≠ requester check below
+        # passed vacuously on eight live A/B exceptions. Counted on UNESCAPED
+        # cells — `_row_cells` already discounts `\|` and `[[a\|b]]`, which is
+        # what makes this a finding rather than a false alarm on every aliased
+        # link. A problem, not a silent shift: a row whose columns are not
+        # where the header says they are cannot be trusted to mean anything.
+        # A five-cell row predates F601 and is admitted above with both
+        # identities blank — that width is legal, not short.
+        if header_n and len(cells) != header_n and len(cells) != 5:
+            problems.append(f"{handle}: {len(cells)} cells against the header's "
+                            f"{header_n} — a missing or extra pipe shifts "
+                            f"Requester/Grader out of their columns; restore it")
+            continue
         # F601 — Requester and Grader are the sixth and seventh cells. A row
         # that predates them (five cells) parses with both blank: the grade
         # stands on its own for an ordinary rule, exactly as before, but a
