@@ -101,7 +101,12 @@ fn indent_steers(steers: &[String]) -> String {
 
 // ── fire record (F231 — mirror of warden_hook._fire_record) ─────────────────
 
-const FIRES_ROTATE_BYTES: u64 = 5 * 1024 * 1024;
+// F613 Q1 (mirror of warden_hook): 25 MB × 3 generations, cascaded oldest-first
+// so no generation is skipped. The Python side got this first and the live
+// log kept rotating at 5 MB × 1 regardless, because THIS is the engine that
+// appends — a change that lands in the reference engine only is not shipped.
+const FIRES_ROTATE_BYTES: u64 = 25 * 1024 * 1024;
+const FIRES_GENERATIONS: u32 = 3; // fires.jsonl + .1 + .2
 
 /// Append one JSONL record to `~/.warden/fires.jsonl` — the explainability
 /// log: which rules were considered at a moment, which fired, and the steer
@@ -112,10 +117,53 @@ fn fire_record(rec: &Value) {
     let path = home.join("fires.jsonl");
     if let Ok(meta) = std::fs::metadata(&path) {
         if meta.len() > FIRES_ROTATE_BYTES {
+            let mut n = FIRES_GENERATIONS - 1;
+            while n > 1 {
+                let newer = home.join(format!("fires.jsonl.{}", n - 1));
+                if newer.is_file() {
+                    let _ = std::fs::rename(&newer, home.join(format!("fires.jsonl.{n}")));
+                }
+                n -= 1;
+            }
             let _ = std::fs::rename(&path, home.join("fires.jsonl.1"));
         }
     }
     append_line("fires.jsonl", &rec.to_string());
+}
+
+/// F613 Q2 (mirror of `warden_hook.mask_secrets`): blank the value of a
+/// `*KEY=` / `*TOKEN=` / `*SECRET=` / `*PASSWORD=` / `*PASSWD=` / `*CREDENTIAL=`
+/// assignment and the token after `Bearer`, keeping the name so the command's
+/// shape survives. Belt-and-braces: every session transcript already holds the
+/// raw command, so a value this misses is one already on disk.
+fn mask_secrets(cmd: &str) -> String {
+    const MARKS: [&str; 6] = ["KEY", "TOKEN", "SECRET", "PASSWORD", "PASSWD", "CREDENTIAL"];
+    let mut out: Vec<String> = Vec::new();
+    let mut mask_next = false;
+    for tok in cmd.split(' ') {
+        if mask_next {
+            out.push("***".to_string());
+            mask_next = false;
+            continue;
+        }
+        if tok.eq_ignore_ascii_case("bearer") {
+            mask_next = true;
+            out.push(tok.to_string());
+            continue;
+        }
+        if let Some(eq) = tok.find('=') {
+            let name = &tok[..eq];
+            let upper = name.to_ascii_uppercase();
+            let ident = !name.is_empty()
+                && name.chars().all(|c| c.is_ascii_alphanumeric() || c == '_');
+            if ident && MARKS.iter().any(|m| upper.contains(m)) {
+                out.push(format!("{name}=***"));
+                continue;
+            }
+        }
+        out.push(tok.to_string());
+    }
+    out.join(" ")
 }
 
 // ── per-moment ms budget (M5 — advisory policy; mirror of warden_hook) ──────
@@ -765,6 +813,7 @@ pub fn dispatch(data: &Value) -> Vec<String> {
             "ts": (now_ts() * 1000.0).round() / 1000.0, "engine": "rs",
             "moment": moment, "anchor": &anchor_name, "traits": &traits,
             "tool": str_field(data, "tool_name"), "file": event_fp,
+            "command": mask_secrets(str_field(event_ti, "command")),
             "considered": considered,
             "fires": fires,
             "ms": (elapsed_ms * 10.0).round() / 10.0,
@@ -1338,6 +1387,16 @@ pub fn run_hook() -> i32 {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn mask_secrets_blanks_values_keeps_shape() {
+        let c = "API_KEY=sk-live-abc OPENAI_TOKEN=tok curl -H 'Authorization: Bearer xyz' https://x/y # oneshot: probe";
+        let m = super::mask_secrets(c);
+        assert!(!m.contains("sk-live-abc") && !m.contains("=tok") && !m.contains("xyz"));
+        assert!(m.contains("API_KEY=***") && m.contains("OPENAI_TOKEN=***") && m.contains("Bearer ***"));
+        assert!(m.contains("# oneshot: probe") && m.contains("curl -H"));
+        assert_eq!(super::mask_secrets("ls -la && git status"), "ls -la && git status");
+    }
+
     use super::*;
 
     #[test]
