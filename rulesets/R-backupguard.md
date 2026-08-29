@@ -1,5 +1,6 @@
 # RULESET R-backupguard
 include::
+confirm:: user
 description:: The estate's backup drives are one agent's custody — deny **every** write to `/Volumes/<X>/` from any anchor but [[ATT|Atticus]], at `tool:pre:Bash`, `tool:pre:Write` and `tool:pre:Edit`. Fails closed: an unrecognised volume is treated as a backup drive, not waved through. Rides `anchor-base`, so it fires vault-wide; the exemption is the `masterguard` trait, which only Atticus's `.anchor` declares. Commissioned by Dan on [[ATT Backlog#^T182|ATT T182]], 2026-08-21: *"no other agent may write to a backup… That way, we have one agent who's got the sole responsibility."*
 
 > [!info] Provenance

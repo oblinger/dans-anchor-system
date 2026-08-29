@@ -1,5 +1,6 @@
 # RULESET R-ob-osascript
 include::
+confirm:: user
 description:: Ob's raw-automation hygiene — where a sanctioned wrapper exists (`notmuch`, `ctrl`, the glance form), raw `osascript` and control-flavoured `obsidian://` URLs are denied and redirected to it. Keyed by TARGET APPLICATION, so the ~45% of automation no wrapper covers passes untouched (`tool:pre:Bash` deny, rides `anchor-base`).
 
 > [!info] Provenance

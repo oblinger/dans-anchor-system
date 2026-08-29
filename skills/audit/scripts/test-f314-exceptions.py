@@ -55,7 +55,8 @@ def check(label, got, want):
         print(f"  FAIL {label}\n       got  {got!r}\n       want {want!r}")
 
 
-HEADER = "| EX | Rule | Target | Grade | Justification |\n|---|---|---|---|---|\n"
+HEADER = ("| EX | Rule | Target | Grade | Justification | Requester | Grader |\n"
+          "|---|---|---|---|---|---|---|\n")
 
 
 def build_anchor(td, rows):
@@ -104,7 +105,7 @@ with tempfile.TemporaryDirectory() as td:
 
 with tempfile.TemporaryDirectory() as td:
     root, doc, other = build_anchor(
-        td, "| EX001 | R-spine-02 | FIX Thing.md | B | deliberate. |\n")
+        td, "| EX001 | R-spine-02 | FIX Thing.md | B | deliberate. | FIX | user |\n")
     rep = ap.execute_plan(plan_for(root, [doc]), None)
     check("a graded row rewrites fail -> except", statuses(rep), ["except"])
     check("the excepted finding is counted, not dropped",
@@ -119,13 +120,13 @@ with tempfile.TemporaryDirectory() as td:
 
 with tempfile.TemporaryDirectory() as td:
     root, doc, other = build_anchor(
-        td, "| EX001 | R-spine-02 | FIX Thing.md | ? | proposed, unapproved. |\n")
+        td, "| EX001 | R-spine-02 | FIX Thing.md | ? | proposed, unapproved. | FIX | user |\n")
     rep = ap.execute_plan(plan_for(root, [doc]), None)
     check("an ungraded (`?`) row suppresses nothing", statuses(rep), ["fail"])
 
 with tempfile.TemporaryDirectory() as td:
     root, doc, other = build_anchor(
-        td, "| EX001 | R-spine-02 | FIX Thing.md |  | grade cell empty. |\n")
+        td, "| EX001 | R-spine-02 | FIX Thing.md |  | grade cell empty. | FIX | user |\n")
     rep = ap.execute_plan(plan_for(root, [doc]), None)
     check("an empty grade cell suppresses nothing", statuses(rep), ["fail"])
 
@@ -134,21 +135,21 @@ with tempfile.TemporaryDirectory() as td:
 
 with tempfile.TemporaryDirectory() as td:
     root, doc, other = build_anchor(
-        td, "| EX001 | R-spine-02 | FIX Thing.md | A | scoped to one doc. |\n")
+        td, "| EX001 | R-spine-02 | FIX Thing.md | A | scoped to one doc. | FIX | user |\n")
     rep = ap.execute_plan(plan_for(root, [doc, other]), None)
     check("the exception applies to its target and not its sibling",
           statuses(rep), ["except", "fail"])
 
 with tempfile.TemporaryDirectory() as td:
     root, doc, other = build_anchor(
-        td, "| EX001 | R-spine-02 | ** | A | anchor-wide, deliberately. |\n")
+        td, "| EX001 | R-spine-02 | ** | A | anchor-wide, deliberately. | FIX | user |\n")
     rep = ap.execute_plan(plan_for(root, [doc, other]), None)
     check("`**` is how an anchor-wide exception is written",
           statuses(rep), ["except", "except"])
 
 with tempfile.TemporaryDirectory() as td:
     root, doc, other = build_anchor(
-        td, "| EX001 | R-progressive-99 | FIX Thing.md | A | wrong rule id. |\n")
+        td, "| EX001 | R-progressive-99 | FIX Thing.md | A | wrong rule id. | FIX | user |\n")
     rep = ap.execute_plan(plan_for(root, [doc]), None)
     check("a row naming a different rule does not suppress", statuses(rep), ["fail"])
 
@@ -157,9 +158,9 @@ with tempfile.TemporaryDirectory() as td:
 
 with tempfile.TemporaryDirectory() as td:
     root, doc, other = build_anchor(
-        td, "| EX001 | R-spine-02 |  | A | target cell empty. |\n"
-            "| EX002 | R-spine-02 | FIX Thing.md | A |  |\n"
-            "| EX003 | R-spine-02 | FIX Thing.md | Z | bad grade. |\n")
+        td, "| EX001 | R-spine-02 |  | A | target cell empty. | FIX | user |\n"
+            "| EX002 | R-spine-02 | FIX Thing.md | A |  | FIX | user |\n"
+            "| EX003 | R-spine-02 | FIX Thing.md | Z | bad grade. | FIX | user |\n")
     rows, declined, problems = ap.load_exceptions(root)
     check("no malformed row is admitted", rows, [])
     check("a malformed row is not quietly filed as merely declined", declined, [])
@@ -175,7 +176,7 @@ with tempfile.TemporaryDirectory() as td:
 
 with tempfile.TemporaryDirectory() as td:
     root, doc, other = build_anchor(
-        td, "| EX001 | R-broken-01 | FIX Thing.md | A | anchor-wide. |\n")
+        td, "| EX001 | R-broken-01 | FIX Thing.md | A | anchor-wide. | FIX | user |\n")
     plan = {"anchor_root": str(root),
             "groupings": [{"rules": [{
                 "id": "R-broken-01",
@@ -189,7 +190,7 @@ with tempfile.TemporaryDirectory() as td:
 
 with tempfile.TemporaryDirectory() as td:
     root, doc, other = build_anchor(
-        td, "| EX001 | R-spine-02 | FIX Gone.md | A | doc was deleted. |\n")
+        td, "| EX001 | R-spine-02 | FIX Gone.md | A | doc was deleted. | FIX | user |\n")
     rep = ap.execute_plan(plan_for(root, [doc]), None)
     check("an exception that matched nothing is reported as stale",
           rep.get("stale_exceptions"), ["EX001"])
@@ -204,7 +205,7 @@ with tempfile.TemporaryDirectory() as td:
 
 with tempfile.TemporaryDirectory() as td:
     root, doc, other = build_anchor(
-        td, "| EX001 | R-spine-02 | FIX Thing.md | A | deliberate. |\n")
+        td, "| EX001 | R-spine-02 | FIX Thing.md | A | deliberate. | FIX | user |\n")
     before = doc.read_text(encoding="utf-8")
     plan = {"anchor_root": str(root),
             "groupings": [{"rules": [{
@@ -221,7 +222,7 @@ with tempfile.TemporaryDirectory() as td:
 
 with tempfile.TemporaryDirectory() as td:
     root, doc, other = build_anchor(
-        td, "| EX001 | R-spine-02 | FIX Thing.md | ? | proposed. |\n")
+        td, "| EX001 | R-spine-02 | FIX Thing.md | ? | proposed. | FIX | user |\n")
     plan = {"anchor_root": str(root),
             "groupings": [{"rules": [{
                 "id": "R-spine-02",
@@ -244,14 +245,14 @@ for grade, suppresses in (("A", True), ("B", True), ("C", True),
                           ("D", False), ("E", False), ("F", False)):
     with tempfile.TemporaryDirectory() as td:
         root, doc, other = build_anchor(
-            td, f"| EX001 | R-spine-02 | FIX Thing.md | {grade} | judged. |\n")
+            td, f"| EX001 | R-spine-02 | FIX Thing.md | {grade} | judged. | FIX | user |\n")
         rep = ap.execute_plan(plan_for(root, [doc]), None)
         check(f"grade {grade} {'suppresses' if suppresses else 'does NOT suppress'}",
               statuses(rep), ["except"] if suppresses else ["fail"])
 
 with tempfile.TemporaryDirectory() as td:
     root, doc, other = build_anchor(
-        td, "| EX001 | R-spine-02 | FIX Thing.md | D | not good enough. |\n")
+        td, "| EX001 | R-spine-02 | FIX Thing.md | D | not good enough. | FIX | user |\n")
     rows, declined, problems = ap.load_exceptions(root)
     check("a D-graded row is well-formed, not an error", problems, [])
     check("a D-graded row is not admitted", rows, [])
@@ -295,7 +296,7 @@ check("an unresolvable rule id does not silently become a confirm-rule",
 
 with tempfile.TemporaryDirectory() as td:
     root, doc, other = build_anchor(
-        td, "| EX001 | R-spine-02 | FIX Thing.md | ? | proposed by the agent. |\n")
+        td, "| EX001 | R-spine-02 | FIX Thing.md | ? | proposed by the agent. | FIX | user |\n")
     status, detail = ap.chk_exceptions_table_wellformed(exc_file(root), root, [])
     check("an ungraded row against a confirm-rule fails the table", status, "fail")
     check("the failure names the row and the reason",
@@ -303,13 +304,13 @@ with tempfile.TemporaryDirectory() as td:
 
 with tempfile.TemporaryDirectory() as td:
     root, doc, other = build_anchor(
-        td, "| EX001 | R-spine-02 | FIX Thing.md | B | user graded it. |\n")
+        td, "| EX001 | R-spine-02 | FIX Thing.md | B | user graded it. | FIX | user |\n")
     status, detail = ap.chk_exceptions_table_wellformed(exc_file(root), root, [])
     check("a graded row against a confirm-rule passes", status, "pass")
 
 with tempfile.TemporaryDirectory() as td:
     root, doc, other = build_anchor(
-        td, "| EX001 | R-spine-02 | FIX Thing.md | D | user refused it. |\n")
+        td, "| EX001 | R-spine-02 | FIX Thing.md | D | user refused it. | FIX | user |\n")
     status, detail = ap.chk_exceptions_table_wellformed(exc_file(root), root, [])
     check("a REFUSED row against a confirm-rule also passes the table — the "
           "conversation happened and the answer was no", status, "pass")
@@ -318,7 +319,7 @@ with tempfile.TemporaryDirectory() as td:
 
 with tempfile.TemporaryDirectory() as td:
     root, doc, other = build_anchor(
-        td, "| EX001 | R-progressive-02 | FIX Thing.md | ? | proposed by the agent. |\n")
+        td, "| EX001 | R-progressive-02 | FIX Thing.md | ? | proposed by the agent. | FIX | user |\n")
     status, detail = ap.chk_exceptions_table_wellformed(exc_file(root), root, [])
     check("an ungraded row against an ordinary rule is fine — the agent may "
           "propose freely where the rule does not demand a conversation", status, "pass")
@@ -330,7 +331,7 @@ with tempfile.TemporaryDirectory() as td:
 # because every one of them called a checker and none of them called the renderer.
 with tempfile.TemporaryDirectory() as td:
     root, doc, other = build_anchor(
-        td, "| EX001 | R-spine-02 | FIX Thing.md | ? | proposed by the agent. |\n")
+        td, "| EX001 | R-spine-02 | FIX Thing.md | ? | proposed by the agent. | FIX | user |\n")
     plan = {"umbrella": "R-anchor", "target": str(root), "anchor_root": str(root),
             "scope_file_count": 2, "groupings": []}
     mech = {"counts": {"pass": 1, "fail": 0, "warn": 1, "except": 1,
@@ -355,6 +356,76 @@ with tempfile.TemporaryDirectory() as td:
     check("the declined row is named in the report", "EX001" in out, True)
     check("the stale row is named in the report", "EX009" in out, True)
 
+
+
+# ── F601. grading authority is the rule's; grader ≠ requester ───────────────
+#
+# Dan 2026-08-28 (Q1 → D): every rule is exceptable, deny included; what differs
+# is WHO may award the letter. `confirm:: user` on the rule (R-spine's whole
+# ruleset carries it) means only the user grades it — an agent's A is recorded
+# and inert. And whoever benefits never decides: requester == grader is malformed.
+
+with tempfile.TemporaryDirectory() as td:
+    root, doc, other = build_anchor(
+        td, "| EX001 | R-spine-02 | FIX Thing.md | A | agent self-issued. | FIX | OTHER |\n")
+    rows, declined, problems = ap.load_exceptions(root)
+    check("F601: an agent-graded row on a confirm:: user rule is not admitted", rows, [])
+    check("F601: …it is kept as an inert record, not a malformed one",
+          [d.get("inert") for d in declined], ["authority"])
+    rep = ap.execute_plan(plan_for(root, [doc]), None)
+    check("F601: …and it suppresses nothing", statuses(rep), ["fail"])
+    trk = root / "FIX Track" / "FIX Exceptions.md"
+    status, detail = ap.chk_exceptions_table_wellformed(trk, root, [])
+    check("F601: the table fails while the usurped grade stands", status, "fail")
+    check("F601: the failure names the row and the grader",
+          "EX001" in detail and "OTHER" in detail, True)
+
+with tempfile.TemporaryDirectory() as td:
+    root, doc, other = build_anchor(
+        td, "| EX001 | R-spine-02 | FIX Thing.md | A | the user graded it. | FIX | user |\n")
+    rep = ap.execute_plan(plan_for(root, [doc]), None)
+    check("F601: the same row graded by the user suppresses", statuses(rep), ["except"])
+
+with tempfile.TemporaryDirectory() as td:
+    root, doc, other = build_anchor(
+        td, "| EX001 | R-spine-02 | FIX Thing.md | A | Dan, spelled that way. | FIX | Dan |\n")
+    rep = ap.execute_plan(plan_for(root, [doc]), None)
+    check("F601: `Dan` in the Grader cell reads as the user", statuses(rep), ["except"])
+
+with tempfile.TemporaryDirectory() as td:
+    root, doc, other = build_anchor(
+        td, "| EX001 | R-spine-02 | FIX Thing.md | A | five-cell legacy row. |\n")
+    rep = ap.execute_plan(plan_for(root, [doc]), None)
+    check("F601: a legacy five-cell row cannot carry A on a confirm:: user rule",
+          statuses(rep), ["fail"])
+
+with tempfile.TemporaryDirectory() as td:
+    root, doc, other = build_anchor(
+        td, "| EX001 | R-one-path-01 | FIX Thing.md | B | legacy, ordinary rule. |\n")
+    rows, declined, problems = ap.load_exceptions(root)
+    check("F601: a legacy five-cell row on an ordinary rule is still admitted",
+          [r["handle"] for r in rows], ["EX001"])
+    check("F601: …with both identities blank", (rows[0]["requester"], rows[0]["grader"]), ("", ""))
+
+with tempfile.TemporaryDirectory() as td:
+    root, doc, other = build_anchor(
+        td, "| EX001 | R-one-path-01 | FIX Thing.md | B | graded myself. | FIX | FIX |\n")
+    rows, declined, problems = ap.load_exceptions(root)
+    check("F601: requester == grader is malformed", rows, [])
+    check("F601: …and reported by handle", any("EX001" in p and "grader" in p for p in problems), True)
+
+with tempfile.TemporaryDirectory() as td:
+    root, doc, other = build_anchor(
+        td, "| EX001 | R-one-path-01 | FIX Thing.md | B | the user wrote and graded it. | user | user |\n")
+    rows, declined, problems = ap.load_exceptions(root)
+    check("F601: the user may write and grade his own row", [r["handle"] for r in rows], ["EX001"])
+
+with tempfile.TemporaryDirectory() as td:
+    root, doc, other = build_anchor(
+        td, "| EX001 | R-one-path-01 | FIX Thing.md | B | another agent graded it. | FIX | ATT |\n")
+    rows, declined, problems = ap.load_exceptions(root)
+    check("F601: an ordinary rule graded by a different agent is admitted",
+          [r["handle"] for r in rows], ["EX001"])
 
 print(f"test-f314-exceptions: {passed} passed, {failed} failed")
 sys.exit(1 if failed else 0)

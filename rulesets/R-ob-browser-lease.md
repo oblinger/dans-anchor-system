@@ -1,5 +1,6 @@
 # RULESET R-ob-browser-lease
 include::
+confirm:: user
 description:: One host, one browser — an agent driving Safari or Chrome outside `ctrl` must still hold the `ctrl` browser lease. Closes ATT T183's gap 1, where the sanctioned login-walled path (`open -a Safari` + osascript) would otherwise bypass the lease entirely (`tool:pre:Bash` deny, rides `anchor-base`).
 
 > [!info] Provenance

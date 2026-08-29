@@ -6,6 +6,7 @@ description:: iOS / Apple-platform development guardrails (F237, user-directed 2
 > Born from live pain: an app built with ad-hoc signing gets a fresh code-signing identity every rebuild, so macOS/iOS TCC permission grants (Accessibility, Screen Recording, Automation, …) silently reset — "just so buggy, just not worth it." The user has a real Apple Developer account; builds sign with it. Detection-based (not per-anchor declaration): the *project/tooling* is the evidence, so the rules fire correctly on any machine without machine-conditional ruleset inheritance.
 
 ### RULE R-ios-01 — ad-hoc code signing is forbidden in build commands (when:: tool:pre:Bash)
+confirm:: user
 
 ```python
 def body(ctx):
@@ -36,6 +37,7 @@ Catches `CODE_SIGN_IDENTITY=-` (the ad-hoc identity), `codesign -s -` / `--sign 
 **Why:** ad-hoc-signed builds lose their TCC grants on every rebuild — the permission dialogs come back, launchd/Automation hooks break, and debugging the resulting flakiness costs far more than wiring the real certificate once.
 
 ### RULE R-ios-02 — ad-hoc signing settings can't enter project files (when:: tool:pre:Edit)
+confirm:: user
 
 ```python
 def body(ctx):

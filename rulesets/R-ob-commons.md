@@ -1,5 +1,6 @@
 # RULESET R-ob-commons
 include::
+confirm:: user
 description:: The commons operating model — repos whose history is machine-owned. Agents never commit or push them; an hourly sweep does, without attribution. Members: the vault (`~/ob/kmr`) and `~/ob/grove/commons`.
 
 > [!info] Provenance

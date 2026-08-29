@@ -1,5 +1,6 @@
 # RULESET R-dispatch-guard
 include::
+confirm:: user
 description:: The `tool:pre` veto twin of [[R-dispatch-table]]-06 — a Write/Edit (and, best-effort, a Bash heredoc) that would put more than 2 words in a row in a masthead RIGHT cell is **denied** before the bytes land, not advised after. Rides `anchor-base`. Touch means clean (ratchet removed 2026-08-22): any write that emits or changes a spine must leave the WHOLE spine legal, legacy cells included; only body-only Edits pass on a dirty doc.
 
 > [!info] Provenance

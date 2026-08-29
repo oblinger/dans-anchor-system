@@ -81,6 +81,81 @@ def test_kill_switch():
     print("PASS  kill_switch")
 
 
+def test_exception_table_quiets_a_moment_rule():
+    """F601 (D): a graded A–C row in `{slug} Track/{slug} Exceptions.md` quiets a
+    moment rule at fire time — deny included — and grading authority is the
+    rule's: R-pathguard carries `confirm:: user`, so only a row the USER graded
+    counts; an agent's A is inert and the deny stands. The suppression is
+    recorded, never silent."""
+    home = _compiled_home()
+    old = os.environ.get("WARDEN_HOME")
+    os.environ["WARDEN_HOME"] = str(home)
+    try:
+        with tempfile.TemporaryDirectory() as td:
+            # `exception-discipline` activates the write-time refusal (-15/-16);
+            # `pathguard` is the deny the table quiets.
+            anchor = _anchor(Path(td), "pathguard, exception-discipline")
+            trk = anchor / "FX Track"
+            trk.mkdir()
+            ev = {"hook_event_name": "PreToolUse", "tool_name": "Edit",
+                  "tool_input": {"file_path": str(anchor / "FX Backlog.md"),
+                                 "old_string": "- **T001 — a row** [Ready] — a",
+                                 "new_string": "- **T001 — a row** [Ready] — b"},
+                  "cwd": str(anchor)}
+            head = ("| EX | Rule | Target | Grade | Justification | Requester | Grader |\n"
+                    "| --- | --- | --- | --- | --- | --- | --- |\n")
+
+            def denies():
+                return [s for s in wh.dispatch(ev) if s.startswith(wh.DENY_SENTINEL)]
+
+            assert len(denies()) == 1, "control: the deny fires with no table"
+            # user-graded A on a confirm:: user rule → the deny is quiet
+            (trk / "FX Exceptions.md").write_text(
+                "# FX Exceptions\n\n" + head +
+                "| EX001 | R-pathguard-01 | ** | A | test grant. | FX | user |\n",
+                encoding="utf-8")
+            assert denies() == [], "a user-graded A must quiet the deny"
+            rec = json.loads((home / "fires.jsonl").read_text(encoding="utf-8")
+                             .splitlines()[-1])
+            assert [e["rule"] for e in rec.get("excepted", [])] == ["R-pathguard-01"], rec
+            assert rec["excepted"][0]["handle"] == "EX001", rec
+            # agent-graded A on the same rule → inert, the deny stands
+            (trk / "FX Exceptions.md").write_text(
+                "# FX Exceptions\n\n" + head +
+                "| EX001 | R-pathguard-01 | ** | A | self-issued. | FX | ATT |\n",
+                encoding="utf-8")
+            assert len(denies()) == 1, "an agent-graded A on a confirm:: user rule is inert"
+            # a row scoped to a different file does not cover this one
+            (trk / "FX Exceptions.md").write_text(
+                "# FX Exceptions\n\n" + head +
+                "| EX001 | R-pathguard-01 | FX Other.md | A | elsewhere. | FX | user |\n",
+                encoding="utf-8")
+            assert len(denies()) == 1, "a row scoped to another file does not cover this one"
+            # the write-time refusal: an Edit that adds a usurped grade is denied
+            ev2 = {"hook_event_name": "PreToolUse", "tool_name": "Edit",
+                   "tool_input": {"file_path": str(trk / "FX Exceptions.md"),
+                                  "old_string": "| --- | --- | --- | --- | --- | --- | --- |",
+                                  "new_string": "| --- | --- | --- | --- | --- | --- | --- |\n"
+                                                "| EX002 | R-pathguard-01 | ** | A | mine. | FX | FX |"},
+                   "cwd": str(anchor)}
+            out = [s for s in wh.dispatch(ev2) if s.startswith(wh.DENY_SENTINEL)]
+            assert len(out) == 1 and "EX002" in out[0], out
+            ev2["tool_input"]["new_string"] = ("| --- | --- | --- | --- | --- | --- | --- |\n"
+                                               "| EX002 | R-pathguard-01 | ** | A | ok. | FX | ATT |")
+            out = [s for s in wh.dispatch(ev2) if s.startswith(wh.DENY_SENTINEL)]
+            assert len(out) == 1 and "confirm:: user" in out[0], out
+            ev2["tool_input"]["new_string"] = ("| --- | --- | --- | --- | --- | --- | --- |\n"
+                                               "| EX002 | R-pathguard-01 | ** | ? | proposed. | FX |  |")
+            out = [s for s in wh.dispatch(ev2) if s.startswith(wh.DENY_SENTINEL)]
+            assert out == [], f"a `?` proposal is always writable: {out}"
+    finally:
+        if old is None:
+            os.environ.pop("WARDEN_HOME", None)
+        else:
+            os.environ["WARDEN_HOME"] = old
+    print("PASS  exception_table_quiets_a_moment_rule (F601)")
+
+
 def _read_markers(home: Path) -> list[dict]:
     fp = home / "selftest.log"
     if not fp.is_file():
@@ -561,6 +636,7 @@ def main():
     test_trait_gating()
     test_audit_on_write()
     test_pathguard_veto()
+    test_exception_table_quiets_a_moment_rule()
     test_bridge_guard()
     test_emit_deny_shape()
     test_stale_paths_surfaced()

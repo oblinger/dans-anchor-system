@@ -1,5 +1,6 @@
 # RULESET R-ob-remote-ops
 include::
+confirm:: user
 description:: Ob's remote-ops hygiene — remote machines are driven through the sanctioned control planes (`bridge` persistent tmux, `exp`), never one-shot SSH remote-control. First member: the F183 bridge-guard (`tool:pre:Bash` deny, rides `anchor-base`).
 
 > [!info] Provenance

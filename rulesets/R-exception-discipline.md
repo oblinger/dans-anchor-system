@@ -7,6 +7,30 @@ description:: Accepted rule-violations are catalogued as numbered, graded except
 
 Every checked rule needs an escape, because a rule that admits none gets weakened the first time it is genuinely wrong — and a weakened rule stops catching the cases it was right about. The escape is a numbered row in the anchor's `{slug} Track/{slug} Exceptions.md`, scoped to a named target, graded, and justified.
 
+| Table of Contents |  |
+|---|---|
+|    [[#RULE R-exception-discipline-01 — Accepted violations live in a numbered exception table (checked)]] |  |
+|    [[#RULE R-exception-discipline-02 — Every exception carries a grade + justification (checked)]] |  |
+|    [[#RULE R-exception-discipline-03 — Audits re-run mechanically and fail on ungraded regressions (stated)]] |  |
+|    [[#RULE R-exception-discipline-04 — One path, and it is `{slug} Track/{slug} Exceptions.md` (checked)]] |  |
+|    [[#RULE R-exception-discipline-05 — The table's seven columns, and Target is never blank (checked)]] |  |
+|    [[#RULE R-exception-discipline-06 — Grade `?` is a proposal and suppresses nothing (stated)]] |  |
+|    [[#RULE R-exception-discipline-07 — Suppressions and stale rows are counted on every run (stated)]] |  |
+|    [[#RULE R-exception-discipline-08 — Only `A`–`C` suppresses; `D` or lower is a recorded refusal (stated)]] |  |
+|    [[#RULE R-exception-discipline-09 — A rule may demand a conversation before it can be excepted (checked)]] |  |
+|    [[#RULE R-exception-discipline-10 — Before grading, decide whether it is an exception at all (stated)]] |  |
+|    [[#RULE R-exception-discipline-11 — What each grade means (stated)]] |  |
+|    [[#RULE R-exception-discipline-12 — Grading guidance is recorded only where it is not already known (stated)]] |  |
+|    [[#RULE R-exception-discipline-13 — A row whose rule now passes is moot, and the report says so (stated)]] |  |
+|    [[#RULE R-exception-discipline-14 — Requester and Grader are named, and the grader is never the requester (checked)]] |  |
+|    [[#RULE R-exception-discipline-15 — An agent cannot Edit a self-awarded or usurped grade into a table (when:: tool:pre:Edit)]] |  |
+|    [[#RULE R-exception-discipline-16 — Same refusal on Write (when:: tool:pre:Write)]] |  |
+|    [[#RULE R-exception-discipline-17 — Every deny declares `confirm:: user` (stated)]] |  |
+| **[[#Position in the catalog]]** |  |
+| **[[#See also]]** |  |
+| **[[#Mend]]** |  |
+|    [[#MEND exceptions-regrade]] |  |
+
 Recurs in HA + MUX + the R-ob enforcement idiom. HA: "Exceptions are numbered (EX001, EX002, …) with grades and For/Against justification"; every accepted site carries an inline `EX<n>` comment. MUX: "Scanner … Exception table destructively rewritten each run" with High/Medium/Low graded findings. [[R-ob-observability]]-01 already requires it per-rule ("listed in an Exceptions table with a grade + justification"); this family generalizes the idiom so any adopted ruleset can lean on it.
 
 > **The selector was written five times and inherited zero times, which cost 112 of TINK's 911 judgment tasks — [[TINK Backlog#^T349|T349]], 2026-08-11.** Five rules (`-01`, `-02`, `-04`, `-05`, `-09`) each carried an identical `where::` line; the set itself declared none, so the other four inherited `always` — every markdown file in every anchor. Those four are the `(stated)` ones, and each says in its own Check pattern that **no document can evidence it**: *"asserted about the engine rather than about a file"*, *"a file's content cannot evidence it"*. So an LLM was being asked, of all 28 TINK documents, whether the audit report prints `except N`. The selector is now declared once at the set level and every rule inherits it — the effective scope of the five wired rules is byte-identical, and the four judged rules go from 28 targets to the anchor's one exception table.
@@ -44,10 +68,10 @@ The anchor's exception table lives at `{slug} Track/{slug} Exceptions.md` — vi
 
 **Why:** two other spellings existed and neither had ever held a file — `cab-audit.py` read `.skl/lint/exceptions.md`, the audit skill's docs cited `.anchor.d/lint/exceptions.md`, and **neither directory appeared anywhere in the vault**. Keeping either as a fallback would preserve ambiguity over paths with no instances behind them. The chosen path is the one [[Warden Exceptions]] already occupied. **`cab-audit.py`'s loader was deleted 2026-08-08 (TINK T398)** rather than routed here: its rule ids are a separate namespace (`field-undocumented`, not `R-*`), its second path pointed at `~/.claude/skills/cab/`, a directory that does not exist, and the whole mechanism had suppressed nothing since it was written. There is now one exception surface, not a preferred one.
 
-### RULE R-exception-discipline-05 — The table's five columns, and Target is never blank (checked)
+### RULE R-exception-discipline-05 — The table's seven columns, and Target is never blank (checked)
 check:: exceptions_table_wellformed
 
-The table is `| EX | Rule | Target | Grade | Justification |`. **Rule** is one rule id per row, so each deviation grades and retires on its own. **Target** is a path glob relative to the anchor root and is never blank — an anchor-wide exception writes `**` explicitly.
+The table is `| EX | Rule | Target | Grade | Justification | Requester | Grader |` (five columns until [[TINK601 - Exception tables across the two rule executors|F601]], 2026-08-28 — a five-cell row still parses, with both identities blank). **Rule** is one rule id per row, so each deviation grades and retires on its own. **Target** is a path glob relative to the anchor root and is never blank — an anchor-wide exception writes `**` explicitly.
 
 **Check pattern:** every `EX`-handled row parses with a rule id matching `^R-[a-z0-9-]+-\d{2}$`, a non-empty target, a valid grade, and a non-empty justification; a malformed row is reported by name.
 
@@ -160,6 +184,141 @@ When a row's rule returns **pass on that row's own target**, the deviation the r
 
 **Why:** an exception is a standing suppression, so a row that outlives its finding is a blindfold nobody chose to put on. `-07` already counts rows that did no work; this says which of them can be answered rather than merely noticed. It also closes the loop that `-06` opens — under `-06` the agent grades, so the agent is also who must be told when *not* to.
 
+### RULE R-exception-discipline-14 — Requester and Grader are named, and the grader is never the requester (checked)
+check:: exceptions_table_wellformed
+
+Every row carries **Requester** (the agent — or the user — who wrote it) and **Grader** (who awarded the letter). An `A`–`C` whose Grader equals its Requester is **malformed** and suppresses nothing; the user is the one exception, and may write and grade his own row. On a rule marked `confirm:: user` (`-09`) only the user may award `A`–`C`: a row graded by anyone else is well-formed, **recorded, and inert** — the loader never admits it — and the table fails until the Grader cell says `user` or the grade goes back to `?`. A five-cell row from before this rule parses with both identities blank; that is legal on an ordinary rule and never sufficient on a `confirm:: user` one.
+
+**Check pattern:** `load_exceptions` reads cells six and seven; `chk_exceptions_table_wellformed` reports self-graded rows as problems and agent-graded `confirm:: user` rows by handle. Pinned by `test-f314-exceptions.py` § F601.
+
+**Why:** Dan, 2026-08-28 — *whoever benefits should not be the one who decides.* The 2026-08-20 correction (`-06`) took the user out of the ordinary grading loop; it left the grade with the agent that wanted the exception, which closed the loop on the beneficiary. Separating the two names is the whole mechanism, and it is unreadable without both columns. Grading authority is a property of the **rule**: `confirm:: user` on a rule (or its ruleset) is the one line that says a deny — or anything else that guards — is graded only by the user, and every `when::` deny in the corpus carries it (`-17`). Latency is the control, not a cost: a requester never awaits its grade; it parks the row `?` and works around, and the grade arrives on someone else's pass ([[TINK601 - Exception tables across the two rule executors|F601]] § Separate the requester from the grader).
+
+### RULE R-exception-discipline-15 — An agent cannot Edit a self-awarded or usurped grade into a table (when:: tool:pre:Edit)
+mend:: exceptions-regrade
+confirm:: user
+
+```python
+def body(ctx):
+    ev = getattr(ctx, "event", None)
+    target = getattr(ev, "target", None) if ev else None
+    if not target or not str(target).endswith(" Exceptions.md"):
+        return []
+    inp = getattr(ev, "input", None) or {}
+    new = inp.get("new_string") or ""
+    old = inp.get("old_string") or ""
+    def _denials(lines):
+        import re as _re
+        users = {"user", "dan"}
+        out = []
+        ap = None
+        for ln in lines:
+            if not ln.lstrip().startswith("|"):
+                continue
+            cells = [c.strip() for c in ln.strip().strip("|").split("|")]
+            if len(cells) < 5 or not _re.match(r"^EX\d{3,}$", cells[0]):
+                continue
+            handle, rule, grade = cells[0], cells[1], cells[3]
+            if grade not in ("A", "B", "C"):
+                continue
+            requester = cells[5] if len(cells) > 5 else ""
+            grader = cells[6] if len(cells) > 6 else ""
+            if requester and grader and requester.lower() == grader.lower() and grader.lower() not in users:
+                out.append(f"DENY: {handle} is graded {grade} by its own requester ({grader}) — "
+                           f"grader ≠ requester (R-exception-discipline-14). Write it `?` and let "
+                           f"another agent grade it.")
+                continue
+            if grader.lower() in users:
+                continue
+            if ap is None:
+                try:
+                    import warden_docfire as _wd
+                    _wd.refresh_audit_plan()
+                    ap = _wd.ap
+                except Exception:
+                    return out          # fail-open: the loader still refuses the row
+            try:
+                needs_user = ap.rule_requires_user_confirmation(rule)
+            except Exception:
+                needs_user = False
+            if needs_user:
+                out.append(f"DENY: {handle} awards {grade} on {rule}, a `confirm:: user` rule — "
+                           f"only the user grades it (R-exception-discipline-14). Write it `?` "
+                           f"with your name as Requester and ask; the grade lands when Dan answers.")
+        return out
+    added = [ln for ln in new.splitlines() if ln not in old.splitlines()]
+    return _denials(added)
+```
+
+**Why:** the loader already refuses to honour these rows (`-14`), but a row that lands and reads as granted is the accepted-and-inert shape this family exists to end. Refusing it at the write, naming the row, turns a silent inert row into an immediate correction. Only rows the Edit *adds or changes* are judged, so touching the Log below a legacy table never trips it.
+
+### RULE R-exception-discipline-16 — Same refusal on Write (when:: tool:pre:Write)
+mend:: exceptions-regrade
+confirm:: user
+
+```python
+def body(ctx):
+    ev = getattr(ctx, "event", None)
+    target = getattr(ev, "target", None) if ev else None
+    if not target or not str(target).endswith(" Exceptions.md"):
+        return []
+    inp = getattr(ev, "input", None) or {}
+    content = inp.get("content") or ""
+    try:
+        from pathlib import Path as _P
+        before = _P(target).read_text(encoding="utf-8", errors="replace").splitlines()
+    except OSError:
+        before = []
+    def _denials(lines):
+        import re as _re
+        users = {"user", "dan"}
+        out = []
+        ap = None
+        for ln in lines:
+            if not ln.lstrip().startswith("|"):
+                continue
+            cells = [c.strip() for c in ln.strip().strip("|").split("|")]
+            if len(cells) < 5 or not _re.match(r"^EX\d{3,}$", cells[0]):
+                continue
+            handle, rule, grade = cells[0], cells[1], cells[3]
+            if grade not in ("A", "B", "C"):
+                continue
+            requester = cells[5] if len(cells) > 5 else ""
+            grader = cells[6] if len(cells) > 6 else ""
+            if requester and grader and requester.lower() == grader.lower() and grader.lower() not in users:
+                out.append(f"DENY: {handle} is graded {grade} by its own requester ({grader}) — "
+                           f"grader ≠ requester (R-exception-discipline-14). Write it `?` and let "
+                           f"another agent grade it.")
+                continue
+            if grader.lower() in users:
+                continue
+            if ap is None:
+                try:
+                    import warden_docfire as _wd
+                    _wd.refresh_audit_plan()
+                    ap = _wd.ap
+                except Exception:
+                    return out          # fail-open: the loader still refuses the row
+            try:
+                needs_user = ap.rule_requires_user_confirmation(rule)
+            except Exception:
+                needs_user = False
+            if needs_user:
+                out.append(f"DENY: {handle} awards {grade} on {rule}, a `confirm:: user` rule — "
+                           f"only the user grades it (R-exception-discipline-14). Write it `?` "
+                           f"with your name as Requester and ask; the grade lands when Dan answers.")
+        return out
+    added = [ln for ln in content.splitlines() if ln not in before]
+    return _denials(added)
+```
+
+### RULE R-exception-discipline-17 — Every deny declares `confirm:: user` (stated)
+
+A moment rule that can deny (`when:: tool:pre:*`, body emitting `DENY:`) carries `confirm:: user` — on the rule, or on its ruleset when every rule there denies. Under F601 (D) a deny is exceptable like any other rule; this line is what keeps its grade the user's. A deny added later without it is silently agent-exceptable, which is the one failure (D) admitted and this rule closes.
+
+**Check pattern:** `rulesets/test-f601-deny-confirm.py` parses every ruleset with the shipped compiler, finds each `when::` rule whose Python body contains a `DENY:` literal, and asserts `effective_confirm` is `user`. Run in the test sweep.
+
+**Why:** the corpus measured 2026-08-28 held 26 deny-capable rules across 11 rulesets and every one was Python-bodied — so one loader in the daemon's fire path covers both executors, and the only thing that could ever make a deny agent-exceptable is a missing line in a ruleset. A test that reads the rulesets is the cheapest guard that cannot drift from them.
+
 ## Position in the catalog
 
 Sits under [[R-process]]. Adopted by any anchor that runs checked rules; the table is created on first use and absent otherwise, so its presence is itself the signal that the anchor has accepted deviations.
@@ -168,3 +327,9 @@ Sits under [[R-process]]. Adopted by any anchor that runs checked rules; the tab
 
 - [[Warden Exceptions]] — the first instance, and until F314 the only one.
 - [[TINK314 - Exceptions: a graded, user-approved escape from any checked rule|F314]] — the feature that made the table readable by the engine.
+
+## Mend
+
+### MEND exceptions-regrade
+
+The row you are writing awards a grade it may not carry. Set its Grade to `?`, put your own name in **Requester**, leave **Grader** blank, and continue — the row suppresses nothing until someone else grades it (any other agent for an ordinary rule; only the user for a `confirm:: user` rule). Do not wait for the grade: park the finding as an ordinary `[Blocked]` row and work around it.

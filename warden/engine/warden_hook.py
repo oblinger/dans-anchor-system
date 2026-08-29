@@ -392,6 +392,8 @@ def dispatch(data: dict) -> list[str]:
                 "considered": [rid for rid, _ in records],
                 "fires": [{"rule": rid, "steer": s}
                           for rid, produced in records for s in produced],
+                # F601: rules whose steer an exception row quieted.
+                "excepted": list(getattr(ctx, "excepted", None) or []),
                 "ms": round(elapsed_ms, 1),
             })
         if fired:

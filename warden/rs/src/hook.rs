@@ -744,6 +744,7 @@ pub fn dispatch(data: &Value) -> Vec<String> {
             .map(|f| f.rule_id.clone())
             .collect();
         let mut by_rule: Value = json!({});
+        let mut excepted: Value = json!([]);
         if !owed.is_empty() {
             if let Some(resp) = daemon_request_at(moment, &json!({
                 "op": "fire_rules",
@@ -765,6 +766,8 @@ pub fn dispatch(data: &Value) -> Vec<String> {
             })) {
                 if resp.get("ok").and_then(Value::as_bool) == Some(true) {
                     by_rule = resp.get("steers_by_rule").cloned().unwrap_or(json!({}));
+                    // F601: steers an exception row quieted — recorded, never re-fired.
+                    excepted = resp.get("excepted").cloned().unwrap_or(json!([]));
                 } else {
                     // Audit 2026-07-12 W4: an errored daemon response (e.g. a
                     // truncated request) is NOT "no rules fired" — the owed
@@ -816,6 +819,7 @@ pub fn dispatch(data: &Value) -> Vec<String> {
             "command": mask_secrets(str_field(event_ti, "command")),
             "considered": considered,
             "fires": fires,
+            "excepted": excepted,
             "ms": (elapsed_ms * 10.0).round() / 10.0,
         }));
         if steers.len() > before {

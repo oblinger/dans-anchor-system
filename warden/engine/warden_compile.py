@@ -312,7 +312,7 @@ def parse_ruleset(text: str, name: str, source: str) -> dict | None:
     # never terminate a rule body, and never carry live `field::` lines.
     bmask = fence_mask(block)
 
-    rs = {"name": name, "where": None, "description": None,
+    rs = {"name": name, "where": None, "confirm": None, "description": None,
           "includes": [], "imports": [], "rules": [], "source": source}
     # Header fields: contiguous `field::` lines before the first rule/blank body.
     i = 1
@@ -340,6 +340,11 @@ def parse_ruleset(text: str, name: str, source: str) -> dict | None:
             rs["imports"].extend(t for t in re.split(r"[,\s]+", val) if t.strip())
         elif key == "where":
             rs["where"] = strip_ticks(val) or None
+        elif key == "confirm":
+            # F314/F601 — grading authority for the whole set (`user`); a rule
+            # may override. Carried so a corpus test can read it with the same
+            # parser that compiles, and audit-plan's `effective_confirm` applies.
+            rs["confirm"] = strip_ticks(val) or None
         elif key == "description":
             rs["description"] = val or None
         i += 1
@@ -382,7 +387,7 @@ def parse_ruleset(text: str, name: str, source: str) -> dict | None:
             "id": rm.group(2), "title": rm.group(3).strip(), "paren": paren,
             "when": None, "where": None, "ifs": [], "tier": None, "check": None,
             "fix": None, "py_src": _extract_py(body, rm.group(2)),
-            "py_kind": None, "py_kinds": [], "mend": None,
+            "py_kind": None, "py_kinds": [], "mend": None, "confirm": None,
         }
         # Paren is a tier or an executable `when::`.
         if paren in _TIERS:
@@ -409,6 +414,8 @@ def parse_ruleset(text: str, name: str, source: str) -> dict | None:
                 rule["ifs"].append(strip_ticks(val))
             elif key == "check":
                 rule["check"] = val
+            elif key == "confirm":
+                rule["confirm"] = strip_ticks(val) or None
             elif key == "fix":
                 rule["fix"] = val
             elif key == "mend":

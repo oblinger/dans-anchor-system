@@ -268,6 +268,11 @@ def fire_audit(target: Path, mode: str) -> list[dict]:
     anchor_root, scope_files = ap.enumerate_scope(target, mode, exclude)
 
     results: list[dict] = []
+    # F601 — the same table `audit-plan --run` reads. Before this, the same
+    # doc-rule on the same file returned `except` under `/audit` and `fail`
+    # under Warden (measured 2026-08-27 on SV EX001), because the lookup lived
+    # in `execute_plan`, which only audit-plan's own CLI ever called.
+    excs, _declined, _problems = ap.load_exceptions(anchor_root)
     for row, rs in rows:
         action = row.get("action")
         if not action or action.get("kind") != "check":
@@ -288,6 +293,12 @@ def fire_audit(target: Path, mode: str) -> list[dict]:
             # audit-plan displays it lowercase and the parity test diffs verbatim.
             disp = str(t.relative_to(anchor_root)) if t != anchor_root else "{anchor}"
             status, detail = ap.run_checker(check, t, anchor_root)
+            if status in ap._EXC_SUPPRESSIBLE and excs:
+                e = ap._exception_for(excs, row["id"], t, anchor_root)
+                if e:
+                    status = "except"
+                    detail = (f"{e['handle']} (grade {e['grade']}) — {e['why']}"
+                              + (f"  [was: {detail}]" if detail else ""))
             results.append({"rule": row["id"], "target": disp,
                             "status": status, "detail": detail})
     return results

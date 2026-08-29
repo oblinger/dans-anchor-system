@@ -160,6 +160,7 @@ def build_ctx(anchor_root: Path, moment: str, **overrides) -> types.SimpleNamesp
     import warden_agent as wa
     fields: dict = {
         "anchor": name,
+        "anchor_root": anchor_root,      # F601: the exception loader's owner walk starts here
         "moment": moment,
         "traits": traits,
         "git_aspect": git_aspect_of(traits),
@@ -223,6 +224,48 @@ def is_active(ir: dict, rule_id: str, anchor_traits) -> bool:
 
 # ── fire ────────────────────────────────────────────────────────────────────
 
+def excepted_by(ctx, rule_id: str) -> dict | None:
+    """The admitted exception row that quiets `rule_id` for this event, else None.
+
+    F601 — one loader for both executors. Every moment rule in the corpus is
+    Python-bodied (measured 2026-08-28: zero declarative `tell`/`deny` rows),
+    so the Rust hook routes each one through the daemon and lands here; there
+    is nothing on the Rust side left to load for. The parser is audit-plan's
+    (`load_exceptions` — the same rows, the same grading authority, the same
+    `_exception_for` glob) reached through `warden_docfire`, which already
+    keeps that module warm and fresh in the daemon.
+
+    Target: the event's file when there is one (`write:`/`read:`/file-bearing
+    tool moments), matched relative to the OWNING anchor; a moment with no
+    file (Bash, session, prompt) is covered only by an anchor-wide `**` row.
+    Fail-open: any error means the rule fires as it always did."""
+    try:
+        import warden_docfire as wd
+        wd.refresh_audit_plan()
+        ap = wd.ap
+        anchor_root = getattr(ctx, "anchor_root", None)
+        if anchor_root is None:
+            return None
+        anchor_root = Path(anchor_root)
+        excs, _declined, _problems = ap.load_exceptions(anchor_root)
+        if not excs:
+            return None
+        fp = getattr(ctx, "file_path", None)
+        if fp:
+            return ap._exception_for(excs, rule_id, Path(fp), anchor_root)
+        for e in excs:
+            if e["rule"] == rule_id and e["target"].strip() == "**":
+                return e
+        return None
+    except Exception as exc:  # noqa: BLE001 — fail-open, never mute a rule by accident
+        try:
+            import warden_hook as _wh
+            _wh._log(f"exceptions: loader error for {rule_id}: {exc!r} — rule fires unexcepted")
+        except Exception:
+            pass
+        return None
+
+
 def fire(ir: dict, module, moment: str, ctx, anchor_traits) -> list[str]:
     """Run the rules keyed at `moment` and active for the anchor; return steers.
     Rules on any other moment are not in the bucket and never execute."""
@@ -274,6 +317,20 @@ def fire_records(ir: dict, module, moment: str, ctx, anchor_traits) -> list[tupl
             out = getattr(module, row["body_py"])(ctx)
             if out:
                 produced = out if isinstance(out, list) else [out]
+        # F601 — the anchor's exception table quiets a moment rule exactly as
+        # it quiets a doc-rule: a graded A–C row naming this rule and covering
+        # the event's file (or `**`) drops the steer, deny included. Grading
+        # authority is the loader's business (a `confirm:: user` rule is
+        # honoured only when the user graded it), so nothing here re-decides
+        # it. Suppressions are kept on ctx for the fire record.
+        if produced:
+            exc = excepted_by(ctx, rule_id)
+            if exc is not None:
+                ctx.excepted = getattr(ctx, "excepted", None) or []
+                ctx.excepted.append({"rule": rule_id, "handle": exc["handle"],
+                                     "grade": exc["grade"],
+                                     "steers": list(produced)})
+                produced = []
         elif row.get("action"):
             act = row["action"]
             if act.get("kind") in ("tell", "deny"):

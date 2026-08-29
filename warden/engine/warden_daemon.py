@@ -344,7 +344,10 @@ def _fire_rules(corpus: Corpus, req: dict) -> dict:
             with _TURN_LOCK:
                 if dedup not in TURN_FIRED:
                     TURN_FIRED.append(dedup)
-    return {"ok": True, "steers_by_rule": by_rule}
+    # F601 — what the anchor's exception table quieted, per rule, so the Rust
+    # hook's fire record can say "live, fired, excepted" rather than "silent".
+    excepted = list(getattr(ctx, "excepted", None) or [])
+    return {"ok": True, "steers_by_rule": by_rule, "excepted": excepted}
 
 
 def handle(corpus: Corpus, req: dict) -> dict:

@@ -1,5 +1,6 @@
 # RULESET R-pathguard
 include::
+confirm:: user
 description:: Veto-path protection for state-managed file regions (F131) — deny the agent's Edit/Write on surfaces owned by a script (`state`, `/atlas`, the queries renderer) and redirect to the owning tool. Fires at `tool:pre:*` through the live dispatcher. Rides the anchor base — fires vault-wide (F264, 2026-07-18; formerly opt-in via the `pathguard` trait, which no anchor adopted, so the DENY never fired — only the softer [[R-state-region]] advisory rode the base). The two are twins on the same surfaces: this one blocks the edit, the advisory only reminds.
 
 > [!info] Provenance

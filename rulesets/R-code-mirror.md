@@ -1,5 +1,6 @@
 # RULESET R-code-mirror
 include::
+confirm:: user
 description:: Two-Way Doc Mirror wrong-side-edit protection (F188, protection layer 3 of [[SKA Code-Docs Design]]) — deny the agent's Edit/Write on the repo-side copy of a mirrored doc route and redirect to the vault original. Routes come from the `mirror-routes.json` index that `code sync` regenerates from `.anchor` `mirror:` declarations. Rides the anchor base — fires vault-wide.
 
 > [!info] Provenance

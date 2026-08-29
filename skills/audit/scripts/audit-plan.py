@@ -7931,6 +7931,16 @@ def chk_exceptions_table_wellformed(target, anchor_root, args):
         return "fail", (f"{', '.join(unconfirmed)} propose an exception to a rule that "
                         f"requires your confirmation first (`confirm:: user`) — ask, "
                         f"then record the grade you are given")
+    # F601 (D) — an A–C awarded by an agent on a `confirm:: user` rule is inert
+    # (the loader never admits it) and the table goes red until the Grader cell
+    # says `user`, so a row that looks granted can never sit quietly doing
+    # nothing — the accepted-and-inert failure this feature exists to end.
+    usurped = [f"{r['handle']} ({r['rule']}, graded by {r['grader'] or 'nobody'})"
+               for r in declined if r.get("inert") == "authority"]
+    if usurped:
+        return "fail", (f"{'; '.join(usurped)} — only the user grades a "
+                        f"`confirm:: user` rule; set the grade to `?` and ask, "
+                        f"or have the user grade it (Grader = `user`)")
     detail = f"{len(rows)} approved"
     if declined:
         detail += f", {len(declined)} recorded but not suppressing"
@@ -8567,6 +8577,9 @@ _EXC_PASSING = frozenset("ABC")
 # a table that could hide one would be a way to make bugs invisible by hand.
 _EXC_SUPPRESSIBLE = frozenset({"fail", "warn"})
 _EXC_HANDLE_RX = re.compile(r"^EX\d{3,}$")
+# F601 (D): the names the Grader cell may carry to mean "the user graded this".
+# Case-insensitive. Only these may award A–C on a `confirm:: user` rule.
+_EXC_USER_NAMES = frozenset({"user", "dan"})
 _EXC_RULE_RX = re.compile(r"^R-[a-z0-9-]+-\d{2}$")
 _RULESET_OF_RULE_RX = re.compile(r"^(R-[a-z0-9-]+)-\d{2}$")
 _CONFIRM_MEM: dict[str, bool] = {}
@@ -8596,10 +8609,28 @@ def rule_requires_user_confirmation(rule_id: str) -> bool:
                 blk = None
             if blk:
                 rs = parse_ruleset_block(blk[0], fp)
+                found = False
                 for r in rs["rules"]:
                     if r["id"] == rule_id:
                         verdict = effective_confirm(r, rs) == "user"
+                        found = True
                         break
+                if not found:
+                    # F601 — a `when::` moment rule (a deny) is not a doc-rule,
+                    # and this planner's rule index does not carry it. Read
+                    # its `confirm::` straight off the block: the rule's own
+                    # field line under its `### RULE` header wins, else the
+                    # ruleset's. Without this every deny read as unconfirmed —
+                    # which is precisely the row (D) must never admit.
+                    text = "\n".join(blk[0])
+                    m2 = re.search(r"^### RULE " + re.escape(rule_id) + r"\b[^\n]*\n((?:(?!^### )[^\n]*\n?)*)",
+                                   text, re.M)
+                    own = None
+                    if m2:
+                        m3 = re.search(r"^confirm::\s*`?([^`\n]*)`?\s*$", m2.group(1), re.M)
+                        if m3:
+                            own = m3.group(1).strip() or None
+                    verdict = (own or rs.get("confirm") or None) == "user"
     _CONFIRM_MEM[rule_id] = verdict
     return verdict
 
@@ -8670,6 +8701,12 @@ def load_exceptions(anchor_root: Path) -> tuple[list[dict], list[dict], list[str
         handle, rule, target, grade, why = (c.strip() for c in cells[:5])
         if not _EXC_HANDLE_RX.match(handle):
             continue                      # header, separator, or prose row
+        # F601 — Requester and Grader are the sixth and seventh cells. A row
+        # that predates them (five cells) parses with both blank: the grade
+        # stands on its own for an ordinary rule, exactly as before, but a
+        # blank grader can never carry A–C on a `confirm:: user` rule (below).
+        requester = cells[5].strip() if len(cells) > 5 else ""
+        grader = cells[6].strip() if len(cells) > 6 else ""
         # A path in a markdown table is written in backticks by every other
         # convention in this vault, so authors write them here too — and the
         # glob matcher took them literally, so the row matched nothing and
@@ -8690,9 +8727,31 @@ def load_exceptions(anchor_root: Path) -> tuple[list[dict], list[dict], list[str
         if not why:
             bad.append("no justification")
         row = {"handle": handle, "rule": rule, "target": target,
-               "grade": grade, "why": why}
+               "grade": grade, "why": why, "requester": requester,
+               "grader": grader}
+        # F601 — grader ≠ requester. Whoever benefits from an exception may
+        # not be the one who decides it (Dan, 2026-08-28). The user is exempt:
+        # he may write and grade his own row.
+        if (grade in _EXC_PASSING and requester and grader
+                and requester.lower() == grader.lower()
+                and grader.lower() not in _EXC_USER_NAMES):
+            bad.append(f"requester and grader are both {grader!r} — "
+                       "grader ≠ requester (R-exception-discipline-14)")
         if bad:
             problems.append(f"{handle}: " + "; ".join(bad))
+        elif (grade in _EXC_PASSING and _EXC_RULE_RX.match(rule)
+                and rule_requires_user_confirmation(rule)
+                and grader.lower() not in _EXC_USER_NAMES):
+            # F601 (D) — grading authority is a property of the RULE. On a
+            # `confirm:: user` rule only the user may award the letter; an
+            # agent-graded row is recorded and INERT, never silently honoured.
+            row["declined"] = (f"graded {grade} by "
+                               f"{grader or 'no named grader'} on a "
+                               f"`confirm:: user` rule — only the user may "
+                               f"grade it; inert until the Grader cell says "
+                               f"`user`")
+            row["inert"] = "authority"
+            declined.append(row)
         elif grade in _EXC_PASSING:
             admitted.append(row)
         else:

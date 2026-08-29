@@ -1,5 +1,6 @@
 # RULESET R-masterguard
 include::
+confirm:: user
 description:: The master archive is a write-once surface (ATT T178) — deny any Bash command that writes into `/Volumes/<X>/__MASTERS__/` unless a write session is explicitly open on that volume. Rides the **Atticus anchor only** (`traits: [Container, masterguard]`) — Dan's ruling on [[ATT Backlog#^T182|ATT T182]], 2026-08-21: disk custody is one agent's job, and every *other* agent is walled off from backup drives entirely by `R-backupguard` rather than gated by this rule. Fires at `tool:pre:Bash` — which means a `Write`/`Edit` tool call to a master path is **not** caught here; see [[ATT Backlog#^T252|T252]].
 
 > [!info] Provenance
