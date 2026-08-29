@@ -1115,8 +1115,50 @@ def enumerate_scope(target: Path, mode: str,
 
 # ── flattened-rules cache ───────────────────────────────────────────────────
 
+_CACHE_BASE = HOME / ".cache"
+_CACHE_DEFAULT = _CACHE_BASE / "dans-anchor-system-audit"
+
+
 def cache_dir(opt: str | None) -> Path:
-    d = Path(opt).expanduser() if opt else (HOME / ".cache" / "dans-anchor-system-audit")
+    """Resolve the cache root — never against the process cwd.
+
+    T608. `~/ob/kmr/umbrella/R-anchor-450377da353065e3.json` was found sitting
+    at the VAULT ROOT and git-tracked, so the hourly sweep had committed a
+    regenerable cache into the commons. The default here was always absolute;
+    the escape is a RELATIVE `--cache-dir`, which `Path(opt).expanduser()`
+    leaves relative, so `cdir / "umbrella"` landed wherever the run happened to
+    start. That is why the file's directory was literally named `umbrella` and
+    its first key was the umbrella's own name — the path was assembled correctly
+    and rooted nowhere.
+
+    Two changes, because either alone leaves the hole open:
+
+    - A relative option resolves against `~/.cache/`, a stable base, so the same
+      invocation from two directories writes to one place instead of two.
+    - A cache dir inside a git working tree is REFUSED outright. That is the
+      actual damage — not that the cache existed, but that it was committed —
+      and it is the half that would still bite someone who passed an absolute
+      path into a repo. Refused rather than relocated: a silent move would leave
+      the caller believing a directory it named is in use.
+
+    Deleting the stray file without fixing this was the worst of the available
+    outcomes, and it is what happened: re-measured 2026-08-28, the file and its
+    directory are gone, so the next escape lands somewhere less obvious.
+    """
+    if opt:
+        d = Path(opt).expanduser()
+        if not d.is_absolute():
+            d = _CACHE_BASE / d
+    else:
+        d = _CACHE_DEFAULT
+    for a in (d, *d.parents):
+        if (a / ".git").exists():
+            raise SystemExit(
+                f"audit-plan: refusing a cache dir inside a git working tree — {d}\n"
+                f"  (tracked at {a})\n"
+                f"  A regenerable cache committed into a repo is what T608 found at the\n"
+                f"  vault root. Pass an absolute --cache-dir outside any repo, or omit it\n"
+                f"  to use {_CACHE_DEFAULT}.")
     (d / "flat").mkdir(parents=True, exist_ok=True)
     return d
 
@@ -5332,7 +5374,7 @@ def _blank_regions(text: str, regions, fill: str = " ") -> str:
 
 
 def _link_target_regions(text: str) -> list[tuple[int, int]]:
-    """Char ranges of LINK TARGETS — the `[[…]]` interior up to its display pipe,
+    r"""Char ranges of LINK TARGETS — the `[[…]]` interior up to its display pipe,
     and the `(…)` of a `[text](url)`.
 
     T604. A wiki-link target is a FILENAME, and a filename may legitimately hold
