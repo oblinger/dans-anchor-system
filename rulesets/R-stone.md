@@ -100,3 +100,22 @@ An anchor may hold any number of **kinds**, and at most one group of **each**. `
 **Why:** two lists of one kind for one anchor is two answers to the same question with nothing to say which governs. When an activity splits, the sub-activities get their own anchors, and each anchor its own single group per kind. The nested-anchor exclusion is what makes the rule honest: `SV` encloses four pebble groups, and three belong to `A2X`, `SVP` and `SVH`.
 
 **Ported from [[R-rocks]]-03 on 2026-08-28 ([[TINK Backlog#^T603|T603]] leg 3) — and the predicate is not the rock one widened.** Counting every stone folder under an anchor would have fired on exactly the anchors using the facet best. This is the same trap R-stone-07's port fell into once already: a rule measuring a convention instead of the defect. The cardinality line in [[DAS Stone]] was the predicate all along; the checker now enforces it for every kind. Measured 2026-08-28: 32 live groups, one per kind per anchor everywhere, so the evidence is `test_stone_single_per_kind_fires_beside_a_clean_twin`.
+
+### RULE R-stone-11 — A folder-note, when the group has one, carries a catch-all separator (checked)
+check:: stone_folder_note_catchall
+
+If the group folder has a folder-note — `{slug} Rocks.md` inside `{slug} Rocks/`, or a book's control file, which is its folder-note — that note's dispatch table includes a `...` catch-all row, so a file dropped into the folder surfaces without being hand-listed.
+
+**Check pattern:** when `{folder}/{folder}.md` exists, assert one of its table blocks has a `...` (or `…`) first cell. A group with **no** folder-note passes: 25 of 32 live groups have none, and [[DAS Stone]] permits it. Judged **once per group**, on the spokesfile.
+
+**Why:** the catch-all is what lets R-stone-08 stay a warning. A member the control file has not ranked is still reachable through it; without it an unranked stone is genuinely invisible on that page, and the warning would have to become a gate.
+
+**Ported from [[R-rocks]]-09 on 2026-08-28 ([[TINK Backlog#^T603|T603]] leg 4).** Measured first: the seven live folder-notes all carry the row. Evidence is `test_stone_folder_note_catchall_fires_beside_a_clean_twin`, which pairs a note without the row against a book note with it and a pebble group with no note at all.
+
+### RULE R-stone-12 — Elective; never scaffolded (stated)
+
+No anchor is required to hold any stone group, and `/create anchor` never scaffolds one. A group is created when an anchor actually has stones worth naming. `_stone_gate` says the same thing from the other side: a folder that is neither named nor placed as a group is *"not a Stone-facet instance (elective facet, not adopted here)"*, and draws no finding.
+
+**Check pattern:** stated; a group folder holding only a control file or folder-note and no members is a smell to flag.
+
+**Why:** the failure mode of every new facet is universal adoption by scaffolding, which produces hundreds of empty folders and trains readers to skip the facet everywhere — including where it is real. Ported from [[R-rocks]]-10 on 2026-08-28 ([[TINK Backlog#^T603|T603]]). `R-rocks-11` — tier grouping expresses commitment, not sequence — was **deliberately not ported**: a book's order is its sequence by definition, and a pebble list is a tempo list, so that rule is a property of the rock kind and stays in [[R-rocks]].

@@ -374,3 +374,33 @@ def test_stone_single_per_kind_fires_beside_a_clean_twin(tmp_path):
     v, msg = ap.chk_stone_single_per_kind(bad / "BAD Track/BAD Pebbles/BAD P0001.md", bad, None)
     assert v == "fail", f"two pebble groups under one anchor must FAIL, got {v}: {msg}"
     assert "BAD Old Pebbles" in msg and "BAD Pebbles" in msg, msg
+
+
+def test_stone_folder_note_catchall_fires_beside_a_clean_twin(tmp_path):
+    """T603 leg 4 / R-stone-11 — a folder-note without `...` fires; one with it
+    is quiet; a group with NO folder-note is quiet, because 25 of 32 live
+    groups have none and DAS Stone permits that."""
+    a = tmp_path / "CAT"
+    _w(a / ".anchor", "slug: CAT\n")
+    # A book: control file IS the folder-note, with the row.
+    _w(a / "CAT Track/CAT Book/CAT 2026-08-01 a.md", "line:: a\n\n# a\nBody.\n")
+    _w(a / "CAT Track/CAT Book/CAT Book.md",
+       "| -[[CAT Book]]- | |\n| --- | --- |\n| ... | |\n\n# CAT Book\n\n"
+       "[[CAT 2026-08-01 a|CAT:]] a\n")
+    # A pebble group with no folder-note at all.
+    _w(a / "CAT Track/CAT Pebbles/CAT P0001.md", "line:: p\n\n# p\nBody.\n")
+    _w(a / "CAT Track/CAT Pebble.md", "# CAT Pebble\n\n-[[CAT Pebble|CAT]]-\n\n[[CAT P0001|CAT:]] p\n")
+    # A rock group whose folder-note has a table but no catch-all.
+    _w(a / "CAT Track/CAT Rocks/CAT R0001.md", "line:: r\n\n# r\nBody.\n")
+    _w(a / "CAT Track/CAT Rocks/CAT Rocks.md",
+       "| -[[CAT Rocks]]- | |\n| --- | --- |\n| [[CAT R0001]] | r |\n\n# CAT Rocks\n")
+    _w(a / "CAT Track/CAT Rock.md", "# CAT Rock\n\n-[[CAT Rock|CAT]]-\n\n[[CAT R0001|CAT:]] r\n")
+
+    fn = ap.chk_stone_folder_note_catchall
+    v, m = fn(a / "CAT Track/CAT Book/CAT Book.md", a, None)
+    assert v == "pass", f"a book note with the row must pass: {v} {m}"
+    v, m = fn(a / "CAT Track/CAT Pebbles/CAT P0001.md", a, None)
+    assert v == "pass" and "no folder-note" in m, f"no note must pass, not fire: {v} {m}"
+    v, m = fn(a / "CAT Track/CAT Rocks/CAT Rocks.md", a, None)
+    assert v == "fail", f"a note without the row must FAIL: {v} {m}"
+    assert "CAT Rocks.md" in m, m

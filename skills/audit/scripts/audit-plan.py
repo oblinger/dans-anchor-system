@@ -7405,6 +7405,35 @@ def chk_stone_single_per_kind(target, anchor_root, args):
                     "activity gets its own anchor, and that anchor its own group")
 
 
+def chk_stone_folder_note_catchall(target, anchor_root, args):
+    """R-stone-11: a group's folder-note, when it has one, carries a `...` row.
+
+    T603 leg 4, the kind-generic port of `R-rocks-09`. Measured 2026-08-28:
+    seven of 32 live groups have a folder-note — the five rock groups that
+    carry their own `.anchor`, and both books, whose control file IS the
+    folder-note — and all seven carry the catch-all. The other 25 have no
+    folder-note at all, which [[DAS Stone]] permits, so a missing note is a
+    pass here and never a finding: the rule is about the row, not the page.
+
+    Why the row matters: the catch-all is what lets R-stone-08 stay a warning.
+    A member the control file has not ranked is still reachable through it.
+    Without it an unranked stone is genuinely invisible on that page."""
+    f, folder, slug, cfg, done = _stone_gate(target, anchor_root, True)
+    if done:
+        return done
+    note = folder / f"{folder.name}.md"
+    if not note.is_file():
+        return "pass", "no folder-note — permitted for this kind"
+    for block in _table_blocks(_strip_fenced(_read(note)).splitlines()):
+        for row in block:
+            cells = _row_cells(row)
+            if cells and cells[0].strip() in ("...", "…"):
+                return "pass", ""
+    return "fail", (f"{note.name}'s dispatch table has no `...` catch-all row — "
+                    "the catch-all is what keeps R-stone-08 a warning rather than "
+                    "a gate; without it an unranked stone is invisible on this page")
+
+
 def chk_rocks_folder_note_catchall(target, anchor_root, args):
     """R-rocks-09: the folder-note's dispatch table carries a `...` catch-all row."""
     f, folder, slug, done = _rocks_gate(target, anchor_root, True)
@@ -8341,6 +8370,7 @@ CHECKERS = {
     "stone_member_ranked": chk_stone_member_ranked,
     "stone_control_links_resolve": chk_stone_control_links_resolve,
     "stone_single_per_kind": chk_stone_single_per_kind,
+    "stone_folder_note_catchall": chk_stone_folder_note_catchall,
     "rocks_folder_note_catchall": chk_rocks_folder_note_catchall,
     # R-stone (T164) — the kind-generic four; the other two rules of the six
     # stay `stated` on purpose (R-stone-03 is a claim about how a value was
