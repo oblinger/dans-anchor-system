@@ -95,6 +95,8 @@ A **header** is any line whose first link targets a control file. Pointing at *t
 
 Each downstream anchor chooses where imports land by writing a header for the source: a bare header takes block form, a header followed by a plain-text colon takes inline comma-separated form, and an absent header means the top of the file.
 
+**The control file is an arbitrary document; the engine only inserts.** Its one requirement is that it links every stone. A line that is missing is inserted — directly under a `## New` header if the file has one (any level; that is how you steer new lines away from the top), else at the top of the content past frontmatter and a leading H1 — and nothing else in the file is touched: no packing, no blank-line stripping, no H1 removal. Whether the member is numbered or dated has no bearing on placement. The file can be a bare list or a full page with prose and a dispatch table; the user moves the lines wherever they belong. (Dan, 2026-08-29 — [[TINK618 - Teach the stone engine to read date-named members|TINK T618]].)
+
 ## Keys
 
 A stone carries `key:: value` parameters, **at the top of the file, above the prose**. Full vocabulary and the reasoning: [[DAS Stone Keys]].

@@ -130,9 +130,9 @@ def archived_stone_path(root, slug, sid):
 
 
 def write_control(path, slug, body_lines):
-    # Canonical packed form (Dan, 2026-08-17): frontmatter, then the list —
-    # no title H1, no blank lines. `_normalize_control` enforces this on
-    # every write, so fixtures authored any other way would churn on pass 1.
+    # The default shape of a fresh control file (Dan, 2026-08-17): frontmatter,
+    # then the list. An existing file is never repacked (T618), so fixtures
+    # may take any shape; this is just the simplest.
     path.parent.mkdir(parents=True, exist_ok=True)
     header = ["---", f"description: {slug} Rock — control file", "---"]
     path.write_text("\n".join(header + body_lines) + "\n", encoding="utf-8")
@@ -814,21 +814,40 @@ try:
     qroot = TMP / "q"
     mkanchor(qroot, "QQ", [])
     run(qroot, "rock", "new", "QQ", "--line", "the packed one")
-    # hand-author the sins: title H1 and blank lines around the list
+    # T618 (Dan, 2026-08-29): a control file is an ARBITRARY document — the
+    # engine's only requirement is that it links every stone. So a page shape
+    # (title H1, prose, blank lines) is preserved verbatim across update, and a
+    # missing line is inserted, never repacked.
     qpath = control_path(qroot, "QQ")
     qlines = qpath.read_text(encoding="utf-8").splitlines()
-    sinful = qlines[:3] + ["", "# QQ Rock", ""] + [qlines[3], "", header_line("QQ"), ""]
-    qpath.write_text("\n".join(sinful) + "\n", encoding="utf-8")
+    shaped = qlines[:3] + ["", "# QQ Rock", "", "Some prose Dan wrote.", "", qlines[3], "", header_line("QQ"), ""]
+    qpath.write_text("\n".join(shaped) + "\n", encoding="utf-8")
+    before = qpath.read_text(encoding="utf-8")
     run(qroot, "rock", "update")
     q_after = qpath.read_text(encoding="utf-8")
-    if "\n\n" not in q_after and "# QQ Rock" not in q_after:
-        ok("update packs the file: no blank lines, no title H1")
+    if q_after == before:
+        ok("update leaves a page-shaped control file byte-identical (no packing)")
     else:
-        no(f"update left blanks or the H1 in place:\n{q_after!r}")
-    if stone_line("QQ", "R0001", "the packed one") in q_after and hl in q_after:
-        ok("...and every real line survived the packing")
+        no(f"update rewrote a page-shaped control file:\n{q_after!r}")
+    # a NEW stone lands at the top of the content — below frontmatter and the
+    # H1 — and nothing else moves
+    run(qroot, "rock", "new", "QQ", "--line", "the second one")
+    q_lines = qpath.read_text(encoding="utf-8").splitlines()
+    want = stone_line("QQ", "R0002", "the second one")
+    if q_lines[:6] == qlines[:3] + ["", "# QQ Rock", ""] and q_lines[6] == want and "Some prose Dan wrote." in q_lines:
+        ok("a new stone is inserted just below the H1; prose and blanks untouched")
     else:
-        no(f"packing dropped a real line:\n{q_after!r}")
+        no(f"new stone landed wrong:\n{q_lines!r}")
+    # a `## New` header steers where the insert lands
+    qpath.write_text(qpath.read_text(encoding="utf-8") + "\n## New\n\n## Old\n", encoding="utf-8")
+    run(qroot, "rock", "new", "QQ", "--line", "the third one")
+    q_lines = qpath.read_text(encoding="utf-8").splitlines()
+    want = stone_line("QQ", "R0003", "the third one")
+    ni = q_lines.index("## New")
+    if q_lines[ni + 1] == "" and q_lines[ni + 2] == want and "## Old" in q_lines[ni + 3:]:
+        ok("a `## New` header takes the insert, directly under it")
+    else:
+        no(f"`## New` did not steer the insert:\n{q_lines!r}")
 
     # ============================================================
     # R. a stone authored DIRECTLY is not reverted by a stale projection

@@ -684,8 +684,27 @@ def _find_header_index(lines: list, target_slug: str, cfg: dict):
     return None
 
 
+_NEW_HEADER_RE = re.compile(r"^\s*#{1,6}\s+New\s*$", re.IGNORECASE)
+
+
 def _content_start(lines: list) -> int:
-    """Index just past frontmatter and a leading H1 (+ trailing blanks)."""
+    """Where a NEW line lands in a control file (T618, Dan 2026-08-29).
+
+    A control file is an arbitrary document; the engine's only requirement of
+    it is that it links every stone. So a missing line is INSERTED and nothing
+    else is touched — no packing, no blank-stripping, no H1 removal: the file
+    keeps its shape and the user moves the line wherever it belongs. Where the
+    insert goes: directly under a `## New` header if the file has one (any
+    level, case-insensitive — the user's way of steering new lines away from
+    the top), else the top of the content, just past frontmatter and a leading
+    H1. Whether the member is numbered or dated has no bearing on placement.
+    """
+    for i, line in enumerate(lines):
+        if _NEW_HEADER_RE.match(line):
+            j = i + 1
+            while j < len(lines) and lines[j].strip() == "":
+                j += 1
+            return min(j, len(lines))
     i = 0
     if i < len(lines) and lines[i].strip() == "---":
         i += 1
@@ -1071,32 +1090,11 @@ def propagate_in(slug: str, anchors: dict, stones: dict, control: dict, publishe
 # Verbs
 
 def _default_control_lines(slug: str, cfg: dict) -> list:
-    # No title H1 and no blank lines: a control file is a packed list, nothing
-    # else (Dan, 2026-08-17 — "just an empty list file, no header to it").
+    # A FRESH control file is a bare list (Dan, 2026-08-17 — "just an empty
+    # list file, no header to it"). Only the default is shaped: an existing
+    # file is never repacked (T618) — see _content_start.
     control_name = cfg["control"].format(slug=slug)
     return ["---", f"description: {control_name} — control file", "---"]
-
-
-def _normalize_control(lines: list) -> list:
-    """Canonical packed form for a control file (Dan, 2026-08-17): frontmatter
-    passes through untouched, a leading title H1 is dropped, and every blank
-    line goes — the list is packed. All other non-blank lines are preserved,
-    so prose someone adds is packed, never deleted."""
-    out = []
-    i = 0
-    if lines and lines[0].strip() == "---":
-        out.append(lines[0])
-        i = 1
-        while i < len(lines) and lines[i].strip() != "---":
-            out.append(lines[i])
-            i += 1
-        if i < len(lines):
-            out.append(lines[i])
-            i += 1
-    body = [l for l in lines[i:] if l.strip() != ""]
-    if body and body[0].lstrip().startswith("# "):
-        body = body[1:]
-    return out + body
 
 
 def _mint_warnings(cf, slug: str, sid: str, keys: list, cfg: dict) -> list:
@@ -1197,7 +1195,6 @@ def cmd_new(kind: str, cfg: dict, root: Path, args) -> int:
     lines = cpath.read_text(encoding="utf-8").splitlines() if cpath.is_file() else _default_control_lines(slug, cfg)
     cf = SimpleNamespace(slug=slug, path=cpath, lines=lines)
     _add_to_own_top(cf, slug, sid, st, cfg)
-    cf.lines = _normalize_control(cf.lines)
     cpath.write_text("\n".join(cf.lines) + "\n", encoding="utf-8")
 
     st.appears.add(slug)
@@ -1392,7 +1389,6 @@ def cmd_update(kind: str, cfg: dict, root: Path, args) -> int:
     n_files = 0
     for cf in control.values():
         original = cf.path.read_text(encoding="utf-8") if cf.exists else None
-        cf.lines = _normalize_control(cf.lines)
         new_text = "\n".join(cf.lines) + ("\n" if cf.lines else "")
         if new_text != (original or ""):
             if not dry:
