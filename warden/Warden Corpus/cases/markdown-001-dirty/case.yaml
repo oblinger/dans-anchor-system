@@ -4,5 +4,5 @@ mode: doc
 target: FX9 Notes.md
 provenance: authored (T007 — R-markdown re-wiring; pins the 6 executable checks failing)
 engine: audit-plan
-blessed_against: 05e0169387e8-263891fb765c
+blessed_against: 05e0169387e8-4121e128212f
 note: one doc violating R-markdown-01/-02/-05/-06/-13/-14 (unescaped table pipe, table touching prose, spaced --, second :: in a field value, stray <Tag>, trailing whitespace)
