@@ -381,13 +381,45 @@ def _iter_fire_records(home: Path):
                 continue
 
 
+def _fire_log_coverage(home: Path, recs: list) -> str:
+    """One line saying how far back the log actually reaches, and whether
+    rotation has thrown anything away.
+
+    T607. Two of three counts on a 9-day soak came back ungradeable: the log
+    keeps 5 MB plus a single `.1` generation, and at the observed 5.2 MB per
+    3 days the surviving window was 3.7 days -- but nothing in the output said
+    the rest had been discarded. It just returned a smaller number, which reads
+    exactly like a real answer. A count over a window longer than the log holds
+    is a FLOOR, and until it says so the instrument is reporting its own limit
+    as a measurement.
+
+    The presence of `fires.jsonl.1` is the tell: rotation only creates it by
+    replacing an earlier one, so once it exists, records older than the earliest
+    held are gone and unrecoverable.
+    """
+    import datetime
+    if not recs:
+        return ""
+    ts = [r.get("ts", 0) for r in recs if r.get("ts")]
+    if not ts:
+        return ""
+    first = datetime.datetime.fromtimestamp(min(ts))
+    age = (datetime.datetime.now() - first).total_seconds() / 86400.0
+    line = (f"warden log: {len(recs)} record(s) held, earliest "
+            f"{first.strftime('%Y-%m-%d %H:%M')} ({age:.1f}d ago)")
+    if (home / "fires.jsonl.1").is_file():
+        line += ("  — ROTATED: older records were discarded, so any count over a "
+                 "window longer than this is a floor, not a total")
+    return line
+
+
 def cmd_log(args) -> int:
     """Show recent fire records: which rules were considered/fired at each
     moment and the steer text verbatim. The answer to "did the LLM ignore the
     steer, or did we never send the right one?" starts here."""
     import datetime
     home = warden_home()
-    recs = list(_iter_fire_records(home))
+    recs = all_recs = list(_iter_fire_records(home))
     if args.moment:
         recs = [r for r in recs if args.moment in r.get("moment", "")]
     if args.anchor:
@@ -402,6 +434,11 @@ def cmd_log(args) -> int:
         print("warden log: no matching fire records"
               + ("" if (home / "fires.jsonl").is_file() else
                  " (no fires.jsonl yet — records appear as moments fire)"))
+        # A zero is a claim about the instrument as much as about the corpus:
+        # say what window that zero covers (T607).
+        cov = _fire_log_coverage(home, all_recs)
+        if cov:
+            print(cov)
         return 0
     for r in recs[-args.n:]:
         dt = datetime.datetime.fromtimestamp(r.get("ts", 0))
@@ -422,6 +459,11 @@ def cmd_log(args) -> int:
                 text = text[:200] + " …"
             pad = "\n      ".join(text.splitlines())
             print(f"  → {f.get('rule', '?')}: {pad}")
+    # Last line, deliberately: it is what a reader counting these records needs
+    # in order to know whether the count is a total or a floor (T607).
+    cov = _fire_log_coverage(home, all_recs)
+    if cov:
+        print(cov)
     return 0
 
 

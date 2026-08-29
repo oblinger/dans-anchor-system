@@ -537,3 +537,53 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
+
+
+def test_fire_log_coverage():
+    """T607 — a count over a window the log does not cover must not read as a
+    total.
+
+    Two of three counts on a 9-day soak came back ungradeable: the log keeps
+    5 MB plus one `.1` generation, and at the observed write rate the surviving
+    window was 3.7 days. Nothing in the output said so -- it returned a smaller
+    number, which is indistinguishable from a real answer. The presence of
+    `fires.jsonl.1` is the tell that rotation has discarded records, and it is
+    what the warning keys on.
+    """
+    import importlib.util
+    import json as _json
+    import tempfile
+    import time
+    # The CLI has no .py suffix, so the loader must be named explicitly --
+    # spec_from_file_location cannot infer one from the extension.
+    import importlib.machinery
+    src = str(Path(__file__).resolve().parent / "warden")
+    spec = importlib.util.spec_from_file_location(
+        "warden_cli", src, loader=importlib.machinery.SourceFileLoader("warden_cli", src))
+    cli = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(cli)
+
+    with tempfile.TemporaryDirectory() as td:
+        home = Path(td)
+        now = time.time()
+        recs = [{"ts": now - 3 * 86400, "moment": "m", "anchor": "A"},
+                {"ts": now, "moment": "m", "anchor": "A"}]
+
+        # No rotation yet: report the window, claim nothing about loss.
+        (home / "fires.jsonl").write_text(
+            "".join(_json.dumps(r) + "\n" for r in recs), encoding="utf-8")
+        cov = cli._fire_log_coverage(home, recs)
+        assert "2 record(s) held" in cov, cov
+        assert "3.0d ago" in cov, cov
+        assert "ROTATED" not in cov, "no .1 generation -- nothing was discarded yet"
+
+        # Rotated: the count is a floor and must say so.
+        (home / "fires.jsonl.1").write_text("", encoding="utf-8")
+        cov = cli._fire_log_coverage(home, recs)
+        assert "ROTATED" in cov and "floor, not a total" in cov, cov
+
+        # An empty log makes no claim at all rather than a false one.
+        assert cli._fire_log_coverage(home, []) == "", "no records -> no window claim"
+        assert cli._fire_log_coverage(home, [{"moment": "m"}]) == "", \
+            "records without timestamps cannot date a window"
+    print("PASS  fire_log_coverage (T607)")
