@@ -1,0 +1,112 @@
+#!/usr/bin/env bash
+# MODULE:  io-contacts -- read the local macOS Contacts database (AddressBook)
+#
+# Why this exists: agents were hand-writing osascript against Contacts.app and
+# getting it wrong. One defined access path, one output shape, one timeout.
+#
+#   io-contacts search <substring>   one line per match:  NAME <tab> ORG
+#   io-contacts show   <substring>   full record(s): name, org, emails, phones, born
+#   io-contacts count                total people in the database
+#
+# A zero from search/show also prints the corpus size and exits 1. A zero that
+# cannot be told apart from a broken reader is not evidence of absence.
+#
+# No auth, no token: Contacts is a local TCC surface like ical/imail, which is
+# why it outranks any server-side contacts API. Read-only by design -- writing
+# to a shared address book is not something an agent should do in passing.
+#
+# Every AppleScript here is wrapped in `with timeout` (default 30s). Without one
+# an Apple Event dies at the 120s default and reports NOTHING, which is how a
+# mail query once looked like an empty result instead of a stall.
+
+set -euo pipefail
+
+TIMEOUT="${IO_CONTACTS_TIMEOUT:-30}"
+
+die() { printf 'io-contacts: %s\n' "$1" >&2; exit 1; }
+
+osa_count() {
+  osascript - "$TIMEOUT" <<'OSA'
+on run argv
+  with timeout of (item 1 of argv as integer) seconds
+    tell application "Contacts" to return count of every person
+  end timeout
+end run
+OSA
+}
+
+osa_search() {
+  osascript - "$1" "$TIMEOUT" <<'OSA'
+on run argv
+  set q to item 1 of argv
+  set acc to {}
+  with timeout of (item 2 of argv as integer) seconds
+    tell application "Contacts"
+      repeat with p in (every person whose name contains q)
+        set o to organization of p
+        if o is missing value then set o to ""
+        set end of acc to (name of p) & tab & o
+      end repeat
+    end tell
+  end timeout
+  set AppleScript's text item delimiters to linefeed
+  return acc as text
+end run
+OSA
+}
+
+osa_show() {
+  osascript - "$1" "$TIMEOUT" <<'OSA'
+on run argv
+  set q to item 1 of argv
+  set acc to {}
+  with timeout of (item 2 of argv as integer) seconds
+    tell application "Contacts"
+      repeat with p in (every person whose name contains q)
+        set blk to "name:  " & (name of p)
+        set o to organization of p
+        if o is not missing value and o is not "" then set blk to blk & linefeed & "org:   " & o
+        repeat with e in (every email of p)
+          set blk to blk & linefeed & "email: " & (value of e)
+        end repeat
+        repeat with ph in (every phone of p)
+          set blk to blk & linefeed & "phone: " & (value of ph)
+        end repeat
+        set b to birth date of p
+        if b is not missing value then set blk to blk & linefeed & "born:  " & (b as string)
+        set end of acc to blk
+      end repeat
+    end tell
+  end timeout
+  set AppleScript's text item delimiters to (linefeed & linefeed)
+  return acc as text
+end run
+OSA
+}
+
+report_empty() {
+  printf 'no match for "%s" -- searched %s people\n' "$1" "$(osa_count)" >&2
+  exit 1
+}
+
+cmd="${1:-}"; [ $# -gt 0 ] && shift || true
+
+case "$cmd" in
+  search)
+    q="${1:-}"; [ -n "$q" ] || die "usage: io-contacts search <substring>"
+    out="$(osa_search "$q")"
+    [ -n "$out" ] || report_empty "$q"
+    printf '%s\n' "$out" ;;
+
+  show)
+    q="${1:-}"; [ -n "$q" ] || die "usage: io-contacts show <substring>"
+    out="$(osa_show "$q")"
+    [ -n "$out" ] || report_empty "$q"
+    printf '%s\n' "$out" ;;
+
+  count) osa_count ;;
+
+  ""|-h|--help|help) sed -n '2,21p' "$0" | sed 's/^# \{0,1\}//' ;;
+
+  *) die "unknown subcommand '$cmd' -- try: search | show | count" ;;
+esac

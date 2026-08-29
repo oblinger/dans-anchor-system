@@ -7,8 +7,9 @@ description: >
   "upload to drive", "read my email", "search mail for", "find that email from",
   "what's on my calendar", "read my calendar", "what do I have today",
   "pull my health data", "what's my sleep/heart rate", "check my apple health".
+  "look up a contact", "what's their phone number", "find them in my contacts", "how do you spell their name".
   "search my mail fast", "search all my accounts at once".
-  Subcommands: /io gsheet, /io gslide, /io gdoc, /io gdrive, /io gmail, /io imail, /io local-mail, /io ical, /io ihealth, /io excel, /io pptx, /io notion.
+  Subcommands: /io gsheet, /io gslide, /io gdoc, /io gdrive, /io gmail, /io imail, /io local-mail, /io ical, /io ihealth, /io contacts, /io excel, /io pptx, /io notion.
 tools: Read, Write, Edit, Bash, Glob, Grep, WebFetch, WebSearch
 user_invocable: true
 ---
@@ -27,7 +28,7 @@ Read from and write to external services. Each sub-skill is an access card with 
 
 **Prefer the surface that needs no expiring credential.** Ranked, and the ranking is the point:
 
-1. **Local Apple frameworks (`i*`)** — `imail`, `ical`, `ihealth`. A TCC grant is given once and does not expire; an OAuth token does. Local is also a **superset** for calendar (Family / Birthdays / iCloud calendars were never reachable through Google at all). Established by [[F004 — Calendar via local macOS Calendar, not Google OAuth|LUMEN F004]] in the user's own words: *"Google permissions really suck — they don't stay active."*
+1. **Local Apple frameworks (`i*`)** — `imail`, `ical`, `ihealth`, `contacts`. A TCC grant is given once and does not expire; an OAuth token does. Local is also a **superset** for calendar (Family / Birthdays / iCloud calendars were never reachable through Google at all). Established by [[F004 — Calendar via local macOS Calendar, not Google OAuth|LUMEN F004]] in the user's own words: *"Google permissions really suck — they don't stay active."*
 2. **`gsa` CLI (`g*`)** — the direct Google API client for Sheets, Slides, Docs, and Drive search. **No MCP server involved.** Verified working 2026-08-05.
 3. **The `workspace-mcp` server** — the fallback of last resort, and only for Google surfaces `gsa` does not implement (Gmail API, Chat, Forms, Apps Script).
 
@@ -48,6 +49,7 @@ Read from and write to external services. Each sub-skill is an access card with 
 | **Local** | `/io local-mail` | [[io-local-mail]] · [[WIRE Mail Local Index]] | **Fastest mail route by four orders of magnitude** (~15 ms vs `imail`'s ~10 min), works offline, and the only surface that searches several accounts in **one** query. Read-only. The mirror is still filling — check `mailsync --status` and [[Emails]] before believing a zero result. |
 | **Apple** | `/io ical` | [[io-ical]] · [[io-ical-access]] | Calendar via **local macOS Calendar** (EventKit, working) — **read and write**: today's events or `+N` days ahead, and create / show / delete events with notes, alarms and all-day spans. Superset of the synced Google calendars. Server-side Google Calendar surface would be `/io gcal`. See [[io-ical-access]]. |
 | **Apple** | `/io ihealth` | [[io-ihealth]] | Apple Health / HealthKit — **local daily JSON drop** (working, no auth): sleep, heart rate, HRV, activity, overnight vitals, gait. One file per day off the Watch/iPhone. Pipe + traps: [[WIRE Health Auto Export]], [[LUMEN Data Sources]]. |
+| **Apple** | `/io contacts` | [[io-contacts]] | macOS **Contacts** (read-only) — `search` / `show` / `count` over every account synced to this Mac, no auth. Use it instead of hand-written `osascript`; a zero names the corpus so an empty result is never confused with a broken reader. |
 | **Google** | `/io gsheet` | [[io-gsheet]] | Google Sheets |
 | **Google** | `/io gslide` | [[io-gslide]] | Google Slides |
 | **Google** | `/io gdoc` | [[io-gdoc]] | Google Docs |
@@ -66,7 +68,7 @@ Google API: OAuth at `~/.google_workspace_mcp/credentials/{account}.json` — **
 
 Until 2026-08-28 `--account` was parsed in the `gmail` branch alone, which was backwards — `dan@sportsvisio.com` holds documents/drive/spreadsheets/presentations and **no** Gmail scope, so the one service it could be addressed on was the one it is not authorized for. The flag is now global.
 
-Apple surfaces (`imail`, `ical`, `ihealth`) carry **no auth here** — they run on TCC grants that do not expire, which is the whole reason they rank first. They are also the only surfaces that are natively multi-account: `imail` reads every mailbox on this Mac at once, where each `g*` call speaks as exactly one identity.
+Apple surfaces (`imail`, `ical`, `ihealth`, `contacts`) carry **no auth here** — they run on TCC grants that do not expire, which is the whole reason they rank first. They are also the only surfaces that are natively multi-account: `imail` reads every mailbox on this Mac at once, where each `g*` call speaks as exactly one identity.
 
 Last full re-consent: **2026-08-05**, 41 scopes granted on `oblinger@gmail.com` (Gmail, Sheets, Docs, Drive, Slides all live). `dan@sportsvisio.com` last granted 2026-08-13, 6 scopes, and its refresh token is **expired or revoked** as of 2026-08-28 — `gsa auth dan@sportsvisio.com` re-consents it.
 
