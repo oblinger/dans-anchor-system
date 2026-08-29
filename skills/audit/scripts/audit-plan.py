@@ -4044,6 +4044,105 @@ def chk_dispatch_cell_narrative(target, anchor_root, args):
     return "pass", "right cells are links + <=2-word tags only"
 
 
+_HAND_LINK_NAMES: dict[str, frozenset] = {}
+
+
+def _root_link_names(root: Path) -> frozenset:
+    """Every file NAME and .md STEM under `root` — the basename index Obsidian
+    resolves a wiki-link against. Memoised per root for the life of the run."""
+    key = str(root)
+    hit = _HAND_LINK_NAMES.get(key)
+    if hit is None:
+        names: set[str] = set()
+        try:
+            for p in root.rglob("*"):
+                if "/.git/" in str(p):
+                    continue
+                # Case-folded: Obsidian resolves a link's filename
+                # case-insensitively (R-dispatch-table-15), so `[[WW]]` finds
+                # `ww.md` and must not be reported.
+                names.add(p.name.lower())
+                if p.suffix == ".md":
+                    names.add(p.stem.lower())
+        except OSError:
+            pass
+        hit = frozenset(names)
+        _HAND_LINK_NAMES[key] = hit
+    return hit
+
+
+_ELECTRIC_MARKERS = {"...", "…", "+++", "^^^", "!!!"}
+
+
+def chk_dispatch_hand_link_resolves(target, anchor_root, args):
+    """R-dispatch-table-16 — every wiki-link in a HAND row of the masthead
+    resolves to a file somewhere in the vault, by Obsidian's own rule
+    (basename, anywhere).
+
+    Only the rows the author owns are judged: everything after the identity row
+    and the GFM separator, stopping at the first electric marker (`...`, `| --- | |`,
+    `+++`, `^^^`, `!!!`). Rows below the marker are the machine's and are
+    recomputed from the command store, which is exactly why a dead link there
+    cannot exist and a dead link ABOVE it cannot be cleared by the machine —
+    the confusion T615 was filed on (Dan, 2026-08-28: *"if those are dead links
+    and that electric section is computed automatically, why didn't it remove
+    them?"*). HBR Components carried six such links to component pages that
+    were never written, in hand rows the rebuild never touches.
+
+    Resolution is vault-wide by basename (the ancestor anchor roots plus the
+    corpus root), never sibling-only: a masthead routinely links other anchors.
+    A link with an extension (`Help.txt`, `Diagram.svg`) resolves against file
+    names; a bare name resolves against `.md` stems. Ships `warn` — a dead hand
+    link routes a reader nowhere, but the fix is an author's (write the page or
+    drop the row), and there is no mechanical repair to apply."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    text = _read(f)
+    rows = _masthead_rows(text, f.stem)
+    if len(rows) < 3:
+        return "pass", "no self-masthead" if not rows else "no content rows"
+    # Every enclosing anchor up to the vault root (uncapped — a masthead links
+    # other anchors anywhere in the vault), plus the corpus root.
+    roots: list[Path] = []
+    cur = anchor_root.resolve()
+    while True:
+        if (cur / ".anchor").is_file():
+            roots.append(cur)
+        if cur.parent == cur:
+            break
+        cur = cur.parent
+    roots = [roots[-1]] if roots else [anchor_root]
+    roots.append(REPO_ROOT)
+    dead: list[str] = []
+    for ln in rows[1:]:
+        cells = _row_cells(ln)
+        if not cells:
+            continue
+        first = cells[0].strip()
+        if first in _ELECTRIC_MARKERS or (first == "---" and not any(c.strip() for c in cells[1:])):
+            break
+        if all(re.fullmatch(r":?-{3,}:?", c.strip() or "---") for c in cells):
+            continue                    # the GFM header separator
+        for m in re.finditer(r"\[\[([^\]]+)\]\]", ln):
+            tgt = _link_file_target(m.group(1))
+            if not tgt:
+                continue                # `[[#heading]]` — same-page
+            name = tgt.split("/")[-1].strip()
+            if not name:
+                continue
+            if any(name.lower() in _root_link_names(r) for r in roots):
+                continue
+            dead.append(f"[[{tgt}]]")
+    if dead:
+        uniq = list(dict.fromkeys(dead))
+        return "warn", (f"{len(uniq)} hand-row link(s) resolve to no file: "
+                        + ", ".join(uniq[:6]) + (" …" if len(uniq) > 6 else "")
+                        + " — write the page or drop the row; the rebuild never "
+                        "touches rows above the separator (R-dispatch-table-16)")
+    return "pass", "every hand-row link resolves"
+
+
 def chk_toc_table_iff_long(target, anchor_root, args):
     """R-doc-structure-03, the long side only: a doc of 300+ body lines must
     carry a TOC table (≥2 rows whose first cell is an in-document `[[#…]]`
@@ -8354,6 +8453,7 @@ CHECKERS = {
     "dispatch_area_row": chk_dispatch_area_row,
     "dispatch_link_case_drift": chk_dispatch_link_case_drift,
     "dispatch_cell_narrative": chk_dispatch_cell_narrative,
+    "dispatch_hand_link_resolves": chk_dispatch_hand_link_resolves,
     "toc_table_iff_long": chk_toc_table_iff_long,
     # R-spine-03/05 — summary presence + freshness (SKA F277)
     "summary_present_iff_complex": chk_summary_present_iff_complex,
