@@ -405,19 +405,24 @@ def test_bridge_guard():
             assert not denied(tick), "backticked code span in a heredoc wrongly denied"
             assert denied("ssh haorui.local 'make test'"), \
                 "stripping must not blind the rule on an ordinary one-shot"
-            # The shell case is asserted on the STRIPPER, not on denied(): the
-            # rule's separator set is `; & | (` and does NOT include a newline,
-            # so command-position ssh on line 2 of any multi-line command is
-            # missed regardless of heredocs -- a separate pre-existing gap,
-            # filed as T611. What is this change's job is that the body of a
-            # heredoc fed to a shell is RETAINED, so the day the separator set
-            # learns about newlines, this evasion is already closed.
-            import warden_fire as _wf
+            # T611 closed the other half the same day: a newline is a command
+            # separator, so the ssh on line 2 of a shell heredoc is now visible
+            # as command position and the evasion the strip deliberately left
+            # open is actually caught. The two changes compose -- keeping the
+            # body was only worth anything once something could read it.
             shell = nl.join(["bash <<EOF", "ssh haorui.local 'make test'", "EOF"])
-            assert "ssh haorui.local" in _wf.strip_heredoc_bodies(shell), \
-                "heredoc fed to a SHELL is code -- its body must be retained"
-            assert "ssh haorui.local" not in _wf.strip_heredoc_bodies(doc), \
-                "documentation heredoc body must be stripped"
+            assert denied(shell), "heredoc fed to a SHELL is code -- must deny"
+
+            # T611: a plain multi-line command. This is the ordinary shape an
+            # agent submits, and it was not denied at all before.
+            assert denied(nl.join(["cd /x", "ssh haorui.local 'make test'"])), \
+                "one-shot ssh on line 2 of a multi-line command wrongly passed"
+            assert not denied(nl.join(["cd /x", "ssh haorui.local"])), \
+                "two-line bare attach wrongly denied"
+            assert not denied(nl.join(["cd /x", "ssh haorui.local tmux capture-pane -t w -p"])), \
+                "two-line tmux control wrongly denied"
+            assert not denied(nl.join(["cd /x", "scp a haorui.local:/tmp/"])), \
+                "two-line scp wrongly denied"
     finally:
         os.environ["WARDEN_HOME"] = old if old else str(home)
     print("PASS  bridge_guard (F183)")

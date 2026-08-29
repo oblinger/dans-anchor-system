@@ -21,6 +21,12 @@ def body(ctx):
     try:
         import warden_fire as _wf
         cmd = _wf.strip_heredoc_bodies(cmd)
+        # A newline separates commands exactly as `;` does, and `shlex.split`
+        # discards it -- so line 2 of a multi-line command was invisible to the
+        # command-position test below, which is the ordinary shape an agent
+        # submits (T611). Applied AFTER the heredoc strip, so a body's lines are
+        # already gone rather than promoted to command positions.
+        cmd = _wf.newlines_to_separators(cmd)
     except Exception:
         pass                              # deny-side conservative: judge the raw text
     # Tokenize shell-aware (shlex): a quoted string is ONE token, so prose
@@ -104,6 +110,12 @@ def body(ctx):
     try:
         import warden_fire as _wf
         cmd = _wf.strip_heredoc_bodies(cmd)
+        # A newline separates commands exactly as `;` does, and `shlex.split`
+        # discards it -- so line 2 of a multi-line command was invisible to the
+        # command-position test below, which is the ordinary shape an agent
+        # submits (T611). Applied AFTER the heredoc strip, so a body's lines are
+        # already gone rather than promoted to command positions.
+        cmd = _wf.newlines_to_separators(cmd)
     except Exception:
         pass                              # deny-side conservative: judge the raw text
     import shlex

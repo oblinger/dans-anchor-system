@@ -330,6 +330,63 @@ _HEREDOC_OPEN_RE = re.compile(
 _SHELL_WORDS = {"bash", "sh", "zsh", "ksh", "dash", "eval", "source", "."}
 
 
+def newlines_to_separators(cmd: str, sep: str = ";") -> str:
+    """`cmd` with every UNQUOTED newline turned into a command separator.
+
+    T611. `shlex.split` throws newlines away with the rest of the whitespace, so
+    a token scan that recognises command position by "index 0, or after a token
+    ending in `;`, `&`, `|`, `(`" cannot see a line boundary at all — and a
+    newline separates commands exactly as `;` does. The consequence measured
+    2026-08-28: a two-line Bash command whose second line began with a one-shot
+    ssh was not denied by R-ob-remote-ops-01, and multi-line commands are the
+    ordinary shape a coding agent submits. Surfaced by a T609 fixture that
+    failed for a reason unrelated to the change under test.
+
+    Two newlines are deliberately NOT separators:
+
+    - one inside quotes, which is data — the same distinction `mask_quoted`
+      draws, tracked here directly because a quoted newline must be *preserved*
+      rather than blanked;
+    - one after a trailing backslash, which is a line continuation and joins
+      the two lines into a single command.
+
+    Run this AFTER `strip_heredoc_bodies`, so a heredoc body's lines are already
+    gone rather than being promoted to command positions.
+    """
+    out = []
+    i, n = 0, len(cmd)
+    quote = None
+    while i < n:
+        ch = cmd[i]
+        if quote:
+            if ch == "\\" and quote == '"' and i + 1 < n:
+                out.append(ch)
+                out.append(cmd[i + 1])
+                i += 2
+                continue
+            if ch == quote:
+                quote = None
+            out.append(ch)
+            i += 1
+            continue
+        if ch in ("'", '"'):
+            quote = ch
+            out.append(ch)
+            i += 1
+            continue
+        if ch == "\\" and i + 1 < n and cmd[i + 1] == "\n":
+            out.append(" ")               # line continuation: one command
+            i += 2
+            continue
+        if ch == "\n":
+            out.append(f" {sep} ")
+            i += 1
+            continue
+        out.append(ch)
+        i += 1
+    return "".join(out)
+
+
 def mask_quoted(cmd: str, fill: str = " ") -> str:
     """`cmd` with the CONTENTS of every quoted span blanked, quotes kept.
 

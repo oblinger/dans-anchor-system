@@ -143,6 +143,16 @@ def test_command_text_helpers():
     assert wf.strip_heredoc_bodies("ssh h uptime") == "ssh h uptime", \
         "a command with no heredoc is unchanged"
 
+    # --- T611: an unquoted newline is a command separator ----------------
+    assert wf.newlines_to_separators("cd /x" + nl + "ssh h c") == "cd /x ; ssh h c", \
+        "a bare newline separates commands exactly as `;` does"
+    assert wf.newlines_to_separators('echo "a' + nl + 'b"') == 'echo "a' + nl + 'b"', \
+        "a newline INSIDE quotes is data and must survive"
+    assert wf.newlines_to_separators("echo a \\" + nl + "  b") == "echo a    b", \
+        "a trailing backslash is a line continuation, not a separator"
+    assert wf.newlines_to_separators("ssh h c") == "ssh h c", \
+        "a single-line command is unchanged"
+
     # --- T605: quoted spans are data ------------------------------------
     assert wf.mask_quoted("""a 'bcd' e""") == "a '   ' e", "quote contents blanked, delimiters kept"
     assert len(wf.mask_quoted('x "yz" w')) == len('x "yz" w'), "mask is length-preserving"
