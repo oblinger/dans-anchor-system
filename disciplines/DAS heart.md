@@ -14,6 +14,18 @@ group: slot
 # Heart Discipline
 The spine is everything above the H1; the heart is what sits directly below it. They divide by what they talk about — the spine talks about *other pages*, the heart talks about *this page's own substance*.
 
+| Heart kind | What it holds | Shape | Live | Made-up |
+|---|---|---|---|---|
+| **[[#The fact card — the third form, and where a spine's prose goes\|Fact card]]** | the key facts *about this page's subject* — status, counterparty, value, dates, waiting-on, next | label / value table, 5–12 rows | [[2026-08-19 Legacy Athletics]] *(still in its spine — the migration specimen)* | — |
+| **Register** | the heart *is* the page: one row per thing the page exists to track | data table, hand-written, load-bearing | [[Disk]] | [[Harbor Latency Budget]] |
+| **Map** | how the page's parts relate — what flows into what | labelled table under an H2 | [[Stones]] | — |
+| **Figure** | the thing the page defines, drawn | an image or diagram, no title, table beneath | [[DAS Code Design]] | [[FEX Figure Page]] · [[FEX Architecture]] |
+| **Kinds table** | the variants of the thing the page specifies, each with an example | a table like this one | [[DAS spine]] · this page | [[FEX Dispatch Examples]] § The four kinds |
+| **Table of contents** | the page's own sections, so a long page is navigable before it is read | derived from the headings, regenerated | [[DAS ask-format]] · [[DAS progressive-disclosure]] | — |
+| **Roster** | the members a collection page fronts, by area | index table — orients, does not route | [[Briefs]] | — |
+
+**Live** is a real vault page; **Made-up** is a [[FEX]] specimen that exists only to show the shape. A dash means the specimen is still to be minted. The table is deliberately open — a kind earns a row when a real page exhibits it, exactly as the [[DAS spine]] shapes table grew. One thing every row shares: the heart is *inward-facing*. It talks about this page's subject; the spine above it talks about other pages (Dan, 2026-08-29).
+
 | | Spine | Heart |
 |---|---|---|
 | **Where** | above the H1 | directly below the H1 |
