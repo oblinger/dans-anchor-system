@@ -86,11 +86,7 @@ p3 = doc("Doc3/Doc3.md", "# Doc3\nExplains the Design row.\n\n" + FENCE
 check("a fenced Design row is not a Design row",
       ap.chk_design_row_iff_folder(p3, a3, []), ("pass", "neither (no design facet)"))
 
-p4 = doc("log.md", "# Log\nHow a log dispatch reads.\n\n" + FENCE
-         + "| [[2024-01-01 old]] | [[2026-01-01 new]] |\n```\n\n"
-           "| [[2026-08-01 newest]] |\n| [[2026-07-01 older]] |\n")
-check("fenced dated links do not interleave with the live ordering",
-      ap.chk_log_dispatch_newest_first(p4, ROOT, []), ("pass", ""))
+# p4 (R-log-05, log dispatch newest-first) removed 2026-08-28 — rule retired (T338).
 
 p5 = doc("q.md", "# Q\nExplains the Questions section.\n\n" + FENCE
          + "## Questions\n\n- a free-text bullet with no handle\n```\n")

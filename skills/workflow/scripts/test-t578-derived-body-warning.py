@@ -14,12 +14,13 @@ only the wiki-link target for two derived bodies and returns clean, which is
 right given that contract and is also why it could not be the thing that
 announced it.
 
-WHY A WARNING RATHER THAN THE REFUSAL THE ROW PROPOSED. Measured: the
-`/feature` mint path sets a row's pointer with
-`--body "→ [[doc|F001]] — F001 — Title"`, and its trailing text is discarded
-by this same rule. A refusal would turn every feature mint into an error. The
-link half genuinely lands, so the honest report is "half of what you asked
-for" — not a failure, and not silence.
+WHY IT NOW REFUSES (Dan, 2026-08-28). It warned from 2026-08-20 because the
+`/feature` mint path set a row's pointer with
+`--body "→ [[doc|F001]] — F001 — Title"` and a refusal would have failed every
+mint. Dan ruled that a tool must never half-succeed — "half of what you asked
+for" is the semantics that confuses the agent — so `state set --doc NAME`
+now writes the pointer alone (the mint path uses it), and a `--body` whose
+prose would be discarded is refused outright with nothing written.
 
 THE CASE THAT ALMOST GOT MISSED, kept as a case of its own: a body with NO
 pointer does not stay pointerless. T174's carry puts the row's existing
@@ -125,7 +126,7 @@ def warned(out):
 
 try:
     # ============================================================
-    print("== A: the discard is real, and it is silent without this fix ==")
+    print("== A: the discard is real, and a --body that would hit it is refused ==")
     # ============================================================
     build()
     run("set", "FIX", "Backlog", "T001", "--body", "CANARYPLAIN.")
@@ -135,111 +136,122 @@ try:
         no("--body did not land on a plain row; the fixture proves nothing")
 
     build()
+    run("set", "FIX", "Backlog", "F001", "--status", "Ready")   # settle the F247 stamp
+    before = BACKLOG.read_text()
     out = run("set", "FIX", "Backlog", "F001", "--body",
               "→ [[FIX001 - A doc-backed feature|F001]] — CANARYDOC.")
     text = BACKLOG.read_text()
     if "CANARYDOC." not in text:
-        ok("a doc-backed row discards the prose (the documented F332 behaviour)")
+        ok("a doc-backed row never carries the prose (the documented F332 behaviour)")
     else:
         no("the prose landed — F332's regeneration is not running")
 
-    if "updated F001" in out:
-        ok("and the call still reports success, which is why silence was the bug")
+    if "updated F001" not in out and "refus" in out.lower():
+        ok("and the call REFUSES rather than reporting success")
     else:
-        no(f"expected an `updated F001` report, got: {out[:200]}")
+        no(f"expected a refusal with no `updated F001`, got: {out[:200]}")
 
-    if "the doc's own next field" in text:
-        ok("the row carries the doc's `next::`, not the caller's text")
+    if text == before:
+        ok("a refused call changes nothing — no half-landed link")
     else:
-        no("the row does not carry the derived line")
+        no("the backlog changed on a refused call")
 
     # ============================================================
-    print("== B: the discard is announced, and only where it happened ==")
+    print("== B: the refusal fires only where a discard would have happened ==")
     # ============================================================
     build()
     if warned(run("set", "FIX", "Backlog", "F001", "--body",
                   "→ [[FIX001 - A doc-backed feature|F001]] — CANARYDOC.")):
-        ok("pointer-led body with prose → warned")
+        ok("pointer-led body with prose → refused")
     else:
-        no("the discard is still silent on a pointer-led body")
+        no("the discard is silent on a pointer-led body")
 
     # The carried case. A body with no pointer gains one from T174 and is then
     # discarded exactly like the case above — joined with `·`, not an em-dash,
-    # which is what the first cut of this warning missed.
+    # which is what the first cut of this check missed.
     build()
     if warned(run("set", "FIX", "Backlog", "F001", "--body", "PLAINPROSE.")):
-        ok("plain prose on a doc-backed row → warned (T174 carry, `·` separator)")
+        ok("plain prose on a doc-backed row → refused (T174 carry, `·` separator)")
     else:
         no("a carried body is still silent — the separator assumption is back")
 
     build()
-    if not warned(run("set", "FIX", "Backlog", "F001", "--body",
-                      "→ [[FIX001 - A doc-backed feature|F001]]")):
-        ok("pointer with no prose → quiet, because nothing was discarded")
+    out = run("set", "FIX", "Backlog", "F001", "--body",
+              "→ [[FIX001 - A doc-backed feature|F001]]")
+    if not warned(out) and "updated F001" in out:
+        ok("pointer with no prose → accepted, because nothing is discarded")
     else:
-        no("warned about a body that asked for nothing after the pointer")
+        no("refused a body that asked for nothing after the pointer")
 
     build()
     if not warned(run("set", "FIX", "Backlog", "F001", "--status", "Active")):
         ok("a touch that passes no --body → quiet")
     else:
-        no("warned on a call that never supplied a body")
+        no("refused a call that never supplied a body")
 
     build()
-    if not warned(run("set", "FIX", "Backlog", "F001", "--next", "a real next step")):
-        ok("--next → quiet, and it is what the warning tells the caller to use")
+    out = run("set", "FIX", "Backlog", "F001", "--next", "a real next step")
+    if not warned(out) and "a real next step" in BACKLOG.read_text():
+        ok("--next → lands, and it is what the refusal tells the caller to use")
     else:
-        no("warned on --next, the flag the message recommends")
+        no("--next failed, the flag the message recommends")
 
     build()
     if not warned(run("set", "FIX", "Backlog", "T001", "--body", "CANARYPLAIN.")):
         ok("a genuinely plain row → quiet")
     else:
-        no("warned on a row with no doc pointer at all")
+        no("refused a row with no doc pointer at all")
 
     # ============================================================
-    print("== C: the message names the flag that works ==")
+    print("== C: the message names the flags that work ==")
     # ============================================================
     build()
     out = run("set", "FIX", "Backlog", "F001", "--body",
               "→ [[FIX001 - A doc-backed feature|F001]] — CANARYDOC.")
-    if "--next" in out:
-        ok("the warning names `--next`, so the caller is not left guessing")
+    if "--next" in out and "--doc" in out:
+        ok("the refusal names `--next` and `--doc`, so the caller is not left guessing")
     else:
-        no("the warning does not say what to use instead")
+        no("the refusal does not say what to use instead")
 
-    # A warning that does not survive being piped is no warning at all: the
-    # caller here is usually a script, and MUX's case was a batch sweep.
     env = {**os.environ, "ANCHOR_VAULT_ROOT": str(ROOT)}
     build()
     r = subprocess.run(
         [sys.executable, str(STATE), "set", "FIX", "Backlog", "F001", "--body",
          "→ [[FIX001 - A doc-backed feature|F001]] — CANARYDOC."],
         capture_output=True, text=True, env=env)
-    if "doc-backed row" in r.stderr:
-        ok("it goes to stderr, so a script capturing stdout still sees it")
+    if "doc-backed row" in r.stderr and r.returncode != 0:
+        ok("it goes to stderr and exits non-zero, so a sweeping script sees it")
     else:
-        no("the warning is on stdout — a sweep piping stdout would swallow it")
+        no(f"refusal not on stderr / exit 0 (rc={r.returncode})")
 
     # ============================================================
-    print("== D: the /feature mint path is not broken by this ==")
-    #
-    # The reason this is a warning rather than the refusal T578 proposed. The
-    # mint gives a plain row its pointer via --body and has its trailing text
-    # discarded by the same rule; a refusal would fail every feature mint.
+    print("== D: the /feature mint path runs on --doc ==")
     # ============================================================
     build()
-    out = run("set", "FIX", "Backlog", "T001", "--body",
-              "→ [[FIX001 - A doc-backed feature|T001]] — T001 — A plain row")
+    out = run("set", "FIX", "Backlog", "T001", "--doc", "FIX001 - A doc-backed feature")
     if "updated T001" in out and "refus" not in out.lower():
-        ok("minting a pointer onto a row still succeeds")
+        ok("minting a pointer onto a plain row via --doc succeeds")
     else:
-        no(f"the mint path now fails: {out[:200]}")
+        no(f"the --doc mint path fails: {out[:200]}")
 
-    if "→ [[FIX001 - A doc-backed feature|T001]]" in BACKLOG.read_text():
-        ok("and the link — the half that is the caller's — landed")
+    text = BACKLOG.read_text()
+    if "→ [[FIX001 - A doc-backed feature|T001]]" in text:
+        ok("the pointer landed, aliased to the row id")
     else:
         no("the pointer did not land; the mint path is broken")
+
+    if "the doc's own next field" in text:
+        ok("and the trailing text regenerated from the doc (F332)")
+    else:
+        no("the row does not carry the derived line after --doc")
+
+    build()
+    out = run("set", "FIX", "Backlog", "T001", "--doc", "FIX001 - A doc-backed feature",
+              "--body", "anything")
+    if "exclusive" in out:
+        ok("--doc with --body is refused as exclusive")
+    else:
+        no(f"--doc + --body was not refused: {out[:200]}")
 
 finally:
     shutil.rmtree(TMP, ignore_errors=True)

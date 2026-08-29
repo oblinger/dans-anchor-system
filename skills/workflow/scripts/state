@@ -2516,6 +2516,13 @@ def _row_set(slug, backlog_path, label, args):
     # caller correcting only that trailer has a real edit to make; leaving it
     # off this list made the correction unreachable, which is how four doubled
     # trailers survived a hand-dedup on SONAR (reported 2026-08-17).
+    # T578 — `--doc NAME` is the pointer-only body. Built here so the T174
+    # carry and the F332 regeneration see an ordinary pointer-led body.
+    if getattr(args, "doc_name", None) is not None:
+        if args.inline is not None:
+            raise be.BacklogEditError("--doc and --body are exclusive — --doc "
+                                      "writes the pointer and nothing else")
+        args.inline = f"→ [[{args.doc_name}|{label}]]"
     if not any([args.status, args.horizon, args.title is not None,
                 args.inline is not None, args.next_step is not None,
                 args.verify is not None, getattr(args, "user", None) is not None,
@@ -2523,7 +2530,7 @@ def _row_set(slug, backlog_path, label, args):
                 getattr(args, "why_user_action", None) is not None]):
         raise be.BacklogEditError(
             "set requires at least one of --status / --horizon / --title / "
-            "--body / --next / --verify / --user / --probe / --why-user-action"
+            "--body / --doc / --next / --verify / --user / --probe / --why-user-action"
         )
     # `set` used to refuse --from-file here at runtime, because v2 declared all
     # thirteen flags globally and every verb inherited every one of them. F293
@@ -4292,6 +4299,10 @@ def build_parser():
     # own flag and never reads a body stream. v2 declared --from-file globally
     # and then refused it here at runtime; the per-verb schema is the check.
     s.add_argument("--body", dest="inline", default=None, help="new row body")
+    s.add_argument("--doc", dest="doc_name", default=None, metavar="NAME",
+                   help="T578 — set the row's `→ [[NAME|<row>]]` pointer and "
+                        "nothing else; the trailing text regenerates from the "
+                        "doc (the /feature mint path). Exclusive with --body")
     s.add_argument("--why-ask", dest="why_ask", default=None,
                    help="F257 — required when a doc-hosted item rewritten via "
                         "`set` (F305 D2) carries a Lean/Strong recommendation; "

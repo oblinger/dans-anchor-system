@@ -422,7 +422,10 @@ def mask_quoted(cmd: str, fill: str = " ") -> str:
 # file descriptor and write nothing, and they are the commonest suffix in the
 # corpus — which is why a bare `">" in cmd` test made every `grep … 2>&1` read
 # look like a write (T605).
-REDIRECT_RE = re.compile(r"(?:^|[\s;|&(])(?:\d|&)?>>?\s*(?!&)\S")
+# `>/dev/null` (and `2>/dev/null`) discards output; it creates nothing, and it
+# is the second-commonest suffix after `2>&1`. Two read-only compound commands
+# were refused on a spine-dirty page for carrying it (2026-08-28, TINK).
+REDIRECT_RE = re.compile(r"(?:^|[\s;|&(])(?:\d|&)?>>?\s*(?!&|/dev/null(?:\s|$|[;|&)]))\S")
 
 # `mv` / `cp` in command position — not the letters appearing inside prose.
 MOVE_COPY_RE = re.compile(r"(?:^|[;|&(])\s*(?:sudo\s+)?(?:mv|cp)\s")

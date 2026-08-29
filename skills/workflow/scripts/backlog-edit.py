@@ -417,8 +417,8 @@ def is_derived_row_body(body):
     return bool(body) and body.lstrip().startswith("→ [[")
 
 
-def _warn_body_discarded_on_derived_row(lines, row_id, body, body_provided):
-    """Say out loud that a `--body`'s prose is about to be thrown away (T578).
+def _refuse_body_discarded_on_derived_row(lines, row_id, body, body_provided):
+    """Refuse a `--body` whose prose would be thrown away (T578).
 
     On a pointer-led row only the LINK is the caller's; everything after the
     `—` regenerates from the doc, which `regenerate_derived_row` documents as
@@ -433,12 +433,11 @@ def _warn_body_discarded_on_derived_row(lines, row_id, body, body_provided):
     doc-backed — i.e. most substantial — rows. MUX caught it only by grepping
     afterwards for the string they had removed.
 
-    Warn rather than refuse, which is a deliberate departure from the fix the
-    row proposed, because refusing measurably breaks a live caller: the
-    `/feature` mint path sets a row's pointer with `--body "→ [[doc|F] — F —
-    Title"`, and its trailing text is discarded by this same rule. A refusal
-    would turn every feature mint into an error. The link half genuinely
-    lands, so the honest report is "half of what you asked for", not a failure.
+    It warned rather than refused from 2026-08-20 to 2026-08-28, because the
+    `/feature` mint path set a row's pointer with `--body "→ [[doc|F] — F —
+    Title"` and a refusal would have failed every mint. Dan ruled 2026-08-28
+    that a tool must never half-succeed, so `state set --doc NAME` now writes
+    the pointer alone (the mint path uses it) and this refuses outright.
 
     `verify_write_landed`'s F332 branch is what let this pass — for two
     derived bodies it compares only the wiki-link target and returns clean.
@@ -482,12 +481,18 @@ def _warn_body_discarded_on_derived_row(lines, row_id, body, body_provided):
     derived = (doc_derived_line(doc) or "").strip()
     if _strip_trailing_anchors(tail.strip()) == derived:
         return                      # the caller wrote what the doc already says
-    sys.stderr.write(
-        f"state: {row_id} is a doc-backed row, so the text after its `→ [[…]]` "
+    # T578, Dan 2026-08-28: REFUSE, not warn. A tool that prints `updated`
+    # must have done all of what it was asked; "half of what you asked for"
+    # is the semantics that confuses the agent. The mint path that used to
+    # need the warning now passes `--doc NAME`, which writes the pointer and
+    # nothing else, so nothing legitimate reaches this raise.
+    raise BacklogEditError(
+        f"{row_id} is a doc-backed row, so the text after its `→ [[…]]` "
         f"pointer regenerates from the doc and the prose you passed to --body "
-        f"was NOT written. The link landed; nothing else did. To change what "
+        f"would NOT be written. Refused — nothing was changed. To change what "
         f"the row says, use `--next \"<text>\"` (which writes both the row and "
-        f"the doc's `next::`), or edit the doc directly.\n")
+        f"the doc's `next::`), or edit the doc directly; to set only the "
+        f"pointer, use `--doc NAME`.")
 
 
 def regenerate_derived_row(lines, row_id):
@@ -3117,7 +3122,7 @@ def perform_edit(
     # This is also the on-touch migration: any doc-backed row whose body leads
     # with the pointer collapses to the canonical pure-link form here.
     if status != "delete":
-        _warn_body_discarded_on_derived_row(lines, row_id, body, body_provided)
+        _refuse_body_discarded_on_derived_row(lines, row_id, body, body_provided)
         regenerate_derived_row(lines, row_id)
 
     # T128 — hold the pre-edit bytes so a failed post-condition can be UNDONE.

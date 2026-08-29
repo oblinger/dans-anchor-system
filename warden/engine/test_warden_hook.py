@@ -221,10 +221,23 @@ def test_pathguard_veto():
             # agent a command it could not run. The test failing was the only
             # thing that ever said so (Tink T094).
             denies = [s for s in pre("Edit", file_path=str(anchor / "FX Backlog.md"),
-                                     old_string="a", new_string="b")
+                                     old_string="- **T001 — a row** [Ready] — a",
+                                     new_string="- **T001 — a row** [Ready] — b")
                       if s.startswith(wh.DENY_SENTINEL)]
             assert len(denies) == 1, denies
             assert "state <define|set|resolve|remove> <anchor> Backlog" in denies[0], denies
+            # 01, narrowed 2026-08-28 (Presti, SVAR Backlog): prose outside the
+            # rows and headings — the orientation line under the stamp — has
+            # no `state` verb and passes. A heading in either string still denies.
+            passes = [s for s in pre("Edit", file_path=str(anchor / "FX Backlog.md"),
+                                     old_string="<!-- state:backlog um -->",
+                                     new_string="<!-- state:backlog um -->\n\nWork in flight for FX.")
+                      if s.startswith(wh.DENY_SENTINEL)]
+            assert passes == [], passes
+            denies = [s for s in pre("Edit", file_path=str(anchor / "FX Backlog.md"),
+                                     old_string="## Now", new_string="## Soon")
+                      if s.startswith(wh.DENY_SENTINEL)]
+            assert len(denies) == 1, denies
             # 01 — queries page Edit denied with the renderer redirect
             denies = [s for s in pre("Edit", file_path=str(anchor / "FX queries.md"),
                                      old_string="a", new_string="b")

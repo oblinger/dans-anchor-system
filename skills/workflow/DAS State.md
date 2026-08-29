@@ -312,7 +312,7 @@ echo '- **F+ — Dmux ghost-panel bug** [Designing]' | state define MUX Backlog 
 state set SKA Backlog F099 --status Ready --next "implement per Design § 2"
 
 # row: move horizon AND change body
-state set SKA Backlog F099 --horizon Later --body "→ [[F099 — sparse-checkout]] — deferred"
+state set SKA Backlog F099 --horizon Later --doc "F099 — sparse-checkout"
 
 # row: finish with a resolution note
 state resolve SKA Backlog F099 --body "Shipped 2026-07-13 — commit abc123"

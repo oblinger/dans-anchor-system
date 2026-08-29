@@ -1,5 +1,5 @@
 ---
-description: the shared facet behind pebbles, sleepers and rocks — one file per item, a control file that orders them (by hand or by machine), and propagation along the feed DAG
+description: the shared facet behind every kind of stone — one file per item, a control file that orders them (by hand or by machine), and propagation along the feed DAG
 group: folder
 ---
 
@@ -22,21 +22,21 @@ Facet spec for a **stone group** — a `{slug} Track/{slug} {Kind}s/` folder hol
 
 ## What a stone group is
 
-A **stone** is one unit of work-worth-naming: a **pebble** is small and nagging, a **rock** is a multi-week chunk. All materialise identically — a folder under the anchor's Track facet, one markdown file per stone, and a **control file** carrying the ordering.
+A **stone** is one unit of work-worth-naming: a **pebble** is small and nagging, a **rock** is a multi-week chunk, a **book** is one agent's or one topic's register of what is actually live. Dan, 2026-08-28, on the seam that matters: *"the rocks are things that we're going to work on, but they're not active items that are actually generating traffic. Books are generating traffic."* A rock is committed-to; a book entry is **in flight**, and the balls it throws off are what [[SPARKS Mandate|Sparks]] watches. All materialise identically — a folder under the anchor's Track facet, one markdown file per stone, and a **control file** carrying the ordering.
 
-The kinds are open-ended and declared in configuration. Nothing about `pebble`, `sleeper` or `rock` is hard-coded; they are the three that ship.
+The kinds are open-ended and declared in configuration, and **no kind is named in code**. The table below is the complete list of what ships; this sentence deliberately does not restate it, because restating it is the thing that keeps going wrong. It read *"the two that ship"* while `sleeper` was already live, and *"the three that ship"* while `book` was being added in the row beside it — the second time caught 2026-08-28, minutes after the first was written up.
 
-| | `pebble` | `sleeper` | `rock` |
-|---|---|---|---|
-| folder | `{slug} Pebbles/` | `{slug} Sleepers/` | `{slug} Rocks/` |
-| control file | `{slug} Pebble` | `{slug} Sleeper` | `{slug} Rock` |
-| stone file | `{slug} P0001` | `{slug} S0001` | `{slug} R0001` |
-| stone display | `{slug}:` | `{slug}:` | `{slug}:` |
-| header display | `-[[…\|{slug}]]-` | `-[[…\|{slug}]]-` | `-[[…\|{slug}]]-` |
+| | `pebble` | `sleeper` | `rock` | `book` |
+|---|---|---|---|---|
+| folder | `{slug} Pebbles/` | `{slug} Sleepers/` | `{slug} Rocks/` | `{slug} Book/` |
+| control file | `{slug} Pebble` | `{slug} Sleeper` | `{slug} Rock` | `{slug} Book` |
+| stone file | `{slug} P0001` | `{slug} S0001` | `{slug} R0001` | `YYYY-MM-DD {Title}` |
+| stone display | `{slug}:` | `{slug}:` | `{slug}:` | `{slug}:` |
+| header display | `-[[…\|{slug}]]-` | `-[[…\|{slug}]]-` | `-[[…\|{slug}]]-` | `-[[…\|{slug}]]-` |
 
 **This table is the source of truth, and `stone` parses it.** It is located by `stone_kinds_doc` in `~/.config/anchor-system/global.yaml` — the table is content, its address is configuration (Dan, 2026-08-28). Until that day the declarations lived in `facets/DAS Stone Kinds.json`, the one non-markdown file among 77 markdown facets, and this table was a hand-kept second copy of it. It had already drifted: `sleeper` shipped into the JSON while this table still said *"they are the two that ship"*, and nobody noticed. The JSON did not prevent a second copy, it created one. Deleted; the parse lives in `skills/workflow/scripts/stone-kinds.py` and `audit-plan.py` borrows it rather than copying it.
 
-Folder names default to plural per [[DAS Facets]]; the control-file name is **configuration, not convention** — it is invisible to the mechanism, because a header is identified by what it links to rather than by what it is called.
+**Folder names are singular or plural by what the word names**, per [[DAS Facets]] (Dan, 2026-08-18) — singular when it names the **container**, plural when it names the **elements**. `Pebbles`, `Sleepers` and `Rocks` name the elements; `Book` names the container, which is why its folder is singular and why folder and control file resolve to the same name. **A container-named kind therefore keeps its control file INSIDE the folder, as the folder note** — it is the only coherent place left, and the member check already exempts a `{folder}.md` inside the folder as the group's own anchor page. *(This line previously read "folder names default to plural", which misquoted the rule — the default was never plural, it was always "whatever the word names".)* The control-file name is **configuration, not convention** — it is invisible to the mechanism, because a header is identified by what it links to rather than by what it is called.
 
 ## A control file may be machine-maintained — a script or an agent may reorder, add and delete stones
 

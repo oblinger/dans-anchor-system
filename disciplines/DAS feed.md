@@ -77,7 +77,7 @@ Any pass that walks the feed DAG holds all three. They are stated as rules in [[
 | `rock` ([[DAS Rocks]]) | a multi-week-to-quarter chunk of work | [[Vector]] — the global [[Rocks]] |
 | `pebble` | a small thing the user owes | [[LUMEN\|Lumen]] |
 
-Both are kinds of [[DAS Stone]], declared in `DAS Stone Kinds.json`; a third needs no code. The roots are **convention, not mechanism** — nothing here privileges Vector or Lumen. They are the anchors that happen to declare everyone else as a source, and either could be replaced by editing one `.anchor`.
+Both are kinds of [[DAS Stone]], declared in the kind table in [[DAS Stone]]; a third needs no code. The roots are **convention, not mechanism** — nothing here privileges Vector or Lumen. They are the anchors that happen to declare everyone else as a source, and either could be replaced by editing one `.anchor`.
 
 ## What the implementation changed
 

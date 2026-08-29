@@ -167,6 +167,9 @@ def test_command_text_helpers():
     # pure `grep -c` on a spine-dirty page refuse.
     assert not writes("grep -c foo a.md 2>&1"), "2>&1 is fd duplication, not a file write"
     assert not writes("ls >&2"), ">&2 is fd duplication, not a file write"
+    assert not writes("grep foo a.md 2>/dev/null"), "2>/dev/null discards, it writes no file"
+    assert not writes("cat a.md >/dev/null; echo done"), ">/dev/null before a separator is still a discard"
+    assert not writes("ls > /dev/null"), "spaced >/dev/null is a discard"
     assert not writes("grep foo a.md | head -1"), "a pipe is not a redirect"
     assert not writes("cat a.md"), "a plain read is not a write"
     assert not writes('state drop X "a path -> another"'), \
@@ -181,4 +184,5 @@ def test_command_text_helpers():
     assert writes("mv /tmp/x.md a.md"), "mv in command position"
     assert writes("foo; cp /tmp/x.md a.md"), "cp after a separator is command position"
     assert writes("echo x 2>/tmp/err.log"), "2>file really does write a file"
+    assert writes("echo x >/dev/nullish"), "a path that merely starts with /dev/null is a file"
     print("PASS  command_text_helpers (T605 / T609)")

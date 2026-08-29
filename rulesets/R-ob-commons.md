@@ -1,6 +1,6 @@
 # RULESET R-ob-commons
 include::
-description:: The commons operating model — repos whose history is machine-owned. Agents never commit or push them; a sweep does, without attribution. Members: the vault (`~/ob/kmr`), `~/ob/grove/commons`, and `~/ob/bin`.
+description:: The commons operating model — repos whose history is machine-owned. Agents never commit or push them; an hourly sweep does, without attribution. Members: the vault (`~/ob/kmr`) and `~/ob/grove/commons`.
 
 > [!info] Provenance
 > Ruled by Dan 2026-08-22, after measuring that agent commits in the vault were both costly and unreliable: `git` itself is fast (0.12s status, 0.22s add on a 1.0 GB repo), but every commit is a tool-call round trip plus real reasoning about what to stage — and with 15 concurrent sessions an agent staging broadly commits *other* agents' half-finished work under its own message, so the provenance being paid for was already partly false. The vault has carried an hourly `km` commit-and-push since long before this rule; the rule stops agents duplicating it. Dan: *"there's just no provenance, no attribution. That's it. I think I'd rather that."*

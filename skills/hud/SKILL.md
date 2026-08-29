@@ -2,7 +2,9 @@
 name: hud
 description: >
   Put a vault document on a HUD — one of the secondary Obsidian instances
-  (HUD, HUD3, HUD4) — without touching the user's primary Obsidian.
+  (HUD, HUD2, HUD3, HUD4) — without touching the user's primary Obsidian.
+  HUD2/3/4 belong to the ASR2/ASR3/ASR4 seats; every other agent uses
+  plain `glance` and only touches a HUD when the user names one.
   Use when the user says "glance X to the HUD", "show X on HUD3", "put this
   on my HUD", or when an agent needs its own display surface to show vault
   docs. Also covers creating more instances and repairing existing ones.
@@ -20,9 +22,12 @@ Deep wiring: [[WIRE HUD]] · mechanism detail: [[HUD Architecture]].
 | Instance | Bundle id | Owner |
 |---|---|---|
 | `HUD` | `md.obsidian.hud` | **Dan** — his F1/F4 glance surface. Agents may *deliver* docs to it (that is what "glance to the HUD" means) but never rearrange it. |
-| `HUD2` | `md.obsidian.hud2` | **ASR2's.** Minted 2026-08-23 so the seat number and the surface match — seat N drives HUD N. |
-| `HUD3` | `md.obsidian.hud3` | **Agent-ownable.** A session may claim it as its display surface and drive it freely — open docs, change what is shown — without colliding with Dan's windows or other agents'. |
-| `HUD4` | `md.obsidian.hud4` | **Agent-ownable.** Same as HUD3. |
+| `HUD2` | `md.obsidian.hud2` | **[[ASR2]]'s.** Seat N drives HUD N — the one standing assignment in the vault. |
+| `HUD3` | `md.obsidian.hud3` | **[[ASR3]]'s.** Same scheme. |
+| `HUD4` | `md.obsidian.hud4` | **[[ASR4]]'s.** Same scheme. |
+
+> 🚦 **The ASR seats are the ONLY standing assignment. Every other agent just uses `glance` and never touches a HUD unless Dan names one in the session.**
+> Reaffirmed by Dan 2026-08-28, narrowing the 2026-08-25 correction rather than reversing it. The 2026-08-25 problem was never that the seats had HUDs — it was everyone *else* drifting onto them: *"a lot of agents are writing to HUD2… agents that weren't even around when we created these things."* So the rule is not "no reserved instances," it is **these three anchors, by seat number, and nobody else.** If you are not a session whose working directory is `LRN ASR/ASR2`, `ASR3`, or `ASR4`, do not pick a HUD for yourself — Dan will tell you.
 
 All instances display the SAME vault content (each `~/ob/data/<NAME>` is a plain symlink to `~/ob/kmr`), with isolated app identity, window state, and workspace. Primary Obsidian stays reserved for Dan's deep reading and editing — never drive it.
 

@@ -6,13 +6,13 @@ group: folder
 | -[[DAS Proj]]- | → [[DAS]] → [[FCT]] → [DAS Proj](hook://p/DAS%20Proj)  |
 | --- | --- |
 | Related | [[DAS WP]],  [[DAS Features]],  [[DAS Backlog]],  [[DAS Dot Anchor]],  [[DAS Anchor Page]],   |
-| Examples | [[SV Proj\|reference instance]],  [[A2X Subs\|legacy instance]],   |
+| Examples | [[SV Proj\|reference instance]],  [[A2X Proj\|minted-form instance]],   |
 | Rules | [[R-proj]],   |
 
 # DAS Proj
 An anchor's subprojects as a **dated, named, reverse-chronological stream** — an optional root-level `{slug} Proj/` folder holding one folder per project, newest first on the index page.
 
-**TLDR** — a **proj** is a focused sub-effort inside an anchor that deserves its own folder: an engagement, a work effort, a subproject of days-to-months. It starts as one spine page and may grow sibling docs, its own spine, even its own backlog — all optional. The stream is the point: projects arrive over time, and the dated names plus the reverse-chron index make the folder read as a history ("oh yeah, that was last year"). **Cardinality: one** — at most one `{slug} Proj/` per anchor, elective, holding many project folders. The reference instance for the dated form is [[SV Proj]] (with a `Prior/` archive and a spine template); [[A2X Subs]] is the grandfathered minted-form instance under the legacy zone name.
+**TLDR** — a **proj** is a focused sub-effort inside an anchor that deserves its own folder: an engagement, a work effort, a subproject of days-to-months. It starts as one spine page and may grow sibling docs, its own spine, even its own backlog — all optional. The stream is the point: projects arrive over time, and the dated names plus the reverse-chron index make the folder read as a history ("oh yeah, that was last year"). **Cardinality: one** — at most one `{slug} Proj/` per anchor, elective, holding many project folders. The reference instance for the dated form is [[SV Proj]] (with a `Prior/` archive and a spine template); [[A2X Proj]] is the minted-form instance (converted from `A2X Subs` 2026-08-28).
 
 **Renamed from Subs (Dan, 2026-08-25).** "Sub" named the relation; "Proj" names the thing. The original worry — overloading "proj" — dissolves because the zone is always anchor-prefixed: `SV Proj` cannot be confused with a global projects home, and `DAS Proj` / `SV Proj` reads as "subproject" without saying so. The rename was forced honestly: the first real stream instance ([[SV Proj]]) was built by hand as `Proj` with dated names, never adopting the Subs grammar — practice out-voted the spec.
 
@@ -54,7 +54,7 @@ Dated form: move the folder into `{slug} Proj Prior/` (or strike its index row) 
 
 ## Legacy — `Subs`
 
-Pre-rename instances named `{slug} Subs/` (e.g. [[A2X Subs]]) **remain valid and are never renamed**, like the pre-F298 feature filenames: matchers and resolvers accept both zone names permanently. New zones are always `{slug} Proj/`.
+**Converted, not grandfathered — Dan, 2026-08-28:** *"let's rename the legacy subs."* This reverses the 08-25 clause that Subs instances would never be renamed. Both pre-rename zones — `A2X Subs/` and `ATT Subs/` — were moved to `{slug} Proj/` the same day, their index pages and internal breadcrumbs with them, and the parent dispatch rows repointed. No `* Subs/` zone remains in the vault; resolvers may keep accepting the old name for stray inbound links, but nothing is expected to carry it. New zones are always `{slug} Proj/`.
 
 ## Tooling
 
@@ -66,7 +66,7 @@ The workflow resolvers (`backlog-edit.py`) glob `* Proj/{stem}/{stem}.md` and `*
 
 # BRIEF
 
-- **What this is** — the folder-form home for an anchor's subproject stream. Specified originally as Subs by [[TINK331 - Subproject convention: short-lived sub-efforts inside an anchor|TINK F331]] (2026-08-14); renamed and re-grounded as Proj by TINK F596 (2026-08-25, Dan + Tink): dated names as the default grammar, F-minted names as the elective variant, external-home discipline added. [[SV Proj]] is normative for the dated form; [[A2X Subs]] for the minted layout.
+- **What this is** — the folder-form home for an anchor's subproject stream. Specified originally as Subs by [[TINK331 - Subproject convention: short-lived sub-efforts inside an anchor|TINK F331]] (2026-08-14); renamed and re-grounded as Proj by TINK F596 (2026-08-25, Dan + Tink): dated names as the default grammar, F-minted names as the elective variant, external-home discipline added. [[SV Proj]] is normative for the dated form; [[A2X Proj]] for the minted layout.
 - **The container folder must NOT be an anchor.** Only the project folders inside it may carry `.anchor` (declaring their own slug — for minted projects, the fused form). HookAnchor's daemon has repeatedly auto-stamped an empty `.anchor` onto the container when nearby files change — remove it when it appears; a container `.anchor` makes the zone resolve as a competing anchor.
 - **Never put the parent's slug in a project's `.anchor`** — resolution goes ambiguous. The project's own slug or nothing.
 - **Projects are not Features-folder content.** A numbered folder in `{slug} Design/{slug} Features/` is the *folder-doc feature* form; the Proj folder exists precisely to keep multi-file projects from swamping that listing. One home per item, chosen by whether it reads as one doc or one project.

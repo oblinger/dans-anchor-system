@@ -4710,62 +4710,6 @@ def chk_log_entry_filenames(target, anchor_root, args):
     return "pass", "all entries match date pattern"
 
 
-def chk_log_dispatch_newest_first(target, anchor_root, args):
-    """Dispatch table lists log entries newest-first (non-increasing dates).
-
-    **Judges only rows ABOVE the separator** (T209, reported by CFO). Below it
-    is the electric zone, which HookAnchor recomputes from the command store in
-    ALPHABETICAL order — so on a dated-child log the generator and this rule
-    disagree by construction, and the rule fired on every single write to
-    `FIN Log.md` naming two links the agent is *forbidden* to reorder: the
-    vault's CLAUDE.md says anything typed into an electric zone is discarded,
-    and that three agents have already filed wrong bug reports about it.
-
-    That made it an unactionable finding — it could not be cleared by anyone who
-    saw it, and the correct response was to do nothing, which is
-    indistinguishable from ignoring a real warning. The audit skill's own
-    principle applies: a check with no agent-side fix path trains the agent to
-    skip warnings as a habit, and should not be surfacing.
-
-    Scoping it here rather than retiring it keeps the rule where it still has
-    teeth — hand-authored rows above the separator are the author's to order,
-    and `R-log`'s own measurement found four out-of-order dispatch tables. This
-    is `spine.py`'s boundary, reused rather than re-detected: that module owns
-    the marker set and states the doctrine ("rows below the marker are
-    machine-written; nothing here may judge their content").
-    """
-    f = _as_file(target, anchor_root)
-    if f is None:
-        return "error", "no file to inspect"
-    text = _read(f)
-    try:
-        p = _spine_module().Spine(f)
-        if p.marker_idx is not None:
-            text = "\n".join(p.lines[:p.marker_idx])
-    except Exception:
-        pass        # no spine, or an unreadable one — judge the whole file
-    # Fence-stripped (T103a): a fenced example of a log dispatch table carries dated
-    # links in whatever order reads best as an illustration, and interleaving them
-    # with the live rows made the ordering test report a reversal that is not there.
-    matches = re.findall(r"\[\[(\d{4}(?:-\d{2})?(?:-\d{2})?)\s+[^\]]*\]\]",
-                         _strip_fenced(text))
-    if len(matches) < 2:
-        return "pass", ("fewer than 2 hand-authored entries (rows below the "
-                        "separator are the machine's, and are not judged)")
-
-    def norm(d):
-        parts = d.split("-")
-        while len(parts) < 3:
-            parts.append("01")
-        return "-".join(parts)
-
-    n = [norm(m) for m in matches]
-    for i in range(len(n) - 1):
-        if n[i] < n[i + 1]:
-            return "fail", f"dispatch not newest-first: {matches[i]} before {matches[i + 1]}"
-    return "pass", ""
-
-
 def chk_log_anchor_page_link(target, anchor_root, args):
     """Anchor entry page carries a [[{slug} Log]] dispatch row."""
     if _is_log_container(anchor_root):
@@ -8499,7 +8443,6 @@ CHECKERS = {
     "log_path_exists": chk_log_path_exists,
     "log_dispatch_file_present": chk_log_dispatch_file_present,
     "log_entry_filenames": chk_log_entry_filenames,
-    "log_dispatch_newest_first": chk_log_dispatch_newest_first,
     "log_anchor_page_link": chk_log_anchor_page_link,
     # R-brief
     "brief_is_last_h1": chk_brief_is_last_h1,

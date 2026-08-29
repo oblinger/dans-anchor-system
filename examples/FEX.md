@@ -1,5 +1,5 @@
 ---
-description: "the examples pillar — every worked example, indexed by facet"
+description: "DAS Examples — the examples pillar — every worked example, indexed by facet"
 ---
 
 | -[[FEX]]- | : FEX — DAS Examples — the examples pillar — every worked example, indexed by facet<br>→ [[DAS]] → [FEX](hook://p/FEX)  |
@@ -8,7 +8,7 @@ description: "the examples pillar — every worked example, indexed by facet"
 | Worlds | [[HBR\|Harbor]],  [[FEX Repo\|Repo]],  [[Knots]],  [[HWP\|Harbor Whitepaper]],  [[CSE]],   |
 |  |  |
 |  | **EXAMPLES BY FACET** |
-| [[DAS Anchor Design\|Anchor]]  | *Anchor*°,  [[DAS\|Dot Anchor]] ([[OBU\|code: form]]),  [[HBR\|Anchor Page]] ([[OBU\|code anchor]]),  [[ABIO\|Project Page]] ([[DCP\|minimal]]),  [[HBR\|Folder]],  [[HBR\|Anchor Tree]],  [[HBR\|Naming]],  [[FEX Claude\|Claude]],  [[HA Interface\|Interface]] ([[MUX Interface\|fuller]]),  [[SKA move\|Move]],  [[A2X Subs\|Subs]],  *Dispatch*°,  [[HBR\|Dispatch Table]] ([[FEX Dispatch Examples\|gallery]]),  [[FEX Minimal Facet\|Dispatch Table Design]] (self-exemplifying),  [[HBR Design\|Design Dispatch]],  [[HBR Dev Docs\|Dev Dispatch]],  [[HBR User Docs\|User Dispatch]], |
+| [[DAS Anchor Design\|Anchor]]  | *Anchor*°,  [[DAS\|Dot Anchor]] ([[OBU\|code: form]]),  [[HBR\|Anchor Page]] ([[OBU\|code anchor]]),  [[ABIO\|Project Page]] ([[DCP\|minimal]]),  [[HBR\|Folder]],  [[HBR\|Anchor Tree]],  [[HBR\|Naming]],  [[FEX Claude\|Claude]],  [[HA Interface\|Interface]] ([[MUX Interface\|fuller]]),  [[SKA move\|Move]],  ~~[[A2X Subs\|Subs]]~~,  *Dispatch*°,  [[HBR\|Dispatch Table]] ([[FEX Dispatch Examples\|gallery]]),  [[FEX Minimal Facet\|Dispatch Table Design]] (self-exemplifying),  [[HBR Design\|Design Dispatch]],  [[HBR Dev Docs\|Dev Dispatch]],  [[HBR User Docs\|User Dispatch]], |
 | [[DAS Hygiene Design\|Hygiene]]  | [[R-fex-manifest\|Ruleset]] ([[R-diagram\|large]], [[FEX Rules\|anchor-local]]), |
 | [[DAS Tracking Design\|Tracking]]  | [[Tink Backlog\|Backlog]],  [[Tink queries\|Query]],  [[HBR Status\|Status]],  [[FEX Agenda\|Agenda]],  [[LUMEN Pebble\|Stone]] ([[HBR Rocks\|second kind]]),  [[HBR Rocks\|Rocks]] ([[Rocks\|root aggregator]]),  [[FEX Roadmap\|Roadmap]] ([[HBR Roadmap\|legacy-numbered]]),  [[A2X013 - Game Break Overview\|Notebook]],  [[HBR Messages\|Messages]],  [[Tink Track\|Track]],  [[FEX Icebox\|Icebox]],  [[TINK Chores\|Chores]], |
 | [[DAS Design Design\|Design]]  | *Design Docs*°,  [[HBR Design\|Design Folder]],  [[HBR PRD\|PRD]] ([[Mini PRD\|minimal]]),  [[FEX Stories\|Stories]] ([[HBR PRD\|inline]], [[DAS US-CAE-1 — Schedule a Task\|per-story]]),  [[FEX Architecture\|Architecture]] ([[HBR Architecture\|in-project]]),  [[FEX System Design\|System Design]],  [[SKA File Tree Architecture\|Files Architecture]],  [[HBR UX Design\|UX Design]],  [[FEX API Design\|API Design]] ([[HBR API Design\|in-project]]),  [[Mini Testing\|Testing]] ([[HBR Testing\|maximal]]),  [[OBU Testing\|Common Testing Types]],  [[Mini Architecture\|Decisions]] ([[Mini Decisions\|central]], [[HBR Decisions\|in-project]]),  [[HBR Features\|Features]], |

@@ -9,6 +9,7 @@ set-id: OB
 | [[R-ob-browser-lease]]  | One host, one browser — an agent driving Safari or Chrome outside `ctrl` must still hold the `ctrl` browser lease. Closes ATT T183's gap 1, where the sanctioned login-walled path (`open -a Safari` + osascript) would otherwise bypass the lease entirely (`tool:pre:Bash` deny, rides `anchor-base`). |
 | [[R-ob-cmd-proc]]  | Ob's opinionated take on the command-processor / event-driven architecture pattern — single dispatcher routes events from sensors through engines to effectors. Use this set for applications with a clear input→process→output flow that benefits from a central routing layer, unified event log, and clean concurrency story. Other architectures (direct calls, async tasks, actor model, CQRS) work fine for different problems; this set captures Dan's specific approach when the dispatcher pattern fits. |
 | [[R-ob-observability]]  | Ob's opinionated take on observability — failures don't disappear silently, and every OS-bridge call is instrumented. Reflects a "log everything, gate by tier" philosophy; other schools prefer minimal logging and richer error context. This set captures Dan's specific approach. |
+| [[R-ob-osascript]]  | Ob's raw-automation hygiene — where a sanctioned wrapper exists (`notmuch`, `ctrl`, the glance form), raw `osascript` and control-flavoured `obsidian://` URLs are denied and redirected to it. Keyed by TARGET APPLICATION, so the ~45% of automation no wrapper covers passes untouched (`tool:pre:Bash` deny, rides `anchor-base`). |
 | [[R-ob-remote-ops]]  | Ob's remote-ops hygiene — remote machines are driven through the sanctioned control planes (`bridge` persistent tmux, `exp`), never one-shot SSH remote-control. First member: the F183 bridge-guard (`tool:pre:Bash` deny, rides `anchor-base`). |
 | [[R-ob-state-mgt]]  | Ob's opinionated take on state management — centralize config and state behind a single data singleton, and refuse to hardcode values that could vary. Not universal (other architectures use repository pattern, CQRS, event sourcing, functional state passing); this set captures Dan's specific approach. |
 | --- | |
@@ -131,11 +132,11 @@ set-id: OB
 | [[R-wp]]  | the `{slug} WP/` work-products zone — dated polished outputs |
 | [[R-wrapper-cli]]  | All interaction with managed infrastructure flows through the sanctioned command surface; raw primitives are forbidden, missing capability is proposed rather than worked around, and destructive commands check status first. |
 | [[rulesets/README]]  |  |
-| [[Rulesets Brief]]  |  |
+| [[Rulesets Brief\|Brief]]  |  |
 
 # RULESET R-ob
 description:: Umbrella folder-file for Ob's rulesets — applies to every anchor Dan owns. Children rolled up via `include::` below. The markdown rule formerly here (D-OB01) moved out in 2026-06-09 since it's not Ob-specific; it now lives in [[R-markdown]] under [[R-doc]] (via the interim `R-md`, deleted 2026-08-11). Commit-discipline and em-dash rules pending capture as their own rulesets.
-include:: [[R-ob-cmd-proc]], [[R-ob-observability]], [[R-ob-state-mgt]], [[R-ob-remote-ops]], [[R-ob-browser-lease]], [[R-ob-commons]] 
+include:: [[R-ob-cmd-proc]], [[R-ob-observability]], [[R-ob-state-mgt]], [[R-ob-remote-ops]], [[R-ob-browser-lease]], [[R-ob-commons]], [[R-ob-osascript]] 
 
 
 # Notes

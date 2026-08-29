@@ -239,7 +239,7 @@ This reassessment is **the** primary value `/groom` adds beyond promotion: witho
 - **Has questions** — anything you'd need the user to clarify. Create a feature doc at `{slug} Design/{slug} Features/F{n} — {Item Name}.md` (using the backlog row's F-number; per [[DAS Backlog]] § Numbering policy) with the standard `## Open Questions` block (per `/feature` § 1 and [[TINK queries]] § When a file is involved). Capture the questions there — **every** question goes to the doc; there is no inline-question slot (retired per [[Query PRD]] R1). **This is parking mode** (per [[TINK queries]] § Active vs Parking) — do NOT glance the new feature doc. The user invoked `/groom` as a *batch* operation specifically to defer per-item engagement; glancing each created doc would interrupt the very deferral they asked for. Update the backlog row via `state set <anchor> Backlog <row-id>` to set the wiki-link body and switch the bracket to `Questions`:
 
   ```bash
-  ~/.claude/skills/workflow/scripts/state set {slug} Backlog <row-id> --status Questions --body "→ [[F<n> — {Item Name}]]"
+  ~/.claude/skills/workflow/scripts/state set {slug} Backlog <row-id> --status Questions --doc "F<n> — {Item Name}"
   ```
 
   The item is now blocked-on-questions; it surfaces through the queries doc at end-of-run via § 5.

@@ -2,7 +2,7 @@
 description: "LAN HTTP API surface"
 ---
 
-| -[[HBR API Design]]- | : LAN HTTP API surface<br>→ [[DAS]] → [[examples]] → [[HBR\|HARBOR]] → [[HBR Design\|HARBOR DESIGN]] → [HBR API Design](hook://p/HBR%20API%20Design)  |
+| -[[HBR API Design]]- | : LAN HTTP API surface<br>→ [[DAS]] → [[FEX]] → [[HBR\|HARBOR]] → [[HBR Design\|HARBOR DESIGN]] → [HBR API Design](hook://p/HBR%20API%20Design)  |
 | --- | --- |
 | Anchor | [[HBR Design]] (parent) |
 | Related | [[HBR PRD]],  [[HBR UX Design]],  [[HBR Architecture]],  [[HBR CLI]],   |
@@ -47,7 +47,7 @@ The client renders the Library from `list`, opens the Player from `detail`, then
 | `transcode-open` | `POST /api/titles/{id}/transcode` | Open a transcode session for a device profile; returns a session id + playlist URL. | [[HBR Stories#^US-HBR-4\|US-HBR-4]] |
 | `transcode-segment` | `GET /api/transcode/{session}/seg/{n}` | Fetch one transcoded segment of an open session. | [[HBR Stories#^US-HBR-4\|US-HBR-4]] |
 
-Poster bytes are served as static assets under `/posters/{id}` (not part of the API contract; referenced by the URLs `list`/`detail` return). JSON bodies use the catalog's schemas — see [[HBR API Doc]] for per-field reference; this doc covers *intent*.
+Poster bytes are served as static assets under `/posters/{id}` (not part of the API contract; referenced by the URLs `list`/`detail` return). JSON bodies use the catalog's schemas — see each component page under [[HBR Components]] for per-field reference; this doc covers *intent*.
 
 ## Contract semantics
 
@@ -115,5 +115,5 @@ The `code` field is a **stable machine-readable string** the client switches on 
 - [[HBR PRD]] — user stories (US-HBR-3, US-HBR-4) that drive this surface.
 - [[HBR UX Design]] — the human Library / Player surface the client renders.
 - [[HBR Architecture]] — the [[HBR Serve|Serve]] pipeline that backs every endpoint.
-- [[HBR API Doc]] — per-module reference for the JSON schemas (*what exists*).
+- each page under [[HBR Components]] — the per-module reference for its JSON schemas (*what exists*).
 - [[DAS API Design]] — facet spec; embedded [[R-api]] ruleset.

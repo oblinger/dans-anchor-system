@@ -243,7 +243,22 @@ def _stone_folder(anchor_path: Path, slug: str, cfg: dict) -> Path:
 
 
 def _control_path(anchor_path: Path, slug: str, cfg: dict) -> Path:
-    return _track_dir(anchor_path, slug) / (cfg["control"].format(slug=slug) + ".md")
+    """The control file. Normally BESIDE the group folder in Track.
+
+    **A container-named kind keeps it INSIDE, as the folder note.** Per
+    [[DAS Facets]] (Dan, 2026-08-18) a facet word is singular when it names the
+    container and plural when it names the elements: `Pebbles`/`Rocks` name the
+    elements, so folder and control differ (`SONAR Pebbles/` + `SONAR Pebble.md`)
+    and the control has somewhere of its own to sit. `Book` names the container,
+    so both resolve to the same name and the only coherent place for the control
+    file is the folder note. The audit's member check already exempts a
+    `{folder}.md` inside the folder as "the group's own anchor page", so nothing
+    downstream has to change."""
+    name = cfg["control"].format(slug=slug) + ".md"
+    folder = _stone_folder(anchor_path, slug, cfg)
+    if cfg["control"] == cfg["folder"]:
+        return folder / name
+    return _track_dir(anchor_path, slug) / name
 
 
 # --------------------------------------------------------------------------

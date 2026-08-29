@@ -203,10 +203,10 @@ Output: `{slug}: added F<NNN> in Now [Designing]` — parse `F<NNN>` from the se
 After § 1 creates the feature doc, run a follow-up call to add the wiki-link body so the row links back to the new doc:
 
 ```bash
-~/.claude/skills/workflow/scripts/state set {slug} Backlog F<NNN> --body "→ [[{SLUG}<NNN> - {Feature Name}|F<NNN> — {Feature Name}]]"
+~/.claude/skills/workflow/scripts/state set {slug} Backlog F<NNN> --doc "{SLUG}<NNN> - {Feature Name}"
 ```
 
-The link **targets** the filename (Obsidian resolves by filename, so it must) and **displays** the bare `F<NNN> — {Feature Name}`, so the backlog reads exactly as it did before F298. For an older doc, target whichever form its file actually carries — `[[{slug} F<NNN> — {Feature Name}|…]]` or the plain `[[F<NNN> — {Feature Name}]]`; those are never renamed.
+`--doc` writes the pointer `→ [[{SLUG}<NNN> - {Feature Name}|F<NNN>]]` and nothing else — the text after it regenerates from the doc (F332), and `--body` on a doc-backed row is **refused** (T578, 2026-08-28) rather than half-landed. The link **targets** the filename (Obsidian resolves by filename, so it must) and **displays** the bare `F<NNN>`. For an older doc, target whichever form its file actually carries — `[[{slug} F<NNN> — {Feature Name}|…]]` or the plain `[[F<NNN> — {Feature Name}]]`; those are never renamed.
 
 Use `--horizon Later` for parking-mode stubs (`/feature` used to file something for later). Use `--status Questions` once the Open Questions block has been written and the row should surface (via the queries render) as user-actionable.
 

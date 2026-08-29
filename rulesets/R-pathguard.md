@@ -30,9 +30,23 @@ def body(ctx):
         except OSError:
             stamped = True   # unreadable — guard rather than wave through
         if in_track or stamped:
+            # Scoped to ROW writes (2026-08-28, reported by Presti on SVAR
+            # Backlog): `state` owns the rows and the H2s, and has no verb for
+            # the prose outside them — the R-spine-02 orientation line under the
+            # stamp above all. An Edit that touches no bullet and no heading in
+            # either its old or its new text is that prose, and passes. A Write
+            # (no old/new strings) still denies: it replaces rows wholesale.
+            inp = getattr(ev, "input", None) or {}
+            if "old_string" in inp or "new_string" in inp:
+                import re
+                touched = (inp.get("old_string") or "") + "\n" + (inp.get("new_string") or "")
+                if not re.search(r"^[ \t]*(?:[-*+] |#{1,6} )", touched, re.M):
+                    return []
             return ["DENY: " + name + " is owned by `state <define|set|resolve|remove> "
                     "<anchor> Backlog <label>` — never Edit backlog rows directly "
-                    "(~/.claude/skills/workflow/scripts/state)."]
+                    "(~/.claude/skills/workflow/scripts/state). Prose outside the "
+                    "rows and headings (the orientation line under the stamp) is "
+                    "yours: an Edit touching no bullet and no heading passes."]
     if name.endswith(" queries.md") or name == "Q.md":
         return ["DENY: " + name + " is mechanically rendered by queries-render.py — "
                 "edit the backlog rows / feature-doc Open Questions it renders from, not the page."]
