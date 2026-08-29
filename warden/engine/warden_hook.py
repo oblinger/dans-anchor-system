@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sys
 import time
 from pathlib import Path
@@ -258,11 +259,31 @@ FIRES_ROTATE_BYTES = 25 * 1024 * 1024
 FIRES_GENERATIONS = 3          # fires.jsonl + .1 + .2
 
 
+# F613 Q2 (Dan, 2026-08-28): capture the command on EVERY Bash fire record.
+# "Why wouldn't we capture everything?" — because a command line sometimes
+# carries a credential. But every Claude session transcript already records
+# every Bash command verbatim on the same disk, so this is a second copy of
+# text that is already there, and the size is a few MB a week. The mask below
+# is belt-and-braces for the two obvious shapes, not the reason the answer is
+# yes; a value it misses is one the transcript holds anyway.
+_SECRET_ASSIGN_RE = re.compile(
+    r"(?i)\b([A-Z0-9_]*(?:KEY|TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIAL)[A-Z0-9_]*\s*=\s*)"
+    r"(?:'[^']*'|\"[^\"]*\"|\S+)")
+_BEARER_RE = re.compile(r"(?i)(bearer\s+)\S+")
+
+
+def mask_secrets(cmd: str) -> str:
+    """Blank the value of a `*KEY=`/`*TOKEN=`-style assignment and a bearer
+    token, keeping the name so the shape of the command survives."""
+    cmd = _SECRET_ASSIGN_RE.sub(lambda m: m.group(1) + "***", cmd)
+    return _BEARER_RE.sub(lambda m: m.group(1) + "***", cmd)
+
+
 def _fire_record(rec: dict) -> None:
     """Append one JSONL record to ~/.warden/fires.jsonl — the explainability
     log: which rules were considered at a moment, which fired, and the steer
     text VERBATIM as the agent received it. `warden log` is the viewer.
-    Rotates once past ~5 MB (single .1 generation)."""
+    Rotates past FIRES_ROTATE_BYTES across FIRES_GENERATIONS files."""
     try:
         home = warden_home()
         home.mkdir(parents=True, exist_ok=True)
@@ -367,6 +388,7 @@ def dispatch(data: dict) -> list[str]:
                 "ts": round(time.time(), 3), "engine": "py", "moment": moment,
                 "anchor": anchor_root.name, "traits": traits,
                 "tool": data.get("tool_name") or "", "file": event_fp or "",
+                "command": mask_secrets(_str(tool_input.get("command"))),
                 "considered": [rid for rid, _ in records],
                 "fires": [{"rule": rid, "steer": s}
                           for rid, produced in records for s in produced],

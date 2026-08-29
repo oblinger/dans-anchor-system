@@ -642,3 +642,16 @@ def test_fire_log_rotation_cascade():
         finally:
             os.environ["WARDEN_HOME"] = old_home if old_home else str(home)
     print("PASS  fire_log_rotation_cascade (F613 Q1)")
+
+
+def test_fire_record_carries_masked_command():
+    """F613 Q2 — a Bash fire record carries the command; obvious secret shapes
+    are blanked but the command's shape and any `# oneshot:` token survive."""
+    import warden_hook as wh
+    c = ("API_KEY=sk-live-abc123 OPENAI_TOKEN='tok' curl -H 'Authorization: Bearer xyz' "
+         "https://x/y # oneshot: bounded probe")
+    m = wh.mask_secrets(c)
+    assert "sk-live-abc123" not in m and "'tok'" not in m and "xyz" not in m
+    assert "API_KEY=***" in m and "OPENAI_TOKEN=***" in m and "Bearer ***" in m
+    assert "# oneshot: bounded probe" in m and "curl -H" in m
+    assert wh.mask_secrets("ls -la && git status") == "ls -la && git status"

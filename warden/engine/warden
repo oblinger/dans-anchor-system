@@ -449,6 +449,9 @@ def cmd_log(args) -> int:
                 f" [{r.get('engine', '?')}] {r.get('ms', 0)} ms")
         if fname:
             head += f"  {fname}"
+        if r.get("command"):
+            c = r["command"].replace("\n", " ⏎ ")
+            head += "  $ " + (c if args.full or len(c) <= 120 else c[:120] + " …")
         fired_ids = {f.get("rule") for f in r.get("fires", [])}
         silent = [c for c in r.get("considered", []) if c not in fired_ids]
         if silent:
