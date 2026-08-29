@@ -43,6 +43,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import datetime as _dt
 import re
 import shutil
 import sys
@@ -224,6 +225,18 @@ def _reject_unroundtrippable_owner(slug: str, cfg: dict) -> None:
     slug first has to round-trip, and not at discovery, where it would ban a
     perfectly good screen.
     """
+    if _dated(cfg):
+        # A dated line names its owner in the alias, so what has to round-trip
+        # is the alias, not the target. `HUD 1` survives here where it could
+        # never own a numbered stone — the space is harmless inside an alias.
+        probe = cfg["stone_alias"].format(slug=slug)
+        if _alias_owner(probe, cfg) == slug:
+            return
+        raise StoneError(
+            f"anchor slug {slug!r} cannot own a {cfg.get('member')} stone — its "
+            f"rendered alias {probe!r} does not read back as the slug, so the "
+            f"line could never be attributed to it."
+        )
     if _is_stone_target(f"{slug} {cfg['prefix']}{'0' * cfg.get('digits', 4)}", cfg) is None:
         raise StoneError(
             f"anchor slug {slug!r} cannot own a stone — a control line is parsed "
@@ -337,7 +350,15 @@ def _stone_number_re(slug: str, cfg: dict):
 
 
 def _stone_files(folder: Path, slug: str, cfg: dict) -> list:
-    """Every file in `folder` that is genuinely a stone of this kind."""
+    """Every file in `folder` that is genuinely a stone of this kind.
+
+    A dated kind is matched by SHAPE rather than by slug — its members carry no
+    slug at all. The group's own folder note (`{slug} Book.md`) is excluded for
+    free by the same test, which is the dated echo of the `HBR Rocks.md` bug
+    below: the note never starts with a date.
+    """
+    if _dated(cfg):
+        return [f for f in folder.glob("*.md") if f.is_file() and _DATED_RE.match(f.stem)]
     num_re = _stone_number_re(slug, cfg)
     return [f for f in folder.glob("*.md") if f.is_file() and num_re.match(f.stem)]
 
@@ -469,7 +490,7 @@ def _kv_set(keys: list, name: str, value: str):
     keys.append((name, value))
 
 
-def _load_stone(path: Path, slug: str, live: bool):
+def _load_stone(path: Path, slug: str, live: bool, cfg: dict = None):
     text = path.read_text(encoding="utf-8")
     keys, body = _parse_stone(text)
     # T553 — trailing whitespace in a `line::` is not content, and leaving it in
@@ -481,7 +502,7 @@ def _load_stone(path: Path, slug: str, live: bool):
     line = (_kv_get(keys, "line", "") or "").strip()
     appears_raw = _kv_get(keys, "appears", "") or ""
     appears = {a.strip() for a in appears_raw.split(",") if a.strip()}
-    sid = path.stem[len(slug) + 1:]
+    sid = path.stem if (cfg and _dated(cfg)) else path.stem[len(slug) + 1:]
     return SimpleNamespace(
         slug=slug, sid=sid, path=path, keys=keys, body=body,
         line=line, orig_line=line,
@@ -532,7 +553,57 @@ def _is_header_target(target: str, cfg: dict):
     return None
 
 
-def _is_stone_target(target: str, cfg: dict):
+_DATED_RE = re.compile(r"^(\d{4}-\d{2}-\d{2}) .+$")
+
+
+def _dated(cfg: dict) -> bool:
+    return cfg.get("member") == "dated"
+
+
+def _alias_owner(alias: str, cfg: dict):
+    """The owning slug read back out of a rendered alias, or None.
+
+    THIS IS WHERE A DATED STONE'S IDENTITY COMES FROM, and it is the whole
+    design decision of T276. A numbered stone carries its owner in the link
+    TARGET (`[[SONAR P0003]]`); a dated one cannot, because its name is a date
+    and a title and nothing else — that readability is the point of the kind.
+
+    The obvious alternative is "the owner is whichever anchor's control file
+    the line sits in," and it is wrong: a published stone propagates along
+    `feeds:` into OTHER anchors' files, where that rule would rename it to the
+    consumer on the first pass and the ownership would be lost with no error.
+    The alias is the one part of the rendered line that already names the
+    owner (`stone_alias` is `{slug}:`), `render_stone_line` already writes it
+    from the owner, and it travels with the line downstream — so the
+    round-trip closes with no new field in the file format.
+    """
+    if alias is None:
+        return None
+    pat = re.escape(cfg["stone_alias"]).replace(re.escape("{slug}"), r"(.+?)")
+    m = re.fullmatch(pat, alias.strip())
+    if not m:
+        return None
+    owner = m.group(1).strip()
+    return owner or None
+
+
+def _stone_link_target(owner: str, sid: str, cfg: dict) -> str:
+    """The link target for a stone — the half that differs between kinds."""
+    return sid if _dated(cfg) else f"{owner} {sid}"
+
+
+def _stone_filename(owner: str, sid: str, cfg: dict) -> str:
+    return f"{sid}.md" if _dated(cfg) else f"{owner} {sid}.md"
+
+
+def _is_stone_target(target: str, cfg: dict, alias: str = None):
+    if _dated(cfg):
+        # A dated member's sid IS its whole name — date and title together —
+        # because that name is the file and there is no number to carry.
+        if not _DATED_RE.match(target):
+            return None
+        owner = _alias_owner(alias, cfg)
+        return (owner, target) if owner else None
     prefix = cfg["prefix"]
     digits = cfg.get("digits", 4)
     m = re.match(rf"^([A-Za-z][A-Za-z0-9]*) ({re.escape(prefix)}\d{{{digits}}})$", target)
@@ -552,7 +623,7 @@ def classify_line(line: str, cfg: dict):
     hdr_slug = _is_header_target(target, cfg)
     if hdr_slug:
         return ("header", hdr_slug, rest)
-    st = _is_stone_target(target, cfg)
+    st = _is_stone_target(target, cfg, m.group(2))
     if st:
         owner, sid = st
         return ("stone", owner, sid, rest.lstrip())
@@ -567,7 +638,7 @@ def classify_stone_chunk(chunk: str, cfg: dict):
         return None
     target = m.group(1).strip()
     rest = m.group(3)
-    st = _is_stone_target(target, cfg)
+    st = _is_stone_target(target, cfg, m.group(2))
     if not st:
         return None
     owner, sid = st
@@ -581,7 +652,7 @@ def _split_inline(payload: str) -> list:
 
 def render_stone_line(owner: str, sid: str, text: str, cfg: dict) -> str:
     alias = cfg["stone_alias"].format(slug=owner)
-    return f"[[{owner} {sid}|{alias}]] {text}"
+    return f"[[{_stone_link_target(owner, sid, cfg)}|{alias}]] {text}"
 
 
 def _render_header(owner: str, cfg: dict) -> str:
@@ -1063,7 +1134,7 @@ def _mint_warnings(cf, slug: str, sid: str, keys: list, cfg: dict) -> list:
         out.append(
             f"MISSING {', '.join(k + '::' for k in missing)} — required per "
             f"[[DAS Stone Keys]]. Without it the stone has no raising "
-            f"condition and will never surface. Add it to {slug} {sid}.md by "
+            f"condition and will never surface. Add it to {_stone_filename(slug, sid, cfg)} by "
             f"hand.")
     return out
 
@@ -1081,26 +1152,45 @@ def cmd_new(kind: str, cfg: dict, root: Path, args) -> int:
     folder = _stone_folder(a.path, slug, cfg)
     folder.mkdir(parents=True, exist_ok=True)
     archive_dir = folder / "archive"
-    prefix = cfg["prefix"]
-    digits = cfg.get("digits", 4)
-    num_re = _stone_number_re(slug, cfg)
 
-    # Numbering and loading must agree on what a stone file IS, so both go
-    # through `_stone_files`. When they disagreed, `update` ingested files the
-    # mint had never counted.
-    nums = [int(num_re.match(f.stem).group(1)) for f in _stone_files(folder, slug, cfg)]
-    if archive_dir.is_dir():
-        nums += [int(num_re.match(f.stem).group(1)) for f in _stone_files(archive_dir, slug, cfg)]
-    next_num = (max(nums) + 1) if nums else 1
-    sid = f"{prefix}{str(next_num).zfill(digits)}"
-    stone_path = folder / f"{slug} {sid}.md"
+    if _dated(cfg):
+        # A dated stone is NAMED, not counted, so there is no scan to do and no
+        # next number to allocate. The date is the CREATION date and never the
+        # ordering key -- ordering lives in the control file, which may be
+        # generated from any key at all (see stone-kinds.py).
+        title = (getattr(args, "title", None) or "").strip()
+        if not title:
+            raise StoneError(
+                f"{cfg.get('control', '').format(slug=slug)} is a dated kind — its "
+                f"members are named `YYYY-MM-DD {{Title}}`, so a mint needs --title."
+            )
+        if any(ch in title for ch in "/:\\"):
+            raise StoneError(f"--title {title!r} cannot contain / : or \\ — it is a filename")
+        date = (getattr(args, "date", None) or "").strip() or _dt.date.today().isoformat()
+        if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", date):
+            raise StoneError(f"--date {date!r} is not YYYY-MM-DD")
+        sid = f"{date} {title}"
+    else:
+        prefix = cfg["prefix"]
+        digits = cfg.get("digits", 4)
+        num_re = _stone_number_re(slug, cfg)
+
+        # Numbering and loading must agree on what a stone file IS, so both go
+        # through `_stone_files`. When they disagreed, `update` ingested files the
+        # mint had never counted.
+        nums = [int(num_re.match(f.stem).group(1)) for f in _stone_files(folder, slug, cfg)]
+        if archive_dir.is_dir():
+            nums += [int(num_re.match(f.stem).group(1)) for f in _stone_files(archive_dir, slug, cfg)]
+        next_num = (max(nums) + 1) if nums else 1
+        sid = f"{prefix}{str(next_num).zfill(digits)}"
+    stone_path = folder / _stone_filename(slug, sid, cfg)
     if stone_path.exists():
         raise StoneError(f"{stone_path} already exists — refusing to overwrite")
 
     keys = [("line", args.line)]
     body = args.body or ""
     stone_path.write_text(_render_stone(keys, body), encoding="utf-8")
-    st = _load_stone(stone_path, slug, live=True)
+    st = _load_stone(stone_path, slug, live=True, cfg=cfg)
 
     cpath = _control_path(a.path, slug, cfg)
     cpath.parent.mkdir(parents=True, exist_ok=True)
@@ -1248,12 +1338,12 @@ def cmd_update(kind: str, cfg: dict, root: Path, args) -> int:
         folder = _stone_folder(a.path, slug, cfg)
         if folder.is_dir():
             for f in sorted(_stone_files(folder, slug, cfg)):
-                st = _load_stone(f, slug, live=True)
+                st = _load_stone(f, slug, live=True, cfg=cfg)
                 stones[(slug, st.sid)] = st
             archive_dir = folder / "archive"
             if archive_dir.is_dir():
                 for f in sorted(_stone_files(archive_dir, slug, cfg)):
-                    st = _load_stone(f, slug, live=False)
+                    st = _load_stone(f, slug, live=False, cfg=cfg)
                     stones[(slug, st.sid)] = st
 
         cpath = _control_path(a.path, slug, cfg)
@@ -1406,6 +1496,10 @@ def build_parser(cfg_all: dict) -> argparse.ArgumentParser:
         nw.add_argument("anchor", help="owning anchor's slug")
         nw.add_argument("--line", required=True, help="the stone's line:: — the canonical one-line rendering")
         nw.add_argument("--body", default=None, help="prose body (optional)")
+        nw.add_argument("--title", default=None,
+                        help="dated kinds only: the member's title, appended to the date")
+        nw.add_argument("--date", default=None,
+                        help="dated kinds only: creation date YYYY-MM-DD (default: today)")
         nw.add_argument("--root", default=None, help="scan root (default: $ANCHOR_VAULT_ROOT or ~/ob/kmr)")
 
         mv = verb_subs.add_parser("move", help="reorder one stone within its run in a control file")
