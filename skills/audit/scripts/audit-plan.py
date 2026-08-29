@@ -7223,6 +7223,51 @@ def chk_rocks_dispatch_linked(target, anchor_root, args):
                     "unlinked one is invisible to anyone navigating the anchor")
 
 
+def chk_stone_dispatch_linked(target, anchor_root, args):
+    """R-stone-07: `{slug} Track.md` carries a row linking the stone group.
+
+    T603. The kind-generic port of `R-rocks-08`, which governed `* Rocks/`
+    alone. `R-stone` generalised six of R-rocks' thirteen rules and stopped, so
+    `sleeper`, `pebble` and `book` groups were unchecked on reachability — and
+    this is the one of the seven with a LIVE victim. `SV Sleepers` is
+    unreachable by navigation and nothing said so, while the rocks half of the
+    identical defect DID fire in the same sweep on the same anchor. That
+    asymmetry is the finding: two groups, one rule, one silence.
+
+    The group folder is elective, so nothing else guarantees it is reachable. An
+    unlinked group is invisible both to a person navigating the anchor and to
+    the catch-all of every page above it — the catch-all deliberately omits a
+    child the page already links, so a group nobody links is a group nobody
+    sees.
+
+    Judged once per group, on the control file, not once per member.
+    """
+    f, folder, slug, cfg, done = _stone_gate(target, anchor_root, True)
+    if done:
+        return done
+    track = _stone_owner(folder) / f"{slug} Track" / f"{slug} Track.md"
+    if not track.is_file():
+        return "pass", "no Track dispatch page"
+    # EITHER target satisfies reachability, and the control file is the one that
+    # usually does. `R-rocks-08` named the FOLDER because a rock group's folder
+    # is what its Track page happens to link; measured across the vault on
+    # 2026-08-28, every other kind links the CONTROL FILE instead
+    # (`[[TINK Pebble]]`, singular) — which is the better target anyway, since
+    # the control file is what a reader opens and the folder is storage. Porting
+    # the folder-only predicate fired on 21 of 32 live groups, which is a rule
+    # measuring a convention rather than a defect.
+    names = [cfg["folder"].format(slug=slug), cfg["control"].format(slug=slug)]
+    body = _read(track)
+    for name in names:
+        # A dispatch cell escapes the pipe, so accept `[[X\|alias]]` beside
+        # `[[X]]`, and a heading or subpath reference beside a bare one.
+        if re.search(r"\[\[" + re.escape(name) + r"\s*(\\?\||\]|#|/)", body):
+            return "pass", ""
+    return "fail", (f"'{slug} Track.md' links neither [[{names[1]}]] nor [[{names[0]}]] — "
+                    "the group is elective, so nothing else guarantees it is reachable, "
+                    "and an unlinked one is invisible to anyone navigating the anchor")
+
+
 def chk_rocks_folder_note_catchall(target, anchor_root, args):
     """R-rocks-09: the folder-note's dispatch table carries a `...` catch-all row."""
     f, folder, slug, done = _rocks_gate(target, anchor_root, True)
@@ -8155,6 +8200,7 @@ CHECKERS = {
     "rocks_tier_links_resolve": chk_rocks_tier_links_resolve,
     "rocks_no_work_rows": chk_rocks_no_work_rows,
     "rocks_dispatch_linked": chk_rocks_dispatch_linked,
+    "stone_dispatch_linked": chk_stone_dispatch_linked,
     "rocks_folder_note_catchall": chk_rocks_folder_note_catchall,
     # R-stone (T164) — the kind-generic four; the other two rules of the six
     # stay `stated` on purpose (R-stone-03 is a claim about how a value was

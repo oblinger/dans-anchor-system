@@ -54,6 +54,23 @@ def _w(p: pathlib.Path, text: str):
     p.write_text(text, encoding="utf-8")
 
 
+def _header_line(slug: str, target: str, kind: str = "rock") -> str:
+    """Render a control-file header the way the DAS kind table declares it.
+
+    **Built from config, never spelled out.** These fixtures used to hardcode
+    `[[OK Rock|-OK-]]` — the dashes-INSIDE form, which was tried, reverted on
+    2026-08-17 when HookAnchor f180d008c retired the bare-dash electric
+    grammar, and replaced by dashes-outside. The declaration moved; the
+    fixture did not, so the group labelled *conformant* stopped conforming and
+    `R-stone-04`'s no-false-fire half was asserting against a shape the system
+    no longer uses. Found 2026-08-28 while moving the declarations out of JSON
+    — the third copy of the same facts to drift, and the reason this one is
+    derived instead of written."""
+    cfg = ap._stone_kinds()[kind]
+    alias = cfg["header_alias"].replace("{slug}", slug)
+    return cfg["header_line"].replace("{link}", f"[[{target}|{alias}]]")
+
+
 @pytest.fixture
 def good(tmp_path):
     """A conformant rock group — nothing here may draw a finding."""
@@ -62,7 +79,8 @@ def good(tmp_path):
     _w(a / "OK Track/OK Rocks/OK R0001.md",
        "line:: a well-formed rock\n\n# A well-formed rock\nBody prose.\n")
     _w(a / "OK Track/OK Rock.md",
-       "# OK Rock\n\n[[OK Rock|-OK-]]\n\n[[OK R0001|OK:]] a well-formed rock\n")
+       f"# OK Rock\n\n{_header_line('OK', 'OK Rock')}\n\n"
+       "[[OK R0001|OK:]] a well-formed rock\n")
     return a
 
 
@@ -84,7 +102,8 @@ def bad(tmp_path):
     # R-stone-04: rendering disagreeing with the target, in both directions.
     _w(a / "BAD Track/BAD Rock.md",
        "# BAD Rock\n\n"
-       "[[BAD R0002|-BAD-]] renders as a header, targets a stone\n"
+       f"{_header_line('BAD', 'BAD R0002')} renders as a header, "
+       "targets a stone\n"
        "[[DAS Stone|BAD:]] renders as a stone, targets a spec page\n"
        "[[BAD Rock]] targets the control file but renders bare\n"
        "UNCOMMITTED\n"
@@ -119,11 +138,12 @@ def test_rule_is_quiet_on_a_conformant_group(good, rule):
 
 
 def test_kind_config_is_readable():
-    """Every per-kind fact is read from `DAS Stone Kinds.json`; nothing is
-    hardcoded. If that file cannot be read the checkers must ERROR, never pass —
-    an instrument that cannot see its subject has verified nothing."""
+    """Every per-kind fact is read from the DAS kind table (markdown, located
+    by `stone_kinds_doc` in F080 config); nothing is hardcoded. If that table
+    cannot be read the checkers must ERROR, never pass — an instrument that
+    cannot see its subject has verified nothing."""
     kinds = ap._stone_kinds()
-    assert kinds, f"no kinds readable from {ap._STONE_KINDS_PATH}"
+    assert kinds, f"no kinds readable from {ap._stone_kinds_path()}"
     for cfg in kinds.values():
         assert {"folder", "control", "prefix"} <= set(cfg)
 
@@ -159,7 +179,7 @@ def test_checkers_name_no_kind():
         for kind in ("pebble", "rock", "Pebbles", "Rocks"):
             assert kind not in code, (
                 f"{kind!r} is hardcoded in {name} — read it from "
-                "DAS Stone Kinds.json instead")
+                "the DAS kind table instead")
 
 
 def test_rules_reach_a_real_plan(tmp_path):
@@ -178,3 +198,83 @@ def test_rules_reach_a_real_plan(tmp_path):
     assert any(r.startswith("R-stone-") for r in named), (
         "no R-stone rule reached the plan — the ruleset is not armed, however "
         "many umbrellas name it and however green the sweep looks")
+
+
+def test_stone_dispatch_linked_fires_beside_a_linked_twin(tmp_path):
+    """T603 / R-stone-07 — an unlinked group fires, a linked twin stays quiet.
+
+    The standing R-stone evidence rule: a green sweep over the live corpus is
+    not evidence, because a rule that selects nothing is also green. So the
+    fixture builds BOTH groups in one anchor and asserts the pair — the linked
+    one silent, the unlinked one failing — which is the only shape that
+    distinguishes "the rule works" from "the rule never ran".
+
+    The pair is not decoration. The live victim was exactly this asymmetry:
+    `SV Sleepers` was unreachable by navigation and nothing said so, while the
+    ROCKS half of the identical defect fired in the same sweep on the same
+    anchor. R-stone had generalised six of R-rocks' thirteen rules and stopped.
+    """
+    anchor = tmp_path / "DUO"
+    _w(anchor / ".anchor", "slug: DUO\n")
+
+    # A linked rock group.
+    _w(anchor / "DUO Track/DUO Rocks/DUO R0001.md", "line:: x\n\n# x\nBody.\n")
+    _w(anchor / "DUO Track/DUO Rock.md",
+       "# DUO Rock\n\n[[DUO Rock|-DUO-]]\n\n[[DUO R0001|DUO:]] x\n")
+    # An UNLINKED pebble group, same anchor, same shape.
+    _w(anchor / "DUO Track/DUO Pebbles/DUO P0001.md", "line:: y\n\n# y\nBody.\n")
+    _w(anchor / "DUO Track/DUO Pebble.md",
+       "# DUO Pebble\n\n[[DUO Pebble|-DUO-]]\n\n[[DUO P0001|DUO:]] y\n")
+
+    # The Track page links only the rock group.
+    track = anchor / "DUO Track/DUO Track.md"
+    _w(track, "# DUO Track\n\n| -[[DUO Track]]- | |\n| --- | --- |\n"
+              "| [[DUO Rocks]] | rocks |\n| ... | |\n")
+
+    # A folder-scope rule is judged ONCE per group, on the group's spokesfile --
+    # its first member -- not on the control file, which for most kinds sits
+    # beside the folder rather than in it. `_stone_gate` passes anything else
+    # with "judged once, on '<spokes>'", so aiming at the control file would
+    # make this whole fixture green for the wrong reason.
+    rock_ctl = anchor / "DUO Track/DUO Rocks/DUO R0001.md"
+    peb_ctl = anchor / "DUO Track/DUO Pebbles/DUO P0001.md"
+
+    v_rock, _ = ap.chk_stone_dispatch_linked(rock_ctl, anchor, None)
+    v_peb, msg = ap.chk_stone_dispatch_linked(peb_ctl, anchor, None)
+
+    assert v_rock == "pass", f"the LINKED group must stay quiet, got {v_rock}"
+    assert v_peb == "fail", (
+        "the UNLINKED group must fire — this is the exact silence that let "
+        f"SV Sleepers go unreachable, got {v_peb}")
+    assert "DUO Pebbles" in msg, f"the message must name the missing link: {msg}"
+
+    # Now link it, and the finding must clear -- a rule that cannot be satisfied
+    # is not a rule, it is a permanent complaint.
+    _w(track, "# DUO Track\n\n| -[[DUO Track]]- | |\n| --- | --- |\n"
+              "| [[DUO Rocks]] | rocks |\n| [[DUO Pebbles]] | pebbles |\n| ... | |\n")
+    v_peb2, _ = ap.chk_stone_dispatch_linked(peb_ctl, anchor, None)
+    assert v_peb2 == "pass", f"linking the group must clear the finding, got {v_peb2}"
+
+    # A dispatch cell escapes its pipe; the alias form must satisfy it too.
+    _w(track, "# DUO Track\n\n| -[[DUO Track]]- | |\n| --- | --- |\n"
+              "| [[DUO Rocks]] | rocks |\n| [[DUO Pebbles\\|the pebbles]] | |\n| ... | |\n")
+    v_peb3, _ = ap.chk_stone_dispatch_linked(peb_ctl, anchor, None)
+    assert v_peb3 == "pass", f"a pipe-escaped alias link must satisfy it, got {v_peb3}"
+
+    # The CONTROL FILE satisfies reachability too, and in this vault it is what
+    # actually does: measured 2026-08-28, every non-rock Track page links
+    # `[[{slug} Pebble]]` (singular) rather than the folder. Porting R-rocks-08's
+    # folder-only predicate fired on 21 of 32 live groups -- a rule measuring a
+    # convention rather than a defect. The control file is the better target
+    # anyway: it is what a reader opens, and the folder is storage.
+    _w(track, "# DUO Track\n\n| -[[DUO Track]]- | |\n| --- | --- |\n"
+              "| [[DUO Rocks]] | rocks |\n| [[DUO Pebble]] | control file |\n| ... | |\n")
+    v_peb4, _ = ap.chk_stone_dispatch_linked(peb_ctl, anchor, None)
+    assert v_peb4 == "pass", f"a link to the control file must satisfy it, got {v_peb4}"
+
+    # And neither present is still a finding -- the two accepted targets must
+    # not add up to "anything mentioning the slug".
+    _w(track, "# DUO Track\n\n| -[[DUO Track]]- | |\n| --- | --- |\n"
+              "| [[DUO Rocks]] | rocks |\n| ... | |\n")
+    v_peb5, _ = ap.chk_stone_dispatch_linked(peb_ctl, anchor, None)
+    assert v_peb5 == "fail", f"neither target linked must still fire, got {v_peb5}"
