@@ -7363,6 +7363,48 @@ def chk_stone_control_links_resolve(target, anchor_root, args):
                     "untrustworthy at exactly that moment")
 
 
+def chk_stone_single_per_kind(target, anchor_root, args):
+    """R-stone-10: at most one group PER KIND under any one anchor.
+
+    T603 leg 3, the kind-generic port of `R-rocks-03` — and the predicate is
+    not the rock one widened. [[DAS Stone]] states the cardinality as *any
+    number of kinds; at most one group per kind per anchor*, so `SV` holding a
+    pebble, a rock and a sleeper group side by side is the design, and only a
+    SECOND group of the same kind is the defect. A port that counted every
+    stone folder would have fired on exactly the anchors using the facet best.
+
+    Nested project anchors are excluded by the same walk the rock checker
+    uses: a folder belongs to the nearest enclosing anchor that is not itself a
+    facet sub-anchor. That exclusion is load-bearing here — `SV` encloses four
+    pebble groups, and three of them belong to `A2X`, `SVP` and `SVH`.
+
+    Measured 2026-08-28 across 32 live groups: every anchor holds one group
+    per kind. Evidence is the fixture."""
+    f, folder, slug, cfg, done = _stone_gate(target, anchor_root, True)
+    if done:
+        return done
+    owner = _stone_owner(folder)
+    suffix = cfg["folder"].replace("{slug}", "")
+    found = []
+    for cand in owner.rglob(f"*{suffix}"):
+        if not cand.is_dir() or _under_dot_dir(cand, owner):
+            continue
+        d = cand.parent
+        while d != owner and d.parent != d:
+            if (d / ".anchor").is_file() and _stone_owner(d) == d:
+                break
+            d = d.parent
+        if d == owner:
+            found.append(cand)
+    if len(found) <= 1:
+        return "pass", f"{len(found)} {suffix.strip()} group"
+    rel = ", ".join(str(x.relative_to(owner)) for x in sorted(found))
+    return "fail", (f"{len(found)} {suffix.strip()} groups under one anchor ({rel}) — "
+                    "two lists of one kind for one anchor is two answers to the "
+                    "same question with nothing to say which governs; a split "
+                    "activity gets its own anchor, and that anchor its own group")
+
+
 def chk_rocks_folder_note_catchall(target, anchor_root, args):
     """R-rocks-09: the folder-note's dispatch table carries a `...` catch-all row."""
     f, folder, slug, done = _rocks_gate(target, anchor_root, True)
@@ -8298,6 +8340,7 @@ CHECKERS = {
     "stone_dispatch_linked": chk_stone_dispatch_linked,
     "stone_member_ranked": chk_stone_member_ranked,
     "stone_control_links_resolve": chk_stone_control_links_resolve,
+    "stone_single_per_kind": chk_stone_single_per_kind,
     "rocks_folder_note_catchall": chk_rocks_folder_note_catchall,
     # R-stone (T164) — the kind-generic four; the other two rules of the six
     # stay `stated` on purpose (R-stone-03 is a claim about how a value was

@@ -336,3 +336,41 @@ def test_stone_ranking_rules_fire_beside_a_clean_twin(tmp_path):
     for fn in (ap.chk_stone_member_ranked, ap.chk_stone_control_links_resolve):
         v, msg = fn(book, anchor, None)
         assert v == "pass", f"{fn.__name__} must clear once fixed: {v} {msg}"
+
+
+def test_stone_single_per_kind_fires_beside_a_clean_twin(tmp_path):
+    """T603 leg 3 / R-stone-10 — two groups of ONE kind fire; several kinds do
+    not; a nested anchor's group of the same kind does not count.
+
+    The last case is the one that would have bitten: `SV` encloses four pebble
+    groups, three of them owned by nested anchors. A port that counted them
+    would have failed the vault's heaviest Stone user for using the facet as
+    designed.
+    """
+    # Clean: one anchor, three KINDS, one group each — the SV shape.
+    ok = tmp_path / "OK"
+    _w(ok / ".anchor", "slug: OK\n")
+    for kind, ctl, m in (("Pebbles", "Pebble", "P0001"), ("Rocks", "Rock", "R0001"),
+                         ("Sleepers", "Sleeper", "S0001")):
+        _w(ok / f"OK Track/OK {kind}/OK {m}.md", "line:: x\n\n# x\nBody.\n")
+        _w(ok / f"OK Track/OK {ctl}.md", f"# OK {ctl}\n\n-[[OK {ctl}|OK]]-\n\n[[OK {m}|OK:]] x\n")
+    # And a NESTED project anchor with its own pebble group, which is its own.
+    _w(ok / "sub/.anchor", "slug: SUB\n")
+    _w(ok / "sub/SUB Track/SUB Pebbles/SUB P0001.md", "line:: y\n\n# y\nBody.\n")
+    _w(ok / "sub/SUB Track/SUB Pebble.md", "# SUB Pebble\n\n-[[SUB Pebble|SUB]]-\n\n[[SUB P0001|SUB:]] y\n")
+
+    for kind, m in (("Pebbles", "P0001"), ("Rocks", "R0001"), ("Sleepers", "S0001")):
+        v, msg = ap.chk_stone_single_per_kind(ok / f"OK Track/OK {kind}/OK {m}.md", ok, None)
+        assert v == "pass", f"one group per kind must pass ({kind}): {v} {msg}"
+    v, msg = ap.chk_stone_single_per_kind(ok / "sub/SUB Track/SUB Pebbles/SUB P0001.md", ok / "sub", None)
+    assert v == "pass", f"the nested anchor's own group must pass: {v} {msg}"
+
+    # Defective: a second pebble group under the same anchor, filed elsewhere.
+    bad = tmp_path / "BAD"
+    _w(bad / ".anchor", "slug: BAD\n")
+    _w(bad / "BAD Track/BAD Pebbles/BAD P0001.md", "line:: x\n\n# x\nBody.\n")
+    _w(bad / "BAD Track/BAD Pebble.md", "# BAD Pebble\n\n-[[BAD Pebble|BAD]]-\n\n[[BAD P0001|BAD:]] x\n")
+    _w(bad / "BAD Design/BAD Old Pebbles/BAD P0009.md", "line:: z\n\n# z\nBody.\n")
+    v, msg = ap.chk_stone_single_per_kind(bad / "BAD Track/BAD Pebbles/BAD P0001.md", bad, None)
+    assert v == "fail", f"two pebble groups under one anchor must FAIL, got {v}: {msg}"
+    assert "BAD Old Pebbles" in msg and "BAD Pebbles" in msg, msg

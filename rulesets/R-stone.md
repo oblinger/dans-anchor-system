@@ -89,3 +89,14 @@ Every control-file line ranking one of **this group's** stones — a line whose 
 **Why:** the control file is the surface people read and cite from; a link that goes nowhere makes it untrustworthy at exactly the moment someone is trying to act on it. R-rocks-06 records the vault-wide [[Rocks]] page carrying five such rows for months — and that rule judged nothing at all between the Stone migration and 2026-08-11, because it kept reading the folder-note after the ranking had moved. This port reads the control file only, since under [[DAS Stone]] that is where the ranking is and there is no migration to straddle.
 
 **Ported from [[R-rocks]]-06 on 2026-08-28 ([[TINK Backlog#^T603|T603]] leg 2).** Measured first: zero dead lines across 32 live groups, `SONAR Book`'s eleven dated members included. Evidence is the paired fixture, same as R-stone-08.
+
+### RULE R-stone-10 — Cardinality: at most one group per kind per anchor (checked)
+check:: stone_single_per_kind
+
+An anchor may hold any number of **kinds**, and at most one group of **each**. `SV` holding `SV Pebbles/`, `SV Rocks/` and `SV Sleepers/` side by side is the design; a second `* Pebbles/` under the same anchor is the defect.
+
+**Check pattern:** for the group's kind, count folders carrying that kind's suffix under the owning anchor, excluding any that belong to a nested project anchor (a folder belongs to the nearest enclosing anchor that is not itself a facet sub-anchor); assert ≤ 1. Judged **once per group**, on the spokesfile.
+
+**Why:** two lists of one kind for one anchor is two answers to the same question with nothing to say which governs. When an activity splits, the sub-activities get their own anchors, and each anchor its own single group per kind. The nested-anchor exclusion is what makes the rule honest: `SV` encloses four pebble groups, and three belong to `A2X`, `SVP` and `SVH`.
+
+**Ported from [[R-rocks]]-03 on 2026-08-28 ([[TINK Backlog#^T603|T603]] leg 3) — and the predicate is not the rock one widened.** Counting every stone folder under an anchor would have fired on exactly the anchors using the facet best. This is the same trap R-stone-07's port fell into once already: a rule measuring a convention instead of the defect. The cardinality line in [[DAS Stone]] was the predicate all along; the checker now enforces it for every kind. Measured 2026-08-28: 32 live groups, one per kind per anchor everywhere, so the evidence is `test_stone_single_per_kind_fires_beside_a_clean_twin`.
