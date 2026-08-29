@@ -15,4 +15,4 @@ description: "fixture — every non-executable state carries its body contract (
 ## Next
 
 - **F006 — Dated soak** [Watching 7d] — retry-cap fix shipped; non-recurrence by 2026-07-13 proves it held.
-  - **Verify:** any double-retry since 2026-07-06? yes/no
+  - **Verify:** any double-retry since 2026-07-06? yes/no · *why-user: passive-use observation — a recurrence shows up while using the app, not in a log the agent can read*

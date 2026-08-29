@@ -30,17 +30,12 @@
   "status": "pass"
  },
  {
-  "rule": "R-dispatch-table-09",
+  "rule": "R-backlog-08",
   "target": "FX4 Backlog.md",
   "status": "pass"
  },
  {
-  "rule": "R-dispatch-table-10",
-  "target": "FX4 Backlog.md",
-  "status": "pass"
- },
- {
-  "rule": "R-dispatch-table-15",
+  "rule": "R-backlog-09",
   "target": "FX4 Backlog.md",
   "status": "pass"
  },
@@ -76,6 +71,11 @@
  },
  {
   "rule": "R-markdown-06",
+  "target": "FX4 Backlog.md",
+  "status": "pass"
+ },
+ {
+  "rule": "R-markdown-11",
   "target": "FX4 Backlog.md",
   "status": "pass"
  },

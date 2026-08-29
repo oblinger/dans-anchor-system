@@ -1,5 +1,10 @@
 [
  {
+  "rule": "R-dispatch-table-06",
+  "target": "FX7 Guide.md",
+  "status": "pass"
+ },
+ {
   "rule": "R-dispatch-table-09",
   "target": "FX7 Guide.md",
   "status": "pass"
@@ -46,6 +51,11 @@
  },
  {
   "rule": "R-markdown-06",
+  "target": "FX7 Guide.md",
+  "status": "pass"
+ },
+ {
+  "rule": "R-markdown-11",
   "target": "FX7 Guide.md",
   "status": "pass"
  },

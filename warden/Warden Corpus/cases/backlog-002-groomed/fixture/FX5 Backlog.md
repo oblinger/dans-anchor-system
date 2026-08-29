@@ -13,7 +13,7 @@ description: "fixture — a groomed backlog satisfying the F228 frontier invaria
 - **F002 — Fix the flaky importer retry** [Questions] — the importer sometimes double-retries on timeout. → [[F002 — Fix the flaky importer retry]]
 
 - **F003 — Panel reopen fix** [Verify] — fix shipped 2026-07-01; panel state now persists across restarts.
-  - **Verify:** close the panel, restart the app, reopen the panel — did it restore to its pre-restart position? **yes/no**
+  - **Verify:** close the panel, restart the app, reopen the panel — did it restore to its pre-restart position? **yes/no** · *why-user: passive-use observation — whether the restored position feels right is only visible in ordinary use*
 
 ## Later
 

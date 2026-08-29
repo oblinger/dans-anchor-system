@@ -1,5 +1,5 @@
 ---
-description: the golden corpus — recorded expected verdicts that pin engine behavior
+description: the golden test corpus — rule × fixture × expected-verdict cases, the drift oracle for every Warden engine
 ---
 # Warden Corpus
 
