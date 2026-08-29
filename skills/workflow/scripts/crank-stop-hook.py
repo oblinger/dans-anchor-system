@@ -328,6 +328,58 @@ def _triage_line_check(slug, msg):
                             "re-run is required, not optional."))
 
 
+_CRANK_PRESS_RE = re.compile(r"^\s*(?:'|/crank\b|(?:then\s+|ok(?:ay)?[,.]?\s+)?crank\b)", re.I)
+
+
+def _not_a_crank_report(sentinel, transcript_path, final_text):
+    """F306 D3 narrowing (week-2 read, 2026-08-28): the reason this stop is NOT
+    the crank's own report, else None. Two shapes covered 7 of 9 `missing`
+    verdicts while genuine forgot-the-line covered 2:
+
+    - `user-turn` — a genuine user message landed AFTER the crank press (the
+      sentinel's `started`) and is not itself a crank press: the user
+      interrupted mid-sweep and this stop is the reply, which never owed the
+      line. Tool-result and meta entries are not user turns.
+    - `ask-json` — the final message is an `/ask`-style JSON block
+      (`{"asking": …}`), the shape the stage-2 classifier consumes.
+
+    The sentinel is still consumed by the caller (the crank is over either
+    way); only the judgment is skipped, and the verdict is logged as
+    `not-crank` so the rate stays measurable. Fail-open: any error → None."""
+    try:
+        txt = (final_text or "").strip()
+        if txt.startswith("{") and '"asking"' in txt[:200]:
+            return "ask-json"
+        started = datetime.fromisoformat((sentinel or {}).get("started", ""))
+        for e in _iter_entries(transcript_path):
+            if e.get("type") != "user" or e.get("isMeta"):
+                continue
+            msg = e.get("message") or {}
+            content = msg.get("content")
+            if isinstance(content, str):
+                text = content
+            else:
+                blocks = content or []
+                if blocks and all(isinstance(b, dict) and b.get("type") == "tool_result"
+                                  for b in blocks):
+                    continue
+                text = "\n".join(b.get("text") or "" for b in blocks
+                                 if isinstance(b, dict) and b.get("type") == "text")
+            ts = e.get("timestamp") or ""
+            try:
+                when = datetime.fromisoformat(ts.replace("Z", "+00:00"))
+            except (ValueError, TypeError):
+                continue
+            if when <= started:
+                continue
+            if _CRANK_PRESS_RE.match(text or ""):
+                continue
+            return "user-turn"
+    except (ValueError, TypeError, OSError):
+        return None
+    return None
+
+
 def _triage_mode():
     """`'warn'` (default) or `'enforce'`. Absent/unreadable → warn.
 
@@ -343,7 +395,7 @@ def _triage_mode():
         return "warn"
 
 
-def _triage_log(slug, verdict, mode, msg_tail=None):
+def _triage_log(slug, verdict, mode, msg_tail=None, why=None):
     # `msg_tail` (final ~160 chars of the stopping message) exists so the D4
     # read can adjudicate what a `missing` verdict actually was: a crank report
     # that forgot its line (the defect), or a conversational reply that merely
@@ -356,6 +408,8 @@ def _triage_log(slug, verdict, mode, msg_tail=None):
                "anchor": slug, "verdict": verdict, "mode": mode}
         if msg_tail:
             rec["msg_tail"] = msg_tail[-160:]
+        if why:
+            rec["why"] = why
         with TRIAGE_LOG.open("a", encoding="utf-8") as fh:
             fh.write(json.dumps(rec) + "\n")
     except OSError:
@@ -680,12 +734,20 @@ def warden_hook(payload):
         if crank is not None:
             final_text = _last_assistant_text(
                 payload.get("transcript_path", ""))
-            verdict, reason = _triage_line_check(name, final_text)
             mode = _triage_mode()
-            _triage_log(name, verdict, mode,
-                        msg_tail=(final_text or "").strip())
-            if reason and mode == "enforce":
-                return _block(gate_path, reason, name, count)
+            # D3 narrowed 2026-08-28: a reply-stop after a user interruption,
+            # or an /ask JSON block, consumes the sentinel WITHOUT being judged.
+            skip = _not_a_crank_report(crank, payload.get("transcript_path", ""),
+                                       final_text)
+            if skip:
+                _triage_log(name, "not-crank", mode,
+                            msg_tail=(final_text or "").strip(), why=skip)
+            else:
+                verdict, reason = _triage_line_check(name, final_text)
+                _triage_log(name, verdict, mode,
+                            msg_tail=(final_text or "").strip())
+                if reason and mode == "enforce":
+                    return _block(gate_path, reason, name, count)
         # F267 stage 2: always logs a verdict; returns a block-reason only in
         # enforce mode (asking + unsurfaced + budget left), else None.
         reason = _llm_ask_check(payload, name, anchor_path)

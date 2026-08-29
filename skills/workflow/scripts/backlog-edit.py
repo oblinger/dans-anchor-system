@@ -2226,11 +2226,20 @@ def verify_write_landed(lines, row_id, requested):
     row_line = lines[span[0]]
     m = ROW_FULL_RE.match(row_line)
 
-    if want_status and want_status != "same":
+    # A row with an EMPTY bracket — `[ ]`, which several parked rows carry —
+    # yields `existing_status_for_check == " "`. That is truthy, so the F147
+    # `status == "same"` resolution above assigns it, and `want_status` arrives
+    # here as whitespace: truthy, not "same", and `.split()[0]` raises
+    # IndexError. `state migrate-t` hit this on the first anchor that had one
+    # (MUX, 2026-08-28) and died mid-migration. Splitting FIRST and testing the
+    # result says what the guard always meant — there is a status family to
+    # compare — and skips the check when the caller asked for no bracket.
+    want_family = (want_status or "").split()
+    if want_family and want_status != "same":
         got = m.group("status") if m else None
         # `[Verify-by 2026-09-01]`, `[Blocked foo]`, `[Done — note]` all carry
         # the family as a prefix; the caller asked for the family.
-        if not got or not got.startswith(want_status.split()[0]):
+        if not got or not got.startswith(want_family[0]):
             failures.append(f"status: asked [{want_status}], row reads [{got}]")
 
     for key, label in (("title", "title"), ("body", "body")):

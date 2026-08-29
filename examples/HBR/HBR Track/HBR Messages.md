@@ -70,3 +70,5 @@ description: agent inbox — background-process messages for this anchor; append
 [2026-08-10 12:35:31] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/examples/HBR/HBR Track/HBR Backlog.md was edited
 [2026-08-12 16:04:45] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/examples/HBR/HBR Track/HBR Backlog.md was edited
 [2026-08-12 16:05:16] [INFO] backlog at SYS/Bespoke/Skill Agent/dans-anchor-system/examples/HBR/HBR Track/HBR Backlog.md was edited
+[2026-08-28 21:19:26] [INFO] HBR: updated T004 in Active [Active] (at SYS/Bespoke/Skill Agent/dans-anchor-system/examples/HBR/HBR Track/HBR Backlog.md)
+[2026-08-28 21:19:30] [INFO] HBR: updated T005 in Next [Ready] (at SYS/Bespoke/Skill Agent/dans-anchor-system/examples/HBR/HBR Track/HBR Backlog.md)

@@ -2132,6 +2132,22 @@ def _row_define(slug, backlog_path, label, args, minted=False, raw_override=None
     else:
         horizon = "Now"
 
+    # F614 — a NEW T row gets its doc here, in the same call that mints it.
+    # The body the caller wrote becomes the doc's Summary; the row keeps the
+    # pointer and the F332 derived line. An `--inline` define is refused: the
+    # inline form is what F614 retired, and a fixture that wants a plain row
+    # can mint one and read the doc.
+    if (label.startswith("T") and not exists
+            and not be.is_derived_row_body(row_body)
+            and not any(_ROW_Q_HEADER_RE.match(l) for l in sub_lines)):
+        doc = mint_task_doc(backlog_path, label, title, row_body, status,
+                            next_text=next_text, verify_text=verify_text,
+                            user_text=user_text, subs=sub_lines)
+        print(f"{slug}: minted {doc.name} for {label} (F614 — the row is its pointer)",
+              file=sys.stderr)
+        row_body = f"→ [[{doc.stem}|{label}]]"
+        sub_lines = []
+
     # Sub-bullets ride through perform_edit (pending_subs) so they land in the
     # SAME write as the row — attaching them after _delegate_row_edit let the
     # in-delegate refresh_q_md audit a sub-bullet-less row (C24 --fix then
@@ -2145,6 +2161,94 @@ def _row_define(slug, backlog_path, label, args, minted=False, raw_override=None
         user_text=user_text,
         why_user_action=getattr(args, "why_user_action", None),
     )
+
+
+# ------------------------------------------------------------------
+# F614 (A), Dan 2026-08-28 — every T row gets its own doc, minted by `state`
+# itself from the row text, and the backlog becomes one pointer line per row
+# for F and T alike. "The stub is the row": the doc's H1 is the row title, its
+# Summary is the row body, its Status opens with the row's bracket (so the
+# F329 gate is satisfied on the same write), and its `next::` is the row's
+# Next. The row then carries `→ [[doc|T<n>]]` and the F332 derived line.
+# ------------------------------------------------------------------
+
+_T_DOC_TITLE_MAX = 72
+_T_DOC_BAD_CHARS = re.compile(r'[\\/:*?"<>|#^\[\]`]')
+
+
+def _t_doc_filename_title(title):
+    """The filename half of a T doc: the row title, ASCII-safe, cut at a word
+    boundary near 72 chars. The full title stays in the H1."""
+    t = _T_DOC_BAD_CHARS.sub(" ", title).replace("—", "-").replace("–", "-")
+    t = re.sub(r"\s+([,;:.])", r"\1", re.sub(r"\s+", " ", t)).strip(" .,;:-")
+    if len(t) > _T_DOC_TITLE_MAX:
+        cut = t[:_T_DOC_TITLE_MAX].rsplit(" ", 1)[0].rstrip(" ,;:-")
+        t = cut or t[:_T_DOC_TITLE_MAX]
+    return t or "Untitled"
+
+
+def _t_doc_owner(backlog_path):
+    """(anchor_root, slug) for the anchor that owns this backlog."""
+    cur = Path(backlog_path).resolve().parent
+    while True:
+        dot = cur / ".anchor"
+        # A `{slug} Track/` or `{slug} Backlog/` folder is a facet sub-anchor
+        # with its own `.anchor` (slug `TINK Backlog`); the doc is named for
+        # the anchor that OWNS the tracking, one or two levels up.
+        if dot.is_file() and not cur.name.endswith((" Track", " Backlog", " Design")):
+            m = re.search(r"^slug:\s*(\S+)", dot.read_text(encoding="utf-8", errors="replace"), re.M)
+            return cur, (m.group(1).strip().strip("\"'") if m else cur.name)
+        if cur.parent == cur:
+            return Path(backlog_path).parent, Path(backlog_path).stem[:-len(" Backlog")]
+        cur = cur.parent
+
+
+def _t_doc_dir(backlog_path):
+    """`{slug} Track/{slug} Backlog/` — the folder the doc-backed T rows already
+    use. The backlog file itself may sit inside it (folder-note form) or beside
+    it; either way the docs go in the folder."""
+    bp = Path(backlog_path)
+    if bp.parent.name == bp.stem:
+        return bp.parent
+    return bp.parent / bp.stem
+
+
+def mint_task_doc(backlog_path, label, title, row_body, status,
+                  next_text=None, verify_text=None, user_text=None, subs=None):
+    """Create the T row's doc and return its path. Never overwrites: an existing
+    doc of the same name is returned as-is (the row simply points at it)."""
+    root, slug = _t_doc_owner(backlog_path)
+    num = re.sub(r"^[A-Za-z]+", "", label)
+    ddir = _t_doc_dir(backlog_path)
+    ddir.mkdir(parents=True, exist_ok=True)
+    stem = f"{slug}{num} - {_t_doc_filename_title(title)}"
+    path = ddir / f"{stem}.md"
+    if path.is_file():
+        return path
+    body = (row_body or "").strip()
+    first = re.split(r"(?<=[.!?])\s+", body, maxsplit=1)[0] if body else title
+    orient = re.sub(r"\s+", " ", first).strip()
+    if len(orient) > 240:
+        orient = orient[:240].rsplit(" ", 1)[0] + " …"
+    desc = orient.replace('"', "'")
+    lines = ["---", f'description: "{desc}"', "---", "",
+             f"# [[{slug}]] · {label} — {title}", orient, ""]
+    if next_text:
+        lines += [f"next:: {next_text}", ""]
+    lines += ["## Summary", "", body or title, ""]
+    extra = [s for s in (subs or []) if s.strip()]
+    if extra:
+        lines += [s.strip() if s.strip().startswith("- ") else f"- {s.strip()}" for s in extra] + [""]
+    if verify_text:
+        lines += [f"**Verify:** {verify_text}", ""]
+    if user_text:
+        lines += [f"**User:** {user_text}", ""]
+    stamp = date.today().isoformat()
+    lines += ["## Status", "",
+              f"**{status}** — minted from the backlog row by `state` on {stamp} (F614: every task has its doc; the row is its pointer).", ""]
+    path.write_text("\n".join(lines), encoding="utf-8")
+    _selffire(path)
+    return path
 
 
 _ROW_Q_HEADER_RE = re.compile(r"^(\s*)-\s+\*\*Q(\d+)\b")
@@ -3986,6 +4090,68 @@ def _triage_gate_findings(backlog_path):
     return findings
 
 
+def cmd_migrate_t(slug, anchor_path, args):
+    """F614 — convert every inline (non-pointer) T row that is not [Done] into
+    a doc-backed one: mint the doc from the row text, then `set --doc`. Done
+    rows are history and are left as they are; `--all` includes them."""
+    backlog_path = be.find_backlog(slug)
+    if backlog_path is None:
+        raise be.BacklogEditError(f"no '{slug} Backlog.md' under vault root")
+    lines = backlog_path.read_text(encoding="utf-8").splitlines()
+    todo = []
+    for ln in lines:
+        m = be.ROW_FULL_RE.match(ln.strip())
+        if not m or not m.group("rid").startswith("T"):
+            continue
+        status = (m.group("status") or "").strip()
+        body = (m.group("body") or "").strip()
+        if be.is_derived_row_body(body):
+            continue
+        if status.startswith("Done") and not getattr(args, "all", False):
+            continue
+        todo.append(m.group("rid"))
+    if not todo:
+        print(f"{slug}: no inline T rows to migrate")
+        return 0
+    if getattr(args, "dry_run", False):
+        print(f"{slug}: {len(todo)} inline T row(s) would be migrated — " + ", ".join(todo))
+        return 0
+    done, skipped = [], []
+    for rid in todo:
+        row = be.read_full_row(backlog_path, rid)
+        if row is None:
+            print(f"{slug}: {rid} unreadable — skipped", file=sys.stderr)
+            continue
+        subs = [s for s in row.get("other_subs") or [] if s.strip()]
+        existed = _t_doc_dir(backlog_path).is_dir()
+        doc = mint_task_doc(backlog_path, rid, row["title"], row["body"], row["status"],
+                            next_text=row.get("next"), verify_text=row.get("verify"),
+                            user_text=row.get("user"), subs=subs)
+        try:
+            _delegate_row_edit(slug, "same", rid, "same", "", f"→ [[{doc.stem}|{rid}]]",
+                               title_provided=False, body_provided=True,
+                               pending_subs=[], drop_pointer=True)
+        except be.BacklogEditError as exc:
+            # The row's own promise gate refused (a [Ready] with no Next, a
+            # [Questions] whose doc hosts no Q) — a pre-existing defect of the
+            # row, not of the migration. Leave the row inline, drop the doc we
+            # just minted so no orphan survives, and say so.
+            try:
+                doc.unlink()
+            except OSError:
+                pass
+            skipped.append(f"{rid}: {str(exc).splitlines()[0][:160]}")
+            continue
+        done.append(f"{rid} → {doc.name}")
+    print(f"{slug}: migrated {len(done)} T row(s) to docs (F614)"
+          + (f", {len(skipped)} skipped" if skipped else ""))
+    for d in done:
+        print(f"  {d}")
+    for s in skipped:
+        print(f"  SKIPPED {s}", file=sys.stderr)
+    return 0
+
+
 def cmd_triage(slug, anchor_path, args):
     """Gated triage stamp (F239). Computes everything itself — takes no
     counts. Gates dirty → exit 1 printing the findings (the refusal IS the
@@ -4186,7 +4352,8 @@ _ITEM_VERBS = ("define", "set", "resolve", "remove")
 # with the address) from a plain typo.
 _ALL_VERBS = _ITEM_VERBS + ("show", "mint-id", "drop", "inbox-list",
                             "inbox-tag", "revalidate", "status", "roadmap",
-                            "triage", "crank", "groom-list", "summary-line")
+                            "triage", "crank", "groom-list", "summary-line",
+                            "migrate-t")
 
 _LABEL_HELP = ("item id — F<n>/T<n>/C<n>/Q<n> on Backlog, Q<n> on any "
                "other doc; LETTERS+'+' auto-mints (F+, T+, C+, Q+); "
@@ -4455,6 +4622,14 @@ def build_parser():
     rmm.add_argument("--date", required=True,
                      help="migration date YYYY-MM-DD (REQUIRED — never auto-now)")
 
+    mt = subs.add_parser("migrate-t", help="F614 — convert inline T rows to doc-backed ones (mint the doc from the row)")
+
+    mt.add_argument("anchor", help="anchor SLUG or path to a directory holding .anchor")
+    mt.add_argument("--dry-run", dest="dry_run", action="store_true")
+
+    mt.add_argument("--all", action="store_true", help="include [Done] rows (default: live rows only)")
+
+
     tr = subs.add_parser(
         "triage",
         help="verify the groomed-state gates, render, then stamp + print the "
@@ -4555,6 +4730,9 @@ def main(argv):
             return cmd_inbox_tag(slug, anchor_path, args)
         if args.verb == "revalidate":
             return cmd_revalidate(slug, anchor_path, args)
+        if args.verb == "migrate-t":
+            return cmd_migrate_t(slug, anchor_path, args)
+
         if args.verb == "triage":
             return cmd_triage(slug, anchor_path, args)
         if args.verb == "crank":

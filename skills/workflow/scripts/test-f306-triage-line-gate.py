@@ -217,5 +217,72 @@ check("...and runs before the LLM stage-2 check",
       gate.index("_triage_line_check(") < gate.index("_llm_ask_check("))
 
 
+
+print("\nD3 narrowing (week-2 read, 2026-08-28) — a reply-stop is not a crank report")
+
+m5 = load(TD)
+tr = TD / "transcript.jsonl"
+
+
+def entry(kind, text, ts, meta=False, tool_result=False):
+    if tool_result:
+        content = [{"type": "tool_result", "content": "x"}]
+    elif kind == "user":
+        content = text
+    else:
+        content = [{"type": "text", "text": text}]
+    e = {"type": kind, "timestamp": ts, "message": {"content": content}}
+    if meta:
+        e["isMeta"] = True
+    return json.dumps(e)
+
+
+def transcript(*entries):
+    tr.write_text("\n".join(entries) + "\n", encoding="utf-8")
+    return str(tr)
+
+
+SENT = {"started": "2026-08-28T10:00:00+00:00"}
+transcript(entry("user", "'", "2026-08-28T09:59:59Z"),
+           entry("assistant", "working", "2026-08-28T10:00:05Z"),
+           entry("user", "", "2026-08-28T10:00:06Z", tool_result=True),
+           entry("assistant", "report", "2026-08-28T10:00:09Z"))
+check("a crank press followed only by tool results is the crank's own report",
+      m5._not_a_crank_report(SENT, str(tr), "report"), None)
+
+transcript(entry("user", "'", "2026-08-28T09:59:59Z"),
+           entry("assistant", "working", "2026-08-28T10:00:05Z"),
+           entry("user", "actually, what about the other thing?", "2026-08-28T10:00:30Z"),
+           entry("assistant", "a reply", "2026-08-28T10:00:40Z"))
+check("a genuine user turn after the press makes this a reply-stop",
+      m5._not_a_crank_report(SENT, str(tr), "a reply"), "user-turn")
+
+transcript(entry("user", "'", "2026-08-28T09:59:59Z"),
+           entry("user", "then crank", "2026-08-28T10:00:30Z"),
+           entry("assistant", "report", "2026-08-28T10:00:40Z"))
+check("a second crank press is not an interruption",
+      m5._not_a_crank_report(SENT, str(tr), "report"), None)
+
+transcript(entry("user", "'", "2026-08-28T09:59:59Z"),
+           entry("user", "system note", "2026-08-28T10:00:30Z", meta=True),
+           entry("assistant", "report", "2026-08-28T10:00:40Z"))
+check("a meta entry is not a user turn",
+      m5._not_a_crank_report(SENT, str(tr), "report"), None)
+
+transcript(entry("user", "a message BEFORE the press", "2026-08-28T09:00:00Z"),
+           entry("assistant", "report", "2026-08-28T10:00:40Z"))
+check("a user message before the press does not count",
+      m5._not_a_crank_report(SENT, str(tr), "report"), None)
+
+check("an /ask JSON block is not a crank report",
+      m5._not_a_crank_report(SENT, str(tr), '{"asking": true, "summary": "x"}'), "ask-json")
+check("an unreadable sentinel fails open",
+      m5._not_a_crank_report({}, str(tr), "report"), None)
+
+gate = HOOK.read_text(encoding="utf-8").split("if count == 0:", 1)[1].split("return _allow", 1)[0]
+check("the gate consults the narrowing before judging",
+      gate.index("_not_a_crank_report(") < gate.index("_triage_line_check("))
+check("...and logs the skipped stop as not-crank", '"not-crank"' in gate)
+
 print(f"\n{sum(results)}/{len(results)} passed")
 raise SystemExit(0 if all(results) else 1)

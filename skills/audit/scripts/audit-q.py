@@ -80,6 +80,8 @@ Checks applied to Q.md, each anchor's backlog, and each feature/Questions doc:
        F329's mint-time gate names only the first, which is why the other
        three accumulated unseen. Warning: this is a migration population, not
        a stop-gate.                                                  (report).
+  C59: F614 — a LIVE T row that is not doc-backed (inline body); `state
+       migrate-t <anchor>` mints its doc. Done rows exempt. Warning.
   C58: F329/T363 — a member doc of a folder-form backlog that NO file in the
        vault links. The horizon sections list every LIVE row, which is what
        makes the folder reachable from its index; a doc whose row RETIRED has
@@ -3417,6 +3419,44 @@ def _labeled_subbullet_block(span: list[str], label: str) -> str:
                 break
             out.append(line)
     return "\n".join(out)
+
+
+def check_c59_inline_t_row(
+    entries: list[BacklogEntry], backlog_file: Path,
+) -> list[Finding]:
+    """C59 (F614, Dan 2026-08-28): a LIVE T row must be doc-backed — its body
+    leads with `→ [[doc|T<n>]]`. `state define … T+` mints the doc itself, so a
+    new inline row can only come from a hand edit; a legacy one is converted by
+    `state migrate-t <anchor>`. `[Done]` rows are history and are exempt.
+    Warning while the vault sweep lands; promote to error when it reads zero."""
+    out: list[Finding] = []
+    anchor = backlog_file.stem[:-len(" Backlog")] if backlog_file.stem.endswith(" Backlog") else backlog_file.stem
+    for e in entries:
+        if not re.fullmatch(r"T\d+", e.identifier or ""):
+            continue
+        if e.status.startswith("Done") or e.horizon.strip("# ").lower() == "done":
+            continue
+        # `raw_body` is the WHOLE row line — `- **T328 — Title** [Watching …] — → [[…]]`
+        # — so testing it with `.lstrip().startswith("→ [[")` is false for every
+        # row ever written, doc-backed or not, and this check flagged 100% of
+        # live T rows. Caught 2026-08-28 on MUX, where `state migrate-t` reported
+        # "no inline T rows to migrate" while C59 still flagged the very rows it
+        # had just converted: the sanctioned fixer's own output could not pass
+        # the checker. Strip the row prefix through the status bracket first,
+        # which is what "the body leads with the pointer" always meant. (The
+        # same field is matched correctly elsewhere in this file, at the C-check
+        # that uses `re.search(r"→\s+\[\[", e.raw_body)`.)
+        _body = re.sub(r"^\s*-\s*\*\*.*?\*\*\s*(?:\[[^\]]*\])?\s*(?:—\s*)?", "", e.raw_body or "")
+        if _body.lstrip().startswith("→ [["):
+            continue
+        out.append(Finding(
+            severity="warning", surface_file=e.source_file, surface_line=e.source_line,
+            code="C59",
+            message=(f"row '{e.identifier}' [{e.status}] is an inline T row — since F614 every "
+                     f"live task is doc-backed (`→ [[{anchor}<n> - Title|{e.identifier}]]`); "
+                     f"run `state migrate-t {anchor}` to mint its doc from the row"),
+            mechanically_fixable=False))
+    return out
 
 
 def check_c57_row_hosts_question(
@@ -7151,6 +7191,7 @@ def main() -> int:
         if _c58_linked is None:
             _c58_linked = _vault_wikilink_targets(VAULT_ROOT)
         findings.extend(check_c58_orphan_row_docs(backlog_file, _c58_linked))
+        findings.extend(check_c59_inline_t_row(entries, backlog_file))
         findings.extend(check_c18_verify_by_expired(entries, today))
         findings.extend(check_c23_designing_resolves(entries))
         findings.extend(check_c24_questions_count_match(entries))

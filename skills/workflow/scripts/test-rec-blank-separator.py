@@ -227,8 +227,10 @@ def main():
         # Asserted on an interior bullet: the last row in a section is followed
         # by a blank whatever the guard does, so a trailing-position check would
         # pass for the wrong reason.
-        r = define(anchor, "T6", (
-            "- **T6 — a bare Damage bullet** [Ready] — body text.\n"
+        # F614 (2026-08-28): a NEW T row's sub-bullets move into its minted doc,
+        # so the row-level blank handling is asserted on F rows here.
+        r = define(anchor, "F6", (
+            "- **F6 — a bare Damage bullet** [Ready] — body text.\n"
             "  - **Next:** do the thing.\n"
             "  - **Damage:** orphaned, with no Recommendation above it.\n"
             "  - a plain sub-bullet after it.\n"
@@ -240,8 +242,8 @@ def main():
                   "  - a plain sub-bullet after it." in t, t)
 
         # --- the carve-out stays narrow ------------------------------------
-        r = define(anchor, "T3", (
-            "- **T3 — ordinary sub-bullets** [Ready] — body text.\n"
+        r = define(anchor, "F3", (
+            "- **F3 — ordinary sub-bullets** [Ready] — body text.\n"
             "  - **Next:** do the thing.\n"
             "  - a plain sub-bullet.\n"
             "\n"
