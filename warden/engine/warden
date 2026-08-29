@@ -367,7 +367,8 @@ def cmd_daemon(args) -> int:
 
 def _iter_fire_records(home: Path):
     """Yield fire records oldest-first across the rotation pair."""
-    for name in ("fires.jsonl.1", "fires.jsonl"):
+    # Oldest generation first, so records come out in time order (T607/F613).
+    for name in ("fires.jsonl.2", "fires.jsonl.1", "fires.jsonl"):
         p = home / name
         if not p.is_file():
             continue

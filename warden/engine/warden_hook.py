@@ -248,7 +248,14 @@ def _indent_steers(steers: list[str]) -> str:
 
 # ── fire record (F231 — the why-did-that-happen log) ────────────────────────
 
-FIRES_ROTATE_BYTES = 5 * 1024 * 1024
+# ~25 MB x 3 generations (~75 MB). At the observed ~5.2 MB per 3 days that is
+# roughly six weeks, against the 3.7 days the old 5 MB x 2 held -- which is why
+# two of three counts on a nine-day soak came back ungradeable (T607). The log's
+# job is explaining a recent surprise, and 75 MB is nothing against the
+# questions it newly answers. Decided rather than asked (F068): the change is
+# one constant and reversing it costs the same edit.
+FIRES_ROTATE_BYTES = 25 * 1024 * 1024
+FIRES_GENERATIONS = 3          # fires.jsonl + .1 + .2
 
 
 def _fire_record(rec: dict) -> None:
@@ -261,6 +268,15 @@ def _fire_record(rec: dict) -> None:
         home.mkdir(parents=True, exist_ok=True)
         path = home / "fires.jsonl"
         if path.is_file() and path.stat().st_size > FIRES_ROTATE_BYTES:
+            # Cascade oldest-first so no generation is skipped: .1 -> .2, then
+            # live -> .1. Walking the other way would overwrite .1 with the live
+            # file before .2 had been taken from it, silently losing a whole
+            # generation on every rotation.
+            for n in range(FIRES_GENERATIONS - 1, 1, -1):
+                older = home / f"fires.jsonl.{n}"
+                newer = home / f"fires.jsonl.{n - 1}"
+                if newer.is_file():
+                    newer.replace(older)
             path.replace(home / "fires.jsonl.1")
         with path.open("a", encoding="utf-8") as fh:
             fh.write(json.dumps(rec, ensure_ascii=False) + "\n")

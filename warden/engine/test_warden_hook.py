@@ -607,3 +607,38 @@ def test_fire_log_coverage():
         assert cli._fire_log_coverage(home, [{"moment": "m"}]) == "", \
             "records without timestamps cannot date a window"
     print("PASS  fire_log_coverage (T607)")
+
+
+def test_fire_log_rotation_cascade():
+    """F613 Q1 — rotation keeps three generations and skips none.
+
+    The cascade direction is the whole content of this test. Moving the live
+    file to `.1` before `.1` has been taken to `.2` overwrites a full generation
+    on every single rotation, which looks like working retention and silently
+    holds a third of what it claims -- the same shape of lie T607 fixed in the
+    reporting half.
+    """
+    import tempfile
+    with tempfile.TemporaryDirectory() as td:
+        home = Path(td)
+        old_home = os.environ.get("WARDEN_HOME")
+        os.environ["WARDEN_HOME"] = str(home)
+        try:
+            live = home / "fires.jsonl"
+            for gen in ("first", "second", "third"):
+                live.write_text("x" * (wh.FIRES_ROTATE_BYTES + 1), encoding="utf-8")
+                # tag the live file so we can follow it through the cascade
+                live.write_text(gen + "\n" + "x" * wh.FIRES_ROTATE_BYTES, encoding="utf-8")
+                wh._fire_record({"ts": 0, "moment": "m"})
+            assert (home / "fires.jsonl.1").is_file(), "generation .1 missing"
+            assert (home / "fires.jsonl.2").is_file(), "generation .2 missing"
+            # .2 must hold the OLDEST rotated content, not a duplicate of .1
+            g1 = (home / "fires.jsonl.1").read_text(encoding="utf-8").split("\n", 1)[0]
+            g2 = (home / "fires.jsonl.2").read_text(encoding="utf-8").split("\n", 1)[0]
+            assert g1 != g2, "a generation was overwritten -- the cascade ran the wrong way"
+            assert (g2, g1) == ("second", "third"), (g2, g1)
+            assert not (home / "fires.jsonl.3").is_file(), \
+                "only FIRES_GENERATIONS files are kept"
+        finally:
+            os.environ["WARDEN_HOME"] = old_home if old_home else str(home)
+    print("PASS  fire_log_rotation_cascade (F613 Q1)")
