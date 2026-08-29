@@ -70,6 +70,12 @@ Apple surfaces (`imail`, `ical`, `ihealth`) carry **no auth here** — they run 
 
 Last full re-consent: **2026-08-05**, 41 scopes granted on `oblinger@gmail.com` (Gmail, Sheets, Docs, Drive, Slides all live). `dan@sportsvisio.com` last granted 2026-08-13, 6 scopes, and its refresh token is **expired or revoked** as of 2026-08-28 — `gsa auth dan@sportsvisio.com` re-consents it.
 
+**Read the credential file's `scopes` list as a REQUEST, not a grant.** Both files carry an identical 39 entries — full `drive` plus seven `gmail.*` — because that is what the client asks for; what an account actually holds is whatever was ticked at consent, which for the SV account was 6. A scope present in the file and absent from the grant is exactly the shape that makes a 404 read as *no such document* rather than *not authorized*.
+
+**Publishing this app out of Testing is not a switch.** `drive` and every `gmail.*` scope are **restricted** tier, so leaving Testing needs OAuth verification plus an annual third-party CASA security assessment — weeks and money. The 7-day expiry is a property of *this app*, not of Google Drive.
+
+**Drive access need not come through `gsa` at all.** `rclone` carries two independent remotes — `gdrive:` (personal, `oblinger@gmail.com`) and **`svdrive:`** (SportsVisio, its own `client_id`; verified working 2026-08-28, listing SV Root and reporting 54 TiB of pooled Workspace storage). They fail independently, so a dead `gsa` grant says nothing about `svdrive:`, and a task that only needs Drive *files* moved should reach for rclone before re-consenting anything. Whether `svdrive:` can **write** SV-owned files is the open question — [[TINK Backlog#^T610|TINK T610]].
+
 IDs accept full Google URLs or bare document IDs.
 
 ## Dispatch
