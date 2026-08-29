@@ -1873,7 +1873,7 @@ _Q_REQUIRED_FIELDS_HINT = (
 )
 
 
-def _validate_ask_format_body(body):
+def _validate_ask_format_body(body, nested_rec_ok=False):
     """Write-time gate for `Q<n> define` bodies — refuses anything that
     doesn't carry the ask-format basics: ≥2 own-line labeled option bullets
     AND a `- **Recommendation:**` line at indent 0 (value may be `None`).
@@ -1904,11 +1904,20 @@ def _validate_ask_format_body(body):
             "`- **Recommendation:** None`. See [[DAS ask-format]].\n"
             + _Q_REQUIRED_FIELDS_HINT
         )
-    rec_re = re.compile(r"^\s*-\s+\*\*Recommendation:\*\*", re.MULTILINE)  # `^\s*-`: a standalone Backlog Q-row (F275) carries Recommendation as an indented sub-bullet
-    if not rec_re.search(body):
+    # A standalone Backlog Q-row (F275) carries Recommendation as an indented
+    # sub-bullet, because at indent 0 the backlog parser would read it as its
+    # own row (audit-q C10 exempts that shape for the same reason). A doc-
+    # scoped Q must carry it at indent 0 — audit-q C10 refuses a nested one,
+    # and until T621 this gate accepted what C10 then failed, so a define
+    # succeeded and the [Questions] promise check on the row refused the doc
+    # it had just written (three retries on TINK T623, 2026-08-29).
+    rec_any = re.compile(r"^\s*-\s+\*\*Recommendation:\*\*", re.MULTILINE)
+    rec_top = re.compile(r"^-\s+\*\*Recommendation:\*\*", re.MULTILINE)
+    if not (rec_any if nested_rec_ok else rec_top).search(body):
+        where = "" if nested_rec_ok else " at indent 0 (audit-q C10 refuses a nested one — outdent it to the Q header's level)"
         raise be.BacklogEditError(
             "define refused: ask-format requires a `- **Recommendation:**` "
-            "line at indent 0 (value may be `None`). See [[DAS ask-format]].\n"
+            f"line{where} (value may be `None`). See [[DAS ask-format]].\n"
             + _Q_REQUIRED_FIELDS_HINT
         )
 
@@ -1925,7 +1934,7 @@ def _run_question_gates(q_num, body, why_ask, require_on_answer=False):
     `interpretation`), and `body` may gain a `· *why-ask:*` annotation. Raises
     BacklogEditError on any refusal. `q_num` is the display number for
     messages (the row/Q number)."""
-    _validate_ask_format_body(body)
+    _validate_ask_format_body(body, nested_rec_ok=require_on_answer)
     if require_on_answer and not _ON_ANSWER_RE.search(body):
         raise be.BacklogEditError(
             f"define refused: a standalone Q row (Q{q_num}) requires a "
@@ -4110,9 +4119,32 @@ def cmd_migrate_t(slug, anchor_path, args):
         if status.startswith("Done") and not getattr(args, "all", False):
             continue
         todo.append(m.group("rid"))
-    if not todo:
+    # T621 — the auditor's grammar is wider than this matcher: audit-q's
+    # ROW_OPENER_RE reads a `- **T003 — Title** — body` row with no `[status]`
+    # bracket and C59 flags it, while ROW_FULL_RE above cannot parse it, so
+    # the row sat "reported forever, migratable never" and every `state` verb
+    # was blind to it at once. Name the gap instead of hiding it: a row the
+    # auditor can see and this migrator cannot is printed with the repair
+    # path, and the run exits 1 so the sweep does not read as clean.
+    unreachable = []
+    for ln in lines:
+        s = ln.strip()
+        h = be.ROW_HEADER_RE.match(s)
+        if not h or not re.fullmatch(r"T\d+", h.group(2)) or be.ROW_FULL_RE.match(s):
+            continue
+        unreachable.append(h.group(2))
+    if not todo and not unreachable:
         print(f"{slug}: no inline T rows to migrate")
         return 0
+    if unreachable:
+        print(f"{slug}: {len(unreachable)} T row(s) audit-q can see but `state` cannot "
+              f"parse (no `[status]` bracket) — {', '.join(unreachable)}. Repair each: "
+              f"`state remove {slug} Backlog <id>` prints the row's markdown; then "
+              f"`state define {slug} Backlog <id>` with that text in canonical shape "
+              f"(`- **T<n> — Title** [Status] — body`). Copy the printed row first.",
+              file=sys.stderr)
+    if not todo:
+        return 1
     if getattr(args, "dry_run", False):
         print(f"{slug}: {len(todo)} inline T row(s) would be migrated — " + ", ".join(todo))
         return 0
@@ -4144,12 +4176,13 @@ def cmd_migrate_t(slug, anchor_path, args):
             continue
         done.append(f"{rid} → {doc.name}")
     print(f"{slug}: migrated {len(done)} T row(s) to docs (F614)"
-          + (f", {len(skipped)} skipped" if skipped else ""))
+          + (f", {len(skipped)} skipped" if skipped else "")
+          + (f", {len(unreachable)} unparseable" if unreachable else ""))
     for d in done:
         print(f"  {d}")
     for s in skipped:
         print(f"  SKIPPED {s}", file=sys.stderr)
-    return 0
+    return 1 if unreachable else 0
 
 
 def cmd_triage(slug, anchor_path, args):

@@ -103,7 +103,9 @@ def q_body(n, title, opts, lean, damage="taste — no mechanical check settles i
     lines = [f"- **Q{n} — {title}** — context for {title}."]
     for letter, text in opts:
         lines.append(f"    - **({letter})** {text}")
-    lines.append(f"    - **Recommendation:** {lean}")
+    # Outdented to the Q header level — DAS ask-format § 3 / audit-q C10; the
+    # define gate enforces the same indent since T621 (2026-08-29).
+    lines.append(f"- **Recommendation:** {lean}")
     # T160 — a Lean/Strong Q must state the risk OF ITS LEAN; carried here so
     # this test keeps exercising the lifecycle rather than that gate.
     letter = _lean_letter(lean, first=(opts[0][0] if opts else "A"))

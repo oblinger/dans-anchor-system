@@ -2789,8 +2789,13 @@ def perform_edit(
             raise BacklogEditError(
                 f"{row_id} is malformed (recognized as a row but the full line "
                 f"can't be parsed — check for an en-dash vs em-dash or a missing "
-                f"[status] bracket) — refusing to edit and wipe its content. Fix "
-                f"the row by hand or re-`define` it."
+                f"[status] bracket) — refusing to edit and wipe its content. A "
+                f"state-owned backlog is never hand-edited (T621): run `state remove "
+                f"<anchor> Backlog {row_id}`, which prints the row's markdown, then "
+                f"`state define <anchor> Backlog {row_id}` with that text in canonical "
+                f"shape (`- **{row_id} — Title** [Status] — body`). Copy the printed row "
+                f"before the define — a define gate refusing leaves the row removed and "
+                f"not yet restored."
             )
         existing_title, existing_body = parse_existing_row(lines[existing[0]])
         if not title_provided or title == "":
@@ -3541,8 +3546,13 @@ def read_full_row(path, row_id_arg):
     if not m:
         raise BacklogEditError(
             f"{row_id} in {path.name} is malformed (recognized as a row but the "
-            f"full line can't be parsed) — refusing to move it and lose its "
-            f"content. Fix the row by hand or re-`define` it."
+            f"full line can't be parsed — usually a missing `[status]` bracket) — "
+            f"refusing to move it and lose its content. A state-owned backlog is "
+            f"never hand-edited (T621): run `state remove <anchor> Backlog {row_id}`, "
+            f"which prints the row's markdown, then `state define <anchor> Backlog "
+            f"{row_id}` with that text in canonical shape (`- **{row_id} — Title** "
+            f"[Status] — body`). Copy the printed row before the define — a define "
+            f"gate refusing leaves the row removed and not yet restored."
         )
     span = lines[start + 1:end]
     verify_rx = re.compile(SUBBULLET_RE_TMPL.format(label="Verify"))
