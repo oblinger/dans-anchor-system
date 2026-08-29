@@ -116,6 +116,39 @@ vtt_to_text() {
     ' "$1" 2>/dev/null
 }
 
+# POST a messages-API payload and print the response.
+#
+# Why this retries: the env var wins over the keys store in both callers below,
+# and a STALE ANTHROPIC_API_KEY is worse than an absent one — it is non-empty,
+# so the `-z` guard hands it straight to the API, which rejects it, and the
+# document is written with no title and no overview and no visible failure.
+# Every Claude Code session exports one, so an agent-driven /vox hits this on
+# the COMMON path, not the edge. Measured 2026-08-28 on one machine in the same
+# second: env key -> 401, keys-store key -> 200. So on an authentication error,
+# fall through to the keys store once. Any other error is returned untouched —
+# this recovers a bad credential, it is not a general retry.
+api_post() {
+    local key="$1" payload="$2" timeout="$3" resp alt
+    resp="$("$CURL_BIN" -sS --max-time "$timeout" https://api.anthropic.com/v1/messages \
+        -H "x-api-key: $key" \
+        -H "anthropic-version: 2023-06-01" \
+        -H "content-type: application/json" \
+        -d "$payload" 2>>"$LOG")" || return 1
+    if printf '%s' "$resp" | grep -q '"type"[[:space:]]*:[[:space:]]*"authentication_error"' \
+       && [[ -x "$KEYS_BIN" ]]; then
+        alt="$("$KEYS_BIN" get ANTHROPIC_API_KEY 2>/dev/null || true)"
+        if [[ -n "$alt" && "$alt" != "$key" ]]; then
+            log "api: ANTHROPIC_API_KEY from the environment was rejected — retrying with the keys store"
+            resp="$("$CURL_BIN" -sS --max-time "$timeout" https://api.anthropic.com/v1/messages \
+                -H "x-api-key: $alt" \
+                -H "anthropic-version: 2023-06-01" \
+                -H "content-type: application/json" \
+                -d "$payload" 2>>"$LOG")" || return 1
+        fi
+    fi
+    printf '%s' "$resp"
+}
+
 # Derive a short title from the (trusted-as-data) transcript via a TOOL-LESS
 # Anthropic API call. Prints the sanitized title on success; returns non-zero
 # (and the caller falls back to the subject) on any failure. The model has no
@@ -136,11 +169,7 @@ derive_title() {
         messages: [ { role: "user", content: $t } ]
     }')" || { log "title: payload build failed — using subject"; return 1; }
 
-    resp="$("$CURL_BIN" -sS --max-time 30 https://api.anthropic.com/v1/messages \
-        -H "x-api-key: $key" \
-        -H "anthropic-version: 2023-06-01" \
-        -H "content-type: application/json" \
-        -d "$payload" 2>>"$LOG")" || { log "title: curl failed — using subject"; return 1; }
+    resp="$(api_post "$key" "$payload" 30)" || { log "title: curl failed — using subject"; return 1; }
 
     raw="$(printf '%s' "$resp" | "$JQ_BIN" -r '.content[0].text // empty' 2>/dev/null)"
     if [[ -z "$raw" ]]; then
@@ -176,11 +205,7 @@ derive_overview() {
         messages: [ { role: "user", content: $t } ]
     }')" || { log "overview: payload build failed — skipping overview"; return 1; }
 
-    resp="$("$CURL_BIN" -sS --max-time 180 https://api.anthropic.com/v1/messages \
-        -H "x-api-key: $key" \
-        -H "anthropic-version: 2023-06-01" \
-        -H "content-type: application/json" \
-        -d "$payload" 2>>"$LOG")" || { log "overview: curl failed — skipping overview"; return 1; }
+    resp="$(api_post "$key" "$payload" 180)" || { log "overview: curl failed — skipping overview"; return 1; }
 
     raw="$(printf '%s' "$resp" | "$JQ_BIN" -r '.content[0].text // empty' 2>/dev/null)"
     if [[ -z "$raw" ]]; then
