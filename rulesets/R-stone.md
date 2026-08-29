@@ -67,3 +67,25 @@ check:: stone_dispatch_linked
 **Ported from [[R-rocks]]-08 on 2026-08-28 ([[TINK Backlog#^T603|T603]]), and it had a live victim — [[SV]], which fires on all three of its groups.** `R-stone` generalised six of `R-rocks`' thirteen rules and stopped, leaving seven rock-only — so `sleeper`, `pebble` and `book` groups went unchecked on reachability. `SV Sleepers` was unreachable by navigation and nothing said so, **while the rocks half of the identical defect fired in the same sweep on the same anchor.** Two groups, one rule, one silence: that asymmetry is what makes this the first of the seven to port rather than the easiest.
 
 Six remain rock-only and are the rest of [[TINK Backlog#^T603|T603]]: `R-rocks-03` (cardinality 0-or-1 per anchor, which [[DAS Stone]] states and no checker enforces for any kind), `R-rocks-05`/`-06` (every member on a control line; no control line pointing at a missing stone — an orphaned stone file is invisible in every kind today), and `R-rocks-09`…`-11`.
+
+### RULE R-stone-08 — Every member is named in the control file (checked)
+check:: stone_member_ranked
+
+Every stone file in the group folder is the target of some wiki-link in the control file. Emitted as a **warning**, not an error.
+
+**Check pattern:** collect member basenames; collect every wiki-link target in the control file; assert each member is among them. Judged **once per group**, on the spokesfile. Membership is read by **stem**, never through the number regex — so a dated member (`book`) is seen exactly as a numbered one is.
+
+**Why:** a stone nobody has ranked is a real state and a transient one — the file lands first, the line follows — so this is cleanup pressure, not a gate. But it is the only pressure there is: a member the control file does not name is reachable from nothing a person reads. Until this port every non-rock kind had no such check at all, which is the data-loss shape rather than the navigation one.
+
+**Ported from [[R-rocks]]-05 on 2026-08-28 ([[TINK Backlog#^T603|T603]] leg 2).** Measured across all 32 live groups first: zero unranked members, in every kind. So the evidence for this rule is its fixture — `test_stone_ranking_rules_fire_beside_a_clean_twin`, an unranked member beside a fully-ranked twin — and not the green sweep, which cannot distinguish a working rule from one that never ran.
+
+### RULE R-stone-09 — No dead lines in the control file (checked)
+check:: stone_control_links_resolve
+
+Every control-file line ranking one of **this group's** stones — a line whose leading link begins `{slug} ` — resolves to a file that exists.
+
+**Check pattern:** for each line opening with a wiki-link, take that leading link's target; skip a **header** (a target ending in a control-file word, R-stone-04) and skip a line naming **another anchor's** stone (which under [[DAS feed]] is what a propagated line is, and which no local resolver can see); otherwise assert `{target}.md` exists in the group folder or resolves nearby. Leading link only: a promotion marker, a feed annotation and plain commentary all carry links that point outside the anchor. Judged **once per group**, on the spokesfile.
+
+**Why:** the control file is the surface people read and cite from; a link that goes nowhere makes it untrustworthy at exactly the moment someone is trying to act on it. R-rocks-06 records the vault-wide [[Rocks]] page carrying five such rows for months — and that rule judged nothing at all between the Stone migration and 2026-08-11, because it kept reading the folder-note after the ranking had moved. This port reads the control file only, since under [[DAS Stone]] that is where the ranking is and there is no migration to straddle.
+
+**Ported from [[R-rocks]]-06 on 2026-08-28 ([[TINK Backlog#^T603|T603]] leg 2).** Measured first: zero dead lines across 32 live groups, `SONAR Book`'s eleven dated members included. Evidence is the paired fixture, same as R-stone-08.

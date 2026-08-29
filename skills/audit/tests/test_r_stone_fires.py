@@ -278,3 +278,61 @@ def test_stone_dispatch_linked_fires_beside_a_linked_twin(tmp_path):
               "| [[DUO Rocks]] | rocks |\n| ... | |\n")
     v_peb5, _ = ap.chk_stone_dispatch_linked(peb_ctl, anchor, None)
     assert v_peb5 == "fail", f"neither target linked must still fire, got {v_peb5}"
+
+
+def test_stone_ranking_rules_fire_beside_a_clean_twin(tmp_path):
+    """T603 leg 2 / R-stone-08 + R-stone-09 — an unranked member warns, a dead
+    line fails, and a fully-ranked twin in the same anchor stays quiet on both.
+
+    Measured 2026-08-28 across all 32 live groups: zero findings from either
+    predicate. That is the vacuous-green shape the R-stone evidence rule exists
+    for, so this fixture is the rule's only evidence. It builds a BOOK group on
+    purpose -- dated members, which the number regex cannot parse -- to pin that
+    both rules see a member by its stem and never through the regex.
+    """
+    anchor = tmp_path / "PAIR"
+    _w(anchor / ".anchor", "slug: PAIR\n")
+
+    # The clean twin: a pebble group, every member ranked, every line live.
+    _w(anchor / "PAIR Track/PAIR Pebbles/PAIR P0001.md", "line:: a\n\n# a\nBody.\n")
+    _w(anchor / "PAIR Track/PAIR Pebbles/PAIR P0002.md", "line:: b\n\n# b\nBody.\n")
+    _w(anchor / "PAIR Track/PAIR Pebble.md",
+       "# PAIR Pebble\n\n-[[PAIR Pebble|PAIR]]-\n\n"
+       "[[PAIR P0001|PAIR:]] a\n[[PAIR P0002|PAIR:]] b\n"
+       "[[OTHER P0007|OTHER:]] a line propagated in from another anchor\n")
+    # The defective group: a BOOK, dated members. One member the control file
+    # never names; one control line naming a member that does not exist.
+    _w(anchor / "PAIR Track/PAIR Book/PAIR 2026-08-01 first.md",
+       "line:: first\n\n# first\nBody.\n")
+    _w(anchor / "PAIR Track/PAIR Book/PAIR 2026-08-02 orphan.md",
+       "line:: never ranked\n\n# orphan\nBody.\n")
+    _w(anchor / "PAIR Track/PAIR Book/PAIR Book.md",
+       "# PAIR Book\n\n-[[PAIR Book|PAIR]]-\n\n"
+       "[[PAIR 2026-08-01 first|PAIR:]] first\n"
+       "[[PAIR 2026-08-03 ghost|PAIR:]] a line whose file was never written\n")
+
+    peb = anchor / "PAIR Track/PAIR Pebbles/PAIR P0001.md"
+    # A container-named kind's spokesfile is its own folder page.
+    book = anchor / "PAIR Track/PAIR Book/PAIR Book.md"
+
+    for fn in (ap.chk_stone_member_ranked, ap.chk_stone_control_links_resolve):
+        v, msg = fn(peb, anchor, None)
+        assert v == "pass", f"{fn.__name__} must stay quiet on the clean twin: {v} {msg}"
+
+    v, msg = ap.chk_stone_member_ranked(book, anchor, None)
+    assert v == "warn", f"an unranked dated member must WARN, got {v}: {msg}"
+    assert "PAIR 2026-08-02 orphan" in msg and "first" not in msg.split(":")[1], msg
+
+    v, msg = ap.chk_stone_control_links_resolve(book, anchor, None)
+    assert v == "fail", f"a dead control line must FAIL, got {v}: {msg}"
+    assert "PAIR 2026-08-03 ghost" in msg, msg
+    assert "2026-08-01" not in msg, f"the live line must not be reported: {msg}"
+
+    # Fix both, and both must clear.
+    _w(anchor / "PAIR Track/PAIR Book/PAIR Book.md",
+       "# PAIR Book\n\n-[[PAIR Book|PAIR]]-\n\n"
+       "[[PAIR 2026-08-01 first|PAIR:]] first\n"
+       "[[PAIR 2026-08-02 orphan|PAIR:]] now ranked\n")
+    for fn in (ap.chk_stone_member_ranked, ap.chk_stone_control_links_resolve):
+        v, msg = fn(book, anchor, None)
+        assert v == "pass", f"{fn.__name__} must clear once fixed: {v} {msg}"

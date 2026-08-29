@@ -7032,7 +7032,7 @@ def _rocks_below_table(note: Path) -> list[tuple[int, str]]:
     return [(i + 1, ln) for i, ln in enumerate(lines) if i >= last and ln.strip()]
 
 
-def _rocks_link_target(raw: str) -> str:
+def _link_file_target(raw: str) -> str:
     """The file half of a wiki-link's inner text — alias, heading and block-id
     stripped, and the table-cell pipe escape with it."""
     return raw.replace("\\|", "|").split("|")[0].split("#")[0].split("^")[0].strip()
@@ -7056,7 +7056,7 @@ def _rocks_tier_links(note: Path) -> list[tuple[int, str]]:
         # authored bare but a bulleted one means the same thing.
         m = _WIKILINK_RE.match(re.sub(r"^\s*[-*+]\s+", "", line))
         if m:
-            out.append((ln, _rocks_link_target(m.group(1))))
+            out.append((ln, _link_file_target(m.group(1))))
     return out
 
 
@@ -7084,11 +7084,11 @@ def chk_rocks_member_ranked(target, anchor_root, args):
     if not source.is_file():
         return "pass", "no folder-note — R-rocks-01 owns that finding"
     if source == control:
-        ranked = {_rocks_link_target(m.group(1)).casefold()
+        ranked = {_link_file_target(m.group(1)).casefold()
                   for line in source.read_text(encoding="utf-8").splitlines()
                   for m in _WIKILINK_RE.finditer(line)}
     else:
-        ranked = {_rocks_link_target(m.group(1)).casefold()
+        ranked = {_link_file_target(m.group(1)).casefold()
                   for _, line in _rocks_below_table(source)
                   for m in _WIKILINK_RE.finditer(line)}
     missing = [p.stem for p in _rocks_members(folder) if p.stem.casefold() not in ranked]
@@ -7266,6 +7266,101 @@ def chk_stone_dispatch_linked(target, anchor_root, args):
     return "fail", (f"'{slug} Track.md' links neither [[{names[1]}]] nor [[{names[0]}]] — "
                     "the group is elective, so nothing else guarantees it is reachable, "
                     "and an unlinked one is invisible to anyone navigating the anchor")
+
+
+def _stone_leading_links(control: Path) -> list[tuple[int, str]]:
+    """`(line number, target)` for the LEADING wiki-link of each control-file line.
+
+    The kind-generic sibling of `_rocks_tier_links`, reading the whole control
+    file rather than the region below a folder-note's table — under [[DAS
+    Stone]] the control file IS the ranked list, with no table above it. Leading
+    only, for the reason the rocks helper gives: a promotion marker, a feed
+    annotation and ordinary commentary all carry links that point outside the
+    anchor, and only the line's subject is the stone being ranked."""
+    out = []
+    for ln, line in enumerate(_strip_fenced(_read(control)).splitlines(), 1):
+        m = _WIKILINK_RE.match(re.sub(r"^\s*[-*+]\s+", "", line))
+        if m:
+            out.append((ln, _link_file_target(m.group(1))))
+    return out
+
+
+def chk_stone_member_ranked(target, anchor_root, args):
+    """R-stone-08: every member file is named somewhere in the control file. WARN.
+
+    T603 leg 2, the kind-generic port of `R-rocks-05`. A stone nobody has ranked
+    is a real and transient state — the file lands first, the line follows — so
+    this is cleanup pressure rather than a gate. But it is the only pressure
+    there is: a member absent from the control file is reachable from nothing a
+    person reads, and until this port every non-rock kind had no such check at
+    all. Measured 2026-08-28 across all 32 live groups: zero unranked members,
+    which is why the evidence for this rule is its fixture and not the sweep.
+
+    Membership is read from EVERY wiki-link in the control file, not only the
+    leading ones `chk_stone_control_links_resolve` judges — the same asymmetry
+    the rocks pair carries, each direction taking the side that cannot
+    manufacture a false finding. A dated member (`book`) is seen exactly as a
+    numbered one is: by its stem, never through the number regex, which cannot
+    parse it."""
+    f, folder, slug, cfg, done = _stone_gate(target, anchor_root, True)
+    if done:
+        return done
+    control = _stone_control(folder, slug, cfg)
+    if not control.is_file():
+        return "pass", "no control file — R-stone-01 owns that finding"
+    ranked = {_link_file_target(m.group(1)).casefold()
+              for m in _WIKILINK_RE.finditer(_strip_fenced(_read(control)))}
+    missing = [p.stem for p in _stone_members(folder, slug, cfg)
+               if p.stem.casefold() not in ranked]
+    if not missing:
+        return "pass", ""
+    return "warn", (f"member file(s) on no line of {control.name}: "
+                    + ", ".join(missing[:5])
+                    + " — a stone the control file does not name is reachable "
+                      "from nothing a person reads; cleanup pressure, not a gate")
+
+
+def chk_stone_control_links_resolve(target, anchor_root, args):
+    """R-stone-09: no dead lines — every line ranking one of THIS group's stones
+    links a file that exists.
+
+    T603 leg 2, the kind-generic port of `R-rocks-06`, with the same two
+    exclusions and for the same reasons: a **header** (a leading link targeting
+    a control file, R-stone-04) is not a ranked stone, and a line naming
+    **another anchor's** stone is what a [[DAS feed]] propagation looks like —
+    `_resolve_doc` cannot see across anchors, so judging it would fail a
+    correct file for doing exactly what the feed exists to do. Ownership is
+    read from the name: this group's stones all begin `{slug} `.
+
+    Resolution is by name, so a dated member is judged exactly as a numbered
+    one — the only test is whether `{name}.md` exists in the folder or resolves
+    nearby. Measured 2026-08-28: zero dead lines across 32 live groups."""
+    f, folder, slug, cfg, done = _stone_gate(target, anchor_root, True)
+    if done:
+        return done
+    control = _stone_control(folder, slug, cfg)
+    if not control.is_file():
+        return "pass", "no control file — R-stone-01 owns that finding"
+    headers = _stone_control_suffixes()
+    dead = []
+    for ln, name in _stone_leading_links(control):
+        if not name:
+            continue
+        if any(name.endswith(h) for h in headers):
+            continue        # a header (R-stone-04), not a ranked stone
+        if not name.startswith(f"{slug} "):
+            continue        # another anchor's stone, propagated in by line-copy
+        if (folder / f"{name}.md").is_file():
+            continue
+        if _resolve_doc(name, folder) is not None:
+            continue
+        dead.append(f"line {ln}: [[{name}]]")
+    if not dead:
+        return "pass", ""
+    return "fail", (f"line(s) in {control.name} linking a stone that does not "
+                    "exist — " + "; ".join(dead[:5]) + " — the control file is "
+                    "the surface people act on, and a dead link makes it "
+                    "untrustworthy at exactly that moment")
 
 
 def chk_rocks_folder_note_catchall(target, anchor_root, args):
@@ -8201,6 +8296,8 @@ CHECKERS = {
     "rocks_no_work_rows": chk_rocks_no_work_rows,
     "rocks_dispatch_linked": chk_rocks_dispatch_linked,
     "stone_dispatch_linked": chk_stone_dispatch_linked,
+    "stone_member_ranked": chk_stone_member_ranked,
+    "stone_control_links_resolve": chk_stone_control_links_resolve,
     "rocks_folder_note_catchall": chk_rocks_folder_note_catchall,
     # R-stone (T164) — the kind-generic four; the other two rules of the six
     # stay `stated` on purpose (R-stone-03 is a claim about how a value was
