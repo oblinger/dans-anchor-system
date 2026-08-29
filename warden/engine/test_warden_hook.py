@@ -423,6 +423,21 @@ def test_bridge_guard():
                 "two-line tmux control wrongly denied"
             assert not denied(nl.join(["cd /x", "scp a haorui.local:/tmp/"])), \
                 "two-line scp wrongly denied"
+
+            # T606: the stated-reason hatch reaches -01 as of 2026-08-28. It was
+            # on -02 only, which left -01 with no declared way out -- and the
+            # case needing one is ordinary: bridge is Mac/Aqua/tmux end to end,
+            # so it does not apply to a Windows host, and DAS Bridge already
+            # said in writing to use plain ssh there. A REASON, not a flag: a
+            # bare `# oneshot:` still denies, which is what stops it becoming
+            # reflex.
+            assert not denied(
+                "ssh turbo 'reg query X' # oneshot: Windows host, bridge is Mac-only"), \
+                "a stated oneshot reason must pass"
+            assert denied("ssh turbo 'reg query X'"), \
+                "the same command without a reason must still deny"
+            assert denied("ssh turbo 'reg query X' # oneshot:"), \
+                "a bare `# oneshot:` with no reason is not a judgement"
     finally:
         os.environ["WARDEN_HOME"] = old if old else str(home)
     print("PASS  bridge_guard (F183)")

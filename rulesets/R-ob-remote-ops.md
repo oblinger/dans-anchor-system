@@ -14,6 +14,20 @@ def body(ctx):
     cmd = inp.get("command") or ""
     if "ssh" not in cmd:
         return []
+    # Stated-reason escape, extended to -01 from -02 (T606). It existed on the
+    # detached-launch rule only, which left THIS rule with no declared way out
+    # at all -- and the case that needs one is not exotic: `bridge` is
+    # Mac/Aqua/tmux end to end, so for a WINDOWS host it does not apply, the
+    # host has no bridge entry, and the vault's own note for that machine says
+    # to drive it over persistent SSH *because* bridge does not reach it.
+    # [[DAS Bridge]] § When NOT to use bridge already says in writing "one-shot
+    # read on a non-TCC path -> plain ssh", so before this the rule and the
+    # skill contradicted each other and an agent reading both could not tell
+    # which was wrong. A sentence, not a flag: a bare `--force` becomes reflex,
+    # and the reason is what makes the judgement auditable afterwards.
+    import re as _re
+    if _re.search(r"#\s*oneshot:\s*\S", cmd):
+        return []
     # A heredoc BODY is data, not command position — and it is where an agent
     # writes *about* commands, so tokenizing it reads documentation as
     # execution. Bodies fed to a shell are kept, because there it really is
@@ -90,7 +104,11 @@ def body(ctx):
     return []
 ```
 
-Catches a Bash command that is **command-executing SSH** (`ssh <host> '<cmd>'`, flags tolerated) and denies it with the bridge redirect. Passes untouched: bare interactive `ssh <host>` (attach), `scp`/`rsync` (the bridge's own sync mechanisms), and `ssh <host> tmux …` (the bridge's control plane).
+Catches a Bash command that is **command-executing SSH** (`ssh <host> '<cmd>'`, flags tolerated) and denies it with the bridge redirect. Passes untouched: bare interactive `ssh <host>` (attach), `scp`/`rsync` (the bridge's own sync mechanisms), `ssh <host> tmux …` (the bridge's control plane), a heredoc body that merely *documents* the anti-pattern, and any command carrying a stated `# oneshot: <reason>`.
+
+**The `# oneshot:` hatch reaches this rule as of 2026-08-28 ([[TINK Backlog#^T606|T606]]).** It was on `-02` only, which left `-01` with no declared way out — and the case needing one is ordinary rather than exotic: **`bridge` is Mac/Aqua/tmux end to end, so it does not apply to a Windows host.** Reading two values off [[Computer Turbo|Turbo]] was denied and redirected to a skill that has no entry for that machine, while the vault's own note for it says to drive it over persistent SSH *because* bridge does not reach it. [[DAS Bridge]] § *When NOT to use bridge* already stated *"one-shot read on a non-TCC path → plain ssh"*, so the rule and the skill contradicted each other in writing and an agent reading both could not tell which was wrong. The hatch resolves that without carving out a host class the rule would then have to keep a list of — and a **stated reason** rather than a flag is what keeps it from becoming reflex.
+
+**Prose is not code, in both directions.** Three misreads have been fixed in this tokenizer: a quoted `--body` argument (2026-07-06), a trailing pipe defeating the tmux exemption (2026-08-13), and a markdown code span whose backtick made documentation tokenize as command substitution ([[TINK Backlog#^T609|T609]], 2026-08-28) — that last one refused the write that was *filing the report about it*, which biases the record toward vagueness. Heredoc bodies are now stripped before tokenizing, and an unquoted newline is read as a command separator ([[TINK Backlog#^T611|T611]]), so line 2 of a multi-line command is no longer invisible.
 
 **Why:** the miss is discovery, not knowledge — the bridge skill exists and is right, but passive carriers (memory, CLAUDE.md) get glided past; only a rule firing on the action itself reliably redirects. Per the F183 commissioning, the guard is a declarative rule, never a hand-hacked branch in `bash-guard.sh`.
 
