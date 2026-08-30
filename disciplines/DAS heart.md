@@ -9,7 +9,7 @@ group: slot
 | --- | --- |
 | Related | [[DAS spine]],  [[DAS progressive-disclosure]],  [[DAS Facet]] (§ Facet groups),  [[DAS Disciplines\|Disciplines]],  [[DAS\|dans-anchor-system]], |
 | Rules | [[R-spine]],   |
-| Examples | [[Stones\|labelled form]],  [[Briefs\|bare form]],  [[Disk\|the heart IS the page]],  [[Harbor Hops\|deliberately none]],   |
+| Examples | [[2026-08-19 Legacy Athletics\|fact card]],  [[Stones\|fact card, bare]],  [[LUMEN Data Sources\|register]],  [[DAS ask-format\|definition list]],  [[DAS Code Design\|figure]],  [[Briefs\|roster]],  [[Harbor Hops\|deliberately none]],   |
 
 # Heart Discipline
 The spine is everything above the H1; the heart is what sits directly below it. They divide by what they talk about — the spine talks about *other pages*, the heart talks about *this page's own substance*.
@@ -17,6 +17,7 @@ The spine is everything above the H1; the heart is what sits directly below it. 
 | Heart kind | What it holds | Shape | Live | Made-up |
 |---|---|---|---|---|
 | **[[#Fact card\|Fact card]]** | the key facts *about this page's subject* — a status card, a who-feeds-whom map, whatever facts matter most | a table of facts, any shape | [[2026-08-19 Legacy Athletics]] · [[Stones]] | [[Harbor Account Northwind]] |
+| **[[#Definition list\|Definition list]]** | the page's key facts as a definition list — term, em-dash, body — when the facts are sentences rather than cells | a bulleted definition list, one term per bullet | [[DAS ask-format]] | — |
 | **[[#Register\|Register]]** | the heart *is* the page: one row per thing the page exists to track | data table, hand-written, load-bearing | [[LUMEN Data Sources]] | [[Harbor Latency Budget]] |
 | **[[#Figure\|Figure]]** | the thing the page defines, drawn | an image or diagram, no title, table beneath | [[DAS Code Design]] | [[FEX Figure Page]] · [[FEX Architecture]] |
 | **[[#Types table\|Types table]]** | the mutually exclusive subtypes of the thing the page specifies, one row each, with an example | a fact table whose rows partition the type — like this one | [[DAS spine]] · this page | [[FEX Dispatch Examples]] § The four kinds |
@@ -65,6 +66,13 @@ Every kind comes in two shapes, and **both are correct** — the choice is wheth
 3. **Anything else** — commentary, history, a caveat — goes into the body below the heart, never above it.
 
 Nothing is deleted in the move; the cap becomes satisfiable *without loss*, which is the condition for re-arming it (R-dispatch-table-06 sits at `warn` and [[R-dispatch-guard]] returns early until this migration has run). **One row that is not a fact card:** a child pulled above a list spine's `---` and described beside its link ([[Disk]]'s 10T / 8T / BLACK) is *spine*, and correctly so — the sentence describes another page. See [[DAS spine]] § List spine.
+
+## Definition list
+**What it is.** A fact heart that is not a table: the page's key facts written as a **definition list** — each bullet opens with a short naming phrase, an em-dash, then the body (the vault's standard term → body form, mirroring HTML `<dl>`). Take it when the facts are sentences that would not survive being squeezed into cells — five properties that each need a clause, not a value. It is inward-facing like every fact heart: every term is about this page's subject. Named 2026-08-29 (Dan, on [[DAS ask-format]]: *"a different kind of fact heart, but one that isn't expressed as a table"*).
+
+**Live:** [[DAS ask-format]] — the five things that distinguish a conformant ask surface (block-IDs, labeled alternatives, recommendation strength, numbered headers, acceptance phrasing), directly under the one-liner. **Made-up:** — .
+
+**When a page has two candidates.** ask-format also carries a table of contents. Either could be the heart; the definition list wins because it is the page's substance and the TOC only orients — so the list sits first and the TOC follows it. That ordering is the general rule when a carrying heart and an orienting one meet on the same page.
 
 ## Register
 **What it is.** The heart *is* the page: one row per thing the page exists to track, and the prose below only explains the table. Hand-written and load-bearing — an authored register must never be regenerated.

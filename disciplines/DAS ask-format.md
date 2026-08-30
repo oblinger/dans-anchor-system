@@ -5,9 +5,14 @@ user_invocable: false
 group: discipline
 ---
 
-# ask-format
+| -[[DAS ask-format]]- | : Discipline. The format for any user-actionable surface an agent writes — Questions, Verifies, à la carte items, and the phrases that close them.<br>→ [[DAS]] → [[disciplines]] → [DAS ask-format](hook://p/DAS%20ask-format)  |
+| --- | --- |
+| Related | [[SKA ask]],  [[SKA feature]],  [[SKA groom]],  [[SKA crank]],  [[DAS Backlog]] (§ Numbering policy),  [[DAS Disciplines\|Disciplines]],   |
+| Rules | [[audit q]] (enforces it),   |
+| ... |  |
 
-ask-format is *the layout discipline for any user-actionable surface an agent writes — pending Questions, Verifications, à la carte items, and the resolution / acceptance phrases that close them.* What distinguishes a conformant surface from an ad-hoc one:
+# DAS ask-format
+The layout discipline for any user-actionable surface an agent writes — a pending Question, a Verification, an à la carte item, and the resolution or acceptance phrase that closes it.
 
 - **Block-IDs** — every Q and Verify carries a `^F<n>-Q<m>` or `^F<n>-V<m>` block-ID so it is link-targetable from anywhere in the vault.
 - **Labeled alternatives** — every Q has `(A)` / `(B)` / `(C)` options on their own sub-bullets; no inline `"X or Y"` shorthand.
@@ -15,52 +20,51 @@ ask-format is *the layout discipline for any user-actionable surface an agent wr
 - **Numbered Q-headers** — Q1, Q2, … per-doc monotonic; persist forever (never recycled).
 - **Standard acceptance phrasing** — answers in the form `F<n> Q<m>: yes` / `verified F<n>` so the receiving skill can mechanically map shorthand → action.
 
-This is a discipline, not a user-invocable skill — other skills cite it via `[[DAS ask-format]]` and Claude Code loads it into context before they run.
+| Table of Contents                                                                      |     |
+| -------------------------------------------------------------------------------------- | --- |
+| **[[#The downside gate — ask only when a wrong autonomous choice has real downside]]** |     |
+| **[[#The Damage field — the downside gate as a closed enumeration]]**                  |     |
+| **[[#Who cites this discipline]]**                                                     |     |
+| **[[#Surfaces — where these items live]]**                                             |     |
+| **[[#Six-piece question layout]]**                                                     |     |
+|    [[#Recommendation strength]]                                                        |     |
+|    [[#Spacing — load-bearing visual structure]]                                        |     |
+|    [[#Canonical example]]                                                              |     |
+|    [[#Open-ended (no alternatives)]]                                                   |     |
+| **[[#Four-piece verify layout]]**                                                      |     |
+|    [[#Canonical Verify example]]                                                       |     |
+|    [[#When the verify is trivial]]                                                     |     |
+| **[[#Deferred-by-use Verify — `[Verify-by YYYY-MM-DD]`]]**                             |     |
+|    [[#When to use the deferred pattern (both conditions required)]]                    |     |
+|    [[#Bracket form]]                                                                   |     |
+|    [[#Placement]]                                                                      |     |
+|    [[#Forward-throw window — agent picks per item, no default]]                        |     |
+|    [[#Render behavior]]                                                                |     |
+|    [[#Auto-expiration via /groom]]                                                     |     |
+|    [[#When NOT to use the deferred pattern]]                                           |     |
+| **[[#Navigation invariant]]**                                                          |     |
+|    [[#Block-ID on the item]]                                                           |     |
+|    [[#Link form for references]]                                                       |     |
+| **[[#Numbering policy]]**                                                              |     |
+| **[[#Block lifecycle (Open Questions blocks)]]**                                       |     |
+| **[[#Acceptance & rollback (per F086)]]**                                              |     |
+|    [[#Acceptance — the user must explicitly say "resolution(s)"]]                      |     |
+|    [[#Rollback]]                                                                       |     |
+|    [[#Partial accept]]                                                                 |     |
+| **[[#Enforcement (via /audit q)]]**                                                    |     |
+| **[[#Pre-ask self-check — six guidelines (per F105 + B-stop-asking-trivial-checks)]]** |     |
+|    [[#Rule 1 — Aggregate within the anchor before surfacing]]                          |     |
+|    [[#Rule 2 — Never ask "should we continue / stop?"]]                                |     |
+|    [[#Rule 3 — Never ask "should we burn tokens for a better outcome?"]]               |     |
+|    [[#Rule 4 — Never ask "how to split the work?"]]                                    |     |
+|    [[#Rule 5 — Never ask "quick way or complete way?"]]                                |     |
+|    [[#Rule 6 — Never ask a Q the agent can answer by reading a file]]                  |     |
+|    [[#How auto-resolution surfaces]]                                                   |     |
+| **[[#Anti-patterns]]**                                                                 |     |
+| **[[#Chat & transient-channel asks — restate context inline]]**                        |     |
+| **[[#Cross-references]]**                                                              |     |
 
-
-| Table of Contents |  |
-|---|---|
-| **[[#The downside gate — ask only when a wrong autonomous choice has real downside]]** |  |
-| **[[#The Damage field — the downside gate as a closed enumeration]]** |  |
-| **[[#Who cites this discipline]]** |  |
-| **[[#Surfaces — where these items live]]** |  |
-| **[[#Six-piece question layout]]** |  |
-|    [[#Recommendation strength]] |  |
-|    [[#Spacing — load-bearing visual structure]] |  |
-|    [[#Canonical example]] |  |
-|    [[#Open-ended (no alternatives)]] |  |
-| **[[#Four-piece verify layout]]** |  |
-|    [[#Canonical Verify example]] |  |
-|    [[#When the verify is trivial]] |  |
-| **[[#Deferred-by-use Verify — `[Verify-by YYYY-MM-DD]`]]** |  |
-|    [[#When to use the deferred pattern (both conditions required)]] |  |
-|    [[#Bracket form]] |  |
-|    [[#Placement]] |  |
-|    [[#Forward-throw window — agent picks per item, no default]] |  |
-|    [[#Render behavior]] |  |
-|    [[#Auto-expiration via /groom]] |  |
-|    [[#When NOT to use the deferred pattern]] |  |
-| **[[#Navigation invariant]]** |  |
-|    [[#Block-ID on the item]] |  |
-|    [[#Link form for references]] |  |
-| **[[#Numbering policy]]** |  |
-| **[[#Block lifecycle (Open Questions blocks)]]** |  |
-| **[[#Acceptance & rollback (per F086)]]** |  |
-|    [[#Acceptance — the user must explicitly say "resolution(s)"]] |  |
-|    [[#Rollback]] |  |
-|    [[#Partial accept]] |  |
-| **[[#Enforcement (via /audit q)]]** |  |
-| **[[#Pre-ask self-check — six guidelines (per F105 + B-stop-asking-trivial-checks)]]** |  |
-|    [[#Rule 1 — Aggregate within the anchor before surfacing]] |  |
-|    [[#Rule 2 — Never ask "should we continue / stop?"]] |  |
-|    [[#Rule 3 — Never ask "should we burn tokens for a better outcome?"]] |  |
-|    [[#Rule 4 — Never ask "how to split the work?"]] |  |
-|    [[#Rule 5 — Never ask "quick way or complete way?"]] |  |
-|    [[#Rule 6 — Never ask a Q the agent can answer by reading a file]] |  |
-|    [[#How auto-resolution surfaces]] |  |
-| **[[#Anti-patterns]]** |  |
-| **[[#Chat & transient-channel asks — restate context inline]]** |  |
-| **[[#Cross-references]]** |  |
+This is a discipline, not a user-invocable skill — other skills cite it via [[DAS ask-format]] and Claude Code loads it into context before they run. What the five properties above have in common is one invariant: every item an agent asks the user to act on is link-targetable, labeled, weighted, numbered, and closable by a phrase a script can parse.
 
 ## The downside gate — ask only when a wrong autonomous choice has real downside
 
