@@ -103,11 +103,11 @@ Directly under it sits the **card**, the page's heart ([[DAS heart]] § Fact car
 
 | Row | Holds |
 |---|---|
-| **Contact** | email · phone · LinkedIn · X — mashed into one cell |
+| **Contact** | email · LinkedIn · X — mashed into one cell. **Phone numbers live in macOS Contacts, not here** (Dan, 2026-08-29: they drift); a number is written on the page only when there is no contact card for the person at all — a specialty connection Contacts never got |
 | **Personas** | the entity's other `@` affiliations — ex-employers, boards, groups — each linked |
 | **Rolodex** | which registers they belong in — [[BOD]], [[MENTORS]], [[FAANG]] … — replacing the old `#mentor`-style tags |
 | **Context** | how Dan knows this person and why they are in the list — the loop, the intro, the relationship. **Last of the four, because it is the long one**: the three above are bare facts and stay at the top (Dan, 2026-08-29) |
-| *then* | Trajectory · Education · Public work · Relatives · … as known |
+| *then* | **Friends** (a natural optional row — the people they know that Dan also knows, each an `@` link) · Trajectory · Education · Public work · Relatives · … as known |
 
 No `#pp` tag: every `@` person page is a person, so the tag said nothing. **Live:** [[@Henna Dattani]]. **Made-up:** [[@Marguerite Vale]]. The `# LOG` follows the card as before.
 # Site-specific extensions
