@@ -5,6 +5,7 @@
     at-entity-migrate.py --dry  <page.md> [...]    # report what would be written
     at-entity-migrate.py --write <page.md> [...]   # rewrite in place
     at-entity-migrate.py --dry --all               # every flat person page under AT/
+    at-entity-migrate.py --write --all --from-git  # re-run from each page's git HEAD text (redo a bad pass)
 
 What it parses from the old head (everything above the first `# ` heading):
   [[REGISTER]] / =[[REGISTER]]   → Rolodex (uppercase-only link names)
@@ -46,78 +47,95 @@ def crumb(p):
     parts = ["[[kmr]]"] + [f"[[{x}]]" for x in rel]
     return ":>> " + " → ".join(parts) + f" → [{p.stem}](hook://p/{p.stem.replace(' ', '%20')}) "
 
-def migrate(p):
-    t = p.read_text(encoding="utf-8"); lines = t.split("\n")
-    fm = []
-    body = lines
+def migrate(p, text=None):
+    """Lossless by construction: the identity line is DECOMPOSED into the H1 and card rows
+    (every link, register and tag lands somewhere); every other head line is kept VERBATIM
+    below the card; the body from the first heading on is untouched byte for byte."""
+    t = text if text is not None else p.read_text(encoding="utf-8"); lines = t.split("\n")
+    fm = []; body = lines
     if lines and lines[0].strip() == "---":
         e = lines.index("---", 1); fm = lines[:e+1]; body = lines[e+1:]
     if any(l.startswith("| Card") for l in body[:40]): return None, "already migrated"
-    h = next((i for i, l in enumerate(body) if l.startswith("# ")), len(body))
+    # head = lines before the first heading of ANY level. An old template H1
+    # (`# [[@Name]]  [title](url) [[@Org]]`) is part of the identity, not the body.
+    h = next((i for i, l in enumerate(body) if re.match(r"^#{1,6} ", l)), len(body))
     head = body[:h]; rest = body[h:]
-    # drop an old `# Name` H1 (keep # LOG / # Log / # INFO etc.)
-    if rest and re.match(r"^# (\[\[)?@?" + re.escape(p.stem[1:]), rest[0]):
-        rest = rest[1:]
+    if rest and re.match(r"^# (\[\[)?@?" + re.escape(p.stem[1:]) + r"(\]\])?", rest[0]) and ("](" in rest[0] or "[[" in rest[0]):
+        head = head + [rest[0]]; rest = rest[1:]
+    elif rest and re.match(r"^# (\[\[)?@?" + re.escape(p.stem[1:]) + r"(\]\])?\s*$", rest[0]):
+        rest = rest[1:]                       # a bare old `# Name` H1 is replaced by the identity H1
     text = "\n".join(head)
-    title_link = MDLINK.search(text)
-    atlinks = [m.group(1) for m in ATLINK.finditer(text)]
-    if "[[_Org]]" in text or "=[[_Org]]" in text: return None, "UNPARSED — marked as an org (`[[_Org]]`), not a person"
-    if not title_link and not atlinks: return None, "UNPARSED — no [title](url) and no [[@Org]] in the head"
-    if title_link and "linkedin" not in title_link.group(2).lower() and not atlinks:
-        return None, "UNPARSED — the only link is not LinkedIn and there is no [[@Org]]; probably not a person page"
-    if title_link and "/mynetwork/" in title_link.group(2):
-        title_link = None   # a junk LinkedIn nav URL — keep the title as text, drop the link
-    regs = []
-    for m in REG.finditer(text):
-        if m.group(1) not in regs and m.group(1) != "AT": regs.append(m.group(1))
-    for tag, repl in TAGS.items():
-        if tag in text and repl and repl.strip("[]") not in regs: regs.append(repl.strip("[]"))
+    if any(l.startswith(":>>") or l.startswith("| ") for l in head):
+        return None, "UNPARSED — the page already carries a spine or a table in its head; migrate by hand"
+    if "[[_Org]]" in text: return None, "UNPARSED — marked as an org (`[[_Org]]`), not a person"
+    mdlinks = MDLINK.findall(text)
+    atlinks = []
+    for m in ATLINK.finditer(text):
+        if m.group(1) not in atlinks: atlinks.append(m.group(1))
+    if not mdlinks and not atlinks: return None, "UNPARSED — no [title](url) and no [[@Org]] in the head"
+    li = [(a, u) for a, u in mdlinks if "linkedin" in u.lower()]
+    if not li and not atlinks: return None, "UNPARSED — the only link is not LinkedIn and there is no [[@Org]]; probably not a person page"
+    title, lurl = (li[0] if li else (mdlinks[0] if mdlinks else (None, None)))
+    junk = None
+    if lurl and "/mynetwork/" in lurl: junk = lurl; lurl = None
+    other_md = [(a, u) for a, u in mdlinks if u != (li[0][1] if li else (mdlinks[0][1] if mdlinks else None))]
     org = atlinks[0] if atlinks else None
-    personas = [a for a in atlinks[1:] if a != org]
-    emails = sorted(set(EMAIL.findall(text)))
-    phones = sorted(set(PHONE.findall(text)))
-    urls = [u for u in URL.findall(text) if "linkedin" not in u.lower()]
-    friends = []
-    ctx = []
-    kept = []
+    personas = [a for a in atlinks[1:]]
+    regs = []
+    for m in re.finditer(r"=?\[\[([^\]|@][^\]|]*)(?:\|[^\]]*)?\]\]", text):
+        name = m.group(1)
+        if name not in regs: regs.append(name)
+    for tag in set(re.findall(r"(?<!\S)#(\w+)", text)):
+        if tag == "pp": continue
+        r = {"Mentor": "MENTORS", "Soon": "LEGACY-SOON"}.get(tag, f"LEGACY-{tag.upper()}")
+        if r not in regs: regs.append(r)
+    emails = []
+    for m in EMAIL.finditer(text):
+        if m.group(0) not in emails: emails.append(m.group(0))
+    friends = []; kept = []
+    def is_identity(s):
+        return bool(MDLINK.search(s) and (ATLINK.search(s) or re.search(r"\[\[[^\]]+\]\]", s) or re.search(r"(?<!\S)#\w+", s))) or (ATLINK.search(s) and not re.search(r"[a-z]{4,} [a-z]{3,}", re.sub(r"\[\[[^\]]*\]\]|\[[^\]]*\]\([^)]*\)", "", s)))
     for l in head:
         s = l.strip()
         if not s: continue
-        if MDLINK.search(s) and (ATLINK.search(s) or REG.search(s)): continue   # the identity line
-        if s.lower().startswith("- friends"): friends += ATLINK.findall(s); continue
-        if EMAIL.fullmatch(s) or PHONE.fullmatch(s) or URL.fullmatch(s): continue
-        if s.startswith("#pp") or s.startswith("#"): continue
-        if len(s) > 140 or PHONE.search(s):
-            kept.append(l); continue          # correspondence-shaped: stays as body, verbatim, below the card
-        ctx.append(s.lstrip("- ").strip())
-    raw_title = MDLINK.search(text)
-    title = title_link.group(1) if title_link else (raw_title.group(1) if raw_title else None)
-    lurl = title_link.group(2) if title_link else None
+        if is_identity(s): continue
+        if s.lower().startswith("- friends"):
+            friends += [a for a in ATLINK.findall(s)]; continue
+        if EMAIL.fullmatch(s): continue          # represented in Contact
+        if re.fullmatch(r"#\w+(\s+#\w+)*", s): continue   # tags — represented in Rolodex
+        kept.append(l)                            # everything else: verbatim, below the card
     ident = (f"[{title}]({lurl})" if (title and lurl) else (title or "")) + ((" at " if title else "") + f"[[{org}]]" if org else "")
     h1 = f"# {p.stem} — **{ident}**"
-    contact = " · ".join([f"`{e}`" for e in emails] + ([f"[LinkedIn]({lurl})"] if lurl and "linkedin" in lurl.lower() else []) + urls) or "—"
+    contact = " · ".join([f"`{e}`" for e in emails] + ([f"[LinkedIn]({lurl})"] if lurl and "linkedin" in lurl.lower() else [])) or "—"
     rows = [("Contact", contact)]
-    if personas: rows.append(("Personas", " · ".join(f"[[{a}]]" for a in personas)))
+    pers = [f"[[{a}]]" for a in personas] + [f"[{a}]({u})" for a, u in other_md]
+    if pers: rows.append(("Personas", " · ".join(pers)))
     rows.append(("Rolodex", " · ".join(f"[[{r}]]" for r in regs) or "—"))
     if friends: rows.append(("Friends", " · ".join(f"[[{a}]]" for a in friends)))
-    if ctx: rows.append(("Context", " · ".join(ctx)))
     card = ["| Card |  |", "| --- | --- |"] + [f"| **{k}** | {v} |" for k, v in rows]
     desc = (title or "") + (f" at {org[1:]}" if org else "")
     if not any(l.startswith("description:") for l in fm):
         fm = ["---", f'description: "{p.stem[1:]} — {desc}"', "---"]
+    if junk: kept.append(f"*(old LinkedIn link, not a profile: {junk})*")
     out = fm + ["", crumb(p), h1, ""] + card + [""] + (kept + [""] if kept else []) + rest
-    txt = "\n".join(out)
-    while "\n\n\n" in txt: txt = txt.replace("\n\n\n", "\n\n")
-    note = f"phones NOT written (belong in Contacts): {', '.join(phones)}" if phones else ""
-    return txt, note
+    phones = PHONE.findall(text)
+    note = f"phone in head, kept verbatim below the card: {', '.join(phones)}" if phones else ""
+    return "\n".join(out), note
+
 
 def main(argv):
     mode = "--dry" if "--dry" in argv else ("--write" if "--write" in argv else None)
     if mode is None: print(__doc__); return 2
     targets = [p for p in AT.rglob("@*.md") if is_person(p)] if "--all" in argv else [Path(a) for a in argv if a.endswith(".md")]
     done = skipped = unparsed = 0
+    import subprocess
     for p in sorted(targets):
-        txt, note = migrate(p)
+        base = None
+        if "--from-git" in argv:
+            r = subprocess.run(["git", "-C", str(V), "show", f"HEAD:{p.relative_to(V)}"], capture_output=True, text=True)
+            if r.returncode != 0: print(f"NO-BASE   {p.relative_to(V)}"); continue
+            base = r.stdout
+        txt, note = migrate(p, base)
         if txt is None:
             if note.startswith("UNPARSED"): unparsed += 1; print(f"UNPARSED  {p.relative_to(V)}")
             else: skipped += 1
