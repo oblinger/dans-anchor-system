@@ -97,6 +97,24 @@ Each downstream anchor chooses where imports land by writing a header for the so
 
 **The control file is an arbitrary document; the engine only inserts.** Its one requirement is that it links every stone. A line that is missing is inserted — directly under a `## New` header if the file has one (any level; that is how you steer new lines away from the top), else at the top of the content past frontmatter and a leading H1 — and nothing else in the file is touched: no packing, no blank-line stripping, no H1 removal. Whether the member is numbered or dated has no bearing on placement. The file can be a bare list or a full page with prose and a dispatch table; the user moves the lines wherever they belong. (Dan, 2026-08-29 — [[TINK618 - Teach the stone engine to read date-named members|TINK T618]].)
 
+## Placement — one stone on someone else's list, by a deliberate act
+
+**`feeds:` is aggregation; placement is enrollment, and they are different relationships.** Aggregation says *this list is the sum of those lists* — structural, total, implicit, right for a [[HUD]]-style overview, where a miss costs a less complete view. Enrollment says *this one stone is also on that list* — one deliberate act, with a receipt, right for a watch that must not be missed, where a miss means **a deadline passes**. The test: *does a missing item merely look incomplete, or does something in the world go unwatched?*
+
+    stone pebble push SONAR P0007 --to SPARKS
+    SONAR P0007 -> SPARKS Pebble   (due:: 2026-09-02 15:00, done:: the materials are in the recruiter's inbox, importance:: high)
+
+    stone pebble recall SONAR P0007 --from SPARKS
+    SONAR P0007 <- SPARKS Pebble   line removed
+
+**Why an act and not a filter.** The first proposal was a predicate on the feed — `feeds: SONAR where due` — so a pebble carrying `due::` routed to Sparks by itself. Dan rejected it (2026-08-29, [[TINK626 - Stone placement an explicit push verb, so enrolling a watch cannot|TINK T626]]): *"now Sonar can think that she alerted Sparks, but she didn't, because she didn't get it right. It didn't parse right. It didn't go through."* Silent success is the worst failure available here — nobody is positioned to notice until the deadline. An omission (forgetting to push) is visible to the agent committing it; a parse failure is visible to no one. Failures you can see beat failures you cannot.
+
+**Four parts, all mechanical.** *The receipt* — `push` prints what happened, not that it happened. *Validation at the act* — a receiving anchor declares `accepts: due, done, importance` in its `.anchor`, and a push of a stone missing any of those keys is refused there, naming the key, to the agent that can still fix it; that is [[ASTR Comms]] § The handoff contract made mechanical — *what outcome counts as done*, *when it decays*, *how important it is*. What to do if it does not land is deliberately **not** a key: Dan ruled the same day (§ Picking a rung, take two) that the rung is Sparks's to choose, not the owner's, so the engine asks the owner only for what the owner knows. *The sweep* — `update` warns on stderr about any live stone carrying `due::` that is enrolled with nobody, so the forgotten push is caught by the pass rather than by the one agent least likely to look. *The exit* — `recall` un-enrolls and removes the line; archiving the stone withdraws it too.
+
+**How it is kept.** The stone records `enrolled:: SPARKS` ([[DAS Stone Keys]]), and `update` treats an enrolled stone as desired on that list regardless of `feeds:` — where a merely-propagated line would be swept, an enrolled one stays, and a `line::` edit reaches it like any projection. Enrollment is not publication: the line lands above the target's self-header and travels no further, and a `feeds:` consumer of the owner does not receive it. `recall` on a target that also draws the stone by `feeds:` withdraws the enrollment and leaves the line, and says so.
+
+**`push` is Dan's word for the act**; `recall` is the exit because `drop` already means *deposit* everywhere else in this system (`state drop` puts a note in an inbox), and a verb that means both directions is exactly the ambiguity the feature exists to remove.
+
 ## Keys
 
 A stone carries `key:: value` parameters, **at the top of the file, above the prose**. Full vocabulary and the reasoning: [[DAS Stone Keys]].

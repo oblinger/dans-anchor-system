@@ -39,6 +39,7 @@ A key earns its place only when the machine needs a fact the arrangement cannot 
 |---|---|---|---|
 | `line::` | the canonical one-line rendering, which is what a control-file line displays after its provenance label | **yes** | Stone discipline |
 | `appears::` | the control files this stone currently renders in, comma-separated by slug | **yes** | `stone`, machine-written |
+| `enrolled::` | the anchors this stone was **pushed** to by a deliberate act ([[DAS Stone]] § Placement), comma-separated by slug; present only while there is one | no | `stone push` / `recall`, machine-written |
 
 `line::` is what makes propagation line-copying: every control file anywhere in the feed DAG renders a stone from this one string, so a stone reads identically wherever it appears.
 
@@ -55,6 +56,11 @@ Declared by [[DAS Pebble]] on top of the shared key. Carried over from the Nudge
 | `alert::` | whether it earns a full-screen interrupt rather than a quiet listing | no | off |
 | `created::` | mint date, so *"this has been ignored for six weeks"* becomes answerable | no | the file's own birth |
 | `state::` | `open` or `declined` | no | `open` |
+| `due::` | the moment by which an outcome in the world must have happened — the field that makes a pebble **timed**, and so the shape that needs a watcher | no | none — an ordinary pebble has priority but no timing |
+| `done::` | the observable outcome in the world that ends the watch — *"he replies"*, *"the drive is unplugged"*, *"the row leaves `[Questions]`"* | no; **required by any anchor whose `.anchor` says `accepts: due, done, importance`** | none |
+| `importance::` | `low` / `nominal` / `high` / `critical` — how much it matters, crudely; the watcher picks the rung from this, the owner does not | no; required where `accepts:` names it | none |
+
+**`due::`, `done::` and `importance::` arrived 2026-08-29 with placement ([[TINK626 - Stone placement an explicit push verb, so enrolling a watch cannot|TINK T626]]).** The date field is `due::` — not `ends`, not `deadline` — because it is what a date field is called everywhere else. There is deliberately no `spark` kind: a pebble carrying a `due::` *is* one, and Dan rejected the name on collision grounds (*"file a spark for Sparks"* is one sibilant from ambiguous, spoken to a watch). They pass the arrangement test because no position in a control file can express a clock. None is required at the mint; all three are required at the **push** into an anchor that declares them, which is where a missing one can still be fixed by the agent who knows the answer. T626's draft named the third key `then::` — *what to do if it does not land* — and it was dropped before shipping: [[ASTR Comms]] § The handoff contract (take two, same day) moved that decision to the watcher, so asking the owner for it would ask for a rung it should not be choosing.
 
 **Only `tempo::` is required**, and the reasoning generalises to every kind: everything else has a defensible default, and *a required field with a sensible default is a field that gets filled in wrong.*
 

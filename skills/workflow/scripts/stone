@@ -10,6 +10,19 @@ This is the mechanical half only.
         recycled), and insert its rendered line at the top of that anchor's
         OWN control file. Does not propagate — run `update` for that.
 
+    stone <kind> push <owner> <sid> --to <target> [--root PATH]
+        PLACE one stone on another anchor's list as a deliberate act (T626).
+        Writes the line into the target's control file, records the target
+        in the stone's `enrolled::`, and prints a receipt. If the target's
+        `.anchor` carries `accepts: k1, k2`, the stone must carry each of
+        those keys or the push is refused, naming what is missing (SPARKS
+        declares `accepts: due, done, importance` — ASTR Comms § The
+        handoff contract, made mechanical). `update`
+        keeps an enrolled line where it would sweep a merely-propagated one.
+
+    stone <kind> recall <owner> <sid> --from <target> [--root PATH]
+        The exit: un-enroll, remove the line, print what came off.
+
     stone <kind> update [--root PATH]
         Walk the `feeds:` DAG under PATH (default: vault root) and reconcile
         every control file of this kind against its stones:
@@ -126,6 +139,12 @@ def _control_suffix(cfg: dict) -> str:
 # a stone is refused at the mint (`_reject_unroundtrippable_owner`), not here.
 _SLUG_RE = re.compile(r"^slug:\s*(.+?)\s*$")
 _FEEDS_RE = re.compile(r"^feeds:\s*(.*)$")
+# `accepts: due, done, importance` — the keys a stone PUSHED into this anchor
+# must carry (T626). Declared by the receiving anchor, because it is the
+# receiver's contract (SPARKS refuses a watch that does not say what outcome
+# ends it, when it decays, and how much it matters), and read at the push so
+# the refusal reaches the agent that can still fix it.
+_ACCEPTS_RE = re.compile(r"^accepts:\s*(.*)$")
 
 
 def _anchor_slug(anchor_dir: Path) -> str:
@@ -144,6 +163,17 @@ def _anchor_feeds(anchor_dir: Path) -> list:
         return []
     for line in f.read_text(encoding="utf-8").splitlines():
         m = _FEEDS_RE.match(line)
+        if m:
+            return [s.strip() for s in m.group(1).split(",") if s.strip()]
+    return []
+
+
+def _anchor_accepts(anchor_dir: Path) -> list:
+    f = anchor_dir / ".anchor"
+    if not f.is_file():
+        return []
+    for line in f.read_text(encoding="utf-8").splitlines():
+        m = _ACCEPTS_RE.match(line)
         if m:
             return [s.strip() for s in m.group(1).split(",") if s.strip()]
     return []
@@ -175,7 +205,8 @@ def discover_anchors(root: Path):
             elif slug in anchors:
                 ambiguous[slug] = [anchors.pop(slug).path, p]
             else:
-                anchors[slug] = SimpleNamespace(slug=slug, path=p, feeds=_anchor_feeds(p))
+                anchors[slug] = SimpleNamespace(slug=slug, path=p, feeds=_anchor_feeds(p),
+                                                accepts=_anchor_accepts(p))
     return anchors, ambiguous
 
 
@@ -482,6 +513,10 @@ def _kv_get(keys: list, name: str, default=None):
     return default
 
 
+def _kv_del(keys: list, name: str):
+    keys[:] = [(k, v) for k, v in keys if k != name]
+
+
 def _kv_set(keys: list, name: str, value: str):
     for i, (k, _v) in enumerate(keys):
         if k == name:
@@ -502,11 +537,14 @@ def _load_stone(path: Path, slug: str, live: bool, cfg: dict = None):
     line = (_kv_get(keys, "line", "") or "").strip()
     appears_raw = _kv_get(keys, "appears", "") or ""
     appears = {a.strip() for a in appears_raw.split(",") if a.strip()}
+    enrolled_raw = _kv_get(keys, "enrolled", "") or ""
+    enrolled = {a.strip() for a in enrolled_raw.split(",") if a.strip()}
     sid = path.stem if (cfg and _dated(cfg)) else path.stem[len(slug) + 1:]
     return SimpleNamespace(
         slug=slug, sid=sid, path=path, keys=keys, body=body,
         line=line, orig_line=line,
         appears=appears, orig_appears=frozenset(appears),
+        enrolled=enrolled, orig_enrolled=frozenset(enrolled),
         live=live, orig_live=live,
     )
 
@@ -514,6 +552,13 @@ def _load_stone(path: Path, slug: str, live: bool, cfg: dict = None):
 def _write_stone(st):
     _kv_set(st.keys, "line", st.line)
     _kv_set(st.keys, "appears", ", ".join(sorted(st.appears)))
+    # `enrolled::` is the receipt of a deliberate act (T626), so it is present
+    # exactly when there is one to record — an empty key would read as a
+    # placement that never happened.
+    if st.enrolled:
+        _kv_set(st.keys, "enrolled", ", ".join(sorted(st.enrolled)))
+    else:
+        _kv_del(st.keys, "enrolled")
     st.path.write_text(_render_stone(st.keys, st.body), encoding="utf-8")
 
 
@@ -1067,6 +1112,13 @@ def propagate_in(slug: str, anchors: dict, stones: dict, control: dict, publishe
     desired = set()
     for src in sources:
         desired.update(published.get(src, []))
+    # T626 — an ENROLLED stone is on this list by a deliberate act, not by
+    # aggregation, so it is desired regardless of what feeds: says. Only a
+    # live stone: archiving withdraws the watch like everything else.
+    enrolled_here = sorted(
+        key for key, st in stones.items() if st.live and slug in st.enrolled
+    )
+    desired.update(enrolled_here)
 
     existing = _find_all_stone_occurrences(cf.lines, cfg)
     to_remove = {(o, s) for (o, s) in existing if o != slug and (o, s) not in desired}
@@ -1083,6 +1135,13 @@ def propagate_in(slug: str, anchors: dict, stones: dict, control: dict, publishe
         _add_downstream(cf, src, adds, stones, cfg)
         for key in adds:
             stones[key].appears.add(slug)
+        existing_after = _find_all_stone_occurrences(cf.lines, cfg)
+    for key in enrolled_here:
+        if key in existing_after or key[0] == slug:
+            continue
+        # Filed under the owner's header if the target keeps one, else the top.
+        _add_downstream(cf, key[0], [key], stones, cfg)
+        stones[key].appears.add(slug)
         existing_after = _find_all_stone_occurrences(cf.lines, cfg)
 
 
@@ -1456,6 +1515,8 @@ def cmd_update(kind: str, cfg: dict, root: Path, args) -> int:
     )
     for n in readback_notes:
         print(f"  {n}")
+    for w in _enrollment_warnings(anchors, stones):
+        print(f"stone: warning: {w}", file=sys.stderr)
     # On stderr, where the StoneError this replaced went: a dangling edge is
     # still a defect the run refuses to pass silently — it just no longer
     # takes the rest of the vault down with it (T599).
@@ -1469,6 +1530,160 @@ def cmd_update(kind: str, cfg: dict, root: Path, args) -> int:
               file=sys.stderr)
         return 1
     return 0
+
+
+# --------------------------------------------------------------------------
+# Placement — push / recall (T626)
+#
+# `feeds:` is AGGREGATION: this list is the sum of those lists, total and
+# implicit. Placement is ENROLLMENT: this one stone is also on that list, by
+# one deliberate act, with a receipt. Dan rejected the alternative — a
+# predicate on feeds: (`feeds: SONAR where due`) — because it fails silently:
+# "now Sonar can think that she alerted Sparks, but she didn't, because she
+# didn't get it right. It didn't parse right. It didn't go through." An
+# omission is visible to the agent committing it; a parse failure is visible
+# to nobody until the deadline passes. So the act is explicit, the refusal is
+# at the act, and `update` flags the stone that carries a clock and was pushed
+# to nobody.
+
+# The key whose presence means "this stone has a clock" — the shape that
+# needs a watcher (T626: "ordinary pebbles have priority but no timing; the
+# due:: is the whole difference").
+TIMED_KEY = "due"
+
+
+def _resolve_pair(anchors: dict, ambiguous: dict, cfg: dict, owner: str, sid: str,
+                  target: str, role: str):
+    """(owner anchor, stone, target anchor) for a push/recall, or raise."""
+    for slug, why in ((owner, "it owns the stone"), (target, f"it is the {role}")):
+        if slug in ambiguous:
+            raise _ambiguous_error(slug, ambiguous[slug], why)
+        if slug not in anchors:
+            raise StoneError(f"no anchor {slug!r} (.anchor) found under the scanned root")
+    if owner == target:
+        raise StoneError(
+            f"{owner} {sid} already lives on {owner}'s own list — a push places "
+            f"a stone on SOMEONE ELSE's list")
+    a = anchors[owner]
+    folder = _stone_folder(a.path, owner, cfg)
+    spath = folder / _stone_filename(owner, sid, cfg)
+    if not spath.is_file():
+        archived = (folder / "archive" / _stone_filename(owner, sid, cfg)).is_file()
+        raise StoneError(
+            f"no live stone {owner} {sid}" + (" — it is archived" if archived else "")
+            + f" (looked in {folder})")
+    st = _load_stone(spath, owner, live=True, cfg=cfg)
+    return a, st, anchors[target]
+
+
+def _control_lines(cpath: Path, slug: str, cfg: dict) -> list:
+    return (cpath.read_text(encoding="utf-8").splitlines() if cpath.is_file()
+            else _default_control_lines(slug, cfg))
+
+
+def cmd_push(kind: str, cfg: dict, root: Path, args) -> int:
+    anchors, ambiguous = discover_anchors(root)
+    owner, sid, target = args.anchor, args.stone, args.to
+    _a, st, tgt = _resolve_pair(anchors, ambiguous, cfg, owner, sid, target, "push target")
+
+    # Validation at the moment of the act — the receiver's contract, checked
+    # where the agent that wrote the stone can still fix it.
+    missing = [k for k in tgt.accepts if not (_kv_get(st.keys, k, "") or "").strip()]
+    if missing:
+        raise StoneError(
+            f"refused: {owner} {sid} has no " + ", ".join(f"`{k}::`" for k in missing)
+            + f" -- {target} accepts only a stone that says "
+            + " and ".join(f"`{k}::`" for k in tgt.accepts)
+            + f" (its .anchor: `accepts: {', '.join(tgt.accepts)}`). Add it to "
+            f"{st.path.name} and push again. Nothing was written.")
+
+    cpath = _control_path(tgt.path, target, cfg)
+    lines = _control_lines(cpath, target, cfg)
+    cf = SimpleNamespace(slug=target, path=cpath, lines=lines)
+    present = (owner, sid) in _find_all_stone_occurrences(lines, cfg)
+    already = target in st.enrolled
+    if already and present:
+        print(f"stone: {owner} {sid} is already enrolled with {target} — "
+              f"{cpath.name} unchanged")
+        return 0
+    if not present:
+        _add_downstream(cf, owner, [(owner, sid)], {(owner, sid): st}, cfg)
+        cpath.parent.mkdir(parents=True, exist_ok=True)
+        cpath.write_text("\n".join(cf.lines) + "\n", encoding="utf-8")
+    st.enrolled.add(target)
+    st.appears.add(target)
+    _write_stone(st)
+
+    # The receipt says what happened, not that it happened.
+    shown = [k for k in tgt.accepts] or [k for k in (TIMED_KEY, "tempo")
+                                          if (_kv_get(st.keys, k, "") or "").strip()]
+    detail = ", ".join(f"{k}:: {_kv_get(st.keys, k, '')}" for k in shown)
+    print(f"{owner} {sid} -> {cpath.stem}   ({detail or 'no keys required by ' + target})"
+          + ("" if not present else "   [line was already there via feeds:; enrollment recorded]"))
+    return 0
+
+
+def cmd_recall(kind: str, cfg: dict, root: Path, args) -> int:
+    anchors, ambiguous = discover_anchors(root)
+    owner, sid, target = args.anchor, args.stone, getattr(args, "from_")
+    _a, st, tgt = _resolve_pair(anchors, ambiguous, cfg, owner, sid, target, "recall source")
+    if target not in st.enrolled:
+        raise StoneError(
+            f"{owner} {sid} is not enrolled with {target} (enrolled:: "
+            f"{', '.join(sorted(st.enrolled)) or 'nobody'}) — nothing to recall")
+    cpath = _control_path(tgt.path, target, cfg)
+    outcome = "no line to remove"
+    if cpath.is_file():
+        lines = cpath.read_text(encoding="utf-8").splitlines()
+        cf = SimpleNamespace(slug=target, path=cpath, lines=lines)
+        if (owner, sid) in _find_all_stone_occurrences(lines, cfg):
+            # Only when the line is there by enrollment alone: a copy that
+            # feeds: would put straight back stays, and the receipt says so.
+            if target in _fed_targets(anchors, owner):
+                outcome = "enrollment withdrawn; the line stays because feeds: also carries it"
+            else:
+                remove_stones(cf, {(owner, sid)}, cfg)
+                cpath.write_text("\n".join(cf.lines) + "\n", encoding="utf-8")
+                st.appears.discard(target)
+                outcome = "line removed"
+    st.enrolled.discard(target)
+    _write_stone(st)
+    print(f"{owner} {sid} <- {cpath.stem}   {outcome}")
+    return 0
+
+
+def _fed_targets(anchors: dict, owner: str) -> set:
+    """Every anchor that draws from `owner` by feeds:, transitively."""
+    out, frontier = set(), [owner]
+    while frontier:
+        n = frontier.pop()
+        for a in anchors.values():
+            if n in a.feeds and a.slug not in out:
+                out.add(a.slug)
+                frontier.append(a.slug)
+    return out
+
+
+def _enrollment_warnings(anchors: dict, stones: dict) -> list:
+    """The forgotten push, caught by sweep (T626 part 3): a live stone that
+    carries a clock and was placed with nobody; and a placement whose target
+    no longer exists. Warnings, not failures — an owner may watch its own
+    clock — but a pass that stays quiet here is the silent-success shape the
+    whole feature exists to close."""
+    out = []
+    for (owner, sid), st in sorted(stones.items()):
+        if not st.live:
+            continue
+        if (_kv_get(st.keys, TIMED_KEY, "") or "").strip() and not st.enrolled:
+            out.append(
+                f"{owner} {sid} carries `{TIMED_KEY}:: {_kv_get(st.keys, TIMED_KEY)}` "
+                f"and is enrolled with nobody — a clock nobody is watching. "
+                f"`stone <kind> push {owner} {sid} --to <watcher>` if it needs one.")
+        for tgt in sorted(st.enrolled):
+            if tgt not in anchors:
+                out.append(f"{owner} {sid} is enrolled with {tgt!r}, which is not an "
+                           f"anchor under the scanned root — recall it or fix the slug")
+    return out
 
 
 # --------------------------------------------------------------------------
@@ -1510,6 +1725,18 @@ def build_parser(cfg_all: dict) -> argparse.ArgumentParser:
         where.add_argument("--to-top", action="store_true", help="first in its run")
         where.add_argument("--to-bottom", action="store_true", help="last in its run")
 
+        ps = verb_subs.add_parser("push", help="place one stone on another anchor's list, with a receipt (T626)")
+        ps.add_argument("anchor", help="the stone's OWNER slug")
+        ps.add_argument("stone", help="the stone id, e.g. P0007")
+        ps.add_argument("--to", required=True, metavar="SLUG", help="the anchor whose list receives it")
+        ps.add_argument("--root", default=None, help="scan root (default: $ANCHOR_VAULT_ROOT or ~/ob/kmr)")
+
+        rc = verb_subs.add_parser("recall", help="take a pushed stone back off another anchor's list")
+        rc.add_argument("anchor", help="the stone's OWNER slug")
+        rc.add_argument("stone", help="the stone id, e.g. P0007")
+        rc.add_argument("--from", dest="from_", required=True, metavar="SLUG", help="the anchor whose list it leaves")
+        rc.add_argument("--root", default=None, help="scan root (default: $ANCHOR_VAULT_ROOT or ~/ob/kmr)")
+
         up = verb_subs.add_parser("update", help="reconcile + propagate along feeds:")
         up.add_argument("--root", default=None, help="scan root (default: $ANCHOR_VAULT_ROOT or ~/ob/kmr)")
         up.add_argument("--dry-run", action="store_true",
@@ -1530,6 +1757,10 @@ def main(argv) -> int:
             return cmd_new(args.kind, cfg, root, args)
         if args.verb == "move":
             return cmd_move(args.kind, cfg, root, args)
+        if args.verb == "push":
+            return cmd_push(args.kind, cfg, root, args)
+        if args.verb == "recall":
+            return cmd_recall(args.kind, cfg, root, args)
         if args.verb == "update":
             return cmd_update(args.kind, cfg, root, args)
     except StoneError as e:
