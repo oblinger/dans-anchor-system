@@ -99,7 +99,7 @@ Settled on [[@Henna Dattani]] with Dan. A flat entity page opens with a **breadc
 
 `# @Henna Dattani — **[Alignment TPM](https://linkedin…) at [[@Anthropic]]**`
 
-Directly under it sits the **card**, the page's heart ([[DAS heart]] § Fact card). The standard rows, in this order. **Contact and Rolodex are always present, even when empty** — an empty Contact is a to-do and an empty Rolodex is a question (*should this person be in one?*), so the blank row earns its place. **Personas, Friends and Context are omitted when there is nothing to say** — an absence there asks nothing (Dan, 2026-08-29). Contact holds ways to *reach* the person; a standing meeting room or an invite link is a channel for a scheduled thing and lives beside the correspondence it served, not here.
+Directly under it sits the **card**, the page's heart ([[DAS heart]] § Fact card). The standard rows, in this order. **Contact and Rolodex are always present, even when empty** — an empty Contact is a to-do and an empty Rolodex is a question (*should this person be in one?*), so the blank row earns its place. **Personas, Friends and Context are omitted when there is nothing to say** — an absence there asks nothing (Dan, 2026-08-29). Contact holds ways to *reach* the person — including a **standing meeting room** (a personal Meet/Zoom code reused across calls), labelled as such, because it will never be found again inside a dated log entry; a one-off invite link is not contact and stays with the meeting it served (Dan, 2026-08-29).
 
 | Row | Holds |
 |---|---|
