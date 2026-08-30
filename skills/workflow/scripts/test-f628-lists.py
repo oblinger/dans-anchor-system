@@ -225,16 +225,86 @@ with tempfile.TemporaryDirectory() as td:
     check(rc == 1 and "step 3" in err, "K: dotted push target refused, naming step 3")
 
 # ============================================================
-print("J. bare `stone update` walks every kind")
+print("J. bare `stone update` is ONE unified list-level pass (step 3)")
 # ============================================================
 with tempfile.TemporaryDirectory() as td:
     root = Path(td)
     mkanchor(root, "M")
     rc, out, err = quiet(root, "update")
-    kinds = list(st.load_kind_config())
-    missing = [k for k in kinds if f"stone: {k} update" not in out]
-    check(rc == 0 and not missing,
-          f"one pass per kind ({', '.join(kinds)}){' — missing: ' + ', '.join(missing) if missing else ''}")
+    check(rc == 0 and "stone: update" in out and "list(s)" in out,
+          f"one summary line for the whole pass, naming the list count")
+
+# ============================================================
+print("L/M/N. unified propagation: two kinds at once, per-list feeds, bare target")
+# ============================================================
+CFG_ALL = st.load_kind_config()
+
+
+def publish_all(root, slug, kind):
+    """Insert SLUG's self-section header at the top of its KIND control —
+    existing lines end up below it, hence published (f313's fixture move)."""
+    cfg, _ = st._effective_cfg(root / slug, slug, kind, CFG_ALL)
+    cpath = st._control_path(root / slug, slug, cfg)
+    lines = cpath.read_text(encoding="utf-8").splitlines()
+    idx = st._content_start(lines)
+    lines.insert(idx, st._render_header(slug, cfg))
+    cpath.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+with tempfile.TemporaryDirectory() as td:
+    root = Path(td)
+    mkanchor(root, "A")
+    mkanchor(root, "B", "feeds: A\n")
+    mkanchor(root, "C", "stones:\n  traffic:\n    feeds: [A.rock]\n")
+    mkanchor(root, "D", "stones:\n  traffic:\n    feeds: [A]\n")
+    quiet(root, "new", "A", "--line", "[[A]] a pebble")
+    quiet(root, "new", "A.rock", "--line", "[[A]] a rock")
+    publish_all(root, "A", "pebble")
+    publish_all(root, "A", "rock")
+
+    rc, out, err = quiet(root, "update")
+    check(rc == 0, f"L: unified pass rc 0 (err={err.strip()})")
+    bp = (root / "B" / "B Track" / "B Pebble.md")
+    br = (root / "B" / "B Track" / "B Rock.md")
+    check(bp.is_file() and "A P0001" in bp.read_text(encoding="utf-8"),
+          "L: pebble propagated along the anchor-level edge")
+    check(br.is_file() and "A R0001" in br.read_text(encoding="utf-8"),
+          "L: rock propagated along the SAME anchor-level edge, one pass")
+    ct = root / "C" / "C Track" / "C Traffic" / "C Traffic.md"
+    check(ct.is_file() and "A R0001" in ct.read_text(encoding="utf-8"),
+          "M: per-list feed put a ROCK line on the traffic list (cross-type)")
+    dt = root / "D" / "D Track" / "D Traffic" / "D Traffic.md"
+    check(dt.is_file() and "A P0001" in dt.read_text(encoding="utf-8")
+          and "A R0001" not in dt.read_text(encoding="utf-8"),
+          "N: bare feed target `A` drew A's DEFAULT list (pebbles), not rocks")
+
+    # P. restricted walk parity: a per-kind pass neither sees nor disturbs
+    # what only the unified walk manages.
+    before = ct.read_text(encoding="utf-8")
+    rc, out, err = quiet(root, "pebble", "update")
+    check(rc == 0 and ct.read_text(encoding="utf-8") == before,
+          "P: legacy `pebble update` leaves the traffic list untouched")
+    rc, out, err = quiet(root, "rock", "update")
+    check(rc == 0 and ct.read_text(encoding="utf-8") == before,
+          "P: legacy `rock update` too — the rock line there is not its business")
+
+    # idempotence: a second unified pass writes nothing
+    rc, out, err = quiet(root, "update", "--dry-run")
+    check(rc == 0 and "0 control file(s) would be written" in out
+          and "0 stone file(s) would be written" in out,
+          "L: the unified pass is idempotent (second dry-run writes nothing)")
+
+# ============================================================
+print("O. unified cycle names dotted lists")
+# ============================================================
+with tempfile.TemporaryDirectory() as td:
+    root = Path(td)
+    mkanchor(root, "A", "feeds: B\n")
+    mkanchor(root, "B", "feeds: A\n")
+    rc, out, err = quiet(root, "update")
+    check(rc == 1 and "cycle in feeds: DAG" in err
+          and "A." in err and "B." in err,
+          "cycle reported as a dotted-list path, nothing written")
 
 # ============================================================
 print(f"\n{PASS} passed, {FAIL} failed")

@@ -48,7 +48,11 @@ This is the mechanical half only.
         dotless one), with per-type field defaults from the `stones:` section
         of ~/.config/anchor-system/global.yaml. The kind table below stays the
         fallback layer until the migration completes, and both CLI forms work.
-        `stone update` (no kind) reconciles every kind in one invocation.
+        `stone update` (no kind) runs ONE list-level reconciliation pass
+        over every declared list (step 3): per-list `feeds:` edges from
+        the registry (a bare anchor target means its DEFAULT list, Q4),
+        plus the anchor-level `feeds:` transition grammar (each
+        same-named list projects the edge, exactly as before).
 
 Kind config (folder, control-file name, stone-number prefix, digits, the two
 display-alias templates) is a MARKDOWN TABLE in a DAS facet doc — DAS is
@@ -597,31 +601,31 @@ def _merged_path(anchor_path: Path, slug: str) -> Path:
 
 
 def _merged_body(anchor_path: Path, slug: str, cfg_all: dict,
-                 live_kind: str, live_lines: list) -> str | None:
+                 live_map: dict) -> str | None:
     """This node's control lines across every merged kind, in MERGE_ORDER.
 
-    The kind being updated is read from `live_lines` (this pass's in-memory
-    result) and every other kind from disk — which is what lets `stone pebble
-    update` alone write a file that still carries the rocks, and what makes
-    `--dry-run` render what WOULD be written rather than what is still there.
+    `live_map` maps list-name -> in-memory lines for every list THIS pass is
+    reconciling; anything merged but not in the map (a restricted per-kind
+    pass) is read from disk — which is what lets `stone pebble update` alone
+    write a file that still carries the rocks, and what makes `--dry-run`
+    render what WOULD be written rather than what is still there.
 
     Only lines that open `[[` survive: frontmatter, the `-[[X Pebble|X]]-`
     header and any prose are dropped. The merged file gets no frontmatter and
     no generated-by banner of its own, because it is rendered raw in a MuxUX
     pane and anything that is not a stone line is visible garbage there (Dan,
     2026-08-21: "don't give this thing any front matter. It just looks like
-    garbage inside the HUD view"). Note that this rules out reusing
-    `_default_control_lines`, which writes frontmatter.
+    garbage inside the HUD view").
     """
     out = []
-    for kind in MERGE_ORDER:
-        kcfg = cfg_all.get(kind)
-        if kcfg is None:
-            continue
-        if kind == live_kind:
-            lines = live_lines
+    for name in MERGE_ORDER:
+        if name in live_map:
+            lines = live_map[name]
         else:
-            kcfg, _ = _effective_cfg(anchor_path, slug, kind, cfg_all,
+            kcfg = cfg_all.get(name)
+            if kcfg is None:
+                continue
+            kcfg, _ = _effective_cfg(anchor_path, slug, name, cfg_all,
                                      paths_only_base=kcfg)
             cpath = _control_path(anchor_path, slug, kcfg)
             if not cpath.is_file():
@@ -661,36 +665,18 @@ def _stone_files(folder: Path, slug: str, cfg: dict) -> list:
 # --------------------------------------------------------------------------
 # Topological order over the feed DAG, cycle reported as a path (F312 Inv. 1)
 
-def topo_order(anchors: dict, dangling: list = None) -> list:
-    """Order the feed DAG; a cycle is fatal, a dangling edge need not be.
-
-    T599 (2026-08-27) — one retired slug left standing in one `.anchor`'s
-    `feeds:` aborted reconciliation for **every** anchor in the vault, so a
-    control file had to be hand-edited, which is the exact thing this tool
-    exists to prevent. A missing source contributes no stones, so skipping
-    that one edge changes nothing downstream of it and leaves the rest of the
-    DAG intact — unlike a cycle, which makes "which value is downstream"
-    meaningless and stays fatal. Pass a `dangling` list to collect
-    `(slug, src)` for each skipped edge; the caller names them and exits
-    non-zero so the stale edge cannot pass unnoticed. Called without one, the
-    strict contract is unchanged and it still raises.
-    """
-    indeg = {s: 0 for s in anchors}
-    consumers = {s: [] for s in anchors}  # source -> [downstream slugs]
-    for x in anchors.values():
-        for src in x.feeds:
-            if src not in anchors:
-                if dangling is None:
-                    raise StoneError(
-                        f"{x.slug}: feeds: names {src!r}, no such anchor found "
-                        "under the scanned root — every edge must resolve"
-                    )
-                dangling.append((x.slug, src))
-                continue
-            consumers[src].append(x.slug)
-            indeg[x.slug] += 1
+def _topo_nodes(nodes: dict, edges: dict, label) -> list:
+    """Topological order over LIST nodes (F628 step 3). A cycle is fatal and
+    reported as a path; dangling edges never reach here — the edge builder in
+    cmd_update collects them (T599 semantics) before this runs."""
+    indeg = {k: 0 for k in nodes}
+    consumers = {k: [] for k in nodes}
+    for k, srcs in edges.items():
+        for s in srcs:
+            consumers[s].append(k)
+            indeg[k] += 1
     order = []
-    ready = sorted(s for s, d in indeg.items() if d == 0)
+    ready = sorted(k for k, d in indeg.items() if d == 0)
     while ready:
         n = ready.pop(0)
         order.append(n)
@@ -700,23 +686,22 @@ def topo_order(anchors: dict, dangling: list = None) -> list:
             if indeg[m] == 0:
                 newly_ready.append(m)
         ready = sorted(ready + newly_ready)
-    if len(order) != len(anchors):
-        remaining = [s for s in anchors if s not in order]
-        path = _find_cycle_path(remaining, anchors)
-        raise StoneError(
-            "cycle in feeds: DAG — " + " → ".join(path)
-        )
+    if len(order) != len(nodes):
+        done = set(order)
+        remaining = [k for k in nodes if k not in done]
+        path = _cycle_path(remaining, edges)
+        raise StoneError("cycle in feeds: DAG — " + " → ".join(label(k) for k in path))
     return order
 
 
-def _find_cycle_path(remaining: list, anchors: dict) -> list:
+def _cycle_path(remaining: list, edges: dict) -> list:
     rem = set(remaining)
     visiting: list = []
     visited: set = set()
 
     def dfs(node):
         visiting.append(node)
-        for src in anchors[node].feeds:
+        for src in edges.get(node, []):
             if src not in rem:
                 continue
             if src in visiting:
@@ -734,7 +719,7 @@ def _find_cycle_path(remaining: list, anchors: dict) -> list:
         found = dfs(n)
         if found:
             return list(reversed(found))
-    return sorted(rem)  # unreachable if len(order) != len(anchors) was true
+    return sorted(rem)  # unreachable when a cycle genuinely exists
 
 
 # --------------------------------------------------------------------------
@@ -1109,6 +1094,198 @@ def remove_stones(cf, targets: set, cfg: dict):
 
 
 # --------------------------------------------------------------------------
+# The list-level walk (F628 step 3): nodes, union grammar
+
+def _default_list_name(anchor_path: Path) -> str:
+    """The dotless list name for one anchor — its registry `_`, else the
+    config-wide default (Q2/Q4: a bare feed target names this)."""
+    registry = _anchor_stones(anchor_path)
+    if registry and "_" in registry:
+        return registry["_"]
+    return str(_global_stones_section().get("_") or "pebble")
+
+
+def _build_nodes(anchors: dict, cfg_all: dict, kinds=None) -> dict:
+    """One node per LIST: (slug, list_name) -> namespace(cfg, folder, cpath,
+    stem). Unified walk (kinds None): every kind-table type on every anchor
+    (the transition fallback) plus every registry-declared list. Restricted
+    walk (legacy `stone <kind> update`): that one type on every anchor."""
+    nodes = {}
+    for slug, a in sorted(anchors.items()):
+        if kinds is None:
+            registry = _anchor_stones(a.path) or {}
+            wanted = list(cfg_all) + [n for n in registry
+                                      if n != "_" and n not in cfg_all]
+        else:
+            wanted = list(kinds)
+        for name in wanted:
+            cfg, name = _effective_cfg(a.path, slug, name, cfg_all)
+            nodes[(slug, name)] = SimpleNamespace(
+                slug=slug, name=name, anchor=a, cfg=cfg,
+                folder=_stone_folder(a.path, slug, cfg),
+                cpath=_control_path(a.path, slug, cfg),
+                stem=cfg["control"].format(slug=slug))
+    return nodes
+
+
+class Gram:
+    """Union line-grammar + node map for one UPDATE pass (F628 step 3).
+
+    The single-list verbs (new / move / push / recall) keep the cfg-based
+    helpers above; the update engine classifies with this union instead,
+    because a list-level walk must recognize every known list's lines in one
+    file — a traffic control file legitimately carries rock lines once a
+    cross-type edge exists. Headers are matched by control-stem suffix (the
+    generalization of `_is_header_target`), numbered stones by the union of
+    known (prefix, digits) pairs, dated stones by shape + alias owner. The
+    two grammars agree wherever both apply; the cfg helpers fold into this
+    when the kind table retires (step 4).
+    """
+
+    def __init__(self, nodes: dict, restricted: bool = False):
+        self.nodes = nodes
+        self.restricted = restricted
+        self.suffixes = sorted({_control_suffix(nd.cfg) for nd in nodes.values()},
+                               key=len, reverse=True)
+        self.pairs = sorted({(nd.cfg["prefix"], int(nd.cfg.get("digits", 4)))
+                             for nd in nodes.values()
+                             if not _dated(nd.cfg) and nd.cfg.get("prefix")})
+        self.dated_cfgs, seen = [], set()
+        for key in sorted(nodes):
+            cfg = nodes[key].cfg
+            if _dated(cfg) and cfg["stone_alias"] not in seen:
+                seen.add(cfg["stone_alias"])
+                self.dated_cfgs.append(cfg)
+
+    def label(self, key) -> str:
+        """Restricted labels stay bare slugs — the walk has one list per
+        anchor and every existing message names anchors, not lists."""
+        return key[0] if self.restricted else f"{key[0]}.{key[1]}"
+
+    def header_target(self, target: str):
+        for suf in self.suffixes:
+            tail = " " + suf
+            if target.endswith(tail) and target[: -len(tail)]:
+                return target
+        return None
+
+    def stone_target(self, target: str, alias):
+        for cfg in self.dated_cfgs:
+            hit = _is_stone_target(target, cfg, alias)
+            if hit:
+                return hit
+        for prefix, digits in self.pairs:
+            m = re.match(
+                rf"^([A-Za-z][A-Za-z0-9]*) ({re.escape(prefix)}\d{{{digits}}})$",
+                target)
+            if m:
+                return m.group(1), m.group(2)
+        return None
+
+    def classify(self, line: str):
+        """('other',) | ('header', stem, rest) | ('stone', owner, sid, text)."""
+        m = _FIRST_LINK_RE.match(line)
+        if not m:
+            return ("other",)
+        target = m.group(1).strip()
+        rest = m.group(3)
+        stem = self.header_target(target)
+        if stem:
+            return ("header", stem, rest)
+        hit = self.stone_target(target, m.group(2))
+        if hit:
+            return ("stone", hit[0], hit[1], rest.lstrip())
+        return ("other",)
+
+    def stone_chunk(self, chunk: str):
+        m = _FIRST_LINK_RE.match(chunk.strip())
+        if not m:
+            return None
+        hit = self.stone_target(m.group(1).strip(), m.group(2))
+        if not hit:
+            return None
+        return hit[0], hit[1], m.group(3).lstrip()
+
+    def occurrences(self, lines: list) -> set:
+        out = set()
+        for line in lines:
+            cls = self.classify(line)
+            if cls[0] == "stone":
+                out.add((cls[1], cls[2]))
+            elif cls[0] == "header":
+                _head, payload = _header_payload(line, cls[2])
+                if payload is not None:
+                    for chunk in _split_inline(payload):
+                        sub = self.stone_chunk(chunk)
+                        if sub:
+                            out.add((sub[0], sub[1]))
+        return out
+
+    def render(self, st) -> str:
+        """A stone renders with its HOME list's grammar, wherever the line
+        lands — ownership and alias belong to the owner, not the host file."""
+        return render_stone_line(st.slug, st.sid, st.line, st.home_cfg)
+
+    def find_header(self, lines: list, stem: str):
+        for i, line in enumerate(lines):
+            cls = self.classify(line)
+            if cls[0] == "header" and cls[1] == stem:
+                return i
+        return None
+
+    def remove(self, cf, targets: set):
+        new_lines = []
+        for line in cf.lines:
+            cls = self.classify(line)
+            if cls[0] == "stone":
+                if (cls[1], cls[2]) in targets:
+                    continue
+                new_lines.append(line)
+            elif cls[0] == "header":
+                head, payload = _header_payload(line, cls[2])
+                if payload:
+                    kept = []
+                    for chunk in _split_inline(payload):
+                        sub = self.stone_chunk(chunk)
+                        if sub and (sub[0], sub[1]) in targets:
+                            continue
+                        kept.append(chunk)
+                    new_lines.append(f"{head}: " + ", ".join(kept) if kept else f"{head}:")
+                else:
+                    new_lines.append(line)
+            else:
+                new_lines.append(line)
+        cf.lines[:] = new_lines
+
+    def add_downstream(self, cf, source_key, additions: list, stones: dict):
+        """Insert under the header for the SOURCE list (block: one line each;
+        inline: comma-appended), else at the top of the content."""
+        stem = self.nodes[source_key].stem
+        hdr_idx = self.find_header(cf.lines, stem)
+        if hdr_idx is None:
+            insert_idx = _content_start(cf.lines)
+            for k in additions:
+                cf.lines.insert(insert_idx, self.render(stones[k]))
+                insert_idx += 1
+            return
+        line = cf.lines[hdr_idx]
+        cls = self.classify(line)
+        head, payload = _header_payload(line, cls[2])
+        if head is not None:
+            chunks = _split_inline(payload) if payload else []
+            chunks.extend(self.render(stones[k]) for k in additions)
+            cf.lines[hdr_idx] = f"{head}: " + ", ".join(chunks)
+            return
+        end = hdr_idx + 1
+        while end < len(cf.lines) and self.classify(cf.lines[end])[0] == "stone":
+            end += 1
+        insert_idx = end
+        for k in additions:
+            cf.lines.insert(insert_idx, self.render(stones[k]))
+            insert_idx += 1
+
+
+# --------------------------------------------------------------------------
 # The propagation pass (§ Propagation)
 
 def _mtime(p):
@@ -1138,7 +1315,7 @@ def _newer_side(st, cf, tolerance: float = 2.0):
     return "stone" if a > b else "control"
 
 
-def readback(stones: dict, control: dict, cfg: dict,
+def readback(stones: dict, control: dict, gram: Gram,
              stats: dict | None = None, notes: list | None = None) -> list:
     """Any line differing from its stone is an edit of the stone (wherever
     found), compared against each stone's ORIGINAL line:: (as of the start of
@@ -1148,142 +1325,104 @@ def readback(stones: dict, control: dict, cfg: dict,
     against.
 
     Returns the COLLISIONS — stones whose projections were edited to two or
-    more different values in one pass. F312 Q6 answered (C) 2026-08-13: keep
-    the shipped every-file-is-a-write-surface model, but make the loss loud.
-    A colliding stone is left untouched here and the caller aborts the pass
-    before any write, so no edit is discarded and no file is half-reconciled.
-
-    The predicate is *distinct* differing values, not "more than one projection
-    differs". Two projections carrying the SAME new text lose nothing when one
-    of them is taken — that is a propagated edit, not a conflict. Only a
-    disagreement can discard something, and only disagreement is reported.
+    more different values in one pass (F312 Q6 = C: the caller aborts before
+    any write, so no edit disappears quietly). The predicate is *distinct*
+    differing values — two projections carrying the SAME new text is a
+    propagated edit, not a conflict.
 
     **T553 — a differing projection is not always an edit; it may be STALE.**
-    The rule above reads "any line differing from its stone is an edit of the
-    stone", which silently assumes the projection is the newer side. It is not,
-    whenever a stone's `line::` was authored directly in the stone file — and
-    then this loop pulls the OLDER projection up and overwrites the authored
-    text. [[Hermes]] hit it 2026-08-17: a no-argument pass reported
-    `6 stone file(s) written (0 archived)`, exit 0, no warning, and had replaced
-    six pebbles' `line::` with superseded text, propagating HUD 1 → LUMEN.
-    `LUMEN P0012`'s 8/17 update lost to its own pre-8/17 state. He confirmed the
-    direction rather than inferring it, by hand-correcting HUD's copy and
-    watching that stone drop out of the write set.
+    The discriminator is file mtime: whichever of the stone file and the
+    control file carrying the projection was written last is the authored
+    side. Stone newer -> the projection is stale; keep the stone's value and
+    let resync push it back out (this is the case that was losing data —
+    [[Hermes]] 2026-08-17). Control newer -> a genuine edit; propagate.
+    Neither (equal mtimes, a fresh clone / checkout / rsync) -> propagate,
+    but report it by name with both strings, counted as `unadjudicated` —
+    aborting there would make the tool unusable at exactly the moment
+    nothing is in conflict.
 
-    The counter is the other half of why it went unnoticed: `0 archived` reads
-    as "nothing was lost" and is true in the sense the tool means — no *file*
-    was archived — while six files' most meaningful field had been replaced.
-    `stats["reverted"]`/`["propagated"]` below count what actually happens.
-
-    The discriminator is **file mtime**, which answers exactly the question the
-    old rule assumed away: whichever of the stone file and the control file
-    carrying the projection was written last is the authored side.
-
-      stone newer   → the projection is stale. Do not pull it up; `resync`
-                      pushes the stone's value back out, which is the
-                      convergence the design already promises. **This is the
-                      case that was losing data**, and it is the only behaviour
-                      change.
-      control newer → a genuine projection edit. Propagate, as before.
-      neither       → indistinguishable: equal mtimes, or a fresh clone /
-                      `git checkout` / rsync that flattened every mtime in the
-                      tree. Propagate — as before — but report it by name with
-                      both strings, counted as `unadjudicated`.
-
-    Aborting on the indeterminate case was tried first and is wrong: a checkout
-    flattens mtimes across the whole vault, so refusing there would make the
-    tool unusable at exactly the moment nothing is in conflict. What the
-    indeterminate case genuinely owes the user is visibility, and F312 Q6's
-    ruling was "make the loss loud" rather than "make it impossible".
+    F628 step 3: `control` is keyed by NODE (slug, list) and classification
+    goes through the union grammar, so an edit made to a projection hosted on
+    a different-type list still travels home to its stone.
     """
     if stats is None:
         stats = {}
     if notes is None:
         notes = []
     occ: dict = {}
-    for slug in sorted(control):
-        cf = control[slug]
+    for key in sorted(control):
+        cf = control[key]
         for line in cf.lines:
-            cls = classify_line(line, cfg)
+            cls = gram.classify(line)
             if cls[0] == "stone":
-                _, owner, sid, text = cls
-                occ.setdefault((owner, sid), []).append((slug, text))
+                _t, owner, sid, text = cls
+                occ.setdefault((owner, sid), []).append((key, text))
             elif cls[0] == "header":
                 _head, payload = _header_payload(line, cls[2])
                 if payload is not None:
                     for chunk in _split_inline(payload):
-                        sub = classify_stone_chunk(chunk, cfg)
+                        sub = gram.stone_chunk(chunk)
                         if sub:
                             owner, sid, text = sub
-                            occ.setdefault((owner, sid), []).append((slug, text))
+                            occ.setdefault((owner, sid), []).append((key, text))
 
     collisions = []
-    for key, seen in occ.items():
-        st = stones.get(key)
+    for skey, seen in occ.items():
+        st = stones.get(skey)
         if st is None:
             continue  # dangling reference — left untouched, not this tool's job
         original = st.orig_line
-        edits = [(slug, text) for slug, text in seen if text != original]
-        distinct = {text for _slug, text in edits}
+        edits = [(k, text) for k, text in seen if text != original]
+        distinct = {text for _k, text in edits}
         if len(distinct) > 1:
-            collisions.append((key[0], key[1], sorted(edits)))
+            collisions.append((skey[0], skey[1],
+                               sorted((gram.label(k), text) for k, text in edits)))
             continue  # leave the stone alone — the caller aborts before writes
         if not edits or edits[-1][1] == st.line:
             continue
-        slug, text = edits[-1]
+        k, text = edits[-1]
         # T553 — only take the projection when it is demonstrably the newer
         # side. An EMPTY `original` is not a replacement: there is nothing to
         # lose, so an unset line:: is filled without ceremony.
         if original.strip():
-            side = _newer_side(st, control.get(slug))
+            side = _newer_side(st, control.get(k))
             if side == "stone":
                 stats["kept_stone"] = stats.get("kept_stone", 0) + 1
                 notes.append(
-                    f"kept {key[0]} {key[1]}'s own line — {slug}'s copy is older\n"
+                    f"kept {skey[0]} {skey[1]}'s own line — {gram.label(k)}'s copy is older\n"
                     f"      stone: {original}\n"
-                    f"      {slug}: {text}")
+                    f"      {gram.label(k)}: {text}")
                 continue
             stats["replaced"] = stats.get("replaced", 0) + 1
             if side is None:
-                # Indeterminate. Propagate — today's behaviour — but say so with
-                # both strings, because this is exactly the write that can lose
-                # an authored line and the only remaining case where the tool
-                # cannot tell. Aborting here was tried and is wrong: a fresh
-                # clone, a `git checkout`, or an rsync flattens every mtime in
-                # the tree, so refusing would make the tool unusable precisely
-                # when nothing is actually in conflict.
                 stats["unadjudicated"] = stats.get("unadjudicated", 0) + 1
                 notes.append(
-                    f"replaced {key[0]} {key[1]}'s line from {slug} — mtimes "
+                    f"replaced {skey[0]} {skey[1]}'s line from {gram.label(k)} — mtimes "
                     f"could not say which is newer, so this one is UNADJUDICATED:\n"
                     f"      was:  {original}\n"
                     f"      now:  {text}")
             else:
-                notes.append(f"replaced {key[0]} {key[1]}'s line from {slug}'s "
-                             f"newer copy")
+                notes.append(f"replaced {skey[0]} {skey[1]}'s line from "
+                             f"{gram.label(k)}'s newer copy")
         st.line = text
     return collisions
 
 
-def resync(stones: dict, control: dict, cfg: dict):
+def resync(stones: dict, control: dict, gram: Gram):
     """Rewrite every projection to match its stone — the second half of the
     convergence contract (readback pulls edits UP, this pushes the settled
-    value back OUT). From the F313 ship until 2026-08-17 this loop sat dead
-    after readback's `return`: edits reached the stone but stale projections
-    were never rewritten, so the next pass read the stale copy as a NEW edit
-    and dragged the stone backwards (seen live: HUD 1's copies of LUMEN
-    P0005/P0012). Regression case P in test-f313-stone.py."""
-    for slug in sorted(control):
-        cf = control[slug]
+    value back OUT). Regression case P in test-f313-stone.py."""
+    for key in sorted(control):
+        cf = control[key]
         for i, line in enumerate(cf.lines):
-            cls = classify_line(line, cfg)
+            cls = gram.classify(line)
             if cls[0] == "stone":
-                _, owner, sid, text = cls
+                _t, owner, sid, text = cls
                 st = stones.get((owner, sid))
                 if st is not None and text != st.line:
-                    cf.lines[i] = render_stone_line(owner, sid, st.line, cfg)
+                    cf.lines[i] = gram.render(st)
         for i, line in enumerate(cf.lines):
-            cls = classify_line(line, cfg)
+            cls = gram.classify(line)
             if cls[0] != "header":
                 continue
             head, payload = _header_payload(line, cls[2])
@@ -1292,12 +1431,12 @@ def resync(stones: dict, control: dict, cfg: dict):
             new_chunks = []
             any_diff = False
             for chunk in _split_inline(payload):
-                sub = classify_stone_chunk(chunk, cfg)
+                sub = gram.stone_chunk(chunk)
                 if sub:
                     owner, sid, text = sub
                     st = stones.get((owner, sid))
                     if st is not None:
-                        nc = render_stone_line(owner, sid, st.line, cfg)
+                        nc = gram.render(st)
                         if nc != chunk:
                             any_diff = True
                         new_chunks.append(nc)
@@ -1309,47 +1448,50 @@ def resync(stones: dict, control: dict, cfg: dict):
         # with no real difference simply writes a no-op-identical text.
 
 
-def compute_published(slug: str, cf, stones: dict, cfg: dict) -> list:
-    """Stones (owned or merely re-shared) below this anchor's OWN self-section
+def compute_published(key, cf, stones: dict, gram: Gram) -> list:
+    """Stones (owned or merely re-shared) below this LIST's OWN self-section
     marker — the header, anywhere in its own control file, pointing at its
     own control file. No marker: nothing is published."""
-    hdr_idx = _find_header_index(cf.lines, slug, cfg)
+    hdr_idx = gram.find_header(cf.lines, gram.nodes[key].stem)
     if hdr_idx is None:
         return []
     out = []
     for i, line in enumerate(cf.lines):
         if i <= hdr_idx:
             continue
-        cls = classify_line(line, cfg)
+        cls = gram.classify(line)
         if cls[0] == "stone":
-            _, owner, sid, _text = cls
-            st = stones.get((owner, sid))
+            st = stones.get((cls[1], cls[2]))
             if st is not None and st.live:
-                out.append((owner, sid))
+                out.append((cls[1], cls[2]))
         elif cls[0] == "header":
             _head, payload = _header_payload(line, cls[2])
             if payload is not None:
                 for chunk in _split_inline(payload):
-                    sub = classify_stone_chunk(chunk, cfg)
+                    sub = gram.stone_chunk(chunk)
                     if sub:
-                        owner, sid, _text = sub
-                        st = stones.get((owner, sid))
+                        st = stones.get((sub[0], sub[1]))
                         if st is not None and st.live:
-                            out.append((owner, sid))
+                            out.append((sub[0], sub[1]))
     return out
 
 
-def reconcile_own(slug: str, stones: dict, control: dict, cfg: dict, stats: dict, dry: bool = False):
+def reconcile_own(key, stones: dict, control: dict, gram: Gram, stats: dict,
+                  dry: bool = False):
     """A stone is always present in its own control file — except once: gone
     from THERE (not merely absent) is the archive signal (§ A stone always
-    appears in its own control file — except once)."""
-    cf = control[slug]
-    owned = sorted(sid for (s, sid) in stones if s == slug)
+    appears in its own control file — except once). Own = the HOME list's
+    control file; a stone's line hosted on a sibling list of the same anchor
+    neither publishes nor saves it."""
+    cf = control[key]
+    slug, _name = key
+    owned = sorted(sid for (s, sid), s_t in stones.items()
+                   if s == slug and s_t.home == key)
     for sid in owned:
         st = stones[(slug, sid)]
         if not st.live:
             continue
-        present = (slug, sid) in _find_all_stone_occurrences(cf.lines, cfg)
+        present = (slug, sid) in gram.occurrences(cf.lines)
         if present:
             continue
         if slug in st.appears:
@@ -1363,58 +1505,59 @@ def reconcile_own(slug: str, stones: dict, control: dict, cfg: dict, stats: dict
                 _archive_stone(st)
             stats["archived"] += 1
         else:
-            _add_to_own_top(cf, slug, sid, st, cfg)
+            cf.lines.insert(_content_start(cf.lines), gram.render(st))
             st.appears.add(slug)
 
 
-def propagate_in(slug: str, anchors: dict, stones: dict, control: dict, published: dict, cfg: dict):
+def propagate_in(key, edges: dict, stones: dict, control: dict,
+                 published: dict, gram: Gram):
     """Add/remove are silent (§ Adding and removing are silent, and are not
-    events) — driven purely by (a) the feeds: edge existing and (b) the
-    upstream stone's current published-ness, never by anything printed."""
-    cf = control[slug]
-    sources = anchors[slug].feeds
+    events) — driven purely by (a) a list-level edge existing and (b) the
+    upstream stone's current published-ness, never by anything printed.
+    Enrollment (T626) is the exception by design: an enrolled stone is
+    desired on the target anchor's list OF THE OWNER'S TYPE regardless of
+    edges, until recalled or archived."""
+    cf = control[key]
+    slug, name = key
+    sources = edges.get(key, [])
     desired = set()
     for src in sources:
         desired.update(published.get(src, []))
-    # T626 — an ENROLLED stone is on this list by a deliberate act, not by
-    # aggregation, so it is desired regardless of what feeds: says. Only a
-    # live stone: archiving withdraws the watch like everything else.
     enrolled_here = sorted(
-        key for key, st in stones.items() if st.live and slug in st.enrolled
+        k for k, st in stones.items()
+        if st.live and slug in st.enrolled and st.home[1] == name and k[0] != slug
     )
     desired.update(enrolled_here)
 
-    existing = _find_all_stone_occurrences(cf.lines, cfg)
+    existing = gram.occurrences(cf.lines)
     to_remove = {(o, s) for (o, s) in existing if o != slug and (o, s) not in desired}
     if to_remove:
-        remove_stones(cf, to_remove, cfg)
-        for key in to_remove:
+        gram.remove(cf, to_remove)
+        for k in to_remove:
             # A DANGLING occurrence — a line whose stone file no longer exists
-            # (deleted group) or whose owner cannot be resolved (a dated line's
-            # alias carrying a retired slug) — has no stone to bookkeep. The
-            # line still comes off: it is not desired, and nothing can ever
-            # publish it again. Crashed live on ('HERMES', dated sid) after
-            # the 2026-08-30 Staff rename left old-slug aliases behind.
-            st_ = stones.get(key)
+            # or whose owner cannot be resolved — has no stone to bookkeep.
+            # The line still comes off. Crashed live on ('HERMES', dated sid)
+            # after the 2026-08-30 Staff rename left old-slug aliases behind.
+            st_ = stones.get(k)
             if st_ is not None:
                 st_.appears.discard(slug)
 
-    existing_after = _find_all_stone_occurrences(cf.lines, cfg)
+    existing_after = gram.occurrences(cf.lines)
     for src in sources:
-        adds = [key for key in published.get(src, []) if key not in existing_after]
+        adds = [k for k in published.get(src, []) if k not in existing_after]
         if not adds:
             continue
-        _add_downstream(cf, src, adds, stones, cfg)
-        for key in adds:
-            stones[key].appears.add(slug)
-        existing_after = _find_all_stone_occurrences(cf.lines, cfg)
-    for key in enrolled_here:
-        if key in existing_after or key[0] == slug:
+        gram.add_downstream(cf, src, adds, stones)
+        for k in adds:
+            stones[k].appears.add(slug)
+        existing_after = gram.occurrences(cf.lines)
+    for k in enrolled_here:
+        if k in existing_after:
             continue
         # Filed under the owner's header if the target keeps one, else the top.
-        _add_downstream(cf, key[0], [key], stones, cfg)
-        stones[key].appears.add(slug)
-        existing_after = _find_all_stone_occurrences(cf.lines, cfg)
+        gram.add_downstream(cf, stones[k].home, [k], stones)
+        stones[k].appears.add(slug)
+        existing_after = gram.occurrences(cf.lines)
 
 
 # --------------------------------------------------------------------------
@@ -1656,64 +1799,110 @@ def cmd_move(kind, root: Path, args) -> int:
     return 0
 
 
-def cmd_update(kind: str, root: Path, args) -> int:
+def cmd_update(kind, root: Path, args) -> int:
+    """The reconciliation walk. `kind` None (bare `stone update`) is the
+    UNIFIED list-level pass over every declared list (F628 step 3); a kind
+    name is the legacy restricted walk — one kind-table type, byte-compatible
+    with the pre-F628 behavior, retiring with the kind table at step 4."""
     cfg_all = load_kind_config()
-    if kind not in cfg_all:
+    unified = kind is None
+    if not unified and kind not in cfg_all:
         raise StoneError(
-            f"update walks one kind-table kind (bare `stone update` walks "
-            f"them all); the list-level walk is F628 step 3 — {kind!r} is "
-            f"not in the kind table")
-    cfg = cfg_all[kind]
+            f"unknown kind {kind!r} — the legacy walk takes a kind-table "
+            f"kind; bare `stone update` walks every declared list")
     anchors, ambiguous = discover_anchors(root)
     if not anchors:
         raise StoneError(f"no anchors (.anchor) found under {root}")
-    _reject_ambiguous_use(anchors, ambiguous, cfg)
+    for pk in (list(cfg_all) if unified else [kind]):
+        _reject_ambiguous_use(anchors, ambiguous, cfg_all[pk])
+
+    nodes = _build_nodes(anchors, cfg_all, None if unified else [kind])
+    gram = Gram(nodes, restricted=not unified)
 
     stones: dict = {}
     control: dict = {}
-    for slug, a in anchors.items():
-        # F628: honor a registry's PLACEMENT for this kind's list — a walk
-        # reading a relocated list's old path would see every stone missing
-        # from its own control file and archive the lot.
-        acfg, _acname = _effective_cfg(a.path, slug, kind, cfg_all,
-                                       paths_only_base=cfg)
-        folder = _stone_folder(a.path, slug, acfg)
-        if folder.is_dir():
-            for f in sorted(_stone_files(folder, slug, cfg)):
-                st = _load_stone(f, slug, live=True, cfg=cfg)
+    seen_paths: dict = {}
+    for key in sorted(nodes):
+        nd = nodes[key]
+        slug = key[0]
+        if nd.folder.is_dir():
+            for f in sorted(_stone_files(nd.folder, slug, nd.cfg)):
+                st = _load_stone(f, slug, live=True, cfg=nd.cfg)
+                prev = stones.get((slug, st.sid))
+                if prev is not None and prev.live and prev.home != key:
+                    raise StoneError(
+                        f"two lists both hold a stone named {slug} {st.sid}: "
+                        f"{prev.path} and {f} — give one list a different prefix")
+                st.home, st.home_cfg = key, nd.cfg
                 stones[(slug, st.sid)] = st
-            archive_dir = folder / "archive"
+            archive_dir = nd.folder / "archive"
             if archive_dir.is_dir():
-                for f in sorted(_stone_files(archive_dir, slug, cfg)):
-                    st = _load_stone(f, slug, live=False, cfg=cfg)
+                for f in sorted(_stone_files(archive_dir, slug, nd.cfg)):
+                    st = _load_stone(f, slug, live=False, cfg=nd.cfg)
+                    st.home, st.home_cfg = key, nd.cfg
                     stones[(slug, st.sid)] = st
+        prev_key = seen_paths.get(nd.cpath)
+        if prev_key is not None:
+            raise StoneError(
+                f"lists {gram.label(prev_key)} and {gram.label(key)} resolve "
+                f"to the same control file {nd.cpath} — fix the registry")
+        seen_paths[nd.cpath] = key
+        exists = nd.cpath.is_file()
+        lines = nd.cpath.read_text(encoding="utf-8").splitlines() if exists else []
+        control[key] = SimpleNamespace(key=key, slug=slug, path=nd.cpath,
+                                       lines=lines, exists=exists)
 
-        cpath = _control_path(a.path, slug, acfg)
-        exists = cpath.is_file()
-        lines = cpath.read_text(encoding="utf-8").splitlines() if exists else []
-        control[slug] = SimpleNamespace(slug=slug, path=cpath, lines=lines, exists=exists)
+    # Edges. Anchor-level `feeds:` is the TRANSITION grammar — each
+    # same-named list projects the edge, exactly today's "every kind projects
+    # the same DAG". Per-list `feeds:` from the registry (F628 Q4): a dotted
+    # target names the list, a bare anchor names its DEFAULT list. A missing
+    # anchor is a dangling edge — named, skipped, non-zero exit, nothing else
+    # taken down (T599). In the restricted walk a per-list target outside
+    # this kind is simply not this pass's business.
+    dangling: list = []
+    for slug, a in sorted(anchors.items()):
+        for src in a.feeds:
+            if src not in anchors:
+                dangling.append((slug, src))
+    edges = {key: [] for key in nodes}
+    for key in sorted(nodes):
+        slug, name = key
+        for src in anchors[slug].feeds:
+            if (src, name) in nodes:
+                edges[key].append((src, name))
+        for tgt in (nodes[key].cfg.get("feeds") or []):
+            tgt = str(tgt)
+            a_slug, l_name = parse_address(tgt)
+            if a_slug not in anchors:
+                dangling.append((gram.label(key), tgt))
+                continue
+            if l_name is None:
+                l_name = _default_list_name(anchors[a_slug].path)
+            if (a_slug, l_name) not in nodes:
+                if unified:
+                    dangling.append((gram.label(key), tgt))
+                continue
+            edges[key].append((a_slug, l_name))
+    for key in edges:
+        edges[key] = sorted(set(edges[key]))
 
     # The DAG is checked FIRST: a cycle makes "which value is downstream"
     # meaningless, so a structural error outranks a content conflict.
-    # A cycle still raises and aborts before any write; a dangling edge is
-    # collected instead (T599) — it is skipped, named below, and turns the
-    # exit code non-zero without taking the other ~200 anchors offline.
-    dangling: list = []
-    order = topo_order(anchors, dangling)
+    order = _topo_nodes(nodes, edges, gram.label)
 
     stats = {"archived": 0}
     readback_notes: list = []
-    collisions = readback(stones, control, cfg, stats, readback_notes)
+    collisions = readback(stones, control, gram, stats, readback_notes)
     if collisions:
-        # F312 Q6 = (C). Abort before any write, like the cycle check below:
+        # F312 Q6 = (C). Abort before any write, like the cycle check above:
         # a half-reconciled tree is worse than an unreconciled one, and the
         # whole point of the ruling is that no edit disappears quietly.
         report = []
         for owner, sid, edits in sorted(collisions):
             report.append(f"  {owner}:{sid} — {len(set(t for _s, t in edits))} "
                           f"different values, and no way to tell which is newest:")
-            for slug, text in edits:
-                report.append(f"    {slug} says: {text}")
+            for who, text in edits:
+                report.append(f"    {who} says: {text}")
         raise StoneError(
             f"{len(collisions)} stone(s) with conflicting values — nothing "
             f"was written. Resolve by hand, then re-run.\n" + "\n".join(report)
@@ -1721,15 +1910,14 @@ def cmd_update(kind: str, root: Path, args) -> int:
               "no attention; these are the ones where two copies disagree, or "
               "where the mtimes cannot separate the stone from its projection.)")
 
-    resync(stones, control, cfg)
+    resync(stones, control, gram)
 
     published: dict = {}
-    for slug in order:
-        reconcile_own(slug, stones, control, cfg, stats, dry=getattr(args, "dry_run", False))
-        propagate_in(slug, anchors, stones, control, published, cfg)
-        published[slug] = compute_published(slug, control[slug], stones, cfg)
-
     dry = getattr(args, "dry_run", False)
+    for key in order:
+        reconcile_own(key, stones, control, gram, stats, dry=dry)
+        propagate_in(key, edges, stones, control, published, gram)
+        published[key] = compute_published(key, control[key], stones, gram)
 
     n_files = 0
     for cf in control.values():
@@ -1745,20 +1933,17 @@ def cmd_update(kind: str, root: Path, args) -> int:
 
     # T574 — the merged per-node list, written by the same pass that wrote the
     # control files above, so it cannot be the command someone forgets.
-    #
-    # A node opts in by HAVING the file: an existing `{slug} Stones.md` is kept
-    # current, and one that does not exist is never created. That is deliberate.
-    # `update` walks every anchor in the vault (33 carry a control file today)
-    # while five nodes actually display a merged list, and minting the other 28
-    # would put a derived file into anchors nobody reads one in. To opt a node
-    # in, `touch "{slug} Track/{slug} Stones.md"` — the next pass fills it. To
-    # opt out, delete it; nothing here brings it back.
+    # A node opts in by HAVING the file: an existing `{slug} Stones.md` is
+    # kept current, one that does not exist is never created.
     n_merged = 0
-    for slug, cf in control.items():
+    by_anchor: dict = {}
+    for key, cf in control.items():
+        by_anchor.setdefault(key[0], {})[key[1]] = cf.lines
+    for slug, live_map in sorted(by_anchor.items()):
         mpath = _merged_path(anchors[slug].path, slug)
         if not mpath.is_file():
             continue
-        body = _merged_body(anchors[slug].path, slug, cfg_all, kind, cf.lines)
+        body = _merged_body(anchors[slug].path, slug, cfg_all, live_map)
         if body is None or body == mpath.read_text(encoding="utf-8"):
             continue
         if not dry:
@@ -1777,40 +1962,34 @@ def cmd_update(kind: str, root: Path, args) -> int:
             n_stones += 1
 
     # F312 Inv. "no silent empty" — a pass always says what it did, even zero.
-    # Ambiguous slugs are named rather than dropped: they carry no stone data
-    # (`_reject_ambiguous_use` proved that above), but the walk did skip them.
     skipped = f", {len(ambiguous)} ambiguous slug(s) skipped: {', '.join(sorted(ambiguous))}" if ambiguous else ""
     verb = "would be written" if dry else "written"
     arch = "would be archived" if dry else "archived"
-    # T553 — `0 archived` was the only loss counter, and it counts the wrong
-    # thing: the destructive path here is in-place replacement of a `line::`,
-    # which archives no file at all. These two name it.
     replaced = stats.get("replaced", 0)
     kept = stats.get("kept_stone", 0)
     loss = ""
     if replaced or kept:
         loss = (f", {replaced} line(s) replaced from a newer projection"
                 f", {kept} kept against an older one")
+    what = "update" if unified else f"{kind} update"
+    lists = f", {len(nodes)} list(s)" if unified else ""
     print(
-        f"stone: {kind} update{' — DRY RUN, nothing changed' if dry else ''} — "
+        f"stone: {what}{' — DRY RUN, nothing changed' if dry else ''} — "
         f"{n_files} control file(s) {verb}, "
         f"{n_merged} merged list(s) {verb}, "
         f"{n_stones} stone file(s) {verb} ({stats['archived']} {arch}){loss}, "
-        f"across {len(anchors)} anchor(s){skipped}"
+        f"across {len(anchors)} anchor(s){lists}{skipped}"
     )
     for n in readback_notes:
         print(f"  {n}")
     for w in _enrollment_warnings(anchors, stones):
         print(f"stone: warning: {w}", file=sys.stderr)
-    # On stderr, where the StoneError this replaced went: a dangling edge is
-    # still a defect the run refuses to pass silently — it just no longer
-    # takes the rest of the vault down with it (T599).
-    for slug, src in sorted(dangling):
-        print(f"stone: warning: {slug}: feeds: names {src!r}, no such anchor "
+    for who, src in sorted(set(dangling)):
+        print(f"stone: warning: {who}: feeds: names {src!r}, no such anchor "
               f"under the scanned root — edge skipped, nothing propagated "
               f"from it", file=sys.stderr)
     if dangling:
-        print(f"stone: {len(dangling)} dangling feeds edge(s) skipped — "
+        print(f"stone: {len(set(dangling))} dangling feeds edge(s) skipped — "
               f"drop or correct the slug in the .anchor named above",
               file=sys.stderr)
         return 1
@@ -2126,10 +2305,7 @@ def _main_addressed(argv, cfg_all) -> int:
     args = build_addressed_parser(cfg_all).parse_args(argv[1:])
     root = _resolve_root(args)
     if args.verb == "update":
-        rc = 0
-        for kind in cfg_all:
-            rc = max(rc, cmd_update(kind, root, args))
-        return rc
+        return cmd_update(None, root, args)
     slug, list_name = parse_address(args.address)
     args.anchor = slug
     other = args.to if args.verb == "push" else getattr(args, "from_", None)
