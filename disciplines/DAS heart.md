@@ -22,7 +22,7 @@ The spine is everything above the H1; the heart is what sits directly below it. 
 | **[[#Figure\|Figure]]** | the thing the page defines, drawn | an image or diagram, no title, table beneath | [[DAS Code Design]] | [[FEX Figure Page]] · [[FEX Architecture]] |
 | **[[#Types table\|Types table]]** | the mutually exclusive subtypes of the thing the page specifies, one row each, with an example | a fact table whose rows partition the type — like this one | [[DAS spine]] · this page | [[FEX Dispatch Examples]] § The four kinds |
 | **[[#Table of contents\|Table of contents]]** | the page's own sections, so a long page is navigable before it is read | derived from the headings, regenerated | [[DAS ask-format]] · [[DAS progressive-disclosure]] | — |
-| **[[#Roster\|Roster]]** | the members a collection page fronts, by area | index table — orients, does not route | [[Briefs]] | — |
+| **[[#Roster\|Roster]]** | the members of a set this page fronts — usually things elsewhere in the vault, sometimes this folder's own children | index table with a row per member | [[Briefs]] | — |
 
 **Live** is a real vault page; **Made-up** is a [[FEX]] specimen that exists only to show the shape. A dash means the specimen is still to be minted. The table is deliberately open — a kind earns a row when a real page exhibits it, exactly as the [[DAS spine]] shapes table grew. One thing every row shares: the heart is *inward-facing*. It talks about this page's subject; the spine above it talks about other pages (Dan, 2026-08-29).
 
@@ -95,12 +95,14 @@ Nothing is deleted in the move; the cap becomes satisfiable *without loss*, whic
 **Live:** [[DAS ask-format]], [[DAS progressive-disclosure]]. **Made-up:** — .
 
 ## Roster
-**What it is.** The members a collection page fronts, grouped by area — an index that orients the reader across the set. It does **not** route: the rows describe the membership, they are not the dispatch table, which stays in the spine.
+**What it is.** The members of a set this page fronts, one row per member, usually grouped by area. Most rosters list things that live *elsewhere* — [[Briefs]] lists every file in the vault carrying a `# BRIEF`, none of them its children — and that is the clean case: the rows are facts about the set, and routing to them is incidental.
 
-**Live:** [[Briefs]] — `Area | Files carrying a # BRIEF`. **Made-up:** — .
+**A roster of this folder's own children is also legal — even though the spine could carry them.** Ruled by Dan 2026-08-29. The dispatch table is the normal home for a page's children, and stays valid for them; but when the spine is already complex — structural rows, related links, pinned members — *and* the roster is big, the page is cleaner with the children split out as its heart: a links-only spine above the H1, the full roster with a sentence per member below it. The test is legibility of the page, not a rule about where children may appear. The one thing that does not change: a roster in the heart is written by the author, so it does not get a `---` marker and the machine never rewrites it — a roster that should be machine-maintained is a list spine ([[DAS spine]] § List spine), and belongs above the H1.
+
+**Live:** [[Briefs]] — `Area | Files carrying a # BRIEF`, a roster of files elsewhere. **Made-up:** — (to mint: a Harbor page whose children are rostered below the H1 because its spine is already full).
 
 ## What a heart is not
-**A heart never routes to children.** If the element under the H1 is handing the reader other pages, that is spine work wearing a different hat — and a page whose spine and content are the same table simply has no heart. [[Harbor Hops]] is that case deliberately; [[Devtools]] is the contrast, carrying a masthead that routes and a pipeline table that does not.
+**A heart's job is never routing.** If the only reason an element sits under the H1 is to hand the reader other pages, that is spine work wearing a different hat — and a page whose spine and content are the same table simply has no heart. [[Harbor Hops]] is that case deliberately; [[Devtools]] is the contrast, carrying a masthead that routes and a pipeline table that does not. A **roster** of the page's own children is the one sanctioned exception (§ Roster, 2026-08-29): it may live in the heart when the spine is already complex and the roster big, because there its rows are read as *the membership* — a sentence per member — not as a jump table.
 
 **A page may legitimately have none, and most do.** A page that is genuinely an argument, a narrative, or a log has no element to lead with, and inventing one to satisfy a checker makes it worse. The heart is an opportunity a page either has or hasn't — never a slot to be filled.
 
