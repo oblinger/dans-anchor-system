@@ -26,7 +26,7 @@ REG = re.compile(r"=?\[\[([A-Z][A-Z0-9\-]{2,})\]\]")
 MDLINK = re.compile(r"\[([^\]]+)\]\((https?://[^)]+)\)")
 ATLINK = re.compile(r"\[\[(@[^\]|]+)(?:\|[^\]]*)?\]\]")
 EMAIL = re.compile(r"[\w.+-]+@[\w-]+\.[\w.-]+")
-PHONE = re.compile(r"\(?\d{3}\)?[ -.]?\d{3}[ -.]\d{4}")
+PHONE = re.compile(r"\(?\d{3}\)?[ \-–—.]?\d{3}[ \-–—.]\d{4}")
 URL = re.compile(r"(?<![(\[])https?://\S+")
 TAGS = {"#pp": None, "#Mentor": "[[MENTORS]]", "#Soon": "[[LEGACY-SOON]]"}
 
@@ -61,7 +61,12 @@ def migrate(p):
     text = "\n".join(head)
     title_link = MDLINK.search(text)
     atlinks = [m.group(1) for m in ATLINK.finditer(text)]
+    if "[[_Org]]" in text or "=[[_Org]]" in text: return None, "UNPARSED — marked as an org (`[[_Org]]`), not a person"
     if not title_link and not atlinks: return None, "UNPARSED — no [title](url) and no [[@Org]] in the head"
+    if title_link and "linkedin" not in title_link.group(2).lower() and not atlinks:
+        return None, "UNPARSED — the only link is not LinkedIn and there is no [[@Org]]; probably not a person page"
+    if title_link and "/mynetwork/" in title_link.group(2):
+        title_link = None   # a junk LinkedIn nav URL — keep the title as text, drop the link
     regs = []
     for m in REG.finditer(text):
         if m.group(1) not in regs and m.group(1) != "AT": regs.append(m.group(1))
@@ -74,6 +79,7 @@ def migrate(p):
     urls = [u for u in URL.findall(text) if "linkedin" not in u.lower()]
     friends = []
     ctx = []
+    kept = []
     for l in head:
         s = l.strip()
         if not s: continue
@@ -81,10 +87,14 @@ def migrate(p):
         if s.lower().startswith("- friends"): friends += ATLINK.findall(s); continue
         if EMAIL.fullmatch(s) or PHONE.fullmatch(s) or URL.fullmatch(s): continue
         if s.startswith("#pp") or s.startswith("#"): continue
+        if len(s) > 140 or PHONE.search(s):
+            kept.append(l); continue          # correspondence-shaped: stays as body, verbatim, below the card
         ctx.append(s.lstrip("- ").strip())
-    title = title_link.group(1) if title_link else "{{title}}"
+    raw_title = MDLINK.search(text)
+    title = title_link.group(1) if title_link else (raw_title.group(1) if raw_title else None)
     lurl = title_link.group(2) if title_link else None
-    h1 = f"# {p.stem} — **" + (f"[{title}]({lurl})" if lurl else title) + (f" at [[{org}]]" if org else "") + "**"
+    ident = (f"[{title}]({lurl})" if (title and lurl) else (title or "")) + ((" at " if title else "") + f"[[{org}]]" if org else "")
+    h1 = f"# {p.stem} — **{ident}**"
     contact = " · ".join([f"`{e}`" for e in emails] + ([f"[LinkedIn]({lurl})"] if lurl and "linkedin" in lurl.lower() else []) + urls) or "—"
     rows = [("Contact", contact)]
     if personas: rows.append(("Personas", " · ".join(f"[[{a}]]" for a in personas)))
@@ -92,10 +102,10 @@ def migrate(p):
     if friends: rows.append(("Friends", " · ".join(f"[[{a}]]" for a in friends)))
     if ctx: rows.append(("Context", " · ".join(ctx)))
     card = ["| Card |  |", "| --- | --- |"] + [f"| **{k}** | {v} |" for k, v in rows]
-    desc = title + (f" at {org[1:]}" if org else "")
+    desc = (title or "") + (f" at {org[1:]}" if org else "")
     if not any(l.startswith("description:") for l in fm):
         fm = ["---", f'description: "{p.stem[1:]} — {desc}"', "---"]
-    out = fm + ["", crumb(p), h1, ""] + card + [""] + rest
+    out = fm + ["", crumb(p), h1, ""] + card + [""] + (kept + [""] if kept else []) + rest
     txt = "\n".join(out)
     while "\n\n\n" in txt: txt = txt.replace("\n\n\n", "\n\n")
     note = f"phones NOT written (belong in Contacts): {', '.join(phones)}" if phones else ""
