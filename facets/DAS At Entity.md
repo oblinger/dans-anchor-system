@@ -95,22 +95,27 @@ The parts of the namesake page, top to bottom:
 
 
 ## The opening — breadcrumb, identity H1, card (2026-08-29)
-Settled on [[@Henna Dattani]] with Dan. A flat entity page opens with a **breadcrumb** (it is a leaf — no dispatch table, and never a `...`, which would enumerate the parent folder's children), then an **H1 that carries the identity line** — the base name, an em-dash, and the role linked to LinkedIn with the organization as its `@` link:
+Settled on [[@Henna Dattani]] with Dan, then applied to ten more entries the same day. A flat entity page opens with a **breadcrumb** (it is a leaf — no dispatch table, and never a `...`, which would enumerate the parent folder's children), then an **H1 that carries the identity line** — the base name, an em-dash, and the role linked to LinkedIn with the organization as its `@` link:
 
 `# @Henna Dattani — **[Alignment TPM](https://linkedin…) at [[@Anthropic]]**`
 
-Directly under it sits the **card**, the page's heart ([[DAS heart]] § Fact card). The standard rows, in this order. **Contact and Rolodex are always present, even when empty** — an empty Contact is a to-do and an empty Rolodex is a question (*should this person be in one?*), so the blank row earns its place. **Personas, Friends and Context are omitted when there is nothing to say** — an absence there asks nothing (Dan, 2026-08-29). Contact holds ways to *reach* the person — including a **standing meeting room** (a personal Meet/Zoom code reused across calls), labelled as such, because it will never be found again inside a dated log entry; a one-off invite link is not contact and stays with the meeting it served (Dan, 2026-08-29).
+Directly under it sits the **card**, the page's heart ([[DAS heart]] § Fact card). It is a two-column table headed `| Card |  |`; every row is a fact about *this* person. The rows, **in this order**:
 
-| Row | Holds |
-|---|---|
-| **Contact** | email · LinkedIn · X — mashed into one cell. **Phone numbers live in macOS Contacts, not here** (Dan, 2026-08-29: they drift); a number is written on the page only when there is no contact card for the person at all — a specialty connection Contacts never got |
-| **Personas** | the entity's other `@` affiliations — ex-employers, boards, groups — each linked |
-| **Rolodex** | which registers they belong in — [[BOD]], [[MENTORS]], [[FAANG]] … — replacing the old `#mentor`-style tags |
-| **Friends** | *optional, but in this position when present* — the people they know that Dan also knows, each an `@` link |
-| **Context** | how Dan knows this person and why they are in the list — the loop, the intro, the relationship. **Last, because it is the long one**: the rows above are bare facts and stay at the top (Dan, 2026-08-29) |
-| *then* | Trajectory · Education · Public work · Relatives · … as known |
+| Row | Holds | Present when |
+|---|---|---|
+| **Contact** | how to *reach* them — email · LinkedIn · X · a **standing** meeting room, labelled (a personal Meet/Zoom code reused across calls; a one-off invite link is not contact). **Phone numbers live in macOS Contacts, not here** — they drift; write one only when the person has no contact card at all | **always**, even empty — an empty Contact is a to-do |
+| **Personas** | the entity's other `@` affiliations — ex-employers, boards, groups they belong to — each an `@` link. What they *are* elsewhere; their job title lives in the H1, not here | only when there is one |
+| **Rolodex** | which of Dan's registers they belong in — [[BOD]], [[MENTORS]], [[FAANG]], [[ADVISORS]] … — each linked. Replaces the old `#mentor` / `#bod`-style tags; no `#pp` (every `@` person page is a person) | **always**, even empty — an empty Rolodex is a question: *should they be in one?* |
+| **Friends** | the people they know that Dan also knows, each an `@` link | only when there is one |
+| **Active** | the **activities they are part of right now** — the application, the engagement, the deal, the thread — each a link to the activity's own page (a [[SONAR Ode\|funnel]], an [[ATI\|interview loop]], an engagement page, a stone). **Bidirectional by rule:** the activity page links the person, and the person's card links the activity, because Dan reaches an activity *through* the person as often as the other way | only while something is active |
+| **Historical** | the same links once the activity is over — the loop that ended, the engagement that closed. A row moves from Active to Historical; it is never deleted | only when there is one |
+| **Context** | how Dan knows this person and why they are in the list — the intro, the relationship, the standing arrangement. **Last, because it is the long one**: every row above is a bare fact and stays at the top | only when there is something to say |
+| *then* | Trajectory · Education · Public work · Known for · Relatives · Notes … as known, in any order | as known |
 
-No `#pp` tag: every `@` person page is a person, so the tag said nothing. **Live:** [[@Henna Dattani]]. **Made-up:** [[@Marguerite Vale]]. The `# LOG` follows the card as before.
+**Live:** [[@Henna Dattani]] (the specimen), [[@Will Hsia]] and [[@Nick Allen]] (an **Active** application), [[@Carlos Jimenez]] and [[@Mojmir Stehlik]] (a **Historical** loop), [[@Rafah Hosn]] and [[@Praveen Paritosh]] (Rolodex-heavy mentors), [[@David Chee]] (a standing Meet room in Contact). **Made-up:** [[@Marguerite Vale]]. The `# LOG` follows the card as before; the one-liner slot under the H1 is not used — the H1 *is* the identity line.
+
+**Who writes these.** [[SONAR]] mints entries for the people the job search touches; the personnel agent to come ([[WINNIE]]) owns the register as a whole and the pass that brings the ~650 existing entries into this shape. Both read this table, not Henna's page, for what goes in each row.
+
 # Site-specific extensions
 A vault may specialize this facet for its own user in that vault's agent-conventions page, in a section keyed to this facet's exact name. Nothing here assumes one exists; when it does, it refines this spec and never overrides a declared pointer. In this vault that page is [[Agent Conventions]], and the `@`-entry corpus lives under [[AT]] with the person shape in [[_@{{PERSON_NAME}} Template]] and the drafted-message shape in [[AT Mail]].
 
