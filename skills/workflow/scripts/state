@@ -2618,6 +2618,19 @@ def _row_resolve(slug, backlog_path, label, args):
     note = f"resolved {today}"
     if resolution.strip():
         note += f": {resolution.strip()}"
+    if existing_body.lstrip().startswith("→ [["):
+        # A doc-backed row (F614: every task has its doc) regenerates its text
+        # after the pointer from the doc, and the F332/T578 guard refuses any
+        # body that differs from that derived line — so appending the note
+        # here made `resolve` refuse EVERY such row, with a message blaming a
+        # `--body` the caller never passed (ATT, 2026-08-29). The note goes
+        # where the row's text comes from: the doc's `next::` line, exactly
+        # as `set --next` writes it, and the row regenerates from there.
+        pointer = re.match(r"\s*(→\s*\[\[[^\]]*\]\])", existing_body).group(1)
+        return _delegate_row_edit(
+            slug, "Done", label, "Done", existing_title, pointer,
+            title_provided=True, body_provided=True, next_text=f"none — {note}",
+        )
     new_body = f"{existing_body} — {note}" if existing_body else note
     return _delegate_row_edit(
         slug, "Done", label, "Done", existing_title, new_body,
