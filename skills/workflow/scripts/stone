@@ -41,6 +41,15 @@ This is the mechanical half only.
           - a cycle in `feeds:` is reported as a path and the whole pass
             aborts with NO writes.
 
+    stone <verb> <Anchor[.list]> ...   (F628 — named lists, migration step 1)
+        The ADDRESSED form. `Lumen` names her dotless (default) list;
+        `Lumen.rocks` a named one. Lists are declared in the owning anchor's
+        `.anchor` under `stones:` (one entry per list; `_` designates the
+        dotless one), with per-type field defaults from the `stones:` section
+        of ~/.config/anchor-system/global.yaml. The kind table below stays the
+        fallback layer until the migration completes, and both CLI forms work.
+        `stone update` (no kind) reconciles every kind in one invocation.
+
 Kind config (folder, control-file name, stone-number prefix, digits, the two
 display-alias templates) is a MARKDOWN TABLE in a DAS facet doc — DAS is
 markdown-first — located by `stone_kinds_doc` in ~/.config/anchor-system/
@@ -125,6 +134,248 @@ def _control_suffix(cfg: dict) -> str:
             "'{slug} WORD' — header detection derives the fixed WORD from it"
         )
     return tmpl[len(lead):]
+
+
+# --------------------------------------------------------------------------
+# Named stone lists (F628, migration step 1).
+#
+# A LIST is a declared entity: one folder of stone files, one control file,
+# one entry in the owning anchor's `.anchor` under `stones:`. Everything the
+# kind table holds becomes per-list configuration; the kind table is honored
+# as a FALLBACK during the transition — an anchor with no registry (or whose
+# registry does not name the list) still resolves any kind-table type exactly
+# as before, so nothing breaks mid-migration. The fallback retires at
+# migration step 4.
+#
+#     stones:
+#       _: pebble              # the dotless type — bare `Lumen` resolves here
+#       pebble:                # a defaulted type: declaring it is one line
+#       rocks:
+#         folder: Lumen Track/Lumen Rocks    # anchor-relative placement
+#         prefix: R
+#
+# Type DEFAULTS live per type name in the `stones:` section of
+# ~/.config/anchor-system/global.yaml (F628 Q1), overlaying defaults derived
+# from the kind table. A default never creates a list — existence comes only
+# from a registry entry (except for the transition fallback above). `_` in
+# that config section names the system-wide dotless type (default: pebble),
+# per-anchor overridable by the registry's own `_` (Q2).
+
+_LIST_NAME_RE = re.compile(r"^[a-z][a-z0-9_-]*$")
+
+# Entry fields that override a type default wholesale. `folder` and `control`
+# are handled separately because they carry placement.
+_LIST_FIELDS = ("prefix", "digits", "member", "stone_alias", "header_alias",
+                "header_line", "feeds", "accepts")
+
+_GLOBAL_STONES_CACHE = None
+
+
+def _global_stones_section() -> dict:
+    """The `stones:` section of the F080 global config, memoized — the update
+    walk resolves an effective cfg per anchor and must not re-read YAML a
+    couple hundred times per pass."""
+    global _GLOBAL_STONES_CACHE
+    if _GLOBAL_STONES_CACHE is not None:
+        return _GLOBAL_STONES_CACHE
+    cfgp = Path.home() / ".config" / "anchor-system" / "global.yaml"
+    sec = {}
+    if cfgp.is_file():
+        try:
+            import yaml
+            data = yaml.safe_load(cfgp.read_text(encoding="utf-8")) or {}
+        except Exception as e:
+            raise StoneError(f"{cfgp} unreadable: {e}")
+        raw = data.get("stones") or {}
+        if not isinstance(raw, dict):
+            raise StoneError(f"{cfgp}: `stones:` must map type names to defaults")
+        sec = raw
+    _GLOBAL_STONES_CACHE = sec
+    return sec
+
+
+def _anchor_stones(anchor_dir: Path):
+    """The `stones:` registry from `.anchor` — {list_name: fields} plus an
+    optional `_` -> name — or None when the anchor declares none.
+
+    Parsed as a YAML block extracted by indentation rather than by loading
+    the whole file: `.anchor` files predate any YAML discipline, and only
+    this section is owed structure."""
+    f = anchor_dir / ".anchor"
+    if not f.is_file():
+        return None
+    lines = f.read_text(encoding="utf-8").splitlines()
+    start = None
+    for i, ln in enumerate(lines):
+        if re.match(r"^stones:\s*(#.*)?$", ln):
+            start = i
+            break
+    if start is None:
+        return None
+    block = ["stones:"]
+    for ln in lines[start + 1:]:
+        if ln.strip() == "" or ln[:1] in (" ", "\t"):
+            block.append(ln)
+        else:
+            break
+    try:
+        import yaml
+        data = yaml.safe_load("\n".join(block)) or {}
+    except Exception as e:
+        raise StoneError(f"{f}: `stones:` section is not valid YAML: {e}")
+    raw = data.get("stones")
+    if raw is None:
+        return {}
+    if not isinstance(raw, dict):
+        raise StoneError(f"{f}: `stones:` must map list names to fields")
+    out = {}
+    for name, entry in raw.items():
+        name = str(name)
+        if name == "_":
+            if not isinstance(entry, str) or not entry.strip():
+                raise StoneError(
+                    f"{f}: `stones: _:` designates the dotless list by NAME — "
+                    f"a string, got {entry!r}")
+            out["_"] = entry.strip()
+            continue
+        if not _LIST_NAME_RE.match(name):
+            raise StoneError(
+                f"{f}: list name {name!r} — lowercase letters, digits, -/_, "
+                f"starting with a letter")
+        if entry is None:
+            entry = {}
+        if not isinstance(entry, dict):
+            raise StoneError(
+                f"{f}: stones entry {name!r} must be empty (all defaults) or "
+                f"a mapping of fields, got {entry!r}")
+        out[name] = entry
+    return out
+
+
+def _novel_type_cfg(name: str) -> dict:
+    """Defaults for a list name with no config/kind-table entry: numbered
+    members, prefix = the name's first letter, folder `{slug} <Name>/`, and
+    the control file INSIDE it as the folder note — the new-world default
+    shape (F628 Q3)."""
+    word = name.replace("_", " ").replace("-", " ").title()
+    tmpl = "{slug} " + word
+    return {
+        "folder": tmpl,
+        "control": tmpl,
+        "member": "numbered",
+        "prefix": name[0].upper(),
+        "digits": 4,
+        "stone_alias": "{slug}:",
+        "header_alias": "{slug}",
+        "header_line": "-{link}-",
+    }
+
+
+def load_type_defaults(cfg_all: dict) -> dict:
+    """type-name -> default fields. Base layer: the kind table (every kind is
+    a defaulted type during the transition). Overlay: the config `stones:`
+    section — the future sole home (F628 Q1)."""
+    out = {k: dict(v) for k, v in cfg_all.items()}
+    for name, fields in _global_stones_section().items():
+        if name == "_":
+            continue
+        base = out.setdefault(name, _novel_type_cfg(name))
+        for k, v in (fields or {}).items():
+            base[k] = v
+    return out
+
+
+def parse_address(addr: str):
+    """`Lumen` -> ('Lumen', None); `Lumen.rocks` -> ('Lumen', 'rocks').
+
+    Split on the LAST dot, and only when the tail is a well-formed list
+    name — an anchor slug may contain a space but a list name may not, so
+    `HUD 1.rocks` reads as ('HUD 1', 'rocks') and a dotted slug that names
+    no list stays whole."""
+    if "." in addr:
+        head, _sep, tail = addr.rpartition(".")
+        if head and _LIST_NAME_RE.match(tail):
+            return head, tail
+    return addr, None
+
+
+def _normalize_control(stem: str, slug: str) -> str:
+    """A registry `control:` name, normalized to the `{slug} WORD` template
+    header identity derives from (_control_suffix). Free-named controls
+    (`Traffic.md` as its own anchor page) arrive with the list-level walk —
+    F628 step 3 — and are refused loudly until then."""
+    if stem.startswith("{slug} "):
+        return stem
+    if stem.startswith(slug + " "):
+        return "{slug} " + stem[len(slug) + 1:]
+    raise StoneError(
+        f"stones: control {stem!r} on {slug} — a control name must (for now) "
+        f"be `{slug} WORD`; free-named control files land with the "
+        f"list-level walk (F628 step 3)")
+
+
+def _effective_cfg(anchor_path: Path, slug: str, list_name, cfg_all: dict,
+                   paths_only_base: dict = None):
+    """(cfg, resolved_list_name) for one anchor's list — the F628 resolution.
+
+    Bare (list_name None) resolves through the registry's `_`, else the
+    config-wide dotless type. A registry entry overlays its type's defaults;
+    an anchor with no registry, or none for this name, falls back to the
+    kind-table type of that name (transition fallback, retired at step 4).
+
+    With `paths_only_base` (the update walk), grammar comes from that base
+    cfg unchanged and only the entry's folder/control PLACEMENT is honored —
+    one pass classifies every file with one grammar until the walk itself
+    goes list-level (step 3). Placement must be honored even there: a walk
+    reading a relocated list's old path would see every stone missing from
+    its own control file and archive the lot.
+    """
+    registry = _anchor_stones(anchor_path)
+    if list_name is None:
+        if registry and "_" in registry:
+            list_name = registry["_"]
+        else:
+            list_name = str(_global_stones_section().get("_") or "pebble")
+    entry = registry.get(list_name) if registry else None
+    if entry is None:
+        if list_name not in load_type_defaults(cfg_all):
+            hint = ("its .anchor stones: registry does not declare it"
+                    if registry is not None
+                    else "it declares no stones: registry")
+            raise StoneError(
+                f"no list {list_name!r} on {slug} — {hint}, and no type "
+                f"default by that name exists (config `stones:` section or "
+                f"the kind table). Declare it under `stones:` in "
+                f"{anchor_path / '.anchor'}.")
+        entry = {}  # transition fallback: the type acts as an implicit list
+    if paths_only_base is not None:
+        cfg = dict(paths_only_base)
+        # The base may be ANOTHER anchor's resolved cfg (push/recall hand the
+        # owner's over) — its placement is not ours. Only THIS anchor's entry
+        # may relocate this list.
+        cfg.pop("_folder_rel", None)
+        cfg.pop("_control_rel", None)
+    else:
+        cfg = dict(load_type_defaults(cfg_all).get(list_name)
+                   or _novel_type_cfg(list_name))
+        for k in _LIST_FIELDS:
+            if k in entry:
+                cfg[k] = entry[k]
+        if entry.get("control") and "/" not in str(entry["control"]):
+            cfg["control"] = _normalize_control(str(entry["control"]), slug)
+        for k in ("feeds", "accepts"):
+            if isinstance(cfg.get(k), str):
+                cfg[k] = [s.strip() for s in cfg[k].split(",") if s.strip()]
+        if cfg.get("digits") is not None:
+            cfg["digits"] = int(cfg["digits"])
+    if entry.get("folder"):
+        cfg["_folder_rel"] = str(entry["folder"]).rstrip("/")
+    if entry.get("control") and "/" in str(entry["control"]):
+        rel = str(entry["control"])
+        if not rel.endswith(".md"):
+            rel += ".md"
+        cfg["_control_rel"] = rel
+    return cfg, list_name
 
 
 # --------------------------------------------------------------------------
@@ -283,6 +534,9 @@ def _track_dir(anchor_path: Path, slug: str) -> Path:
 
 
 def _stone_folder(anchor_path: Path, slug: str, cfg: dict) -> Path:
+    # F628: a registry entry may place the folder explicitly, anchor-relative.
+    if cfg.get("_folder_rel"):
+        return anchor_path / cfg["_folder_rel"]
     return _track_dir(anchor_path, slug) / cfg["folder"].format(slug=slug)
 
 
@@ -300,8 +554,16 @@ def _control_path(anchor_path: Path, slug: str, cfg: dict) -> Path:
     downstream has to change."""
     name = cfg["control"].format(slug=slug) + ".md"
     folder = _stone_folder(anchor_path, slug, cfg)
+    if cfg.get("_control_rel"):
+        # F628: explicit placement wins outright.
+        return anchor_path / cfg["_control_rel"]
     if cfg["control"] == cfg["folder"]:
         return folder / name
+    if cfg.get("_folder_rel"):
+        # F628: a relocated folder keeps its control BESIDE it (or inside as
+        # the folder note, per the names-coincide rule above) — the
+        # Track-relative rule, carried to wherever the folder went.
+        return folder.parent / name
     return _track_dir(anchor_path, slug) / name
 
 
@@ -359,6 +621,8 @@ def _merged_body(anchor_path: Path, slug: str, cfg_all: dict,
         if kind == live_kind:
             lines = live_lines
         else:
+            kcfg, _ = _effective_cfg(anchor_path, slug, kind, cfg_all,
+                                     paths_only_base=kcfg)
             cpath = _control_path(anchor_path, slug, kcfg)
             if not cpath.is_file():
                 continue
@@ -1196,15 +1460,16 @@ def _mint_warnings(cf, slug: str, sid: str, keys: list, cfg: dict) -> list:
     return out
 
 
-def cmd_new(kind: str, cfg: dict, root: Path, args) -> int:
+def cmd_new(kind, root: Path, args) -> int:
     anchors, ambiguous = discover_anchors(root)
     slug = args.anchor
     if slug in ambiguous:
         raise _ambiguous_error(slug, ambiguous[slug], "it is the mint target")
     if slug not in anchors:
         raise StoneError(f"no anchor {slug!r} (.anchor) found under {root}")
-    _reject_unroundtrippable_owner(slug, cfg)
     a = anchors[slug]
+    cfg, kind = _effective_cfg(a.path, slug, kind, load_kind_config())
+    _reject_unroundtrippable_owner(slug, cfg)
 
     folder = _stone_folder(a.path, slug, cfg)
     folder.mkdir(parents=True, exist_ok=True)
@@ -1316,7 +1581,7 @@ def _locate_stone(lines: list, sid: str, owner: str | None, cfg: dict) -> int:
         f"(owners: {owners}) — name the owner with `--owner <SLUG>`")
 
 
-def cmd_move(kind: str, cfg: dict, root: Path, args) -> int:
+def cmd_move(kind, root: Path, args) -> int:
     """Reorder one stone's line within its own run in a control file (T602).
 
     `pebble new` always mints at the top and `pebble update` reconciles feeds
@@ -1331,6 +1596,7 @@ def cmd_move(kind: str, cfg: dict, root: Path, args) -> int:
     if slug not in anchors:
         raise StoneError(f"no anchor {slug!r} (.anchor) found under {root}")
 
+    cfg, kind = _effective_cfg(anchors[slug].path, slug, kind, load_kind_config())
     cpath = _control_path(anchors[slug].path, slug, cfg)
     if not cpath.is_file():
         raise StoneError(f"stone: {cpath} does not exist — nothing to reorder")
@@ -1382,7 +1648,14 @@ def cmd_move(kind: str, cfg: dict, root: Path, args) -> int:
     return 0
 
 
-def cmd_update(kind: str, cfg: dict, root: Path, args) -> int:
+def cmd_update(kind: str, root: Path, args) -> int:
+    cfg_all = load_kind_config()
+    if kind not in cfg_all:
+        raise StoneError(
+            f"update walks one kind-table kind (bare `stone update` walks "
+            f"them all); the list-level walk is F628 step 3 — {kind!r} is "
+            f"not in the kind table")
+    cfg = cfg_all[kind]
     anchors, ambiguous = discover_anchors(root)
     if not anchors:
         raise StoneError(f"no anchors (.anchor) found under {root}")
@@ -1391,7 +1664,12 @@ def cmd_update(kind: str, cfg: dict, root: Path, args) -> int:
     stones: dict = {}
     control: dict = {}
     for slug, a in anchors.items():
-        folder = _stone_folder(a.path, slug, cfg)
+        # F628: honor a registry's PLACEMENT for this kind's list — a walk
+        # reading a relocated list's old path would see every stone missing
+        # from its own control file and archive the lot.
+        acfg, _acname = _effective_cfg(a.path, slug, kind, cfg_all,
+                                       paths_only_base=cfg)
+        folder = _stone_folder(a.path, slug, acfg)
         if folder.is_dir():
             for f in sorted(_stone_files(folder, slug, cfg)):
                 st = _load_stone(f, slug, live=True, cfg=cfg)
@@ -1402,7 +1680,7 @@ def cmd_update(kind: str, cfg: dict, root: Path, args) -> int:
                     st = _load_stone(f, slug, live=False, cfg=cfg)
                     stones[(slug, st.sid)] = st
 
-        cpath = _control_path(a.path, slug, cfg)
+        cpath = _control_path(a.path, slug, acfg)
         exists = cpath.is_file()
         lines = cpath.read_text(encoding="utf-8").splitlines() if exists else []
         control[slug] = SimpleNamespace(slug=slug, path=cpath, lines=lines, exists=exists)
@@ -1467,7 +1745,6 @@ def cmd_update(kind: str, cfg: dict, root: Path, args) -> int:
     # would put a derived file into anchors nobody reads one in. To opt a node
     # in, `touch "{slug} Track/{slug} Stones.md"` — the next pass fills it. To
     # opt out, delete it; nothing here brings it back.
-    cfg_all = load_kind_config()
     n_merged = 0
     for slug, cf in control.items():
         mpath = _merged_path(anchors[slug].path, slug)
@@ -1581,9 +1858,29 @@ def _control_lines(cpath: Path, slug: str, cfg: dict) -> list:
             else _default_control_lines(slug, cfg))
 
 
-def cmd_push(kind: str, cfg: dict, root: Path, args) -> int:
+def _push_pair_cfgs(anchors: dict, ambiguous: dict, kind, owner: str, target: str):
+    """(owner cfg, resolved list name, target placement cfg) for push/recall.
+
+    F628 step 1: the owner side resolves fully (registry grammar + placement);
+    the target still receives on its list OF THE OWNER'S TYPE, with only its
+    own registry's PLACEMENT for that list honored — a dotted target waits on
+    the list-level walk (step 3)."""
+    cfg_all = load_kind_config()
+    for s, why in ((owner, "it owns the stone"), (target, "it is the other end")):
+        if s in ambiguous:
+            raise _ambiguous_error(s, ambiguous[s], why)
+        if s not in anchors:
+            raise StoneError(f"no anchor {s!r} (.anchor) found under the scanned root")
+    cfg, kind = _effective_cfg(anchors[owner].path, owner, kind, cfg_all)
+    tgt_cfg, _ = _effective_cfg(anchors[target].path, target, kind, cfg_all,
+                                paths_only_base=cfg)
+    return cfg, kind, tgt_cfg
+
+
+def cmd_push(kind, root: Path, args) -> int:
     anchors, ambiguous = discover_anchors(root)
     owner, sid, target = args.anchor, args.stone, args.to
+    cfg, kind, tgt_cfg = _push_pair_cfgs(anchors, ambiguous, kind, owner, target)
     _a, st, tgt = _resolve_pair(anchors, ambiguous, cfg, owner, sid, target, "push target")
 
     # Validation at the moment of the act — the receiver's contract, checked
@@ -1597,7 +1894,7 @@ def cmd_push(kind: str, cfg: dict, root: Path, args) -> int:
             + f" (its .anchor: `accepts: {', '.join(tgt.accepts)}`). Add it to "
             f"{st.path.name} and push again. Nothing was written.")
 
-    cpath = _control_path(tgt.path, target, cfg)
+    cpath = _control_path(tgt.path, target, tgt_cfg)
     lines = _control_lines(cpath, target, cfg)
     cf = SimpleNamespace(slug=target, path=cpath, lines=lines)
     present = (owner, sid) in _find_all_stone_occurrences(lines, cfg)
@@ -1623,15 +1920,16 @@ def cmd_push(kind: str, cfg: dict, root: Path, args) -> int:
     return 0
 
 
-def cmd_recall(kind: str, cfg: dict, root: Path, args) -> int:
+def cmd_recall(kind, root: Path, args) -> int:
     anchors, ambiguous = discover_anchors(root)
     owner, sid, target = args.anchor, args.stone, getattr(args, "from_")
+    cfg, kind, tgt_cfg = _push_pair_cfgs(anchors, ambiguous, kind, owner, target)
     _a, st, tgt = _resolve_pair(anchors, ambiguous, cfg, owner, sid, target, "recall source")
     if target not in st.enrolled:
         raise StoneError(
             f"{owner} {sid} is not enrolled with {target} (enrolled:: "
             f"{', '.join(sorted(st.enrolled)) or 'nobody'}) — nothing to recall")
-    cpath = _control_path(tgt.path, target, cfg)
+    cpath = _control_path(tgt.path, target, tgt_cfg)
     outcome = "no line to remove"
     if cpath.is_file():
         lines = cpath.read_text(encoding="utf-8").splitlines()
@@ -1745,24 +2043,117 @@ def build_parser(cfg_all: dict) -> argparse.ArgumentParser:
     return p
 
 
-def main(argv) -> int:
-    cfg_all = load_kind_config()
-    parser = build_parser(cfg_all)
-    args = parser.parse_args(argv[1:])
-    cfg = cfg_all[args.kind]
-    root = Path(args.root).expanduser().resolve() if args.root else DEFAULT_ROOT
+VERBS = ("new", "move", "push", "recall", "update")
 
+
+def _resolve_root(args) -> Path:
+    return (Path(args.root).expanduser().resolve()
+            if getattr(args, "root", None) else DEFAULT_ROOT)
+
+
+def build_addressed_parser(cfg_all: dict) -> argparse.ArgumentParser:
+    """The verb-first form (F628): `stone <verb> <Anchor[.list]> ...`. The
+    list is named by ADDRESS — bare `Anchor` is its dotless (default) list —
+    so no kind positional exists here. The legacy `stone <kind> <verb>` form
+    keeps working until the kind table retires (step 4)."""
+    p = argparse.ArgumentParser(
+        prog="stone",
+        description=("stone <verb> <Anchor[.list]> — named stone lists "
+                     "(F628). Bare `Anchor` addresses its default list; "
+                     "`Anchor.rocks` a named one. The legacy `stone <kind> "
+                     "<verb>` form also still works."))
+    subs = p.add_subparsers(dest="verb", required=True)
+
+    def root_arg(sp):
+        sp.add_argument("--root", default=None,
+                        help="scan root (default: $ANCHOR_VAULT_ROOT or ~/ob/kmr)")
+
+    nw = subs.add_parser("new", help="mint a new stone on the addressed list")
+    nw.add_argument("address", help="Anchor or Anchor.list")
+    nw.add_argument("--line", required=True,
+                    help="the stone's line:: — the canonical one-line rendering")
+    nw.add_argument("--body", default=None, help="prose body (optional)")
+    nw.add_argument("--title", default=None,
+                    help="dated lists only: the member's title, appended to the date")
+    nw.add_argument("--date", default=None,
+                    help="dated lists only: creation date YYYY-MM-DD (default: today)")
+    root_arg(nw)
+
+    mv = subs.add_parser("move", help="reorder one stone within its run in the addressed control file")
+    mv.add_argument("address", help="Anchor or Anchor.list whose control file is being reordered")
+    mv.add_argument("stone", help="the stone id to move, e.g. P0003")
+    mv.add_argument("--owner", default=None,
+                    help="disambiguate when two anchors' stones share an id")
+    root_arg(mv)
+    where = mv.add_mutually_exclusive_group(required=True)
+    where.add_argument("--after", metavar="ID", help="place it directly below this stone")
+    where.add_argument("--before", metavar="ID", help="place it directly above this stone")
+    where.add_argument("--to-top", action="store_true", help="first in its run")
+    where.add_argument("--to-bottom", action="store_true", help="last in its run")
+
+    ps = subs.add_parser("push", help="place one stone on another anchor's list, with a receipt (T626)")
+    ps.add_argument("address", help="the stone's OWNER — Anchor or Anchor.list")
+    ps.add_argument("stone", help="the stone id, e.g. P0007")
+    ps.add_argument("--to", required=True, metavar="ANCHOR",
+                    help="receiving anchor (bare — it receives on its list of the owner's type)")
+    root_arg(ps)
+
+    rc = subs.add_parser("recall", help="take a pushed stone back off another anchor's list")
+    rc.add_argument("address", help="the stone's OWNER — Anchor or Anchor.list")
+    rc.add_argument("stone", help="the stone id, e.g. P0007")
+    rc.add_argument("--from", dest="from_", required=True, metavar="ANCHOR",
+                    help="the anchor whose list it leaves")
+    root_arg(rc)
+
+    up = subs.add_parser("update",
+                         help="reconcile + propagate along feeds:, every kind in one pass")
+    root_arg(up)
+    up.add_argument("--dry-run", action="store_true",
+                    help="report every write and archive without performing any of them "
+                         "— `--root` defaults to the whole vault, so this is how you look first")
+    return p
+
+
+def _main_addressed(argv, cfg_all) -> int:
+    args = build_addressed_parser(cfg_all).parse_args(argv[1:])
+    root = _resolve_root(args)
+    if args.verb == "update":
+        rc = 0
+        for kind in cfg_all:
+            rc = max(rc, cmd_update(kind, root, args))
+        return rc
+    slug, list_name = parse_address(args.address)
+    args.anchor = slug
+    other = args.to if args.verb == "push" else getattr(args, "from_", None)
+    if other is not None and parse_address(other)[1] is not None:
+        raise StoneError(
+            f"a dotted push/recall target ({other!r}) lands with the "
+            f"list-level walk (F628 step 3) — name the bare anchor; the "
+            f"stone lands on its list of the owner's type")
+    fn = {"new": cmd_new, "move": cmd_move,
+          "push": cmd_push, "recall": cmd_recall}[args.verb]
+    return fn(list_name, root, args)
+
+
+def main(argv) -> int:
     try:
+        cfg_all = load_kind_config()
+        head = argv[1] if len(argv) > 1 else ""
+        if head in VERBS:
+            return _main_addressed(argv, cfg_all)
+        parser = build_parser(cfg_all)
+        args = parser.parse_args(argv[1:])
+        root = _resolve_root(args)
         if args.verb == "new":
-            return cmd_new(args.kind, cfg, root, args)
+            return cmd_new(args.kind, root, args)
         if args.verb == "move":
-            return cmd_move(args.kind, cfg, root, args)
+            return cmd_move(args.kind, root, args)
         if args.verb == "push":
-            return cmd_push(args.kind, cfg, root, args)
+            return cmd_push(args.kind, root, args)
         if args.verb == "recall":
-            return cmd_recall(args.kind, cfg, root, args)
+            return cmd_recall(args.kind, root, args)
         if args.verb == "update":
-            return cmd_update(args.kind, cfg, root, args)
+            return cmd_update(args.kind, root, args)
     except StoneError as e:
         print(str(e), file=sys.stderr)
         return 1
