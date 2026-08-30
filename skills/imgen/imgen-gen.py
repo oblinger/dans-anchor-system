@@ -598,9 +598,14 @@ def inpaint(model, prompt, source, mask, out, size=FILL_SIZE):
             raise ImgenError(f"{model} returned no images: {str(resp)[:200]}")
         raw = source.parent / f".{source.stem}-raw.png"
         raw.write_bytes(urllib.request.urlopen(resp["images"][0]["url"], timeout=120).read())
-        filled = Image.open(raw).convert("RGB").resize((size, size), lanczos)
-        m = Image.open(mask).convert("L").resize((size, size), lanczos)
-        Image.composite(filled, big, m.filter(ImageFilter.GaussianBlur(6))).save(out)
+        # Composite back into the ORIGINAL, at its own dimensions — not into the
+        # squared-up copy the model was fed. Compositing against `big` returned a
+        # square image for every non-square source, silently stretching the whole
+        # picture, and made the byte-identical-outside-the-mask promise false.
+        src_im = Image.open(source).convert("RGB")
+        filled = Image.open(raw).convert("RGB").resize(src_im.size, lanczos)
+        m = Image.open(mask).convert("L").resize(src_im.size, lanczos)
+        Image.composite(filled, src_im, m.filter(ImageFilter.GaussianBlur(6))).save(out)
         raw.unlink(missing_ok=True)
         return out, resp.get("seed")
     finally:
