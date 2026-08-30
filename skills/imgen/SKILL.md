@@ -34,7 +34,7 @@ Under that sits **`**Spent so far:** $N.NN`** — the roll's cumulative cost, ma
 
 Then, in this order:
 
-- **`## Pick — {image}`** — the chosen keeper, shown large (2000px), with the winning image named in the heading. Optional; set by `pick`.
+- **`## Pick`** — the keeper or keepers, each shown large (2000px). A lone untitled pick keeps the one-image shape `## Pick — {image}`, naming the winner in the heading; give any pick a title and the block becomes one `### {image} — {title}` per keeper, with an optional caption under the picture. Optional; set by `pick`.
 - **`## Next render`** — the **one pending operation**: an `#### {command}` H4 followed by the prompt. This is the editable surface — change it and the next `render` does the new thing.
 - **`## Batch {n}` …** — everything already rendered, newest first. Each is a heading, then the image grid, then the `####` command and prompt that produced it.
 
@@ -54,7 +54,8 @@ A command line names the verb, the model, and (for edits) the source image:
     imgen edit    {roll} {image} {instruction} [-n N]  instruction-edit the whole image (flux-kontext)
     imgen mask    {roll} {image} {region} --ellipse cx,cy,rx,ry   author a mask + preview; free
     imgen inpaint {roll} {image} {region} {instruction} [--ellipse …] [-n N]  repaint inside the mask
-    imgen pick    {roll} {image}        pin the keeper — top of the page + gallery cover; free
+    imgen pick    {roll} {image} [title] [subtitle]   pin a keeper — top of the page + gallery cover; free
+    imgen pick    {roll} {image} --drop   unpin one; free
     imgen list    [roll]                rolls with their numbers, or the images in one roll
 
 `{roll}` takes the number (`4`, `004`) **or** a substring of the title (`scout`). Spend verbs also take `-s/--size` (default `square_hd`), `--confirm-over` (default $1.00), `--yes`, and `--dry-run`.
@@ -109,7 +110,9 @@ The one line worth carrying without opening it: **the model renders nouns, not p
 - **By default the prompt goes down as a sequence of bullets** — a short lead line naming medium + subject, then one attribute per bullet (dress, hair, expression, setting, style). Bullets make the prompt a **mix-and-match kit**: swap or re-roll a single attribute without rewriting the whole thing. Keep the lead line dash-free so a leading `-` is not read as a CLI flag.
 - **Never rewrite a past batch's prompt.** A batch records what actually produced those images. A revised wording is the *next* render, not a correction of the last one — put it in `## Next render` and run it.
 - **Cost is stated, never silent.** Every run prints the images written and the dollars spent. A run over `--confirm-over` (default $1.00) refuses without `--yes`, so a fan-out cannot quietly burn real money.
-- **A pick pins the keeper.** `pick {roll} {image}` lifts it to a `## Pick` block at the top of the page, shown at 2000px, and repoints the [[IMGEN Gallery]] cover. No API call, no cost, changeable any time — re-pick and both surfaces update. New batches still land below the pick, so the keeper stays pinned as the roll grows.
+- **A pick pins a keeper, and a roll may keep several.** `pick {roll} {image}` lifts it to a `## Pick` block at the top of the page, shown at 2000px, and repoints the [[IMGEN Gallery]] cover. No API call, no cost, changeable any time — re-pick and both surfaces update. New batches still land below the pick, so keepers stay pinned as the roll grows.
+- **The bare pick is THE pick; a titled pick is one of a set.** `pick {roll} {image}` with no title replaces the untitled pick and leads the block; `pick {roll} {image} "{title}" "{subtitle}"` adds a named keeper alongside it, so a roll can hold the winner *and* the runner-up that shows what was traded away. **The leading pick is the gallery cover**, and titling an image that is already pinned edits it in place rather than moving it — naming the winner must not demote it. `--drop` removes one.
+- **The block is the state.** Picks are parsed back out of the page rather than kept in a sidecar, so a hand-edited title or caption survives the next `pick` instead of being clobbered.
 - **Never place an image into [[IMGEN]] by hand.** Copying a file in gives you a picture with no prompt, and the prompt cannot be recovered afterwards. If images already exist elsewhere and belong here, moving them in means writing their batch by hand in the same pass — or knowingly leaving orphans, which is what [[IMGEN001 — Lumen portrait]] is.
 
 ## Script

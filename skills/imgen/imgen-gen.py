@@ -6,7 +6,7 @@ folder `IMGEN<nnn> — <title>/` whose namesake page carries everything; individ
 pictures inside it are IMAGES, `IMGEN<nnn>-<batch><variant>.png`.
 
 The page is stateful. Under the H1 it holds, in order:
-    ## Pick            the chosen image, shown large   (optional, set by `pick`)
+    ## Pick            the keeper(s), shown large      (optional, set by `pick`)
     ## Next render     the ONE pending operation: an `#### <command>` H4 + a prompt
     ## Batch N …        past renders, newest first: H2 title → images → #### command → prompt
 
@@ -387,21 +387,72 @@ def write_batch(roll_dir, n, command, prompt, images, meta=None):
 # ------------------------------------------------------------------ pick / index
 
 PICK_BLOCK_RE = re.compile(r"^## Pick\b.*?(?=^## |\Z)", re.M | re.S)
+_PICK_IMG_RE = re.compile(r"!\[\[([^\]|]+?)(?:\|\d+)?\]\]")
+_PICK_CAP_RE = re.compile(r"^\*(.+)\*\s*$", re.M)
 
 
-def set_pick(roll_dir, image_name, width=2000):
-    """Lift the chosen image to a `## Pick` block at the very top (above Next render)."""
+def short_id(image_name):
+    """`IMGEN010-3D.png` → `3D` — how a picture is named in conversation."""
+    m = IMAGE_RE.match(image_name)
+    return f"{m.group(1)}{m.group(2)}" if m else image_name
+
+
+def read_picks(roll_dir):
+    """Parse the `## Pick` block back into [(image, title, subtitle), …].
+
+    The block is the state — there is no sidecar — so a hand-edit is read back
+    rather than clobbered. A one-pick block written in the pre-multi-pick shape
+    (`## Pick — 3D` with no H3) parses as a single untitled pick.
+    """
+    page = roll_page(roll_dir)
+    m = PICK_BLOCK_RE.search(page.read_text(encoding="utf-8"))
+    if not m:
+        return []
+    block = m.group(0)
+    chunks = re.split(r"^### ", block, flags=re.M)
+    if len(chunks) == 1:                                  # legacy single-pick shape
+        img = _PICK_IMG_RE.search(block)
+        return [(img.group(1), None, None)] if img else []
+    picks = []
+    for chunk in chunks[1:]:
+        head, _, body = chunk.partition("\n")
+        img = _PICK_IMG_RE.search(body)
+        if not img:
+            continue
+        cap = _PICK_CAP_RE.search(body)
+        title = head.split(" — ", 1)[1].strip() if " — " in head else None
+        picks.append((img.group(1), title, cap.group(1).strip() if cap else None))
+    return picks
+
+
+def write_picks(roll_dir, picks, width=2000):
+    """Rewrite the `## Pick` block from a list of (image, title, subtitle).
+
+    A lone untitled pick keeps the original one-image shape, so the common case
+    reads exactly as it always did; anything else becomes an H3 per pick, each
+    titled and optionally captioned beneath its picture.
+    """
     page = roll_page(roll_dir)
     text = PICK_BLOCK_RE.sub("", page.read_text(encoding="utf-8"))
     text = re.sub(r"\n{3,}", "\n\n", text)
-    # The heading names the pick, so the page says which image won without the
-    # reader having to decode the embed's filename.
-    m = IMAGE_RE.match(image_name)
-    block = (f"## Pick" + (f" — {m.group(1)}{m.group(2)}" if m else "")
-             + f"\n\n![[{image_name}|{width}]]\n\n")
-    m = re.search(r"^## ", text, re.M)
-    text = (text[:m.start()] + block + text[m.start():] if m
-            else text.rstrip("\n") + "\n\n" + block)
+    if not picks:
+        block = ""
+    elif len(picks) == 1 and not picks[0][1] and not picks[0][2]:
+        # The heading names the pick, so the page says which image won without
+        # the reader having to decode the embed's filename.
+        img = picks[0][0]
+        block = f"## Pick — {short_id(img)}\n\n![[{img}|{width}]]\n\n"
+    else:
+        rows = []
+        for img, title, sub in picks:
+            head = f"{short_id(img)} — {title}" if title else short_id(img)
+            rows.append(f"### {head}\n\n![[{img}|{width}]]\n"
+                        + (f"\n*{sub}*\n" if sub else ""))
+        block = "## Pick\n\n" + "\n".join(rows) + "\n"
+    if block:
+        m = re.search(r"^## ", text, re.M)
+        text = (text[:m.start()] + block + text[m.start():] if m
+                else text.rstrip("\n") + "\n\n" + block)
     page.write_text(text, encoding="utf-8")
 
 
@@ -821,11 +872,34 @@ def cmd_xform(a):
 
 
 def cmd_pick(a):
+    """Pin a keeper. Bare = the one pick; with a title = one of several."""
     _, _, d = find_roll(a.roll)
     img = resolve_image(d, a.image)
-    set_pick(d, img.name)
-    set_gallery_cover(d.name, img.name)
-    print(f"pick: {img.stem} → top of {d.name} + gallery cover")
+    existing = read_picks(d)
+    # Where it already sits, if it does — naming a pick that is already pinned
+    # must not cost it its place, or titling the leader would demote it.
+    at = next((i for i, p in enumerate(existing) if p[0] == img.name), None)
+    picks = [p for p in existing if p[0] != img.name]
+    if a.drop:
+        write_picks(d, picks)
+        if picks:
+            set_gallery_cover(d.name, picks[0][0])
+        print(f"unpick: {img.stem} — {len(picks)} pick(s) remain")
+        return 0
+    if a.title:
+        picks.insert(len(picks) if at is None else at, (img.name, a.title, a.subtitle))
+    else:
+        # The untitled pick is THE pick: it replaces any previous untitled one
+        # and leads the block, while titled picks are deliberate and survive.
+        picks = [p for p in picks if p[1]]
+        picks.insert(0, (img.name, None, a.subtitle))
+    write_picks(d, picks)
+    set_gallery_cover(d.name, picks[0][0])          # the leading pick is the cover
+    where = f"pick {len(picks)} of {len(picks)}" if a.title else "top of"
+    cover = " + gallery cover" if picks[0][0] == img.name else ""
+    print(f"pick: {img.stem}"
+          + (f' “{a.title}”' if a.title else "")
+          + f" → {where} {d.name}{cover}")
     return 0
 
 
@@ -906,8 +980,13 @@ def main():
     spend_opts(p)
     p.set_defaults(fn=cmd_inpaint)
 
-    p = sub.add_parser("pick", help="mark an image as the roll's pick")
-    p.add_argument("roll"); p.add_argument("image"); p.set_defaults(fn=cmd_pick)
+    p = sub.add_parser("pick", help="mark an image as a keeper (bare = the pick)")
+    p.add_argument("roll"); p.add_argument("image")
+    p.add_argument("title", nargs="?", default=None,
+                   help="name this keeper — a titled pick joins the set instead of replacing it")
+    p.add_argument("subtitle", nargs="?", default=None, help="caption under the picture")
+    p.add_argument("--drop", action="store_true", help="remove this image from the picks")
+    p.set_defaults(fn=cmd_pick)
 
     p = sub.add_parser("list", help="list rolls, or images in a roll")
     p.add_argument("roll", nargs="?"); p.set_defaults(fn=cmd_list)
