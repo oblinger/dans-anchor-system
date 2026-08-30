@@ -1,7 +1,7 @@
 # RULESET R-dispatch-guard
 include::
 confirm:: user
-description:: **SUSPENDED 2026-08-29 pending the spine→heart migration (TINK T623) — every body returns before judging.** The `tool:pre` veto twin of [[R-dispatch-table]]-06 — a Write/Edit (and, best-effort, a Bash heredoc) that would put more than 2 words in a row in a masthead RIGHT cell is **denied** before the bytes land, not advised after. Rides `anchor-base`. Touch means clean (ratchet removed 2026-08-22): any write that emits or changes a spine must leave the WHOLE spine legal, legacy cells included; only body-only Edits pass on a dirty doc.
+description:: **Re-armed 2026-08-29 evening, after the spine→heart migration (TINK T623) took the vault from 434 offending mastheads to 0; suspended for the one day the migration ran.**  The `tool:pre` veto twin of [[R-dispatch-table]]-06 — a Write/Edit (and, best-effort, a Bash heredoc) that would put more than 2 words in a row in a masthead RIGHT cell is **denied** before the bytes land, not advised after. Rides `anchor-base`. Touch means clean (ratchet removed 2026-08-22): any write that emits or changes a spine must leave the WHOLE spine legal, legacy cells included; only body-only Edits pass on a dirty doc.
 
 > [!info] Provenance
 > Commissioned by Dan 2026-08-22: *"let's just change the rule so that you cannot write a table with more than 2 words … ideally 0 words. But if modifiers are critical, you can add them, but it can't be more than two words. Let's just see what happens when the system is forced to do that."* The doc-rule flip (`warn`→`fail` on R-dispatch-table-06) the same day only produced a post-write advisory the writing agent could ignore — "cannot write" requires the F131 veto path (`tool:pre` + `DENY: `), which is this ruleset. Same relationship as [[R-pathguard]] (deny) to [[R-state-region]] (advisory): the doc-rule names the law, this ruleset blocks the act.
@@ -20,12 +20,6 @@ description:: **SUSPENDED 2026-08-29 pending the spine→heart migration (TINK T
 
 ```python
 def body(ctx):
-    # SUSPENDED 2026-08-29 (Dan, TINK T623): the deny is destroying content — a
-    # spine holding the page's own facts (the SV fact cards, person summaries)
-    # has nowhere legal to put them until those pages have a heart. Re-arm by
-    # deleting this return once the spine→heart migration ([[DAS heart]] § Fact
-    # card) has run; R-dispatch-table-06 reads `warn` meanwhile.
-    return []
     ev = getattr(ctx, "event", None)
     inp = getattr(ev, "input", None) or {}
     fp = inp.get("file_path") or ""
@@ -80,12 +74,6 @@ Denies a `Write` whose proposed content carries a masthead right cell with prose
 
 ```python
 def body(ctx):
-    # SUSPENDED 2026-08-29 (Dan, TINK T623): the deny is destroying content — a
-    # spine holding the page's own facts (the SV fact cards, person summaries)
-    # has nowhere legal to put them until those pages have a heart. Re-arm by
-    # deleting this return once the spine→heart migration ([[DAS heart]] § Fact
-    # card) has run; R-dispatch-table-06 reads `warn` meanwhile.
-    return []
     ev = getattr(ctx, "event", None)
     inp = getattr(ev, "input", None) or {}
     fp = inp.get("file_path") or ""
@@ -153,12 +141,6 @@ Applies the Edit's own `old_string → new_string` replacement to the current fi
 
 ```python
 def body(ctx):
-    # SUSPENDED 2026-08-29 (Dan, TINK T623): the deny is destroying content — a
-    # spine holding the page's own facts (the SV fact cards, person summaries)
-    # has nowhere legal to put them until those pages have a heart. Re-arm by
-    # deleting this return once the spine→heart migration ([[DAS heart]] § Fact
-    # card) has run; R-dispatch-table-06 reads `warn` meanwhile.
-    return []
     ev = getattr(ctx, "event", None)
     inp = getattr(ev, "input", None) or {}
     cmd = inp.get("command") or ""
@@ -240,12 +222,6 @@ Best-effort by construction — the command string is all a Bash pre-hook has. *
 
 ```python
 def body(ctx):
-    # SUSPENDED 2026-08-29 (Dan, TINK T623): the deny is destroying content — a
-    # spine holding the page's own facts (the SV fact cards, person summaries)
-    # has nowhere legal to put them until those pages have a heart. Re-arm by
-    # deleting this return once the spine→heart migration ([[DAS heart]] § Fact
-    # card) has run; R-dispatch-table-06 reads `warn` meanwhile.
-    return []
     ev = getattr(ctx, "event", None)
     inp = getattr(ev, "input", None) or {}
     cmd = inp.get("command") or ""

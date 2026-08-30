@@ -4129,19 +4129,18 @@ def chk_dispatch_cell_narrative(target, anchor_root, args):
     offenders = [f"'{label}' row: {right[:80]!r}"
                  for label, right in masthead_narrative_offenders(text, f.stem)]
     if offenders:
-        # SUSPENDED to `warn` 2026-08-29 (Dan, TINK T623) after six days at
-        # `fail` + deny: 434 of 1,604 mastheads violate, and on the worst of
-        # them the "narrative" is the page's own substance (SV fact cards,
-        # person summaries) with nowhere legal to go until the page has a
-        # heart. `warn` never reaches execute_on_write, so this is silent on
-        # write and visible in /audit only. Flip back to "fail" — and delete
-        # the early returns in R-dispatch-guard — once the spine→heart
-        # migration ([[DAS heart]] § Fact card) has run.
-        return "warn", ("dispatch table right cell carries more than 2 words in a "
+        # `fail` again since 2026-08-29 evening (TINK T623). It sat at `warn`
+        # for one day while the spine→heart migration ran: 434 of 1,604
+        # mastheads violated on the morning measurement, 0 of 1,541 after the
+        # link-left flips, the group-gloss exemption, and the fact-card moves
+        # into `| Card |` hearts ([[DAS heart]] § Fact card). The cap is now
+        # satisfiable without loss on every page, which was the condition for
+        # re-arming; R-dispatch-guard's denies came back the same evening.
+        return "fail", ("dispatch table right cell carries more than 2 words in a "
                         "row — " + "; ".join(offenders[:4])
                         + " — move the page's own facts into its heart ([[DAS heart]]) "
                         "and the explanation of a destination onto that page "
-                        "(R-dispatch-table-06, suspended to warn 2026-08-29)")
+                        "(R-dispatch-table-06)")
     return "pass", "right cells are links + <=2-word tags only"
 
 
