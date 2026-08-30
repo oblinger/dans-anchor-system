@@ -1728,6 +1728,60 @@ def _head_h1(text: str) -> tuple[int | None, str | None]:
     return None, None
 
 
+def chk_at_entity_person_opening(target, anchor_root, args):
+    """R-at-entity-11 — a flat person page opens breadcrumb → identity H1 →
+    card with Contact + Rolodex, and carries no `#pp`. Warn while the register
+    migrates (465 person pages, 441 in the old head-line form on 2026-08-29)."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    if not f.name.startswith("@"):
+        return "pass", "not an at entity"
+    if f.parent.name.startswith("@") and f.parent.name == f.stem:
+        return "pass", "a namesake page — not in scope"
+    if "Corp" in f.parts and not f.parent.name.startswith("@"):
+        return "pass", "an org page under Corp/ — not in scope"
+    text = _read(f)
+    lines = text.split("\n")
+    body_start = 0
+    if lines and lines[0].strip() == "---":
+        for i in range(1, len(lines)):
+            if lines[i].strip() == "---":
+                body_start = i + 1
+                break
+    head = lines[body_start:]
+    h1 = next((i for i, l in enumerate(head) if l.startswith("# ")), None)
+    problems = []
+    pre = "\n".join(head[:h1] if h1 is not None else head[:20])
+    if ":>>" not in pre:
+        problems.append("no `:>>` breadcrumb above the H1")
+    if "| -[[" in pre:
+        problems.append("carries a dispatch masthead — a person page is a leaf")
+    if h1 is None:
+        problems.append("no H1")
+    else:
+        if not re.match(rf"^# @{re.escape(f.stem[1:])}\s+—\s+\S", head[h1]):
+            problems.append("H1 is not `# @{Name} — **[title](…) at [[@Org]]**`")
+        j = h1 + 1
+        while j < len(head) and not head[j].strip():
+            j += 1
+        if j >= len(head) or not head[j].startswith("| Card"):
+            problems.append("no `| Card |` table directly under the H1")
+        else:
+            k = j
+            rows = []
+            while k < len(head) and head[k].strip().startswith("|"):
+                rows.append(head[k]); k += 1
+            for need in ("Contact", "Rolodex"):
+                if not any(re.match(rf"^\|\s*\*\*{need}\*\*", r) for r in rows):
+                    problems.append(f"card has no **{need}** row (always present, even empty)")
+    if re.search(r"(^|\s)#pp\b", pre + ("\n" + head[h1] if h1 is not None else "")):
+        problems.append("`#pp` tag — retired; every @ person page is a person")
+    if problems:
+        return "warn", "; ".join(problems) + " (R-at-entity-11)"
+    return "pass", "breadcrumb → identity H1 → card"
+
+
 def chk_anchor_has(target, anchor_root, args):
     """`.anchor` declares every field named in args.
 

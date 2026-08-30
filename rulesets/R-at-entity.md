@@ -71,3 +71,17 @@ Migration must not assume `# LOG` becomes vestigial: relationship and status not
 No rule in this set describes the interior of a `Drafted/` document. That shape lives in [[AT Mail]], singly.
 
 **Why:** two statements of one shape is the drift both documents exist to avoid; see the scope boundary above.
+
+### RULE R-at-entity-11 — A person page opens breadcrumb → identity H1 → card (checked)
+check:: at_entity_person_opening
+mend:: at-entity-opening
+
+A flat person page (an `@*.md` that is not under `Corp/` directly and is not its folder's namesake) opens with a `:>>` breadcrumb — never a dispatch masthead, never a `...` — then an H1 of the form `# @{Name} — **[title](…) at [[@Org]]**`, then a `| Card |  |` table directly beneath carrying at least the **Contact** and **Rolodex** rows, and no `#pp` anywhere in the head. Specified at [[DAS At Entity]] § The opening; specimens [[@Henna Dattani]] and [[@Marguerite Vale]].
+
+**Check pattern:** breadcrumb present and no identity-row masthead; H1 begins `# @{stem} —`; the first table under the H1 is headed `Card` and has `**Contact**` and `**Rolodex**` rows; no `#pp` token before the card → pass; each missing piece is named → **warn** (the register is mid-migration; promote when the sweep reads zero).
+
+**Why:** 441 of 465 person pages carry the pre-2026-08-29 head line — tags, tab-aligned links, loose contact lines — which no checker could read and no reader could scan. The card is what makes a person page a page; this rule is what keeps 465 hand migrations honest.
+
+### MEND at-entity-opening
+
+Run `at-entity-migrate.py --dry <page>` to see what the migrator would write, then `--write`; hand-finish anything it reports as unparsed. The rows and their order: [[DAS At Entity]] § The opening.
