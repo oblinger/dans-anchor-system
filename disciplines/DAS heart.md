@@ -16,9 +16,9 @@ The spine is everything above the H1; the heart is what sits directly below it. 
 
 | Heart kind | What it holds | Shape | Live | Made-up |
 |---|---|---|---|---|
-| **[[#Fact card\|Fact card]]** | the key facts *about this page's subject* — a status card, a who-feeds-whom map, whatever facts matter most | a table of facts, any shape | [[2026-08-19 Legacy Athletics]] · [[Stones]] | [[Harbor Account Northwind]] |
+| **[[#Fact card\|Fact card]]** | the key facts *about this page's subject* — a status card, a who-feeds-whom map, whatever facts matter most | a table of facts, any shape | [[2026-08-19 Legacy Athletics]] · [[2025-11-07 TeamSnap Data Partnership]] · [[@Henna Dattani]] · [[Stones]] | [[Harbor Account Northwind]] · [[@Marguerite Vale]] |
 | **[[#Definition list\|Definition list]]** | the page's key facts as a definition list — `**Term:** body` — when the facts are sentences rather than cells | a bulleted definition list, one term per bullet | [[DAS ask-format]] | — |
-| **[[#Register\|Register]]** | the heart *is* the page: one row per thing the page exists to track | data table, hand-written, load-bearing | [[LUMEN Data Sources]] | [[Harbor Latency Budget]] |
+| **[[#Register\|Register]]** | the heart *is* the page: one row per thing the page exists to track; the prose below only explains it | data table, hand-written, load-bearing | [[Eli Bedtime Audio]] · [[LUMEN Data Sources]] | [[Harbor Latency Budget]] |
 | **[[#Figure\|Figure]]** | the thing the page defines, drawn | an image or diagram, no title, table beneath | [[DAS Code Design]] | [[FEX Figure Page]] · [[FEX Architecture]] |
 | **[[#Types table\|Types table]]** | the mutually exclusive subtypes of the thing the page specifies, one row each, with an example | a fact table whose rows partition the type — like this one | [[DAS spine]] · this page | [[FEX Dispatch Examples]] § The four kinds |
 | **[[#Table of contents\|Table of contents]]** | the page's own sections, so a long page is navigable before it is read | derived from the headings, regenerated | [[DAS ask-format]] · [[DAS progressive-disclosure]] | — |
@@ -77,7 +77,7 @@ Nothing is deleted in the move; the cap becomes satisfiable *without loss*, whic
 ## Register
 **What it is.** The heart *is* the page: one row per thing the page exists to track, and the prose below only explains the table. Hand-written and load-bearing — an authored register must never be regenerated.
 
-**Live:** [[LUMEN Data Sources]] — H1, one sentence, then `Source | Where | Reach for it when`, one row per source. **Made-up:** [[Harbor Latency Budget]] — the per-hop budget table. ([[Disk]] was the earlier example and is retired here: its drive table is one of several, and the page's spine — a list spine with three drives pulled above the marker — is the more instructive thing about it.)
+**Live:** [[Eli Bedtime Audio]] — the options survey *is* the page (Dan, 2026-08-29: *"the whole document is about that information; the rest is just detail explaining the heart table"*); [[LUMEN Data Sources]] — H1, one sentence, then `Source | Where | Reach for it when`, one row per source. **Made-up:** [[Harbor Latency Budget]] — the per-hop budget table. ([[Disk]] was the earlier example and is retired here: its drive table is one of several, and the page's spine — a list spine with three drives pulled above the marker — is the more instructive thing about it.)
 
 ## Figure
 **What it is.** The thing the page defines, drawn — an architecture diagram, a flow — **plus the parts table beneath it**: one row per piece the figure draws, linking out to the page that describes that piece. The figure carries no clickable links, so the table is the way from the picture to the parts; a figure with no table under it is a picture, not a heart (Dan, 2026-08-29). The figure sits directly under the one-liner with **no title**. In FEX, parts that are not built out link to [[FEX Empty]] so a click mints nothing.

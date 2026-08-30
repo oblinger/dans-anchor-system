@@ -93,6 +93,23 @@ The parts of the namesake page, top to bottom:
 - **`# LOG`** — dated events, **newest first**. An ordinary event is `### YYYY-MM-DD  {title}`. An event that drafts a message is an **H2**, because it carries H3 blocks inside it — measured 2026-08-20, 159 plain H3 events against 85 mail-shaped H2s. Once `Drafted/` is in use, new drafting sessions go to the folder and this H2 form is what the migration retires.
 - **`Drafted/`**, **`Meet/`** — folder form only, created on first use.
 
+
+## The opening — breadcrumb, identity H1, card (2026-08-29)
+Settled on [[@Henna Dattani]] with Dan. A flat entity page opens with a **breadcrumb** (it is a leaf — no dispatch table, and never a `...`, which would enumerate the parent folder's children), then an **H1 that carries the identity line** — the base name, an em-dash, and the role linked to LinkedIn with the organization as its `@` link:
+
+`# @Henna Dattani — **[Alignment TPM](https://linkedin…) at [[@Anthropic]]**`
+
+Directly under it sits the **card**, the page's heart ([[DAS heart]] § Fact card). Three rows are **standard and always present** — write *unknown* rather than omit one — and the rest are whatever is known:
+
+| Row | Holds |
+|---|---|
+| **Contact** | email · phone · LinkedIn · X — mashed into one cell |
+| **Context** | how Dan knows this person and why they are in the list — the loop, the intro, the relationship |
+| **Personas** | the entity's other `@` affiliations — ex-employers, boards, groups — each linked |
+| *(Rolodex)* | *which register they belong in, when a page carried `#mentor` / `#bod`-style tags; those tags are retired in favour of this row* |
+| *then* | Trajectory · Education · Public work · Relatives · … as known |
+
+No `#pp` tag: every `@` person page is a person, so the tag said nothing. **Live:** [[@Henna Dattani]]. **Made-up:** [[@Marguerite Vale]]. The `# LOG` follows the card as before.
 # Site-specific extensions
 A vault may specialize this facet for its own user in that vault's agent-conventions page, in a section keyed to this facet's exact name. Nothing here assumes one exists; when it does, it refines this spec and never overrides a declared pointer. In this vault that page is [[Agent Conventions]], and the `@`-entry corpus lives under [[AT]] with the person shape in [[_@{{PERSON_NAME}} Template]] and the drafted-message shape in [[AT Mail]].
 
