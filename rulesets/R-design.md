@@ -31,14 +31,16 @@ The `{slug} Design.md` dispatch table contains a wiki-link row for every `.md` f
 
 **Why:** the dispatch page is the navigation hub; missing rows hide content from the reader.
 
-### RULE R-design-04 — Status file initialized when Design folder exists (sampled)
+### RULE R-design-04 — Status file, when present, carries the five facet lines (sampled)
 check:: status_facets_initialized prd ux architecture testing roadmap
 
-When `{slug} Design/` exists, `{slug} Track/{slug} Status.md` exists with the standard five design-facet lines (`prd::`, `ux::`, `architecture::`, `testing::`, `roadmap::`) per [[DAS Status]].
+When `{slug} Track/{slug} Status.md` exists, it carries the standard five design-facet lines (`prd::`, `ux::`, `architecture::`, `testing::`, `roadmap::`) per [[DAS Status]]. **Its absence is not a failure.** `state status <slug> show` creates the file with every facet at `none` the first time `/design` reads it, so nothing breaks when it is missing — and a Status file written only to satisfy a check is five `none` lines that lie about a design nobody has started.
 
-**Check pattern:** for each existing Design folder, assert `{slug} Track/{slug} Status.md` exists with the five facets declared (any cell value is valid; absence of the file is the failure).
+Narrowed 2026-08-29 ([[TINK Backlog#^T627|T627]], on [[ATT|Atticus]]'s report): the rule fired on exactly the trigger T625 retired for R-design-02 — *a Design folder exists* — and Dan's ruling there reaches here unchanged: documents earn their keep by need, and only the PRD is not optional. Measured 2026-08-29 across Staff: ATT, CFO and LUMEN failed it for want of a file the picker would have created on its own.
 
-**Why:** `/design`'s picker reads Status.md; missing file means the picker can't auto-dispatch.
+**Check pattern:** for each existing Design folder, if `{slug} Track/{slug} Status.md` exists, assert the five facets are declared (any cell value is valid). A missing file passes.
+
+**Why:** `/design`'s picker reads Status.md — and creates it when absent. The only defect it cannot recover from is a file that exists with the lines missing.
 
 ### RULE R-design-05 — `code` trait is deprecated as a `/design` gate (stated)
 

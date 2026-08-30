@@ -43,4 +43,7 @@ check("**Umbrellas**" in labels, "Q4: prose outside the italics is still narrati
 check(any(l == "" for l in labels), "Q4: an italic gloss with an empty left cell is not a group label")
 check(not any("10T" in l or "BLACK" in l for l in labels), "rows whose left cell is a wiki-link are exempt, sentence and all")
 check(len(off) == 3, "exactly the three offending rows fire (Related, Umbrellas, the unlabeled gloss)")
+MD = TEXT.replace("| --- | --- |", "| --- | --- |\n| [PRD](hook://Disk%20PRD) | product requirements for the whole disk estate, in prose |\n| [spec](file:///Users/x/spec.html) | the rendered spec, three words and more |", 1)
+off_md = ap.masthead_narrative_offenders(MD, "Disk")
+check(len(off_md) == 3, "a markdown/hook link in the LEFT cell is exempt exactly like a wiki-link (2026-08-29)")
 print(f"\n{ok} passed, {bad} failed"); _sys.exit(1 if bad else 0)

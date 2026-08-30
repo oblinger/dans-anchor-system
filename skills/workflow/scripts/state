@@ -569,7 +569,14 @@ def _delegate_row_edit(slug, horizon, row_id_arg, status, title, body,
             print(f"{slug}: note — asked for `## {asked}`, the row landed in "
                   f"`## {landed}` (audit-q C15/C16 park "
                   f"[Waiting]/[Blocked]/[Watching] rows there).")
-            if landed == "Later" and not _renders_under_later(result["status"]):
+            parked = str(result["status"]).startswith(("Waiting", "Blocked", "Watching"))
+            # A [Waiting]/[Blocked]/[Watching] row in `## Later` is where C15/C16
+            # put it; it is passive by design (Dan 2026-08-19: `## Later` renders
+            # nothing) and surfaces through the banner's Waiting count and
+            # groom's expiry sweep. Warning on it told the agent to move the row
+            # onto an active horizon, where C15 then refused it — two tools,
+            # opposite instructions on one row (SPARKS T003/T004, 2026-08-29).
+            if landed == "Later" and not parked and not _renders_under_later(result["status"]):
                 print(f"{slug}: ⚠ a [{result['status']}] row in `## Later` "
                       f"renders in NO section of queries.md — if it needs the "
                       f"user, bracket it [User] or [Questions]; if it needs an "

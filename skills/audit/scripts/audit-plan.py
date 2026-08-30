@@ -4038,7 +4038,10 @@ def masthead_narrative_offenders(text, stem):
         # description of that link — it's allowed to be there." The 2-word cap
         # is for the right cell of a LABEL row, where prose explains a link
         # that should explain itself on its own page.
-        if _WIKILINK_RE.search(cells[0]):
+        # A markdown link (`[PRD](hook://…)`, a `file://` asset) in the left
+        # cell is the same shape — the ruling was about a link, not its
+        # syntax; 25 such rows vault-wide on 2026-08-29.
+        if _WIKILINK_RE.search(cells[0]) or _MDLINK_RE.search(cells[0]):
             continue
         right = cells[1]
         # A DESCRIBED GROUP LABEL is exempt too (T623 Q4, Dan 2026-08-29: "if
@@ -5011,7 +5014,12 @@ def chk_status_facets_initialized(target, anchor_root, args):
         return "pass", "no Design folder (N/A)"
     status_file = anchor_root / f"{name} Track" / f"{name} Status.md"
     if not status_file.is_file():
-        return "fail", f"no {status_file.relative_to(anchor_root)}"
+        # `state status <slug> show` creates the file with every facet at
+        # `none` the first time /design reads it, so the picker never breaks
+        # on absence. Demanding it up front produced files that lie (five
+        # `none` lines nobody asked for) — the same shape T625 retired for
+        # R-design-02. Only a file that EXISTS and lacks the lines is a defect.
+        return "pass", "no Status.md yet (created on demand by `state status show`)"
     text = _read(status_file)
     missing = [a for a in args if not re.search(rf"^{re.escape(a)}\s*::", text, re.MULTILINE)]
     if missing:
