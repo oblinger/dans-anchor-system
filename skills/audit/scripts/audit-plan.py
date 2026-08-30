@@ -3974,6 +3974,18 @@ def masthead_narrative_offenders(text, stem):
             break
         if len(cells) < 2:
             continue
+        # A LEFT cell that is itself a wiki-link is a child pulled above the
+        # separator by hand — the special disk, the flagship member — and the
+        # right cell is that child's description, exactly as the machine would
+        # write it below `---`. A sentence there is expected, not narrative.
+        # Ruled by Dan 2026-08-29 on [[Disk]] (10T / 8T / BLACK): "there's a
+        # label, there's a wiki-link in the left-hand column, and then as long
+        # as there's a bunch of text in the right-hand column, it's the
+        # description of that link — it's allowed to be there." The 2-word cap
+        # is for the right cell of a LABEL row, where prose explains a link
+        # that should explain itself on its own page.
+        if _WIKILINK_RE.search(cells[0]):
+            continue
         right = cells[1]
         # Links and code spans are pointers: zero words, and a run-breaker —
         # replaced by a hard separator so text on either side of a link is two

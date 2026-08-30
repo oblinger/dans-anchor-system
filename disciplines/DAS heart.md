@@ -16,50 +16,84 @@ The spine is everything above the H1; the heart is what sits directly below it. 
 
 | Heart kind | What it holds | Shape | Live | Made-up |
 |---|---|---|---|---|
-| **[[#The fact card — the third form, and where a spine's prose goes\|Fact card]]** | the key facts *about this page's subject* — status, counterparty, value, dates, waiting-on, next | label / value table, 5–12 rows | [[2026-08-19 Legacy Athletics]] *(migrated 2026-08-29 — the first spine→heart move)* | — |
-| **Register** | the heart *is* the page: one row per thing the page exists to track | data table, hand-written, load-bearing | [[Disk]] | [[Harbor Latency Budget]] |
-| **Map** | how the page's parts relate — what flows into what | labelled table under an H2 | [[Stones]] | — |
-| **Figure** | the thing the page defines, drawn | an image or diagram, no title, table beneath | [[DAS Code Design]] | [[FEX Figure Page]] · [[FEX Architecture]] |
-| **Kinds table** | the variants of the thing the page specifies, each with an example | a table like this one | [[DAS spine]] · this page | [[FEX Dispatch Examples]] § The four kinds |
-| **Table of contents** | the page's own sections, so a long page is navigable before it is read | derived from the headings, regenerated | [[DAS ask-format]] · [[DAS progressive-disclosure]] | — |
-| **Roster** | the members a collection page fronts, by area | index table — orients, does not route | [[Briefs]] | — |
+| **[[#Fact card\|Fact card]]** | the key facts *about this page's subject* — status, counterparty, value, dates, waiting-on, next | label / value table, 5–12 rows | [[2026-08-19 Legacy Athletics]] | [[Harbor Account Northwind]] |
+| **[[#Register\|Register]]** | the heart *is* the page: one row per thing the page exists to track | data table, hand-written, load-bearing | [[LUMEN Data Sources]] | [[Harbor Latency Budget]] |
+| **[[#Map\|Map]]** | how the page's parts relate — what flows into what | labelled table under an H2 | [[Stones]] | — |
+| **[[#Figure\|Figure]]** | the thing the page defines, drawn | an image or diagram, no title, table beneath | [[DAS Code Design]] | [[FEX Figure Page]] · [[FEX Architecture]] |
+| **[[#Kinds table\|Kinds table]]** | the variants of the thing the page specifies, each with an example | a table like this one | [[DAS spine]] · this page | [[FEX Dispatch Examples]] § The four kinds |
+| **[[#Table of contents\|Table of contents]]** | the page's own sections, so a long page is navigable before it is read | derived from the headings, regenerated | [[DAS ask-format]] · [[DAS progressive-disclosure]] | — |
+| **[[#Roster\|Roster]]** | the members a collection page fronts, by area | index table — orients, does not route | [[Briefs]] | — |
 
 **Live** is a real vault page; **Made-up** is a [[FEX]] specimen that exists only to show the shape. A dash means the specimen is still to be minted. The table is deliberately open — a kind earns a row when a real page exhibits it, exactly as the [[DAS spine]] shapes table grew. One thing every row shares: the heart is *inward-facing*. It talks about this page's subject; the spine above it talks about other pages (Dan, 2026-08-29).
 
-| | Spine | Heart |
-|---|---|---|
-| **Where** | above the H1 | directly below the H1 |
-| **Subject** | other pages — what this hangs under, what hangs beneath | this page's own substance |
-| **Owed by** | every page | only a page that has substance to lead with |
-| **Shapes** | seven, [[DAS spine\|specified]] | two — bare, or labelled |
+## The order — spine, H1, one-liner, heart, overview
+Memorialized 2026-08-29 (Dan, on [[2026-08-19 Legacy Athletics]]). A page with a heart opens in exactly this order, and each slot has one job:
 
-The order is fixed and the reason is the fold: **H1 → one sentence → heart → (often) `## Overview`**, with no blank line between the H1 and the sentence, so the heart lands on screen without scrolling. Each slot has one job (Dan, 2026-08-29, on [[2026-08-19 Legacy Athletics]]): the **H1** is the file's base name; the **one-liner** says *what the entity is* — a league operator, a camera vendor, a tool — not its most important fact (*"is it a camera company? a basketball league? That's not described there"*); the **heart** is the page's substance; and the **most important statement** about the thing — the salient fact that so often gets written where the one-liner belongs — is the first line of the `## Overview` beneath the heart. The orientation line is specified at [[DAS orientation-line]]; the point here is only that a salient fact in that slot is a misplaced Overview opener, and the fix is to move it down, not to cut it. If a reader must scroll past three paragraphs to reach the table the page exists for, the page has failed even when every line above it is perfect.
+| # | Slot | Job | Rule |
+|---|---|---|---|
+| 1 | **Spine** | where this page sits among *other* pages — up and down | everything above the H1; specified at [[DAS spine]] |
+| 2 | **H1** | names the thing | the file's base name, verbatim; **no blank line** between it and the one-liner |
+| 3 | **One-liner** | says what the thing *is* | one simple sentence — a definition, not a fact; specified at [[DAS orientation-line]] |
+| 4 | **Heart** | the page's own substance | one of the kinds above, bare or labelled; lands on screen without scrolling |
+| 5 | **`## Overview`** | the most important things to say about it | typical, not required; its first line is the salient fact |
 
-## The two forms
-A heart is usually a table, sometimes a figure with a table beneath it. It comes in two shapes, and **both are correct** — the choice is whether the element needs a name.
+**The one-liner is a definition, not a headline.** The line under the H1 answers *what is this?* — a league operator, a camera vendor, a tool, a register — so a reader who stops there can say what they just opened. It is not the most important fact about the thing; that fact is the natural opener of `## Overview`. The misplacement is common enough to name: Legacy Athletics opened with *"The clearest example in the tree of hardware being the thing that closes a software deal"* — true, and the most important sentence on the page, and useless for telling you whether Legacy Athletics is a camera company or a basketball league. Dan: *"that's really what that first line should be. It just orients the reader to what the thing is."* Its one-liner now reads *"Legacy Athletics is a Canadian operator of youth sports leagues — a returning SportsVisio customer …"*, and the headline opens the Overview. **Move a misplaced salient fact down; never cut it.**
 
-**Bare** — the element sits directly under the orientation line, with no heading of its own. [[Briefs]] is the worked example: H1, one sentence, then the `Area | Files carrying a # BRIEF` table. Take this when the orientation line already says what the table is, so a heading would only repeat it.
+**The fold is the reason the order is fixed.** H1, one-liner, heart, with nothing between them, so the heart is on screen before any scrolling. If a reader must scroll past three paragraphs to reach the table the page exists for, the page has failed even when every line above it is perfect.
 
-**Labelled** — an H2 names the element, and the element follows immediately. [[Stones]] is the worked example: `## The map — what flows into what` directly over the feed table. Take this when the element benefits from a name the orientation line cannot carry, or when the page has several substantial sections and the heart needs to be findable by heading.
+## Bare or labelled
+Every kind comes in two shapes, and **both are correct** — the choice is whether the element needs a name.
+
+**Bare** — the element sits directly under the one-liner, with no heading of its own. [[Briefs]] is the worked example: H1, one sentence, then the `Area | Files carrying a # BRIEF` table. Take this when the one-liner already says what the table is, so a heading would only repeat it.
+
+**Labelled** — an H2 names the element, and the element follows immediately. [[Stones]] is the worked example: `## The map — what flows into what` directly over the feed table; [[2026-08-19 Legacy Athletics]] uses a short `Card` header row instead. Take this when the element benefits from a name the one-liner cannot carry, or when the page has several substantial sections and the heart needs to be findable by heading.
 
 **The labelled form is a heart, not a section.** The heading leads *straight* into the table — nothing between them. A heading that opens with prose is an ordinary section, and the zone has ended; the checker draws exactly that line, and got it wrong until 2026-08-10 (see § How it is checked).
 
-## The fact card — the third form, and where a spine's prose goes
-Ruled by Dan 2026-08-29 on [[2026-08-19 Legacy Athletics]] ([[TINK623 - R-dispatch-table-06 six days on 434 of 1,604 mastheads (27%) violate|TINK T623]]): *"the spine indexes a page in the context of other pages — it is always outward-facing. The heart is always inward-facing: the meat, the summary, the most important content of a page."* That sentence is the whole discriminator, and it settles a case the two forms above did not name.
+## Fact card
+**What it is.** A two-column table whose left cells are labels and whose right cells are the page's own facts — `Status`, `Counterparty`, `Their people`, `Value`, `Volume`, `Dates`, `Waiting on`, `Tech owes`, `Next` on an engagement page; `Role`, `Where met`, `Last contact`, `Owes / owed` on a person page. Inward-facing by construction: every cell is about *this* page's subject. It may *contain* links, but no row of it exists to send the reader elsewhere.
 
-**A fact card is a heart.** A two-column table whose left cells are labels and whose right cells are the page's own facts — `Status`, `Counterparty`, `Their people`, `Value`, `Volume`, `Dates`, `Waiting on`, `Tech owes`, `Next` on an engagement page; `Role`, `Where met`, `Last contact`, `Owes / owed` on a person page — is inward-facing by construction: every cell is about *this* page's subject. It carries the page the way [[Disk]]'s drive table does, and it takes either shape — **bare** under the orientation line, or **labelled** under an H2 such as `## Card`. Nothing changes about the rule that a heart never routes: a fact card may *contain* links, but no row of it exists to send the reader elsewhere.
+**Live:** [[2026-08-19 Legacy Athletics]] — eleven rows under a `Card` header, moved out of the spine 2026-08-29 as the first spine→heart migration. **Made-up:** [[Harbor Account Northwind]].
 
-**It had been living in the spine, which is why the 2-word cap read it as narrative.** The [[SV Proj Template]] put the card in the masthead position, and six days of R-dispatch-table-06 at `fail` measured 434 mastheads carrying prose — the worst of them precisely these cards and the `@` person summaries. The cap was right that the spine must be links-only; it was wrong about what to do with the words, and had nowhere to send them because the pages had no heart. Dan, looking at Legacy Athletics: *"definitely it does not belong in the spine of the page. But this document doesn't have a heart — and it deserves to have a heart."*
+**Where it had been living, and why that was wrong.** The [[SV Proj Template]] put the card in the masthead position, and six days of R-dispatch-table-06 at `fail` measured 434 mastheads carrying prose — the worst of them precisely these cards and the `@` person summaries. Dan, looking at Legacy Athletics: *"the spine indexes a page in the context of other pages — it is always outward-facing. The heart is always inward-facing: the meat, the summary, the most important content of a page."* The cap was right that the spine must be links-only; it had nowhere to send the words because the pages had no heart.
 
-**The migration rule — a spine cell that talks about this page moves to the heart; one that explains another page moves to that page.** Concretely, for a masthead row whose right cell fails the cap:
+**The migration rule — a spine cell that talks about this page moves to the heart; one that explains another page moves to that page.** For a masthead row whose right cell fails the cap:
 
-1. If the row is a **fact about this page's subject** (a status, a counterparty, a value, a date, a next step) — it becomes a row of the fact card, directly below the H1's orientation line. The spine row is dropped, or kept as a links-only row if it also pointed somewhere.
-2. If the row **explains a destination** ("[[X]] — the tool that does Y") — the explanation goes onto X's own top line (H1 + first sentence, `description:` frontmatter), and the spine row keeps only the link and at most a two-word tag.
-3. If the row is **neither** — commentary, history, a caveat — it goes into the body below the heart, never above it.
+1. A **fact about this page's subject** (a status, a counterparty, a value, a date, a next step) becomes a row of the fact card. The spine row is dropped, or kept links-only if it also pointed somewhere.
+2. An **explanation of a destination** ("[[X]] — the tool that does Y") goes onto X's own top line (H1 + one-liner, `description:` frontmatter); the spine row keeps the link and at most a two-word tag.
+3. **Anything else** — commentary, history, a caveat — goes into the body below the heart, never above it.
 
-Nothing is deleted in the move; the cap becomes satisfiable *without loss*, which is the condition for re-arming it (R-dispatch-table-06 sits at `warn` and [[R-dispatch-guard]] returns early until this migration has run over the pages it would otherwise destroy).
+Nothing is deleted in the move; the cap becomes satisfiable *without loss*, which is the condition for re-arming it (R-dispatch-table-06 sits at `warn` and [[R-dispatch-guard]] returns early until this migration has run). **One row that is not a fact card:** a child pulled above a list spine's `---` and described beside its link ([[Disk]]'s 10T / 8T / BLACK) is *spine*, and correctly so — the sentence describes another page. See [[DAS spine]] § List spine.
 
-**A template follows.** The fact card is a shape with an extent, so it gets a template beside the bare and labelled ones — the `SV Proj Template` card, moved below the H1, is the first specimen; minting it is the next step of T623, not this paragraph.
+## Register
+**What it is.** The heart *is* the page: one row per thing the page exists to track, and the prose below only explains the table. Hand-written and load-bearing — an authored register must never be regenerated.
+
+**Live:** [[LUMEN Data Sources]] — H1, one sentence, then `Source | Where | Reach for it when`, one row per source. **Made-up:** [[Harbor Latency Budget]] — the per-hop budget table. ([[Disk]] was the earlier example and is retired here: its drive table is one of several, and the page's spine — a list spine with three drives pulled above the marker — is the more instructive thing about it.)
+
+## Map
+**What it is.** A table of how the page's parts relate — what flows into what, which member feeds which. Almost always labelled, because a map benefits from a name.
+
+**Live:** [[Stones]] — `## The map — what flows into what` directly over the feed table. **Made-up:** — (to mint: a Harbor hop-order map).
+
+## Figure
+**What it is.** The thing the page defines, drawn — an architecture diagram, a flow. It sits directly under the one-liner with **no title**, and the table that reads it sits beneath.
+
+**Live:** [[DAS Code Design]] — the subsystem figure, then the skills table. **Made-up:** [[FEX Figure Page]], [[FEX Architecture]].
+
+## Kinds table
+**What it is.** A specification page's own catalog of the variants it specifies — one row per kind, with what it is, its shape, and a live and a made-up example. The reader sees the whole space before reading any one entry.
+
+**Live:** [[DAS spine]]'s shapes table, and the table at the top of this page. **Made-up:** [[FEX Dispatch Examples]] § The four kinds.
+
+## Table of contents
+**What it is.** The page's own sections, so a long page is navigable before it is read. Derived from the headings and regenerated (`md-toc.py`), so — like an electric zone — never hand-edited. It orients rather than carries.
+
+**Live:** [[DAS ask-format]], [[DAS progressive-disclosure]]. **Made-up:** — .
+
+## Roster
+**What it is.** The members a collection page fronts, grouped by area — an index that orients the reader across the set. It does **not** route: the rows describe the membership, they are not the dispatch table, which stays in the spine.
+
+**Live:** [[Briefs]] — `Area | Files carrying a # BRIEF`. **Made-up:** — .
 
 ## What a heart is not
 **A heart never routes to children.** If the element under the H1 is handing the reader other pages, that is spine work wearing a different hat — and a page whose spine and content are the same table simply has no heart. [[Harbor Hops]] is that case deliberately; [[Devtools]] is the contrast, carrying a masthead that routes and a pipeline table that does not.

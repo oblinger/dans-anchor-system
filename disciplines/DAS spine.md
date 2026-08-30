@@ -99,6 +99,8 @@ The machine writes **one row per child**, alphabetically, each carrying that chi
 
 [[Disk]] is where the trade is visibly worth paying: two hand-written rows, then `---`, then a row per drive with real descriptions.
 
+**Special children may be pulled above the marker, and described there by hand.** A list usually has a few members that matter more than the rest — on [[Disk]] the master drive and its two backups. Those rows move above `---`, under a bold group label (`**DISKS**`), in the same shape the machine would give them below it: the child's link in the left cell, its one-sentence description in the right. That sentence is a *description of the link beside it*, not narrative about some other page, so [[R-dispatch-table]]-06's two-word cap does not apply — the checker skips any row whose left cell is a wiki-link (Dan, 2026-08-29: *"it's totally legal for there to be a sentence there. It's expected"*). The children that stay below the marker are still written by the machine.
+
 ### Stream spine
 
 **Marker:** `^^^` **Use when:** the children are date-named.
