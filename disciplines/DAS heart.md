@@ -72,6 +72,8 @@ Nothing is deleted in the move; the cap becomes satisfiable *without loss*, whic
 
 **Live:** [[META Register]] — six terms under the one-liner; [[DAS ask-format]] — the five things that distinguish a conformant ask surface (block-IDs, labeled alternatives, recommendation strength, numbered headers, acceptance phrasing), directly under the one-liner. **Made-up:** — .
 
+**A hybrid heart is legal.** Two elements can share the slot when they carry different halves of the substance — [[Agent Memory]] has a definition list (what the thing *is* and its rules) directly over a one-row register (the store itself), and Dan kept both (2026-08-29): *"it's okay to have a hybrid heart."* The test is still the fold: both must land before scrolling, and the prose that explains either goes into `## Overview` beneath, not between them.
+
 **When a page has two candidates.** ask-format also carries a table of contents. Either could be the heart; the definition list wins because it is the page's substance and the TOC only orients — so the list sits first and the TOC follows it. That ordering is the general rule when a carrying heart and an orienting one meet on the same page.
 
 ## Register
