@@ -8407,6 +8407,8 @@ chk_orientation_line_adjoins_h1 = _spine_rule(
     "S05", "orientation line sits directly under the H1", grade="fail")
 chk_masthead_over_folder_has_marker = _spine_rule(
     "S07", "no folder children are hidden")
+chk_spine_heart_required = _spine_rule(
+    "H02", "has a heart under its one-liner, or is short enough not to need one")
 chk_marker_has_rows_below = _spine_rule(
     "S08", "marker is not degenerate")
 

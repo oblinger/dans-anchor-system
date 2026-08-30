@@ -144,6 +144,18 @@ A `---` or `^^^` marker declares that the machine writes the rows beneath it. Wh
 
 **Why:** a degenerate list or stream reads as "there is nothing here" when the truth is usually "this page has the wrong shape". 103 vault instances.
 
+### RULE R-spine-12 — a long authored page has a heart (checked)
+check:: spine_heart_required
+mend:: spine-heart
+
+A page of authored prose that runs past about two pages (**700 words**) carries a **heart** directly under its one-liner — the page's own substance in a scannable form, so a reader gets it before the fold. Which kind is the author's call, and the menu is the types table at the top of [[DAS heart]]: a **fact card**, a **definition list**, a **register**, a **figure with its parts table**, a **types table**, a **table of contents**, or a **roster**. Most long pages already hold their heart somewhere below; the work is usually to pull it up and name it, not to write it (Dan, 2026-08-29: *"a lot of times the heart actually exists already on the page somewhere — you just have to pull it up and name it properly"*).
+
+**Check pattern:** the page has an H1 and an orientation line; it is not a facet-owned genre where a heart is wrong (inbox, backlog, log, messages, icebox, day file, chores, exceptions, queries, stone control files, anything under `Log/`, `VOX/`, `Yore/`, `Closet/`); its prose below the spine (tables, fences, `# BRIEF` and `# Log` excluded) is ≥ 700 words; and nothing heart-shaped — a table of ≥ 4 rows, a figure, a definition list of ≥ 3 terms, or a TOC — sits within two lines of the one-liner. A buried element is `H01`'s finding and suppresses this one. → **warn**.
+
+**Why `warn`, and what would promote it.** Presence is all the checker can see; whether the heart is any good is an author's judgment, and a `fail` with no safe automatic repair is the audit-noise trap. Shipped `warn` 2026-08-29 with the vault count measured first rather than six days after (the -06 lesson). Promotion to `fail` is gated on the corpus, and when it comes a **TOC-only** page stays `warn` — otherwise every finding is cleared with `md-toc.py` instead of the fact card the page deserved.
+
+**Why the genre gate is a name list rather than a judgment.** An inbox, a backlog or a transcript is long *because* it is a log, and a heart on it would be fiction; those shapes are already recognized by name across the audit, so the gate reuses the names rather than inventing a second classifier. A page that is genuinely a narrative with no element to lead with is the residue — it takes a TOC, or an exception row with a reason.
+
 ### RULE R-spine-11 — a mirrored doc carries no spine (checked)
 where:: `mirror`
 check:: mirrored_doc_has_no_spine
@@ -240,6 +252,10 @@ Description first, breadcrumb beneath (`R-spine-05`). The `...` catch-all sweeps
 **A `:>>` breadcrumb** is right when the page is a leaf that happens to sit in its own folder — one row directly above the H1, orientation line below it.
 
 Both go **above** the H1 and below the frontmatter. For the model read [[DAS spine]]; the worked instance is [[HBR]].
+
+### MEND spine-heart
+
+This page is long and nothing scannable sits under its one-liner. Give it a heart: read [[DAS heart]]'s types table and pick the kind the page's substance already has — most often a **fact card** (the key facts about this page's subject as label / value rows) or a **definition list**; a **figure with its parts table** for an architecture; a **register** when the page tracks a set; a **table of contents** as the fallback for pure narrative. Look below first — the heart is usually already on the page, buried under prose; move it up directly under the one-liner and name it. Then check the one-liner still says what the thing *is*; the salient fact it may have been carrying opens `## Overview`.
 
 ### MEND spine-marker
 

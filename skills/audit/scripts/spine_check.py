@@ -173,6 +173,55 @@ class Page(Spine):
             and not self.lines[j].strip().startswith(">")
         )
 
+    def prose_words(self) -> int:
+        """Words of authored prose below the spine — tables, fences, BRIEF and
+        Log excluded. H02's size gate. Words rather than lines, because a
+        table or a bullet list inflates a line count without adding prose."""
+        start = max(self.h1 or 0, self.table_end or 0)
+        n = 0
+        fenced = False
+        for j in range(start, len(self.lines)):
+            l = self.lines[j]
+            if l.startswith("# BRIEF") or l.startswith("# Log") or l.startswith("# LOG"):
+                break
+            if l.strip().startswith("```"):
+                fenced = not fenced
+                continue
+            if fenced:
+                continue
+            s = l.strip()
+            if s and not s.startswith("|"):
+                n += len(s.split())
+        return n
+
+    def top_element(self):
+        """What sits directly under the one-liner: 'table', 'figure', 'deflist',
+        'toc', or None. H02's presence test — the heart is what lands within
+        two lines of the orientation line, not somewhere below (a buried one
+        is H01's finding, and the two must not fire together)."""
+        o = self.orientation_line()
+        if o is None:
+            return None
+        j = self._next_content(o + 1)
+        if j >= len(self.lines) or j > o + 3:
+            return None
+        l = self.lines[j]
+        if l.startswith("![[") or l.strip().startswith("```mermaid"):
+            return "figure"
+        if l.strip().startswith("|"):
+            if TOC.match(l.strip()):
+                return "toc"
+            k = j
+            while k < len(self.lines) and self.lines[k].strip().startswith("|"):
+                k += 1
+            return "table" if k - j >= 4 else None
+        if re.match(r"^\s*[-*]\s+\*\*[^*]+\*\*\s+—", l):
+            k = j; n = 0
+            while k < len(self.lines) and re.match(r"^\s*[-*]\s+\*\*[^*]+\*\*\s+—", self.lines[k]):
+                n += 1; k += 1
+            return "deflist" if n >= 3 else None
+        return None
+
     def body_weight(self) -> int:
         """Rough prose volume below the spine, excluding BRIEF/Log. Condition 4."""
         start = max(self.h1 or 0, self.table_end or 0)
@@ -198,7 +247,19 @@ CODES = {
     "S09": "carries a marker but fronts no folder — it can only sweep siblings",
     "S10": "fronts a folder with children but opens with a breadcrumb — a hub wearing a leaf's spine",
     "H01": "a substantial element sits below prose; it looks like the buried heart",
+    "H02": "a long authored page with nothing under its one-liner — give it a heart; pick the kind from DAS heart's types table",
 }
+
+# H02 — genres where a heart is wrong, not merely absent: append-only logs,
+# inbox drop zones, backlogs, day files, transcripts, machine-fed registers.
+# Matched on the file NAME and path, because these are facet-owned shapes the
+# rest of the audit already recognizes by name. Everything else is prose
+# someone wrote, and that is the population the rule is for.
+H02_SKIP_SUFFIXES = (" Inbox.md", " Backlog.md", " Log.md", " Messages.md", " Icebox.md",
+                     " Day.md", " Chores.md", " Exceptions.md", " queries.md", " Stones.md",
+                     " Pebble.md", " Rock.md", " Book.md", " Now.md", " Changes.md")
+H02_SKIP_PARTS = ("Log", "VOX", "Yore", "Closet", "Attach", "Scratch", "Chat Docs")
+H02_WORDS = 700
 
 
 def check(path: Path) -> list[tuple[str, int, str]]:
@@ -333,6 +394,23 @@ def check(path: Path) -> list[tuple[str, int, str]]:
         o = p.orientation_line()
         if o is not None and line > o + 2 and prose >= 2:        # condition 2
             out.append(("H01", line + 1, f"{CODES['H01']} ({why}, {prose} prose lines above it)"))
+
+    # ---- H02: a long authored page must have a heart (Dan, 2026-08-29) -----
+    # Presence only — the rule cannot judge whether the heart is good, and does
+    # not try. Fires when the page is prose someone wrote (genre gate), long
+    # enough that a reader needs the fold (700 words ≈ two pages), and nothing
+    # heart-shaped sits under the one-liner. A buried element is H01's finding
+    # and suppresses this one, so a page never carries both. A TOC counts as a
+    # heart here; when the rule is promoted to fail, a TOC-only page stays
+    # warn, so the finding nudges toward a fact card without blocking.
+    name = path.name
+    if (p.h1 is not None and p.orientation_line() is not None and not cand
+            and not name.endswith(H02_SKIP_SUFFIXES)
+            and not any(x in H02_SKIP_PARTS for x in path.parts)
+            and not name.startswith("_")):
+        words = p.prose_words()
+        if words >= H02_WORDS and p.top_element() is None:
+            out.append(("H02", p.orientation_line() + 2, f"{CODES['H02']} ({words} words of prose, no table / figure / definition list under the one-liner)"))
     return out
 
 
