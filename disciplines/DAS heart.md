@@ -16,7 +16,7 @@ The spine is everything above the H1; the heart is what sits directly below it. 
 
 | Heart kind | What it holds | Shape | Live | Made-up |
 |---|---|---|---|---|
-| **[[#Fact card\|Fact card]]** | the key facts *about this page's subject* — a status card, a who-feeds-whom map, whatever facts matter most | a table of facts, any shape | [[2026-08-19 Legacy Athletics]] · [[2025-11-07 TeamSnap Data Partnership]] · [[@Henna Dattani]] · [[Stones]] | [[Harbor Account Northwind]] · [[@Marguerite Vale]] |
+| **[[#Fact card\|Fact card]]** | the key facts *about this page's subject* — a status card, a who-feeds-whom map, whatever facts matter most | a table of facts, any shape | [[2026-08-19 Legacy Athletics]] · [[2025-11-07 TeamSnap Data Partnership]] · [[@Henna Dattani]] · [[Stones]] · [[IDEA Template]] (a template's card) | [[Harbor Account Northwind]] · [[@Marguerite Vale]] |
 | **[[#Definition list\|Definition list]]** | the page's key facts as a definition list — `**Term:** body` — when the facts are sentences rather than cells | a bulleted definition list, one term per bullet | [[DAS ask-format]] · [[META Register]] | [[Harbor Tenancy Model]] |
 | **[[#Register\|Register]]** | the heart *is* the page: one row per thing the page exists to track; the prose below only explains it | data table, hand-written, load-bearing | [[Eli Bedtime Audio]] · [[LUMEN Data Sources]] | [[Harbor Latency Budget]] |
 | **[[#Figure\|Figure]]** | the thing the page defines, drawn | an image or diagram, no title, table beneath | [[DAS Code Design]] | [[FEX Figure Page]] · [[FEX Architecture]] |
