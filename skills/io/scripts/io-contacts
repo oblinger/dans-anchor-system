@@ -84,6 +84,52 @@ end run
 OSA
 }
 
+# `list` — the whole book in ONE round of Apple Events. Four batch reads
+# (`name of every person`, …) each come back in well under two seconds for
+# 2,204 people; the per-person loop `search` used to run (a property fetch per
+# match) is what died with AppleEvent -1712 on any broad query — Winnie T015,
+# 2026-08-30. The join below is pure list indexing, no Apple Events, so it is
+# fast too. One record per line:  NAME <tab> ORG <tab> EMAILS <tab> PHONES
+# (several values joined with "; ").
+osa_list() {
+  osascript - "$TIMEOUT" <<'OSA'
+on run argv
+  with timeout of (item 1 of argv as integer) seconds
+    tell application "Contacts"
+      set ns to name of every person
+      set os to organization of every person
+      set es to value of emails of every person
+      set ps to value of phones of every person
+    end tell
+  end timeout
+  set acc to {}
+  set n to count of ns
+  repeat with i from 1 to n
+    set o to item i of os
+    if o is missing value then set o to ""
+    set AppleScript's text item delimiters to "; "
+    set e to (item i of es) as text
+    set ph to (item i of ps) as text
+    -- a value can carry a line break of its own (six do); one record is one line
+    set end of acc to flat(item i of ns) & tab & flat(o) & tab & flat(e) & tab & flat(ph)
+  end repeat
+  set AppleScript's text item delimiters to linefeed
+  return acc as text
+end run
+
+on flat(t)
+  set t to t as text
+  repeat with brk in {linefeed, return}
+    set AppleScript's text item delimiters to brk
+    set parts to text items of t
+    set AppleScript's text item delimiters to " "
+    set t to parts as text
+  end repeat
+  return t
+end flat
+OSA
+}
+
 report_empty() {
   printf 'no match for "%s" -- searched %s people\n' "$1" "$(osa_count)" >&2
   exit 1
@@ -92,9 +138,14 @@ report_empty() {
 cmd="${1:-}"; [ $# -gt 0 ] && shift || true
 
 case "$cmd" in
+  list)
+    osa_list ;;
+
   search)
+    # filtered from the batch read (same case-sensitive `contains` semantics as
+    # before, applied to the name column) — never a per-person Apple Event loop
     q="${1:-}"; [ -n "$q" ] || die "usage: io-contacts search <substring>"
-    out="$(osa_search "$q")"
+    out="$(osa_list | awk -F'\t' -v q="$q" 'index($1, q) { print $1 "\t" $2 }')"
     [ -n "$out" ] || report_empty "$q"
     printf '%s\n' "$out" ;;
 

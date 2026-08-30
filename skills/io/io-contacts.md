@@ -16,7 +16,10 @@ C="$HOME/.claude/skills/io/scripts/io-contacts"
 "$C" search "Oblinger"       # one line per match:  NAME <tab> ORG
 "$C" show   "Zuly"           # full record: name, org, emails, phones, born
 "$C" count                   # total people in the database
+"$C" list                    # everyone, one per line:  NAME <tab> ORG <tab> EMAILS <tab> PHONES
 ```
+
+`list` is the whole book in one round of Apple Events — four batch reads (`name of every person`, …) joined by index, about 7 s for 2,204 people, several emails or phones joined with `; `, and any line break inside a value flattened so one record is always one line. `search` is now a filter over that same batch read rather than a per-person loop, so a broad query (`search a` → 1,561 rows) returns in the same 7 s instead of dying with AppleEvent -1712 — the failure [[WINNIE Backlog#^T015|WINNIE T015]] hit on 2026-08-30 trying to enumerate the register.
 
 `search` and `show` both take a **name substring**, matched case-sensitively by Contacts' own `whose name contains`. `show` prints every match, blank-line separated — pass enough of the name to narrow it.
 
