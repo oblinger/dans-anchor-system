@@ -9,7 +9,6 @@ group: discipline
 | --- | --- |
 | Related | [[SKA ask]],  [[SKA feature]],  [[SKA groom]],  [[SKA crank]],  [[DAS Backlog]] (§ Numbering policy),  [[DAS Disciplines\|Disciplines]], |
 | Rules | [[audit q]] (enforces it), |
-| ... | [[DAS anchor-dag]],  [[DAS code-repo]],  [[DAS Disciplines Brief]],  [[DAS electric-zone]],  [[DAS feed]],  [[DAS file-association]],  [[DAS formats]],  [[DAS granularity]],  [[DAS heart]],  [[DAS Linked Mode]],  [[DAS markdown]],  [[DAS mode]],  [[DAS orientation-line]],  [[DAS progressive-disclosure]],  [[DAS role]],  [[DAS rust]],  [[DAS spine]],  [[DAS stream]],  [[DAS technical-answer]],  [[DAS verification]],  [[DAS workflow]],   |
 
 # DAS ask-format
 The layout discipline for any user-actionable surface an agent writes — a pending Question, a Verification, an à la carte item, and the resolution or acceptance phrase that closes it.

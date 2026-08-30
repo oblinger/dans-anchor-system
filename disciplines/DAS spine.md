@@ -139,6 +139,8 @@ The remedy this section prescribes could not have helped them either: [[DAS Disp
 
 **A page that fronts no folder has nothing to sweep**, and correctly carries no marker — 121 pages sit there legitimately. The rule is not "every masthead needs a marker"; it is **"every masthead over a folder needs one."**
 
+**Stated as three clauses (Dan, 2026-08-29):** an **anchor page** — the page fronting its folder — *must* have a spine, and that spine *must* end in an electric section, because otherwise nothing anywhere lists the folder's files. Any **other page** *must not* carry an electric section — it owns no files, so the marker lists another page's children (seen live on [[DAS ask-format]], whose `...` filled with every `disciplines/` sibling within twenty minutes) — and *may or may not* have a spine at all: a breadcrumb is enough, and a full masthead is also fine when the related work is worth routing to, ending at its last hand row while [[disciplines]] carries the `...` for the folder. The marker follows ownership, never the masthead.
+
 **A hub is normally the anchor page of its own folder** — `Harbor Hops/Harbor Hops.md` with a `.anchor` beside it — and that is what makes the enumeration trustworthy: the machine is reading the folder, not a list someone maintained. Pages that dispatch children they do not contain exist and are not yet specified here.
 
 **Never hand-author the zone below the marker** — it is recomputed, and anything typed there is silently discarded on the next rebuild. See the vault's `CLAUDE.md`.
