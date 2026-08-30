@@ -16,7 +16,7 @@ The spine is everything above the H1; the heart is what sits directly below it. 
 
 | Heart kind | What it holds | Shape | Live | Made-up |
 |---|---|---|---|---|
-| **[[#The fact card — the third form, and where a spine's prose goes\|Fact card]]** | the key facts *about this page's subject* — status, counterparty, value, dates, waiting-on, next | label / value table, 5–12 rows | [[2026-08-19 Legacy Athletics]] *(still in its spine — the migration specimen)* | — |
+| **[[#The fact card — the third form, and where a spine's prose goes\|Fact card]]** | the key facts *about this page's subject* — status, counterparty, value, dates, waiting-on, next | label / value table, 5–12 rows | [[2026-08-19 Legacy Athletics]] *(migrated 2026-08-29 — the first spine→heart move)* | — |
 | **Register** | the heart *is* the page: one row per thing the page exists to track | data table, hand-written, load-bearing | [[Disk]] | [[Harbor Latency Budget]] |
 | **Map** | how the page's parts relate — what flows into what | labelled table under an H2 | [[Stones]] | — |
 | **Figure** | the thing the page defines, drawn | an image or diagram, no title, table beneath | [[DAS Code Design]] | [[FEX Figure Page]] · [[FEX Architecture]] |
