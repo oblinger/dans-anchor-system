@@ -214,7 +214,9 @@ class Page(Spine):
             k = j
             while k < len(self.lines) and self.lines[k].strip().startswith("|"):
                 k += 1
-            return "table" if k - j >= 4 else None
+            # Any table with at least one body row: a one-row fact table under the
+            # one-liner is still the page's heart ([[Agent Memory]], 2026-08-29).
+            return "table" if k - j >= 3 else None
         if re.match(r"^\s*[-*]\s+\*\*[^*]+\*\*\s+—", l):
             k = j; n = 0
             while k < len(self.lines) and re.match(r"^\s*[-*]\s+\*\*[^*]+\*\*\s+—", self.lines[k]):
