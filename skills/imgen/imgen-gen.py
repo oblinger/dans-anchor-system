@@ -546,12 +546,17 @@ def build_mask(src, region, ellipses, size, stem):
     from PIL import Image, ImageDraw, ImageFilter
     lanczos = Image.Resampling.LANCZOS
     im = Image.open(src).convert("RGB")
-    k = size / im.width
+    # Ellipses are given in the SOURCE image's own pixels, and the mask is square,
+    # so each axis carries its own scale. One shared factor (size/width) silently
+    # slid every mask down a tall image — a 768x1024 source put the region 1.33x
+    # too low, which reads as "my coordinates were wrong" rather than as a bug.
+    kx, ky = size / im.width, size / im.height
 
     mask = Image.new("L", (size, size), 0)
     draw = ImageDraw.Draw(mask)
     for e in ellipses:                       # union — overlaps are harmless
-        cx, cy, rx, ry = (round(v * k) for v in e)
+        cx, cy = round(e[0] * kx), round(e[1] * ky)
+        rx, ry = round(e[2] * kx), round(e[3] * ky)
         draw.ellipse((cx - rx, cy - ry, cx + rx, cy + ry), fill=255)
     mp = mask_path(src.parent, stem, region)
     mask.convert("RGB").save(mp)
