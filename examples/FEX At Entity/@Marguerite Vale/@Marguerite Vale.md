@@ -1,7 +1,7 @@
 ---
 description: "Fractional CFO at Vale & Co — advisor, met through Hollis. (Fictional — the worked instance for [[DAS At Entity]].)"
 ---
-:>> [[DAS]] → [[examples]] → [[FEX At Entity]] → [@Marguerite Vale](hook://p/@Marguerite%20Vale) 
+:>> [[DAS]] → [[FEX]] → [[FEX At Entity]] → [@Marguerite Vale](hook://p/@Marguerite%20Vale) 
 # @Marguerite Vale — **[Fractional CFO](https://www.linkedin.com/in/example-marguerite-vale/) at [[@Vale & Co]]**
 
 | Card |  |

@@ -8,7 +8,7 @@ group: file, folder
 | Related | [[DAS Log]],  [[DAS WP]],  [[DAS stream]],  [[DAS Folder]],  [[DAS file-association]],  [[DAS Template Files]],   |
 | Examples | [[FEX At Entity\|worked instance — folder form, Drafted + Meet]],  [[@David Chee\|live instance — mail-shaped LOG]],   |
 | Rules | [[R-at-entity]],  [[R-stream]],   |
-| ... | [[anchor-page]],  [[DAS Agenda]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Page]],  [[DAS Anchor Tree]],  [[DAS API Design]],  [[DAS Architecture]],  [[DAS Aspects]],  [[DAS Backlog]],  [[DAS Brief]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Chores]],  [[DAS Claude]],  [[DAS CLI]],  [[DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[facets/DAS Decisions]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Design Folder]],  [[DAS Dev Dispatch]],  [[DAS Discussion]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facets]],  [[DAS Features]],  [[DAS Files Architecture]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Interface]],  [[DAS Messages]],  [[DAS Module Doc]],  [[DAS Move]],  [[DAS Naming]],  [[DAS Notebook]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS PRD]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Roadmap]],  [[DAS Rocks]],  [[DAS Ruleset]],  [[DAS Skill]],  [[DAS Specs]],  [[DAS Status]],  [[DAS Stone]],  [[DAS Stories]],  [[DAS Subs]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS Track]],  [[DAS User Dispatch]],  [[DAS UX Design]],  [[DAS Versions]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
+| ... | [[anchor-page]],  [[DAS Agenda]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Page]],  [[DAS Anchor Tree]],  [[DAS API Design]],  [[DAS Architecture]],  [[DAS Aspects]],  [[DAS Backlog]],  [[DAS Brief]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Chores]],  [[DAS Claude]],  [[DAS CLI]],  [[DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[facets/DAS Decisions]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Design Folder]],  [[DAS Dev Dispatch]],  [[DAS Discussion]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facet]],  [[DAS Facets]],  [[DAS Features]],  [[DAS Files Architecture]],  [[DAS Icebox]],  [[DAS Inbox]],  [[DAS Interface]],  [[DAS Messages]],  [[DAS Module Doc]],  [[DAS Move]],  [[DAS Naming]],  [[DAS Notebook]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS PRD]],  [[DAS Primitives]],  [[DAS Proj]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Roadmap]],  [[DAS Rocks]],  [[DAS Ruleset]],  [[DAS Skill]],  [[DAS Specs]],  [[DAS Status]],  [[DAS Stone]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS Track]],  [[DAS User Dispatch]],  [[DAS UX Design]],  [[DAS Versions]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
 
 # DAS At Entity
 The `@`-prefixed page for an entity you correspond with — one identity line, an optional INFO block, a dated `# LOG`, and two dated folders: `Drafted/` for correspondence composed here and `Meet/` for synchronous meetings.
@@ -99,14 +99,14 @@ Settled on [[@Henna Dattani]] with Dan. A flat entity page opens with a **breadc
 
 `# @Henna Dattani — **[Alignment TPM](https://linkedin…) at [[@Anthropic]]**`
 
-Directly under it sits the **card**, the page's heart ([[DAS heart]] § Fact card). Three rows are **standard and always present** — write *unknown* rather than omit one — and the rest are whatever is known:
+Directly under it sits the **card**, the page's heart ([[DAS heart]] § Fact card). Four rows are **standard and always present**, in this order — write *unknown* or `—` rather than omit one — and the rest are whatever is known:
 
 | Row | Holds |
 |---|---|
 | **Contact** | email · phone · LinkedIn · X — mashed into one cell |
-| **Context** | how Dan knows this person and why they are in the list — the loop, the intro, the relationship |
 | **Personas** | the entity's other `@` affiliations — ex-employers, boards, groups — each linked |
-| *(Rolodex)* | *which register they belong in, when a page carried `#mentor` / `#bod`-style tags; those tags are retired in favour of this row* |
+| **Rolodex** | which registers they belong in — [[BOD]], [[MENTORS]], [[FAANG]] … — replacing the old `#mentor`-style tags |
+| **Context** | how Dan knows this person and why they are in the list — the loop, the intro, the relationship. **Last of the four, because it is the long one**: the three above are bare facts and stay at the top (Dan, 2026-08-29) |
 | *then* | Trajectory · Education · Public work · Relatives · … as known |
 
 No `#pp` tag: every `@` person page is a person, so the tag said nothing. **Live:** [[@Henna Dattani]]. **Made-up:** [[@Marguerite Vale]]. The `# LOG` follows the card as before.
