@@ -307,5 +307,51 @@ with tempfile.TemporaryDirectory() as td:
           "cycle reported as a dotted-list path, nothing written")
 
 # ============================================================
+print("Q. config-mode types (kind table retired): plural names, folder-note control")
+# ============================================================
+SECTION = {
+    "_": "pebbles",
+    "pebbles": None,
+    "rocks": None,
+    "sleepers": None,
+    "book": {"member": "dated"},
+}
+st._GLOBAL_STONES_CACHE = SECTION
+try:
+    types = st.load_types()
+    check(sorted(types) == ["book", "pebbles", "rocks", "sleepers"],
+          "config section IS the type set (kind table not consulted)")
+    check(types["pebbles"]["prefix"] == "P" and types["rocks"]["prefix"] == "R"
+          and types["sleepers"]["prefix"] == "S",
+          "prefixes derive from the names")
+    check(types["book"]["member"] == "dated", "book declares dated members")
+    with tempfile.TemporaryDirectory() as td:
+        root = Path(td)
+        mkanchor(root, "L", "stones:\n  pebbles:\n  rocks:\n")
+        rc, out, err = quiet(root, "new", "L", "--line", "[[L]] plural world")
+        check(rc == 0, f"bare mint rc 0 (err={err.strip()})")
+        check((root / "L" / "L Track" / "L Pebbles" / "L P0001.md").is_file(),
+              "stone in the plural folder")
+        note = root / "L" / "L Track" / "L Pebbles" / "L Pebbles.md"
+        check(note.is_file() and "L P0001" in note.read_text(encoding="utf-8"),
+              "control is the folder note INSIDE (Q5) with the plural name (Q6)")
+        rc, out, err = quiet(root, "new", "L.rocks", "--line", "[[L]] r")
+        check(rc == 0 and (root / "L" / "L Track" / "L Rocks" / "L R0001.md").is_file()
+              and (root / "L" / "L Track" / "L Rocks" / "L Rocks.md").is_file(),
+              "dotted plural address mints into the folder-note shape")
+        rc, out, err = quiet(root, "pebbles", "update")
+        check(rc == 0, "legacy-form CLI accepts the config-mode type name (stone pebbles update)")
+        rc, out, err = quiet(root, "update", "--dry-run")
+        check(rc == 0 and "0 control file(s) would be written" in out,
+              "unified pass reconciles the plural world cleanly")
+        # dated member in config mode
+        mkanchor(root, "H", "stones:\n  book:\n")
+        rc, out, err = quiet(root, "new", "H.book", "--line", "[[x]]", "--title", "Trip")
+        check(rc == 0 and any((root / "H" / "H Track" / "H Book").glob("*Trip.md")),
+              "config-mode dated mint works (H.book --title)")
+finally:
+    st._GLOBAL_STONES_CACHE = {}
+
+# ============================================================
 print(f"\n{PASS} passed, {FAIL} failed")
 sys.exit(1 if FAIL else 0)

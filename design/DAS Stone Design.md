@@ -43,7 +43,7 @@ Three properties fall out, and each of them is load-bearing:
 
 A **header** is any line whose *first* link targets a control file. That single rule does two jobs: pointing at this file's own control file marks the **self-section**, and pointing at another anchor's marks that anchor's **import site**.
 
-Because identity lives in the target, the *display* forms are free to be terse and even to collide — `VEC:` for a stone, `-VEC-` for a header, both aliased. The renderer still distinguishes them for free: punctuation **inside** the link is painted as link text, punctuation **outside** it is not. So `[[Vector Rock|-VEC-]]` and `[[VEC]]:` are visibly different in reading view without opening the source.
+Because identity lives in the target, the *display* forms are free to be terse and even to collide — `VEC:` for a stone, `-VEC-` for a header, both aliased. The renderer still distinguishes them for free: punctuation **inside** the link is painted as link text, punctuation **outside** it is not. So `[[Vector Rocks|-VEC-]]` and `[[Vector]]:` are visibly different in reading view without opening the source.
 
 This is why **the control-file name is configuration rather than convention** — nothing downstream depends on what it is called, only on what points at it.
 

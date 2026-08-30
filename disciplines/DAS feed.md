@@ -16,7 +16,7 @@ group: discipline
 
 [[DAS anchor-dag]] describes the vault's **containment** graph: every anchor has a place, a breadcrumb up, dispatch links down. Feed is a **different graph over the same nodes** — supply rather than containment — and the two must never be merged.
 
-The proof they are different is the case that motivated feeds at all: [[Vector]] sits at the top of the rocks feed and [[LUMEN|Lumen]] at the top of the pebble feed, and **neither is the parent of the anchors that feed them.** [[MED]] lives under `Topic/`. Reusing `parents:` for feed would either relocate MED or make its breadcrumb lie.
+The proof they are different is the case that motivated feeds at all: [[Vector]] sits at the top of the rocks feed and [[Lumen|Lumen]] at the top of the pebble feed, and **neither is the parent of the anchors that feed them.** [[MED]] lives under `Topic/`. Reusing `parents:` for feed would either relocate MED or make its breadcrumb lie.
 
 `anchor-dag` names itself a *global, corpus-level* discipline — a property of all the anchors together, verified by walking the whole graph rather than by authoring any one artifact — and explicitly opens a shelf for siblings of that shape. **Feed is the first genuine sibling**: same nodes, different edges, its own invariants.
 
@@ -75,7 +75,7 @@ Any pass that walks the feed DAG holds all three. They are stated as rules in [[
 | Kind | Item | Root of its feed |
 |---|---|---|
 | `rock` ([[DAS Rocks]]) | a multi-week-to-quarter chunk of work | [[Vector]] — the global [[Rocks]] |
-| `pebble` | a small thing the user owes | [[LUMEN\|Lumen]] |
+| `pebble` | a small thing the user owes | [[Lumen\|Lumen]] |
 
 Both are kinds of [[DAS Stone]], declared in the kind table in [[DAS Stone]]; a third needs no code. The roots are **convention, not mechanism** — nothing here privileges Vector or Lumen. They are the anchors that happen to declare everyone else as a source, and either could be replaced by editing one `.anchor`.
 

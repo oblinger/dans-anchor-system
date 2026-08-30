@@ -95,9 +95,9 @@ Two accepted costs of verbatim-and-unfenced: specimen headings are real headings
 <!-- begin example T1.a -->
 # HERMES Backlog
 <!-- state:backlog 6h -->
-The work queue for [[HERMES|Hermes]], the purchasing agent — content curated is [[BUY]].
+The work queue for [[Hermes|Hermes]], the purchasing agent — content curated is [[BUY]].
 
-| -[[Hermes Backlog]]- | → [[kmr]] → [[SYS]] → [[Staff]] → [[HERMES]] → [[Hermes Track]] → [HERMES Backlog](hook://p/Hermes%20Backlog)  |
+| -[[Hermes Backlog]]- | → [[kmr]] → [[SYS]] → [[Staff]] → [[Hermes]] → [[Hermes Track]] → [HERMES Backlog](hook://p/Hermes%20Backlog)  |
 | --- | --- |
 | ... | [[Hermes Messages]],   |
 
@@ -111,7 +111,7 @@ The work queue for [[HERMES|Hermes]], the purchasing agent — content curated i
 
 ## Now
 
-- **T001 — Build your Mandate** [Ready] — **From [[LUMEN|Lumen]].** Raw material for your own mandate. ^T001
+- **T001 — Build your Mandate** [Ready] — **From [[Lumen|Lumen]].** Raw material for your own mandate. ^T001
   - **Next:** Read this against [[Tink]]'s view of agent specification, then write `Hermes Mandate.md` modelled on [[PROS Mandate]].
 <!-- end example T1.a -->
 
@@ -403,7 +403,7 @@ SYS/SYS Catalog/Computer/
 **Example T6.a** — `SYS/Staff/Scout/Scout Track/Scout Track.md` — identity row, two curated rows, catch-all
 
 <!-- begin example T6.a -->
-| -[[Scout Track]]- | → [[kmr]] → [[SYS]] → [[Staff]] → [[SCOUT]] → [Scout Track](hook://p/Scout%20Track)  |
+| -[[Scout Track]]- | → [[kmr]] → [[SYS]] → [[Staff]] → [[Scout]] → [Scout Track](hook://p/Scout%20Track)  |
 | --- | --- |
 | [[Scout Backlog\|Backlog]]  |  |
 | [[Scout Messages\|Messages]]  |  |

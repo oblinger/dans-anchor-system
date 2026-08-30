@@ -86,6 +86,7 @@ _spec = importlib.util.spec_from_loader("stone_mod", _loader)
 st = importlib.util.module_from_spec(_spec)
 sys.modules["stone_mod"] = st
 _loader.exec_module(st)
+st._GLOBAL_STONES_CACHE = {}  # hermetic: kind-table mode regardless of user config (F628 step 4)
 
 CFG = st.load_kind_config()["rock"]
 

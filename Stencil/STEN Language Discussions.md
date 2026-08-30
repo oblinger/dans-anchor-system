@@ -1,5 +1,5 @@
 ---
-description: "design trade-off threads on the Stencil grammar — what each construct has to carry, and what was rejected"
+description: "*Discussion* — dated trade-off threads behind the grammar"
 ---
 
 # STEN Language Discussions

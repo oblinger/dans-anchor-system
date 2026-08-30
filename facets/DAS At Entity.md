@@ -59,7 +59,7 @@ A heavily-corresponded entity accumulates many small documents, and the intended
 
 A merged file is `YYYY — {Name} drafted.md`. Each **thread** becomes an H2, each **exchange** an H3, each of the four AT-Mail blocks an H4 — a uniform demote-by-one that a script can apply and reverse. The merge is append-only and runs on the tail (threads with no activity in the period), never on a live thread.
 
-**This is a proposal, not a rule.** It is § Unsettled item 1, and Dan has said he will settle the format with [[SONAR|Sonar]] directly.
+**This is a proposal, not a rule.** It is § Unsettled item 1, and Dan has said he will settle the format with [[Sonar|Sonar]] directly.
 
 # Meet
 `@{Name}/Meet/YYYY-MM-DD — {topic}.md`, one file per meeting.
@@ -118,7 +118,7 @@ Directly under it sits the **card**, the page's heart ([[DAS heart]] § Fact car
 
 **The old head-line tags map as follows** (measured 2026-08-29: `#pp` on 252 pages, `#Mentor` on 9, `#Soon` on 9, nothing else): `#pp` is dropped — every `@` person page is a person; `#Mentor` becomes `[[MENTORS]]` in the Rolodex row — the register exists; `#Soon` becomes a register named **`LEGACY-SOON`** in the Rolodex row — a *tempo* tag, not a register, kept as a list so Dan can revisit the nine once rather than lose them. A `=[[X]]` in an old head line is read as `[[X]]`. **Registers that exist as files:** `BOD`, `DOCTOR`, `FRIENDS`, `MENTORS`; `COACH` is named on [[AT]]; `FAANG` and `VC` are struck through there yet linked from pages, and `ADVISORS` / `STARTUPPER` are linked with no file — the register list is Winnie's first thing to make honest.
 
-**Who writes these.** [[SONAR]] mints entries for the people the job search touches; the personnel agent to come ([[WINNIE]]) owns the register as a whole and the pass that brings the ~650 existing entries into this shape. Both read this table, not Henna's page, for what goes in each row.
+**Who writes these.** [[Sonar]] mints entries for the people the job search touches; the personnel agent to come ([[Winnie]]) owns the register as a whole and the pass that brings the ~650 existing entries into this shape. Both read this table, not Henna's page, for what goes in each row.
 
 # Site-specific extensions
 A vault may specialize this facet for its own user in that vault's agent-conventions page, in a section keyed to this facet's exact name. Nothing here assumes one exists; when it does, it refines this spec and never overrides a declared pointer. In this vault that page is [[Agent Conventions]], and the `@`-entry corpus lives under [[AT]] with the person shape in [[_@{{PERSON_NAME}} Template]] and the drafted-message shape in [[AT Mail]].
@@ -145,5 +145,5 @@ Recorded so the next agent does not mistake an open question for a ruling, and s
 
 - **This ruleset is deliberately NOT armed.** [[R-at-entity]] is not named in [[R-anchor]]'s `include::`, so it enters no plan and fires on nothing. That is intentional while §Unsettled is open — arming it would hand a 655-page corpus a wall of findings for a shape its owner has not ratified. **It also means a green audit says nothing about at-entity conformance**, which is the [[DAS Facet]] § vacuous-zero failure exactly. When the shape settles, arm it by naming it in `R-anchor`, and *measure the blast radius in the same pass* rather than after.
 - **The message format is not this facet's to state.** [[AT Mail]] carries it as prose, under a standing instruction not to hand-write a ruleset for it because [[STEN|Stencil]] is meant to own the generate-and-check pair. `R-at-entity` therefore covers **placement and structure only** — where an entity lives, when it promotes to folder form, which container an entry belongs in — and never the four blocks. Keep that line; crossing it recreates the two-copies drift both documents exist to avoid.
-- **The migration is Sonar's, not this spec's.** Converting the live corpus is tracked as a [[SONAR|Sonar]] pebble. Do not sweep at entities from here; a spec change lands here, the corpus moves there.
+- **The migration is Sonar's, not this spec's.** Converting the live corpus is tracked as a [[Sonar|Sonar]] pebble. Do not sweep at entities from here; a spec change lands here, the corpus moves there.
 - **Don't relax the routing rule into a preference.** § The routing rule is three exclusive tests in order, and it is the only thing standing between three containers and three-way ambiguity on every new note. If a case genuinely does not fit, that is evidence about the containers, not license for a fourth "it depends."

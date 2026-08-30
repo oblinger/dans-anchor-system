@@ -47,7 +47,7 @@ Both are correct; they cover different things, and neither is a superset.
 
 Ten minutes is usable once and unusable in a loop. If a question needs the archive more than once, it belongs here.
 
-**The design consequence, per [[ATT|Atticus]]:** a high-volume mailbox is best reached through `gmail` and deliberately kept **out of Mail.app**. Anything synced locally is walked by every unrelated local query, so removing a large account from Mail.app makes every `imail` search faster without losing any reach — the Gmail API still has all of it.
+**The design consequence, per [[Atticus|Atticus]]:** a high-volume mailbox is best reached through `gmail` and deliberately kept **out of Mail.app**. Anything synced locally is walked by every unrelated local query, so removing a large account from Mail.app makes every `imail` search faster without losing any reach — the Gmail API still has all of it.
 
 ## Believe a zero only after a control test
 

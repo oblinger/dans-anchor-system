@@ -289,6 +289,29 @@ def load_type_defaults(cfg_all: dict) -> dict:
     return out
 
 
+def load_types() -> dict:
+    """The live type set (F628 step 4): the config `stones:` section is the
+    source of truth once it exists — its names ARE the types, each built on
+    the novel-name conventions plus its declared fields. Without a section,
+    the kind table serves as the shipped default set (fresh installs,
+    fixtures). This is the retirement switch for the kind table: writing the
+    section flips every verb to config types in one move."""
+    sec = _global_stones_section()
+    if any(k != "_" for k in sec):
+        out = {}
+        for name, fields in sec.items():
+            if name == "_":
+                continue
+            cfg = dict(_novel_type_cfg(name))
+            for k, v in (fields or {}).items():
+                cfg[k] = v
+            if cfg.get("digits") is not None:
+                cfg["digits"] = int(cfg["digits"])
+            out[name] = cfg
+        return out
+    return load_kind_config()
+
+
 def parse_address(addr: str):
     """`Lumen` -> ('Lumen', None); `Lumen.rocks` -> ('Lumen', 'rocks').
 
@@ -593,7 +616,9 @@ MERGED_SUFFIX = "Stones"
 # stones at the end of the list." `sleeper` is deliberately absent: a sleeper is
 # a worked-out goal with no commitment to ever wake it, so it does not belong on
 # a daily surface. Adding it is one word here if that changes.
-MERGE_ORDER = ["pebble", "rock"]
+# Both the kind-table names and the config-mode plural names are listed, so
+# the order holds in either mode; only the names a pass actually knows match.
+MERGE_ORDER = ["pebble", "pebbles", "rock", "rocks"]
 
 
 def _merged_path(anchor_path: Path, slug: str) -> Path:
@@ -1619,7 +1644,7 @@ def cmd_new(kind, root: Path, args) -> int:
     if slug not in anchors:
         raise StoneError(f"no anchor {slug!r} (.anchor) found under {root}")
     a = anchors[slug]
-    cfg, kind = _effective_cfg(a.path, slug, kind, load_kind_config())
+    cfg, kind = _effective_cfg(a.path, slug, kind, load_types())
     _reject_unroundtrippable_owner(slug, cfg)
 
     folder = _stone_folder(a.path, slug, cfg)
@@ -1747,7 +1772,7 @@ def cmd_move(kind, root: Path, args) -> int:
     if slug not in anchors:
         raise StoneError(f"no anchor {slug!r} (.anchor) found under {root}")
 
-    cfg, kind = _effective_cfg(anchors[slug].path, slug, kind, load_kind_config())
+    cfg, kind = _effective_cfg(anchors[slug].path, slug, kind, load_types())
     cpath = _control_path(anchors[slug].path, slug, cfg)
     if not cpath.is_file():
         raise StoneError(f"stone: {cpath} does not exist — nothing to reorder")
@@ -1804,7 +1829,7 @@ def cmd_update(kind, root: Path, args) -> int:
     UNIFIED list-level pass over every declared list (F628 step 3); a kind
     name is the legacy restricted walk — one kind-table type, byte-compatible
     with the pre-F628 behavior, retiring with the kind table at step 4."""
-    cfg_all = load_kind_config()
+    cfg_all = load_types()
     unified = kind is None
     if not unified and kind not in cfg_all:
         raise StoneError(
@@ -2052,7 +2077,7 @@ def _push_pair_cfgs(anchors: dict, ambiguous: dict, kind, owner: str, target: st
     the target still receives on its list OF THE OWNER'S TYPE, with only its
     own registry's PLACEMENT for that list honored — a dotted target waits on
     the list-level walk (step 3)."""
-    cfg_all = load_kind_config()
+    cfg_all = load_types()
     for s, why in ((owner, "it owns the stone"), (target, "it is the other end")):
         if s in ambiguous:
             raise _ambiguous_error(s, ambiguous[s], why)
@@ -2321,7 +2346,7 @@ def _main_addressed(argv, cfg_all) -> int:
 
 def main(argv) -> int:
     try:
-        cfg_all = load_kind_config()
+        cfg_all = load_types()
         head = argv[1] if len(argv) > 1 else ""
         if head in VERBS:
             return _main_addressed(argv, cfg_all)

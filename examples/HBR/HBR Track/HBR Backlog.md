@@ -6,7 +6,7 @@ description: "work queue"
 | --- | --- |
 | Anchor | [[HBR Track]] (parent) |
 | Related | [[HBR Features]],  [[HBR Roadmap]],   |
-| ... | [[HBR Chores]],  [[HBR Messages]],  [[HBR queries]],  [[HBR Rock]],  [[HBR Rocks]],  [[HBR Status]],  [[HBR004 - Cache eviction]],  [[HBR005 - Watched-root hot reload]],   |
+| ... | [[HBR Chores]],  [[HBR Messages]],  [[HBR queries]],  [[HBR Rocks]],  [[HBR Rocks]],  [[HBR Status]],  [[HBR004 - Cache eviction]],  [[HBR005 - Watched-root hot reload]],   |
 
 # HBR Backlog
 <!-- state:backlog n6 -->

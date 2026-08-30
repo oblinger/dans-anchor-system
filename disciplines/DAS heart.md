@@ -62,7 +62,7 @@ Every kind comes in two shapes, and **both are correct** — the choice is wheth
 **The migration rule — a spine cell that talks about this page moves to the heart; one that explains another page moves to that page.** For a masthead row whose right cell fails the cap:
 
 1. A **fact about this page's subject** (a status, a counterparty, a value, a date, a next step) becomes a row of the fact card. The spine row is dropped, or kept links-only if it also pointed somewhere.
-2. An **explanation of a destination** ("[[X]] — the tool that does Y") goes onto X's own top line (H1 + one-liner, `description:` frontmatter); the spine row keeps the link and at most a two-word tag.
+2. An **explanation of a destination** ("~~[[X]]~~ — the tool that does Y") goes onto X's own top line (H1 + one-liner, `description:` frontmatter); the spine row keeps the link and at most a two-word tag.
 3. **Anything else** — commentary, history, a caveat — goes into the body below the heart, never above it.
 
 Nothing is deleted in the move; the cap becomes satisfiable *without loss*, which is the condition for re-arming it (the migration ran 2026-08-29 — 434 → 0 offending mastheads — and R-dispatch-table-06 is `fail` again with [[R-dispatch-guard]] armed). **One row that is not a fact card:** a child pulled above a list spine's `---` and described beside its link ([[Disk]]'s 10T / 8T / BLACK) is *spine*, and correctly so — the sentence describes another page. See [[DAS spine]] § List spine.

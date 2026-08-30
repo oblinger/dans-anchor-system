@@ -12,7 +12,7 @@ Execution state for the Warden engine — feature specs, the exception register,
 
 ## Warden has no queue of its own — and its inbox is the half that bites
 
-**Ruled by Dan twice, 2026-08-11 and again 2026-08-28.** Warden's work is [[TINK|Tink]]'s work and always has been, so a second queue only split the view of what is live: *"You're the only person really working that backlog, and I think it really can cause things to get gummed up when there's this other backlog out there."* File Warden work as a **TINK** row.
+**Ruled by Dan twice, 2026-08-11 and again 2026-08-28.** Warden's work is [[Tink|Tink]]'s work and always has been, so a second queue only split the view of what is live: *"You're the only person really working that backlog, and I think it really can cause things to get gummed up when there's this other backlog out there."* File Warden work as a **TINK** row.
 
 `Warden Backlog.md` was retired 2026-08-11 and **deleted 2026-08-28**, once the file was confirmed to hold 53 rows of which every one was `[Done]`. Its only irreplaceable content was the id map below: the twelve open rows were re-minted under TINK numbers because every old id collided with an existing TINK row, so none could carry its number across.
 
