@@ -1,5 +1,5 @@
 ---
-description: "Feature design records for the Audit skill — the per-feature design docs that define V2 audit (migrated + renumbered from SKA)."
+description: "feature design records defining V2 audit"
 ---
 
 | -[[Audit Features]]- | : feature design records defining V2 audit<br>→ [[DAS]] → [[SKL]] → [[Audit]] → [Audit Features](hook://p/Audit%20Features)  |

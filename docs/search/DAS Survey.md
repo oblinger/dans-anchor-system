@@ -7,7 +7,7 @@ description: "skim → click into the rule that applies"
 | Related | [[skills/survey/SKILL.md\|SKILL]],   |
 | Survey rules (any type) | [[SRCH rules/survey\|survey.md]],   |
 | Types | [[SRCH rules/survey-person\|survey-person]],  [[SRCH rules/survey-corp\|survey-corp]],  [[SRCH rules/survey-product\|survey-product]],  [[SRCH rules/survey-software\|survey-software]],  [[SRCH rules/survey-skill\|survey-skill]],   |
-| Meta-survey | [[DAS Meta Survey]] — high-rigor three-stage form (sources × dimensions × items), cells annotated for certainty |
+| [[DAS Meta Survey]]  | *Meta-survey* — high-rigor three-stage form (sources × dimensions × items), cells annotated for certainty |
 | [[DAS Survey Design\|Design]]  |  |
 | ... |  |
 

@@ -167,6 +167,17 @@ Read `~/ob/kmr/SYS/SYS Doctor/SYS Doctor Report.md` — one file, overwritten by
 
 **The report is read, never written.** [[Atticus]] owns it and every check in it; findings route to him, not into Lumen's backlog. What Lumen owns is the reading — [[MUSE]] ingest failed for thirty-eight days while printing a log line byte-identical to a healthy sweep, and the defect was not the instrument, it was that **nothing had a reader**. This step is the reader.
 
+## Daybreak never fires a notification — the briefing IS the surface
+
+**No step of this routine may draw a banner, a panel, or an `osascript display notification`.** Dan, 2026-08-29: *"as part of your morning routine, you don't need to do pop-ups like that. You can just on your own screen show me the things that you want to tell me at the beginning of the morning, because I'll look at your screen at the beginning of the morning."*
+
+He is explicit that this is a morning-only rule and **not** a dislike of alerts — *"I think it's fine if you alert me throughout the day when something is time sensitive... I think it's perfect that you alert me in that way."* The standing preference, with the reasoning and the by-time-of-day table, is [[APRF Reminders]] § Loudness is a question about the time of day.
+
+**Two things follow for this skill:**
+
+- **Never add one.** Daybreak has fired nothing since it was written; keep it that way. A morning pop-up duplicates the briefing Dan is about to read and interrupts nobody, because it lands before he has sat down.
+- **A notification suppressed elsewhere becomes this skill's obligation.** When the health channel holds a `banner` or `full-screen` row back during the morning window, its durable log entry still exists and **the Doctor step must surface it in the briefing**. Otherwise the quiet window has traded an annoyance for a silent loss — which is the exact failure [[SYS Doctor]] exists over.
+
 ## What goes on screen
 
 One block, in this order, and nothing else:

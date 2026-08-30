@@ -1,5 +1,20 @@
-# imail — Apple Mail (read & search)
-The Apple Mail surface — the only one that can **send**, and the wrong one for searching.
+# imail — mail on this Mac: START HERE, then go where this page sends you
+
+**This is the entry point for anything involving Dan's mail, and for most of it the answer is somewhere else.** If you do not know which surface you want, you are in the right place — read the table, then leave.
+
+| You want to… | Go to | Why not here |
+|---|---|---|
+| **Search mail** — any query, any account, any age | **[[io-local-mail\|`/io local-mail`]]** (`notmuch`) | ~15 ms vs ~10 min, every mirrored account in ONE query, no GUI. **Denied here by `R-ob-osascript-01`.** |
+| **Read a message body** in bulk or by query | **[[io-local-mail\|`/io local-mail`]]** → `--output=files`, read the Maildir file | same reason; the index hands you the file |
+| **Search the complete server-side archive** of one account | **[[io-gmail\|`/io gmail`]]** | ~1 s, and reaches what was never mirrored. `in:anywhere` is mandatory |
+| **Compose / stage a draft for Dan to send** | `~/ob/grove/commons/arec/stage-email` (catch on, `--agent` always) | the script encodes the house policy — never send, leave the draft open |
+| **Show Dan a message in the Mail window** | **here** — osascript is the only way | notmuch returns files, not a window |
+| **Reach an account that is genuinely not mirrored** | **here**, *after* `mailsync --status` and *after* telling Dan | a broken mirror is a bug to report, not a reason to sweep |
+
+**Check the instrument before believing any mail answer.** `mailsync --status` names every account that is stale or has no credential, and it prints its own `⚠ DO NOT TRUST A SEARCH OVER:` line. **A zero from an unmirrored account is a fact about the mirror, not about the mail.**
+
+**The osascript recipes below this point are for the last two rows only.** They are kept because those cases are real, not because they are a general reader. Always wrap in `with timeout of N seconds` — the Apple Event default is 120 s and it dies silently, reporting nothing rather than failing.
+
 
 > ## 🚨 DO NOT SEARCH MAIL FROM HERE — USE THE INDEX
 >

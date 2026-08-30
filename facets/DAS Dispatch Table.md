@@ -1,5 +1,5 @@
 ---
-description: "the top-of-page navigation table — its own spec, dogfooded"
+description: "the live instance"
 group: slot
 ---
 

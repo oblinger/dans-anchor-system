@@ -1,5 +1,5 @@
 ---
-description: "`bridge` connects this Mac to another machine — control (SSH + tmux + TCC inheritance), sync (folder mirroring at identical paths), claude (environment-twin), agent (a working Claude agent deployed on the remote)."
+description: "*Repos* — _(none cataloged yet — `~/ob/kmr/` is synced from MBP via  but not edited here)_"
 ---
 
 | -[[DAS Bridge]]- | : `bridge` connects this Mac to another machine — tmux / install / doctor / sync / agent.<br>→ [[DAS]] → [docs](hook://docs) → [DAS Bridge](hook://p/DAS%20Bridge)  |

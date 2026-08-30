@@ -1,5 +1,5 @@
 ---
-description: "a leaf component — the operate metrics"
+description: "samples throughput, cache hit-rate, and transcode load"
 ---
 
 | -[[HBR Metrics]]- | : a leaf component — the operate metrics<br>→ [[DAS]] → [[FEX]] → [[HBR\|HARBOR]] → [[HBR Operate]] → [HBR Metrics](hook://p/HBR%20Metrics)  |

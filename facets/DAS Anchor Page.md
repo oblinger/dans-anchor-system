@@ -1,5 +1,5 @@
 ---
-description: "Anchor Page facet — the format of an anchor's {slug}.md entry point"
+description: "the kinds catalog"
 group: file
 ---
 

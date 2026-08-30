@@ -1,5 +1,5 @@
 ---
-description: "example discipline — the retention rule"
+description: "honors it"
 ---
 
 | -[[FEX Retention]]- | : example discipline — the retention rule<br>→ [[DAS]] → [[examples]] → [[FEX Repo]] → [FEX Retention](hook://p/FEX%20Retention)  |

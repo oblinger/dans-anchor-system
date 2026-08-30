@@ -1,5 +1,5 @@
 ---
-description: "the reading surface — per-skill user docs, grouped by group"
+description: "user reading surface"
 ---
 
 | -[[DAS Docs]]- | : the reading surface — per-skill user docs, grouped by group<br>→ [[DAS]] → [docs](hook://docs) → [DAS Docs](hook://p/DAS%20Docs)  |

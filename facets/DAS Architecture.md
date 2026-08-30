@@ -1,5 +1,5 @@
 ---
-description: per-anchor architecture overview — anchor-folder form with subsystems; standard section order; mandatory visual diagram (Excalidraw, never ASCII); subsystem dispatch table with link convention; API detail lives in sub-docs, not the main page.
+description: "subsystem-interaction story — the sibling design facet"
 group: file
 ---
 

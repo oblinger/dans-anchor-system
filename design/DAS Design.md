@@ -1,5 +1,5 @@
 ---
-description: "the design pipeline — per-skill design docs + PRDs, grouped by group"
+description: "design pipeline"
 ---
 
 | -[[DAS Design]]- | : the design pipeline — per-skill design docs + PRDs, grouped by group<br>→ [[DAS]] → [design](hook://design) → [DAS Design](hook://p/DAS%20Design)  |

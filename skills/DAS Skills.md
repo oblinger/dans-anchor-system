@@ -6,7 +6,7 @@ description: "Skills — the `/`-invocable runbooks"
 | --- | --- |
 | Related | [[DAS Facets\|Facets]],  [[DAS Disciplines\|Disciplines]],  [[DAS Traits\|Traits]],  [[FEX\|Examples]],  [[DAS Rulesets\|Rulesets]],  [[DAS\|dans-anchor-system]],   |
 |  |  |
-|  | **SKILL GROUPS** — organized by the nine subsystems, in [[DAS]] order |
+| [[DAS]]  | **SKILL GROUPS** — organized by the nine subsystems, in  order |
 | [[DAS Anchor Design\|Anchor]]+ | [[DAS Anchor Toolkit\|Anchor Toolkit]],  [[DAS Create\|Create]],  [[DAS Migrate\|Migrate]],  [[DAS Move\|Move]],  [[DAS Publish\|Publish]],  [[DAS Streams\|Streams]],  [[DAS Yore\|Yore]],   |
 | [[DAS Hygiene Design\|Hygiene]]+ | [[DAS Audit\|Audit]],  [[DAS Dupes\|Dupes]],  [[DAS Maintain\|Maintain]],  [[DAS Rewire\|Rewire]],  [[DAS Slug Scan\|Slug Scan]],  [[DAS Tidy\|Tidy]],  [[rule/SKILL\|Rule]],   |
 | [[DAS Tracking Design\|Tracking]]+ | [[DAS Backlog\|Backlog]],  [[DAS workflow\|Workflow]],  [[DAS Messages\|Messages]],  [[DAS Ask\|Ask]],  [[DAS Groom\|Groom]],   |
@@ -70,12 +70,12 @@ description: "Skills — the `/`-invocable runbooks"
 | [[CRAFT]]  |  |
 | [[ctrl/SKILL]]  | Local environment control — persistent tmux sessions, Safari + Chrome browser automation, and screen see/drive. Four families: shell (trot/box/outbox), Safari (surf/search/jpage), Chrome CDP (cpage/cexec/cclick — drives your REAL Chrome, so it inherits your logged-in sessions), and screen (grab/click/type). Most subcommands are mapped to trigger words in CLAUDE.md. |
 | [[daybreak/SKILL]]  | Morning routine — the day's opening sequence. Run each morning to set up what the day looks like. Use when the user says "daybreak", "/daybreak", or asks to start the day. |
+| [[diagramming/SKILL]]  | Discipline for figures — the judgement half of making pictures, as distinct from the mechanics of producing them. When a picture earns its place at all, shipping the editable source beside the export, and recording stated intent so the next agent does not re-introduce what the reader already rejected. Not user-invocable; cited by /viz, /imgen, and any skill that emits a figure. |
 | [[disk/SKILL]]  | Reconcile a mirror drive (10T / 8T / BLACK) against its catalog, in both directions, plus two capacity questions. Use when the user says "check the drive for stray files", "does the drive match the catalog", "is there anything unexpected on 8T", "will BLACK still hold the master if we resync", "what would a refresh actually copy/delete", "reconcile 10T against the catalog". Not a hash checker — pairs with the existing three-drive SHA-256 verify system, doesn't replace it. |
 | [[Drawing Wisdom]]  | Accumulated judgment about drawing pictures — when a figure earns its place, what makes one readable, and the mistakes that keep recurring. The companion to the `viz` skill's mechanical instruction. |
 | [[dupes/SKILL]]  | Vault hygiene — scan for duplicate filenames; emit a confidence-ranked natural-language edit list; user instructs verbally, agent executes |
 | [[excalidraw-examples]]  |  |
 | [[docs/EXP]]  | **Remote compute** — ephemeral GPU instances via SSH + rsync + watcher (not yet under the SKA prefix). |
-| [[EXP Backlog]]  |  |
 | [[docs/EXP Experiment Flow]]  |  |
 | [[docs/EXP Experiment Template]]  |  |
 | [[docs/EXP Master Flow]]  |  |
@@ -96,9 +96,11 @@ description: "Skills — the `/`-invocable runbooks"
 | [[fix-obsidian-python-comments]]  |  |
 | [[google-sheets]]  |  |
 | [[google-slides]]  |  |
+| [[hud/SKILL]]  | Put a vault document on a HUD — one of the secondary Obsidian instances (HUD, HUD2, HUD3, HUD4) — without touching the user's primary Obsidian. HUD2/3/4 belong to the ASR2/ASR3/ASR4 seats; every other agent uses plain `glance` and only touches a HUD when the user names one. Use when the user says "glance X to the HUD", "show X on HUD3", "put this on my HUD", or when an agent needs its own display surface to show vault docs. Also covers creating more instances and repairing existing ones. |
 | [[imgen/SKILL]]  | Generate and edit images into the IMGEN anchor — each sitting is a numbered roll whose page carries one pending "Next render" plus every batch it has already produced, prompt recorded beside the images it made. Text-to-image (flux-dev) and instruction editing (flux-kontext) are wired; visible per-call cost; a pick pins the keeper. Use when the user says "/imgen", "really imgen", or asks for a picture to be generated or edited. Not for authored diagrams — that is /viz. |
 | [[inbox/SKILL]]  | Drains the current anchor's [[DAS Inbox]] — reads every PENDING entry (raw input dropped in by another agent or the user via `state drop`), integrates each one into the right planning surface (Backlog, PRD, Roadmap, Discussion, or handled in place), and marks it processed with the sanctioned status tag (`DONE` or `MOVED → {destination}`) via `state inbox-tag`. Never hand-edits the Inbox markdown directly. Use when the user says "/inbox", "drain the inbox", "check the inbox", "process the inbox", or when the status banner shows `Inbox N` with N > 0. T131 leg 3 — the drain half of the agent-inbox pattern (leg 1: `state drop`; leg 2: the `Inbox N` banner signal). |
-| [[io/SKILL]]  | External system I/O — read from and write to external applications and services. Google Workspace: Sheets, Slides, Drive, Docs. Apple: Mail, Calendar, Health. Use when the user says: "put this in sheets", "read the spreadsheet", "update the slides", "upload to drive", "read my email", "search mail for", "find that email from", "what's on my calendar", "read my calendar", "what do I have today", "pull my health data", "what's my sleep/heart rate", "check my apple health". "search my mail fast", "search all my accounts at once". Subcommands: /io gsheet, /io gslide, /io gdoc, /io gdrive, /io gmail, /io imail, /io local-mail, /io ical, /io ihealth, /io notion. |
+| [[io/SKILL]]  | External system I/O — read from and write to external applications and services. Google Workspace: Sheets, Slides, Drive, Docs. Apple: Mail, Calendar, Health. Use when the user says: "put this in sheets", "read the spreadsheet", "update the slides", "upload to drive", "read my email", "search mail for", "find that email from", "what's on my calendar", "read my calendar", "what do I have today", "pull my health data", "what's my sleep/heart rate", "check my apple health". "look up a contact", "what's their phone number", "find them in my contacts", "how do you spell their name". "search my mail fast", "search all my accounts at once". Subcommands: /io gsheet, /io gslide, /io gdoc, /io gdrive, /io gmail, /io imail, /io local-mail, /io ical, /io ihealth, /io contacts, /io excel, /io pptx, /io notion. |
+| [[io-contacts]]  |  |
 | [[io-excel]]  |  |
 | [[io-gdoc]]  |  |
 | [[io-gdrive]]  |  |
@@ -111,6 +113,7 @@ description: "Skills — the `/`-invocable runbooks"
 | [[io-imail]]  |  |
 | [[io-local-mail]]  |  |
 | [[io-notion]]  |  |
+| [[io-pptx]]  |  |
 | [[maintain/SKILL]]  |  |
 | [[md/SKILL]]  | Markdown utility verbs — produce or maintain markdown artifacts: /md file-tree (format file trees), /md toc (regenerate tables of contents), /md dispatch-table (build dispatch pages), /md cards (build cheat / summary / detail cards), /md track-changes (inline diff HTML for edits). Bare /md glances the [[DAS markdown]] discipline rules. The format-rule content moved to [[DAS markdown]] 2026-06-10 — this skill keeps utility verbs only. |
 | [[md-cards]]  |  |
@@ -135,7 +138,7 @@ description: "Skills — the `/`-invocable runbooks"
 | [skills find](hook://skills%20find)  |  |
 | [skills profile](hook://skills%20profile)  |  |
 | [skills survey](hook://skills%20survey)  |  |
-| [[SKL]]  | the skills pillar — every Claude Code skill, one folder per skill with a SKILL.md entry point |
+| [[SKL]]  | Slug marker for SKL — the DAS skills pillar; the anchor page is [[DAS Skills]] (declared by `title:` in `.anchor`). |
 | [[slug-scan/SKILL]]  |  |
 | [[snip/SKILL]]  | Capture rough text drops and iteratively refine them. Use when the user says `/snip <text>` (or the word "snip" gets auto-prefixed as `/snip` by the dictation pipeline). Three modes: (1) `/snip <text>` with no revise marker drops a new dated H2 entry with two versions stacked newest-on-top: `### version 1` (AI refinement) above `### version 0` (raw verbatim). (2) `/snip revise <instructions>` — or any args containing `snip <punct/ws> revise` somewhere — takes the current top version of the top entry, applies the instructions, and prepends the result as the next version. (3) Bare `/snip` re-refines the top version with a generic clean pass, prepending the next version. In every case the new top version is pbcopy'd to clipboard and the file is glanced. |
 | [[status-doc-template]]  |  |
@@ -153,6 +156,7 @@ description: "Skills — the `/`-invocable runbooks"
 | [[viz-pdf]]  |  |
 | [[viz-pptx]]  |  |
 | [[viz-svg]]  |  |
+| [[EXP Backlog]]  |  |
 | [[io-imail-access]]  |  |
 | [[io-calendar]]  |  |
 | [[io-calendar-access]]  |  |

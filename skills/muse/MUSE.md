@@ -7,18 +7,22 @@ description: "Voice-memo ingestion + review-and-do pipeline"
 | --- | --- |
 |  | [[Log Muse\|Log]],  [[WIRE Muse\|Wire]],   |
 | [[DAS MUSE Architecture\|Design]]  | → [[DAS MUSE Architecture\|Architecture]] — flows, action space, safety, config, build order |
-| Shape | Claude skill at `~/.claude/skills/muse/` — two sub-verbs `ingest` (headless) and `do` (in-Claude slash command) |
-| Sources (current) | [[MACAPP Just Press Record]] — Apple Watch dictation via iCloud |
-| Sources (planned) | Voice Memos, Superwhisper direct capture, ad-hoc `.m4a` drop |
-| Archive | `~/ob/kmr/Log/MUSE/` — item files land as `MUSE YYYY-MM-DD X <title>.md`, **never pruned** |
-| Log | `~/ob/kmr/Log/MUSE/Log Muse.md` — dated bullet per ingest, newest first; suppressed items appear here too (audit trail) |
-| Quick pane | `~/ob/kmr/LST/Quick.md` — MUSE prepends a bullet per ingest (raw text when transcript ≤ `MUSE_INLINE_MAX_CHARS`, default 80; else a Markdown link back to the item file). Suppressed items skip Quick. |
-| Review | Type `/muse do <path>` into the SYS Claude session; Claude reads the item, proposes an action, waits for approval. (GUI hotkey binding is designed but deferred — see [[DAS MUSE Architecture\|Architecture]] § Do flow.) |
-| Status | ✅ **Live** — `muse ingest` running, items land in `~/ob/kmr/Log/MUSE/`, Quick.md bulleted, `/muse do` slash-command available. HUD Cmd+Opt+D binding deferred (invocation is by typing the slash command). Shipped as [[F018 — MUSE — Watch-first voice-memo pipeline (ingest + do)]] on 2026-07-13. |
+| [[MACAPP Just Press Record]]  | *Sources (current)* — Apple Watch dictation via iCloud |
+| [[DAS MUSE Architecture\|Architecture]]  | *Review* — Type `/muse do <path>` into the SYS Claude session; Claude reads the item, proposes an action, waits for approval. (GUI hotkey binding is designed but deferred — see  § Do flow.) |
+| [[F018 — MUSE — Watch-first voice-memo pipeline (ingest + do)]]  | *Status* — ✅ **Live** — `muse ingest` running, items land in `~/ob/kmr/Log/MUSE/`, Quick.md bulleted, `/muse do` slash-command available. HUD Cmd+Opt+D binding deferred (invocation is by typing the slash command). Shipped as  on 2026-07-13. |
 | ... | [[F001 — Silence-aware suppression (leading-burst + capped-silence-trim + trimmed-WPS)]],  [[MUSE Backlog\|Backlog]],  [[MUSE Chores\|Chores]],  [[MUSE Inbox\|Inbox]],  [[MUSE Messages\|Messages]],  [[MUSE queries\|queries]],  [[muse/SKILL]],  [[MUSE002 - 2026-07-21 ingest faults - missed recording, duplicate items, refusal]],  [[MUSE003 - MUSE ingest is dead under launchd every drop since 2026-07-21 was]],  [[MUSE004 - The sweep cannot report its own death three silent-failure fixes]],  [[MUSE005 - Retire the per-ingest success notification (on or after 2026-08-19)]],  [[MUSE006 - Captures prepend to the top of Quick.md, landing them inside today's]],  [[MUSE007 - e2e-test.sh picks its fixture by smallest file size, so it selects]],  [[MUSE008 - Stamp addressed lumen when a recording is spoken to Lumen]],  [[MUSE009 - A successfully-ingested recording sat in.muse.failures, and the false]],   |
 
 # MUSE
 The service that turns spoken thought into acted-on knowledge. A ~~[[skills|Claude skill]]~~ with two entry points: **`muse ingest`** runs headlessly when a new voice recording lands (via `launchd`) — transcribes it, writes an item file to the permanent archive at `~/ob/kmr/Log/MUSE/`, and prepends a bullet to the [[Quick]] pane. **`/muse do <path>`** runs in Claude Code when typed with an item path — reads the item and proposes an action for the user to approve.
+
+| Card |  |
+| --- | --- |
+| **Shape** | Claude skill at `~/.claude/skills/muse/` — two sub-verbs `ingest` (headless) and `do` (in-Claude slash command) |
+| **Sources (planned)** | Voice Memos, Superwhisper direct capture, ad-hoc `.m4a` drop |
+| **Archive** | `~/ob/kmr/Log/MUSE/` — item files land as `MUSE YYYY-MM-DD X <title>.md`, **never pruned** |
+| **Log** | `~/ob/kmr/Log/MUSE/Log Muse.md` — dated bullet per ingest, newest first; suppressed items appear here too (audit trail) |
+| **Quick pane** | `~/ob/kmr/LST/Quick.md` — MUSE prepends a bullet per ingest (raw text when transcript ≤ `MUSE_INLINE_MAX_CHARS`, default 80; else a Markdown link back to the item file). Suppressed items skip Quick. |
+
 
 ## Overview
 

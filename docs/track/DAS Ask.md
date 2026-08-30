@@ -1,5 +1,5 @@
 ---
-description: "the `/ask` skill"
+description: "the skill that builds it"
 ---
 
 | -[[DAS Ask]]- | : the `/ask` skill<br>→ [[DAS]] → [docs](hook://docs) → [DAS Ask](hook://p/DAS%20Ask)  |

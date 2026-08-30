@@ -1,10 +1,13 @@
 ---
-description: "`/image` — generate an image from a prompt; sidecar, cost, presets."
+description: "`/imgen` — generate an image from a prompt, into the anchor that keeps the prompt with it"
 ---
 
 | -[[DAS Imgen]]- | : `/imgen` — generate an image from a prompt, into the anchor that keeps the prompt with it<br>→ [[DAS]] → [docs](hook://docs) → [DAS Imgen](hook://p/DAS%20Imgen)  |
 | --- | --- |
-| Related | [[skills/imgen/SKILL.md\|SKILL]],  [[IMGEN]] (where output lands),  [[DAS Viz\|Viz]] (authored counterpart), |
+| Related |  |
+| [[skills/imgen/SKILL.md\|SKILL]]  |  |
+| [[IMGEN]]  | where output lands |
+| [[DAS Viz\|Viz]]  | authored counterpart |
 | ... |  |
 
 # DAS Imgen

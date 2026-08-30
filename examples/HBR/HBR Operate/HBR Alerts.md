@@ -1,5 +1,5 @@
 ---
-description: "a leaf component — the operate alerts"
+description: "fires notifications when a metric crosses its threshold"
 ---
 
 | -[[HBR Alerts]]- | : a leaf component — the operate alerts<br>→ [[DAS]] → [[FEX]] → [[HBR\|HARBOR]] → [[HBR Operate]] → [HBR Alerts](hook://p/HBR%20Alerts)  |

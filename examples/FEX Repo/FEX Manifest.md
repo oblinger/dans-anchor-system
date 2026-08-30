@@ -1,11 +1,15 @@
 ---
-description: "the Manifest facet definition"
+description: "it carries"
 ---
 
 | -[[FEX Manifest]]- | : the Manifest facet definition<br>→ [[DAS]] → [[examples]] → [[FEX Repo]] → [FEX Manifest](hook://p/FEX%20Manifest)  |
 | --- | --- |
 | Anchor | [[FEX Repo]] (parent) |
-| Related | [[FEX Snapshot]] (writes it),  [[R-fex-manifest]] (its rules),  [[FEX Bundle]] (carries it),  [[DAS Facet]] (the facet spec), |
+| Related |  |
+| [[FEX Snapshot]] | writes it |
+| [[R-fex-manifest]] | its rules |
+| [[FEX Bundle]] | carries it |
+| [[DAS Facet]] | the facet spec |
 | ... |  |
 
 # FEX Manifest

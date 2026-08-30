@@ -5,7 +5,8 @@ description: "Harbor's design — PRD through features, in design-dispatch order
 | -[[HBR Design]]- | → [[DAS]] → [[FEX]] → [[HBR\|HARBOR]] → [HBR Design](hook://p/HBR%20Design)  |
 | --- | --- |
 | Anchor | [[HBR]] (parent) |
-| Related | [[HBR Components]],  [[DAS Design Docs]],  [[HBR Architecture]] (root-level sibling folder), |
+| Related | [[HBR Components]],  [[DAS Design Docs]],   |
+| [[HBR Architecture]]  | root-level sibling folder |
 | Members | [[HBR PRD\|PRD]],  [[HBR UX Design\|UX Design]],  [[HBR CLI\|CLI]],  [[HBR API Design\|API]],  [[HBR Decisions\|Decisions]],  [[HBR Testing\|Testing]],  [[HBR Roadmap\|Roadmap]],  [[HBR Features\|Features]],   |
 | [[HBR PRD]]  |  |
 | [[HBR UX Design]]  |  |

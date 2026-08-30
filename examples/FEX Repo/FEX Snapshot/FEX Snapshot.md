@@ -1,12 +1,16 @@
 ---
-description: "`/snapshot` — capture a labeled, restorable snapshot bundle of the repo"
+description: "creates it"
 traits: [Skill]
 ---
 
 | -[[FEX Snapshot]]- | : example skill — the `/snapshot` capture skill<br>→ [[DAS]] → [[FEX]] → [[FEX Repo]] → [FEX Snapshot](hook://p/FEX%20Snapshot)  |
 | --- | --- |
 | Anchor | [[FEX Repo]] (parent) |
-| Related | [[FEX Snapshot/SKILL\|SKILL]] (the runbook),  [[FEX Manifest]] (what it writes),  [[FEX Retention]] (what sweeps its bundles),  [[DAS Skill]] (the skill spec), |
+| Related |  |
+| [[FEX Snapshot/SKILL\|SKILL]]  | the runbook |
+| [[FEX Manifest]]  | what it writes |
+| [[FEX Retention]]  | what sweeps its bundles |
+| [[DAS Skill]]  | the skill spec |
 | ... |  |
 
 # FEX Snapshot - /snapshot

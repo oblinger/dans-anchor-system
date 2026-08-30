@@ -1,5 +1,5 @@
 ---
-description: MUSE architecture + implementation plan — skill shape, ingest flow, do flow, action space, safety, config, build order.
+description: "*Review* — Type `/muse do <path>` into the SYS Claude session; Claude reads the item, proposes an action, waits for approval. (GUI hotkey binding is designed but deferred — see  § Do flow.)"
 ---
 
 :>> [[DAS]] → [design](hook://design) → [DAS MUSE Architecture](hook://p/DAS%20MUSE%20Architecture)

@@ -6,11 +6,20 @@ group: folder
 | -[[DAS Rocks]]- | → [[DAS]] → [[FCT]] → [DAS Rocks](hook://p/DAS%20Rocks)  |
 | --- | --- |
 | Related | [[Rocks]],  [[DAS Agenda]],  [[DAS Roadmap]],  [[DAS Backlog]],  [[VEC Mandate]],   |
-| Examples | [[HBR Rocks\|worked instance]],  [[Rocks\|the root aggregator]] (differently shaped — see § The root is not an instance) |
+| Examples |  |
+| [[HBR Rocks\|worked instance]]  |  |
+| [[Rocks\|the root aggregator]]  | differently shaped — see § The root is not an instance |
 | Rules | [[R-rocks]],   |
 
 # DAS Rocks
 The big chunks an anchor is trying to move — an optional `{slug} Rocks/` folder holding one file per rock, ranked by a hand-arranged control file beside it, forming one node of a vault-wide tree whose root is the global [[Rocks]].
+
+| Facet | Grain | What it answers |
+|---|---|---|
+| [[DAS Agenda\|Agenda]] | the whole anchor | why this anchor exists and where it is going |
+| **Rocks** | weeks → a quarter | the big chunks worth naming, ranked by **commitment** |
+| [[DAS Roadmap\|Roadmap]] | ordered milestones | what happens in what **sequence** |
+| [[DAS Backlog\|Backlog]] | a work item | what is being done **now** |
 
 **TLDR** — a **rock** is a multi-week-to-quarter chunk of work an anchor is trying to move. Rocks are the `rock` kind of [[DAS Stone|stone]], so the folder, the numbering, the control file and propagation along the feed DAG are that facet's and are not restated here; this page holds what is true of **rocks specifically**. The facet materializes as a folder, `{slug} Track/{slug} Rocks/`, holding one numbered file per rock, ranked by the control file `{slug} Rock.md` beside it. **Cardinality: one** — at most one Rocks folder per anchor, and elective, so 0-or-1 in practice. Rocks form a **tree** — each rocks folder is a node, and **promotion** up the tree is the main action, ending at the global [[Rocks]]. Every rock is **owned by an anchor**; the global list never holds an unowned one. Tier vocabulary inside the control file is deliberately unspecified.
 
@@ -26,12 +35,7 @@ The anchor's `{slug} Track.md` dispatch table links the folder (`R-rocks-08`).
 
 Four rungs of the planning ladder, coarse to fine. Each exists because the one above it cannot express something:
 
-| Facet | Grain | What it answers |
-|---|---|---|
-| [[DAS Agenda\|Agenda]] | the whole anchor | why this anchor exists and where it is going |
-| **Rocks** | weeks → a quarter | the big chunks worth naming, ranked by **commitment** |
-| [[DAS Roadmap\|Roadmap]] | ordered milestones | what happens in what **sequence** |
-| [[DAS Backlog\|Backlog]] | a work item | what is being done **now** |
+The four rungs are the table at the top of the page.
 
 The rung Rocks occupies is the one where **a chunk can be named without being committed to**. A Roadmap milestone is a promise about order; a Backlog row is a promise about now. Neither can hold *"this is real, it matters, and nobody has agreed to do it."* That state is most of what long-range planning actually consists of, and Rocks is where it lives.
 

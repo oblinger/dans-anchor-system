@@ -1,5 +1,5 @@
 ---
-description: "dated feature specs for the Warden engine"
+description: "feature specs"
 ---
 | -[[Warden Features]]- | : dated feature specs for the Warden engine<br>→ [[DAS]] → [[Warden]] → [[Warden Track]] → [Warden Features](hook://p/Warden%20Features)  |
 | --- | --- |

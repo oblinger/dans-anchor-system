@@ -1,5 +1,5 @@
 ---
-description: "the Facet primitive — what a facet is and how to write its spec"
+description: "the facet spec"
 group: file
 ---
 

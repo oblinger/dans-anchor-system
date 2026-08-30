@@ -1,11 +1,13 @@
 ---
-description: "a leaf component — the operate backup"
+description: "snapshots the catalog database and config on a schedule"
 ---
 
 | -[[HBR Backup]]- | : a leaf component — the operate backup<br>→ [[DAS]] → [[FEX]] → [[HBR\|HARBOR]] → [[HBR Operate]] → [HBR Backup](hook://p/HBR%20Backup)  |
 | --- | --- |
 | Anchor | [[HBR Operate]] (parent) |
-| Related | [[HBR Metrics]] (reports last-run age),  [[HBR Alerts]] (fires on a missed run), |
+| Related |  |
+| [[HBR Metrics]] | reports last-run age |
+| [[HBR Alerts]] | fires on a missed run |
 | ... |  |
 
 # HBR Backup

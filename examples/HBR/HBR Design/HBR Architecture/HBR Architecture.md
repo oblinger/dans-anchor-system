@@ -1,5 +1,5 @@
 ---
-description: "system architecture"
+description: "root-level sibling folder"
 ---
 
 | -[[HBR Architecture]]- | → [[DAS]] → [[FEX]] → [[HBR\|HARBOR]] → [[HBR Design\|HARBOR DESIGN]] → [HBR Architecture](hook://p/HBR%20Architecture)  |

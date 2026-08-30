@@ -7,7 +7,7 @@ group: file, folder
 | --- | --- |
 | Related | [[DAS Log]],  [[DAS WP]],  [[DAS stream]],  [[DAS Folder]],  [[DAS file-association]],  [[DAS Template Files]],   |
 | Examples | [[FEX At Entity\|worked instance — folder form, Drafted + Meet]],  [[@David Chee\|live instance — mail-shaped LOG]],   |
-| Template | [[_@{{PERSON_NAME}} Template\|_@{{PERSON_NAME}} Template]] — the person form; copied on mint |
+| [[_@{{PERSON_NAME}} Template\|_@{{PERSON_NAME}} Template]]  | the person form; copied on mint |
 | Rules | [[R-at-entity]],  [[R-stream]],   |
 
 # DAS At Entity

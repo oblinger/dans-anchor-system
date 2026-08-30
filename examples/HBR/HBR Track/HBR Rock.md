@@ -1,5 +1,5 @@
 ---
-description: HBR Rock — Harbor's control file, the hand-arranged ranking of its rocks
+description: "*Control* — the ranked list"
 ---
 -[[HBR Rock|HBR]]-
 ACTIVE

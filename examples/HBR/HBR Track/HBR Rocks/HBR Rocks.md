@@ -4,9 +4,9 @@ description: "Harbor's big chunks of work — one file per rock, ranked from HBR
 
 | -[[HBR Rocks]]- | → [[DAS]] → [[FEX]] → [[HBR\|HARBOR]] → [[HBR Track\|HARBOR TRACK]] → [HBR Rocks](hook://p/HBR%20Rocks)  |
 | --- | --- |
-| Control | [[HBR Rock]] — the ranked list, |
+| [[HBR Rock]]  | *Control* — the ranked list |
 | Related | [[DAS Stone]],  [[DAS Rocks]],  [[HBR Roadmap]],  [[HBR Backlog]],   |
-| ... | [[HBR R0002]],   |
+| ... | [[HBR R0001]],  [[HBR R0002]],  [[HBR R0003]],   |
 
 # HBR Rocks
 The big chunks Harbor is trying to move — one file each. The **ranking** lives next door in [[HBR Rock]]; this folder just holds the rocks.

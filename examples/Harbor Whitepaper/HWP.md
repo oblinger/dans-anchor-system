@@ -1,11 +1,14 @@
 ---
 traits: [Paper]
-description: example Paper anchor — a long-form writeup revised across dated versions
+description: "example Paper anchor — a long-form writeup revised across dated versions"
 ---
 
 | -[[HWP]]- | : Harbor Whitepaper — example Paper anchor — a long-form writeup revised across dated versions<br>→ [[DAS]] → [[FEX]] → [HWP](hook://p/HWP)  |
 | --- | --- |
-| Related | [[HBR]] (the project it describes),  [[Paper Anchor]] (the trait it illustrates),  [[FEX]] (the example gallery), |
+| Related |  |
+| [[HBR]]  | the project it describes |
+| [[Paper Anchor]]  | the trait it illustrates |
+| [[FEX]]  | the example gallery |
 | ... | [[HWP 2026-05-20\|2026-05-20]],  [[HWP 2026-06-01\|2026-06-01]],   |
 
 # HWP - Harbor Whitepaper

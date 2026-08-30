@@ -1,13 +1,13 @@
 ---
-description: "the Stencil language — three constructs and four defaults"
+description: "*Language* — the grammar: three constructs, four defaults"
 ---
 
 | -[[STEN Language]]- | : the Stencil language — three constructs and four defaults<br>→ [[DAS]] → [[STEN]] → [STEN Language](hook://p/STEN%20Language)  |
 | --- | --- |
-| Corpus | [[Template Examples]] — the seven cases every construct is derived from |
-| Spec | [[TINK303 - Template DSL - one pattern language for facets, templates, and sections\|F303]] — the commissioning feature |
-| Discussion | [[STEN Language Discussions\|Discussions]] — dated trade-off threads behind the grammar |
-| ... | [[STEN Restated Corpus]],  [[STEN Track]],   |
+| [[Template Examples]]  | *Corpus* — the seven cases every construct is derived from |
+| [[TINK303 - Template DSL - one pattern language for facets, templates, and sections\|F303]] | *Spec* — the commissioning feature |
+| [[STEN Language Discussions\|Discussions]] | *Discussion* — dated trade-off threads behind the grammar |
+| ... | [[STEN Restated Corpus\|Restated Corpus]],  [[STEN Track\|Track]],   |
 
 # Stencil Language
 The whole language: three constructs, four defaults, and one nesting rule.

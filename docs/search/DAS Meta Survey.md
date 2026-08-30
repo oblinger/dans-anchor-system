@@ -1,5 +1,5 @@
 ---
-description: "high-rigor three-stage form of /survey for high-stakes comparisons"
+description: "*Meta-survey* — high-rigor three-stage form (sources × dimensions × items, cell-certainty notation)"
 ---
 
 | -[[DAS Meta Survey]]- | : high-rigor three-stage form of /survey for high-stakes comparisons<br>→ [[DAS]] → [docs](hook://docs) → [DAS Meta Survey](hook://p/DAS%20Meta%20Survey)  |

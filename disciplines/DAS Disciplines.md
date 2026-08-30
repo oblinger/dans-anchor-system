@@ -6,7 +6,7 @@ description: "cross-cutting concepts the agent reads"
 | --- | --- |
 | Related | [[DAS Skills\|Skills]],  [[DAS Facets\|Facets]],  [[DAS Traits\|Traits]],  [[FEX\|Examples]],  [[DAS Rulesets\|Rulesets]],  [[DAS Disciplines Brief\|Brief]],  [[DAS\|dans-anchor-system]],   |
 |  |  |
-|  | **DISCIPLINES** — organized by the nine subsystems, in [[DAS]] order |
+| [[DAS]]  | **DISCIPLINES** — organized by the nine subsystems, in  order |
 | [[DAS Anchor Design\|Anchor]]+ | [[DAS anchor-dag\|anchor-dag]],  [[DAS Linked Mode\|Linked Mode]],  [[DAS progressive-disclosure\|progressive-disclosure]],  [[DAS spine\|spine]],  [[DAS heart\|heart]],  [[DAS orientation-line\|orientation-line]],  [[DAS electric-zone\|electric-zone]],   |
 | [[DAS Tracking Design\|Tracking]]+ | [[DAS workflow\|workflow]],  [[DAS ask-format\|ask-format]],  [[DAS verification\|verification]],  [[DAS granularity\|granularity]],   |
 | [[DAS Code Design\|Code]]+ | [[DAS code-repo\|code-repo]],  [[DAS rust\|rust]],   |

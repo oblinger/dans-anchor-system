@@ -4,12 +4,16 @@ description: "figure-drafting techniques compared across a fixed reference set"
 
 | -[[Viz Bench]]- | : figure-drafting techniques compared across a fixed reference set<br>→ [[DAS]] → [[FEX]] → [Viz Bench](hook://p/Viz%20Bench)  |
 | --- | --- |
-| Related | ~~[[viz]]~~ (the skill under test),  [[R-diagram]] / [[R-svg-jiggle]] (the Scribe rules),  ~~[[drawio-skill]]~~ (the Draw.io engine) |
 | Members | [[Gallery — Draw.io\|Draw.io Gallery]],  [[Gallery\|Scribe + D2 Gallery]],   |
 | ... | [[01 — Layered system architecture]],  [[02 — Linear data pipeline (ETL)]],  [[03 — Sequence diagram]],  [[04 — State machine]],  [[05 — Entity-relationship]],  [[08 — Dependency DAG (dense)]],  [[09 — Flowchart with decisions]],  [[10 — Class diagram]],  [[12 — Swimlane process]],  [[ deployment topology]],  [[ org tree]],  [[ radial]],   |
 
 # Viz Bench
 A benchmark for **figure-drafting techniques**: one fixed set of reference figures, each drafted by several techniques from a recorded starting point — so you can click any cell and see *what went in* (the spec, JSON, or natural text) and *what came out* (the rendered figure) for each approach, and pick the one that works best.
+
+| Card |  |
+| --- | --- |
+| **Related** | ~~[[viz]]~~ (the skill under test),  [[R-diagram]] / [[R-svg-jiggle]] (the Scribe rules),  ~~[[drawio-skill]]~~ (the Draw.io engine) |
+
 
 ## Two axes being compared
 

@@ -4,7 +4,7 @@ description: "{{one line naming the big chunks of work this file tracks}}"
 
 | -[[{slug} Rocks]]- | : {{one line naming the big chunks of work this file tracks}}<br>→ [[DAS]] → [[Templates]] → [{slug} Rocks](hook://p/{slug}%20Rocks)  |
 | --- | --- |
-| Control | [[{slug} Rock]] — the ranked list, |
+| [[{slug} Rock]]  | *Control* — the ranked list |
 | Related | [[DAS Rocks]],   |
 | ... |  |
 

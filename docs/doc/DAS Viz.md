@@ -1,5 +1,5 @@
 ---
-description: "`/viz` produces visual artifacts — diagrams, charts, mockups, slides, formatted docs."
+description: "authored counterpart"
 ---
 
 | -[[DAS Viz]]- | : `/viz` produces visual artifacts — diagrams, charts, mockups, slides, formatted docs.<br>→ [[DAS]] → [docs](hook://docs) → [DAS Viz](hook://p/DAS%20Viz)  |

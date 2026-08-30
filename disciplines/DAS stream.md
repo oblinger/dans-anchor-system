@@ -1,14 +1,6 @@
 ---
 name: stream
-description: >
-  Discipline. The DATED specialization of [[DAS file-association]] — streams of
-  **dated, typed, reverse-chronological entries** attached to a parent doc or
-  anchor (Discussion, Log). Placement (the three methods), naming, one-way
-  migration, linkage, and the one-form invariant are inherited from
-  [[DAS file-association]]; this discipline adds only the dated extras: newest-first
-  ordering, prepend semantics, ISO-date entry-file naming, and the
-  parallel-entry-skeleton invariant. Cited by every facet whose content is a
-  dated stream; the facet declares which methods it supports and which is default.
+description: "*Kind* — dated-entry stream (); one file per decision"
 tools: Read
 user_invocable: false
 group: slot

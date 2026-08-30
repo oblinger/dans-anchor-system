@@ -1,5 +1,5 @@
 ---
-description: the repo's complete source file tree, every file linked to its module doc (monospace)
+description: "the realized source tree this designs"
 group: file
 ---
 

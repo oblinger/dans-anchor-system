@@ -1,5 +1,5 @@
 ---
-description: "the design-pipeline doc facets (the `{slug} Design/` contents)"
+description: "parent group"
 ---
 
 | -[[DAS Design Docs]]- | → [[DAS]] → [[FCT]] → [DAS Design Docs](hook://p/DAS%20Design%20Docs)  |

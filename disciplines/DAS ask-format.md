@@ -8,7 +8,8 @@ group: discipline
 | -[[DAS ask-format]]- | : Discipline. The format for any user-actionable surface an agent writes — Questions, Verifies, à la carte items, and the phrases that close them.<br>→ [[DAS]] → [[disciplines]] → [DAS ask-format](hook://p/DAS%20ask-format)  |
 | --- | --- |
 | Related | [[SKA ask]],  [[SKA feature]],  [[SKA groom]],  [[SKA crank]],  [[DAS Backlog]] (§ Numbering policy),  [[DAS Disciplines\|Disciplines]], |
-| Rules | [[audit q]] (enforces it), |
+| Rules | ~~[[audit q]]~~ (enforces it), |
+| ... | [[DAS anchor-dag]],  [[DAS code-repo]],  [[DAS Disciplines Brief]],  [[DAS electric-zone]],  [[DAS feed]],  [[DAS file-association]],  [[DAS formats]],  [[DAS granularity]],  [[DAS heart]],  [[DAS Linked Mode]],  [[DAS markdown]],  [[DAS mode]],  [[DAS orientation-line]],  [[DAS progressive-disclosure]],  [[DAS role]],  [[DAS rust]],  [[DAS spine]],  [[DAS stream]],  [[DAS technical-answer]],  [[DAS verification]],  [[DAS workflow]],   |
 
 # DAS ask-format
 The layout discipline for any user-actionable surface an agent writes — a pending Question, a Verification, an à la carte item, and the resolution or acceptance phrase that closes it.
@@ -389,7 +390,7 @@ The user can name a subset: *"accept the first 5 resolutions"* / *"the QFix reso
 | **C11** — Verify four-piece | Every `Verify` row that's not the trivial one-line form has all four sub-bullets: what-verified / what's-left / why-human / expected-output. | Report only. |
 | **C12** — Verify-by has rationale | Every `[Verify-by YYYY-MM-DD]` row body contains a *"Naturally exercised by: …"* line. | Report only. |
 
-`/audit q` is auto-wired as a post-condition into `/ask`, `/groom`, `/mint`, `/finalize`, `/feature` (per [[F076]] Q6). Adding the C6–C11 rules means every caller enforces the discipline automatically.
+`/audit q` is auto-wired as a post-condition into `/ask`, `/groom`, `/mint`, `/finalize`, `/feature` (per ~~[[F076]]~~ Q6). Adding the C6–C11 rules means every caller enforces the discipline automatically.
 
 
 ## Pre-ask self-check — six guidelines (per F105 + B-stop-asking-trivial-checks)

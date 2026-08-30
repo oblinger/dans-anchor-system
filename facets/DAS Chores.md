@@ -6,7 +6,7 @@ group: file
 | -[[DAS Chores]]- | → [[DAS]] → [[FCT]] → [DAS Chores](hook://p/DAS%20Chores)  |
 | --- | --- |
 | Related | [[DAS Backlog]],  [[DAS Query]],  [[DAS Audit]],  [[DAS Track]],   |
-| Examples | [[TINK Chores\|first instance]] (minted with the F332 QFix extraction) |
+| [[TINK Chores\|first instance]]  | *Examples* — minted with the F332 QFix extraction |
 | Rules | [[R-chores]],   |
 
 # DAS Chores

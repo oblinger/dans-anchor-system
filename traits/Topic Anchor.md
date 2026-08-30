@@ -1,3 +1,6 @@
+---
+description: "the trait it illustrates"
+---
 # Topic Anchor
 
 The Topic Anchor trait — a no-code, evergreen anchor that lives inside the Obsidian vault and serves as a routing hub for sub-topics or content pages.

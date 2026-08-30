@@ -1,5 +1,5 @@
 ---
-description: "the Skill primitive — SKILL.md entry-point structure and conventions"
+description: "the skill facet"
 group: file
 ---
 

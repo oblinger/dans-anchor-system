@@ -1,6 +1,6 @@
 ---
 traits: [Code]
-description: example project anchor — a designed software project with a grouped component tree
+description: "the project it describes"
 ---
 
 | -[[HBR]]- | : Harbor — example project anchor — a designed software project with a grouped component tree<br>→ [[DAS]] → [[FEX]] → [HBR](hook://p/HBR)  |

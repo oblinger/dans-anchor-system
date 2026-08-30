@@ -1,5 +1,5 @@
 ---
-description: "The anchor traits — declarable specializations of an anchor"
+description: "the design-tree indexes"
 ---
 
 | -[[DAS Traits]]- | : The anchor traits — declarable specializations of an anchor<br>→ [[DAS]] → [[traits]] → [DAS Traits](hook://p/DAS%20Traits)  |

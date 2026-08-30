@@ -1,5 +1,6 @@
 ---
 kind: disk
+description: "both show the two placeholder forms"
 ---
 # {{DISK_LABEL}}
 

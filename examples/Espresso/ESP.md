@@ -1,5 +1,5 @@
 ---
-description: "Slug marker for ESP — the Espresso example collection; the anchor page is [[Espresso]]."
+description: "Espresso — example topic collection (≤ 15 members) — notes on pulling espresso"
 ---
 
 # ESP
