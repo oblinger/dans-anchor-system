@@ -15,7 +15,7 @@ The Design folder facet — marks an anchor as following the designed-lifecycle 
 
 **Linkage** — this facet's existence ⟺ the anchor has been architected by the [[architect]] skill; the two share one design folder, [[DAS Architect Design]] (hosted on the behavioral core), reachable from either page (§ What the folder's existence claims).
 
-**TLDR** — The Design facet is triggered by the **existence of a `{slug} Design/` folder** (not by any `.anchor` trait field). When the folder exists, three children are required (PRD, Architecture, Testing), several others are recommended, and the `/design` skill operates on the anchor. Cardinality: **one per anchor** — an anchor has at most one Design folder. The embedded `R-design` ruleset encodes the auditable rules; `# BRIEF` is the agent-maintenance guide.
+**TLDR** — The Design facet is triggered by the **existence of a `{slug} Design/` folder** (not by any `.anchor` trait field). When the folder exists, one child is required — the PRD — and every other child (Architecture, Testing, UX, API, …) earns its keep by having content (Dan, 2026-08-29, [[TINK Backlog#^T625|T625]]); the `/design` skill operates on the anchor. Cardinality: **one per anchor** — an anchor has at most one Design folder. The embedded `R-design` ruleset encodes the auditable rules; `# BRIEF` is the agent-maintenance guide.
 
 The Design facet is the **structural marker** that an anchor follows the designed-lifecycle convention. **If `{slug} Design/` exists, the anchor is in design-mode** — `/design` operates on it, the PRD → UX Design → API Design → Architecture → Testing → Decisions → Roadmap pipeline applies, and the design sub-facets become the canonical homes for what the anchor *is* and *how it works*.
 
@@ -41,8 +41,8 @@ The Design folder is an anchor folder with the standard structure:
 ├── .anchor                       ← folder-anchor marker (empty or YAML)
 ├── {slug} Design.md              ← dispatch page; anchor file (matches folder name)
 ├── {slug} PRD.md                 ← REQUIRED — product requirements (per DAS PRD). May be a folder.
-├── {slug} Architecture.md        ← REQUIRED — system architecture (per DAS Architecture). May be a folder.
-├── {slug} Testing.md             ← REQUIRED — strategy + proposed-tests overview (per DAS Testing)
+├── {slug} Architecture.md        ← when the solution has structure worth drawing (per DAS Architecture). May be a folder.
+├── {slug} Testing.md             ← when testing is a discipline of its own; otherwise the PRD indicates it (per DAS Testing)
 ├── {slug} Decisions.md           ← RECOMMENDED — load-bearing recorded decisions (per DAS Decisions)
 ├── {slug} Roadmap.md             ← RECOMMENDED — sequencing-design: milestones + ordering (per DAS Roadmap)
 ├── {slug} Features/              ← RECOMMENDED — per-feature design docs F<NNN> — <title>.md (per DAS Features)
@@ -76,11 +76,11 @@ Three buckets, split by **who reads them and why** — only the first lives in `
 
 **Required** when the Design folder exists:
 
-| Child | Facet | Why required |
+| Child | Facet | Required? |
 |---|---|---|
-| `{slug} PRD.md` | [[DAS PRD]] | What is being built. Every designed anchor needs a PRD; without one, "designed" has no anchor. |
-| `{slug} Architecture.md` | [[DAS Architecture]] | How it's structured. Decoupling design from architecture is fine in spirit but in practice every designed project has a structural story; making it required keeps the spine honest. |
-| `{slug} Testing.md` | [[DAS Testing]] | How we know it works. The verification contract; every designed project commits to one. |
+| `{slug} PRD.md` | [[DAS PRD]] | **Yes.** What is being built and what it is for. Every designed anchor needs a PRD; without one, "designed" has no anchor — and a thing that deserves to exist always has an answer to *what is this for*. The PRD also **indicates testing**: inline, by a spine entry to `{slug} Testing.md`, or an explicit *"no meaningful test yet, because X"*. |
+| `{slug} Architecture.md` | [[DAS Architecture]] | When the solution has enough structure to merit one. Every designed project eventually has a structural story; the document appears when it does, never to complete a set. |
+| `{slug} Testing.md` | [[DAS Testing]] | When testing is a discipline of its own. Otherwise the PRD's testing indication is the verification contract. |
 
 **Recommended** (encouraged but not enforced):
 
@@ -105,7 +105,7 @@ Three buckets, split by **who reads them and why** — only the first lives in `
 
 - The `{slug} Design/` folder + `.anchor` marker
 - The dispatch page `{slug} Design.md` with the standard dispatch-table shape
-- The three required children (PRD, Architecture, Testing) each with their required-section spine (H1 + description:: + dispatch + required H2 stubs), bodies empty
+- The required child (PRD) with its required-section spine (H1 + description:: + dispatch + required H2 stubs), body empty; Architecture and Testing only when asked for
 - The recommended `{slug} Decisions.md` with intro paragraph + placeholder
 - Updates `{slug} Track/{slug} Status.md` (creating it if absent) — all design facets initialized to `none`
 
@@ -159,8 +159,8 @@ Any anchor that commits to the designed-lifecycle convention.
 
 - [[DAS Design Dispatch]] — distinct facet covering the `{slug} Design.md` dispatch-page format
 - [[DAS PRD]] — required child facet
-- [[DAS Architecture]] — required child facet
-- [[DAS Testing]] — required child facet
+- [[DAS Architecture]] — child facet, present when there is structure to record
+- [[DAS Testing]] — child facet, present when testing is its own discipline; otherwise the PRD indicates testing
 - [[DAS Decisions]] — recommended child facet
 - [[DAS Status]] — `{slug} Status.md` tracks design-phase completeness
 - [[design]] — orchestrator skill; gate moved from Code-trait check to Design-folder check 2026-06-10

@@ -14,14 +14,14 @@ If `{anchor}/{slug} Design/` exists, the anchor is in design-mode. The `code` tr
 
 **Why:** structure is honest; trait fields can drift. Folder existence is observable.
 
-### RULE R-design-02 — Required children present when folder exists (checked)
-check:: design_folder_children PRD Architecture Testing
+### RULE R-design-02 — The PRD is present when the folder exists; every other child earns its keep (checked)
+check:: design_folder_children PRD
 
-When `{slug} Design/` exists, the folder contains at minimum: `{slug} Design.md`, `{slug} PRD.md`, `{slug} Architecture.md`, `{slug} Testing.md`.
+When `{slug} Design/` exists, it contains `{slug} Design.md` (the spine — R-spine) and `{slug} PRD.md` (or the `{slug} PRD/` folder form). Nothing else is required: `{slug} Architecture.md`, `{slug} Testing.md` and the optional children appear when there is content for them, never to complete a set.
 
-**Check pattern:** for each existing Design folder, assert the four files exist (or `{slug} Architecture/` folder form, per CAB Architecture).
+**Check pattern:** for each existing Design folder, assert the PRD exists as a file or a folder.
 
-**Why:** these three children carry the load-bearing design content. Missing any of them means the anchor advertises a design process it doesn't deliver.
+**Why:** ruled by Dan 2026-08-29 ([[TINK Backlog#^T625|TINK T625]]): *"the design rule should simply say documents earn their keep by need, and the only thing that's not optional is the PRD."* A thing that deserves to exist always has an answer to *what is this for*, so requiring the PRD costs nothing legitimate and catches exactly the case worth catching — something built that nobody can state the purpose of. An architecture earns its keep once the solution has enough structure to merit one. Until this day the rule demanded all four and [[Agent Recipes]] said the opposite (*"a file appears when it has content, never to complete the set"*); every agent Design folder in the vault failed it, owing fifteen documents between them that nobody was going to write. **Testing is still required, but not as a sibling document**: the PRD must *indicate* it — an inline H2 when narrow, a spine entry to `{slug} Testing.md` when it is a discipline of its own, or an explicit *"no meaningful test yet, because X"*, which is a legal answer (the `/audit q` precedent: `None` is a real recommendation, *empty* is the author not having tried). That obligation lives in [[R-prd]], where the PRD's own shape is checked, not here.
 
 ### RULE R-design-03 — Dispatch page lists every present child (sampled)
 

@@ -108,6 +108,14 @@ The PRD's top-of-doc dispatch table contains a row whose wiki-link target points
 
 **Why:** Stories are the "what does this product DO for users" of the PRD — readers landing on the PRD need a one-click jump to them without scrolling through Overview / Design Workflow / Goals first. Proper-name display keeps the dispatch table internally consistent; bare "Stories" loses the anchor prefix that every other row carries.
 
+### RULE R-prd-11 — The PRD indicates testing (stated)
+
+Every PRD says how we would know the thing is working. The shape is the author's call: an inline H2 when the test is narrow; a spine entry to `{slug} Testing.md` when testing is a discipline of its own; or an explicit *"no meaningful test yet, because X"*. What is not legal is silence.
+
+**Check pattern:** stated for now. When checked, the assertion is that the PRD's body carries a testing H2, or its spine links `{slug} Testing`, or the body contains the literal phrase *no meaningful test yet*.
+
+**Why:** ruled by Dan 2026-08-29 with the R-design-02 change ([[TINK Backlog#^T625|TINK T625]]): `{slug} Testing.md` stopped being a required sibling, and the obligation it carried moved here rather than disappearing. *"None yet, because X"* is a legal answer on the `/audit q` precedent — `None` is a real recommendation, *empty* is the author not having tried — because a criterion forced where none exists produces a fabricated test, and a fabricated test is worse than none: it gets believed. The minimum PRD answers three questions — what is it for · what is out of scope · how would we know it is working (or why we cannot say yet). The middle one keeps the first falsifiable.
+
 ## Adoption
 
 Armed by **both** executing umbrellas: [[R-doc]], which `/audit doc` and the on-write doc-fire resolve, and [[R-anchor]], which `/audit anchor` resolves. Being named by [[R-facet]] is catalog membership, not adoption — that umbrella sits outside the `R-doc`/`R-anchor` closure `audit-plan.py` resolves, so an `include::` there arms nothing ([[TINK Backlog#^T208|T208]]).

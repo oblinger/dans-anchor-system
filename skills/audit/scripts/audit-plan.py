@@ -8700,13 +8700,46 @@ def run_checker(check: str, target: Path, anchor_root: Path) -> tuple[str, str]:
         return "error", f"{type(e).__name__}: {e}"
 
 
+# How far into an anchor-dir target the verdict cache looks. Two levels: the
+# root's children AND the members of its facet folders (`{slug} Design/`,
+# `{slug} Track/`). T625 (2026-08-29): depth one hashed only the root's child
+# NAMES, so `R-design-02` — which inspects `{slug} Design/` — kept serving a
+# cached `fail` after `SPARKS PRD.md` was written inside it. Touching files,
+# waiting out the watcher and `ha --rescan` all changed nothing, because
+# nothing at the root had a new name. Every `anchor`-scope checker that reads
+# into a facet folder shares the key, so the key is what is fixed.
+_ANCHOR_HASH_DEPTH = 2
+
+
 def _content_hash(tp: Path) -> str:
-    """Content hash of a target — file bytes, or (for an anchor-dir target) its
-    sorted child-name list (the structure a `anchor`-scope checker inspects)."""
+    """Content hash of a target — file bytes, or (for an anchor-dir target) the
+    (name, size, mtime) of every entry to `_ANCHOR_HASH_DEPTH`, so an edit or
+    an arrival inside a facet folder invalidates the anchor's cached verdicts.
+    Hidden entries are skipped except `.anchor`, whose `slug:` the checkers
+    read. Cheap: an anchor root plus its facet folders is tens of entries."""
     try:
         if tp.is_file():
             return hashlib.sha256(tp.read_bytes()).hexdigest()[:12]
-        return hashlib.sha256(str(sorted(p.name for p in tp.iterdir())).encode()).hexdigest()[:12]
+        sig: list[str] = []
+
+        def walk(d: Path, depth: int) -> None:
+            for p in sorted(d.iterdir(), key=lambda x: x.name):
+                if p.name.startswith(".") and p.name != ".anchor":
+                    continue
+                try:
+                    s = p.stat()
+                except OSError:
+                    continue
+                rel = str(p.relative_to(tp))
+                if p.is_dir():
+                    sig.append(f"{rel}/")
+                    if depth > 1:
+                        walk(p, depth - 1)
+                else:
+                    sig.append(f"{rel}|{s.st_size}|{s.st_mtime_ns}")
+
+        walk(tp, _ANCHOR_HASH_DEPTH)
+        return hashlib.sha256("\n".join(sig).encode()).hexdigest()[:12]
     except OSError:
         return "0"
 
