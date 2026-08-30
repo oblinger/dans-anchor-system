@@ -15,13 +15,13 @@ group: slot
 # Spine Discipline
 Everything above the H1 says where the page sits; the heart directly below says what it is about. One question picks the shape — does this page have children? — and one marker names it.
 
-| Spine shape | Marker | What it says about the children | Live | Made-up | Pages |
-|---|---|---|---|---|---|
-| **[[#Breadcrumb spine\|Breadcrumb]]** | `:>>` | there are none — this page is a leaf | [[LUMEN Nudge]] | [[Harbor Latency Budget]] | 1,266 |
-| **[[#Custom spine\|Custom]]** | `...` | named by hand, one row each, in whatever arrangement suits them | [[Legal]] · [[Rolodex]] · [[SKA]] | [[Bridges]] · [[Harbor Runbooks]] · [[Devtools]] | 814 |
-| **[[#List spine\|List]]** | `---` | the machine writes one row each, alphabetical, with descriptions | [[Disk]] | [[Harbor Hops]] | 231 |
-| **[[#Stream spine\|Stream]]** | `^^^` | the same, reversed, so dated children read newest-first | [[VOX]] | [[Harbor Releases]] | 23 |
-| *[[#Exceptions\|Exception]]* | *n/a* | *not a spine — see § Exceptions* | [[AI Safety]] | — | 102 |
+| Spine shape                           | Marker | What it says about the children                                  | Live                              | Made-up                                          | Pages |
+| ------------------------------------- | ------ | ---------------------------------------------------------------- | --------------------------------- | ------------------------------------------------ | ----- |
+| **[[#Breadcrumb spine\|Breadcrumb]]** | `:>>`  | there are none — this page is a leaf                             | [[LUMEN Nudge]]                   | [[Harbor Latency Budget]]                        | 1,266 |
+| **[[#Custom spine\|Custom]]**         | `...`  | named by hand, one row each, in whatever arrangement suits them  | [[Legal]] · [[Rolodex]] · [[SKA]] | [[Bridges]] · [[Harbor Runbooks]] · [[Devtools]] | 814   |
+| **[[#List spine\|List]]**             | `---`  | the machine writes one row each, alphabetical, with descriptions | [[Disk]]                          | [[Harbor Hops]]                                  | 231   |
+| **[[#Stream spine\|Stream]]**         | `^^^`  | the same, reversed, so dated children read newest-first          | [[VOX]]                           | [[Harbor Releases]]                              | 23    |
+| *[[#Exceptions\|Exception]]*          | *n/a*  | *not a spine — see § Exceptions*                                 | [[AI Safety]]                     | —                                                | 102   |
 
 **Four shapes and one exception list. The question is who writes the rows** — you, or the machine. Custom is the author's: every row hand-written above a `...`, arranged however the material wants (flat, under plain-text group labels, or with `+` handing a group's members to the machine). List and stream are the machine's: it writes one row per child below the marker, alphabetical or reversed. Breadcrumb is the leaf case, where there are no rows because there are no children.
 

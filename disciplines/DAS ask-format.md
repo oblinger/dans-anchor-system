@@ -1,15 +1,15 @@
 ---
 name: ask-format
-description: Discipline. The format for any user-actionable surface that an agent writes — Questions (`Q<n>`), Verifies, à la carte items, resolution-acceptance phrases. Owns the navigation invariant (every Q / Verify is link-targetable). Cited by /ask, queries-render.py, /feature, /groom, /crank, and /audit q.
+description: "Discipline. The format for any user-actionable surface an agent writes — Questions, Verifies, à la carte items, and the phrases that close them."
 user_invocable: false
 group: discipline
 ---
 
 | -[[DAS ask-format]]- | : Discipline. The format for any user-actionable surface an agent writes — Questions, Verifies, à la carte items, and the phrases that close them.<br>→ [[DAS]] → [[disciplines]] → [DAS ask-format](hook://p/DAS%20ask-format)  |
 | --- | --- |
-| Related | [[SKA ask]],  [[SKA feature]],  [[SKA groom]],  [[SKA crank]],  [[DAS Backlog]] (§ Numbering policy),  [[DAS Disciplines\|Disciplines]],   |
-| Rules | [[audit q]] (enforces it),   |
-| ... |  |
+| Related | [[SKA ask]],  [[SKA feature]],  [[SKA groom]],  [[SKA crank]],  [[DAS Backlog]] (§ Numbering policy),  [[DAS Disciplines\|Disciplines]], |
+| Rules | [[audit q]] (enforces it), |
+| ... | [[DAS anchor-dag]],  [[DAS code-repo]],  [[DAS Disciplines Brief]],  [[DAS electric-zone]],  [[DAS feed]],  [[DAS file-association]],  [[DAS formats]],  [[DAS granularity]],  [[DAS heart]],  [[DAS Linked Mode]],  [[DAS markdown]],  [[DAS mode]],  [[DAS orientation-line]],  [[DAS progressive-disclosure]],  [[DAS role]],  [[DAS rust]],  [[DAS spine]],  [[DAS stream]],  [[DAS technical-answer]],  [[DAS verification]],  [[DAS workflow]],   |
 
 # DAS ask-format
 The layout discipline for any user-actionable surface an agent writes — a pending Question, a Verification, an à la carte item, and the resolution or acceptance phrase that closes it.
