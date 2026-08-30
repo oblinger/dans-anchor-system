@@ -6,6 +6,8 @@
     at-entity-migrate.py --write <page.md> [...]   # rewrite in place
     at-entity-migrate.py --dry --all               # every flat person page under AT/
     at-entity-migrate.py --write --all --from-git  # re-run from each page's git HEAD text (redo a bad pass)
+    at-entity-migrate.py --write --bare <page>     # a page with no title link / org: H1 is `# @Name`, every head line kept verbatim
+  Old masthead rows and `| INFO |` rows become card rows verbatim (`Up` and `...` dropped); an old template H1 is read as the identity line.
 
 What it parses from the old head (everything above the first `# ` heading):
   [[REGISTER]] / =[[REGISTER]]   → Rolodex (uppercase-only link names)
@@ -55,26 +57,52 @@ def migrate(p, text=None):
     fm = []; body = lines
     if lines and lines[0].strip() == "---":
         e = lines.index("---", 1); fm = lines[:e+1]; body = lines[e+1:]
-    if any(l.startswith("| Card") for l in body[:40]): return None, "already migrated"
+    if any(re.match(r"^\|\s*Card\s*\|", l) for l in body[:40]): return None, "already migrated"
     # head = lines before the first heading of ANY level. An old template H1
     # (`# [[@Name]]  [title](url) [[@Org]]`) is part of the identity, not the body.
     h = next((i for i, l in enumerate(body) if re.match(r"^#{1,6} ", l)), len(body))
     head = body[:h]; rest = body[h:]
-    if rest and re.match(r"^# (\[\[)?@?" + re.escape(p.stem[1:]) + r"(\]\])?", rest[0]) and ("](" in rest[0] or "[[" in rest[0]):
-        head = head + [rest[0]]; rest = rest[1:]
-    elif rest and re.match(r"^# (\[\[)?@?" + re.escape(p.stem[1:]) + r"(\]\])?\s*$", rest[0]):
-        rest = rest[1:]                       # a bare old `# Name` H1 is replaced by the identity H1
+    # An old H1 that names the page — the template form `# [[@Name]] [title](url) [[@Org]]` or a bare `# Name` —
+    # is part of the opening, and so is everything between it and the NEXT heading (the INFO table, an identity
+    # line written under the H1, a one-line description). All of that is head; the identity H1 replaces the old one.
+    if rest and re.match(r"^# (\[\[)?@?" + re.escape(p.stem[1:]) + r"(\]\])?(\s|$)", rest[0]):
+        old_h1 = rest[0]; rest = rest[1:]
+        k = next((i for i, l in enumerate(rest) if re.match(r"^#{1,6} ", l)), len(rest))
+        head = head + ([old_h1] if ("](" in old_h1 or "[[" in old_h1) else []) + rest[:k]; rest = rest[k:]
+    extra_rows = []          # rows carried over from an old masthead / INFO table, verbatim
+    # --- an old TEMPLATE H1: `# [[@Name]]  [title](url) [[@Org]]  [[REG]]` — already in `head` via the rule above
+    # --- an old MASTHEAD: identity row + `| label | value |` rows → card rows, verbatim; `Up`/`...` dropped
+    if any(l.startswith("| -[[") for l in head):
+        mi = next(i for i, l in enumerate(head) if l.startswith("| -[["))
+        mj = mi + 1
+        while mj < len(head) and head[mj].strip().startswith("|"): mj += 1
+        for r in head[mi+2:mj]:
+            cells = [c.strip() for c in r.strip().strip("|").split("|")]
+            if len(cells) < 2: continue
+            label, val = cells[0], "|".join(cells[1:]).strip()
+            if label in ("...", "Up", "…", "---", "^^^", "+++"): continue
+            extra_rows.append((label.strip("*"), val))
+        head = head[:mi] + head[mj:]
+    elif any(l.startswith(":>>") for l in head):
+        head = [l for l in head if not l.startswith(":>>")]        # regenerated below
+    if any(re.match(r"^\|\s*INFO\s*\|", l) for l in head):
+        ii = next(i for i, l in enumerate(head) if re.match(r"^\|\s*INFO\s*\|", l)); ij = ii + 1
+        while ij < len(head) and head[ij].strip().startswith("|"): ij += 1
+        for r in head[ii+2:ij]:
+            cells = [c.strip() for c in r.strip().strip("|").split("|")]
+            if len(cells) >= 2 and cells[0]: extra_rows.append((cells[0].strip("*"), "|".join(cells[1:]).strip()))
+        head = head[:ii] + head[ij:]
     text = "\n".join(head)
-    if any(l.startswith(":>>") or l.startswith("| ") for l in head):
-        return None, "UNPARSED — the page already carries a spine or a table in its head; migrate by hand"
     if "[[_Org]]" in text: return None, "UNPARSED — marked as an org (`[[_Org]]`), not a person"
     mdlinks = MDLINK.findall(text)
     atlinks = []
     for m in ATLINK.finditer(text):
-        if m.group(1) not in atlinks: atlinks.append(m.group(1))
-    if not mdlinks and not atlinks: return None, "UNPARSED — no [title](url) and no [[@Org]] in the head"
+        if m.group(1) not in atlinks and m.group(1)[1:].strip() != p.stem[1:]: atlinks.append(m.group(1))
     li = [(a, u) for a, u in mdlinks if "linkedin" in u.lower()]
-    if not li and not atlinks: return None, "UNPARSED — the only link is not LinkedIn and there is no [[@Org]]; probably not a person page"
+    bare = "--bare" in sys.argv
+    if not bare:
+        if not mdlinks and not atlinks: return None, "UNPARSED — no [title](url) and no [[@Org]] in the head"
+        if not li and not atlinks: return None, "UNPARSED — the only link is not LinkedIn and there is no [[@Org]]; probably not a person page"
     title, lurl = (li[0] if li else (mdlinks[0] if mdlinks else (None, None)))
     junk = None
     if lurl and "/mynetwork/" in lurl: junk = lurl; lurl = None
@@ -94,7 +122,12 @@ def migrate(p, text=None):
         if m.group(0) not in emails: emails.append(m.group(0))
     friends = []; kept = []
     def is_identity(s):
-        return bool(MDLINK.search(s) and (ATLINK.search(s) or re.search(r"\[\[[^\]]+\]\]", s) or re.search(r"(?<!\S)#\w+", s))) or (ATLINK.search(s) and not re.search(r"[a-z]{4,} [a-z]{3,}", re.sub(r"\[\[[^\]]*\]\]|\[[^\]]*\]\([^)]*\)", "", s)))
+        if s.startswith("# "): return True            # an old template H1
+        if MDLINK.search(s) and (ATLINK.search(s) or re.search(r"(?<!\S)#pp\b", s) or re.search(r"=?\[\[[A-Z][A-Z0-9 \-]+\]\]", s)):
+            return True                               # a title link beside an org / #pp / a register: the identity line, however long
+        stripped = re.sub(r"\[\[[^\]]*\]\]|\[[^\]]*\]\([^)]*\)|(?<!\S)#\w+|=", "", s)
+        prose = re.search(r"[A-Za-z]{3,}[ ,.][A-Za-z]{3,}[ ,.][A-Za-z]{3,}", stripped)   # three words of real prose → not an identity line
+        return bool(ATLINK.search(s)) and not prose
     for l in head:
         s = l.strip()
         if not s: continue
@@ -105,13 +138,19 @@ def migrate(p, text=None):
         if re.fullmatch(r"#\w+(\s+#\w+)*", s): continue   # tags — represented in Rolodex
         kept.append(l)                            # everything else: verbatim, below the card
     ident = (f"[{title}]({lurl})" if (title and lurl) else (title or "")) + ((" at " if title else "") + f"[[{org}]]" if org else "")
-    h1 = f"# {p.stem} — **{ident}**"
+    h1 = f"# {p.stem} — **{ident}**" if ident else f"# {p.stem}"
     contact = " · ".join([f"`{e}`" for e in emails] + ([f"[LinkedIn]({lurl})"] if lurl and "linkedin" in lurl.lower() else [])) or "—"
     rows = [("Contact", contact)]
     pers = [f"[[{a}]]" for a in personas] + [f"[{a}]({u})" for a, u in other_md]
     if pers: rows.append(("Personas", " · ".join(pers)))
     rows.append(("Rolodex", " · ".join(f"[[{r}]]" for r in regs) or "—"))
     if friends: rows.append(("Friends", " · ".join(f"[[{a}]]" for a in friends)))
+    for label, val in extra_rows:
+        if label.lower() in ("email", "e-mail") and val:
+            rows[0] = ("Contact", (rows[0][1] + " · " if rows[0][1] != "—" else "") + val); continue
+        if label.lower() in ("phone", "mobile", "cell", "tel") and val:
+            kept.append(f"{label}: {val}"); continue      # phone numbers live in Contacts — kept below the card, never in it
+        rows.append((label, val))
     card = ["| Card |  |", "| --- | --- |"] + [f"| **{k}** | {v} |" for k, v in rows]
     desc = (title or "") + (f" at {org[1:]}" if org else "")
     if not any(l.startswith("description:") for l in fm):

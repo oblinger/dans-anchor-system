@@ -1760,12 +1760,12 @@ def chk_at_entity_person_opening(target, anchor_root, args):
     if h1 is None:
         problems.append("no H1")
     else:
-        if not re.match(rf"^# @{re.escape(f.stem[1:])}\s+—\s+\S", head[h1]):
-            problems.append("H1 is not `# @{Name} — **[title](…) at [[@Org]]**`")
+        if not re.match(rf"^# @{re.escape(f.stem[1:])}(\s+—\s+\S|\s*$)", head[h1]):
+            problems.append("H1 is not `# @{Name} — **[title](…) at [[@Org]]**` (or a bare `# @{Name}` when nothing is known)")
         j = h1 + 1
         while j < len(head) and not head[j].strip():
             j += 1
-        if j >= len(head) or not head[j].startswith("| Card"):
+        if j >= len(head) or not re.match(r"^\|\s*Card\s*\|", head[j]):
             problems.append("no `| Card |` table directly under the H1")
         else:
             k = j
