@@ -4041,6 +4041,15 @@ def masthead_narrative_offenders(text, stem):
         if _WIKILINK_RE.search(cells[0]):
             continue
         right = cells[1]
+        # A DESCRIBED GROUP LABEL is exempt too (T623 Q4, Dan 2026-08-29: "if
+        # it really is a group label, then it absolutely makes sense to have
+        # words on that"). The shape that "really is" one: a non-link,
+        # non-empty left cell and a right cell that is ENTIRELY one italic
+        # span — `| **Registers** | *entity-keyed: you look it up* |` ([[kmr]],
+        # [[AOT]]). Prose outside the italics is still narrative. The
+        # single-line preference is guidance in DAS spine, not enforced here.
+        if _is_described_group_label(cells[0], right):
+            continue
         # Links and code spans are pointers: zero words, and a run-breaker —
         # replaced by a hard separator so text on either side of a link is two
         # runs, not one. The code-span carve-out keeps the `Ground truth` row
@@ -4056,6 +4065,20 @@ def masthead_narrative_offenders(text, stem):
                 offenders.append((cells[0].strip(), right.strip()))
                 break
     return offenders
+
+
+def _is_described_group_label(left: str, right: str) -> bool:
+    """`| **Label** | *gloss* |` — a group heading with its gloss (T623 Q4).
+    The gloss is ONE italic span covering the whole cell; bold inside it
+    (`**kind of entity**`, as on [[kmr]]) is fine, a second italic span or
+    any text outside the italics is not."""
+    if not left.strip() or _WIKILINK_RE.search(left) or _MDLINK_RE.search(left):
+        return False
+    r = right.strip()
+    if len(r) < 3 or not (r.startswith("*") and r.endswith("*")) or r.startswith("**"):
+        return False
+    inner = re.sub(r"\*\*[^*]+\*\*", "", r[1:-1])   # drop bold spans
+    return "*" not in inner
 
 
 def chk_dispatch_cell_narrative(target, anchor_root, args):

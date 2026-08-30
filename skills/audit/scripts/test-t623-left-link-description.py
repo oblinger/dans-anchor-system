@@ -19,6 +19,9 @@ description: x
 | -[[Disk]]- | : Catalog of drives.<br>→ [[kmr]] → [Disk](hook://p/Disk)  |
 | --- | --- |
 | Related | [[Disks]] and a long explanation of what that page is about |
+| **Registers** | *entity-keyed: you arrive knowing an identity and look it up* |
+| **Umbrellas** | *routers over many sub-anchors* — and prose outside the italics |
+|  | *an italic gloss with no label at all is not a group label* |
 | **DISKS** |  |
 | [[Disk 10T\\|10T]]  | 10 TB Seagate NAS HDD, APFS, encrypted — the master of everything since June |
 | [[Disk BLACK\\|BLACK]]  | 5 TB USB drive, the former snapshot master, now offsite |
@@ -35,6 +38,9 @@ def check(cond, msg):
     if cond: ok += 1; print("  PASS:", msg)
     else: bad += 1; print("  FAIL:", msg, "->", labels)
 check("Related" in labels, "a label row with prose in the right cell is still an offender")
+check("**Registers**" not in labels, "Q4: a described group label — label left, ALL-italic gloss right — is exempt")
+check("**Umbrellas**" in labels, "Q4: prose outside the italics is still narrative")
+check(any(l == "" for l in labels), "Q4: an italic gloss with an empty left cell is not a group label")
 check(not any("10T" in l or "BLACK" in l for l in labels), "rows whose left cell is a wiki-link are exempt, sentence and all")
-check(len(off) == 1, "exactly the one label row fires")
+check(len(off) == 3, "exactly the three offending rows fire (Related, Umbrellas, the unlabeled gloss)")
 print(f"\n{ok} passed, {bad} failed"); _sys.exit(1 if bad else 0)
