@@ -1389,7 +1389,15 @@ def propagate_in(slug: str, anchors: dict, stones: dict, control: dict, publishe
     if to_remove:
         remove_stones(cf, to_remove, cfg)
         for key in to_remove:
-            stones[key].appears.discard(slug)
+            # A DANGLING occurrence — a line whose stone file no longer exists
+            # (deleted group) or whose owner cannot be resolved (a dated line's
+            # alias carrying a retired slug) — has no stone to bookkeep. The
+            # line still comes off: it is not desired, and nothing can ever
+            # publish it again. Crashed live on ('HERMES', dated sid) after
+            # the 2026-08-30 Staff rename left old-slug aliases behind.
+            st_ = stones.get(key)
+            if st_ is not None:
+                st_.appears.discard(slug)
 
     existing_after = _find_all_stone_occurrences(cf.lines, cfg)
     for src in sources:
