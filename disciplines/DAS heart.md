@@ -16,9 +16,8 @@ The spine is everything above the H1; the heart is what sits directly below it. 
 
 | Heart kind | What it holds | Shape | Live | Made-up |
 |---|---|---|---|---|
-| **[[#Fact card\|Fact card]]** | the key facts *about this page's subject* — status, counterparty, value, dates, waiting-on, next | label / value table, 5–12 rows | [[2026-08-19 Legacy Athletics]] | [[Harbor Account Northwind]] |
+| **[[#Fact card\|Fact card]]** | the key facts *about this page's subject* — a status card, a who-feeds-whom map, whatever facts matter most | a table of facts, any shape | [[2026-08-19 Legacy Athletics]] · [[Stones]] | [[Harbor Account Northwind]] |
 | **[[#Register\|Register]]** | the heart *is* the page: one row per thing the page exists to track | data table, hand-written, load-bearing | [[LUMEN Data Sources]] | [[Harbor Latency Budget]] |
-| **[[#Map\|Map]]** | how the page's parts relate — what flows into what | labelled table under an H2 | [[Stones]] | — |
 | **[[#Figure\|Figure]]** | the thing the page defines, drawn | an image or diagram, no title, table beneath | [[DAS Code Design]] | [[FEX Figure Page]] · [[FEX Architecture]] |
 | **[[#Kinds table\|Kinds table]]** | the variants of the thing the page specifies, each with an example | a table like this one | [[DAS spine]] · this page | [[FEX Dispatch Examples]] § The four kinds |
 | **[[#Table of contents\|Table of contents]]** | the page's own sections, so a long page is navigable before it is read | derived from the headings, regenerated | [[DAS ask-format]] · [[DAS progressive-disclosure]] | — |
@@ -46,14 +45,16 @@ Every kind comes in two shapes, and **both are correct** — the choice is wheth
 
 **Bare** — the element sits directly under the one-liner, with no heading of its own. [[Briefs]] is the worked example: H1, one sentence, then the `Area | Files carrying a # BRIEF` table. Take this when the one-liner already says what the table is, so a heading would only repeat it.
 
-**Labelled** — an H2 names the element, and the element follows immediately. [[Stones]] is the worked example: `## The map — what flows into what` directly over the feed table; [[2026-08-19 Legacy Athletics]] uses a short `Card` header row instead. Take this when the element benefits from a name the one-liner cannot carry, or when the page has several substantial sections and the heart needs to be findable by heading.
+**Labelled** — an H2 names the element, and the element follows immediately. [[Stones]] was the worked example until 2026-08-29, when Dan removed its `## The map — what flows into what` heading to make the example proper: the one-liner should carry what the table is, and when it cannot, a header *row* inside the table ([[2026-08-19 Legacy Athletics]]'s `Card`) names it without opening a section. Take this when the element benefits from a name the one-liner cannot carry, or when the page has several substantial sections and the heart needs to be findable by heading.
 
 **The labelled form is a heart, not a section.** The heading leads *straight* into the table — nothing between them. A heading that opens with prose is an ordinary section, and the zone has ended; the checker draws exactly that line, and got it wrong until 2026-08-10 (see § How it is checked).
 
 ## Fact card
 **What it is.** A two-column table whose left cells are labels and whose right cells are the page's own facts — `Status`, `Counterparty`, `Their people`, `Value`, `Volume`, `Dates`, `Waiting on`, `Tech owes`, `Next` on an engagement page; `Role`, `Where met`, `Last contact`, `Owes / owed` on a person page. Inward-facing by construction: every cell is about *this* page's subject. It may *contain* links, but no row of it exists to send the reader elsewhere.
 
-**Live:** [[2026-08-19 Legacy Athletics]] — eleven rows under a `Card` header, moved out of the spine 2026-08-29 as the first spine→heart migration. **Made-up:** [[Harbor Account Northwind]].
+**Live:** [[2026-08-19 Legacy Athletics]] — eleven rows under a `Card` header, moved out of the spine 2026-08-29 as the first spine→heart migration; and [[Stones]] — the who-feeds-whom table, a fact card of a different shape. **Made-up:** [[Harbor Account Northwind]].
+
+**There is no taxonomy of fact tables, on purpose.** A "map" of what flows into what was briefly its own kind here; Dan folded it back 2026-08-29: *"it's a set of facts — probably the most important facts about stones. There's probably a million different kinds of fact tables you could put in there; I'm not sure there's a clear categorization."* So the fact card is one kind with any shape: a label/value column pair, a matrix, a who-feeds-whom grid. What makes it a fact card is only that every cell is about the page's own subject.
 
 **Where it had been living, and why that was wrong.** The [[SV Proj Template]] put the card in the masthead position, and six days of R-dispatch-table-06 at `fail` measured 434 mastheads carrying prose — the worst of them precisely these cards and the `@` person summaries. Dan, looking at Legacy Athletics: *"the spine indexes a page in the context of other pages — it is always outward-facing. The heart is always inward-facing: the meat, the summary, the most important content of a page."* The cap was right that the spine must be links-only; it had nowhere to send the words because the pages had no heart.
 
@@ -69,11 +70,6 @@ Nothing is deleted in the move; the cap becomes satisfiable *without loss*, whic
 **What it is.** The heart *is* the page: one row per thing the page exists to track, and the prose below only explains the table. Hand-written and load-bearing — an authored register must never be regenerated.
 
 **Live:** [[LUMEN Data Sources]] — H1, one sentence, then `Source | Where | Reach for it when`, one row per source. **Made-up:** [[Harbor Latency Budget]] — the per-hop budget table. ([[Disk]] was the earlier example and is retired here: its drive table is one of several, and the page's spine — a list spine with three drives pulled above the marker — is the more instructive thing about it.)
-
-## Map
-**What it is.** A table of how the page's parts relate — what flows into what, which member feeds which. Almost always labelled, because a map benefits from a name.
-
-**Live:** [[Stones]] — `## The map — what flows into what` directly over the feed table. **Made-up:** — (to mint: a Harbor hop-order map).
 
 ## Figure
 **What it is.** The thing the page defines, drawn — an architecture diagram, a flow — **plus the parts table beneath it**: one row per piece the figure draws, linking out to the page that describes that piece. The figure carries no clickable links, so the table is the way from the picture to the parts; a figure with no table under it is a picture, not a heart (Dan, 2026-08-29). The figure sits directly under the one-liner with **no title**. In FEX, parts that are not built out link to [[FEX Empty]] so a click mints nothing.
