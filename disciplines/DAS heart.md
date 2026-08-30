@@ -17,14 +17,14 @@ The spine is everything above the H1; the heart is what sits directly below it. 
 | Heart kind | What it holds | Shape | Live | Made-up |
 |---|---|---|---|---|
 | **[[#Fact card\|Fact card]]** | the key facts *about this page's subject* — a status card, a who-feeds-whom map, whatever facts matter most | a table of facts, any shape | [[2026-08-19 Legacy Athletics]] · [[2025-11-07 TeamSnap Data Partnership]] · [[@Henna Dattani]] · [[Stones]] | [[Harbor Account Northwind]] · [[@Marguerite Vale]] |
-| **[[#Definition list\|Definition list]]** | the page's key facts as a definition list — `**Term:** body` — when the facts are sentences rather than cells | a bulleted definition list, one term per bullet | [[DAS ask-format]] | — |
+| **[[#Definition list\|Definition list]]** | the page's key facts as a definition list — `**Term:** body` — when the facts are sentences rather than cells | a bulleted definition list, one term per bullet | [[DAS ask-format]] · [[META Register]] | [[Harbor Tenancy Model]] |
 | **[[#Register\|Register]]** | the heart *is* the page: one row per thing the page exists to track; the prose below only explains it | data table, hand-written, load-bearing | [[Eli Bedtime Audio]] · [[LUMEN Data Sources]] | [[Harbor Latency Budget]] |
 | **[[#Figure\|Figure]]** | the thing the page defines, drawn | an image or diagram, no title, table beneath | [[DAS Code Design]] | [[FEX Figure Page]] · [[FEX Architecture]] |
 | **[[#Types table\|Types table]]** | the mutually exclusive subtypes of the thing the page specifies, one row each, with an example | a fact table whose rows partition the type — like this one | [[DAS spine]] · this page | [[FEX Dispatch Examples]] § The four kinds |
-| **[[#Table of contents\|Table of contents]]** | the page's own sections, so a long page is navigable before it is read | derived from the headings, regenerated | [[DAS ask-format]] · [[DAS progressive-disclosure]] | — |
-| **[[#Roster\|Roster]]** | the members of a set this page fronts — usually things elsewhere in the vault, sometimes this folder's own children | index table with a row per member | [[Briefs]] | — |
+| **[[#Table of contents\|Table of contents]]** | the page's own sections, so a long page is navigable before it is read | derived from the headings, regenerated | [[DAS ask-format]] · [[DAS progressive-disclosure]] | [[Harbor Upgrade Guide]] |
+| **[[#Roster\|Roster]]** | the members of a set this page fronts — usually things elsewhere in the vault, sometimes this folder's own children | index table with a row per member | [[Briefs]] | [[Harbor Integrations]] |
 
-**Live** is a real vault page; **Made-up** is a [[FEX]] specimen that exists only to show the shape. A dash means the specimen is still to be minted. The table is deliberately open — a kind earns a row when a real page exhibits it, exactly as the [[DAS spine]] shapes table grew. One thing every row shares: the heart is *inward-facing*. It talks about this page's subject; the spine above it talks about other pages (Dan, 2026-08-29).
+**Live** is a real vault page; **Made-up** is a [[FEX]] specimen that exists only to show the shape; every row has one as of 2026-08-29. The table is deliberately open — a kind earns a row when a real page exhibits it, exactly as the [[DAS spine]] shapes table grew. One thing every row shares: the heart is *inward-facing*. It talks about this page's subject; the spine above it talks about other pages (Dan, 2026-08-29).
 
 ## The order — spine, H1, one-liner, heart, overview
 Memorialized 2026-08-29 (Dan, on [[2026-08-19 Legacy Athletics]]). A page with a heart opens in exactly this order, and each slot has one job:
@@ -70,7 +70,7 @@ Nothing is deleted in the move; the cap becomes satisfiable *without loss*, whic
 ## Definition list
 **What it is.** A fact heart that is not a table: the page's key facts written as a **definition list** — each bullet opens with a short bold naming phrase **ending in a colon**, then the body: `- **Term:** body` (Dan, 2026-08-29, on [[META Register]]: a colon after the term reads better here than the em-dash the vault's prose definition lists use). Mirrors HTML `<dl>`. Take it when the facts are sentences that would not survive being squeezed into cells — five properties that each need a clause, not a value. It is inward-facing like every fact heart: every term is about this page's subject. Named 2026-08-29 (Dan, on [[DAS ask-format]]: *"a different kind of fact heart, but one that isn't expressed as a table"*).
 
-**Live:** [[META Register]] — six terms under the one-liner; [[DAS ask-format]] — the five things that distinguish a conformant ask surface (block-IDs, labeled alternatives, recommendation strength, numbered headers, acceptance phrasing), directly under the one-liner. **Made-up:** — .
+**Live:** [[META Register]] — six terms under the one-liner; [[DAS ask-format]] — the five things that distinguish a conformant ask surface (block-IDs, labeled alternatives, recommendation strength, numbered headers, acceptance phrasing), directly under the one-liner. **Made-up:** [[Harbor Tenancy Model]] — five terms (tenant, tier, depot, pool, quota), each a clause that would not survive a cell.
 
 **A hybrid heart is legal.** Two elements can share the slot when they carry different halves of the substance — [[Agent Memory]] has a definition list (what the thing *is* and its rules) directly over a one-row register (the store itself), and Dan kept both (2026-08-29): *"it's okay to have a hybrid heart."* The test is still the fold: both must land before scrolling, and the prose that explains either goes into `## Overview` beneath, not between them.
 
@@ -92,16 +92,16 @@ Nothing is deleted in the move; the cap becomes satisfiable *without loss*, whic
 **Live:** [[DAS spine]]'s shapes table, and the table at the top of this page. **Made-up:** [[FEX Dispatch Examples]] § The four kinds.
 
 ## Table of contents
-**What it is.** The page's own sections, so a long page is navigable before it is read. Derived from the headings and regenerated (`md-toc.py`), so — like an electric zone — never hand-edited. It orients rather than carries.
+**What it is.** The page's own sections, so a long page is navigable before it is read. Derived from the headings and regenerated (`md-toc.py`), so — like an electric zone — never hand-edited. It orients rather than carries. **It exists only on a long page**: `md-toc.py` inserts it above the 1,500-word floor and *removes* it below (`toc_table_iff_long`), so a short page cannot have this heart — the floor is the rule, not a suggestion, and a specimen had to be long to earn one.
 
-**Live:** [[DAS ask-format]], [[DAS progressive-disclosure]]. **Made-up:** — .
+**Live:** [[DAS ask-format]], [[DAS progressive-disclosure]]. **Made-up:** [[Harbor Upgrade Guide]] — eight steps, 1,600 words, the TOC directly under the one-liner.
 
 ## Roster
 **What it is.** The members of a set this page fronts, one row per member, usually grouped by area. Most rosters list things that live *elsewhere* — [[Briefs]] lists every file in the vault carrying a `# BRIEF`, none of them its children — and that is the clean case: the rows are facts about the set, and routing to them is incidental.
 
 **A roster of this folder's own children is also legal — even though the spine could carry them.** Ruled by Dan 2026-08-29. The dispatch table is the normal home for a page's children, and stays valid for them; but when the spine is already complex — structural rows, related links, pinned members — *and* the roster is big, the page is cleaner with the children split out as its heart: a links-only spine above the H1, the full roster with a sentence per member below it. The test is legibility of the page, not a rule about where children may appear. The one thing that does not change: a roster in the heart is written by the author, so it does not get a `---` marker and the machine never rewrites it — a roster that should be machine-maintained is a list spine ([[DAS spine]] § List spine), and belongs above the H1.
 
-**Live:** [[Briefs]] — `Area | Files carrying a # BRIEF`, a roster of files elsewhere. **Made-up:** — (to mint: a Harbor page whose children are rostered below the H1 because its spine is already full).
+**Live:** [[Briefs]] — `Area | Files carrying a # BRIEF`, a roster of files elsewhere. **Made-up:** [[Harbor Integrations]] — the children case: five integration pages in the folder, rostered below the H1 with a sentence each because the spine above already carries six rows of structure; the `...` stays empty because the body links every child.
 
 ## What a heart is not
 **A heart's job is never routing.** If the only reason an element sits under the H1 is to hand the reader other pages, that is spine work wearing a different hat — and a page whose spine and content are the same table simply has no heart. [[Harbor Hops]] is that case deliberately; [[Devtools]] is the contrast, carrying a masthead that routes and a pipeline table that does not. A **roster** of the page's own children is the one sanctioned exception (§ Roster, 2026-08-29): it may live in the heart when the spine is already complex and the roster big, because there its rows are read as *the membership* — a sentence per member — not as a jump table.

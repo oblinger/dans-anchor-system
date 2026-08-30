@@ -8612,6 +8612,10 @@ CHECKERS = {
     "valid_spine": chk_valid_spine,
     "mirrored_doc_has_no_spine": chk_mirrored_doc_has_no_spine,
     "spine_h1_present": chk_spine_h1_present,
+    # H02 (T623). Registered 2026-08-29 — it had been written and left out of this
+    # dict for a day, reporting `error` on every page, which the write hook never
+    # shows. The exact failure R-spine's own history paragraph describes.
+    "spine_heart_required": chk_spine_heart_required,
     "identity_cell_description_first": chk_identity_cell_description_first,
     "orientation_line_adjoins_h1": chk_orientation_line_adjoins_h1,
     "masthead_over_folder_has_marker": chk_masthead_over_folder_has_marker,
@@ -9049,12 +9053,21 @@ def execute_plan(plan: dict, cdir: Path | None) -> dict:
                 chash = _content_hash(tp)
                 key = f"{r['id']}-{body_hash}-{chash}"
                 cached = _verdict_cache_get(cdir, key) if cdir else None
+                # A cached `error` is never trusted — see the put-side note
+                # below; entries written before that rule need ignoring too.
+                if cached and cached.get("status") == "error":
+                    cached = None
                 if cached:
                     status, detail = cached["status"], cached["detail"]
                     counts["cached"] += 1
                 else:
                     status, detail = run_checker(r["check"], tp, anchor_root)
-                    if cdir:
+                    # An `error` is a verdict about the PLUMBING (an unregistered
+                    # checker, a crash), not about the target, so it must not be
+                    # keyed on the target's content: registering the checker
+                    # changes nothing in the key, and the stale error was served
+                    # back after the fix (T623/H02, 2026-08-29).
+                    if cdir and status != "error":
                         _verdict_cache_put(cdir, key, {"status": status, "detail": detail})
                 # A `fail` and a `warn` are both excepted (T201 Q1 (A), Dan
                 # 2026-08-11: "audit grades A through C should suppress

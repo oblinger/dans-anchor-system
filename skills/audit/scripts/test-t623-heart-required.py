@@ -35,4 +35,13 @@ check("H02" not in codes(HEAD + PROSE, name="FIX Inbox.md"), "an inbox is genre-
 check("H02" not in codes(HEAD + PROSE, name="FIX Backlog.md"), "a backlog is genre-exempt")
 buried = codes(HEAD + PROSE[:300] + "\n\n" + PROSE[:300] + "\n\n" + TABLE + PROSE)
 check("H01" in buried and "H02" not in buried, "a buried table is H01's finding and suppresses H02")
+# --- the checker must be REGISTERED, or the rule reports `error` and the write
+# hook hides it (R-spine § history: "four of the five check:: names resolved to
+# no registered checker"). Found live 2026-08-29 on the FEX heart specimens.
+import importlib.util as _iu, pathlib as _pl, sys as _s
+_sp=_iu.spec_from_file_location("ap_reg", _pl.Path(__file__).resolve().parent / "audit-plan.py")
+_ap=_iu.module_from_spec(_sp); _s.modules["ap_reg"]=_ap; _sp.loader.exec_module(_ap)
+check(_ap.CHECKERS.get("spine_heart_required") is _ap.chk_spine_heart_required,
+      "spine_heart_required is registered in audit-plan.CHECKERS (else R-spine-12 reports error, not warn)")
+
 print(f"\n{PASS} passed, {FAIL} failed"); sys.exit(1 if FAIL else 0)
