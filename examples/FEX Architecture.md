@@ -4,95 +4,32 @@ description: "CAE system architecture — worked example of the DAS Architecture
 
 | -[[FEX Architecture]]- | : CAE system architecture — worked example of the DAS Architecture facet<br>→ [[DAS]] → [[FEX]] → [FEX Architecture](hook://p/FEX%20Architecture)  |
 | --- | --- |
-| [[FEX Scheduler]]  | priority queue engine + worker dispatch. Source: `src/execution/scheduler.rs`. |
+| [[FEX Scheduler\|Scheduler]]  | priority queue engine + worker dispatch. Source: `src/execution/scheduler.rs`. |
 | [CAE-Store] | SQLite-backed task persistence; load/save/mark-done. (subsystem doc not yet authored) |
 | [CAE-Retry] | exponential backoff + dead-letter handling; centralized retry policy. (no doc yet) |
 | [CAE-Clock] | injectable `Clock` trait; production `WallClock` + test `TestClock`. (no doc yet) |
-| --- | |
-| [[_{{DISK_LABEL}} Template]]  |  |
-| [[_{{PURCHASE_DATE}} {{HOSTNAME}} Template]]  |  |
-| [[Bridges]]  | example list-dispatch collection (≤ 15 members) |
-| [[Clarifier]]  | example project anchor — a designed software project |
-| [[CSE]]  | Common Skill Example — reference anchor — a fully-wired example of a DAS skill anchor |
-| [[DAS US-CAE-1 — Schedule a Task]]  | Schedule a deferred shell task with absolute or relative time |
-| [[DAS US-CAE-2 — Monitor Task Status]]  | Show task state grouped by pending / running / done / failed |
-| [[DAS US-CAE-3 — Retry Failed Tasks]]  | Auto-retry failed tasks with exponential backoff to a cap |
-| [[Devtools]]  | example grouped-dispatch collection (> 15 members) |
-| [[ESP]]  | Espresso — example topic collection (≤ 15 members) — notes on pulling espresso |
-| [[Espresso]]  | Espresso — example topic collection (≤ 15 members) — notes on pulling espresso |
-| [[FEX Agenda]]  | strategy for Harbor — why the scheduler exists, what winning looks like, and the approach we are betting on |
-| [[FEX API]]  | CAE public API surface — public modules, schemas, file formats, error types. The contract a caller imports against. Sub-document of CAE Architecture per the DAS Architecture facet (worked example of {slug} API.md placement). |
-| [[FEX API Design]]  | programmatic surface of the `cae` Rust crate — types, signatures, error envelope, stability + compatibility commitments. Sibling to |
-| [[FEX Claude]]  | Two worked CLAUDE.md files — the plain-content tier and the agentic-project tier — as the DAS Claude facet's in-repo example |
-| [[FEX Completed Roadmap]]  | companion to CAE Roadmap; preserved migrated milestones with their structure; newest-on-top. |
-| [[FEX CSE]]  |  |
-| [[FEX Decisions]]  | load-bearing rules & invariants |
-| [[FEX Decisions Details]]  |  |
-| [[FEX Dispatch Examples]]  | live worked examples of each dispatch-table structure |
-| [[FEX Facet]]  | canonical facet exemplar |
-| [[FEX Figure Page]]  | the figure-bearing anchor-page layout |
-| [[FEX Files]]  | repository file tree (audit-generated) |
-| [[FEX Icebox]]  | cold-storage / someday-maybe |
-| [[FEX Inbox]]  | raw input to process |
-| [[FEX Minimal Facet]]  | the leanest complete file set for a facet, with a live instance |
-| [[FEX Minimal Skill]]  | the leanest complete file set for a skill, with a live instance |
-| [[FEX Project Root]]  | canonical project-root exemplar |
-| [[FEX Repo]]  | **FEX Repo** — a fake skills repository tying the loose examples together: a skill ( |
-| [[FEX Roadmap]]  | sequencing-design — milestones + ordering (moved from Track 2026-06-10) |
-| [[FEX Rules]]  | CAE's anchor-local ruleset — rules truly specific to this example anchor |
-| [[FEX Skill]]  | canonical skill exemplar |
-| [[FEX Spine Examples]]  | made-up worked examples of the five spine shapes |
-| [[FEX Stories]]  | three user stories — index for US-CAE-1..3 (folder-form per |
-| [[FEX System Design]]  | worked System Design for the FEX scheduler — a detailed technical spec sitting under FEX Architecture, with rulings kept in their own file |
-| [[Forum Stories]]  | User stories for the Forum debate platform. |
-| [[Harbor Hops]]  | made-up list-spine exemplar — one machine-written row per hop |
-| [[Harbor Latency Budget]]  | canonical breadcrumb-spine exemplar — a leaf whose primary entity is a table |
-| [[Harbor Releases]]  | canonical stream-spine exemplar — dated children, newest first |
-| [[Harbor Runbooks]]  | canonical grouped-spine exemplar — direct children sorted under plain labels |
-| [[HBR]]  | **Common Anchor Example** — the fully-wired worked-example anchor (PRD / UX / API / Architecture / Decisions / Testing / Roadmap / Features), cited by the DAS facet specs as the **minimal** reference instance. Relocated here from `CAB/` 2026-06-27. |
-| [[HBR PRD User Stories]]  | audited excerpt — the inline `## User Stories` section of HBR PRD (inline-subsection form, US-HBR-1..5) |
-| [[HWP]]  | a short whitepaper on the Harbor media server — the worked Paper anchor example |
-| [[Knots]]  | **Knots** — a tiny **Topic** anchor: a no-code evergreen knowledge hub routing to sub-topics ( |
-| [[Mini]]  | tiny example project — the MINIMAL design-docs world for F178 |
-| [[Snap]]  | example SKILL anchor — the minimal shape of a user-invocable skill |
-| [[Viz Bench]]  | figure-drafting techniques compared across a fixed reference set |
-| [[FEX Grouped Dispatch]]  | canonical grouped-dispatch exemplar |
-| [[FEX List Dispatch]]  | canonical list-dispatch exemplar |
-| [[FEX queries]]  | CAE queries — mechanically rendered from the backlog by `queries-render.py` (Verifications / Ready+Next / Questions). Do not hand-edit; edit the backlog rows. |
-| [[CAE Architecture]]  | CAE system architecture — entry-point doc for the {slug} Architecture/ folder anchor. Worked example of the CAB Architecture facet (section spine, visual-only diagrams, subsystem dispatch with link convention, API content lives elsewhere). |
-| [[CAE Decisions]]  | load-bearing rules & invariants |
-| [[CAE PRD]]  | product requirements for the CAE Example CLI scheduler |
-| [[CAE Stories]]  | three user stories — index for US-CAE-1..3 (folder-form per ~~ |
-| [[CAE Testing]]  | testing strategy + proposed-tests overview (worked example of |
-| [[Decisions/DKT Decisions]]  | Durable architectural decisions + rationale — standard/API split, Rust+Python common docs, anchor-crate separation |
-| [[PRD/DMUX PRD]]  | product requirements — focus-free voice dictation hub for macOS |
-| [[Architecture/HA Architecture]]  | HookAnchor system architecture — top-level decomposition into subsystems. |
-| [[Architecture/HBR Architecture]]  | system architecture |
-| [[Decisions/HBR Decisions]]  | durable rulings |
-| [[PRD/HBR PRD]]  | product requirements |
-| [[Testing/HBR Testing]]  | test strategy + proposed-tests overview |
-| [[Decisions/Mini Decisions]]  | durable rulings for Mini |
-| [[PRD/Mini PRD]]  | product requirements — what Mini does and the one story it must deliver |
-| [[Testing/Mini Testing]]  | test strategy + proposed tests |
-| [[Architecture/MUX Architecture]]  | top-level architecture facet — subsystem decomposition with bidirectional module links |
-| [[Architecture/OBU Architecture]]  | system architecture |
-| [[PRD/OBU PRD]]  | product requirements — ob-utils shared utilities library, one spec across languages |
-| [[Testing/MUX Testing]]  | MUX Testing — strategy + proposed-tests overview |
-| [[Decisions/UCM Decisions]]  | architectural and implementation decisions for UCM |
-| [[US-CAE-1 — Schedule a Task]]  | Schedule a deferred shell task with absolute or relative time |
-| [[US-CAE-3 — Retry Failed Tasks]]  | Auto-retry failed tasks with exponential backoff to a cap |
+| ... | [[_{{DISK_LABEL}} Template]],  [[_{{PURCHASE_DATE}} {{HOSTNAME}} Template]],  [[Bridges]],  [[Clarifier]],  [[CSE]],  [[DAS US-CAE-1 — Schedule a Task]],  [[DAS US-CAE-2 — Monitor Task Status]],  [[DAS US-CAE-3 — Retry Failed Tasks]],  [[Devtools]],  [[ESP]],  [[Espresso]],  [[FEX Agenda\|Agenda]],  [[FEX API\|API]],  [[FEX API Design\|API Design]],  [[FEX At Entity\|At Entity]],  [[FEX Claude\|Claude]],  [[FEX Completed Roadmap\|Completed Roadmap]],  [[FEX CSE\|CSE]],  [[FEX Decisions\|Decisions]],  [[FEX Decisions Details\|Decisions Details]],  [[FEX Dispatch Examples\|Dispatch Examples]],  [[FEX Facet\|Facet]],  [[FEX Figure Page\|Figure Page]],  [[FEX Files\|Files]],  [[FEX Icebox\|Icebox]],  [[FEX Inbox\|Inbox]],  [[FEX Minimal Facet\|Minimal Facet]],  [[FEX Minimal Skill\|Minimal Skill]],  [[FEX Project Root\|Project Root]],  [[FEX Repo\|Repo]],  [[FEX Roadmap\|Roadmap]],  [[FEX Rules\|Rules]],  [[FEX Skill\|Skill]],  [[FEX Spine Examples\|Spine Examples]],  [[FEX Stories\|Stories]],  [[FEX System Design\|System Design]],  [[Forum Stories]],  [[Harbor Account Northwind]],  [[Harbor Hops]],  [[Harbor Latency Budget]],  [[Harbor Releases]],  [[Harbor Runbooks]],  [[HBR]],  [[HBR PRD User Stories]],  [[HWP]],  [[Knots]],  [[Mini]],  [[Snap]],  [[Viz Bench]],   |
 
 # FEX Architecture
-CAE is a single-process CLI scheduler. A submitted task carries a deadline, a retry policy, and an opaque command payload; the scheduler enqueues it in a SQLite-backed priority store, dispatches to a fixed worker pool when ready, and routes failures through a centralized retry manager. No daemon, no IPC — every coordination decision flows through the SQLite store.
+CAE is a single-process CLI task scheduler — one queue, one clock, SQLite-backed.
 
 ![[FEX Architecture.svg|2400]]
 
-CLI submits tasks to the **Scheduler**, which dispatches to the **Worker Pool**, persists state in **TaskStore**, and consults **RetryManager** on failure. The injectable **Clock** (not shown — passed by reference at construction) is the time source every component reads from.
+| Part | Role | Module |
+|---|---|---|
+| [[FEX Empty\|CLI]] | `submit` · `cancel` · `status` · `drain` · `run` — short-lived commands read the store directly | — |
+| [[FEX Scheduler\|Scheduler]] | the single global priority queue with age-based promotion; dispatches when a task is ready | `execution` |
+| [[FEX Empty\|Worker Pool]] | fixed threads (`w1…wN`), not tokio, running the task's command payload | `execution` |
+| [[FEX Empty\|TaskStore]] | SQLite persistence — load, save, mark-done; operator-readable | `store` |
+| [[FEX Empty\|RetryManager]] | exponential backoff, reschedule, dead-letter after `retry_limit` | `retry` |
+| [[FEX Empty\|Clock]] | the injectable time source every component reads — `WallClock` in production, `TestClock` in tests (passed by reference, not drawn) | `clock` |
 
+## Overview
 
+A submitted task carries a deadline, a retry policy, and an opaque command payload; the scheduler enqueues it in the SQLite-backed priority store, dispatches to the fixed worker pool when ready, and routes failures through the centralized retry manager. No daemon, no network — a `cae` invocation is either a short-lived store operation or a long-lived drain. CLI submits to the **Scheduler**, which dispatches to the **Worker Pool**, persists state in **TaskStore**, and consults **RetryManager** on failure; the **Clock** is the one time source.
 
 > [!note] DAS Architecture convention
-> Real subsystem docs use `[[double-bracket]]` wiki-links; placeholders for subsystems whose docs aren't authored use `[single-bracket]` plain text — visible inventory without polluting Obsidian's link graph. See [[DAS Architecture]] § Subsystem dispatch table.
+> Real subsystem docs use `[[double-bracket]]` wiki-links; in the **spine**, placeholders for subsystems whose docs aren't authored use `[single-bracket]` plain text — visible inventory without polluting Obsidian's link graph. See [[DAS Architecture]] § Subsystem dispatch table. In the **parts table under the figure** this example uses pretend links to [[FEX Empty]] instead, so each row is clickable without minting a page.
 
 For the public API surface (schemas, file formats, error types), see [[FEX API]].
 

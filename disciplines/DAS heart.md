@@ -76,7 +76,7 @@ Nothing is deleted in the move; the cap becomes satisfiable *without loss*, whic
 **Live:** [[Stones]] — `## The map — what flows into what` directly over the feed table. **Made-up:** — (to mint: a Harbor hop-order map).
 
 ## Figure
-**What it is.** The thing the page defines, drawn — an architecture diagram, a flow. It sits directly under the one-liner with **no title**, and the table that reads it sits beneath.
+**What it is.** The thing the page defines, drawn — an architecture diagram, a flow — **plus the parts table beneath it**: one row per piece the figure draws, linking out to the page that describes that piece. The figure carries no clickable links, so the table is the way from the picture to the parts; a figure with no table under it is a picture, not a heart (Dan, 2026-08-29). The figure sits directly under the one-liner with **no title**. In FEX, parts that are not built out link to [[FEX Empty]] so a click mints nothing.
 
 **Live:** [[DAS Code Design]] — the subsystem figure, then the skills table. **Made-up:** [[FEX Figure Page]], [[FEX Architecture]].
 
