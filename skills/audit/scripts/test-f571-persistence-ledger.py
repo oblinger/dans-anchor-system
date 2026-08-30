@@ -68,8 +68,8 @@ TODAY = date.today()
 OLD = (TODAY - timedelta(days=11)).isoformat()
 NOW = TODAY.isoformat()
 
-f_stale = finding("EMBER/EMBER Design/EMBER Features/EMBER007 - a.md")
-f_fresh = finding("EMBER/EMBER Design/EMBER Features/EMBER009 - b.md")
+f_stale = finding("EMBER/EMBER Design/Ember Features/EMBER007 - a.md")
+f_fresh = finding("EMBER/EMBER Design/Ember Features/EMBER009 - b.md")
 
 print("A first sight is not yet a persistence")
 
@@ -117,7 +117,7 @@ check("...and the ledger is empty, not merely quiet",
 print("\nThe clock does not restart when a finding moves down its file")
 
 LEDGER.write_text(json.dumps({aq._persist_key(f_stale): OLD}), encoding="utf-8")
-moved = finding("EMBER/EMBER Design/EMBER Features/EMBER007 - a.md")
+moved = finding("EMBER/EMBER Design/Ember Features/EMBER007 - a.md")
 moved.surface_line = 412            # the whole reason line is not in the key
 out = aq.update_persistence_ledger([moved], today=NOW, path=LEDGER)
 check("a shifted line number keeps the original first-seen date",

@@ -44,4 +44,4 @@ Dan, 2026-08-02: *"all this stuff that you're banking about drawing pictures, I 
 
 The observation was exact. The mechanical half was written down in two places and the judgement half in none — and the source-alongside-output rule was being cited in the published standard as settled policy while existing nowhere a reader could reach. A discipline is the shape the system already had for *"a methodology other skills follow, published outward"*, so this is an instance of an existing kind rather than a new one.
 
-Commissioned by [[TINK Backlog#^T566|T566]]; the slot was settled by [[TINK Backlog#^T558|T558]].
+Commissioned by [[Tink Backlog#^T566|T566]]; the slot was settled by [[Tink Backlog#^T558|T558]].

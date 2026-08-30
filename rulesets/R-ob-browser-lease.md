@@ -4,7 +4,7 @@ confirm:: user
 description:: One host, one browser — an agent driving Safari or Chrome outside `ctrl` must still hold the `ctrl` browser lease. Closes ATT T183's gap 1, where the sanctioned login-walled path (`open -a Safari` + osascript) would otherwise bypass the lease entirely (`tool:pre:Bash` deny, rides `anchor-base`).
 
 > [!info] Provenance
-> Commissioned as the second half of [[ATT183 - Several agents on one host still share one browser|ATT T183]] — the row calls it *"gap 1"* and is explicit that shipping the lease without it would be worse than shipping no lease: *"a lease that covers `ctrl` and nothing else is worse than no lease if anyone reads it as 'the browser is protected.'"* Built 2026-08-21 on the same `tool:pre:Bash` veto path as `R-ob-remote-ops-01`, which the T183 record names as the model.
+> Commissioned as the second half of [[Atticus183 - Several agents on one host still share one browser|ATT T183]] — the row calls it *"gap 1"* and is explicit that shipping the lease without it would be worse than shipping no lease: *"a lease that covers `ctrl` and nothing else is worse than no lease if anyone reads it as 'the browser is protected.'"* Built 2026-08-21 on the same `tool:pre:Bash` veto path as `R-ob-remote-ops-01`, which the T183 record names as the model.
 
 ### RULE R-ob-browser-lease-01 — driving a browser outside `ctrl` needs the `ctrl` lease (when:: tool:pre:Bash)
 

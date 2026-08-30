@@ -9,7 +9,7 @@ group: slot
 | --- | --- |
 | Related | [[DAS Dispatch Table]],  [[DAS progressive-disclosure]],  [[DAS Disciplines\|Disciplines]],  [[DAS\|dans-anchor-system]],   |
 | Rules | [[R-spine]],  [[R-dispatch-table]],  [[R-exception-discipline]],   |
-| Shapes | [[LUMEN Nudge\|breadcrumb]],  [[Rolodex\|custom]],  [[Disk\|list]],  [[VOX\|stream]],  [[AI Safety\|exception]],   |
+| Shapes | [[Lumen Nudge\|breadcrumb]],  [[Rolodex\|custom]],  [[Disk\|list]],  [[VOX\|stream]],  [[AI Safety\|exception]],   |
 | Examples | [[FEX Spine Examples\|made-up gallery]],  [[Harbor Runbooks]],  [[Devtools]],  [[Harbor Hops]],  [[Harbor Releases]],   |
 
 # Spine Discipline
@@ -17,7 +17,7 @@ Everything above the H1 says where the page sits; the heart directly below says 
 
 | Spine shape                           | Marker | What it says about the children                                  | Live                              | Made-up                                          | Pages |
 | ------------------------------------- | ------ | ---------------------------------------------------------------- | --------------------------------- | ------------------------------------------------ | ----- |
-| **[[#Breadcrumb spine\|Breadcrumb]]** | `:>>`  | there are none — this page is a leaf                             | [[LUMEN Nudge]]                   | [[Harbor Latency Budget]]                        | 1,266 |
+| **[[#Breadcrumb spine\|Breadcrumb]]** | `:>>`  | there are none — this page is a leaf                             | [[Lumen Nudge]]                   | [[Harbor Latency Budget]]                        | 1,266 |
 | **[[#Custom spine\|Custom]]**         | `...`  | named by hand, one row each, in whatever arrangement suits them  | [[Legal]] · [[Rolodex]] · [[SKA]] | [[Bridges]] · [[Harbor Runbooks]] · [[Devtools]] | 814   |
 | **[[#List spine\|List]]**             | `---`  | the machine writes one row each, alphabetical, with descriptions | [[Disk]]                          | [[Harbor Hops]]                                  | 231   |
 | **[[#Stream spine\|Stream]]**         | `^^^`  | the same, reversed, so dated children read newest-first          | [[VOX]]                           | [[Harbor Releases]]                              | 23    |
@@ -27,7 +27,7 @@ Everything above the H1 says where the page sits; the heart directly below says 
 
 **Anything that is not one of the four is an exception, enumerated by name** rather than derived from a rule — the redirect page is the only known kind, and § Exceptions holds it. Dan, 2026-08-12, on the redirect: *"it's not really a spine, but redirect files are a valid exception case… for the exception cases, we should probably just list them out."*
 
-Counts are a vault scan of 1,234 masthead pages plus [[TINK308 - Spine: the routing zone every document opens with|F308]]'s breadcrumb census; custom is the `...` population entire, which is why it absorbs the three figures the earlier cut split it into (578 + 223 + 13). Each shape is specified in its own section below; the examples illustrate those specs and do not replace them.
+Counts are a vault scan of 1,234 masthead pages plus [[Tink308 - Spine: the routing zone every document opens with|F308]]'s breadcrumb census; custom is the `...` population entire, which is why it absorbs the three figures the earlier cut split it into (578 + 223 + 13). Each shape is specified in its own section below; the examples illustrate those specs and do not replace them.
 
 ## What a spine is
 
@@ -60,7 +60,7 @@ The whole spine is one line, and the lines around it are fixed:
 | 4 | *(blank)* |
 | 5 | **The heart** — the one main thing the document exists to hold |
 
-Line 5 is load-bearing and the one most often got wrong: the main thing goes **directly under the summary**, before any prose explaining it. [[LUMEN Nudge]] is the exemplar — breadcrumb, H1, one sentence, then the table of what is coming up.
+Line 5 is load-bearing and the one most often got wrong: the main thing goes **directly under the summary**, before any prose explaining it. [[Lumen Nudge]] is the exemplar — breadcrumb, H1, one sentence, then the table of what is coming up.
 
 **A data table on a leaf is not a dispatch table.** This is the distinction a reader must make on sight, and the reason [[Harbor Latency Budget]] exists: it carries a substantial table and is still a leaf, because the table describes the page's own subject rather than routing anywhere.
 
@@ -121,7 +121,7 @@ Identical to a list spine except reversed, so reverse-alphabetical *is* reverse-
 
 **A single `(See …)` line below the H1, and no table.** The page organizes nothing and owes two or three named destinations — or *is* a slug marker standing in for its anchor page. Live: [[AI Safety]], [[MED Food]], [[@Peter Hui]], [[Flashcards]], [[Self Attention]]; the slug-marker sub-form is [[VEC]], [[FCT]], [[CFO]], [[ANC]].
 
-**It is not a spine, and the sharp edge is where it sits.** Every shape above sits at or above the H1; a redirect sits *below* it, which is body content's position. Dan, 2026-08-12: *"it's kind of an exception… it's not really a spine, but I think redirect files are a valid exception case."* Ruled as [[TINK308 - Spine: the routing zone every document opens with|F308]] Q5, which had carried it as a seventh shape (S2) through three census passes.
+**It is not a spine, and the sharp edge is where it sits.** Every shape above sits at or above the H1; a redirect sits *below* it, which is body content's position. Dan, 2026-08-12: *"it's kind of an exception… it's not really a spine, but I think redirect files are a valid exception case."* Ruled as [[Tink308 - Spine: the routing zone every document opens with|F308]] Q5, which had carried it as a seventh shape (S2) through three census passes.
 
 **86 pages, plus 16 more riding alongside a breadcrumb.** They are exceptions, not defects: a page that exists to hand the reader onward and nothing else is a real thing the vault does, and giving it a masthead would be a promise it cannot keep.
 
@@ -131,7 +131,7 @@ Identical to a list spine except reversed, so reverse-alphabetical *is* reverse-
 
 **Every hub ends in an electric marker.** Not because the page needs it today, but because of what happens tomorrow: someone adds a file to the folder and does not update the masthead. With a catchall the new child appears automatically — unsorted, but *visible*. Without one it is invisible, and nothing ever tells you.
 
-That is a measured failure, and the size of it is **16 pages hiding 44 children** (2026-08-11) — pages that front a folder, carry no marker, and hold at least one member they link nowhere. The worst is [[EMBER Log]] at 14 of 14; then [[Atticus]] (6 of 7), [[SV Track]] (4), [[Warden Corpus]] (3 of 3). Treat the figure as a snapshot: three passes over the same afternoon read 39, 37 and 37 pages as the corpus moved under them.
+That is a measured failure, and the size of it is **16 pages hiding 44 children** (2026-08-11) — pages that front a folder, carry no marker, and hold at least one member they link nowhere. The worst is [[Ember Log]] at 14 of 14; then [[Atticus]] (6 of 7), [[SV Track]] (4), [[Warden Corpus]] (3 of 3). Treat the figure as a snapshot: three passes over the same afternoon read 39, 37 and 37 pages as the corpus moved under them.
 
 **The figure this section used to carry — 36 pages, with `ASIO` (33) and `META` (14) as its worked examples — was wrong, and wrong in a way worth keeping.** `S07` fired on folder *size* and reported it as hidden, never asking whether the page already linked its members. Re-measured 2026-08-11 (by [[ATT|Atticus]], then independently here): **37 pages / 230 children** as the rule was written, **16 / 44** once the already-linked filter `S08` had used all along is applied — and **21 of the 37 hid nothing whatsoever.** `ASIO` has 33 members and 0 unlinked; `META` 14 and 0. Both hand-write one masthead row per child, which is a custom spine doing exactly its job.
 
@@ -165,7 +165,7 @@ One rule stays, because the spine examples cannot be authored correctly without 
 
 The row vocabulary, the identity cell, and the fixed row order are [[DAS Dispatch Table]]'s; the automation semantics are summarized above but owned there. Do not restate either here.
 
-**This page is itself a [[#Custom spine|custom spine]] that fronts no folder** — its rows point at [[LUMEN Nudge]], [[Rolodex]], [[Disk]], [[VOX]] and the Harbor examples, 93% of them outside `disciplines/`, so there is nothing to sweep and carrying no marker is correct rather than an omission.
+**This page is itself a [[#Custom spine|custom spine]] that fronts no folder** — its rows point at [[Lumen Nudge]], [[Rolodex]], [[Disk]], [[VOX]] and the Harbor examples, 93% of them outside `disciplines/`, so there is nothing to sweep and carrying no marker is correct rather than an omission.
 
 ### Where the examples live, and why not in a folder here
 
@@ -198,7 +198,7 @@ It still reads as a discipline in the `where::` grammar, because that grammar ca
 
 # Log
 
-**2026-08-12 — seven shapes became four and an exception list, and the shape set stopped living in two places.** Dan resolved [[TINK308 - Spine: the routing zone every document opens with|F308]] Q5 and Q6, and the ruling was larger than either question asked.
+**2026-08-12 — seven shapes became four and an exception list, and the shape set stopped living in two places.** Dan resolved [[Tink308 - Spine: the routing zone every document opens with|F308]] Q5 and Q6, and the ruling was larger than either question asked.
 
 - **Curated, grouped and two-level are one shape, `custom`.** All three are hand-authored rows above a `...`; what separated them was how those rows happened to be arranged, which is the author's business and not a property of the page. Both distinctions are kept and taught inside § Custom spine — they were worth writing down, they were just not shapes.
 - **`+` was demoted back to a régime**, three days after this page promoted it. Recorded rather than quietly reverted, because the argument that promoted it was sound and is still in the text.
@@ -207,7 +207,7 @@ It still reads as a discipline in the `where::` grammar, because that grammar ca
 - **The external masthead was listed beside it for one day and Dan refused it the same day**, by opening the exemplar: *"why is startupper an exception spine? Why isn't that a custom spine."* Its rows are hand-written, which is the whole selector; what looked like a shape defined by carrying no marker was a *condition* (fronting no folder) that § The catchall is not optional had always had its own clause for. There is no external shape and no external exception. Worth keeping because the same mistake is available again: **pointing outward is a property of the rows, and the marker rule turns on the folder** — and because the first attempt at writing this entry asserted that [[STARTUPPER]] carries its `...` *because it fronts a folder*, which the checker refuted in one call. It fronts none, the marker is an `S09`, and its catchall has swept four unrelated rolodex groups.
 - **Scope and rollout settled (Q6):** every markdown file under an anchor owes a spine — 7,644 of 7,651 — with liberal exceptions allowed and no exceptions table built yet. The rollout is **lazy**: a page gets its spine when an agent saves it. Dan: *"we're not gonna scan through the whole repository, we're just gonna do this as the agent modifies a file. Later, we'll do the whole thing."* So the 5,088 spineless pages are a backlog depth, not a migration to schedule.
 
-**And the shape set now lives here alone.** Dan: *"we're getting multiple sources of truth here… what we should be doing is not doing this in the feature document, but actually putting the exemplars into the DAS documentation."* F308 had been carrying its own six-shape table while this page carried a different seven, and neither knew about the other. F308's table becomes a pointer; [[TINK326 - Spine Update|F326]] is where the work is tracked, and F308 closes when Dan agrees with this page and [[FEX Spine Examples]].
+**And the shape set now lives here alone.** Dan: *"we're getting multiple sources of truth here… what we should be doing is not doing this in the feature document, but actually putting the exemplars into the DAS documentation."* F308 had been carrying its own six-shape table while this page carried a different seven, and neither knew about the other. F308's table becomes a pointer; [[Tink326 - Spine Update|F326]] is where the work is tracked, and F308 closes when Dan agrees with this page and [[FEX Spine Examples]].
 
 **2026-08-09 — the six shapes became four, and the axis was wrong.** The first cut of this page keyed six shapes (S1–S6) on "the terminal separator," which was wrong in three ways the user caught by reading the exemplars:
 
@@ -217,9 +217,9 @@ It still reads as a discipline in the `where::` grammar, because that grammar ca
 
 The user's reframing replaced the old selector ("does this document organize other files?") with **position in the structure, up and down** — which explains why the identity row contains a breadcrumb, a fact the two-forms framing could not account for. Naming follows the user's spine-family vocabulary (breadcrumb / grouped / list / stream). The apparent collision with the house's old "list dispatch" naming — a *manual* flat list ending `...`, where a list spine is *machine* rows below `---` — was resolved by keeping the name for `---` only; the manual form is a grouped spine with long labels.
 
-Exemplars replaced in the same pass: `PKM Discussion` → [[LUMEN Nudge]] (the user asked for a breadcrumb page whose primary entity is a table; `PKM Discussion` has no primary entity and is arguably a stream), and `DAS WP Design` → [[Disk]] (the old one had zero child rows below its `---`, a degenerate list — 94 of 231 list spines share that defect).
+Exemplars replaced in the same pass: `PKM Discussion` → [[Lumen Nudge]] (the user asked for a breadcrumb page whose primary entity is a table; `PKM Discussion` has no primary entity and is arguably a stream), and `DAS WP Design` → [[Disk]] (the old one had zero child rows below its `---`, a degenerate list — 94 of 231 list spines share that defect).
 
-**Still open:** whether the `(See …)` redirect line (86 pages) is a spine at all. Carried as [[TINK308 - Spine: the routing zone every document opens with|F308]] Q5.
+**Still open:** whether the `(See …)` redirect line (86 pages) is a spine at all. Carried as [[Tink308 - Spine: the routing zone every document opens with|F308]] Q5.
 
 **2026-08-09 (later) — four shapes became five, and the heart got its name.** A second round with the user, all of it correction:
 

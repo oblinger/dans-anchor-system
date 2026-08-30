@@ -91,5 +91,5 @@ Discussion is **append-only**. Entries are never edited after the Decision is fi
 
 *(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body and ruleset above.)*
 
-- **Don't revert to anchor-scoped wiring** — Discussion was re-scoped anchor→doc on 2026-06-11; legacy `{slug} Discussion.md` is deprecated (migration tracked in [[TINK Backlog]] § F149).
+- **Don't revert to anchor-scoped wiring** — Discussion was re-scoped anchor→doc on 2026-06-11; legacy `{slug} Discussion.md` is deprecated (migration tracked in [[Tink Backlog]] § F149).
 - **Placement / naming logic lives in [[DAS stream]]** (`R-stream`) — edit those rules there, not here; this spec owns only Discussion-specific rules.

@@ -4,7 +4,7 @@
 TINK F301. A declared `slug:` is a **short handle** for its anchor, and is
 declared only when it earns that: either files are prefixed with it, or it is
 the short form typed to refer to and navigate to the anchor. Spelling follows
-from the job — it sits in front of a name (`TINK Backlog.md`), so it must be
+from the job — it sits in front of a name (`Tink Backlog.md`), so it must be
 visually separable at a glance: one token, uppercase alphanumeric.
 
 Before this rule existed, 116 of 186 declarations in the vault were

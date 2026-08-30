@@ -21,7 +21,7 @@ Every research action shares the same output skeleton: a dated report folder wit
 | [[DAS Research Person\|Person]] | Research a person — produces an AT person-file dossier with background, work history, public footprint |
 | [[DAS Research Book\|Book]] | Research a book — produces a summary in BOOK Summary |
 
-Sub-skill docs marked with broken links are not yet written (tracked by [[TINK Backlog#^B-skl-user-docs|B-skl-user-docs]]).
+Sub-skill docs marked with broken links are not yet written (tracked by [[Tink Backlog#^B-skl-user-docs|B-skl-user-docs]]).
 
 ## Common output: a dated file in the matching stream
 

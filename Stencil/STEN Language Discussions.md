@@ -13,7 +13,7 @@ Opened 2026-08-20 as a [[DAS Discussion]] method-2 sibling. Newest first.
 
 Three concrete costs, beyond the ugliness:
 
-- **A filename cannot say very much.** It carries one pattern. It cannot say that a person entity is `@{{PERSON_NAME}}.md` when flat *and* `@{{PERSON_NAME}}/@{{PERSON_NAME}}.md` when promoted to folder form — which is exactly what [[DAS At Entity]] needs, and exactly the anchor+file vs anchor+folder distinction [[TINK336 - Facet association patterns, a path template per parent and method|F336]] measured as load-bearing.
+- **A filename cannot say very much.** It carries one pattern. It cannot say that a person entity is `@{{PERSON_NAME}}.md` when flat *and* `@{{PERSON_NAME}}/@{{PERSON_NAME}}.md` when promoted to folder form — which is exactly what [[DAS At Entity]] needs, and exactly the anchor+file vs anchor+folder distinction [[Tink336 - Facet association patterns, a path template per parent and method|F336]] measured as load-bearing.
 - **Braces in a filename are hostile to the tools that touch filenames** — shell globs, `Edit`'s exact-match, link resolution — for a payload that is not a name.
 - **It ties the template to a place.** `_@{{PERSON_NAME}} Template.md` governs its own folder and the tree beneath it ([[DAS Template]] § hierarchy climb). But `@` entities are no longer confined to [[AT]] — 655 pages across `AT/`, `SV/` and `Topic/` — so the one thing the filename form cannot express is the case that actually exists.
 
@@ -30,7 +30,7 @@ Three concrete costs, beyond the ugliness:
       assoc-anchor-file::    {{ANCHOR}}/@{{PERSON_NAME}}.md
       assoc-anchor-folder::  {{ANCHOR}}/@{{PERSON_NAME}}/@{{PERSON_NAME}}.md
 
-**Decision.** Proposed, not settled — asked as [[TINK336 - Facet association patterns, a path template per parent and method|F336]] Q3, because F336 owns the key grammar and this is a second consumer of it rather than a new feature. Three points worth keeping whichever way it is ruled:
+**Decision.** Proposed, not settled — asked as [[Tink336 - Facet association patterns, a path template per parent and method|F336]] Q3, because F336 owns the key grammar and this is a second consumer of it rather than a new feature. Three points worth keeping whichever way it is ruled:
 
 1. **It answers the "where does an instance go" question once**, for facets and templates alike. Today a facet answers it in a `::` key and a template answers it in its filename, which is two answers to one question — and only one of them is checkable.
 2. **The `{{PREFIX}}`/`{{SLUG}}` finding transfers directly.** F336 chose `{{PREFIX}}` because `{{SLUG}}` is unresolvable for the 176 instances whose anchor declares no slug. A template key written with `{slug}` would be unmatchable in the same way, which is worth knowing before any are drafted.

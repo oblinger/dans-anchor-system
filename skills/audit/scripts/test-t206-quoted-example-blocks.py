@@ -9,7 +9,7 @@ of a copy-pasteable corpus — so the fence test could not see any of it.
 
 Two checkers then got the same file wrong at once, and neither noticed:
 
-  - A spine sweep HOISTED example T1.a's quoted `[[HERMES Backlog]]` masthead
+  - A spine sweep HOISTED example T1.a's quoted `[[Hermes Backlog]]` masthead
     out of its block and installed it as `Template Examples.md`'s own identity
     row (`07414a8e`, `9e5542b6`). The page then declared itself to be a
     different page — the failure `R-spine.md` warns about in its own text,
@@ -61,9 +61,9 @@ def check(cond, label):
 sp = _load("spine")
 
 QUOTED_MASTHEAD = (
-    "| -[[HERMES Backlog]]- | → [[kmr]] → [[SYS]] → [HERMES Backlog](hook://p/X) |\n"
+    "| -[[Hermes Backlog]]- | → [[kmr]] → [[SYS]] → [HERMES Backlog](hook://p/X) |\n"
     "| --- | --- |\n"
-    "| ... | [[HERMES Messages]],   |\n"
+    "| ... | [[Hermes Messages]],   |\n"
 )
 
 

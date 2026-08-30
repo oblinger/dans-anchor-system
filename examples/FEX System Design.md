@@ -55,7 +55,7 @@ That split is the facet's rule (`R-fct-system-design-05`), and it is what keeps 
 
 # BRIEF
 
-- **Don't read the section list as a template.** [[DAS System Design]] requires no fixed spine — these sections are named after the scheduler, and a System Design for a different system should be named after that one. The facet carried a four-H2 requirement until 2026-08-05, when it was re-derived from instances ([[TINK Backlog#^T515|T515]]) after measuring that it matched none of the 14 in the vault.
+- **Don't read the section list as a template.** [[DAS System Design]] requires no fixed spine — these sections are named after the scheduler, and a System Design for a different system should be named after that one. The facet carried a four-H2 requirement until 2026-08-05, when it was re-derived from instances ([[Tink Backlog#^T515|T515]]) after measuring that it matched none of the 14 in the vault.
 - **No `## Decisions` section here — that is checked** (`R-fct-system-design-05`). If a ruling needs recording while editing this file, it goes to [[FEX Decisions]].
 - **Current spec only.** No changelog, no history, no deliberation — rationale belongs in [[DAS Discussion]], rulings in [[FEX Decisions]].
 - **World consistency:** this is the [[FEX Scheduler]] / [[FEX Architecture]] system. Component and module names must agree with those files; when they drift, they are wrong here, since Architecture is the decomposition of record.

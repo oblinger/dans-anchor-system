@@ -35,7 +35,7 @@ Read from and write to external services. Each sub-skill is an access card with 
 **Use the MCP server for as little as possible.** It is one more moving part on the same single credential store, and two independent failures make it the weakest link:
 
 - **It is not currently reachable as an MCP.** `claude mcp list` reports no servers — an `ANTHROPIC_API_KEY` precedence warning blocks registration, so `ob_boot` re-registers it into a void at every login. The server itself is healthy on `:8000`; only the Claude Code integration is broken. Reaching it means speaking JSON-RPC over HTTP by hand.
-- **Its token expires every 7 days** (the OAuth app is in Testing mode), and nothing probes it — so the credentials rot silently and the first symptom is an unrelated task failing. See [[ATT Backlog#^T229|ATT T229]].
+- **Its token expires every 7 days** (the OAuth app is in Testing mode), and nothing probes it — so the credentials rot silently and the first symptom is an unrelated task failing. See [[Atticus Backlog#^T229|ATT T229]].
 
 **One credential store, two clients.** `gsa` and `workspace-mcp` both read `~/.google_workspace_mcp/credentials/{user}@gmail.com.json`. There are not two OAuth paths to repair — one consent fixes both. When re-consenting, **tick "Select all"**: the permission checkboxes default to unchecked, and clicking straight through grants `email`/`profile`/`openid` only, which then fails as HTTP 403 *insufficient scopes* rather than as an auth error.
 
@@ -48,7 +48,7 @@ Read from and write to external services. Each sub-skill is an access card with 
 | **Apple** | `/io imail` | [[io-imail]] · [[io-local-mail]] | Email via **local Apple Mail** (working) — *every* account on this Mac, but only what is downloaded locally. Composing lives here. For one account's full server-side archive, use [[io-gmail\|`/io gmail`]]. Access methods: [[WIRE Mail]]. |
 | **Local** | `/io local-mail` | [[io-local-mail]] · [[WIRE Mail Local Index]] | **Fastest mail route by four orders of magnitude** (~15 ms vs `imail`'s ~10 min), works offline, and the only surface that searches several accounts in **one** query. Read-only. The mirror is still filling — check `mailsync --status` and [[Emails]] before believing a zero result. |
 | **Apple** | `/io ical` | [[io-ical]] · [[io-ical-access]] | Calendar via **local macOS Calendar** (EventKit, working) — **read and write**: today's events or `+N` days ahead, and create / show / delete events with notes, alarms and all-day spans. Superset of the synced Google calendars. Server-side Google Calendar surface would be `/io gcal`. See [[io-ical-access]]. |
-| **Apple** | `/io ihealth` | [[io-ihealth]] | Apple Health / HealthKit — **local daily JSON drop** (working, no auth): sleep, heart rate, HRV, activity, overnight vitals, gait. One file per day off the Watch/iPhone. Pipe + traps: [[WIRE Health Auto Export]], [[LUMEN Data Sources]]. |
+| **Apple** | `/io ihealth` | [[io-ihealth]] | Apple Health / HealthKit — **local daily JSON drop** (working, no auth): sleep, heart rate, HRV, activity, overnight vitals, gait. One file per day off the Watch/iPhone. Pipe + traps: [[WIRE Health Auto Export]], [[Lumen Data Sources]]. |
 | **Apple** | `/io contacts` | [[io-contacts]] | macOS **Contacts** (read-only) — `search` / `show` / `count` over every account synced to this Mac, no auth. Use it instead of hand-written `osascript`; a zero names the corpus so an empty result is never confused with a broken reader. |
 | **Google** | `/io gsheet` | [[io-gsheet]] | Google Sheets |
 | **Google** | `/io gslide` | [[io-gslide]] | Google Slides |
@@ -76,7 +76,7 @@ Last full re-consent: **2026-08-05**, 41 scopes granted on `oblinger@gmail.com` 
 
 **Publishing this app out of Testing is not a switch.** `drive` and every `gmail.*` scope are **restricted** tier, so leaving Testing needs OAuth verification plus an annual third-party CASA security assessment — weeks and money. The 7-day expiry is a property of *this app*, not of Google Drive.
 
-**Drive access need not come through `gsa` at all.** `rclone` carries two independent remotes — `gdrive:` (personal, `oblinger@gmail.com`) and **`svdrive:`** (SportsVisio, its own `client_id`; verified working 2026-08-28, listing SV Root and reporting 54 TiB of pooled Workspace storage). They fail independently, so a dead `gsa` grant says nothing about `svdrive:`, and a task that only needs Drive *files* moved should reach for rclone before re-consenting anything. Whether `svdrive:` can **write** SV-owned files is the open question — [[TINK Backlog#^T610|TINK T610]].
+**Drive access need not come through `gsa` at all.** `rclone` carries two independent remotes — `gdrive:` (personal, `oblinger@gmail.com`) and **`svdrive:`** (SportsVisio, its own `client_id`; verified working 2026-08-28, listing SV Root and reporting 54 TiB of pooled Workspace storage). They fail independently, so a dead `gsa` grant says nothing about `svdrive:`, and a task that only needs Drive *files* moved should reach for rclone before re-consenting anything. Whether `svdrive:` can **write** SV-owned files is the open question — [[Tink Backlog#^T610|TINK T610]].
 
 IDs accept full Google URLs or bare document IDs.
 

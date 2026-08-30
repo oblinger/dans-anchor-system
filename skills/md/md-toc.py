@@ -140,7 +140,7 @@ def insertion_point(lines: list[str], h1: int) -> int:
     it AS the orientation line, landing the TOC above the real one. That puts
     the file in permanent violation of `R-spine-02`, whose checker skips the
     stamp and then finds a table where prose must be. Found 2026-08-11 by
-    running this script on [[TINK Backlog]] and watching the rule go red.
+    running this script on [[Tink Backlog]] and watching the rule go red.
     """
     comment = re.compile(r'^\s*<!--.*-->\s*$')
     i = h1 + 1

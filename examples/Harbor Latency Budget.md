@@ -20,7 +20,7 @@ The per-hop millisecond budget a Harbor request is allowed to spend, and who own
 > - **The budget table is the [[DAS spine#The heart|heart]]** — the entire reason the page exists. It sits *directly* under that sentence, above the fold, so the reader lands on it without scrolling. The explanation lives below it, never above.
 > - **The heart is content, not navigation.** A primary data table on a leaf is not a dispatch table and does not make this page a hub — exactly the distinction a reader must make on sight. Compare [[Bridges]], where a table of the same visual weight *is* the routing surface.
 >
-> The live counterpart is [[LUMEN Nudge]]: breadcrumb, H1, one sentence, then the table it exists for.
+> The live counterpart is [[Lumen Nudge]]: breadcrumb, H1, one sentence, then the table it exists for.
 
 ## Why the budget is 160 ms
 

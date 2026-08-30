@@ -102,7 +102,7 @@ check(verdict(group(control=LIVE))[0] == "pass", "a control file with live links
 # 3 — an import site. Neither its header (R-stone-04) nor the foreign stones
 #     copied in below it belong to this group, and no local resolver can see
 #     either. This is the case that caught the landmine.
-imported = LIVE + "\n[[VEC Rock|-VEC-]] \n[[VEC R0001|VEC:]] someone else's rock\n"
+imported = LIVE + "\n[[Vector Rock|-VEC-]] \n[[Vector R0001|VEC:]] someone else's rock\n"
 v = verdict(group(control=imported))
 check(v[0] == "pass", "an import site — foreign header AND foreign stones — is skipped")
 check(ap._stone_control_suffixes() >= {" Rock", " Pebble"},

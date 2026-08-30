@@ -8,7 +8,7 @@ pulls the date-time out of the body instead.
 
     python3 appointment-scan.py [--days 3] [--account EMAIL] [--asof DATE]
 
-Senders come from `LUMEN Watchlist.md` — this script never carries its own
+Senders come from `Lumen Watchlist.md` — this script never carries its own
 copy of the list. Prints one line per appointment found, soonest first, or
 nothing at all when there is nothing scheduled.
 """
@@ -23,7 +23,7 @@ from pathlib import Path
 
 GSA = Path.home() / "ob/kmr/SYS/Bespoke/Skill Agent/Doc/Google Suite Access/gsa"
 WATCHLIST = (Path.home() / "ob/kmr/SYS/Staff/Lumen/LUMEN Design"
-             / "LUMEN Watchlist.md")
+             / "Lumen Watchlist.md")
 API = "https://gmail.googleapis.com/gmail/v1/users/me"
 
 MONTHS = ["January", "February", "March", "April", "May", "June", "July",

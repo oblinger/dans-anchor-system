@@ -23,7 +23,7 @@ The catalog of discipline facets — cross-cutting concepts the agent reads — 
 **Five entries below are not disciplines**, kept beside their siblings while the folders stay as they are. [[DAS spine]], [[DAS heart]], [[DAS orientation-line]] and [[DAS electric-zone]] each govern a **region** (above the H1; directly below it; the one line between them; everything below a dispatch table's separator), so none meets the no-selector test; they read as disciplines only because the `where::` grammar cannot express a *positional* region and all four fall back to `` `always` ``. [[DAS stream]] is a slot facet outright — `R-stream` carries `` where:: `sentinel: ^## \d{4}-\d{2}-\d{2} —` ``, a selector as explicit as any facet's. [[DAS file-association]] is neither, and is the interesting one — see § What the classification found. The folder is not the taxonomy; the spec's own declaration is.
 
 # What the classification found
-Every entry was tested mechanically rather than by reading its prose: resolve the discipline to its ruleset, read the ruleset's `where::`, and ask what that selects ([[TINK Backlog#^T196|TINK T196]], 2026-08-11). The test is cheap and it disagreed with the guesses that prompted it, which is the reason for running it rather than arguing.
+Every entry was tested mechanically rather than by reading its prose: resolve the discipline to its ruleset, read the ruleset's `where::`, and ask what that selects ([[Tink Backlog#^T196|TINK T196]], 2026-08-11). The test is cheap and it disagreed with the guesses that prompted it, which is the reason for running it rather than arguing.
 
 | Verdict | Count | Evidence |
 |---|---|---|

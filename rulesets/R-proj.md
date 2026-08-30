@@ -1,7 +1,7 @@
 # RULESET R-proj
 where:: `file:{anchor}/**/* Proj/**, {anchor}/**/* Subs/**, !**/DAS *.md`
 description:: the `{slug} Proj/` subprojects zone — a dated reverse-chronological stream of project folders (renamed from Subs)
-selector-note:: Spelled `* Proj/` rather than `{slug} Proj/` for the same reason as [[R-wp]]'s selector ([[TINK Backlog#^T522|T522]]): a folder zone is audited scoped on itself, where `{slug}` resolves to the zone's own folder name and would match nothing. The `* Subs/` glob keeps legacy pre-rename instances ([[A2X Subs]]) in audit scope.
+selector-note:: Spelled `* Proj/` rather than `{slug} Proj/` for the same reason as [[R-wp]]'s selector ([[Tink Backlog#^T522|T522]]): a folder zone is audited scoped on itself, where `{slug}` resolves to the zone's own folder name and would match nothing. The `* Subs/` glob keeps legacy pre-rename instances ([[A2X Subs]]) in audit scope.
 
 What `/audit` checks on an anchor's Proj zone. Cardinality: one zone per anchor, many projects within. Format of this set: [[DAS Ruleset]]. Facet spec: [[DAS Proj]]. All rules (stated) — checkers wait for enough instances to show which invariants actually bind.
 

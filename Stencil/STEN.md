@@ -13,14 +13,14 @@ The pattern language the anchor system is written in — one notation that both 
 
 | Card |  |
 | --- | --- |
-| **Spec** | [[TINK303 - Template DSL - one pattern language for facets, templates, and sections\|F303]] — the commissioning feature; the corpus is [[Template Examples]] |
+| **Spec** | [[Tink303 - Template DSL - one pattern language for facets, templates, and sections\|F303]] — the commissioning feature; the corpus is [[Template Examples]] |
 
 
 ## Overview
 
 **Stencil** is the pattern language that facets, templates, and sections are all written in. A stencil states the shape of a document once, and that single statement runs in both directions: **generate** a conforming document from it, and **match** an existing document against it to test whether it fits. The bidirectionality is the point — today the same shape is stated twice, once as a template that scaffolds and once as a ruleset that checks, and the two drift.
 
-The language is Stencil; the artifacts written in it are **anchor templates** ([[TINK303 - Template DSL - one pattern language for facets, templates, and sections|F303]] Q2, 2026-08-04).
+The language is Stencil; the artifacts written in it are **anchor templates** ([[Tink303 - Template DSL - one pattern language for facets, templates, and sections|F303]] Q2, 2026-08-04).
 
 ## Where it lives, and why here
 
@@ -30,4 +30,4 @@ The notation belongs to the standard rather than to any engine. A stencil is aut
 
 ## Status
 
-Created 2026-08-07. The corpus (M1) is complete and the grammar did not grow under it; **M2 landed the same day** as [[STEN Language]] — three constructs, four defaults, one nesting rule, with variable extent recommended but not ratified. Work is tracked in [[STEN Backlog]]; the design record remains on [[TINK303 - Template DSL - one pattern language for facets, templates, and sections|F303]] until it earns its own design folder.
+Created 2026-08-07. The corpus (M1) is complete and the grammar did not grow under it; **M2 landed the same day** as [[STEN Language]] — three constructs, four defaults, one nesting rule, with variable extent recommended but not ratified. Work is tracked in [[STEN Backlog]]; the design record remains on [[Tink303 - Template DSL - one pattern language for facets, templates, and sections|F303]] until it earns its own design folder.

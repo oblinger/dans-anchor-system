@@ -1,11 +1,11 @@
 # RULESET R-fct-outputs
 include:: [[R-stream]]
 where:: `file:{anchor}/**/* Outputs.md, !**/DAS *.md`
-where-note:: **Deliberately location-independent** (repaired 2026-08-05, [[TINK Backlog#^T373|T373]]). The selector previously encoded the retired location and so matched **0** files vault-wide — including the one live instance it was written to govern. See the same note on [[R-fct-system-design]]: the selector finds the doc, R-01 judges its location.
+where-note:: **Deliberately location-independent** (repaired 2026-08-05, [[Tink Backlog#^T373|T373]]). The selector previously encoded the retired location and so matched **0** files vault-wide — including the one live instance it was written to govern. See the same note on [[R-fct-system-design]]: the selector finds the doc, R-01 judges its location.
 description:: The rules every Outputs folder and its dispatch page must satisfy — location, naming, dispatch-page shape, and individual output-file format.
 
 ### RULE R-fct-outputs-01 — Outputs live under `{slug} Track/` (checked)
-The Outputs folder lives at `{slug} Track/{slug} Outputs/`, not at the anchor root or elsewhere. Outputs are produced work, so they file with tracking rather than with design — which is where the live instances already sat when `{slug} Docs/` was retired ([[TINK Backlog#^T514|T514]]).
+The Outputs folder lives at `{slug} Track/{slug} Outputs/`, not at the anchor root or elsewhere. Outputs are produced work, so they file with tracking rather than with design — which is where the live instances already sat when `{slug} Docs/` was retired ([[Tink Backlog#^T514|T514]]).
 **Check pattern:** the dispatch page path matches `*/{slug} Track/{slug} Outputs/{slug} Outputs.md`.
 **Why:** consistent location lets skills and audits find the zone without per-anchor config. Worked instance: `MUX Track/MUX Outputs/MUX Outputs.md`.
 

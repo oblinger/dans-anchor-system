@@ -87,7 +87,7 @@ Ruled by Dan 2026-08-17, generalizing what the vault already does. A facet folde
 - **A numbered or dated stream: plural.** A folder that shelves individuated, minted instances — `{slug} Pebbles/`, `{slug} Rocks/`, `{slug} Features/` — is plural. These two rules rarely collide, and not by luck: a stream's children carry their own minted names (`TINK P0007`, `MED R0001`), so the folder's name is never needed as a prefix. The stream test and the prefix test are two views of the same fact.
 - **A set or keyed collection with no prefix expectation: singular by default.** `SYS/BRIEF/` (keyed by target basename), `{slug} Notebook/` (the facet-role stream surface), `{slug} Track/`, `{slug} Design/`. When genuinely unsure whether prefix use will emerge, choose singular — a singular that never prefixes costs a hair of naturalness; a plural that later needs to prefix costs a rename sweep.
 
-The house pattern that falls out, visible across live facets: the **control/namesake surface is singular** (`TINK Pebble.md`, `MED Rock.md`, `{slug} Backlog.md`) while the **instance shelf beside it is plural** (`TINK Pebbles/`, `MED Rocks/`) — the singular is the role you name and compose with; the plural is the shelf you browse.
+The house pattern that falls out, visible across live facets: the **control/namesake surface is singular** (`Tink Pebble.md`, `MED Rock.md`, `{slug} Backlog.md`) while the **instance shelf beside it is plural** (`Tink Pebbles/`, `MED Rocks/`) — the singular is the role you name and compose with; the plural is the shelf you browse.
 
 ## Cross-references — facets that declare exception patterns
 

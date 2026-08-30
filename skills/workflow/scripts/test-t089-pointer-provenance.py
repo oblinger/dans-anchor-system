@@ -90,7 +90,7 @@ def notes(status, body, existing="Ready"):
 
 # These used to be REAL vault docs, "picked for the property each assertion
 # needs rather than invented, because `find_file_by_basename` resolves against
-# the live vault." That coupling broke the suite: `TINK Persona.md` was renamed
+# the live vault." That coupling broke the suite: `Tink Persona.md` was renamed
 # to `Tink Persona.md`, and since the resolver is case-SENSITIVE the lookup
 # returned None, so `verify_status_block` took its can't-locate-the-target skip
 # path and never refused. Twelve of twenty assertions then failed on a `None`
@@ -161,7 +161,7 @@ check("it is computed once, at the point the pointer is chosen",
 
 print("5. Quiet skips stay quiet — this adds no new refusals")
 check("a body with no arrow still skips",
-      refusal("Done", "plain prose with [[TINK Persona]] and no arrow") is None)
+      refusal("Done", "plain prose with [[Tink Persona]] and no arrow") is None)
 check("and says so on stderr",
       "no `→ [[…]]` doc reference" in notes("Done", "plain prose, no arrow"))
 check("an empty body still skips", refusal("Done", "") is None)

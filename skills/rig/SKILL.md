@@ -44,7 +44,7 @@ rig ssh <name>     # refresh the alias and connect
 
 **The hyphen is load-bearing — rig rejects dotted names outright.** tmux silently rewrites `.` to `_` in session names and GCE forbids dots in instance names, so a dotted name would mean three different strings in three tools, which is the exact confusion the one-name convention exists to remove.
 
-**2. Bring it down when you are finished.** *Nothing expires.* There is no lease, no timeout, no automatic teardown — a GPU box left running bills continuously (order of several hundred dollars a month for one mid-range GPU), and you will not have a session tomorrow in which to notice. Treat `rig down` as part of finishing the work, not as cleanup to get to later. Auto-teardown is designed but unbuilt — [[TINK P0005]].
+**2. Bring it down when you are finished.** *Nothing expires.* There is no lease, no timeout, no automatic teardown — a GPU box left running bills continuously (order of several hundred dollars a month for one mid-range GPU), and you will not have a session tomorrow in which to notice. Treat `rig down` as part of finishing the work, not as cleanup to get to later. Auto-teardown is designed but unbuilt — [[Tink P0005]].
 
 Before starting and after finishing, `rig ls` is the check: it lists **everything in the account**, including machines rig did not create, and prints the running burn rate. That is deliberate — the machine costing you money is the one nobody remembers making.
 

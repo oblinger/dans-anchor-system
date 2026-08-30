@@ -22,7 +22,7 @@ Grooming drives every frontier row into exactly one **groomed state**, and each 
 
 Timed `[Waiting Nd/Nh]` forms share the state-4 obstacle contract *and* the state-6 absolute-date contract (R-backlog-07). Transient `[Designing]` (still being planned) and terminal `[Done]` are not groomed exit states — a frontier row must not rest in `[Designing]` after a groom. The cross-cutting rule behind states 2–6 is **references get links**: any artifact a row's body tells the user to look at is a live `[[wiki-link]]` (enforced on the queries surface by R-query-15).
 
-**State 3 was missing from this table until 2026-08-20, and its absence is the reason it is worth a sentence.** [[SKA groom]] has listed six groomed states since F259 shipped `[User]`; this table listed five, so the one bracket whose entire meaning is *a person must act* was the only groomed state with no stated body contract and no rule — while `audit-q` C51 checked it all along. A contract enforced by a sweep and absent from the ruleset is the [[TINK Backlog#^T552|T552]] parity failure in its purest form: one uncheckable copy that has drifted, and nothing to notice.
+**State 3 was missing from this table until 2026-08-20, and its absence is the reason it is worth a sentence.** [[SKA groom]] has listed six groomed states since F259 shipped `[User]`; this table listed five, so the one bracket whose entire meaning is *a person must act* was the only groomed state with no stated body contract and no rule — while `audit-q` C51 checked it all along. A contract enforced by a sweep and absent from the ruleset is the [[Tink Backlog#^T552|T552]] parity failure in its purest form: one uncheckable copy that has drifted, and nothing to notice.
 
 ### RULE R-backlog-01 — The frontier is Now + Next + the next roadmap milestone (stated)
 
@@ -230,4 +230,4 @@ state set <anchor> Backlog <id> --verify "<do X, observe Y — did Y happen?>" -
 
 The faculty is one of four: **taste** (does this read right), **preference** (which do you want), **ratification** (do you accept this call), **passive-use observation** (in normal use, did it break). If you cannot name one, that is the answer — you are in the first case, not this one.
 
-For the model, read [[DAS verification]] and [[TINK Backlog#^F240|F240]].
+For the model, read [[DAS verification]] and [[Tink Backlog#^F240|F240]].

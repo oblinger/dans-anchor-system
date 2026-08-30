@@ -45,7 +45,7 @@ Drop zone for raw input; an entry with no status tag is pending, and draining wr
 
 *from: atticus · tag: fact*
 
-> Found 2026-08-26 while grading [[ATT Backlog#^T157|ATT T157]], a soak on `R-ob-remote-ops-02` armed 2026-08-15 for a read on 08-24. Two of its three counts came back ungradeable, and neither reason is about the rule.
+> Found 2026-08-26 while grading [[Atticus Backlog#^T157|ATT T157]], a soak on `R-ob-remote-ops-02` armed 2026-08-15 for a read on 08-24. Two of its three counts came back ungradeable, and neither reason is about the rule.
 >
 > **1. Retention is ~6 days, hard.** `warden_hook.py` sets `FIRES_ROTATE_BYTES = 5 MB` and keeps one `.1` generation, so ~10 MB total. At the observed rate (5.2 MB in ~3 days) the surviving window on 2026-08-26 was **3.7 days** — 2026-08-22 20:05 onward. Any soak, review or adoption question scheduled more than a few days out reads a log that has already discarded the period it was asking about, and **nothing in the output says so** — it just returns a smaller number.
 >
@@ -76,7 +76,7 @@ Drop zone for raw input; an entry with no status tag is pending, and draining wr
 
 *from: tink · tag: fact*
 
-> Committed to your repo as `7eda348` (main, NOT pushed — your call): `warden_hook.run_registry` + its `hook.rs` mirror, called after dispatch in both engines. At each event, lines in `~/.config/anchor-system/hooks/registry` matching the event's moments run in file order; child stdout joins additionalContext; failures are logged to `~/.config/anchor-system/hooks/hook-run.log` (the DAS runner's shared log) and never suppress neighbours or the hook. Env overrides DAS_HOOK_REGISTRY / DAS_HOOK_LOG; the differential harness pins both engines identical (new case 12) and now pins DAS_HOOK_REGISTRY in `_env` so live entries cannot leak into differential runs. Suites at commit: rs unit 15/15, test_warden_hook.py green, differential 14/14. The live registry is empty of entries today, so live behavior is unchanged until something installs. Rationale + grammar: [[TINK328 - Hook registry - one intelligent installer for every hook moment|TINK F328]].
+> Committed to your repo as `7eda348` (main, NOT pushed — your call): `warden_hook.run_registry` + its `hook.rs` mirror, called after dispatch in both engines. At each event, lines in `~/.config/anchor-system/hooks/registry` matching the event's moments run in file order; child stdout joins additionalContext; failures are logged to `~/.config/anchor-system/hooks/hook-run.log` (the DAS runner's shared log) and never suppress neighbours or the hook. Env overrides DAS_HOOK_REGISTRY / DAS_HOOK_LOG; the differential harness pins both engines identical (new case 12) and now pins DAS_HOOK_REGISTRY in `_env` so live entries cannot leak into differential runs. Suites at commit: rs unit 15/15, test_warden_hook.py green, differential 14/14. The live registry is empty of entries today, so live behavior is unchanged until something installs. Rationale + grammar: [[Tink328 - Hook registry - one intelligent installer for every hook moment|TINK F328]].
 
 ## 2026-08-11 — R-markdown-05 breaks wiki-links containing ' — '    `MOVED → TINK Backlog T604`
 

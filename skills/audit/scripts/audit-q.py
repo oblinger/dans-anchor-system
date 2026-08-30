@@ -67,7 +67,7 @@ Checks applied to Q.md, each anchor's backlog, and each feature/Questions doc:
        `ha --dump --format=collisions` — different in kind, not just count.
        Filenames mandated by an external format are exempt.            (report).
   C54: T154 — a Q.md banner whose label and link target are different
-       anchors: `[[SONAR queries|SEEK]]` reports SONAR's counts under a name
+       anchors: `[[Sonar queries|SEEK]]` reports SONAR's counts under a name
        that owns none of them. C1 tests only that the target RESOLVES, so it
        passes this silently; Daybreak and LUMEN's starvation rule both read
        these counts. Case drift is not a mismatch (T138).              (report).
@@ -1176,7 +1176,7 @@ def check_c54_banner_label_matches_target(qmd_text: str) -> list[Finding]:
     test to other files — so a banner pointing at a real file belonging to a
     DIFFERENT anchor passes both silently. That is not hypothetical: `SEEK`, an
     anchor that has never existed, sat in Q.md reporting `Runnable 7` because
-    its banner linked to `[[SONAR queries]]`. It did not link to nothing; it
+    its banner linked to `[[Sonar queries]]`. It did not link to nothing; it
     linked to somebody else's numbers.
 
     Why it earns a rule rather than a one-off repair: LUMEN T021's starvation

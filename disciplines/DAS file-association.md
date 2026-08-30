@@ -110,7 +110,7 @@ The facet does not re-explain the methods — it names which it supports and whi
 
 ## History
 
-**Briefly renamed to `Rider` and reverted, 2026-08-06.** The rename was an attempt to give the class a spoken name; it failed the voice-engine rule (dictation renders *rider* as *writer*) and, more usefully, revealed that the umbrella does not need a spoken name at all. The vocabulary went to [[DAS stream|Stream]] instead, where it carries meaning. Two things from that pass were kept: § The parent may be a document or an anchor, which makes explicit what the older text said in a single clause, and § Who cites this today. Prior generalization step: [[F154 — Promote file-association to the general association discipline; slim stream; Brief cites it|F154]]. Decision record: [[TINK310 - Stream: one reverse-chronological facet at three volumes|F310]].
+**Briefly renamed to `Rider` and reverted, 2026-08-06.** The rename was an attempt to give the class a spoken name; it failed the voice-engine rule (dictation renders *rider* as *writer*) and, more usefully, revealed that the umbrella does not need a spoken name at all. The vocabulary went to [[DAS stream|Stream]] instead, where it carries meaning. Two things from that pass were kept: § The parent may be a document or an anchor, which makes explicit what the older text said in a single clause, and § Who cites this today. Prior generalization step: [[F154 — Promote file-association to the general association discipline; slim stream; Brief cites it|F154]]. Decision record: [[Tink310 - Stream: one reverse-chronological facet at three volumes|F310]].
 
 ## See also
 

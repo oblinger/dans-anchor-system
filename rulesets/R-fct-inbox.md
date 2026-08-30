@@ -27,7 +27,7 @@ Each entry heading follows the form `## YYYY-MM-DD — {Topic}`. A **processed**
 **Check pattern:** every H2 matches `^## \d{4}-\d{2}-\d{2} — .+`. Tag *absence* is never a finding. **Tag placement is deliberately not asserted** — `count_pending_inbox` treats a sanctioned tag anywhere inside the entry as marking it processed, and this rule agrees with the implementation rather than narrowing it, so the two can never disagree about whether a given entry is pending.
 **Why:** consistent heading format lets agents scan for processed vs. pending entries without parsing free-form prose — which requires the two states to be distinguishable, so exactly one of them carries a tag. (Tier: checked)
 
-**Amended 2026-08-08.** As written this rule required a tag on **every** H2, which made every pending entry a violation the moment the drop API shipped, and contradicted `-04` in this same ruleset — `-04` says processed entries "only gain a status tag", which presupposes an untagged prior state `-02` forbade. It also contradicted the implementation: `count_pending_inbox` in `audit-q.py` defines pending as the absence of a tag, and the `Inbox N` banner counts exactly those. Three sources against one, and the one was never enforced ([[TINK Backlog#^T395|T395]]).
+**Amended 2026-08-08.** As written this rule required a tag on **every** H2, which made every pending entry a violation the moment the drop API shipped, and contradicted `-04` in this same ruleset — `-04` says processed entries "only gain a status tag", which presupposes an untagged prior state `-02` forbade. It also contradicted the implementation: `count_pending_inbox` in `audit-q.py` defines pending as the absence of a tag, and the `Inbox N` banner counts exactly those. Three sources against one, and the one was never enforced ([[Tink Backlog#^T395|T395]]).
 
 ### RULE R-fct-inbox-03 — Only sanctioned status tags are used (checked)
 check:: inbox_status_tags
@@ -47,5 +47,5 @@ Sits under [[R-anchor]], beside [[R-fct-outputs]] and [[R-wp]] — the Inbox is 
 ## See also
 
 - [[DAS Inbox]] — the facet this ruleset enforces.
-- [[ATT045 - Agent inbox pattern|ATT F045]] — the design.
-- [[TINK Backlog#^T395|T395]] — the drop API, the `Inbox N` banner, and the `/inbox` drain.
+- [[Atticus045 - Agent inbox pattern|ATT F045]] — the design.
+- [[Tink Backlog#^T395|T395]] — the drop API, the `Inbox N` banner, and the `/inbox` drain.

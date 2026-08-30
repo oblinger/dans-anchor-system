@@ -6,7 +6,7 @@ Read the user's Apple Health / HealthKit data — sleep, heart rate, HRV, activi
 |---|---|---|---|
 | **Local — daily JSON drop** | every HealthKit metric the Watch/iPhone records, one file per day | none — plain file read from the synced iCloud container | **✅ working** |
 
-**Prerequisite (one-time, reproducible).** The daily drop only exists once the *Health Auto Export* iPhone app + an iOS Shortcut automation are set up per the runbook in [[WIRE Health Auto Export]] — a paid app and ~10 min of config, not a personal hack; a fresh person can stand it up from that page. Once wired it is **zero-touch** (one file/day, no expiring token), which is why it reads more reliably than the weekly-re-auth Google cards. There is no cloud/API fallback and none is needed — the file is already local by the time you read it. Read-shape and the traps that cost a mistake live in [[LUMEN Data Sources]] § Health.
+**Prerequisite (one-time, reproducible).** The daily drop only exists once the *Health Auto Export* iPhone app + an iOS Shortcut automation are set up per the runbook in [[WIRE Health Auto Export]] — a paid app and ~10 min of config, not a personal hack; a fresh person can stand it up from that page. Once wired it is **zero-touch** (one file/day, no expiring token), which is why it reads more reliably than the weekly-re-auth Google cards. There is no cloud/API fallback and none is needed — the file is already local by the time you read it. Read-shape and the traps that cost a mistake live in [[Lumen Data Sources]] § Health.
 
 ## Where the data lives
 

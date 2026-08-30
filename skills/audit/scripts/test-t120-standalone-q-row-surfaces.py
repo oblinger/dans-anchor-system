@@ -59,7 +59,7 @@ Q_ROW = (
 )
 
 
-def backlog(body, name="TINK Backlog.md"):
+def backlog(body, name="Tink Backlog.md"):
     p = ROOT / name
     p.write_text("# Tink Backlog\n\n## Now\n\n" + body, encoding="utf-8")
     return p

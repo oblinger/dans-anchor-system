@@ -2,7 +2,7 @@
 include:: [[R-stream]] 
 where:: `file:{anchor}/**/* WP/**, !**/DAS *.md`
 description:: the `{slug} WP/` work-products zone — dated polished outputs
-selector-note:: Spelled `* WP/` rather than `{slug} WP/` deliberately ([[TINK Backlog#^T522|T522]], 2026-08-08). A WP zone is a **folder** facet, so it carries its own `.anchor` and is only ever audited scoped on itself — and at that scope `{slug}` resolves to the zone's OWN folder name, since its `.anchor` declares no `slug:` and `_anchor_name` falls back to the directory name. `{slug} WP/` therefore expanded to `AIS WP WP/` and matched nothing on the one live instance. The `* WP/` form is what [[R-rocks]] already uses and what actually fires.
+selector-note:: Spelled `* WP/` rather than `{slug} WP/` deliberately ([[Tink Backlog#^T522|T522]], 2026-08-08). A WP zone is a **folder** facet, so it carries its own `.anchor` and is only ever audited scoped on itself — and at that scope `{slug}` resolves to the zone's OWN folder name, since its `.anchor` declares no `slug:` and `_anchor_name` falls back to the directory name. `{slug} WP/` therefore expanded to `AIS WP WP/` and matched nothing on the one live instance. The `* WP/` form is what [[R-rocks]] already uses and what actually fires.
 
 What `/audit` checks on an anchor's Work Products zone. Cardinality: one zone per anchor, many entries within. Format of this set: [[DAS Ruleset]].
 

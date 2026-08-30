@@ -3,7 +3,7 @@
 
 `state drop <anchor> "<message>"` appends ONE pending entry to the target
 anchor's [[DAS Inbox]] file — the sender half of the pattern designed at
-[[ATT045 - Agent inbox pattern]]. Nothing executes; the entry waits for the
+[[Atticus045 - Agent inbox pattern]]. Nothing executes; the entry waits for the
 drain.
 
 Two properties carry the whole design and are what this test is really for:

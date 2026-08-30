@@ -149,10 +149,10 @@ with tempfile.TemporaryDirectory() as td:
     check("a file that does not exist",
           ap._is_notebook_namesake(root / "nope" / "nope.md"), False)
 # The live narrowness case: F334's own feature doc QUOTES the marker, and sits
-# in `TINK Features/`, so it is not a namesake. A predicate keyed on the marker
+# in `Tink Features/`, so it is not a namesake. A predicate keyed on the marker
 # alone would exempt the doc that documents the marker.
-F334 = (Path.home() / "ob/kmr/SYS/Staff/Tink/TINK Design/TINK Features"
-        / "TINK334 - Notebook facet - append-only experiment notebooks.md")
+F334 = (Path.home() / "ob/kmr/SYS/Staff/Tink/Tink Design/TINK Features"
+        / "Tink334 - Notebook facet - append-only experiment notebooks.md")
 if F334.is_file():
     check("F334's own doc quotes the marker and is still refused",
           ap._is_notebook_namesake(F334), False)

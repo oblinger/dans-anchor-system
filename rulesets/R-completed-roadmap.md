@@ -4,7 +4,7 @@ import:: skills/audit/scripts/audit-plan.py
 where:: `file:{anchor}/**/* Completed Roadmap.md`
 description:: completed-roadmap facet — migrated milestones in newest-on-top order, sibling of the forward-looking Roadmap
 
-Ruleset for this facet — spec: [[DAS Completed Roadmap]] (extracted from the spec 2026-07-12). **Not armed.** [[R-facet]] names it, and that umbrella is outside the `R-doc`/`R-anchor` closure `audit-plan.py` resolves, so no rule in this set has ever entered a plan (measured 2026-08-11, [[TINK Backlog#^T208|T208]]). Arming it means naming it in [[R-doc]] or [[R-anchor]] — and measuring the blast radius before doing so, per [[R-doc]]'s own record of what activating a dormant set costs.
+Ruleset for this facet — spec: [[DAS Completed Roadmap]] (extracted from the spec 2026-07-12). **Not armed.** [[R-facet]] names it, and that umbrella is outside the `R-doc`/`R-anchor` closure `audit-plan.py` resolves, so no rule in this set has ever entered a plan (measured 2026-08-11, [[Tink Backlog#^T208|T208]]). Arming it means naming it in [[R-doc]] or [[R-anchor]] — and measuring the blast radius before doing so, per [[R-doc]]'s own record of what activating a dormant set costs.
 
 ### RULE R-completed-roadmap-01 — Location is `{slug} Design/{slug} Completed Roadmap.md` (checked)
 

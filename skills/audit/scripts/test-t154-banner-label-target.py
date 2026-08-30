@@ -3,7 +3,7 @@
 and link target belong to different anchors.
 
 `SEEK` sat in Q.md on 2026-08-05 reporting `Runnable 7` for an anchor that has
-never existed. It did not link to nothing — it linked to `[[SONAR queries]]`, a
+never existed. It did not link to nothing — it linked to `[[Sonar queries]]`, a
 real file owned by a real anchor. C1 tests link EXISTENCE, so it passed the
 block silently, and C22 extends the same existence test rather than adding a
 new one. Daybreak's Runnable line and LUMEN T021's starvation rule (which picks
@@ -106,7 +106,7 @@ if not check("# [U+A]  LUMEN  -  Ready 0"):
     ok("an unlinked banner is out of scope")
 else:
     no("an unlinked banner was flagged")
-if not check("Some prose mentioning [[SONAR queries|SEEK]] mid-paragraph."):
+if not check("Some prose mentioning [[Sonar queries|SEEK]] mid-paragraph."):
     ok("only H1 banners are inspected, not prose links")
 else:
     no("a prose link was flagged")

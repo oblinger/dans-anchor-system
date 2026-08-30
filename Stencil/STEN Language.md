@@ -5,8 +5,8 @@ description: "*Language* — the grammar: three constructs, four defaults"
 | -[[STEN Language]]- | : the Stencil language — three constructs and four defaults<br>→ [[DAS]] → [[STEN]] → [STEN Language](hook://p/STEN%20Language)  |
 | --- | --- |
 | [[Template Examples]]  | *Corpus* — the seven cases every construct is derived from |
-| [[TINK303 - Template DSL - one pattern language for facets, templates, and sections\|F303]] | *Spec* — the commissioning feature |
-| [[STEN Language Discussions\|Discussions]] | *Discussion* — dated trade-off threads behind the grammar |
+| [[Tink303 - Template DSL - one pattern language for facets, templates, and sections\|F303]]  | *Spec* — the commissioning feature |
+| [[STEN Language Discussions\|Discussions]]  | *Discussion* — dated trade-off threads behind the grammar |
 | ... | [[STEN Restated Corpus\|Restated Corpus]],  [[STEN Track\|Track]],   |
 
 # Stencil Language
@@ -96,4 +96,4 @@ Three implementation properties are worth naming because they are not grammar an
 
 ## Status
 
-Authored 2026-08-07 as [[TINK303 - Template DSL - one pattern language for facets, templates, and sections|F303]] M2, from the M1 corpus. **M3 landed 2026-08-08** and closed the one thing this document left open: variable extent is settled above, on measurement rather than preference, and the matcher's two other grammar findings — that `[0+]` is the wrong reading of many-by-variable inside a document, and that the corpus does contain the adjacent-variable shape — are folded into the sections that made the claims. Remaining F303 milestones — the generator (M4), restating the corpus (M5), and how a Stencil-bearing file declares itself to Warden (M6) — are tracked on F303 and [[STEN Backlog]].
+Authored 2026-08-07 as [[Tink303 - Template DSL - one pattern language for facets, templates, and sections|F303]] M2, from the M1 corpus. **M3 landed 2026-08-08** and closed the one thing this document left open: variable extent is settled above, on measurement rather than preference, and the matcher's two other grammar findings — that `[0+]` is the wrong reading of many-by-variable inside a document, and that the corpus does contain the adjacent-variable shape — are folded into the sections that made the claims. Remaining F303 milestones — the generator (M4), restating the corpus (M5), and how a Stencil-bearing file declares itself to Warden (M6) — are tracked on F303 and [[STEN Backlog]].

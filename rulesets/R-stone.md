@@ -60,13 +60,13 @@ check:: stone_dispatch_linked
 
 **Check pattern:** grep the anchor's Track dispatch page for a wiki-link to either target, accepting the pipe-escaped `[[X\|alias]]` form a dispatch cell uses, and a `#heading` or `/subpath` reference. Judged **once per group**, on the group's spokesfile — its first member — never once per member.
 
-**Both targets count, and the control file is the one that usually does.** `R-rocks-08` named the folder alone, because that is what a rock group's Track page happens to link. Measured vault-wide 2026-08-28, every other kind links the **control file** instead — `[[TINK Pebble]]`, singular — which is the better target anyway, since the control file is what a reader opens and the folder is storage. Porting the folder-only predicate unchanged fired on **21 of 32 live groups**: a rule measuring a convention rather than a defect. Accepting either drops it to **6**, and all six are genuine — their Track pages mention neither.
+**Both targets count, and the control file is the one that usually does.** `R-rocks-08` named the folder alone, because that is what a rock group's Track page happens to link. Measured vault-wide 2026-08-28, every other kind links the **control file** instead — `[[Tink Pebble]]`, singular — which is the better target anyway, since the control file is what a reader opens and the folder is storage. Porting the folder-only predicate unchanged fired on **21 of 32 live groups**: a rule measuring a convention rather than a defect. Accepting either drops it to **6**, and all six are genuine — their Track pages mention neither.
 
 **Why:** the group folder is elective, so nothing else guarantees it is reachable. An unlinked group is invisible twice over — to a person navigating the anchor, and to the catch-all of every page above it, since the catch-all deliberately omits any child the page already links and so has nothing to say about one nobody links at all.
 
-**Ported from [[R-rocks]]-08 on 2026-08-28 ([[TINK Backlog#^T603|T603]]), and it had a live victim — [[SV]], which fires on all three of its groups.** `R-stone` generalised six of `R-rocks`' thirteen rules and stopped, leaving seven rock-only — so `sleeper`, `pebble` and `book` groups went unchecked on reachability. `SV Sleepers` was unreachable by navigation and nothing said so, **while the rocks half of the identical defect fired in the same sweep on the same anchor.** Two groups, one rule, one silence: that asymmetry is what makes this the first of the seven to port rather than the easiest.
+**Ported from [[R-rocks]]-08 on 2026-08-28 ([[Tink Backlog#^T603|T603]]), and it had a live victim — [[SV]], which fires on all three of its groups.** `R-stone` generalised six of `R-rocks`' thirteen rules and stopped, leaving seven rock-only — so `sleeper`, `pebble` and `book` groups went unchecked on reachability. `SV Sleepers` was unreachable by navigation and nothing said so, **while the rocks half of the identical defect fired in the same sweep on the same anchor.** Two groups, one rule, one silence: that asymmetry is what makes this the first of the seven to port rather than the easiest.
 
-Six remain rock-only and are the rest of [[TINK Backlog#^T603|T603]]: `R-rocks-03` (cardinality 0-or-1 per anchor, which [[DAS Stone]] states and no checker enforces for any kind), `R-rocks-05`/`-06` (every member on a control line; no control line pointing at a missing stone — an orphaned stone file is invisible in every kind today), and `R-rocks-09`…`-11`.
+Six remain rock-only and are the rest of [[Tink Backlog#^T603|T603]]: `R-rocks-03` (cardinality 0-or-1 per anchor, which [[DAS Stone]] states and no checker enforces for any kind), `R-rocks-05`/`-06` (every member on a control line; no control line pointing at a missing stone — an orphaned stone file is invisible in every kind today), and `R-rocks-09`…`-11`.
 
 ### RULE R-stone-08 — Every member is named in the control file (checked)
 check:: stone_member_ranked
@@ -77,7 +77,7 @@ Every stone file in the group folder is the target of some wiki-link in the cont
 
 **Why:** a stone nobody has ranked is a real state and a transient one — the file lands first, the line follows — so this is cleanup pressure, not a gate. But it is the only pressure there is: a member the control file does not name is reachable from nothing a person reads. Until this port every non-rock kind had no such check at all, which is the data-loss shape rather than the navigation one.
 
-**Ported from [[R-rocks]]-05 on 2026-08-28 ([[TINK Backlog#^T603|T603]] leg 2).** Measured across all 32 live groups first: zero unranked members, in every kind. So the evidence for this rule is its fixture — `test_stone_ranking_rules_fire_beside_a_clean_twin`, an unranked member beside a fully-ranked twin — and not the green sweep, which cannot distinguish a working rule from one that never ran.
+**Ported from [[R-rocks]]-05 on 2026-08-28 ([[Tink Backlog#^T603|T603]] leg 2).** Measured across all 32 live groups first: zero unranked members, in every kind. So the evidence for this rule is its fixture — `test_stone_ranking_rules_fire_beside_a_clean_twin`, an unranked member beside a fully-ranked twin — and not the green sweep, which cannot distinguish a working rule from one that never ran.
 
 ### RULE R-stone-09 — No dead lines in the control file (checked)
 check:: stone_control_links_resolve
@@ -88,7 +88,7 @@ Every control-file line ranking one of **this group's** stones — a line whose 
 
 **Why:** the control file is the surface people read and cite from; a link that goes nowhere makes it untrustworthy at exactly the moment someone is trying to act on it. R-rocks-06 records the vault-wide [[Rocks]] page carrying five such rows for months — and that rule judged nothing at all between the Stone migration and 2026-08-11, because it kept reading the folder-note after the ranking had moved. This port reads the control file only, since under [[DAS Stone]] that is where the ranking is and there is no migration to straddle.
 
-**Ported from [[R-rocks]]-06 on 2026-08-28 ([[TINK Backlog#^T603|T603]] leg 2).** Measured first: zero dead lines across 32 live groups, `SONAR Book`'s eleven dated members included. Evidence is the paired fixture, same as R-stone-08.
+**Ported from [[R-rocks]]-06 on 2026-08-28 ([[Tink Backlog#^T603|T603]] leg 2).** Measured first: zero dead lines across 32 live groups, `SONAR Book`'s eleven dated members included. Evidence is the paired fixture, same as R-stone-08.
 
 ### RULE R-stone-10 — Cardinality: at most one group per kind per anchor (checked)
 check:: stone_single_per_kind
@@ -99,7 +99,7 @@ An anchor may hold any number of **kinds**, and at most one group of **each**. `
 
 **Why:** two lists of one kind for one anchor is two answers to the same question with nothing to say which governs. When an activity splits, the sub-activities get their own anchors, and each anchor its own single group per kind. The nested-anchor exclusion is what makes the rule honest: `SV` encloses four pebble groups, and three belong to `A2X`, `SVP` and `SVH`.
 
-**Ported from [[R-rocks]]-03 on 2026-08-28 ([[TINK Backlog#^T603|T603]] leg 3) — and the predicate is not the rock one widened.** Counting every stone folder under an anchor would have fired on exactly the anchors using the facet best. This is the same trap R-stone-07's port fell into once already: a rule measuring a convention instead of the defect. The cardinality line in [[DAS Stone]] was the predicate all along; the checker now enforces it for every kind. Measured 2026-08-28: 32 live groups, one per kind per anchor everywhere, so the evidence is `test_stone_single_per_kind_fires_beside_a_clean_twin`.
+**Ported from [[R-rocks]]-03 on 2026-08-28 ([[Tink Backlog#^T603|T603]] leg 3) — and the predicate is not the rock one widened.** Counting every stone folder under an anchor would have fired on exactly the anchors using the facet best. This is the same trap R-stone-07's port fell into once already: a rule measuring a convention instead of the defect. The cardinality line in [[DAS Stone]] was the predicate all along; the checker now enforces it for every kind. Measured 2026-08-28: 32 live groups, one per kind per anchor everywhere, so the evidence is `test_stone_single_per_kind_fires_beside_a_clean_twin`.
 
 ### RULE R-stone-11 — A folder-note, when the group has one, carries a catch-all separator (checked)
 check:: stone_folder_note_catchall
@@ -110,7 +110,7 @@ If the group folder has a folder-note — `{slug} Rocks.md` inside `{slug} Rocks
 
 **Why:** the catch-all is what lets R-stone-08 stay a warning. A member the control file has not ranked is still reachable through it; without it an unranked stone is genuinely invisible on that page, and the warning would have to become a gate.
 
-**Ported from [[R-rocks]]-09 on 2026-08-28 ([[TINK Backlog#^T603|T603]] leg 4).** Measured first: the seven live folder-notes all carry the row. Evidence is `test_stone_folder_note_catchall_fires_beside_a_clean_twin`, which pairs a note without the row against a book note with it and a pebble group with no note at all.
+**Ported from [[R-rocks]]-09 on 2026-08-28 ([[Tink Backlog#^T603|T603]] leg 4).** Measured first: the seven live folder-notes all carry the row. Evidence is `test_stone_folder_note_catchall_fires_beside_a_clean_twin`, which pairs a note without the row against a book note with it and a pebble group with no note at all.
 
 ### RULE R-stone-12 — Elective; never scaffolded (stated)
 
@@ -118,4 +118,4 @@ No anchor is required to hold any stone group, and `/create anchor` never scaffo
 
 **Check pattern:** stated; a group folder holding only a control file or folder-note and no members is a smell to flag.
 
-**Why:** the failure mode of every new facet is universal adoption by scaffolding, which produces hundreds of empty folders and trains readers to skip the facet everywhere — including where it is real. Ported from [[R-rocks]]-10 on 2026-08-28 ([[TINK Backlog#^T603|T603]]). `R-rocks-11` — tier grouping expresses commitment, not sequence — was **deliberately not ported**: a book's order is its sequence by definition, and a pebble list is a tempo list, so that rule is a property of the rock kind and stays in [[R-rocks]].
+**Why:** the failure mode of every new facet is universal adoption by scaffolding, which produces hundreds of empty folders and trains readers to skip the facet everywhere — including where it is real. Ported from [[R-rocks]]-10 on 2026-08-28 ([[Tink Backlog#^T603|T603]]). `R-rocks-11` — tier grouping expresses commitment, not sequence — was **deliberately not ported**: a book's order is its sequence by definition, and a pebble list is a tempo list, so that rule is a property of the rock kind and stays in [[R-rocks]].

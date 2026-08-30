@@ -750,7 +750,7 @@ try:
     # sat DEAD after readback's `return` from the F313 ship until 2026-08-17:
     # edits traveled up to the stone, the other projections kept the old text,
     # and the NEXT pass read the stale copy as a fresh edit and dragged the
-    # stone backwards (seen live: HUD 1's copies of LUMEN P0005/P0012). Cases
+    # stone backwards (seen live: HUD 1's copies of Lumen P0005/P0012). Cases
     # B–H never caught it because every file they asserted on had been hand-
     # edited itself; the missing assertion is on a file that was NOT touched.
     # ============================================================

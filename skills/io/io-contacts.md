@@ -19,7 +19,7 @@ C="$HOME/.claude/skills/io/scripts/io-contacts"
 "$C" list                    # everyone, one per line:  NAME <tab> ORG <tab> EMAILS <tab> PHONES
 ```
 
-`list` is the whole book in one round of Apple Events — four batch reads (`name of every person`, …) joined by index, about 7 s for 2,204 people, several emails or phones joined with `; `, and any line break inside a value flattened so one record is always one line. `search` is now a filter over that same batch read rather than a per-person loop, so a broad query (`search a` → 1,561 rows) returns in the same 7 s instead of dying with AppleEvent -1712 — the failure [[WINNIE Backlog#^T015|WINNIE T015]] hit on 2026-08-30 trying to enumerate the register.
+`list` is the whole book in one round of Apple Events — four batch reads (`name of every person`, …) joined by index, about 7 s for 2,204 people, several emails or phones joined with `; `, and any line break inside a value flattened so one record is always one line. `search` is now a filter over that same batch read rather than a per-person loop, so a broad query (`search a` → 1,561 rows) returns in the same 7 s instead of dying with AppleEvent -1712 — the failure [[Winnie Backlog#^T015|WINNIE T015]] hit on 2026-08-30 trying to enumerate the register.
 
 `search` and `show` both take a **name substring**, matched case-sensitively by Contacts' own `whose name contains`. `show` prints every match, blank-line separated — pass enough of the name to narrow it.
 
@@ -34,7 +34,9 @@ An empty `search` or `show` prints `no match for "X" -- searched N people` on st
 ## Gotchas
 
 - **The `organization` field is sometimes a relationship tag, not an employer.** `Charlie Oblinger` carries `Relative`. Do not read `org` as a workplace without looking.
-- **Duplicates are real and common.** `Jeff Oblinger`, `Jeffery Oblinger Oblinger` and `jeff oblinger Sr` are probably one or two people. Contacts is a register in the same sense [[META Register]] means it — many writers, no owner, and drift accumulates. Deduplicate by eye, never by script.
+- **Duplicates are real and common** — but the obvious-looking one is often not the duplicate. `Jeff Oblinger` and `jeff oblinger Sr` share an email *and* a phone: one person, two records. `Jeffery Oblinger Oblinger` shares neither (different email, different phone) and is **a different person** whose doubled surname is a data-entry artifact — which is exactly the record a quick pass would have merged. Contacts is a register in the same sense [[META Register]] means it — many writers, no owner, and drift accumulates. Deduplicate by eye, never by script. Measured over all 2,204 records, [[Winnie Backlog#^T015|WINNIE T015]] 2026-08-30.
+- **A shared phone number usually means a shared employer, not the same person.** Of nine phone-only links in that sweep, five were switchboards: 805-542-9330 collected three unrelated SRI colleagues, 781-273-3388 two at BAE. Shared *email* is the reliable identity signal; shared phone is the sweep's main false-positive source.
+- **`show` still runs a per-person Apple Event loop and hangs on a broad substring.** The batch-read rewrite landed on `list` and `search` only; `show "Oblinger"` (~20 name matches) blew past 120 s twice. Give `show` a narrow substring, or read the record off `list`.
 - **Matching is case-sensitive.** `search "oblinger"` and `search "Oblinger"` return different sets; the database itself is inconsistently capitalized (`jeff oblinger Sr`).
 - **The name in Contacts beats the name you were told.** Verified 2026-08-29 filing family `@entry` pages: two of three children's surnames were wrong as dictated — `Jasmine Bodenstein` (not Oblinger) and `Zuly Beltran`, where "Zuly" is the *given* name. In [[AT]] the name is the address, so a misspelling is expensive to undo. Look it up.
 

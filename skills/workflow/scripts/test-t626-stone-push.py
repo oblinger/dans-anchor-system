@@ -102,7 +102,7 @@ try:
     set_key(p7, "importance", "high")
     rc, out, err = run(root, "pebble", "push", "SONAR", "P0001", "--to", "SPARKS")
     cp = control(root, "SPARKS")
-    if rc == 0 and cp.is_file() and "[[SONAR P0001|SONAR:]] take-home materials due Saturday" in cp.read_text():
+    if rc == 0 and cp.is_file() and "[[Sonar P0001|SONAR:]] take-home materials due Saturday" in cp.read_text():
         ok("A: the line landed in SPARKS's control file")
     else:
         no(f"A: rc={rc} out={out!r} err={err!r} file={cp.read_text() if cp.is_file() else None!r}")

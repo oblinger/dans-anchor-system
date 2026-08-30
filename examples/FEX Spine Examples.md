@@ -2,18 +2,18 @@
 description: "made-up worked examples of the five spine shapes"
 ---
 
-| -[[FEX Spine Examples]]- | : made-up worked examples of the four spine shapes and the one exception<br>→ [[DAS]] → [[examples]] → [FEX Spine Examples](hook://p/FEX%20Spine%20Examples)  |
+| -[[FEX Spine Examples]]- | : made-up worked examples of the four spine shapes and the one exception<br>→ [[DAS]] → [[FEX]] → [FEX Spine Examples](hook://p/FEX%20Spine%20Examples)  |
 | --- | --- |
 | Spec | [[DAS spine]],  [[DAS Dispatch Table]],   |
 | Shapes | [[Harbor Latency Budget\|breadcrumb]],  [[Bridges\|custom]],  [[Harbor Runbooks\|custom-grouped]],  [[Devtools\|custom-two-level]],  [[Harbor Hops\|list]],  [[Harbor Releases\|stream]],  [[Harbor Retrospectives\|custom-outward]],   |
-| Related | [[FEX Dispatch Examples]],  [[DAS progressive-disclosure]],   |
+| Related | [[FEX Dispatch Examples\|Dispatch Examples]],  [[DAS progressive-disclosure]],   |
 
 # FEX Spine Examples
 One invented page per shape — each *is* the shape it teaches, so it can be opened and read rather than described. **[[Harbor Latency Budget]] is the validated one:** Dan reads the first exemplar and holds it correct, and the rest are authored to be consistent with it.
 
 | Spine shape | The question the page is answering | Made-up example | Live counterpart |
 |---|---|---|---|
-| **[[DAS spine#Breadcrumb spine\|Breadcrumb]]** | I am a leaf — where do I hang? | [[Harbor Latency Budget]] | [[LUMEN Nudge]] |
+| **[[DAS spine#Breadcrumb spine\|Breadcrumb]]** | I am a leaf — where do I hang? | [[Harbor Latency Budget]] | [[Lumen Nudge]] |
 | **[[DAS spine#Custom spine\|Custom]]** — flat | I name my children by hand; the `...` is a safety valve | [[Bridges]] | [[HUD]] |
 | **[[DAS spine#Custom spine\|Custom]]** — grouped | …and they sort under a few plain-text labels | [[Harbor Runbooks]] | [[Rolodex]] |
 | **[[DAS spine#Custom spine\|Custom]]** — two-level | …and each label is itself a page, marked `+` | [[Devtools]] | [[SKA]] |

@@ -22,7 +22,7 @@ already-escaped pipe, so `fix_md_table_pipe_escape` could manufacture the defect
 `chk_md_table_pipe_escape` was blind to, and `_row_cells` — the shared splitter
 five other checks read their cells through — would hand those checks a cell
 containing a live delimiter. Found by Lumen 2026-08-10 draining Tink's inbox
-drop about six [[LUMEN Nudge]] rows losing their tails.
+drop about six [[Lumen Nudge]] rows losing their tails.
 
 The fix is one shared predicate, `_unescaped_pipe_positions`, which all three
 call. The assertions below fail against the pre-T224 code.

@@ -17,13 +17,13 @@ Spec for the **Messages facet** — the per-anchor file `{slug} Messages.md` tha
 
 ## Retention — the file is append-only, and has never been cleared
 
-**Measured 2026-08-05 (TINK T523), across every anchor:** no `{slug} Messages.md` has ever been cleared. Every one still holds its first entry from 2026-06-02, the day the facet went live — `ATT Messages.md` 828 lines, `HA Messages.md` 1478, with no gaps and no truncation. The "cleared on every pause" phrasing that appears in this facet's history, in several dispatch tables, and in the frontmatter of ~40 instances describes a mechanism that **was never built**: no code in the standard, the rules, or the writers implements or invokes it.
+**Measured 2026-08-05 (TINK T523), across every anchor:** no `{slug} Messages.md` has ever been cleared. Every one still holds its first entry from 2026-06-02, the day the facet went live — `Atticus Messages.md` 828 lines, `HA Messages.md` 1478, with no gaps and no truncation. The "cleared on every pause" phrasing that appears in this facet's history, in several dispatch tables, and in the frontmatter of ~40 instances describes a mechanism that **was never built**: no code in the standard, the rules, or the writers implements or invokes it.
 
 So the honest description of what exists is an **append-only event log**. Almost all of its content is one line per backlog write — `[INFO] backlog at <path> was edited` — emitted by `~/bin/backlog_watch`, an fswatch daemon that lives outside this repo and is the only writer of that format.
 
 **The cost is not the growth; it is that the channel is dead.** The file is never read, which is exactly why unbounded growth went unnoticed for two months. A background process with something genuinely urgent to say has nowhere that gets read, and the read-on-pause contract that would make writing here worthwhile has never run. Any repair has to fix the reading before the retention: a cleared log nothing reads is the same dead channel, emptier.
 
-Until that is settled the claim is stated plainly rather than left implied — see [[TINK Backlog#^T523|TINK T523]], which carries the measurement and the open decision.
+Until that is settled the claim is stated plainly rather than left implied — see [[Tink Backlog#^T523|TINK T523]], which carries the measurement and the open decision.
 
 # BRIEF
 

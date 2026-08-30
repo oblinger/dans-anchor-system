@@ -286,7 +286,7 @@ def rewrite_qualified(slug, old, new, doc_stem, apply, old_stem=None):
 
     # ONE regex per whole link, never a free-floating alias rule: a file such as
     # the shared `Q.md` holds `[[ABIO Backlog#^T002|T002]]` and
-    # `[[ATT Backlog#^T002|T002]]` side by side, and an alias rule that did not
+    # `[[Atticus Backlog#^T002|T002]]` side by side, and an alias rule that did not
     # know which link it sat inside would rewrite both.
     # The `(?<![A-Za-z0-9])` before the slug is load-bearing: without it, slug
     # `SV` matches inside `TSV Backlog`, and renumbering SV's T001/T002 silently
@@ -307,7 +307,7 @@ def rewrite_qualified(slug, old, new, doc_stem, apply, old_stem=None):
     # file on disk actually has.
     prose_rx = re.compile(
         rf"(?<![A-Za-z0-9])({re.escape(slug)}) {old}(?![0-9A-Za-z])")
-    # `[[VEC Backlog|VEC T003]]` — a link to the backlog PAGE whose display text
+    # `[[Vector Backlog|VEC T003]]` — a link to the backlog PAGE whose display text
     # names the row. No block anchor, so the rule above never sees it, and the
     # prose rule refuses it because it ends in `]]`. It is still unambiguous.
     plain_rx = re.compile(

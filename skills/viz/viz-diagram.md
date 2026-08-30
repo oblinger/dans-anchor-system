@@ -97,7 +97,7 @@ H1 matches the figure title (not necessarily the file basename). H2 set adapts t
 
 ### Whether to elevate to a DAS facet — settled 2026-08-20, and the answer was neither
 
-This asked whether the `.desc.md` convention should become a DAS facet once it proved load-bearing, and invited a backlog row when it did. [[TINK Backlog#^T566|T566]] is that row, and it moved the convention to a third place the question did not offer: **[[DAS Diagramming]]**, a discipline. A facet is the wrong kind — a facet spec describes a *document shape* and is detected by a `where::` selector, whereas the sidecar's substance is a set of habits (author it in the same turn, edit in place never append, read it before the next edit) that no selector reaches. The mechanics stay here; the judgement is stated once over there.
+This asked whether the `.desc.md` convention should become a DAS facet once it proved load-bearing, and invited a backlog row when it did. [[Tink Backlog#^T566|T566]] is that row, and it moved the convention to a third place the question did not offer: **[[DAS Diagramming]]**, a discipline. A facet is the wrong kind — a facet spec describes a *document shape* and is detected by a `where::` selector, whereas the sidecar's substance is a set of habits (author it in the same turn, edit in place never append, read it before the next edit) that no selector reaches. The mechanics stay here; the judgement is stated once over there.
 
 ## Glance the PNG preview every time
 

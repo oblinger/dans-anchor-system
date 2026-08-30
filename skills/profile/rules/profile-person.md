@@ -59,7 +59,7 @@ When the user's `SRCH rules/profile-person.md` (or `SRCH rules/person.md`) selec
 
 Existing examples in the codebase:
 ```
-  [[FAANG]]    [Senior Software Engineer](https://www.linkedin.com/in/abhishekkapatkar/)  [[@Netflix 1]]
+  [[FAANG]]    [Senior Software Engineer](https://www.linkedin.com/in/abhishekkapatkar/)  [[@Netflix]]
 =[[AT]]     [Managing General Partner](https://www.linkedin.com/in/andrewyng/)  [[@AI Fund]]
  [[VC ORG]]  [Co-Founder](https://www.linkedin.com/in/aliaalaoui/) [[@Njord Venture Group]]
 ```

@@ -5,7 +5,7 @@ group: folder
 
 | -[[DAS Rocks]]- | → [[DAS]] → [[FCT]] → [DAS Rocks](hook://p/DAS%20Rocks)  |
 | --- | --- |
-| Related | [[Rocks]],  [[DAS Agenda]],  [[DAS Roadmap]],  [[DAS Backlog]],  [[VEC Mandate]],   |
+| Related | [[Rocks]],  [[DAS Agenda]],  [[DAS Roadmap]],  [[DAS Backlog]],  [[Vector Mandate]],   |
 | Examples |  |
 | [[HBR Rocks\|worked instance]]  |  |
 | [[Rocks\|the root aggregator]]  | differently shaped — see § The root is not an instance |
@@ -101,7 +101,7 @@ Each rocks folder is one **node**. The structure above it:
 
 ## Ownership
 
-- **[[Vector]]** owns the root and coordinates promotion across the tree — see [[VEC Mandate]] § Manage the rocks tree.
+- **[[Vector]]** owns the root and coordinates promotion across the tree — see [[Vector Mandate]] § Manage the rocks tree.
 - **The anchor's agent** owns rock detail within its own folder.
 - **The user** is the final authority on what gets promoted, at every level.
 
@@ -122,4 +122,4 @@ Each rocks folder is one **node**. The structure above it:
 - **The tier structure is intentionally unspecified.** [[HBR Rock]] is normative about layout where this page is not. Do not promote the example's tier names into this spec.
 - **The ranking lives in the control file, and a checker forgot once already.** `R-rocks-06` kept reading the folder-note after the Stone migration and judged **0 tier lines where 12 existed**, passing on every group in the vault for the wrong reason (fixed 2026-08-11). Any new rule about the ranked list reads `{slug} Rock.md` with a folder-note fallback — and gets a fire test, because on this facet a green rule has three times meant a blind one.
 - **A discussion at the foot of a rock file is expected practice, not a requirement.** Mentioned once under § Relationship to other facets and deliberately not turned into a rule.
-- **Merged from two parallel designs, 2026-08-06.** A [[TINK]] session built the folder shape from Dan's dictation ([[TINK309 - Rocks: the per-anchor facet for big chunks of work|F309]]); a [[Vector]] session the same day independently wrote a flat-file version with the tree/promotion/ownership model ([[VEC Journal]] 2026-08-06) and overwrote this file without knowledge of the first. Neither was wrong — each held half. **Folder shape** is Dan's explicit and twice-repeated instruction, and the Vector journal records that his rejection of a folder was about the *root* (`LST/Rocks/`), noting "not because folder-per-rock is bad." **Tree, promotion, ownership, and the no-orphan rule** are the Vector session's, and they fill the compile-into-a-global-plan hole the first design left open. Vector's embedded `# RULESET R-rocks` was dropped in favor of the standalone [[R-rocks]] — the repo default since 2026-07-13 (`R-facet-spec` § companion ruleset).
+- **Merged from two parallel designs, 2026-08-06.** A [[TINK]] session built the folder shape from Dan's dictation ([[Tink309 - Rocks: the per-anchor facet for big chunks of work|F309]]); a [[Vector]] session the same day independently wrote a flat-file version with the tree/promotion/ownership model ([[Vector Journal]] 2026-08-06) and overwrote this file without knowledge of the first. Neither was wrong — each held half. **Folder shape** is Dan's explicit and twice-repeated instruction, and the Vector journal records that his rejection of a folder was about the *root* (`LST/Rocks/`), noting "not because folder-per-rock is bad." **Tree, promotion, ownership, and the no-orphan rule** are the Vector session's, and they fill the compile-into-a-global-plan hole the first design left open. Vector's embedded `# RULESET R-rocks` was dropped in favor of the standalone [[R-rocks]] — the repo default since 2026-07-13 (`R-facet-spec` § companion ruleset).

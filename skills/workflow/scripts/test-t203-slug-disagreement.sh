@@ -27,7 +27,7 @@ TD=$(mktemp -d)
 trap 'rm -rf "$TD"' EXIT
 mkdir -p "$TD/Boone/BOONE Track"
 printf 'slug: PROS\n' > "$TD/Boone/.anchor"
-printf '# BOONE Backlog\n\n## Now\n' > "$TD/Boone/BOONE Track/BOONE Backlog.md"
+printf '# BOONE Backlog\n\n## Now\n' > "$TD/Boone/Boone Track/Boone Backlog.md"
 
 # 1 — the declared-but-not-operative slug names the disagreement.
 out=$(ANCHOR_VAULT_ROOT="$TD" "$STATE" show PROS Backlog T1 2>&1)
@@ -38,7 +38,7 @@ echo "$out" | grep -qi "did you mean\|not a directory"; ok $((1-$?)) "...instead
 # 2 — the operative (filename) slug still resolves. The diagnostic must not
 #     have changed resolution, only the message on the failure path.
 out=$(ANCHOR_VAULT_ROOT="$TD" "$STATE" show BOONE Backlog T1 2>&1)
-echo "$out" | grep -q "BOONE Backlog.md"; ok $? "filename slug still resolves normally"
+echo "$out" | grep -q "Boone Backlog.md"; ok $? "filename slug still resolves normally"
 echo "$out" | grep -q "DECLARES"; ok $((1-$?)) "...with no disagreement noise on the success path"
 
 # 3 — a slug nobody declares keeps the original not-found. Without this the fix

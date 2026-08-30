@@ -4,7 +4,7 @@ import:: skills/audit/scripts/audit-plan.py
 where:: `anchor`
 description:: design facet — the `{slug} Design/` folder marks an anchor as following the designed-lifecycle convention; folder presence IS the signal (no trait field required)
 
-Embedded ruleset for the Design facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Armed by [[R-anchor]]'s `include::` — the umbrella `/audit anchor` resolves. Being named by [[R-facet]] is catalog membership, not adoption — that umbrella sits outside the `R-doc`/`R-anchor` closure `audit-plan.py` resolves, so an `include::` there arms nothing ([[TINK Backlog#^T208|T208]]).
+Embedded ruleset for the Design facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Armed by [[R-anchor]]'s `include::` — the umbrella `/audit anchor` resolves. Being named by [[R-facet]] is catalog membership, not adoption — that umbrella sits outside the `R-doc`/`R-anchor` closure `audit-plan.py` resolves, so an `include::` there arms nothing ([[Tink Backlog#^T208|T208]]).
 
 ### RULE R-design-01 — Folder presence IS the gate (checked)
 
@@ -21,7 +21,7 @@ When `{slug} Design/` exists, it contains `{slug} Design.md` (the spine — R-sp
 
 **Check pattern:** for each existing Design folder, assert the PRD exists as a file or a folder.
 
-**Why:** ruled by Dan 2026-08-29 ([[TINK Backlog#^T625|TINK T625]]): *"the design rule should simply say documents earn their keep by need, and the only thing that's not optional is the PRD."* A thing that deserves to exist always has an answer to *what is this for*, so requiring the PRD costs nothing legitimate and catches exactly the case worth catching — something built that nobody can state the purpose of. An architecture earns its keep once the solution has enough structure to merit one. Until this day the rule demanded all four and [[Agent Recipes]] said the opposite (*"a file appears when it has content, never to complete the set"*); every agent Design folder in the vault failed it, owing fifteen documents between them that nobody was going to write. **Testing is still required, but not as a sibling document**: the PRD must *indicate* it — an inline H2 when narrow, a spine entry to `{slug} Testing.md` when it is a discipline of its own, or an explicit *"no meaningful test yet, because X"*, which is a legal answer (the `/audit q` precedent: `None` is a real recommendation, *empty* is the author not having tried). That obligation lives in [[R-prd]], where the PRD's own shape is checked, not here.
+**Why:** ruled by Dan 2026-08-29 ([[Tink Backlog#^T625|TINK T625]]): *"the design rule should simply say documents earn their keep by need, and the only thing that's not optional is the PRD."* A thing that deserves to exist always has an answer to *what is this for*, so requiring the PRD costs nothing legitimate and catches exactly the case worth catching — something built that nobody can state the purpose of. An architecture earns its keep once the solution has enough structure to merit one. Until this day the rule demanded all four and [[Agent Recipes]] said the opposite (*"a file appears when it has content, never to complete the set"*); every agent Design folder in the vault failed it, owing fifteen documents between them that nobody was going to write. **Testing is still required, but not as a sibling document**: the PRD must *indicate* it — an inline H2 when narrow, a spine entry to `{slug} Testing.md` when it is a discipline of its own, or an explicit *"no meaningful test yet, because X"*, which is a legal answer (the `/audit q` precedent: `None` is a real recommendation, *empty* is the author not having tried). That obligation lives in [[R-prd]], where the PRD's own shape is checked, not here.
 
 ### RULE R-design-03 — Dispatch page lists every present child (sampled)
 
@@ -36,7 +36,7 @@ check:: status_facets_initialized prd ux architecture testing roadmap
 
 When `{slug} Track/{slug} Status.md` exists, it carries the standard five design-facet lines (`prd::`, `ux::`, `architecture::`, `testing::`, `roadmap::`) per [[DAS Status]]. **Its absence is not a failure.** `state status <slug> show` creates the file with every facet at `none` the first time `/design` reads it, so nothing breaks when it is missing — and a Status file written only to satisfy a check is five `none` lines that lie about a design nobody has started.
 
-Narrowed 2026-08-29 ([[TINK Backlog#^T627|T627]], on [[ATT|Atticus]]'s report): the rule fired on exactly the trigger T625 retired for R-design-02 — *a Design folder exists* — and Dan's ruling there reaches here unchanged: documents earn their keep by need, and only the PRD is not optional. Measured 2026-08-29 across Staff: ATT, CFO and LUMEN failed it for want of a file the picker would have created on its own.
+Narrowed 2026-08-29 ([[Tink Backlog#^T627|T627]], on [[ATT|Atticus]]'s report): the rule fired on exactly the trigger T625 retired for R-design-02 — *a Design folder exists* — and Dan's ruling there reaches here unchanged: documents earn their keep by need, and only the PRD is not optional. Measured 2026-08-29 across Staff: ATT, CFO and LUMEN failed it for want of a file the picker would have created on its own.
 
 **Check pattern:** for each existing Design folder, if `{slug} Track/{slug} Status.md` exists, assert the five facets are declared (any cell value is valid). A missing file passes.
 
@@ -76,7 +76,7 @@ The `{slug} Design/` folder exists **iff** the anchor has real design content �
 
 ## Adoption
 
-Armed by [[R-anchor]]'s `include::` — the umbrella `/audit anchor` resolves. Being named by [[R-facet]] is catalog membership, not adoption — that umbrella sits outside the `R-doc`/`R-anchor` closure `audit-plan.py` resolves, so an `include::` there arms nothing ([[TINK Backlog#^T208|T208]]).
+Armed by [[R-anchor]]'s `include::` — the umbrella `/audit anchor` resolves. Being named by [[R-facet]] is catalog membership, not adoption — that umbrella sits outside the `R-doc`/`R-anchor` closure `audit-plan.py` resolves, so an `include::` there arms nothing ([[Tink Backlog#^T208|T208]]).
 
 ## See also
 

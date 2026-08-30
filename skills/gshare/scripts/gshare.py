@@ -576,7 +576,7 @@ description: "Every document currently published out of the vault to a link-shar
 # gshare register
 Every document currently published out of the vault as a link-shared Google Doc, and when each one comes back down.
 
-Machine-written by `gshare` (per [[TINK325 - gshare: publish markdown to link-shared Google Docs that expire|F325]]) — **do not hand-edit below this line.** To publish, run `gshare <path>`; to take something down early, `gshare rm <path>`. Every link here is viewable by anyone holding it and is not searchable. Anything in the Drive folder that this table does not list was not put there by `gshare`, and `gshare clean` reports it rather than touching it.
+Machine-written by `gshare` (per [[Tink325 - gshare: publish markdown to link-shared Google Docs that expire|F325]]) — **do not hand-edit below this line.** To publish, run `gshare <path>`; to take something down early, `gshare rm <path>`. Every link here is viewable by anyone holding it and is not searchable. Anything in the Drive folder that this table does not list was not put there by `gshare`, and `gshare clean` reports it rather than touching it.
 
 """
 

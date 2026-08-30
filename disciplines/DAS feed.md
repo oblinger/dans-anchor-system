@@ -10,7 +10,7 @@ group: discipline
 
 **Feed is an information flow discipline for aggregating information across anchors.** An anchor holds its own planning surfaces; a feed is the declaration that another anchor draws from them, and the machinery that carries what one anchor publishes into the next.
 
-**Live since 2026-08-09**, implemented by `stone` ([[TINK313 - Stone: one script for every kind of stone, its control file, and the feeds between them|TINK F313]]). Eight `.anchor` files declare `feeds:` today. Commissioned in [[TINK312 - Feed: a second DAG over anchors, and the facets that travel it|TINK F312]] and drafted 2026-08-06 ahead of its open questions; § What the implementation changed records where the draft was overtaken.
+**Live since 2026-08-09**, implemented by `stone` ([[Tink313 - Stone: one script for every kind of stone, its control file, and the feeds between them|TINK F313]]). Eight `.anchor` files declare `feeds:` today. Commissioned in [[Tink312 - Feed: a second DAG over anchors, and the facets that travel it|TINK F312]] and drafted 2026-08-06 ahead of its open questions; § What the implementation changed records where the draft was overtaken.
 
 ## The second DAG
 
@@ -40,7 +40,7 @@ The plural noun is what makes `feeds:` safe as a key where `flows:` was not. *Yo
 
 What moves along a feed edge is a **stone**: one unit of work-worth-naming, held one-file-per-item in a folder, ordered by a hand-arranged **control file**. Its folder, its numbering, its keys, its control file and its display forms all belong to [[DAS Stone]] and are **not restated here**.
 
-That boundary is not where the original design put it, and the move is the single most useful thing [[TINK313 - Stone: one script for every kind of stone, its control file, and the feeds between them|F313]] settled. F312 proposed *feed as a discipline with two member facets*, Rocks and Pebbles, sharing storage machinery the discipline would own. What shipped is **one facet parameterised by kind** — pebble and rock are kinds in a JSON config, not facets — so the shared machinery has a single home in [[DAS Stone]] rather than a home in a discipline plus two facets that must not diverge from it.
+That boundary is not where the original design put it, and the move is the single most useful thing [[Tink313 - Stone: one script for every kind of stone, its control file, and the feeds between them|F313]] settled. F312 proposed *feed as a discipline with two member facets*, Rocks and Pebbles, sharing storage machinery the discipline would own. What shipped is **one facet parameterised by kind** — pebble and rock are kinds in a JSON config, not facets — so the shared machinery has a single home in [[DAS Stone]] rather than a home in a discipline plus two facets that must not diverge from it.
 
 **The discipline is therefore smaller than drafted, and correctly so.** What is left here is exactly what is a property of the *graph*: who declares an edge, what travels one, and the three invariants any pass over the graph must hold. Nothing in this page names a kind.
 
@@ -48,13 +48,13 @@ That boundary is not where the original design put it, and the move is the singl
 
 A stone that its owning anchor **publishes** appears in the control file of every anchor whose `.anchor` lists that owner among its feeds. Reach is **transitive** — if Vector declares `feeds: MED` and MED declares `feeds: X`, then X's stones reach Vector — while the **declaration is not**: only the direct edge is written, and reach is computed. A top that saw only its direct children would not be a top, and re-declaring the subtree at every intermediate anchor is the duplication § Declaring an edge rejects.
 
-**The unit that travels is the control line itself, copied verbatim.** A control line opens with a link whose *target* is a numbered stone and whose *display* is a short provenance label — `[[VEC R0001|VEC:]] decide Aria`, reading `VEC: decide Aria`. Because the display carries the source anchor, that exact line is correct in any anchor and still resolves to the original stone, so it can simply be copied.
+**The unit that travels is the control line itself, copied verbatim.** A control line opens with a link whose *target* is a numbered stone and whose *display* is a short provenance label — `[[Vector R0001|VEC:]] decide Aria`, reading `VEC: decide Aria`. Because the display carries the source anchor, that exact line is correct in any anchor and still resolves to the original stone, so it can simply be copied.
 
 **This is what keeps a downstream control file hand-editable.** A rendered block would have to be machine-owned — an electric zone, hand-edits discarded — because a render has no way to accept an edit. A copied line has: it is ordinary text in an ordinary file, and the human who arranges the file arranges the imported lines along with their own. Where an import lands is the consumer's choice, expressed by writing a header for the source ([[R-stone]]-04).
 
 ## Who may write
 
-**Every control file is a write surface, not only the owner's** — settled 2026-08-13 as [[TINK312 - Feed: a second DAG over anchors, and the facets that travel it|F312]] Q6 = (C), which supersedes F312's original single-owner resolution.
+**Every control file is a write surface, not only the owner's** — settled 2026-08-13 as [[Tink312 - Feed: a second DAG over anchors, and the facets that travel it|F312]] Q6 = (C), which supersedes F312's original single-owner resolution.
 
 A control line differing from its stone is an **edit of the stone** wherever it is found: the edit travels up to the stone, and every projection is rewritten to match. Convergence is guaranteed — every projection equals its stone at the end of a pass. This is what keeps a downstream control file hand-editable, which single-owner would have cost: a rendered block has no way to accept an edit, so it would have to be an electric zone.
 

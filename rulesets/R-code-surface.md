@@ -5,7 +5,7 @@ description:: the code surface of an anchor — All Files tree + per-module docs
 
 What `/audit` checks across the code surface of a `code`-trait anchor. The per-doc shape rules live in the included `R-module-doc`; the rules below are the **pairing** invariants between the source tree and its docs. Format of this set: [[DAS Ruleset]].
 
-> **Not armed 2026-08-11 ([[TINK Backlog#^T349|T349]]) — blocked twice over.**
+> **Not armed 2026-08-11 ([[Tink Backlog#^T349|T349]]) — blocked twice over.**
 >
 > **Its own selector is the [[R-git]] shape.** `where:: anchor` fires once per anchor, 1,395 times across the vault, for two rules whose subject is a *pairing* between `{slug} Files.md` and the module docs under `{slug} Dev Docs/` — a correspondence that exists in 14 anchors. Both rules read `(checked)` and carry **no `check::`**, so arming as written buys 2,790 agent judgments to ask 14 real questions.
 >

@@ -904,7 +904,12 @@ def cmd_pick(a):
         picks = [p for p in picks if p[1]]
         picks.insert(0, (img.name, None, a.subtitle))
     write_picks(d, picks)
-    set_gallery_cover(d.name, picks[0][0])          # the leading pick is the cover
+    # The cover normally follows the leading pick, but the two genuinely differ:
+    # a roll's top pick is often the cutout the org chart eats, and a transparent
+    # PNG is the wrong thing on a gallery shelf. --cover names the shelf picture
+    # without disturbing the order.
+    cover_img = img.name if a.cover else picks[0][0]
+    set_gallery_cover(d.name, cover_img)
     where = f"pick {len(picks)} of {len(picks)}" if a.title else "top of"
     cover = " + gallery cover" if picks[0][0] == img.name else ""
     print(f"pick: {img.stem}"
@@ -996,6 +1001,8 @@ def main():
                    help="name this keeper — a titled pick joins the set instead of replacing it")
     p.add_argument("subtitle", nargs="?", default=None, help="caption under the picture")
     p.add_argument("--drop", action="store_true", help="remove this image from the picks")
+    p.add_argument("--cover", action="store_true",
+                   help="make this the gallery cover without changing the pick order")
     p.set_defaults(fn=cmd_pick)
 
     p = sub.add_parser("list", help="list rolls, or images in a roll")

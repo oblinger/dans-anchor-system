@@ -130,7 +130,7 @@ def section(text, title):
 
 d = Path(tempfile.mkdtemp())
 try:
-    backlog = d / "ATT Backlog.md"
+    backlog = d / "Atticus Backlog.md"
     backlog.write_text(FIXTURE, encoding="utf-8")
     rows = qr.parse_backlog(backlog)
     body = qr.build_queries_body(

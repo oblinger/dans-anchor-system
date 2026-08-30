@@ -3220,7 +3220,7 @@ def _is_facet_spec(path):
 
 # A Messages log is append-only and nothing ever drained it, so every one grew
 # without bound until Obsidian started refusing to index them (TINK T234:
-# "Indexing taking a long time for … TINK Messages.md", at 751 KB / ~21 KB per
+# "Indexing taking a long time for … Tink Messages.md", at 751 KB / ~21 KB per
 # day). The cap keeps the tail and archives the head — NOT a clear. DAS Messages
 # is explicit that "a cleared log nothing reads is the same dead channel,
 # emptier", so the history moves to a gzip beside the file, where it is still

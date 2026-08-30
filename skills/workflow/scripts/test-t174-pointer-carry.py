@@ -70,7 +70,7 @@ check("an empty new body is left alone rather than reduced to a bare pointer",
 
 # The pointer regex must match the real corpus shape: a piped wiki-link whose
 # display half carries an em-dash, which is what every feature row uses.
-real = "→ [[TINK310 - Stream: one reverse-chronological facet at three volumes|F310 — Stream]] — body"
+real = "→ [[Tink310 - Stream: one reverse-chronological facet at three volumes|F310 — Stream]] — body"
 out, carried = carry(real, "replacement")
 check("the piped, em-dashed link form real rows use is recognised",
       bool(carried) and out.startswith("→ [[TINK310 - Stream"), True)
@@ -78,7 +78,7 @@ check("the piped, em-dashed link form real rows use is recognised",
 
 print("\nThe live CLI round-trip — a real row, restored byte-exact afterwards")
 
-BACKLOG = pathlib.Path.home() / "ob/kmr/SYS/Staff/Tink/TINK Track/TINK Backlog.md"
+BACKLOG = pathlib.Path.home() / "ob/kmr/SYS/Staff/Tink/Tink Track/Tink Backlog.md"
 ROW = "F303"
 
 

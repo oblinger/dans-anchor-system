@@ -77,7 +77,7 @@ check("None is tolerated", s(None), "")
 # before the caret, so an inbound link at the end of a body survives. This is
 # the one way an over-eager strip would have silently eaten real content.
 check("a trailing wiki block-link survives",
-      s("see [[TINK Backlog#^T056]]"), "see [[TINK Backlog#^T056]]")
+      s("see [[Tink Backlog#^T056]]"), "see [[Tink Backlog#^T056]]")
 check("a bare block reference survives",
       s("see TINK Backlog#^T056"), "see TINK Backlog#^T056")
 

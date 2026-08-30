@@ -6,7 +6,7 @@ description: "F303 M5 — restating the corpus and measuring the fit"
 | --- | --- |
 | [[Template Examples]]  | the seven-case grammar-derivation corpus (M1); this document is a *different* corpus — the real population, not the cases that derived the grammar |
 | [[STEN Language\|Language]]  | the grammar this restatement is written in |
-| [[TINK303 - Template DSL - one pattern language for facets, templates, and sections\|F303]]  | *Spec* — M5: *"Existing templates and facets expressed in the notation. Dan expects 'probably not that much refactoring' — M1 is what confirms or refutes that, and it is a real finding either way."* |
+| [[Tink303 - Template DSL - one pattern language for facets, templates, and sections\|F303]]  | *Spec* — M5: *"Existing templates and facets expressed in the notation. Dan expects 'probably not that much refactoring' — M1 is what confirms or refutes that, and it is a real finding either way."* |
 
 # STEN Restated Corpus
 M5: the vault's existing templates and facets, restated in Stencil and checked with `sten_match`/`sten_generate` against real files — not the seven-case M1 corpus, but the population M1 was built to eventually cover.
@@ -203,4 +203,4 @@ Every per-item verdict in §Templates and §Facets above was produced by an actu
 
 ## Status
 
-Authored 2026-08-08 as [[TINK303 - Template DSL - one pattern language for facets, templates, and sections|F303]] M5. Restates `facets/*.md` (69 files, one shared shape, measured distribution) and 16 of 19 `templates/*` files (individually, against a located real instance each) in Stencil, verifies every restated stencil against real files with `sten_match`/`sten_generate`, and reports five notation/authoring findings and a verdict on Dan's "probably not that much refactoring" expectation. Does **not** modify any facet or template — that sweep (12 `...` lines, 4 named one-line drifts, the `single_brace_vars` generator gap) is scoped but left for Dan to schedule.
+Authored 2026-08-08 as [[Tink303 - Template DSL - one pattern language for facets, templates, and sections|F303]] M5. Restates `facets/*.md` (69 files, one shared shape, measured distribution) and 16 of 19 `templates/*` files (individually, against a located real instance each) in Stencil, verifies every restated stencil against real files with `sten_match`/`sten_generate`, and reports five notation/authoring findings and a verdict on Dan's "probably not that much refactoring" expectation. Does **not** modify any facet or template — that sweep (12 `...` lines, 4 named one-line drifts, the `single_brace_vars` generator gap) is scoped but left for Dan to schedule.

@@ -39,7 +39,7 @@ print(f"\n{len(files)} corpus files x 2 rules — {len(files)*2 - fails} agree w
 
 # The three branches, on the file that motivated the fix.
 facet = VAULT / "SYS/Bespoke/Skill Agent/dans-anchor-system/facets/DAS Backlog.md"
-store = VAULT / "SYS/Staff/Tink/TINK Track/TINK Backlog.md"
+store = VAULT / "SYS/Staff/Tink/Tink Track/Tink Backlog.md"
 checks = [
     ("facet is editable (Edit)",        not body01(ctx_for(facet))),
     ("facet is writable (Write)",       not body03(ctx_for(facet))),

@@ -1,5 +1,5 @@
 ---
-description: "**RULESET GROUPS** — organized by the nine subsystems, in  order"
+description: "Dan's Anchor System (DAS) — the dans-anchor-system repository: skills / facets / disciplines / rulesets / library / examples + a docs reading surface"
 ---
 
 | -[[DAS]]- | : dans-anchor-system — Dan's Anchor System (DAS) — the dans-anchor-system repository: skills / facets / disciplines / rulesets / library / examples + a docs reading surface<br>→ [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [DAS](hook://p/DAS)  |

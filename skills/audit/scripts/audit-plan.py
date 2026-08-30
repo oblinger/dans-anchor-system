@@ -1586,7 +1586,7 @@ def _unescaped_pipe_positions(s: str) -> list[int]:
     (correct), `[[A\\\\|b]]` **pass / 3 cells (WRONG)**, `[[A|b]]` fail / 3 cells
     (correct). The wrong one is exactly the shape a repair pass produces when it
     escapes an already-escaped pipe, so the fixer could manufacture the defect its
-    own checker was blind to. Found by Lumen 2026-08-10 on six [[LUMEN Nudge]] rows
+    own checker was blind to. Found by Lumen 2026-08-10 on six [[Lumen Nudge]] rows
     that had lost their tails.
 
     Written as a shared primitive under the T099 rule that a helper is speculation
@@ -5598,7 +5598,7 @@ def _link_target_regions(text: str) -> list[tuple[int, int]]:
     pipe inside a table cell), because `find` stops at the `|` either way and the
     stray backslash left in front of it is target, not prose.
 
-    Distinct from [[TINK Backlog#^T375|T375]], which fixed three CODE-masking
+    Distinct from [[Tink Backlog#^T375|T375]], which fixed three CODE-masking
     defects in this same fixer: a wiki-link is not code, so none of that
     machinery ever looked at one.
     """
@@ -7400,7 +7400,7 @@ def chk_stone_dispatch_linked(target, anchor_root, args):
     # usually does. `R-rocks-08` named the FOLDER because a rock group's folder
     # is what its Track page happens to link; measured across the vault on
     # 2026-08-28, every other kind links the CONTROL FILE instead
-    # (`[[TINK Pebble]]`, singular) — which is the better target anyway, since
+    # (`[[Tink Pebble]]`, singular) — which is the better target anyway, since
     # the control file is what a reader opens and the folder is storage. Porting
     # the folder-only predicate fired on 21 of 32 live groups, which is a rule
     # measuring a convention rather than a defect.
@@ -7736,7 +7736,7 @@ def _stone_control(folder: Path, slug: str, cfg: dict) -> Path:
     (Dan, 2026-08-18): a word is singular when it names the container, plural
     when it names the elements. `Rocks` names the elements so `HBR Rock.md` has
     its own place beside `HBR Rocks/`; `Book` names the container, so
-    `SONAR Book.md` can only live inside `SONAR Book/`. The glob concern above
+    `Sonar Book.md` can only live inside `Sonar Book/`. The glob concern above
     does not bite: `chk_stone_members_numbered` already exempts a `{folder}.md`
     inside the folder as the group's own anchor page."""
     name = cfg["control"].format(slug=slug) + ".md"
@@ -8738,7 +8738,7 @@ def run_checker(check: str, target: Path, anchor_root: Path) -> tuple[str, str]:
 # root's children AND the members of its facet folders (`{slug} Design/`,
 # `{slug} Track/`). T625 (2026-08-29): depth one hashed only the root's child
 # NAMES, so `R-design-02` — which inspects `{slug} Design/` — kept serving a
-# cached `fail` after `SPARKS PRD.md` was written inside it. Touching files,
+# cached `fail` after `Sparks PRD.md` was written inside it. Touching files,
 # waiting out the watcher and `ha --rescan` all changed nothing, because
 # nothing at the root had a new name. Every `anchor`-scope checker that reads
 # into a facet folder shares the key, so the key is what is fixed.

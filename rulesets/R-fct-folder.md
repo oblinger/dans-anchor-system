@@ -3,7 +3,7 @@ include::
 where:: `file: **/.anchor`
 description:: The rules every anchor folder must satisfy — a named directory containing a marker file whose name matches the folder exactly.
 
-> **NOT ARMED 2026-08-11 ([[TINK Backlog#^T349|T349]]) — three of its four rules have nothing to add, and the fourth has 12 subjects.**
+> **NOT ARMED 2026-08-11 ([[Tink Backlog#^T349|T349]]) — three of its four rules have nothing to add, and the fourth has 12 subjects.**
 >
 > **The selector cannot match.** `where:: file: **/.anchor` is the class-(a) form measured on [[R-code-repository]]: anchor-mode scope is built from `target.rglob("*.md")`, so a `file:` selector naming a non-`.md` path resolves to the empty set and the whole ruleset drops out of `plan["groupings"]` with nothing reported. This set is the third of the five carrying it. Unlike R-code-repository, repairing the selector to `anchor` would not make arming worthwhile — the rules are the problem here, not the aim.
 >

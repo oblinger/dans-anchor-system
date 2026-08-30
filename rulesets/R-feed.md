@@ -11,7 +11,7 @@ It is the **first ruleset for a corpus-level graph**. [[DAS anchor-dag]] — the
 
 **Not adopted by any umbrella**, and it must not be: the rules below select no file, so there is nothing for an umbrella to bind them to.
 
-> **Reviewed and left dormant 2026-08-11 ([[TINK Backlog#^T349|T349]]) — the disposition above is right, and the `where::` line above it is right by accident.**
+> **Reviewed and left dormant 2026-08-11 ([[Tink Backlog#^T349|T349]]) — the disposition above is right, and the `where::` line above it is right by accident.**
 >
 > This set's `where:: file:**/.anchor` is the class-(a) unmatchable form measured on [[R-code-repository]] (anchor-mode scope is `target.rglob("*.md")`, so a `file:` selector naming a non-`.md` path resolves to the empty set). Everywhere else that form is a defect. **Here the empty set is the correct answer** — the header two paragraphs up says plainly that these rules select no file — so the ruleset behaves exactly as intended, for a reason that has nothing to do with what it wrote.
 >
@@ -45,7 +45,7 @@ A pass **fails**, naming the offending string, when a declared source matches no
 
 **Why:** this is the least visible of the three invariants and the reason the other two are not enough. An unresolvable source supplies zero items and is **indistinguishable from a source that happens to be empty**, so without an explicit check a typo'd feed edge is invisible forever — the anchor simply never receives anything and nothing ever says why.
 
-**Blast radius, amended 2026-08-27 ([[TINK Backlog#^T599|T599]]).** This rule used to abort the whole pass, as R-feed-02 does for a cycle, and that cost a real outage: one retired slug (`MLI`) left standing in one `.anchor` took `stone pebble update` offline for **all ~1,575 anchors**, so a control file had to be hand-edited — precisely the hand-editing the tool exists to prevent. The two cases are not alike. A cycle makes *which value is downstream* meaningless, so no part of the answer is trustworthy; a missing source contributes nothing, so skipping its one edge changes nothing anywhere else. Naming it plus a non-zero exit keeps the defect just as loud without making the rest of the vault hostage to it.
+**Blast radius, amended 2026-08-27 ([[Tink Backlog#^T599|T599]]).** This rule used to abort the whole pass, as R-feed-02 does for a cycle, and that cost a real outage: one retired slug (`MLI`) left standing in one `.anchor` took `stone pebble update` offline for **all ~1,575 anchors**, so a control file had to be hand-edited — precisely the hand-editing the tool exists to prevent. The two cases are not alike. A cycle makes *which value is downstream* meaningless, so no part of the answer is trustworthy; a missing source contributes nothing, so skipping its one edge changes nothing anywhere else. Naming it plus a non-zero exit keeps the defect just as loud without making the rest of the vault hostage to it.
 
 ### RULE R-feed-04 — A pass reports its counts, including when they are zero (stated)
 

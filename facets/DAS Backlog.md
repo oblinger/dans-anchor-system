@@ -160,7 +160,7 @@ Each F-row may carry a workflow-state bracket per the `[[SKA workflow]]` discipl
 
 ### The state table — every bracket, and the visibility class it renders to
 
-Ruled by Dan 2026-08-07 ([[TINK305 - Three answer shapes, one lifecycle|TINK F305]]). Two separate things: the **bracket** is what a row declares about itself, and the **class** is where that declaration renders for the user. Counts are the live vault as of that date.
+Ruled by Dan 2026-08-07 ([[Tink305 - Three answer shapes, one lifecycle|TINK F305]]). Two separate things: the **bracket** is what a row declares about itself, and the **class** is where that declaration renders for the user. Counts are the live vault as of that date.
 
 | Bracket | Class | Argument | live |
 |---|---|---|---|

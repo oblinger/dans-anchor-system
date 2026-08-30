@@ -62,9 +62,9 @@ for name in ("Notes on the redesign.md", "CLAUDE.md", "Lumens.md", "scratch.md")
     check(f"unprefixed {name!r} passes", verdict(atticus, name), "pass")
 
 print("\nA prefix, when present, must be the SLUG")
-check("'ATT Backlog.md' passes", verdict(atticus, "ATT Backlog.md"), "pass")
+check("'Atticus Backlog.md' passes", verdict(atticus, "Atticus Backlog.md"), "pass")
 check("'ATT.md' passes (anchor page)", verdict(atticus, "ATT.md"), "pass")
-check("'ATT Persona.md' passes", verdict(atticus, "ATT Persona.md"), "pass")
+check("'Atticus Persona.md' passes", verdict(atticus, "Atticus Persona.md"), "pass")
 
 print("\n...and the folder NAME is refused as a prefix — the T111 defect")
 check("'Atticus Backlog.md' FAILS", verdict(atticus, "Atticus Backlog.md"), "fail")
@@ -78,7 +78,7 @@ print("\nCase alone is a defect — this is what T111 turned on")
 tink = d / "Tink"
 tink.mkdir()
 (tink / ".anchor").write_text("slug: TINK\n", encoding="utf-8")
-check("'TINK Backlog.md' passes", verdict(tink, "TINK Backlog.md"), "pass")
+check("'Tink Backlog.md' passes", verdict(tink, "Tink Backlog.md"), "pass")
 check("'Tink Backlog.md' FAILS (folder-name casing)",
       verdict(tink, "Tink Backlog.md"), "fail")
 
@@ -86,8 +86,8 @@ print("\nA nested anchor carries the ROOT slug, not its own folder name")
 sub = tink / "TINK Track"
 sub.mkdir()
 (sub / ".anchor").write_text("", encoding="utf-8")   # no slug: → falls back to folder
-check("'TINK Backlog.md' inside 'TINK Track/' passes",
-      verdict(sub, "TINK Backlog.md"), "pass")
+check("'Tink Backlog.md' inside 'Tink Track/' passes",
+      verdict(sub, "Tink Backlog.md"), "pass")
 check("...and an unprefixed file there passes too",
       verdict(sub, "scratch.md"), "pass")
 

@@ -226,7 +226,7 @@ def two_page(stem: str, cell_desc: str) -> Path:
 
         | -[[{stem}]]- | : {cell_desc}<br>→ [[kmr]] → [{stem}](hook://p/{stem}) |
         | --- | --- |
-        | [[ATT Log]] | a child |
+        | [[Atticus Log]] | a child |
         """))
     return p
 

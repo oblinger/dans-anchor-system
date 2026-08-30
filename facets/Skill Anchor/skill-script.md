@@ -17,7 +17,7 @@ The skill-script facet specifies *how a Skill Anchor packages and invokes its sc
 
 This is a DAS facet of the Skill trait. The scripts/ folder lives at the runtime location (skill folder), not under the anchor's filesystem folder.
 
-**Worked example: [[audit]]** — `skills/audit/scripts/` is the largest and most conformant script surface in the repo, and it is where the `audit-q.py` / `queries-render.py` precedents this facet names actually live. It demonstrates the read-only-by-default rule at scale: `audit-q.py` and `audit-placement.py` both report by default and mutate only behind `--fix` / `--check`. Cited in place rather than copied — it is an in-project instance, and the never-copy rule outranks the no-hop convenience of a `FEX` page ([[TINK327 - Every facet has a worked example, and FEX {facet} is how you reach it|F327]]).
+**Worked example: [[audit]]** — `skills/audit/scripts/` is the largest and most conformant script surface in the repo, and it is where the `audit-q.py` / `queries-render.py` precedents this facet names actually live. It demonstrates the read-only-by-default rule at scale: `audit-q.py` and `audit-placement.py` both report by default and mutate only behind `--fix` / `--check`. Cited in place rather than copied — it is an in-project instance, and the never-copy rule outranks the no-hop convenience of a `FEX` page ([[Tink327 - Every facet has a worked example, and FEX {facet} is how you reach it|F327]]).
 
 
 ## Layout

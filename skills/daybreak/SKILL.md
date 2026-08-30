@@ -23,7 +23,7 @@ Every row is one thing Lumen does in the morning, in order. Detail follows below
 | **Questions** | Pull user-gated decisions out of `~/ob/kmr/Q.md` — every anchor's open questions in one file. |
 | **Calendar** | Fetch today's events. Necessary but **not sufficient** — see Mail, below. |
 | **Dates** | Read `MY Dates.md` for birthdays and anniversaries coming up. Card rows need six weeks, not two. |
-| **Mail** | Surface only messages matching `LUMEN Watchlist.md`. Skip entirely if it is empty. Then run `appointment-scan.py` — some appointments never reach a calendar and live only in mail. |
+| **Mail** | Surface only messages matching `Lumen Watchlist.md`. Skip entirely if it is empty. Then run `appointment-scan.py` — some appointments never reach a calendar and live only in mail. |
 | **Doctor** | Launch any due `ob_check` **agent** check, then read [[SYS Doctor Report]] — the two top sections only. Surface what CHANGED, and name how long anything failing has been failing. |
 | **Hot** | Read [[Rocks]] — the live block only — for what the user has declared currently matters. |
 | **Loose** | Scan [[Quick]] and Lumen's own `## Now` for anything captured since the last run. |
@@ -31,8 +31,8 @@ Every row is one thing Lumen does in the morning, in order. Detail follows below
 | **Stage** | Lift today's quick hits to the top of [[Quick]], above a blank line. Propose the set; add to it. |
 | **Week** | Put the ≥30-min items into today's `### <Day>` in this week's [[Weekly]] file, as checkboxes. |
 | **Runnable** | Name the Ready work that needs no user, offered as a single `'` (crank). |
-| **Ahead** | Read the [[LUMEN Pebble]] roster + pebbles; surface every pebble whose `tempo::` falls due today into the briefing's **Watching** section. |
-| **Write** | Put the briefing at the top of `~/ob/kmr/SYS/Staff/Lumen/LUMEN Day.md` — the user reads it there, not in chat. |
+| **Ahead** | Read the [[Lumen Pebble]] roster + pebbles; surface every pebble whose `tempo::` falls due today into the briefing's **Watching** section. |
+| **Write** | Put the briefing at the top of `~/ob/kmr/SYS/Staff/Lumen/Lumen Day.md` — the user reads it there, not in chat. |
 | **Close** | Write down anything deferred, then advance the watermark. In that order. |
 
 Sources are read cheapest-and-most-decisive first, so an interrupted run still produced value. Watch messages lead because the user already decided those mattered; `Q.md` is second because one file federates every anchor. Everything else in [[LST]] is read on demand — do not sweep the list tree, that is weekly-review work.
@@ -43,10 +43,10 @@ MUSE items live at `~/ob/kmr/Log/MUSE/MUSE <date> <letter> <title>.md`, indexed 
 
 **Nothing ever flips `state: unreviewed`** — MUSE writes it once at ingest and no consumer clears it. Do NOT filter on that field; every item would surface every morning forever.
 
-Use the watermark at `LUMEN Track/Daybreak Watermark.md` (a single ISO timestamp). Surface items whose `captured:` is newer than it. Skip items whose `state:` starts with `suppressed-` — MUSE already judged those noise.
+Use the watermark at `Lumen Track/Daybreak Watermark.md` (a single ISO timestamp). Surface items whose `captured:` is newer than it. Skip items whose `state:` starts with `suppressed-` — MUSE already judged those noise.
 
 ```bash
-WM=$(grep -o '[0-9-]\{10\} [0-9:]\{8\}' "$HOME/ob/kmr/SYS/Staff/Lumen/LUMEN Track/Daybreak Watermark.md" | head -1)
+WM=$(grep -o '[0-9-]\{10\} [0-9:]\{8\}' "$HOME/ob/kmr/SYS/Staff/Lumen/Lumen Track/Daybreak Watermark.md" | head -1)
 [ -z "$WM" ] && { echo "daybreak: watermark missing or unparseable — refusing to surface (would dump the whole corpus)" >&2; exit 1; }
 cd "$HOME/ob/kmr/Log/MUSE" && for f in MUSE*.md; do
   cap=$(grep -m1 '^captured:' "$f" | sed 's/^captured: //')
@@ -94,7 +94,7 @@ It prints today's events one per line (`HH:MM    Title`, or `all-day  Title`), s
 
 **If it exits 2 / prints `CALENDAR_ACCESS_DENIED`**, the calling context lacks Calendar permission — **say so in the briefing and continue** (never silently omit the channel; a briefing that admits the calendar was unreachable beats one that quietly dropped it). The one-time fix is a GUI grant: tell the user to double-click `$HOME/.claude/skills/io/scripts/grant-calendar.command` and click Allow. After that it runs granted every morning. Full capability docs: [[io-ical]]. Call the shim directly — re-measured 2026-08-05, a headless agent session gets the full day back with no prompt and no denial, so no Terminal round-trip is needed. Do **not** fall back to the AppleScript `whose` query — 2026-07-22 it silently returned empty on a 3-event day.
 
-**Filter through [[LUMEN Background]] § Standing rhythm.** Standing meetings recorded there (e.g. the daily 14:00 CV ML standup) are suppressed from the briefing's calendar block — the user already knows their own rhythm; surface a standing meeting only when it moved, changed, or was cancelled. Everything else on the day gets listed.
+**Filter through [[Lumen Background]] § Standing rhythm.** Standing meetings recorded there (e.g. the daily 14:00 CV ML standup) are suppressed from the briefing's calendar block — the user already knows their own rhythm; surface a standing meeting only when it moved, changed, or was cancelled. Everything else on the day gets listed.
 
 ## Dates
 
@@ -115,13 +115,13 @@ Read `~/ob/kmr/MY/My Dates/MY Dates.md` — the register of recurring annual dat
 
 **Surfacing a date is not the work.** A `Card` ✓ row inside the window belongs in the briefing's **Decisions** block with a concrete next action, not in a list of trivia. How a card actually gets sent is [[APRF Birthdays]]; the gift half is [[HERMES|Hermes]]'s when a row carries `Gift` ✓.
 
-**Record what went out.** When a card is sent, tick the year into that row's Notes so next year's draft does not repeat itself, and log any promise the card made — *"let's talk in two weeks"* — as a dated [[LUMEN Pebble|pebble]]. The promise is the perishable part.
+**Record what went out.** When a card is sent, tick the year into that row's Notes so next year's draft does not repeat itself, and log any promise the card made — *"let's talk in two weeks"* — as a dated [[Lumen Pebble|pebble]]. The promise is the perishable part.
 
 ## Mail
 
 Mail goes through the `google_workspace_mcp` server registered per [[WIRE Claude Google MCP]] (Calendar + Gmail included; Daybreak uses only the Gmail half now that calendar is local). If the server is not running, **say so and continue** — a missing mail channel degrades the briefing, it does not abort the run.
 
-Mail is filtered through `LUMEN Design/LUMEN Watchlist.md` — a definition list of senders, subjects, and patterns worth surfacing. It starts empty and grows when the user says "flag this kind of thing." **Do not invent watchlist entries**; an unearned watchlist trains the user to ignore the channel.
+Mail is filtered through `Lumen Design/Lumen Watchlist.md` — a definition list of senders, subjects, and patterns worth surfacing. It starts empty and grows when the user says "flag this kind of thing." **Do not invent watchlist entries**; an unearned watchlist trains the user to ignore the channel.
 
 **Some appointments exist only inside an email, so the Calendar step cannot see them.** Sutter's reminders are a single `text/html` part — no `text/calendar`, no `.ics` — so nothing ever reaches a calendar to be read back. On 2026-08-11 that cost a 2:30 PM video visit: the briefing would have shown a clear afternoon, and the user found it himself twenty-nine minutes ahead. **So run the scan every morning, as part of Mail:**
 
@@ -133,7 +133,7 @@ It reads its senders from the Watchlist — never its own copy — and prints on
 
 ## Doctor
 
-**First, run the agent checks — nothing else will.** `ob_check run` executes the `machine` checks and deliberately stops there ([[ATT048 - ob_check - a health-message queue any script can post to|ATT F048]]); the `agent` kind exists for judgements a grep cannot make, and **Daybreak is its only invoker**. That invoker went unbuilt for the anchor's first weeks, and `daily.log.review` — the check whose job is to read the nightly sweep — sat stale sixteen days as a result. Wired 2026-08-25 by [[LUMEN035 - Daybreak runs the agent checks|F035]].
+**First, run the agent checks — nothing else will.** `ob_check run` executes the `machine` checks and deliberately stops there ([[Atticus048 - ob_check - a health-message queue any script can post to|ATT F048]]); the `agent` kind exists for judgements a grep cannot make, and **Daybreak is its only invoker**. That invoker went unbuilt for the anchor's first weeks, and `daily.log.review` — the check whose job is to read the nightly sweep — sat stale sixteen days as a result. Wired 2026-08-25 by [[Lumen035 - Daybreak runs the agent checks|F035]].
 
     python3 ~/.claude/skills/daybreak/scripts/agent-checks-due.py
 
@@ -199,34 +199,34 @@ Today's plan gets written into the two lists the user actually works against, **
 
 **[[Quick]] staging.** Move the items the user is likely to knock off today to the top of `Quick.md`, then **one blank line**, then everything else untouched. The blank line is the whole convention — it is what makes the day's picks visible at a glance in the HUD. Propose the set rather than deciding it silently, and feel free to *add* items that belong there.
 
-**Only the user's own work gets staged.** Anything Lumen wants *from* the user — run a grant, click a dialog, review something — never goes into [[Quick]], [[Todo]], or [[Weekly]]; those are the user's working lists, and agent asks clutter them (user, 2026-07-22: *"if you have things like that you want me to do, you just bring them up in the morning time"*). An agent ask lives as a pebble on [[LUMEN Pebble]] (`waiting`, or dated) and surfaces in the briefing's **Decisions** block until settled.
+**Only the user's own work gets staged.** Anything Lumen wants *from* the user — run a grant, click a dialog, review something — never goes into [[Quick]], [[Todo]], or [[Weekly]]; those are the user's working lists, and agent asks clutter them (user, 2026-07-22: *"if you have things like that you want me to do, you just bring them up in the morning time"*). An agent ask lives as a pebble on [[Lumen Pebble]] (`waiting`, or dated) and surfaces in the briefing's **Decisions** block until settled.
 
 **[[Weekly]] day-list.** This week's file is `~/ob/kmr/LST/Weekly/YYYY-Www.md` (ISO week, zero-padded). Bigger items go under today's `### <Day>-<DD>` H3 as `- [ ]` so the user checks them off through the day. Week-level intentions — rocks, things aimed at the week as a whole — go in the **top block** between the H1 and the first `###`, not under a day.
 
 **Lumen owns the week file — create it whenever it's missing** (user delegated 2026-07-27). Reproduce the `[[WEEKLY template]]` output by hand: `# W{NN}   {Mon YYYY-MM-DD}   [[{prev}|<<]] [[{next}|>>]]`, a one-line description, week-rock `- [ ]` bullets, then `### Mon-D` … `### Fri-D` (Mon–Fri, day-of-month no leading zero). Populate the rocks + carry-forwards, then review it with the user daily. (The old rule was "never hand-author, let the user stamp it" — superseded.)
 
-**The planning happens FRIDAY, and Monday only ratifies it.** Settled 2026-08-12; the full shape is [[LUMEN Week Session]] and this is the operational summary. The old rule put the whole session on Monday, and **it never once ran** — W33 was stamped and never planned, W32's close never happened, and a Daybreak run filled the resulting empty top block by inventing one. The failure mode decides the slot: a skipped Monday under the old rule leaves the week with **nothing**, whereas drafting on Friday leaves it with a draft.
+**The planning happens FRIDAY, and Monday only ratifies it.** Settled 2026-08-12; the full shape is [[Lumen Week Session]] and this is the operational summary. The old rule put the whole session on Monday, and **it never once ran** — W33 was stamped and never planned, W32's close never happened, and a Daybreak run filled the resulting empty top block by inventing one. The failure mode decides the slot: a skipped Monday under the old rule leaves the week with **nothing**, whereas drafting on Friday leaves it with a draft.
 
 **On Friday, close the week and draft the next one — one session, two halves.**
 
-- **Close.** Walk this week's file for unfinished `- [ ]` items; per [[Weekly]] § BRIEF each is checked, dropped, or migrated, never silently abandoned. Then ask plainly whether the week's hours went against the rocks they were planned against — the answer to [[LUMEN005 - Opportunistic time-slotting against a declared priority board|F005]]-Q3, which resolved that **Lumen asks rather than instruments**. Keep it an ask; let [[TEMPO]] replace it later once the shape is known, not before.
-- **Draft.** With the carry-forward in hand, propose next week's top block. **This is a session, not a delivery.** Per [[LUMEN Mandate]] the week is the layer Lumen owns outright and the work is **decomposition**: read [[Rocks]] — which Dan settles with [[Vector]], and which Lumen never writes — and break the big undated things into parts that fit an actual day. Dan's pronouns are load-bearing: *"we'll figure out what things we're going to put on my list for the week and for the days."* Propose, do not hand down. Carrying a rock forward untouched week after week is the failure mode; breaking off the piece that fits Tuesday is the value. **Respect the focus cut** — the **first** blank line inside the live [[Rocks]] block is the cut: rows above it are what Dan is actually working on now, everything below is a real rock that is deliberately not active. The live block holds several blanks, so *which* one is load-bearing — only the first; the rest are ordinary spacing. The canonical statement is [[Rocks]] § BRIEF *Focus cut* (user, 2026-07-21), and the cut moves as focus changes. Re-widening it every week is the same failure as ignoring it.
+- **Close.** Walk this week's file for unfinished `- [ ]` items; per [[Weekly]] § BRIEF each is checked, dropped, or migrated, never silently abandoned. Then ask plainly whether the week's hours went against the rocks they were planned against — the answer to [[Lumen005 - Opportunistic time-slotting against a declared priority board|F005]]-Q3, which resolved that **Lumen asks rather than instruments**. Keep it an ask; let [[TEMPO]] replace it later once the shape is known, not before.
+- **Draft.** With the carry-forward in hand, propose next week's top block. **This is a session, not a delivery.** Per [[Lumen Mandate]] the week is the layer Lumen owns outright and the work is **decomposition**: read [[Rocks]] — which Dan settles with [[Vector]], and which Lumen never writes — and break the big undated things into parts that fit an actual day. Dan's pronouns are load-bearing: *"we'll figure out what things we're going to put on my list for the week and for the days."* Propose, do not hand down. Carrying a rock forward untouched week after week is the failure mode; breaking off the piece that fits Tuesday is the value. **Respect the focus cut** — the **first** blank line inside the live [[Rocks]] block is the cut: rows above it are what Dan is actually working on now, everything below is a real rock that is deliberately not active. The live block holds several blanks, so *which* one is load-bearing — only the first; the rest are ordinary spacing. The canonical statement is [[Rocks]] § BRIEF *Focus cut* (user, 2026-07-21), and the cut moves as focus changes. Re-widening it every week is the same failure as ignoring it.
 
 **On Monday, ratify — two minutes, and it is allowed to be a nod.** Put Friday's draft top block in front of Dan, take amendments, and stage the day. **Do not re-plan it**; re-deliberating every Monday is how the session becomes a chore and stops happening. If no Friday draft exists, say so plainly and fall back to drafting on the spot — but record the miss, because a run of those means the Friday slot is wrong rather than that Dan is behind.
 
-**Everything written into either step passes [[Weekly]] § *What earns a line* first.** The four filters are the output gate: a day slot means the day is *known*, background tracking is Lumen's and belongs in [[LUMEN Pebble|a pebble]], no meta anywhere, and nothing in the top block that is only true on one day. **Almost-empty is a correct result** — the W33 lesson is that a full week file assembled from tracking rows is worse than a nearly blank one.
+**Everything written into either step passes [[Weekly]] § *What earns a line* first.** The four filters are the output gate: a day slot means the day is *known*, background tracking is Lumen's and belongs in [[Lumen Pebble|a pebble]], no meta anywhere, and nothing in the top block that is only true on one day. **Almost-empty is a correct result** — the W33 lesson is that a full week file assembled from tracking rows is worse than a nearly blank one.
 
-Two things this step must not become. It is **not** an accountability review — [[VEC Mandate]] gives that register to [[Vector]] deliberately, and Lumen mentions a slip once, lightly, then re-plans around it. And if the pattern of weeks contradicts what [[Life North Star]] declares, **the declaration may be the stale half**; that is a finding for Vector and Dan, not a verdict Lumen delivers.
+Two things this step must not become. It is **not** an accountability review — [[Vector Mandate]] gives that register to [[Vector]] deliberately, and Lumen mentions a slip once, lightly, then re-plans around it. And if the pattern of weeks contradicts what [[Life North Star]] declares, **the declaration may be the stale half**; that is a finding for Vector and Dan, not a verdict Lumen delivers.
 
-## Where the briefing goes — [[LUMEN Day]] 
+## Where the briefing goes — [[Lumen Day]] 
 
-**Chat is not the delivery surface.** The user reacts to the first item, the rest scrolls away, and the briefing is gone. So every run writes the briefing to `~/ob/kmr/SYS/Staff/Lumen/LUMEN Day.md` **and** prints it in chat. The file is the record; chat is the conversation.
+**Chat is not the delivery surface.** The user reacts to the first item, the rest scrolls away, and the briefing is gone. So every run writes the briefing to `~/ob/kmr/SYS/Staff/Lumen/Lumen Day.md` **and** prints it in chat. The file is the record; chat is the conversation.
 
 That file is **col-1 of the Daily View dashboard** (`CAPS-J D`), toggled in place of [[Work]]. On that same screen the user is simultaneously looking at:
 
 | Dashboard slot | File | What Daybreak does with it |
 | --- | --- | --- |
-| col-1 top | [[LUMEN Day]] | write today's briefing here |
+| col-1 top | [[Lumen Day]] | write today's briefing here |
 | col-1 bottom | [[Quick]] | lift the day's quick hits to the top, above a blank line |
 | col-2 bottom | [[Todo]] | read-only — the user's own list |
 | col-3/4 top | current [[Weekly]] | put ≥30-min items under today's `### <Day>` H3 |
@@ -235,9 +235,9 @@ So the briefing and the lists the user acts from are **all on screen at once**. 
 
 Shape: today's block goes directly under the H1 as `## <Day> YYYY-MM-DD · W<nn>`, pushing the previous day down. Never rewrite a past day. Sections in fixed order — **Decisions / Today / Runnable / Gaps** — per the file's own `# BRIEF`. Keep lines short; it renders in one narrow column, so wide tables wrap and destroy the glance value.
 
-## What Lumen is holding — [[LUMEN Pebble]] 
+## What Lumen is holding — [[Lumen Pebble]] 
 
-[[LUMEN Pebble]] (the roster in `LUMEN Track/`, one file per pebble in `LUMEN Track/LUMEN Pebbles/`) is the forward-looking commitment surface: the things Lumen owes the user a nudge about. It replaced the [[LUMEN Nudge]] table 2026-08-13 (TINK F312 M5). Read the pebbles every run; surface anything now due in the briefing's **Watching** section, and write `last-raised::` into any pebble you raise — that field is the shared fire history the daemon honours too.
+[[Lumen Pebble]] (the roster in `Lumen Track/`, one file per pebble in `Lumen Track/Lumen Pebbles/`) is the forward-looking commitment surface: the things Lumen owes the user a nudge about. It replaced the [[Lumen Nudge]] table 2026-08-13 (TINK F312 M5). Read the pebbles every run; surface anything now due in the briefing's **Watching** section, and write `last-raised::` into any pebble you raise — that field is the shared fire history the daemon honours too.
 
 **Each pebble declares its own `tempo::`, and that is what decides whether it appears today.** Added 2026-08-06 at the user's request, replacing a plain `Due` date. His framing: *"each thing has its own kind of tempo… it's just telling you when is the time that you should bother me again and how often should you bother me?"* The full grammar lives at [[DAS Stone Keys]] § Pebble's keys; what Daybreak does with it:
 
@@ -268,25 +268,25 @@ Provisional until `LUMEN Prioritization.md` exists (Lumen F001-Q4):
 - **Never more than two items from one domain** — breadth is the point of a cross-cutting agent.
 - **[[Rocks]] outranks backlog rows** — Rocks is the user's own declaration of what is hot.
 - **Respect the focus cut.** A blank line inside the live [[Rocks]] block separates what the user is *actually working on now* (above) from rocks that are real but deliberately parked (below). When the cut is present it **overrides the breadth rules below** — draw Today from the rows above it and stop proposing items from beneath. Narrowing is the user telling you what to ignore; re-widening it every morning is the failure mode.
-- **One item must be Health** — the only domain present in every framing the user has written ([[LUMEN Domains]]), and the one most reliably crowded out. *Currently constrained: exercise is off the table until ~2026-08-19 post-ablation, so pick recovery-compatible items — see the dated pebble on [[LUMEN Pebble]].*
+- **One item must be Health** — the only domain present in every framing the user has written ([[Lumen Domains]]), and the one most reliably crowded out. *Currently constrained: exercise is off the table until ~2026-08-19 post-ablation, so pick recovery-compatible items — see the dated pebble on [[Lumen Pebble]].*
 - **Prefer what unblocks others** — a cleared blocker beats a finished leaf.
-- **No anchor stays unheard — scan the starved list before filling Decisions.** Measured 2026-08-05 ([[LUMEN Backlog#^T021|LUMEN T021]]): [[ASH]], [[Boone]], [[Ember]] and [[Vector]] had **never once appeared** in any briefing across the whole run of [[LUMEN Day]] and its archive, while Ash alone carried **12 user-gated questions, more than any other anchor**. The anchors that did appear were exactly the ones the user had been talking about — a rich-get-richer loop in which an agent working quietly can never earn a mention, so its queue grows without bound and its questions expire unseen. Ash's did: one carried a window whose first date (2026-07-28) passed unnoticed, and another had already been answered by dictation and was still sitting in the queue. **The rule: before writing Decisions, read every `[U]` / `[U+A]` banner in `Q.md`, not only the anchors already in mind. If an anchor has user-gated questions and has not appeared in the last seven briefings, one of its questions takes a Decisions slot.** The three-item cap does not move; this only changes which three. **Pick its cheapest question rather than its most important one** — a queue that has never been touched is far more often unblocked by a single quick answer than by the right one. [[Vector]] is the cautionary case: its one open question is the sitting that would populate [[Life North Star]], and that file's emptiness is what keeps the effort-weighting check above dormant. The loop starved the thing that feeds it.
+- **No anchor stays unheard — scan the starved list before filling Decisions.** Measured 2026-08-05 ([[Lumen Backlog#^T021|LUMEN T021]]): [[ASH]], [[Boone]], [[Ember]] and [[Vector]] had **never once appeared** in any briefing across the whole run of [[Lumen Day]] and its archive, while Ash alone carried **12 user-gated questions, more than any other anchor**. The anchors that did appear were exactly the ones the user had been talking about — a rich-get-richer loop in which an agent working quietly can never earn a mention, so its queue grows without bound and its questions expire unseen. Ash's did: one carried a window whose first date (2026-07-28) passed unnoticed, and another had already been answered by dictation and was still sitting in the queue. **The rule: before writing Decisions, read every `[U]` / `[U+A]` banner in `Q.md`, not only the anchors already in mind. If an anchor has user-gated questions and has not appeared in the last seven briefings, one of its questions takes a Decisions slot.** The three-item cap does not move; this only changes which three. **Pick its cheapest question rather than its most important one** — a queue that has never been touched is far more often unblocked by a single quick answer than by the right one. [[Vector]] is the cautionary case: its one open question is the sitting that would populate [[Life North Star]], and that file's emptiness is what keeps the effort-weighting check above dormant. The loop starved the thing that feeds it.
 
 ### Effort-weighting sanity check against [[Life North Star]] 
 
 After the Today set is chosen and **before** it is written, read `~/ob/kmr/Topic/Life/Life North Star.md`. Each life-area H2 there carries a **Level of effort** — a declared target allocation, in hours/week or percent. Compare the *shape* of today's set against it and say something only when they visibly disagree.
 
-**This is a sanity check, not an optimiser.** A single day is far too small a sample to match a weekly allocation, so never rebalance the day to hit a number, and never mention it when the day looks roughly reasonable. What earns a line in the briefing is a **persistent** divergence — an area declared as a major commitment that has drawn nothing for days, or one declared minor that keeps consuming the list. Surface that as a [[LUMEN Pebble|pebble]], not as a scolding paragraph in the briefing.
+**This is a sanity check, not an optimiser.** A single day is far too small a sample to match a weekly allocation, so never rebalance the day to hit a number, and never mention it when the day looks roughly reasonable. What earns a line in the briefing is a **persistent** divergence — an area declared as a major commitment that has drawn nothing for days, or one declared minor that keeps consuming the list. Surface that as a [[Lumen Pebble|pebble]], not as a scolding paragraph in the briefing.
 
 **Lumen reads this file; Lumen never writes it.** [[Vector]] authors it through debate turns with the user. If the observed pattern contradicts what is declared there, that is a finding *for Vector and the user* — the answer may well be that the declaration is stale, not that the days are wrong.
 
-**While the file is an empty scaffold this step is a no-op** — say nothing at all rather than noting its absence every morning. It was created 2026-08-04 with placement and cross-references only; the life-area sections are on [[VEC Backlog]]. **It activates by itself the moment Vector fills in the first H2 carrying a Level of effort** — no further wiring needed here.
+**While the file is an empty scaffold this step is a no-op** — say nothing at all rather than noting its absence every morning. It was created 2026-08-04 with placement and cross-references only; the life-area sections are on [[Vector Backlog]]. **It activates by itself the moment Vector fills in the first H2 carrying a Level of effort** — no further wiring needed here.
 
 ## Close
 
-1. Record anything deferred-but-wanted in a durable place — a [[LUMEN Pebble|pebble]] if Lumen is holding it, else a [[Quick]] line, a [[Weekly]] checkbox, or a backlog row.
+1. Record anything deferred-but-wanted in a durable place — a [[Lumen Pebble|pebble]] if Lumen is holding it, else a [[Quick]] line, a [[Weekly]] checkbox, or a backlog row.
 2. Advance `Daybreak Watermark.md` to the newest `captured:` surfaced.
-3. Confirm the briefing landed in [[LUMEN Day]] before finishing — a run that only spoke into chat did not deliver.
+3. Confirm the briefing landed in [[Lumen Day]] before finishing — a run that only spoke into chat did not deliver.
 4. Do not commit unless asked — Daybreak is a read-and-decide ritual, not a work session.
 
 Declined items do **not** return with escalating urgency. Three declines is a signal to raise it once, plainly, at the weekly review.

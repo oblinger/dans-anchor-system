@@ -49,7 +49,7 @@ except OSError:
 
 PERSON_LOG_A = _PATHS.get("person_log_a")   # a correspondence log, `## ` entries
 PERSON_LOG_B = _PATHS.get("person_log_b")   # same facet, `### ` entries, no KIND
-HERMES = "SYS/Staff/Hermes/HERMES Track/HERMES Backlog.md"
+HERMES = "SYS/Staff/Hermes/Hermes Track/Hermes Backlog.md"
 HAORUI = "SYS/SYS Catalog/Computer/Computer haorui.md"
 DANIEL = "SYS/SYS Catalog/Computer/Computer Daniel MacBook Pro.md"
 SCOUT = "SYS/Staff/Scout/Scout Track/Scout Track.md"
@@ -122,9 +122,9 @@ def unit_adjacent_variables_are_flagged():
 
 def unit_folder_cardinality():
     """Bound member = exactly one; free member = 0+ (many-by-variable)."""
-    r = M.match_folder(["{{X}} Log.md", "ATT Log.md"], ["ATT Log.md"])
+    r = M.match_folder(["{{X}} Log.md", "Atticus Log.md"], ["Atticus Log.md"])
     assert r.ok
-    bad = M.match_folder(["ATT Log.md"], ["something else.md"])
+    bad = M.match_folder(["Atticus Log.md"], ["something else.md"])
     assert not bad.ok
 
 
@@ -219,9 +219,9 @@ PAIRS = [
     # ---- negative controls: a matcher that says yes to everything is useless
     ("N01", "T1.A", "facets/DAS Facet.md", blk("T1.A"), repo(FACET), NO,
      "Negative control — a facet spec is not a Backlog."),
-    ("N02", "T3.A", "HERMES Backlog.md", blk("T3.A"), vault(HERMES), NO,
+    ("N02", "T3.A", "Hermes Backlog.md", blk("T3.A"), vault(HERMES), NO,
      "Negative control — no LOG heading anywhere in the file."),
-    ("N03", "T7.A", "HERMES Backlog.md", blk("T7.A"), vault(HERMES), NO,
+    ("N03", "T7.A", "Hermes Backlog.md", blk("T7.A"), vault(HERMES), NO,
      "Negative control — a Backlog is not a facet spec."),
     ("N04", "T1.A", "(empty document)", blk("T1.A"), lambda: "", NO,
      "Negative control — the empty document must not satisfy a stencil."),
@@ -236,7 +236,7 @@ PAIRS = [
      "Same hole against nothing.  A stencil that is one variable is unfalsifiable."),
 
     # ---- contingent: the verdict turns on a question the spec has not settled
-    ("C01", "T1.A", "HERMES Backlog.md", blk("T1.A"), vault(HERMES), CONTINGENT,
+    ("C01", "T1.A", "Hermes Backlog.md", blk("T1.A"), vault(HERMES), CONTINGENT,
      "T1 Overview: 'Section *order* is also unstated'.  The live file today runs "
      "Notes / Ready / Next / Later / Now while T1.A and the 2026-08-04 block both "
      "run Ready / Notes / …  Order-sensitive reading: NO MATCH.  Order-free: MATCH."),
@@ -251,13 +251,13 @@ FOLDER_PAIRS = [
      lambda: C.fenced_tree("T2.A"),
      "SYS/Bespoke/Skill Agent/dans-anchor-system/templates/log", {}, False, MATCH,
      "T2.A is 'the shipped folder, untouched' — it matches itself."),
-    ("F03", "T2.A", "SYS/Staff/Atticus/ATT Log/ (single-brace read as a variable)",
+    ("F03", "T2.A", "SYS/Staff/Atticus/Atticus Log/ (single-brace read as a variable)",
      lambda: C.fenced_tree("T2.A"), "SYS/Staff/Atticus/ATT Log",
      {"slug": "ATT"}, True, MATCH,
      "An instantiated Log folder.  `{slug} Log.md` binds once; the dated member is "
      "free, so zero of them is permitted — which is why the one dated file present, "
      "`2026-07-20 Agent naming brainstorm.md`, can violate the naming and still pass."),
-    ("F04", "T2.A", "SYS/Staff/Atticus/ATT Log/ (grammar exactly as written)",
+    ("F04", "T2.A", "SYS/Staff/Atticus/Atticus Log/ (grammar exactly as written)",
      lambda: C.fenced_tree("T2.A"), "SYS/Staff/Atticus/ATT Log", {}, False, NO,
      "STEN Language defines only `{{NAME}}` as a variable, so `{slug}` is a literal "
      "and matches no real file.  T2.A cannot match any instantiated Log folder."),

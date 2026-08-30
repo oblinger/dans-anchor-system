@@ -5,7 +5,7 @@ where:: `file:{anchor}/**/* PRD.md, !**/DAS *.md`
 exclusion-note:: `!**/DAS *.md` exempts the facet-spec catalog (a `DAS <Name>.md` is the SPEC for the facet, not an instance; specs are governed by [[R-facet-spec]]) — added 2026-07-13, T014 follow-on.
 description:: facet spec this doc follows
 
-Embedded ruleset for the PRD facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Armed by **both** executing umbrellas: [[R-doc]], which `/audit doc` and the on-write doc-fire resolve, and [[R-anchor]], which `/audit anchor` resolves. Being named by [[R-facet]] is catalog membership, not adoption — that umbrella sits outside the `R-doc`/`R-anchor` closure `audit-plan.py` resolves, so an `include::` there arms nothing ([[TINK Backlog#^T208|T208]]).
+Embedded ruleset for the PRD facet, co-located with the facet spec above per [[F133 — Rulesets folder convention + facet embedding|F133]]. Armed by **both** executing umbrellas: [[R-doc]], which `/audit doc` and the on-write doc-fire resolve, and [[R-anchor]], which `/audit anchor` resolves. Being named by [[R-facet]] is catalog membership, not adoption — that umbrella sits outside the `R-doc`/`R-anchor` closure `audit-plan.py` resolves, so an `include::` there arms nothing ([[Tink Backlog#^T208|T208]]).
 
 ### RULE R-prd-01 — Location is `{slug} Design/{slug} PRD.md` or folder form (checked)
 check:: file_path_matches_prd_locations
@@ -68,7 +68,7 @@ No file named `{slug} Open Questions.md` exists alongside the PRD. Open question
 
 ### RULE R-prd-07 — Design Workflow references modern phase names (checked)
 
-> **`design_workflow_modern_names` NOT wired 2026-08-11 ([[TINK Backlog#^T349|T349]]), and the reason is the set's selector, not the checker.** The checker is faithful — it reads the `## Design Workflow` section structurally and looks for the retired phase names. Run over the corpus this set actually selects: **96 of 97 PRDs fail, and 96 of them fail on `no ## Design Workflow section`**. Only **4 documents in the entire vault carry that H2** ([[DAS Audit PRD]], [[Mini PRD]], [[DKT PRD]], [[MUX PRD]]).
+> **`design_workflow_modern_names` NOT wired 2026-08-11 ([[Tink Backlog#^T349|T349]]), and the reason is the set's selector, not the checker.** The checker is faithful — it reads the `## Design Workflow` section structurally and looks for the retired phase names. Run over the corpus this set actually selects: **96 of 97 PRDs fail, and 96 of them fail on `no ## Design Workflow section`**. Only **4 documents in the entire vault carry that H2** ([[DAS Audit PRD]], [[Mini PRD]], [[DKT PRD]], [[MUX PRD]]).
 >
 > So the finding is not *"this PRD names a retired phase"* — nothing in the vault does. It is *"this file is not a CAB PRD"*, said 96 times, about SVAR / SVAI / PlayOn / ClaudiMux documents that were never written to this form and are selected only because `where:: file:{anchor}/**/* PRD.md` matches a filename. A rule that condemns 99% of its corpus is unusable in exactly the way [[R-naming]]-01's header records at 39%: it cannot be acted on, and it teaches a reader to skip the set.
 >
@@ -98,7 +98,7 @@ The PRD does NOT contain a `## Design Constraints` H2 with DC-numbered entries. 
 
 ### RULE R-prd-10 — Dispatch table carries a Stories row with proper-name display (checked)
 
-> **`dispatch_table_stories_row` NOT wired 2026-08-11 ([[TINK Backlog#^T349|T349]]) — same measurement, same cause as `-07` above.** 96 of 97 selected PRDs fail, and **10 documents in the vault link a `* Stories` page at all**. The checker is sound: it derives the expected name from the PRD's own basename rather than the folder, reads the fence-stripped text so a quoted table is not mistaken for the dispatch table, and stops at the first table. It is asking a well-formed question of 96 documents that are not this kind of document.
+> **`dispatch_table_stories_row` NOT wired 2026-08-11 ([[Tink Backlog#^T349|T349]]) — same measurement, same cause as `-07` above.** 96 of 97 selected PRDs fail, and **10 documents in the vault link a `* Stories` page at all**. The checker is sound: it derives the expected name from the PRD's own basename rather than the folder, reads the fence-stripped text so a quoted table is not mistaken for the dispatch table, and stops at the first table. It is asking a well-formed question of 96 documents that are not this kind of document.
 >
 > Wire it when the set's `where::` selects CAB PRDs instead of files named `* PRD.md`; the finding count on the real population is then small enough to act on.
 
@@ -114,11 +114,11 @@ Every PRD says how we would know the thing is working. The shape is the author's
 
 **Check pattern:** stated for now. When checked, the assertion is that the PRD's body carries a testing H2, or its spine links `{slug} Testing`, or the body contains the literal phrase *no meaningful test yet*.
 
-**Why:** ruled by Dan 2026-08-29 with the R-design-02 change ([[TINK Backlog#^T625|TINK T625]]): `{slug} Testing.md` stopped being a required sibling, and the obligation it carried moved here rather than disappearing. *"None yet, because X"* is a legal answer on the `/audit q` precedent — `None` is a real recommendation, *empty* is the author not having tried — because a criterion forced where none exists produces a fabricated test, and a fabricated test is worse than none: it gets believed. The minimum PRD answers three questions — what is it for · what is out of scope · how would we know it is working (or why we cannot say yet). The middle one keeps the first falsifiable.
+**Why:** ruled by Dan 2026-08-29 with the R-design-02 change ([[Tink Backlog#^T625|TINK T625]]): `{slug} Testing.md` stopped being a required sibling, and the obligation it carried moved here rather than disappearing. *"None yet, because X"* is a legal answer on the `/audit q` precedent — `None` is a real recommendation, *empty* is the author not having tried — because a criterion forced where none exists produces a fabricated test, and a fabricated test is worse than none: it gets believed. The minimum PRD answers three questions — what is it for · what is out of scope · how would we know it is working (or why we cannot say yet). The middle one keeps the first falsifiable.
 
 ## Adoption
 
-Armed by **both** executing umbrellas: [[R-doc]], which `/audit doc` and the on-write doc-fire resolve, and [[R-anchor]], which `/audit anchor` resolves. Being named by [[R-facet]] is catalog membership, not adoption — that umbrella sits outside the `R-doc`/`R-anchor` closure `audit-plan.py` resolves, so an `include::` there arms nothing ([[TINK Backlog#^T208|T208]]).
+Armed by **both** executing umbrellas: [[R-doc]], which `/audit doc` and the on-write doc-fire resolve, and [[R-anchor]], which `/audit anchor` resolves. Being named by [[R-facet]] is catalog membership, not adoption — that umbrella sits outside the `R-doc`/`R-anchor` closure `audit-plan.py` resolves, so an `include::` there arms nothing ([[Tink Backlog#^T208|T208]]).
 
 ## See also
 

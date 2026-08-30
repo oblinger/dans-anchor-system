@@ -7,7 +7,7 @@ wonder if we shouldn't be grading the exceptions for everybody."*
 The answer turned out to be that grading was the wrong act. Of the vault's four
 exception tables, **six of the fourteen rows named a finding that no longer
 existed** — [[Eli Exceptions]]'s five, all repaired upstream by TINK T561, and
-[[TINK Exceptions]]'s one, repaired by an exemption the checker grew itself.
+[[Tink Exceptions]]'s one, repaired by an exemption the checker grew itself.
 Grading any of them `A` would have converted a working rule into a permanently
 blindfolded one, and nothing would ever have fired again to reveal it.
 

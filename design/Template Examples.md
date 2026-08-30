@@ -3,7 +3,7 @@ description: "the seven-case grammar-derivation corpus (M1); this document is a 
 ---
 
 # Template Examples
-The working corpus for [[TINK303 - Template DSL - one pattern language for facets, templates, and sections|F303]] M1 — every template-shaped case that actually exists, and how **Stencil** would express it.
+The working corpus for [[Tink303 - Template DSL - one pattern language for facets, templates, and sections|F303]] M1 — every template-shaped case that actually exists, and how **Stencil** would express it.
 
 | Table of Contents                                        | what the case is for                                               |
 | -------------------------------------------------------- | ------------------------------------------------------------------ |
@@ -78,11 +78,11 @@ These govern *this document*, not Stencil. Stencil's own rules are the two table
 
 Two accepted costs of verbatim-and-unfenced: specimen headings are real headings and show up in this document's outline, and specimen wiki-links are live — so this file needs excluding from link-resolution and doc-structure rules the way `_* Template` files already are.
 
-**Confirmed live 2026-08-05, and the exclusion list is longer than expected.** Authoring T5 tripped `R-progressive-05` (summary-freshness): its specimen `## Identity` / `## Hardware` were counted as two new *document* sections, so every case authored here will report the summary stale by construction. That rule is `where:: always` and advisory-only, so it cannot be excluded by a `where::` glob the way the doc-structure rules can — whatever mechanism carries the exclusion has to reach it too. Recorded here rather than filed, because it is a property of this document's format that M1 has to live with until [[TINK303 - Template DSL - one pattern language for facets, templates, and sections|F303]] M6 decides how Stencil-bearing files declare themselves to Warden.
+**Confirmed live 2026-08-05, and the exclusion list is longer than expected.** Authoring T5 tripped `R-progressive-05` (summary-freshness): its specimen `## Identity` / `## Hardware` were counted as two new *document* sections, so every case authored here will report the summary stale by construction. That rule is `where:: always` and advisory-only, so it cannot be excluded by a `where::` glob the way the doc-structure rules can — whatever mechanism carries the exclusion has to reach it too. Recorded here rather than filed, because it is a property of this document's format that M1 has to live with until [[Tink303 - Template DSL - one pattern language for facets, templates, and sections|F303]] M6 decides how Stencil-bearing files declare themselves to Warden.
 
 **The list is now measured rather than predicted (2026-08-06).** Before T4 and T6 were authored this document passed **19 of 19** mechanical rules; authoring them broke three, and every break is inside a byte-exact block. `R-markdown-02` (blank line before and after a table) fires on T6.a and T6.b, which are dispatch tables sitting flush against their markers. `R-markdown-14` (no trailing whitespace) fires on T4.a lines 264–266, where the trailing double-space is a markdown **hard break** carried verbatim out of Apple Mail — stripping it would change the specimen's meaning, which is exactly what byte-exact is for. `R-progressive-02` (blank line before an H2) fires on T4.c, whose first line is `## 2026-07-31 Fri  Received — Northwind declines`; T3.a has the same shape at H1 and passes, so this is a rule asymmetry rather than something the block could avoid. **All four rules are shape rules about the document, applied to bytes that belong to another document** — which is the general form of the exclusion M6 has to grant, and the concrete list to grant it over: `R-markdown-02`, `R-markdown-14`, `R-progressive-02`, `R-progressive-05`. The three `R-markdown`/`R-progressive-0[25]` ones are `where::`-scoped and can take a glob; `R-progressive-05` is `where:: always` and cannot, so it remains the one that decides what the mechanism has to be.
 
-**The cut line is the answer to the exclusion problem, and it already exists (2026-08-06).** The list above excludes whole *files* from four rules, which is blunt: a specimen-bearing file has real prose in it too, and that prose should still be governed. The vault already carries a finer instrument — **`✂ ──── template notes ──── ✂`**, live in **20** `_{{…}} Template.md` files, marking the point where a template's content stops and commentary about it begins. Dan proposed generalizing it to facets and examples on 2026-08-06 and the reach is wider than that: **it is the marker that says where a file's governed region ends**, which is exactly the question [[TINK303 - Template DSL - one pattern language for facets, templates, and sections|F303]] M6 has to answer about how a Stencil-bearing file declares itself. With a cut line, the exclusion becomes *"rules do not apply below the cut"* rather than *"rules do not apply to this file"* — a template's own body stays checkable, and only the notes are exempt. The construct is `✂ ──── {label} ──── ✂`, the label naming what the file is (`template notes`, `example notes`); [[HBR]] is the first non-template instance. **Note it is a convention of files that *carry* stencils, not a Stencil construct itself** — a stencil never matches across it, because the region below is not content.
+**The cut line is the answer to the exclusion problem, and it already exists (2026-08-06).** The list above excludes whole *files* from four rules, which is blunt: a specimen-bearing file has real prose in it too, and that prose should still be governed. The vault already carries a finer instrument — **`✂ ──── template notes ──── ✂`**, live in **20** `_{{…}} Template.md` files, marking the point where a template's content stops and commentary about it begins. Dan proposed generalizing it to facets and examples on 2026-08-06 and the reach is wider than that: **it is the marker that says where a file's governed region ends**, which is exactly the question [[Tink303 - Template DSL - one pattern language for facets, templates, and sections|F303]] M6 has to answer about how a Stencil-bearing file declares itself. With a cut line, the exclusion becomes *"rules do not apply below the cut"* rather than *"rules do not apply to this file"* — a template's own body stays checkable, and only the notes are exempt. The construct is `✂ ──── {label} ──── ✂`, the label naming what the file is (`template notes`, `example notes`); [[HBR]] is the first non-template instance. **Note it is a convention of files that *carry* stencils, not a Stencil construct itself** — a stencil never matches across it, because the region below is not content.
 
 **Status.** Language cut to three constructs 2026-08-04 on Dan's objections; seven cases identified. **All seven are now worked through** — T4 and T6 authored 2026-08-06, which completes the corpus M1 gates on. **The language did not grow.** Three constructs and four defaults expressed every case, and the two constructs that were expected to be forced — a partial-match notion (T4) and a nested-stencil reference (T6) — were each refused by the case that was supposed to demand them. Findings, all of them the M1 gate working rather than incidental: T5 added nothing (it looked like it needed a filename anchor and turned out to be a T2 member) and was citing a gallery exemplar rather than a vault instance, which the Format Rules above forbid; **T7, the acceptance test, passes**, and the closed-world marker it was predicted to demand is refuted by the corpus; **T4 shrank on contact with its instances** — two of its four spellings are not entry headers at all but pasted correspondence inside an entry body, which open world already covers; and **T6 is expressible with existing constructs and still cut**, because what distinguishes a curated dispatch row from a machine-owned one is ownership, not shape. The one substantive addition is a semantic clarification rather than a construct: **anchors nest**, which T4 forced by finding `# LOG` at H1 with entries at H3 in one file and H2 in another.
 
@@ -90,16 +90,16 @@ Two accepted costs of verbatim-and-unfenced: specimen headings are real headings
 
 # T1 — Whole Document Template
 
-**Example T1.a** — `SYS/Staff/Hermes/HERMES Track/HERMES Backlog.md`
+**Example T1.a** — `SYS/Staff/Hermes/Hermes Track/Hermes Backlog.md`
 
 <!-- begin example T1.a -->
 # HERMES Backlog
 <!-- state:backlog 6h -->
 The work queue for [[HERMES|Hermes]], the purchasing agent — content curated is [[BUY]].
 
-| -[[HERMES Backlog]]- | → [[kmr]] → [[SYS]] → [[Staff]] → [[HERMES]] → [[HERMES Track]] → [HERMES Backlog](hook://p/HERMES%20Backlog)  |
+| -[[Hermes Backlog]]- | → [[kmr]] → [[SYS]] → [[Staff]] → [[HERMES]] → [[Hermes Track]] → [HERMES Backlog](hook://p/Hermes%20Backlog)  |
 | --- | --- |
-| ... | [[HERMES Messages]],   |
+| ... | [[Hermes Messages]],   |
 
 ## Ready
 
@@ -112,7 +112,7 @@ The work queue for [[HERMES|Hermes]], the purchasing agent — content curated i
 ## Now
 
 - **T001 — Build your Mandate** [Ready] — **From [[LUMEN|Lumen]].** Raw material for your own mandate. ^T001
-  - **Next:** Read this against [[Tink]]'s view of agent specification, then write `HERMES Mandate.md` modelled on [[PROS Mandate]].
+  - **Next:** Read this against [[Tink]]'s view of agent specification, then write `Hermes Mandate.md` modelled on [[PROS Mandate]].
 <!-- end example T1.a -->
 
 **Proposal T1.A** — `templates/backlog.md`
@@ -250,7 +250,7 @@ Dan
 
 **Why the marker cannot be defaulted away, even though every other default was.** The marker is not only a depth mode — its **presence is what makes the stencil a section anchor at all**. An unmarked `# LOG` first line would be indistinguishable from a whole-document stencil whose title happens to be LOG. So `...` and `==` both survive, and there is no third, unmarked form.
 
-**Both proposals are the two modes side by side**, same path, same body — because the path being identical is the point: the anchor lives in the first line, not in the name. Depths after the first line are relative to the anchor, so `## {{YYYY-MM-DD}}…` means *one deeper than wherever LOG matched*. The path assumes [[TINK302 - Section templates and the scope ladder|F302]] Q4's lean; if Q4 lands the other way the file is `AT/_LOG Section Template.md` and nothing else changes.
+**Both proposals are the two modes side by side**, same path, same body — because the path being identical is the point: the anchor lives in the first line, not in the name. Depths after the first line are relative to the anchor, so `## {{YYYY-MM-DD}}…` means *one deeper than wherever LOG matched*. The path assumes [[Tink302 - Section templates and the scope ladder|F302]] Q4's lean; if Q4 lands the other way the file is `AT/_LOG Section Template.md` and nothing else changes.
 
 **The entry heading needs no cardinality marker** — `{{YYYY-MM-DD}}` and friends are free, so many-by-variable already says "any number of entries." That is the same default doing the same work in T2, which is the evidence the two cases wanted one rule rather than two constructs.
 
@@ -304,7 +304,7 @@ Subject: {{SUBJECT}}
 
 **Real instances.** The email block inside [[AT]] log entries, in four mutually-incompatible forms across two files — bold field labels (`EMAILS:` then `**From:**` / `**Date:**` / `**To:**` / `**Subject:**`) in `@Alex Trenton.md`; a dashed header line and a dashed draft line in `@Robin Calder.md`; and a tilde fence with bare `From Alex` / `To Dan and Morgan` in `@Alex Trenton.md`. They share **no** common marker. Example T3.a above is a *fifth* spelling — bare `To:` / `Subject:` under a dated heading.
 
-**Direction: match and reconcile only.** [[TINK302 - Section templates and the scope ladder|F302]] resolved that existing log entries are **never rewritten** — a log entry records a message actually sent, and normalizing one edits the record rather than the format. So Stencil must express the agreed shape and then answer *"is this old entry reconcilable with it?"*, which is weaker than *"does this match?"*.
+**Direction: match and reconcile only.** [[Tink302 - Section templates and the scope ladder|F302]] resolved that existing log entries are **never rewritten** — a log entry records a message actually sent, and normalizing one edits the record rather than the format. So Stencil must express the agreed shape and then answer *"is this old entry reconcilable with it?"*, which is weaker than *"does this match?"*.
 
 **What the case demands.** Possibly nothing new, and that is worth testing: if Stencil expresses the target shape and the matcher reports **which parts bound and which did not**, reconcilability is a predicate over that result and stays out of the grammar. If it cannot be kept out, this is the case that proves the language needs a partial-match notion — a large addition, and one to resist.
 
@@ -403,11 +403,11 @@ SYS/SYS Catalog/Computer/
 **Example T6.a** — `SYS/Staff/Scout/Scout Track/Scout Track.md` — identity row, two curated rows, catch-all
 
 <!-- begin example T6.a -->
-| -[[SCOUT Track]]- | → [[kmr]] → [[SYS]] → [[Staff]] → [[SCOUT]] → [Scout Track](hook://p/Scout%20Track)  |
+| -[[Scout Track]]- | → [[kmr]] → [[SYS]] → [[Staff]] → [[SCOUT]] → [Scout Track](hook://p/Scout%20Track)  |
 | --- | --- |
 | [[Scout Backlog\|Backlog]]  |  |
 | [[Scout Messages\|Messages]]  |  |
-| ... | [[SCOUT queries]],   |
+| ... | [[Scout queries]],   |
 <!-- end example T6.a -->
 
 **Example T6.b** — `prj/ClaudiMux/Docket/DKT Track/DKT Track.md` — the same table with a member zone below a second separator
@@ -444,7 +444,7 @@ SYS/SYS Catalog/Computer/
 
 **What the case demands.** Structure *below* the heading level — rows within a table — where the anchor construct does not reach. This is the case most likely to push Stencil further than it should go, and therefore the one to design last and cut first. `/audit dispatch` already generates these from a spec; if Stencil cannot express it cleanly, **that is an acceptable answer** and T1.A's opaque `{{dispatch table}}` stands.
 
-**Authored 2026-08-06. T6.A is expressible with the three constructs and nothing else — and it is still the wrong answer.** The surprise is the first half: a table is a sequence of lines, `{{LEFT}}` and `{{RIGHT}}` are free, and many-by-variable already means *once per binding*, so `| {{LEFT}}  | {{RIGHT}} |` matches any number of rows with no new construct and no cardinality marker. That is exactly the default doing the work it does for LOG entries in T3 and folder members in T2. **What it cannot do is stop.** Nothing in T6.A distinguishes a curated row from `| --- | |`, from `| ... | [[SCOUT queries]],   |`, or from a row of an unrelated table further down the same file — every one of them is two cells with text in them. In T6.b that is not academic: the same pattern spans the separator and swallows the electric zone, and a stencil that matches the machine-owned rows is a stencil that would let a generator write them.
+**Authored 2026-08-06. T6.A is expressible with the three constructs and nothing else — and it is still the wrong answer.** The surprise is the first half: a table is a sequence of lines, `{{LEFT}}` and `{{RIGHT}}` are free, and many-by-variable already means *once per binding*, so `| {{LEFT}}  | {{RIGHT}} |` matches any number of rows with no new construct and no cardinality marker. That is exactly the default doing the work it does for LOG entries in T3 and folder members in T2. **What it cannot do is stop.** Nothing in T6.A distinguishes a curated row from `| --- | |`, from `| ... | [[Scout queries]],   |`, or from a row of an unrelated table further down the same file — every one of them is two cells with text in them. In T6.b that is not academic: the same pattern spans the separator and swallows the electric zone, and a stencil that matches the machine-owned rows is a stencil that would let a generator write them.
 
 **And what actually separates those rows is not shape at all.** `| --- | |` marks the boundary between what a human may write and what HookAnchor recomputes ~30 s after the page settles; `| ... |` is the catch-all whose contents are derived from the child set *minus whatever the prose already links*. Those are facts about **ownership and derivation**, and no arrangement of `{{NAME}}` states them. This is the same line T3 drew when it kept constraints out of the grammar and the same line the Stencil-entire table draws with open world: shape is what the notation says; truth is what a rule says. **So the cut is not a concession — the table's structure genuinely is not the interesting thing about it.**
 

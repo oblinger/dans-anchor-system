@@ -5,7 +5,7 @@ where:: `file:{anchor}/**/* Testing.md, !**/DAS *.md`
 exclusion-note:: `!**/DAS *.md` exempts the facet-spec catalog (a `DAS <Name>.md` is the SPEC for the facet, not an instance; specs are governed by [[R-facet-spec]]) — added 2026-07-13, T014 follow-on.
 description:: facet spec this doc instantiates
 
-Embedded ruleset for the Testing facet, co-located with the facet spec above per the [[F133 — Rulesets folder convention + facet embedding|F133]] embedding convention. Armed by [[R-doc]] and [[R-anchor]] — the two umbrellas `audit-plan.py` resolves. [[R-facet]] names it too, which is catalog membership rather than adoption: that umbrella is outside the executing closure, so an `include::` there arms nothing ([[TINK Backlog#^T208|T208]]). Trait-conditional activation is [[Warden Semantics]] § Rulesets' separate mechanism and is unaffected.
+Embedded ruleset for the Testing facet, co-located with the facet spec above per the [[F133 — Rulesets folder convention + facet embedding|F133]] embedding convention. Armed by [[R-doc]] and [[R-anchor]] — the two umbrellas `audit-plan.py` resolves. [[R-facet]] names it too, which is catalog membership rather than adoption: that umbrella is outside the executing closure, so an `include::` there arms nothing ([[Tink Backlog#^T208|T208]]). Trait-conditional activation is [[Warden Semantics]] § Rulesets' separate mechanism and is unaffected.
 
 ### RULE R-testing-01 — File name is `{slug} Testing.md` (checked)
 check:: testing_filename_correct
@@ -117,7 +117,7 @@ Directly after the preface (TLDR), before `## Overview`, the doc has a `## Tests
 
 ## Adoption
 
-Armed by **both** executing umbrellas: [[R-doc]], which `/audit doc` and the on-write doc-fire resolve, and [[R-anchor]], which `/audit anchor` resolves. Being named by [[R-facet]] is catalog membership, not adoption — that umbrella sits outside the `R-doc`/`R-anchor` closure `audit-plan.py` resolves, so an `include::` there arms nothing ([[TINK Backlog#^T208|T208]]).
+Armed by **both** executing umbrellas: [[R-doc]], which `/audit doc` and the on-write doc-fire resolve, and [[R-anchor]], which `/audit anchor` resolves. Being named by [[R-facet]] is catalog membership, not adoption — that umbrella sits outside the `R-doc`/`R-anchor` closure `audit-plan.py` resolves, so an `include::` there arms nothing ([[Tink Backlog#^T208|T208]]).
 
 There is no way to adopt this set for one anchor and not another. This section used to show an `include:: [[R-testing]]` line for a `{slug} Decisions.md`, which no code has ever read — the umbrella is fixed per mode, not per anchor.
 

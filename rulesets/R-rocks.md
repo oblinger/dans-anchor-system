@@ -5,7 +5,7 @@ where:: `file:{anchor}/**/* Rocks/**, !**/DAS *.md`
 exclusion-note:: `!**/DAS *.md` exempts the facet-spec catalog (a `DAS <Name>.md` is the SPEC for the facet, not an instance; specs are governed by [[R-facet-spec]]). The vault-wide `LST/Rocks/` is **not** an instance of this facet — it is the top-level compilation surface across life-areas, has no owning `{slug} Track/`, and is governed by its own Brief; the `{anchor}/**/` prefix in the `where::` excludes it because its folder is not named `{slug} Rocks`.
 description:: Structural rules for the Rocks facet folder; enforces location, folder-note presence, the catch-all, short abbreviation-style rock names with their expansions, tier-line integrity, and the no-work-rows discipline.
 
-Ruleset for the Rocks facet — spec: [[DAS Rocks]]. Armed by [[R-anchor]]'s `include::` — the umbrella `/audit anchor` resolves. Being named by [[R-facet]] is catalog membership, not adoption — that umbrella sits outside the `R-doc`/`R-anchor` closure `audit-plan.py` resolves, so an `include::` there arms nothing ([[TINK Backlog#^T208|T208]]). Sibling of [[R-agenda]] / [[R-backlog]] / [[R-status]] in the Tracking group.
+Ruleset for the Rocks facet — spec: [[DAS Rocks]]. Armed by [[R-anchor]]'s `include::` — the umbrella `/audit anchor` resolves. Being named by [[R-facet]] is catalog membership, not adoption — that umbrella sits outside the `R-doc`/`R-anchor` closure `audit-plan.py` resolves, so an `include::` there arms nothing ([[Tink Backlog#^T208|T208]]). Sibling of [[R-agenda]] / [[R-backlog]] / [[R-status]] in the Tracking group.
 
 **Instance test.** The facet is elective (R-rocks-10), so a folder counts as an instance only when the anchor has evidently adopted it: a folder named `{slug} Rocks/` for its **owning** anchor, sitting under that anchor's `{slug} Track/`. Both halves are load-bearing — the name test is what lets R-rocks-02 fire on a `{slug} Design/{slug} Rocks/`, and the location test is what lets R-rocks-01 fire on a `{slug} Track/{slug} Big Rocks/`. Note that `{slug} Track/` carries its own `.anchor`, so the checkers resolve past the facet sub-anchor to the project that owns it before reading a slug.
 
@@ -126,7 +126,7 @@ Every rock file in this folder belongs to *this* folder's anchor. A rock that be
 
 **Check pattern:** stated; a rock file whose subject is evidently another anchor's work is a smell to flag.
 
-**Why:** the facet is one node of a tree whose root is the vault-wide [[Rocks]], and the root's whole discipline is that it never holds an unowned rock. Ownership has to be true at every node for the root's guarantee to mean anything. Ratified 2026-08-06 ([[VEC Journal]]).
+**Why:** the facet is one node of a tree whose root is the vault-wide [[Rocks]], and the root's whole discipline is that it never holds an unowned rock. Ownership has to be true at every node for the root's guarantee to mean anything. Ratified 2026-08-06 ([[Vector Journal]]).
 
 ### RULE R-rocks-13 — Promotion is marked in both directions (stated)
 

@@ -26,11 +26,11 @@ The work-surface facet group — the `{slug} Track/` folder that houses an ancho
 
 The split that decides *which* surface is **the agent holds the queue, the subject holds the knowledge**:
 
-| Lives with the **agent** (`TINK Track/`) | Lives with the **subject** (`SKA Design/`) |
+| Lives with the **agent** (`Tink Track/`) | Lives with the **subject** (`SKA Design/`) |
 |---|---|
-| [[TINK Backlog]] — the work queue | [[SKA Decisions]] — load-bearing decisions |
-| [[TINK queries]] — open questions for the user | `SKA Design/SKA Features/` — one doc per feature |
-| [[TINK Messages]], [[TINK Icebox]] | the design docs the features distill into |
+| [[Tink Backlog]] — the work queue | [[SKA Decisions]] — load-bearing decisions |
+| [[Tink queries]] — open questions for the user | `SKA Design/SKA Features/` — one doc per feature |
+| [[Tink Messages]], [[Tink Icebox]] | the design docs the features distill into |
 
 Work is *transient and owned by whoever is doing it*, so it belongs to the agent working the ecosystem. Design is *durable and about the thing itself*, so it belongs to the thing. That is why feature docs sit under `SKA Design/`, not beside the backlog: a feature doc is a design artifact with a Summary, Success Criteria, and Open Questions, and it outlives the row that scheduled it.
 

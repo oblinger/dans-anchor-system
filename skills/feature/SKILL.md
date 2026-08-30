@@ -216,7 +216,7 @@ Use `--horizon Later` for parking-mode stubs (`/feature` used to file something 
 
 ### 1a. Surface the Doc — glance only when adding/modifying a pending question AND the user is engaging now
 
-Glance the doc *only when both conditions hold*: (1) the edit added or modified a pending question, AND (2) you're in **active mode** — the user is engaging with this feature right now. See [[TINK queries]] § Active vs Parking mode for the full rule. (Better still: invoke `/ask --doc <path>` and the skill handles the glance for you.)
+Glance the doc *only when both conditions hold*: (1) the edit added or modified a pending question, AND (2) you're in **active mode** — the user is engaging with this feature right now. See [[Tink queries]] § Active vs Parking mode for the full rule. (Better still: invoke `/ask --doc <path>` and the skill handles the glance for you.)
 
 ```bash
 open "<path to feature doc>"

@@ -301,7 +301,7 @@ class Spine:
         The second delimiter was added 2026-08-11 after both readers of this
         mask got a quoted masthead wrong at once, on the one file in the vault
         that uses the convention. A spine sweep HOISTED T1.a's quoted
-        `[[HERMES Backlog]]` masthead out of its block and installed it as
+        `[[Hermes Backlog]]` masthead out of its block and installed it as
         `Template Examples.md`'s own identity row — the page then declared
         itself to be a different page, which is what `R-spine` warns about in
         its own text — and the `S04` fixer rewrote T6.b's quoted `[[DKT Track]]`

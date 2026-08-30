@@ -630,7 +630,7 @@ Every heartbeat verifies *ground-truth* progress (results file row count advanci
 
 ## When NOT to use bridge
 
-**Every case below is denied by `R-ob-remote-ops-01` unless the command carries a stated `# oneshot: <why>`** — the hatch that reached `-01` on 2026-08-28 ([[TINK Backlog#^T606|T606]]). Before that this list and the rule contradicted each other in writing, and an agent reading both could not tell which was wrong: the list said *plain ssh*, the rule denied it and redirected here. The reason is not decoration — it is the auditable record that this was a judgement rather than a reflex, so **write the sentence, do not reach for a flag**.
+**Every case below is denied by `R-ob-remote-ops-01` unless the command carries a stated `# oneshot: <why>`** — the hatch that reached `-01` on 2026-08-28 ([[Tink Backlog#^T606|T606]]). Before that this list and the rule contradicted each other in writing, and an agent reading both could not tell which was wrong: the list said *plain ssh*, the rule denied it and redirected here. The reason is not decoration — it is the auditable record that this was a judgement rather than a reflex, so **write the sentence, do not reach for a flag**.
 
 - **A Windows host, always.** Bridge is Mac/Aqua/tmux end to end, so it does not apply to one — [[Computer Turbo|Turbo]] has no bridge entry and its own vault note says to drive it over persistent SSH *because* bridge does not reach it. This is the case the hatch was extended for.
 - One-shot read on a non-TCC path → plain `ssh user@host 'cmd' # oneshot: <why>`.

@@ -5,7 +5,7 @@ where:: `{anchor}/**/* Log.md, !**/DAS *.md`
 exclusion-note:: `!**/DAS *.md` exempts the facet-spec catalog (a `DAS <Name>.md` is the SPEC for the facet, not an instance; specs are governed by [[R-facet-spec]]) — added 2026-07-13, T014 follow-on.
 description:: Structural rules for the {slug} Log facet — folder shape, entry filename pattern, dispatch dispatch, content scope.
 
-Ruleset for this facet — spec: [[DAS Log]] (extracted from the spec 2026-07-12). Armed by **both** executing umbrellas: [[R-doc]], which `/audit doc` and the on-write doc-fire resolve, and [[R-anchor]], which `/audit anchor` resolves. Being named by [[R-facet]] is catalog membership, not adoption — that umbrella sits outside the `R-doc`/`R-anchor` closure `audit-plan.py` resolves, so an `include::` there arms nothing ([[TINK Backlog#^T208|T208]]).
+Ruleset for this facet — spec: [[DAS Log]] (extracted from the spec 2026-07-12). Armed by **both** executing umbrellas: [[R-doc]], which `/audit doc` and the on-write doc-fire resolve, and [[R-anchor]], which `/audit anchor` resolves. Being named by [[R-facet]] is catalog membership, not adoption — that umbrella sits outside the `R-doc`/`R-anchor` closure `audit-plan.py` resolves, so an `include::` there arms nothing ([[Tink Backlog#^T208|T208]]).
 
 ### RULE R-log-01 — Log path is `{slug} Log/` or `{slug} Log.md` (checked)
 check:: log_path_exists
@@ -50,7 +50,7 @@ Log entries describe what *happened* on the day. They do not contain spec defini
 
 ### RULE R-log-05 — retired 2026-08-28 (tracked)
 
-Was: *dispatch table is newest-first.* Retired per [[TINK Backlog#^T338|T338]]'s own fallback: the 2026-08-11 scoping to hand-authored rows (T209) left it judging 2 log dispatch pages of 98 and finding nothing, because its real subject was always the `...` catch-all — the electric zone HookAnchor recomputes alphabetically, which no agent may reorder. The ordering it wanted can only be delivered by the generator (sort date-prefixed children newest-first in the catch-all); that was handed to [[HA]] 2026-08-11 and chased 2026-08-19, and the 2026-08-26 answer date passed unanswered. [[R-stream]]-01 still orders entries inside a single-file log. The number stays retired per the never-recycle invariant.
+Was: *dispatch table is newest-first.* Retired per [[Tink Backlog#^T338|T338]]'s own fallback: the 2026-08-11 scoping to hand-authored rows (T209) left it judging 2 log dispatch pages of 98 and finding nothing, because its real subject was always the `...` catch-all — the electric zone HookAnchor recomputes alphabetically, which no agent may reorder. The ordering it wanted can only be delivered by the generator (sort date-prefixed children newest-first in the catch-all); that was handed to [[HA]] 2026-08-11 and chased 2026-08-19, and the 2026-08-26 answer date passed unanswered. [[R-stream]]-01 still orders entries inside a single-file log. The number stays retired per the never-recycle invariant.
 
 ### RULE R-log-06 — Dispatch table is append-only (stated)
 

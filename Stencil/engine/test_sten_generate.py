@@ -177,8 +177,8 @@ ENV_T1A = {
     "one-line description":
         "The work queue for Tink, testing the F303 M4 generator.",
     "dispatch table":
-        "| -[[TINK Backlog]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] "
-        "→ [[DAS]] → [[TINK]] → [TINK Backlog](hook://p/TINK%20Backlog)  |\n"
+        "| -[[Tink Backlog]]- | → [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] "
+        "→ [[DAS]] → [[TINK]] → [TINK Backlog](hook://p/Tink%20Backlog)  |\n"
         "| --- | --- |\n"
         "| ... | [[TINK queries]],   |",
 }
@@ -354,7 +354,7 @@ def _machine_owned_dropped(text: str) -> str:
     This is a raw-text comparison, not a `match` — so it is the one place that
     has to say out loud what `normalize_lines` says for matching: the identity
     cell's `→ …` trail is HookAnchor's, not the author's. T6.a's cell is trail
-    and nothing else, so dropping it leaves `| -[[SCOUT Track]]- |  |` on both
+    and nothing else, so dropping it leaves `| -[[Scout Track]]- |  |` on both
     sides. Everything else stays byte-exact — this deliberately does NOT run
     the full normalization, because whitespace and NFC differences between
     generated text and a real page ARE defects and this check exists to catch

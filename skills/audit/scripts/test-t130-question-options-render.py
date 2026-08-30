@@ -211,7 +211,7 @@ check("...with its options", [lab for lab, _ in h3[0][3]], ["A"])
 
 print("\n_read_row_inline_questions — same 4-shape, options already in the text")
 
-BACKLOG = write("TINK Backlog.md", """# Tink Backlog
+BACKLOG = write("Tink Backlog.md", """# Tink Backlog
 
 ## Now
 
@@ -247,7 +247,7 @@ check("the scan stops at the next row",
 # row-Q authored to pass the checker looks like. This shape rendered as a bare
 # stem with no options and no lean until the reader learned it — the exact
 # defect T130 exists to fix, surviving in the sibling function.
-NESTED = write("TINK Backlog.md", """# Tink Backlog
+NESTED = write("Tink Backlog.md", """# Tink Backlog
 
 ## Now
 

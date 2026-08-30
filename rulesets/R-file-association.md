@@ -61,7 +61,7 @@ The dispatch area is the masthead **table rows plus the list items below them** 
 
 **Check pattern:** for each method-3 folder, assert the anchor file exists, the dispatch area lists every item file, and item files follow the facet's naming. A folder is method-3 only if its plural suffix **names a registered facet** — `facets/DAS {Facet}.md` exists.
 
-**The plural suffix alone is evidence of nothing** ([[TINK Backlog#^T561|T561]], 2026-08-20, from [[Eli]]). This rule's checker recognised a method-3 folder by `\s+\w+s$` and nothing else, and the vault-wide count is the argument: **372 folders in scope, 271 of them failing** — a rule wrong three times out of four. What it was failing was `NJDB Databricks`, `NJDB Weights & Biases`, `@Buck Shlegeris`, `My Dates`, `Cap tables`, `SV Wings`, `Moms Files` — company names, a person, and ordinary topic folders whose last letter happens to be `s`, each told to grow a dispatch table over items it does not have. Requiring the suffix to name a registered facet leaves **100 in scope and 48 failing**, and the 48 are real: mostly `{slug} Features/` folders across the fleet with no `{slug} Features.md` index, which [[DAS Features]] does require. Nothing that was passing is lost — a folder leaving scope was either already passing or was never a facet folder.
+**The plural suffix alone is evidence of nothing** ([[Tink Backlog#^T561|T561]], 2026-08-20, from [[Eli]]). This rule's checker recognised a method-3 folder by `\s+\w+s$` and nothing else, and the vault-wide count is the argument: **372 folders in scope, 271 of them failing** — a rule wrong three times out of four. What it was failing was `NJDB Databricks`, `NJDB Weights & Biases`, `@Buck Shlegeris`, `My Dates`, `Cap tables`, `SV Wings`, `Moms Files` — company names, a person, and ordinary topic folders whose last letter happens to be `s`, each told to grow a dispatch table over items it does not have. Requiring the suffix to name a registered facet leaves **100 in scope and 48 failing**, and the 48 are real: mostly `{slug} Features/` folders across the fleet with no `{slug} Features.md` index, which [[DAS Features]] does require. Nothing that was passing is lost — a folder leaving scope was either already passing or was never a facet folder.
 
 **Two residuals, stated rather than absorbed.** *(a)* The `{Parent}` half of `R-file-association-03` is still unchecked here: requiring the prefix to match an enclosing folder or declared slug would cut scope to 53 and findings to 27, but it would also drop **75** currently-passing folders, because a multi-word facet name (`SVAR Dev Docs`, `SVW User Docs`) puts a qualifier between parent and facet and the naive split reads `SVAR Dev` as the parent. That refinement waits on the multi-word-facet question. *(b)* A singular/plural coincidence still admits a few — `2025-10-07 Derm Docs` matches because `Doc` is a facet — and *(a)* is what removes it, which is the argument for doing *(a)* properly rather than patching around it.
 
@@ -79,7 +79,7 @@ exception-grading::
   note - this rule's trigger is `re.search(r"\s+\w+s$", folder)`, the folder
       NAME, with no test that it holds a facet's items. Every exception graded
       here is therefore graded against a heuristic rather than against the rule
-      as written. Durable fix: [[TINK Backlog#^T561|TINK T561]]; when it lands
+      as written. Durable fix: [[Tink Backlog#^T561|TINK T561]]; when it lands
       these rows suppress nothing and `R-exception-discipline-07` reports them
       stale, which is the signal to delete them.
 

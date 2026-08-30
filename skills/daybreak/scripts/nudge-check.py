@@ -3,12 +3,12 @@
 
 Lumen can only interrupt while it is running, so a 🔔 pebble is otherwise
 honoured only at the next Daybreak (day-granularity). This runs from a launchd
-agent on a short interval, reads the pebbles in `LUMEN Track/LUMEN Pebbles/`,
+agent on a short interval, reads the pebbles in `Lumen Track/Lumen Pebbles/`,
 and fires `~/bin/alert` on any due `alert:: 🔔` pebble whose `tempo::` resolves
 to a concrete time — so an hour-critical nudge lands at its hour without Lumen
 being open.
 
-Until 2026-08-13 this read the `LUMEN Nudge.md` table; F312 M5 migrated that
+Until 2026-08-13 this read the `Lumen Nudge.md` table; F312 M5 migrated that
 register to one file per pebble. The `tempo::` grammar is unchanged (canonical
 spec: DAS Stone Keys § Pebble's keys):
 
@@ -47,7 +47,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 HOME = Path.home()
-PEBBLES = HOME / "ob/kmr/SYS/Staff/Lumen/LUMEN Track/LUMEN Pebbles"
+PEBBLES = HOME / "ob/kmr/SYS/Staff/Lumen/Lumen Track/LUMEN Pebbles"
 ALERT = HOME / "bin/alert"
 COLOR = "orange"  # attention, not alarm-red — reserved for genuinely time-critical
 
