@@ -19,7 +19,7 @@ The spine is everything above the H1; the heart is what sits directly below it. 
 | **[[#Fact card\|Fact card]]** | the key facts *about this page's subject* — a status card, a who-feeds-whom map, whatever facts matter most | a table of facts, any shape | [[2026-08-19 Legacy Athletics]] · [[Stones]] | [[Harbor Account Northwind]] |
 | **[[#Register\|Register]]** | the heart *is* the page: one row per thing the page exists to track | data table, hand-written, load-bearing | [[LUMEN Data Sources]] | [[Harbor Latency Budget]] |
 | **[[#Figure\|Figure]]** | the thing the page defines, drawn | an image or diagram, no title, table beneath | [[DAS Code Design]] | [[FEX Figure Page]] · [[FEX Architecture]] |
-| **[[#Kinds table\|Kinds table]]** | the variants of the thing the page specifies, each with an example | a table like this one | [[DAS spine]] · this page | [[FEX Dispatch Examples]] § The four kinds |
+| **[[#Types table\|Types table]]** | the mutually exclusive subtypes of the thing the page specifies, one row each, with an example | a fact table whose rows partition the type — like this one | [[DAS spine]] · this page | [[FEX Dispatch Examples]] § The four kinds |
 | **[[#Table of contents\|Table of contents]]** | the page's own sections, so a long page is navigable before it is read | derived from the headings, regenerated | [[DAS ask-format]] · [[DAS progressive-disclosure]] | — |
 | **[[#Roster\|Roster]]** | the members a collection page fronts, by area | index table — orients, does not route | [[Briefs]] | — |
 
@@ -76,8 +76,8 @@ Nothing is deleted in the move; the cap becomes satisfiable *without loss*, whic
 
 **Live:** [[DAS Code Design]] — the subsystem figure, then the skills table. **Made-up:** [[FEX Figure Page]], [[FEX Architecture]].
 
-## Kinds table
-**What it is.** A specification page's own catalog of the variants it specifies — one row per kind, with what it is, its shape, and a live and a made-up example. The reader sees the whole space before reading any one entry.
+## Types table
+**What it is.** A specification page's own catalog of the **mutually exclusive subtypes** of the thing it specifies — one row per subtype, with what it is, its shape, and a live and a made-up example. It is still a fact table (every row is about this page's subject), but a particular category of fact worth its own name: the rows *partition* the type, so a reader sees the whole space and knows each instance falls in exactly one row before reading any one entry. Named 2026-08-29 (Dan: *"it's still a fact table, but it is an interesting category of fact — a mutually exclusive list of subtypes of this data type"*); it was briefly "kinds table".
 
 **Live:** [[DAS spine]]'s shapes table, and the table at the top of this page. **Made-up:** [[FEX Dispatch Examples]] § The four kinds.
 
