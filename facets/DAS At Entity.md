@@ -99,15 +99,16 @@ Settled on [[@Henna Dattani]] with Dan. A flat entity page opens with a **breadc
 
 `# @Henna Dattani — **[Alignment TPM](https://linkedin…) at [[@Anthropic]]**`
 
-Directly under it sits the **card**, the page's heart ([[DAS heart]] § Fact card). Four rows are **standard and always present**, in this order — write *unknown* or `—` rather than omit one — and the rest are whatever is known:
+Directly under it sits the **card**, the page's heart ([[DAS heart]] § Fact card). Four rows are **standard and always present** — Contact, Personas, Rolodex, Context — with Friends slotted before Context when there is one; in this order — write *unknown* or `—` rather than omit one — and the rest are whatever is known:
 
 | Row | Holds |
 |---|---|
 | **Contact** | email · LinkedIn · X — mashed into one cell. **Phone numbers live in macOS Contacts, not here** (Dan, 2026-08-29: they drift); a number is written on the page only when there is no contact card for the person at all — a specialty connection Contacts never got |
 | **Personas** | the entity's other `@` affiliations — ex-employers, boards, groups — each linked |
 | **Rolodex** | which registers they belong in — [[BOD]], [[MENTORS]], [[FAANG]] … — replacing the old `#mentor`-style tags |
-| **Context** | how Dan knows this person and why they are in the list — the loop, the intro, the relationship. **Last of the four, because it is the long one**: the three above are bare facts and stay at the top (Dan, 2026-08-29) |
-| *then* | **Friends** (a natural optional row — the people they know that Dan also knows, each an `@` link) · Trajectory · Education · Public work · Relatives · … as known |
+| **Friends** | *optional, but in this position when present* — the people they know that Dan also knows, each an `@` link |
+| **Context** | how Dan knows this person and why they are in the list — the loop, the intro, the relationship. **Last, because it is the long one**: the rows above are bare facts and stay at the top (Dan, 2026-08-29) |
+| *then* | Trajectory · Education · Public work · Relatives · … as known |
 
 No `#pp` tag: every `@` person page is a person, so the tag said nothing. **Live:** [[@Henna Dattani]]. **Made-up:** [[@Marguerite Vale]]. The `# LOG` follows the card as before.
 # Site-specific extensions
