@@ -2,13 +2,13 @@
 description: "Fractional CFO at Vale & Co — advisor, met through Hollis. (Fictional — the worked instance for [[DAS At Entity]].)"
 ---
 :>> [[DAS]] → [[FEX]] → [[FEX At Entity]] → [@Marguerite Vale](hook://p/@Marguerite%20Vale) 
-# @Marguerite Vale — **[Fractional CFO](https://www.linkedin.com/in/example-marguerite-vale/) at [[@Vale & Co]]**
+# @Marguerite Vale — **[Fractional CFO](https://www.linkedin.com/in/example-marguerite-vale/) at ~~[[@Vale & Co]]~~**
 
 | Card |  |
 | --- | --- |
 | **Contact** | marguerite@valeandco.example · 800-555-0142 · [LinkedIn](https://www.linkedin.com/in/example-marguerite-vale/) · ET, mornings only |
 | **Personas** | ex-[[@Hollis]] engagement (left 2026-06-20) · building the Vale & Co fractional-CFO pool |
-| **Rolodex** | [[ADVISORS]] |
+| **Rolodex** | ~~[[ADVISORS]]~~ |
 | **Context** | advisor on pricing and revenue modelling — warm intro from Hollis Wren 2026-05-28; passed on the board observer seat 2026-08-04 |
 
 # LOG

@@ -99,7 +99,7 @@ Settled on [[@Henna Dattani]] with Dan. A flat entity page opens with a **breadc
 
 `# @Henna Dattani — **[Alignment TPM](https://linkedin…) at [[@Anthropic]]**`
 
-Directly under it sits the **card**, the page's heart ([[DAS heart]] § Fact card). Four rows are **standard and always present** — Contact, Personas, Rolodex, Context — with Friends slotted before Context when there is one; in this order — write *unknown* or `—` rather than omit one — and the rest are whatever is known:
+Directly under it sits the **card**, the page's heart ([[DAS heart]] § Fact card). The standard rows, in this order. **Contact and Rolodex are always present, even when empty** — an empty Contact is a to-do and an empty Rolodex is a question (*should this person be in one?*), so the blank row earns its place. **Personas, Friends and Context are omitted when there is nothing to say** — an absence there asks nothing (Dan, 2026-08-29). Contact holds ways to *reach* the person; a standing meeting room or an invite link is a channel for a scheduled thing and lives beside the correspondence it served, not here.
 
 | Row | Holds |
 |---|---|
