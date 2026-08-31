@@ -62,21 +62,19 @@ Read from and write to external services. Each sub-skill is an access card with 
 
 ## Auth
 
-Google API: OAuth at `~/.google_workspace_mcp/credentials/{account}.json` — **one directory, both clients** (`gsa` and `workspace-mcp`), one file per authorized account. Token expires every 7 days (Testing mode). Re-consent via `/io gauth`, and see § Routing policy for the "Select all" trap that silently grants zero API scopes.
+Google API: OAuth at `~/.google_workspace_mcp/credentials/{account}.json` — **one directory, both clients** (`gsa` and `workspace-mcp`), one file per authorized account. The token expires every 7 days while the OAuth app is in Testing mode, and nothing probes it, so credentials rot silently and the first symptom is an unrelated task failing. Re-consent via `/io gauth`; when the consent screen appears, **tick "Select all"** — the checkboxes default to unchecked, and clicking straight through grants `email`/`profile`/`openid` only, which fails later as HTTP 403 *insufficient scopes* rather than as an auth error.
 
-**There is more than one account, and the account is a parameter on every `g*` surface.** `gsa --account <email>` (or `$GSA_ACCOUNT` for a whole session) selects the identity for sheets, slides, docs, drive search **and** gmail; omitted, everything runs as `oblinger@gmail.com`. `gsa gmail accounts` lists what is authorized and which scopes each holds — check it before concluding a document is missing, because **a file you cannot see is far more often the wrong identity than a real absence**: the personal account gets a clean `404` on a SportsVisio doc, which reads exactly like "no such file".
+Leaving Testing is not a switch: `drive` and every `gmail.*` scope are **restricted** tier, so publishing needs OAuth verification plus an annual third-party CASA security assessment. The 7-day expiry is a property of *this app*, not of Google Drive.
 
-Until 2026-08-28 `--account` was parsed in the `gmail` branch alone, which was backwards — `dan@sportsvisio.com` holds documents/drive/spreadsheets/presentations and **no** Gmail scope, so the one service it could be addressed on was the one it is not authorized for. The flag is now global.
+**The account is a parameter on every `g*` surface, not just Gmail.** `gsa --account <email>` (or `$GSA_ACCOUNT` for a whole session) selects the identity for sheets, slides, docs, drive search **and** gmail. `gsa gmail accounts` lists what is authorized and which scopes each holds — check it before concluding a document is missing, because **a file you cannot see is far more often the wrong identity than a real absence**: an identity with no grant on the owning domain gets a clean `404`, which reads exactly like "no such file".
+
+**Read the credential file's `scopes` list as a REQUEST, not a grant.** The file lists what the *client asks for*; what an account actually holds is whatever was ticked at consent. A scope present in the file and absent from the grant is exactly the shape that makes a 404 read as *no such document* rather than *not authorized*.
 
 Apple surfaces (`imail`, `ical`, `ihealth`, `contacts`) carry **no auth here** — they run on TCC grants that do not expire, which is the whole reason they rank first. They are also the only surfaces that are natively multi-account: `imail` reads every mailbox on this Mac at once, where each `g*` call speaks as exactly one identity.
 
-Last full re-consent: **2026-08-05**, 41 scopes granted on `oblinger@gmail.com` (Gmail, Sheets, Docs, Drive, Slides all live). `dan@sportsvisio.com` last granted 2026-08-13, 6 scopes, and its refresh token is **expired or revoked** as of 2026-08-28 — `gsa auth dan@sportsvisio.com` re-consents it.
+**Drive has a second route that fails independently.** `rclone` remotes are their own OAuth clients, so a dead `gsa` grant says nothing about them — a task that only needs Drive *files* moved should reach for rclone before re-consenting anything.
 
-**Read the credential file's `scopes` list as a REQUEST, not a grant.** Both files carry an identical 39 entries — full `drive` plus seven `gmail.*` — because that is what the client asks for; what an account actually holds is whatever was ticked at consent, which for the SV account was 6. A scope present in the file and absent from the grant is exactly the shape that makes a 404 read as *no such document* rather than *not authorized*.
-
-**Publishing this app out of Testing is not a switch.** `drive` and every `gmail.*` scope are **restricted** tier, so leaving Testing needs OAuth verification plus an annual third-party CASA security assessment — weeks and money. The 7-day expiry is a property of *this app*, not of Google Drive.
-
-**Drive access need not come through `gsa` at all.** `rclone` carries two independent remotes — `gdrive:` (personal, `oblinger@gmail.com`) and **`svdrive:`** (SportsVisio, its own `client_id`; verified working 2026-08-28, listing SV Root and reporting 54 TiB of pooled Workspace storage). They fail independently, so a dead `gsa` grant says nothing about `svdrive:`, and a task that only needs Drive *files* moved should reach for rclone before re-consenting anything. Whether `svdrive:` can **write** SV-owned files is the open question — [[Tink Backlog#^T610|TINK T610]].
+**Which identities exist, what each was granted, and when it was last consented are estate facts and live in the catalog, not here** — [[IO Google Accounts]], under [[IO]], which also carries the per-channel timings and the ways each mail pathway returns nothing while looking like it worked ([[IO Mail]]). This skill holds the portable procedure; anything true only of one person's accounts belongs there.
 
 IDs accept full Google URLs or bare document IDs.
 
