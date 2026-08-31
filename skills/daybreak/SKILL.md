@@ -24,7 +24,7 @@ Every row is one thing Lumen does in the morning, in order. Detail follows below
 | **Calendar** | Fetch today's events. Necessary but **not sufficient** — see Mail, below. |
 | **Dates** | Read `MY Dates.md` for birthdays and anniversaries coming up. Card rows need six weeks, not two. |
 | **Mail** | Surface only messages matching `Lumen Watchlist.md`. Skip entirely if it is empty. Then run `appointment-scan.py` — some appointments never reach a calendar and live only in mail. |
-| **Doctor** | Launch any due `ob_check` **agent** check, then read [[SYS Doctor Report]] — the two top sections only. Surface what CHANGED, and name how long anything failing has been failing. |
+| **Doctor** | Launch any due `ob_check` **agent** check, then `diagnose` and **`peek`** — never `drain` here. Read [[SYS Doctor Report]], top two sections only. Surface what CHANGED, and name how long anything failing has been failing. |
 | **Hot** | Read [[Rocks]] — the live block only — for what the user has declared currently matters. |
 | **Loose** | Scan [[Quick]] and Lumen's own `## Now` for anything captured since the last run. |
 | **Today** | Choose 3–5 items *across* domains and put them on screen, decisions first. |
@@ -33,7 +33,7 @@ Every row is one thing Lumen does in the morning, in order. Detail follows below
 | **Runnable** | Name the Ready work that needs no user, offered as a single `'` (crank). |
 | **Ahead** | Read the [[Lumen Pebbles]] roster + pebbles; surface every pebble whose `tempo::` falls due today into the briefing's **Watching** section. |
 | **Write** | Put the briefing at the top of `~/ob/kmr/SYS/Staff/Lumen/Lumen Day.md` — the user reads it there, not in chat. |
-| **Close** | Write down anything deferred, then advance the watermark. In that order. |
+| **Close** | Write down anything deferred, advance the watermark, and **`ob_check drain` once Dan has engaged**. In that order. |
 
 Sources are read cheapest-and-most-decisive first, so an interrupted run still produced value. Watch messages lead because the user already decided those mattered; `Q.md` is second because one file federates every anchor. Everything else in [[LST]] is read on demand — do not sweep the list tree, that is weekly-review work.
 
@@ -149,9 +149,16 @@ It prints one `topic<TAB>doc_path` line per check that is **due**, and nothing a
 - **One background subagent per line printed, and the brief is the doc.** The whole instruction is *read `doc_path` and do what it says* — the doc carries the field contract, the level vocabulary, and its own `ob_check post` line. The launcher stays ignorant of any check's content, which is what lets a new check be added without touching Daybreak.
 - **Fire and move on; never block.** A wedged subagent must not be able to swallow the morning. If a check has not posted by the time the drain renders, its result lands in tomorrow's — and its topic goes stale on the third day, which is precisely the signal `max_age` exists to give.
 
-**Then fold in the drain**, after the launches, so the morning's own posts are in this render rather than a day late:
+**Then diagnose, then PEEK — the drain comes last, and only after Dan has engaged.** After the launches, so the morning's own posts are in this render rather than a day late:
 
-    ob_check drain
+    ob_check diagnose
+    ob_check peek
+
+**`diagnose` first, always.** It applies the consequence ladder and **discharges whatever an agent can discharge on its own**, so `peek` then renders only what survived. Running the render alone reports staleness that `diagnose` would have silently fixed. Set by Dan 2026-08-25 as the sanctioned escalation route for [[Atticus266 - Staleness is a failure: escalate checks that stop running|ATT F266]]: *"having Lumen read the report of warnings from the previous day … is a good stopgap for now."*
+
+**`peek`, never `drain`, until Dan has actually engaged.** `drain` advances a stored cursor as it renders; `peek` is the identical render and leaves the cursor alone. **If the session ends between draining and Dan reading, those rows are consumed and never surface again.** Dan, 2026-08-26: *"she should make sure that we interact. And then once we've interacted, then she can consider it drained, like I've seen it."* **The drain is a receipt for having been seen, not for having been rendered.** So the order is `diagnose` → `peek` → report in the briefing → **Dan responds** → `ob_check drain` at the Close step. A morning that ends without a reply leaves the cursor where it was, and tomorrow shows the same rows — which is correct, because he never saw them.
+
+**What to carry and what to perform.** An item in the escalation block is already triaged — it is a claim that the check does not self-heal, no agent could diagnose it, and it is not lettable-go — so carry it to Dan verbatim without re-triaging. **Lines under *awaiting an agent* are the opposite: they are recipes for you to perform**, then post the result. Leaving one unperformed is how the 401-hour gap happened.
 
 **If `ob_check` is unreachable, say so in the briefing and continue** — the same rule as the calendar. A briefing that admits a channel was unreachable beats one that quietly dropped it.
 
@@ -291,6 +298,7 @@ After the Today set is chosen and **before** it is written, read `~/ob/kmr/Topic
 1. Record anything deferred-but-wanted in a durable place — a [[Lumen Pebbles|pebble]] if Lumen is holding it, else a [[Quick]] line, a [[Weekly]] checkbox, or a backlog row.
 2. Advance `Daybreak Watermark.md` to the newest `captured:` surfaced.
 3. Confirm the briefing landed in [[Lumen Day]] before finishing — a run that only spoke into chat did not deliver.
-4. Do not commit unless asked — Daybreak is a read-and-decide ritual, not a work session.
+4. **`ob_check drain` — but only once Dan has actually responded to the briefing.** The Doctor step deliberately used `peek`, which left the cursor alone; this is where the receipt is written. **If the morning ends with no reply from him, do not drain** — leave the cursor and let the same rows surface tomorrow, because he never saw them.
+5. Do not commit unless asked — Daybreak is a read-and-decide ritual, not a work session.
 
 Declined items do **not** return with escalating urgency. Three declines is a signal to raise it once, plainly, at the weekly review.
