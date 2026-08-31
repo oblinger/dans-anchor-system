@@ -469,16 +469,62 @@ class QEntry:
 # ============================================================
 
 
+def frontmatter_aliases(path: Path) -> list[str]:
+    """The `aliases:` a page declares, inline (`[a, b]`) or as a YAML list.
+    Only the frontmatter block is read — an `aliases:` further down the file
+    is prose, not metadata."""
+    try:
+        with path.open(encoding="utf-8", errors="replace") as fh:
+            if fh.readline().rstrip("\n") != "---":
+                return []
+            names: list[str] = []
+            collecting = False
+            for _ in range(60):
+                line = fh.readline()
+                if not line or line.rstrip("\n") == "---":
+                    break
+                if line.startswith("aliases:"):
+                    rest = line.split(":", 1)[1].strip()
+                    if rest.startswith("["):
+                        names += [n.strip().strip("\"'")
+                                  for n in rest.strip("[]").split(",")]
+                        collecting = False
+                    else:
+                        collecting = True
+                elif collecting:
+                    if line.startswith(("-", " ", "\t")) and line.strip().startswith("-"):
+                        names.append(line.strip()[1:].strip().strip("\"'"))
+                    else:
+                        collecting = False
+            return [n for n in names if n]
+    except OSError:
+        return []
+
+
 def build_vault_index(vault_root: Path) -> dict[str, list[Path]]:
     """Walk vault_root for *.md files; return basename → list of paths.
     Keys are lower-cased: Obsidian resolves wiki-links case-insensitively,
-    so `[[Track]]` finding only `track.md` is a resolvable link (T002)."""
+    so `[[Track]]` finding only `track.md` is a resolvable link (T002).
+
+    **A declared alias is a real resolution path, and the index carries it.**
+    Obsidian resolves `[[Old Name]]` to the page whose frontmatter claims that
+    alias, so a checker that indexes filenames alone reports a working link as
+    broken — which is exactly what a rename does to every link it leaves
+    behind, and the alias is the sanctioned way to keep those working. Real
+    filenames are indexed first and a stem always wins: an alias never shadows
+    a page that actually exists under that name."""
     index: dict[str, list[Path]] = {}
-    for path in vault_root.rglob("*.md"):
-        if any(frag in path.parts for frag in EXCLUDED_PATH_FRAGMENTS):
-            continue
-        stem = path.stem.lower()
-        index.setdefault(stem, []).append(path)
+    paths = [p for p in vault_root.rglob("*.md")
+             if not any(frag in p.parts for frag in EXCLUDED_PATH_FRAGMENTS)]
+    for path in paths:
+        index.setdefault(path.stem.lower(), []).append(path)
+    for path in paths:
+        for alias in frontmatter_aliases(path):
+            key = alias.lower()
+            # An alias is registered only where no real file already answers to
+            # that name, so this can never change how an existing link resolves.
+            if key not in index:
+                index[key] = [path]
     return index
 
 
