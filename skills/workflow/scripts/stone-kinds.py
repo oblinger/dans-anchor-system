@@ -182,6 +182,64 @@ def _build(kinds: list[str], rows: dict[str, list[str]], where: str) -> dict:
     return out
 
 
+def stones_section() -> dict:
+    """The `stones:` section of the F080 global config, or {} — the F628
+    type-set declaration. `stone` passes its own cached copy into
+    `load_types` (test hermeticity); audit-plan calls `load_types()` bare."""
+    if not CONFIG_PATH.is_file():
+        return {}
+    try:
+        import yaml
+        with CONFIG_PATH.open() as f:
+            data = yaml.safe_load(f) or {}
+    except Exception as e:
+        raise StoneKindsError(f"{CONFIG_PATH} unreadable: {e}")
+    raw = data.get("stones") or {}
+    if not isinstance(raw, dict):
+        raise StoneKindsError(f"{CONFIG_PATH}: `stones:` must map type names to defaults")
+    return raw
+
+
+def type_defaults(name: str) -> dict:
+    """Convention-derived defaults for a type name (F628): numbered members,
+    prefix = the name's first letter, folder `{slug} <Name>/` under Track,
+    control file = the folder note inside it."""
+    word = name.replace("_", " ").replace("-", " ").title()
+    tmpl = "{slug} " + word
+    return {
+        "folder": tmpl,
+        "control": tmpl,
+        "member": "numbered",
+        "prefix": name[0].upper(),
+        "digits": 4,
+        "stone_alias": "{slug}:",
+        "header_alias": "{slug}",
+        "header_line": "-{link}-",
+    }
+
+
+def load_types(section: dict = None) -> dict:
+    """The live type set (F628 step 4): the config `stones:` section is the
+    source of truth once it exists — its names ARE the types, each built on
+    `type_defaults` plus its declared fields. Without a section the kind
+    table below serves as the shipped default set. Borrowed by `stone` AND
+    `audit-plan.py` so the two cannot drift (T120)."""
+    sec = stones_section() if section is None else section
+    if any(k != "_" for k in sec):
+        out = {}
+        for name, fields in sec.items():
+            if name == "_":
+                continue
+            cfg = dict(type_defaults(name))
+            for k, v in (fields or {}).items():
+                cfg[k] = v
+            if cfg.get("digits") is not None:
+                cfg["digits"] = int(cfg["digits"])
+            out[name] = cfg
+        return out
+    return load_kinds()
+
+
 def load_kinds(path: Path | None = None) -> dict:
     """The public entry point both readers call."""
     p = path or resolve_doc_path()

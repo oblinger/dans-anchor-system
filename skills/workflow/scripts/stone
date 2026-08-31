@@ -182,20 +182,12 @@ def _global_stones_section() -> dict:
     global _GLOBAL_STONES_CACHE
     if _GLOBAL_STONES_CACHE is not None:
         return _GLOBAL_STONES_CACHE
-    cfgp = Path.home() / ".config" / "anchor-system" / "global.yaml"
-    sec = {}
-    if cfgp.is_file():
-        try:
-            import yaml
-            data = yaml.safe_load(cfgp.read_text(encoding="utf-8")) or {}
-        except Exception as e:
-            raise StoneError(f"{cfgp} unreadable: {e}")
-        raw = data.get("stones") or {}
-        if not isinstance(raw, dict):
-            raise StoneError(f"{cfgp}: `stones:` must map type names to defaults")
-        sec = raw
-    _GLOBAL_STONES_CACHE = sec
-    return sec
+    mod = _stone_kinds_mod()
+    try:
+        _GLOBAL_STONES_CACHE = mod.stones_section()
+    except mod.StoneKindsError as e:
+        raise StoneError(str(e))
+    return _GLOBAL_STONES_CACHE
 
 
 def _anchor_stones(anchor_dir: Path):
@@ -261,18 +253,7 @@ def _novel_type_cfg(name: str) -> dict:
     members, prefix = the name's first letter, folder `{slug} <Name>/`, and
     the control file INSIDE it as the folder note — the new-world default
     shape (F628 Q3)."""
-    word = name.replace("_", " ").replace("-", " ").title()
-    tmpl = "{slug} " + word
-    return {
-        "folder": tmpl,
-        "control": tmpl,
-        "member": "numbered",
-        "prefix": name[0].upper(),
-        "digits": 4,
-        "stone_alias": "{slug}:",
-        "header_alias": "{slug}",
-        "header_line": "-{link}-",
-    }
+    return _stone_kinds_mod().type_defaults(name)
 
 
 def load_type_defaults(cfg_all: dict) -> dict:
@@ -298,17 +279,14 @@ def load_types() -> dict:
     section flips every verb to config types in one move."""
     sec = _global_stones_section()
     if any(k != "_" for k in sec):
-        out = {}
-        for name, fields in sec.items():
-            if name == "_":
-                continue
-            cfg = dict(_novel_type_cfg(name))
-            for k, v in (fields or {}).items():
-                cfg[k] = v
-            if cfg.get("digits") is not None:
-                cfg["digits"] = int(cfg["digits"])
-            out[name] = cfg
-        return out
+        mod = _stone_kinds_mod()
+        try:
+            return mod.load_types(section=sec)
+        except mod.StoneKindsError as e:
+            raise StoneError(str(e))
+    # Table mode falls back through stone's OWN wrapper — error-wrapped, and
+    # the seam fixtures monkeypatch (f313's required_keys case), which
+    # mod.load_kinds() would silently bypass.
     return load_kind_config()
 
 

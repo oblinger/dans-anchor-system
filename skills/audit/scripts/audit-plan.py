@@ -7659,7 +7659,11 @@ def _stone_kinds() -> dict:
     if _STONE_KINDS_CACHE is None:
         try:
             mod = _stone_kinds_mod()
-            data = mod.load_kinds()
+            # F628: config-first — the `stones:` section in global.yaml is the
+            # live type set once present; load_types falls back to the kind
+            # table for installs without one. Same single implementation
+            # `stone` uses (T120: borrowed, never copied).
+            data = mod.load_types()
             _STONE_KINDS_CACHE = {
                 k: v for k, v in data.items()
                 if isinstance(v, dict) and "folder" in v
