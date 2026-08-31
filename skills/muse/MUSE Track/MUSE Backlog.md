@@ -7,7 +7,7 @@ description: "MUSE backlog — voice-memo pipeline features"
 | ... |  |
 
 # MUSE Backlog
-<!-- state:backlog bw -->
+<!-- state:backlog nn -->
 
 Voice-memo ingestion + review-and-do pipeline work items.
 
@@ -27,6 +27,8 @@ Voice-memo ingestion + review-and-do pipeline work items.
 - **T007 — `e2e-test.sh` picks its fixture by smallest file size, so it selects muse's own blacklisted recording and fails deterministically** [Ready] — → [[MUSE007 - e2e-test.sh picks its fixture by smallest file size, so it selects|T007]] — Make the fixture choice explicit rather than emergent. Prefer a **pinned, committed** sample beside the script over any `find` over the user's corpus — it removes the dependence on what Dan happens to have dictated, and the metadata-remux trick that defeats SHA dedup works the same on a checked-in file. If the clone-from-corpus approach is kept, at minimum skip anything on muse's repeatedly-failing list and validate the pick before use (`ffprobe` shows ≥1 audio stream and a non-zero duration), failing with a clear message rather than a raw ffmpeg error. Separately, move the litter cleanup from the PASS branch into an `EXIT` trap so a failed run cannot leave files in the user's iCloud folder. ^T007
 
 - **T009 — A successfully-ingested recording sat in `.muse.failures`, and the false alarm survived three morning briefings** [Ready] — → [[MUSE009 - A successfully-ingested recording sat in.muse.failures, and the false|T009]] — Make ingest success remove the file's row from `.muse.failures` — and, because that write can itself be missed, have whatever reports `muse.ingest` cross-check each failure entry against the existing MUSE items by `source_audio` before calling a file abandoned, so a disagreement between the two records surfaces as a disagreement rather than as a loss. ^T009
+
+- **T010 — Capture-time routing: step 12 in `scripts/muse` drops addressed memos into agent Inboxes** [Ready] — → [[MUSE010 - Capture-time routing step 12 in scripts muse drops addressed memos into|T010]] — open `scripts/muse`, locate step 11 `notify` (~line 797), and write step 12 exactly per the spec above; test with a fixture transcript naming one agent and one naming nobody. ^T010
 
 ## Next
 

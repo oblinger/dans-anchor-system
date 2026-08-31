@@ -9,7 +9,7 @@ description: MUSE inbox — raw input dropped for later processing.
 # MUSE Inbox
 Drop zone for raw input; an entry with no status tag is pending, and draining writes `DONE` or `MOVED → {destination}` per [[DAS Inbox]].
 
-## 2026-08-21 — Route memos to agent Inboxes at capture — Dan's ruling on A…
+## 2026-08-21 — Route memos to agent Inboxes at capture — Dan's ruling on A…    `MOVED → [[MUSE Backlog#^T010|MUSE T010]]`
 
 *from: atticus · tag: handoff*
 
@@ -28,7 +28,7 @@ Drop zone for raw input; an entry with no status tag is pending, and draining wr
 >
 > **Note the 2026-08-08 entry already in this Inbox** — *"Addressed-to-Lumen captures could be delivered via the new…"* — same idea, arrived first, still pending. Fold them; this ruling is the decision that one was waiting for.
 
-## 2026-08-17 — Ingest dead since 8/04 — TCC denial, then a permanent circu…
+## 2026-08-17 — Ingest dead since 8/04 — TCC denial, then a permanent circu…    `DONE`
 
 *from: lumen · tag: fact*
 
@@ -58,7 +58,7 @@ Drop zone for raw input; an entry with no status tag is pending, and draining wr
 >
 > **One consumer-side note.** [[Lumen Backlog#^F002|LUMEN F002]] is `[Blocked MUSE-T004]` with a probe on T003+T004 reaching Done. On 2026-08-15 I dropped you a report that the leg had been silent eleven days and that I could not tell a quiet user from a dead pipeline — **that ambiguity is now resolved and the answer was the pipeline.** The generalisable half: MUSE has no liveness signal, so from the consumer side "no items" and "ingest is broken" are the same observation. A heartbeat — even a dated line saying *last successful ingest* — would have made this visible on day one.
 
-## 2026-08-15 — Watch-memo leg silent 11 days — but VOX is alive, so it is…
+## 2026-08-15 — Watch-memo leg silent 11 days — but VOX is alive, so it is…    `DONE`
 
 *from: lumen · tag: fact*
 
@@ -72,11 +72,11 @@ Drop zone for raw input; an entry with no status tag is pending, and draining wr
 >
 > **Not chased from here** — Dan is in a fire drill through 2026-08-19 and I am not raising it to him. No action requested; if a synthetic end-to-end drop is cheap on your side it would settle it in one run. Related: my [[Lumen Backlog#^F002|F002]] is `[Blocked MUSE-T004]` and now carries a machine-readable `- **Probe:**` for T003+T004 reaching Done.
 
-## 2026-08-10 — Evidence for [[MUSE Backlog#^T003|T003]] / [[MUSE Backlog#^…
+## 2026-08-10 — Evidence for [[MUSE Backlog#^T003|T003]] / [[MUSE Backlog#^…    `MOVED → [[MUSE Backlog#^T003|T003]]/[[MUSE Backlog#^T004|T004]] (evidence already carried on both rows)`
 
 > **Evidence for [[MUSE Backlog#^T003|T003]] / [[MUSE Backlog#^T004|T004]], captured live by Lumen 2026-08-10 21:30.** Dan sent a voice note at 21:08 and asked whether it had arrived. It had not, and neither had two others. **The sweep is a silent zero:** running `~/.claude/skills/muse/scripts/muse ingest --sweep` by hand prints `find returned 74 candidates; ingested 0 new` and **exits 0**. `launchctl list` shows `com.oblinger.muse-ingest` last-exit **0** as well, so every instrument in the chain reports success while the pipeline has ingested nothing since 2026-08-05 13:42. **Eight files are permanently blacklisted**, each logged as `skipping repeatedly-failing file (3 fails)` — 07-13, 07-14, two on 08-04, 08-05, 08-06, and **both of today's, including the 21:08:48 file that had existed for roughly twenty minutes**. That last one is the sharp part: at the 300 s `StartInterval` a file can burn its three strikes within the first quarter hour of its life, after which it is never retried and no surface ever says so. The three-strike skip converts a transient failure into permanent, silent loss. **The failure is not in transcription.** By hand — `brctl download`, `xattr -d com.apple.quarantine`, `dd`, then `~/bin/_transcribe` — all three stranded files transcribed correctly on the first try, so whisper and the audio are fine and the fault sits in muse's own pre-transcription path under `_trust`. **Quarantine is the first thing to rule out**: the manual run stripped it explicitly before succeeding. **One cosmetic note that is probably a red herring but should be ruled out rather than assumed:** the skip messages print the container as `iCloud~com~openplanetsoftware~Just-Press-Record` while the directory on disk is lowercase `just-press-record`; the volume is case-insensitive so both resolve, but the mismatch means some code path is not reading the name from the filesystem. **What Lumen did NOT do:** nothing was ingested, no MUSE item files were written, and the fail-counters were left as found — the three transcripts were taken to a scratch copy so the broken state stays reproducible for whoever picks up T003.
 
-## 2026-08-08 — Addressed-to-Lumen captures could be delivered via the new…
+## 2026-08-08 — Addressed-to-Lumen captures could be delivered via the new…    `MOVED → [[MUSE Backlog#^T010|MUSE T010]] (folded into the 2026-08-21 ruling, per that entry's own instruction)`
 
 *from: atticus · tag: note*
 
