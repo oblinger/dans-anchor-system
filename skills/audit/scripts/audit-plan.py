@@ -4728,6 +4728,19 @@ def chk_doc_head_orientation_line(target, anchor_root, args):
                               or comment.match(lines[j])):
         j += 1
 
+    # At-entity form ([[DAS At Entity]] § The opening, settled with Dan 2026-08-29):
+    # an `@Name.md` register page opens breadcrumb -> identity H1 -> the `| Card |`
+    # table, and that facet states outright that "the one-liner slot under the H1 is
+    # not used - the H1 *is* the identity line". Same argument as the simple-facet
+    # form above: the head already says what the file is, so re-stating it in a
+    # sentence is redundant. Keyed to the CARD, deliberately not to the `@` prefix
+    # or the `AT/` path - measured 2026-08-31, 391 of the 482 failing register pages
+    # carry the card and are waived here, while the 91 not yet migrated to the
+    # ratified shape keep failing, which is the advisory doing its job on the tail
+    # of Winnie's migration rather than being switched off across a whole folder.
+    if f.name.startswith("@") and j < len(lines) and lines[j].strip().startswith("| Card"):
+        return "pass", "at-entity form — orientation line waived (the H1 is the identity line)"
+
     def _prose(ln):
         s = ln.strip()
         if not s:
