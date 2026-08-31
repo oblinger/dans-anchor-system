@@ -407,5 +407,68 @@ finally:
     st._GLOBAL_STONES_CACHE = {}
 
 # ============================================================
+print("T. own-page dash alias + the blank first line (2026-08-30)")
+# ============================================================
+import re as _re
+def _ctl(root, slug):
+    trk = root / slug / f"{slug} Track"
+    return next(p for p in trk.rglob("*.md") if not _re.search(r" [PRS]\d{4}\.md$", p.name))
+def _body_first(lines):
+    i = 0
+    if lines and lines[0].strip() == "---":
+        i = 1
+        while i < len(lines) and lines[i].strip() != "---":
+            i += 1
+        i += 1
+    return i
+with tempfile.TemporaryDirectory() as td:
+    root = Path(td)
+    mkanchor(root, "A")
+    mkanchor(root, "B", "feeds: A\n")
+    rc, out, err = quiet(root, "new", "A", "--line", "[[x]] own line")
+    ca = _ctl(root, "A")
+    L = ca.read_text(encoding="utf-8").splitlines()
+    i = _body_first(L)
+    check(L[i] == "" and L[i + 1].startswith("[[A P0001|-]] "),
+          "a fresh control file: blank first body line, then the stone with a DASH alias")
+    check(st.classify_line(L[i + 1], CFG_ALL["pebble"], "A")[:3] == ("stone", "A", "P0001")
+          and st.classify_line(L[i + 1], CFG_ALL["pebble"])[:3] == ("stone", "A", "P0001"),
+          "a numbered dash line reads back to its owner with or without a host (target carries it)")
+    # publish, propagate: the guest copy names its owner in full
+    L.insert(i + 1, st._render_header("A", CFG_ALL["pebble"]))
+    ca.write_text("\n".join(L) + "\n", encoding="utf-8")
+    rc, out, err = quiet(root, "update")
+    cb = _ctl(root, "B")
+    check("[[A P0001|A:]] [[x]] own line" in cb.read_text(encoding="utf-8"),
+          "downstream the same stone shows `A:` — the dash is only for the owner's own pages")
+    # stale aliases (old slug, or the full name on the owner's page) are rewritten by update
+    tb = cb.read_text(encoding="utf-8").replace("[[A P0001|A:]]", "[[A P0001|OLDSLUG:]]")
+    cb.write_text(tb, encoding="utf-8")
+    ta = ca.read_text(encoding="utf-8").replace("[[A P0001|-]]", "- [[A P0001|A:]]")
+    ca.write_text(ta, encoding="utf-8")
+    rc, out, err = quiet(root, "update")
+    check("[[A P0001|A:]] [[x]] own line" in cb.read_text(encoding="utf-8")
+          and "OLDSLUG" not in cb.read_text(encoding="utf-8"),
+          "a stale alias on a guest copy is brought current (whole line compared, not just text)")
+    check("- [[A P0001|-]] [[x]] own line" in ca.read_text(encoding="utf-8"),
+          "the owner's copy goes back to the dash, and a hand-typed list prefix survives")
+    # the blank slot: the user types into it, the next pass opens a fresh one above
+    L = ca.read_text(encoding="utf-8").splitlines()
+    i = _body_first(L)
+    check(L[i] == "", "after update the first body line is still blank")
+    L[i] = "Dan typed a note here"
+    ca.write_text("\n".join(L) + "\n", encoding="utf-8")
+    rc, out, err = quiet(root, "update")
+    L = ca.read_text(encoding="utf-8").splitlines()
+    i = _body_first(L)
+    check(L[i] == "" and L[i + 1] == "Dan typed a note here",
+          "text typed into the slot becomes the first line; a new blank opens above it")
+    rc, out, err = quiet(root, "update")
+    check("0 control file(s) written" in out, "and the pass after that is a no-op (steady state)")
+    # a list that never held a stone gets no file just for the blank
+    check(not (root / "B" / "B Track" / "B Rocks").exists(),
+          "no control file is created merely to hold a blank line")
+
+# ============================================================
 print(f"\n{PASS} passed, {FAIL} failed")
 sys.exit(1 if FAIL else 0)

@@ -136,7 +136,9 @@ def write_control(path, slug, body_lines):
     # then the list. An existing file is never repacked (T618), so fixtures
     # may take any shape; this is just the simplest.
     path.parent.mkdir(parents=True, exist_ok=True)
-    header = ["---", f"description: {slug} Rock — control file", "---"]
+    # The body's first line is blank — the user's typing slot, kept by every
+    # engine write (2026-08-30) — so a fixture in this shape is already settled.
+    header = ["---", f"description: {slug} Rock — control file", "---", ""]
     path.write_text("\n".join(header + body_lines) + "\n", encoding="utf-8")
 
 
@@ -144,8 +146,10 @@ def header_line(slug):
     return st._render_header(slug, CFG)
 
 
-def stone_line(slug, sid, text):
-    return st.render_stone_line(slug, sid, text, CFG)
+def stone_line(slug, sid, text, host=None):
+    """`host` = the anchor whose control file the line sits in; the owner's
+    own pages show a dash for the alias, everyone else's show `SLUG:`."""
+    return st.render_stone_line(slug, sid, text, CFG, host)
 
 
 def run(root, *argv):
@@ -247,7 +251,7 @@ try:
         no(f"stone file missing line:: — {stone_text!r}")
 
     a_text = apath.read_text(encoding="utf-8")
-    if stone_line("A", "R0001", "decide Aria") in a_text:
+    if stone_line("A", "R0001", "decide Aria", host="A") in a_text:
         ok("minted line inserted into A's own control file")
     else:
         no(f"minted line missing from A Rock.md:\n{a_text}")
@@ -304,7 +308,7 @@ try:
 
     # ---- E: unpublish retracts downstream, stays local ------------------
     print("== E: unpublish retracts downstream, stays in owner ==")
-    move_line(apath, "R0001", stone_line("A", "R0002", "gather stats"))
+    move_line(apath, "R0001", stone_line("A", "R0002", "gather stats", host="A"))
     # then hop it above the header entirely
     a_lines = apath.read_text(encoding="utf-8").splitlines()
     i = next(i for i, l in enumerate(a_lines) if "R0001" in l)
@@ -413,7 +417,9 @@ try:
         ok("three projections edited to the SAME text still converge (rc=0)")
     else:
         no(f"agreeing edits were treated as a conflict (rc={rc})")
-    if all(want in p.read_text(encoding="utf-8") for p in (apath, bpath, cpath)):
+    want_own = stone_line("A", "R0002", "agreed-text", host="A")
+    if (want_own in apath.read_text(encoding="utf-8")
+            and all(want in p.read_text(encoding="utf-8") for p in (bpath, cpath))):
         ok("...and every projection equals the stone afterwards (convergence)")
     else:
         no("convergence failed after an agreeing three-way edit")
@@ -577,7 +583,7 @@ try:
     run(lroot, "rock", "new", "POOL", "--line", "a real stone")
     # below POOL's own self-section marker, so it publishes downstream
     write_control(control_path(lroot, "POOL"), "POOL",
-                  [header_line("POOL"), stone_line("POOL", "R0001", "a real stone")])
+                  [header_line("POOL"), stone_line("POOL", "R0001", "a real stone", host="POOL")])
 
     err = io.StringIO()
     with contextlib.redirect_stderr(err):
@@ -617,7 +623,7 @@ try:
     mkanchor(mroot, "DOWN", ["UP"])
     run(mroot, "rock", "new", "UP", "--line", "original text")
     write_control(control_path(mroot, "UP"), "UP",
-                  [header_line("UP"), stone_line("UP", "R0001", "original text")])
+                  [header_line("UP"), stone_line("UP", "R0001", "original text", host="UP")])
     write_control(control_path(mroot, "DOWN"), "DOWN", [header_line("UP")])
     run(mroot, "rock", "update")
 
@@ -762,7 +768,7 @@ try:
     mkanchor(proot, "PB", ["PA"])
     run(proot, "rock", "new", "PA", "--line", "original wording")
     write_control(control_path(proot, "PA"), "PA",
-                  [header_line("PA"), stone_line("PA", "R0001", "original wording")])
+                  [header_line("PA"), stone_line("PA", "R0001", "original wording", host="PA")])
     write_control(control_path(proot, "PB"), "PB", [header_line("PA")])
     run(proot, "rock", "update")   # propagate into PB — all three copies agree
 
@@ -774,7 +780,7 @@ try:
         ok("the downstream edit traveled up to the stone (readback)")
     else:
         no(f"edit did not reach the stone: {pa_stone!r}")
-    if stone_line("PA", "R0001", "edited downstream only") in pa_text:
+    if stone_line("PA", "R0001", "edited downstream only", host="PA") in pa_text:
         ok("the UNTOUCHED owner projection was rewritten to match (resync)")
     else:
         no(f"stale projection survived the pass — resync is dead again:\n{pa_text}")
@@ -835,7 +841,7 @@ try:
     # H1 — and nothing else moves
     run(qroot, "rock", "new", "QQ", "--line", "the second one")
     q_lines = qpath.read_text(encoding="utf-8").splitlines()
-    want = stone_line("QQ", "R0002", "the second one")
+    want = stone_line("QQ", "R0002", "the second one", host="QQ")
     if q_lines[:6] == qlines[:3] + ["", "# QQ Rock", ""] and q_lines[6] == want and "Some prose Dan wrote." in q_lines:
         ok("a new stone is inserted just below the H1; prose and blanks untouched")
     else:
@@ -844,7 +850,7 @@ try:
     qpath.write_text(qpath.read_text(encoding="utf-8") + "\n## New\n\n## Old\n", encoding="utf-8")
     run(qroot, "rock", "new", "QQ", "--line", "the third one")
     q_lines = qpath.read_text(encoding="utf-8").splitlines()
-    want = stone_line("QQ", "R0003", "the third one")
+    want = stone_line("QQ", "R0003", "the third one", host="QQ")
     ni = q_lines.index("## New")
     if q_lines[ni + 1] == "" and q_lines[ni + 2] == want and "## Old" in q_lines[ni + 3:]:
         ok("a `## New` header takes the insert, directly under it")
@@ -873,7 +879,7 @@ try:
     mkanchor(rroot, "RB", ["RA"])
     run(rroot, "rock", "new", "RA", "--line", "original wording")
     write_control(control_path(rroot, "RA"), "RA",
-                  [header_line("RA"), stone_line("RA", "R0001", "original wording")])
+                  [header_line("RA"), stone_line("RA", "R0001", "original wording", host="RA")])
     write_control(control_path(rroot, "RB"), "RB", [header_line("RA")])
     run(rroot, "rock", "update")   # all copies agree
 

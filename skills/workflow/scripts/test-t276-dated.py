@@ -119,11 +119,21 @@ def case_a():
             no(f"expected {f}, folder holds {[p.name for p in folder(root, 'A').glob('*.md')]}")
 
         body = control_path(root, "A").read_text(encoding="utf-8")
-        want = f"[[{SID}|A:]]"
+        want = f"[[{SID}|-]]"
         if want in body:
-            ok("the control line targets the bare dated name and carries the owner in its alias")
+            ok("the control line targets the bare dated name; on the owner's own page "
+               "the alias is the dash (the owner IS the page — 2026-08-30)")
         else:
             no(f"{want!r} not in control file:\n{body}")
+        # The dash reads back to the owner only when the reader says whose
+        # page it is — without a host it is nobody's, never a guess.
+        line = next(l for l in body.splitlines() if want in l)
+        with_host = st.classify_line(line, CFG, "A")
+        without = st.classify_line(line, CFG)
+        if with_host[:3] == ("stone", "A", SID) and without[0] == "other":
+            ok("a dashed dated line is A's when read as A's page, and unowned when read blind")
+        else:
+            no(f"dash read-back: with host {with_host!r}, without {without!r}")
 
 
 # ============================================================

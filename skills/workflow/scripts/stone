@@ -913,7 +913,7 @@ def _dated(cfg: dict) -> bool:
     return cfg.get("member") == "dated"
 
 
-def _alias_owner(alias: str, cfg: dict):
+def _alias_owner(alias: str, cfg: dict, host: str | None = None):
     """The owning slug read back out of a rendered alias, or None.
 
     THIS IS WHERE A DATED STONE'S IDENTITY COMES FROM, and it is the whole
@@ -932,6 +932,11 @@ def _alias_owner(alias: str, cfg: dict):
     """
     if alias is None:
         return None
+    if alias.strip() == OWN_ALIAS:
+        # The dash means "this list's own anchor" — legible only when the
+        # caller says whose list it is reading. Without a host it reads as no
+        # owner at all, which is the honest answer.
+        return host
     pat = re.escape(cfg["stone_alias"]).replace(re.escape("{slug}"), r"(.+?)")
     m = re.fullmatch(pat, alias.strip())
     if not m:
@@ -949,13 +954,14 @@ def _stone_filename(owner: str, sid: str, cfg: dict) -> str:
     return f"{sid}.md" if _dated(cfg) else f"{owner} {sid}.md"
 
 
-def _is_stone_target(target: str, cfg: dict, alias: str = None):
+def _is_stone_target(target: str, cfg: dict, alias: str = None,
+                     host: str | None = None):
     if _dated(cfg):
         # A dated member's sid IS its whole name — date and title together —
         # because that name is the file and there is no number to carry.
         if not _DATED_RE.match(target):
             return None
-        owner = _alias_owner(alias, cfg)
+        owner = _alias_owner(alias, cfg, host)
         return (owner, target) if owner else None
     prefix = cfg["prefix"]
     digits = cfg.get("digits", 4)
@@ -965,9 +971,10 @@ def _is_stone_target(target: str, cfg: dict, alias: str = None):
     return None
 
 
-def classify_line(line: str, cfg: dict):
+def classify_line(line: str, cfg: dict, host: str | None = None):
     """('other',) | ('header', anchor_slug, rest_after_link) |
-    ('stone', owner_slug, sid, line_text)."""
+    ('stone', owner_slug, sid, line_text). `host` is the anchor slug of the
+    list being read — what a dash alias resolves to."""
     m = _FIRST_LINK_RE.match(line)
     if not m:
         return ("other",)
@@ -976,14 +983,14 @@ def classify_line(line: str, cfg: dict):
     hdr_slug = _is_header_target(target, cfg)
     if hdr_slug:
         return ("header", hdr_slug, rest)
-    st = _is_stone_target(target, cfg, m.group(2))
+    st = _is_stone_target(target, cfg, m.group(2), host)
     if st:
         owner, sid = st
         return ("stone", owner, sid, rest.lstrip())
     return ("other",)
 
 
-def classify_stone_chunk(chunk: str, cfg: dict):
+def classify_stone_chunk(chunk: str, cfg: dict, host: str | None = None):
     """Like classify_line but for one comma-separated INLINE entry (no
     trailing content beyond the entry itself is expected)."""
     m = _FIRST_LINK_RE.match(chunk.strip())
@@ -991,7 +998,7 @@ def classify_stone_chunk(chunk: str, cfg: dict):
         return None
     target = m.group(1).strip()
     rest = m.group(3)
-    st = _is_stone_target(target, cfg, m.group(2))
+    st = _is_stone_target(target, cfg, m.group(2), host)
     if not st:
         return None
     owner, sid = st
@@ -1003,9 +1010,26 @@ def _split_inline(payload: str) -> list:
     return [p.strip() for p in re.split(r",\s*(?=\[\[)", payload) if p.strip()]
 
 
-def render_stone_line(owner: str, sid: str, text: str, cfg: dict) -> str:
-    alias = cfg["stone_alias"].format(slug=owner)
-    return f"[[{_stone_link_target(owner, sid, cfg)}|{alias}]] {text}"
+OWN_ALIAS = "-"
+
+
+def _stone_alias(owner: str, cfg: dict, host: str | None = None) -> str:
+    """What the stone's link SHOWS. In a list belonging to the stone's own
+    anchor the alias is a bare dash (Dan, 2026-08-30: "If I'm in the Atticus
+    list, I shouldn't see Atticus colon. I should just see a dash") — the
+    owner is the page, so naming it on every line is noise. Anywhere else the
+    line is a guest and `stone_alias` (`{slug}:`) names who it belongs to.
+    `host` is the anchor slug of the list the line sits in; None means "not
+    known", which renders the full alias — never the dash, because a dash
+    whose host is unknown cannot be read back to an owner."""
+    if host is not None and host == owner:
+        return OWN_ALIAS
+    return cfg["stone_alias"].format(slug=owner)
+
+
+def render_stone_line(owner: str, sid: str, text: str, cfg: dict,
+                      host: str | None = None) -> str:
+    return f"[[{_stone_link_target(owner, sid, cfg)}|{_stone_alias(owner, cfg, host)}]] {text}"
 
 
 def _render_header(owner: str, cfg: dict) -> str:
@@ -1073,17 +1097,17 @@ def _content_start(lines: list) -> int:
     return min(i, len(lines))
 
 
-def _find_all_stone_occurrences(lines: list, cfg: dict) -> set:
+def _find_all_stone_occurrences(lines: list, cfg: dict, host: str | None = None) -> set:
     out = set()
     for line in lines:
-        cls = classify_line(line, cfg)
+        cls = classify_line(line, cfg, host)
         if cls[0] == "stone":
             out.add((cls[1], cls[2]))
         elif cls[0] == "header":
             _head, payload = _header_payload(line, cls[2])
             if payload is not None:
                 for chunk in _split_inline(payload):
-                    sub = classify_stone_chunk(chunk, cfg)
+                    sub = classify_stone_chunk(chunk, cfg, host)
                     if sub:
                         out.add((sub[0], sub[1]))
     return out
@@ -1091,7 +1115,7 @@ def _find_all_stone_occurrences(lines: list, cfg: dict) -> set:
 
 def _add_to_own_top(cf, slug: str, sid: str, st, cfg: dict):
     idx = _content_start(cf.lines)
-    cf.lines.insert(idx, render_stone_line(slug, sid, st.line, cfg))
+    cf.lines.insert(idx, render_stone_line(slug, sid, st.line, cfg, host=slug))
 
 
 def _add_downstream(cf, source_slug: str, additions: list, stones: dict, cfg: dict):
@@ -1102,27 +1126,27 @@ def _add_downstream(cf, source_slug: str, additions: list, stones: dict, cfg: di
     if hdr_idx is None:
         insert_idx = _content_start(cf.lines)
         for owner, sid in additions:
-            cf.lines.insert(insert_idx, render_stone_line(owner, sid, stones[(owner, sid)].line, cfg))
+            cf.lines.insert(insert_idx, render_stone_line(owner, sid, stones[(owner, sid)].line, cfg, host=cf.slug))
             insert_idx += 1
         return
 
     line = cf.lines[hdr_idx]
-    cls = classify_line(line, cfg)
+    cls = classify_line(line, cfg, cf.slug)
     head, payload = _header_payload(line, cls[2])
     if head is not None:
         chunks = _split_inline(payload) if payload else []
         for owner, sid in additions:
-            chunks.append(render_stone_line(owner, sid, stones[(owner, sid)].line, cfg))
+            chunks.append(render_stone_line(owner, sid, stones[(owner, sid)].line, cfg, host=cf.slug))
         cf.lines[hdr_idx] = f"{head}: " + ", ".join(chunks)
         return
 
     # Block form: append after the contiguous run of stone-lines under header.
     end = hdr_idx + 1
-    while end < len(cf.lines) and classify_line(cf.lines[end], cfg)[0] == "stone":
+    while end < len(cf.lines) and classify_line(cf.lines[end], cfg, cf.slug)[0] == "stone":
         end += 1
     insert_idx = end
     for owner, sid in additions:
-        cf.lines.insert(insert_idx, render_stone_line(owner, sid, stones[(owner, sid)].line, cfg))
+        cf.lines.insert(insert_idx, render_stone_line(owner, sid, stones[(owner, sid)].line, cfg, host=cf.slug))
         insert_idx += 1
 
 
@@ -1130,7 +1154,7 @@ def remove_stones(cf, targets: set, cfg: dict):
     """Drop every block line and inline chunk naming a stone in `targets`."""
     new_lines = []
     for line in cf.lines:
-        cls = classify_line(line, cfg)
+        cls = classify_line(line, cfg, cf.slug)
         if cls[0] == "stone":
             if (cls[1], cls[2]) in targets:
                 continue
@@ -1140,7 +1164,7 @@ def remove_stones(cf, targets: set, cfg: dict):
             if payload:
                 kept = []
                 for chunk in _split_inline(payload):
-                    sub = classify_stone_chunk(chunk, cfg)
+                    sub = classify_stone_chunk(chunk, cfg, cf.slug)
                     if sub and (sub[0], sub[1]) in targets:
                         continue
                     kept.append(chunk)
@@ -1228,9 +1252,9 @@ class Gram:
                 return target
         return None
 
-    def stone_target(self, target: str, alias):
+    def stone_target(self, target: str, alias, host: str | None = None):
         for cfg in self.dated_cfgs:
-            hit = _is_stone_target(target, cfg, alias)
+            hit = _is_stone_target(target, cfg, alias, host)
             if hit:
                 return hit
         for prefix, digits in self.pairs:
@@ -1241,8 +1265,10 @@ class Gram:
                 return m.group(1), m.group(2)
         return None
 
-    def classify(self, line: str):
-        """('other',) | ('header', stem, rest) | ('stone', owner, sid, text)."""
+    def classify(self, line: str, host: str | None = None):
+        """('other',) | ('header', stem, rest) | ('stone', owner, sid, text).
+        `host` is the anchor slug of the file being read (a dash alias means
+        that anchor)."""
         m = _FIRST_LINK_RE.match(line)
         if not m:
             return ("other",)
@@ -1251,39 +1277,41 @@ class Gram:
         stem = self.header_target(target)
         if stem:
             return ("header", stem, rest)
-        hit = self.stone_target(target, m.group(2))
+        hit = self.stone_target(target, m.group(2), host)
         if hit:
             return ("stone", hit[0], hit[1], rest.lstrip())
         return ("other",)
 
-    def stone_chunk(self, chunk: str):
+    def stone_chunk(self, chunk: str, host: str | None = None):
         m = _FIRST_LINK_RE.match(chunk.strip())
         if not m:
             return None
-        hit = self.stone_target(m.group(1).strip(), m.group(2))
+        hit = self.stone_target(m.group(1).strip(), m.group(2), host)
         if not hit:
             return None
         return hit[0], hit[1], m.group(3).lstrip()
 
-    def occurrences(self, lines: list) -> set:
+    def occurrences(self, lines: list, host: str | None = None) -> set:
         out = set()
         for line in lines:
-            cls = self.classify(line)
+            cls = self.classify(line, host)
             if cls[0] == "stone":
                 out.add((cls[1], cls[2]))
             elif cls[0] == "header":
                 _head, payload = _header_payload(line, cls[2])
                 if payload is not None:
                     for chunk in _split_inline(payload):
-                        sub = self.stone_chunk(chunk)
+                        sub = self.stone_chunk(chunk, host)
                         if sub:
                             out.add((sub[0], sub[1]))
         return out
 
-    def render(self, st) -> str:
+    def render(self, st, host: str | None = None) -> str:
         """A stone renders with its HOME list's grammar, wherever the line
-        lands — ownership and alias belong to the owner, not the host file."""
-        return render_stone_line(st.slug, st.sid, st.line, st.home_cfg)
+        lands — ownership belongs to the owner, not the host file. The alias
+        is the one host-dependent part: a dash on the owner's own pages, the
+        owner's name everywhere else (`_stone_alias`)."""
+        return render_stone_line(st.slug, st.sid, st.line, st.home_cfg, host)
 
     def find_header(self, lines: list, stem: str):
         for i, line in enumerate(lines):
@@ -1295,7 +1323,7 @@ class Gram:
     def remove(self, cf, targets: set):
         new_lines = []
         for line in cf.lines:
-            cls = self.classify(line)
+            cls = self.classify(line, cf.slug)
             if cls[0] == "stone":
                 if (cls[1], cls[2]) in targets:
                     continue
@@ -1305,7 +1333,7 @@ class Gram:
                 if payload:
                     kept = []
                     for chunk in _split_inline(payload):
-                        sub = self.stone_chunk(chunk)
+                        sub = self.stone_chunk(chunk, cf.slug)
                         if sub and (sub[0], sub[1]) in targets:
                             continue
                         kept.append(chunk)
@@ -1324,23 +1352,23 @@ class Gram:
         if hdr_idx is None:
             insert_idx = _content_start(cf.lines)
             for k in additions:
-                cf.lines.insert(insert_idx, self.render(stones[k]))
+                cf.lines.insert(insert_idx, self.render(stones[k], cf.slug))
                 insert_idx += 1
             return
         line = cf.lines[hdr_idx]
-        cls = self.classify(line)
+        cls = self.classify(line, cf.slug)
         head, payload = _header_payload(line, cls[2])
         if head is not None:
             chunks = _split_inline(payload) if payload else []
-            chunks.extend(self.render(stones[k]) for k in additions)
+            chunks.extend(self.render(stones[k], cf.slug) for k in additions)
             cf.lines[hdr_idx] = f"{head}: " + ", ".join(chunks)
             return
         end = hdr_idx + 1
-        while end < len(cf.lines) and self.classify(cf.lines[end])[0] == "stone":
+        while end < len(cf.lines) and self.classify(cf.lines[end], cf.slug)[0] == "stone":
             end += 1
         insert_idx = end
         for k in additions:
-            cf.lines.insert(insert_idx, self.render(stones[k]))
+            cf.lines.insert(insert_idx, self.render(stones[k], cf.slug))
             insert_idx += 1
 
 
@@ -1412,7 +1440,7 @@ def readback(stones: dict, control: dict, gram: Gram,
     for key in sorted(control):
         cf = control[key]
         for line in cf.lines:
-            cls = gram.classify(line)
+            cls = gram.classify(line, cf.slug)
             if cls[0] == "stone":
                 _t, owner, sid, text = cls
                 occ.setdefault((owner, sid), []).append((key, text))
@@ -1420,7 +1448,7 @@ def readback(stones: dict, control: dict, gram: Gram,
                 _head, payload = _header_payload(line, cls[2])
                 if payload is not None:
                     for chunk in _split_inline(payload):
-                        sub = gram.stone_chunk(chunk)
+                        sub = gram.stone_chunk(chunk, cf.slug)
                         if sub:
                             owner, sid, text = sub
                             occ.setdefault((owner, sid), []).append((key, text))
@@ -1470,18 +1498,28 @@ def readback(stones: dict, control: dict, gram: Gram,
 def resync(stones: dict, control: dict, gram: Gram):
     """Rewrite every projection to match its stone — the second half of the
     convergence contract (readback pulls edits UP, this pushes the settled
-    value back OUT). Regression case P in test-f313-stone.py."""
+    value back OUT). Regression case P in test-f313-stone.py.
+
+    The whole rendered line is compared, not just its text, so a line whose
+    ALIAS has gone stale — an old slug (`ATT:` for Atticus), or the full name
+    where the host's own pages now show a dash — is brought current on the
+    next pass. Anything the user typed before the link (a list dash, indent)
+    is kept."""
     for key in sorted(control):
         cf = control[key]
         for i, line in enumerate(cf.lines):
-            cls = gram.classify(line)
+            cls = gram.classify(line, cf.slug)
             if cls[0] == "stone":
                 _t, owner, sid, text = cls
                 st = stones.get((owner, sid))
-                if st is not None and text != st.line:
-                    cf.lines[i] = gram.render(st)
+                if st is None:
+                    continue
+                pre = line[:line.index("[[")]
+                want = pre + gram.render(st, cf.slug)
+                if line != want:
+                    cf.lines[i] = want
         for i, line in enumerate(cf.lines):
-            cls = gram.classify(line)
+            cls = gram.classify(line, cf.slug)
             if cls[0] != "header":
                 continue
             head, payload = _header_payload(line, cls[2])
@@ -1490,12 +1528,12 @@ def resync(stones: dict, control: dict, gram: Gram):
             new_chunks = []
             any_diff = False
             for chunk in _split_inline(payload):
-                sub = gram.stone_chunk(chunk)
+                sub = gram.stone_chunk(chunk, cf.slug)
                 if sub:
                     owner, sid, text = sub
                     st = stones.get((owner, sid))
                     if st is not None:
-                        nc = gram.render(st)
+                        nc = gram.render(st, cf.slug)
                         if nc != chunk:
                             any_diff = True
                         new_chunks.append(nc)
@@ -1518,7 +1556,7 @@ def compute_published(key, cf, stones: dict, gram: Gram) -> list:
     for i, line in enumerate(cf.lines):
         if i <= hdr_idx:
             continue
-        cls = gram.classify(line)
+        cls = gram.classify(line, cf.slug)
         if cls[0] == "stone":
             st = stones.get((cls[1], cls[2]))
             if st is not None and st.live:
@@ -1527,7 +1565,7 @@ def compute_published(key, cf, stones: dict, gram: Gram) -> list:
             _head, payload = _header_payload(line, cls[2])
             if payload is not None:
                 for chunk in _split_inline(payload):
-                    sub = gram.stone_chunk(chunk)
+                    sub = gram.stone_chunk(chunk, cf.slug)
                     if sub:
                         st = stones.get((sub[0], sub[1]))
                         if st is not None and st.live:
@@ -1550,7 +1588,7 @@ def reconcile_own(key, stones: dict, control: dict, gram: Gram, stats: dict,
         st = stones[(slug, sid)]
         if not st.live:
             continue
-        present = (slug, sid) in gram.occurrences(cf.lines)
+        present = (slug, sid) in gram.occurrences(cf.lines, slug)
         if present:
             continue
         if slug in st.appears:
@@ -1564,7 +1602,7 @@ def reconcile_own(key, stones: dict, control: dict, gram: Gram, stats: dict,
                 _archive_stone(st)
             stats["archived"] += 1
         else:
-            cf.lines.insert(_content_start(cf.lines), gram.render(st))
+            cf.lines.insert(_content_start(cf.lines), gram.render(st, slug))
             st.appears.add(slug)
 
 
@@ -1588,7 +1626,7 @@ def propagate_in(key, edges: dict, stones: dict, control: dict,
     )
     desired.update(enrolled_here)
 
-    existing = gram.occurrences(cf.lines)
+    existing = gram.occurrences(cf.lines, slug)
     to_remove = {(o, s) for (o, s) in existing if o != slug and (o, s) not in desired}
     if to_remove:
         gram.remove(cf, to_remove)
@@ -1601,7 +1639,7 @@ def propagate_in(key, edges: dict, stones: dict, control: dict,
             if st_ is not None:
                 st_.appears.discard(slug)
 
-    existing_after = gram.occurrences(cf.lines)
+    existing_after = gram.occurrences(cf.lines, slug)
     for src in sources:
         adds = [k for k in published.get(src, []) if k not in existing_after]
         if not adds:
@@ -1609,14 +1647,14 @@ def propagate_in(key, edges: dict, stones: dict, control: dict,
         gram.add_downstream(cf, src, adds, stones)
         for k in adds:
             stones[k].appears.add(slug)
-        existing_after = gram.occurrences(cf.lines)
+        existing_after = gram.occurrences(cf.lines, slug)
     for k in enrolled_here:
         if k in existing_after:
             continue
         # Filed under the owner's header if the target keeps one, else the top.
         gram.add_downstream(cf, stones[k].home, [k], stones)
         stones[k].appears.add(slug)
-        existing_after = gram.occurrences(cf.lines)
+        existing_after = gram.occurrences(cf.lines, slug)
 
 
 # --------------------------------------------------------------------------
@@ -1627,7 +1665,31 @@ def _default_control_lines(slug: str, cfg: dict) -> list:
     # list file, no header to it"). Only the default is shaped: an existing
     # file is never repacked (T618) — see _content_start.
     control_name = cfg["control"].format(slug=slug)
-    return ["---", f"description: {control_name} — control file", "---"]
+    return ["---", f"description: {control_name} — control file", "---", ""]
+
+
+def _body_start(lines: list) -> int:
+    """Index of the first line after the frontmatter block, or 0."""
+    if lines and lines[0].strip() == "---":
+        i = 1
+        while i < len(lines) and lines[i].strip() != "---":
+            i += 1
+        return min(i + 1, len(lines))
+    return 0
+
+
+def _ensure_leading_blank(lines: list) -> None:
+    """The first line of a control file's body is always blank (Dan,
+    2026-08-30): it is the user's place to type. Whatever they put there
+    becomes the first line, and the next pass puts a fresh blank above it —
+    so the slot is never used up. Only the engine's write paths call this;
+    an empty (nonexistent) file is left empty, since writing a lone blank
+    would create control files for every list that has never held a stone."""
+    if not lines:
+        return
+    i = _body_start(lines)
+    if i >= len(lines) or lines[i].strip() != "":
+        lines.insert(i, "")
 
 
 def _mint_warnings(cf, slug: str, sid: str, keys: list, cfg: dict) -> list:
@@ -1650,8 +1712,8 @@ def _mint_warnings(cf, slug: str, sid: str, keys: list, cfg: dict) -> list:
     hdr = _find_header_index(cf.lines, slug, cfg)
     if hdr is not None:
         try:
-            own = next(i for i, l in enumerate(cf.lines) if f"|{slug}" in l
-                       and sid in l)
+            own = next(i for i, l in enumerate(cf.lines)
+                       if classify_line(l, cfg, slug)[:3] == ("stone", slug, sid))
         except StopIteration:
             own = None
         if own is not None and own < hdr:
@@ -1736,6 +1798,7 @@ def cmd_new(kind, root: Path, args) -> int:
     lines = cpath.read_text(encoding="utf-8").splitlines() if cpath.is_file() else _default_control_lines(slug, cfg)
     cf = SimpleNamespace(slug=slug, path=cpath, lines=lines)
     _add_to_own_top(cf, slug, sid, st, cfg)
+    _ensure_leading_blank(cf.lines)
     cpath.write_text("\n".join(cf.lines) + "\n", encoding="utf-8")
 
     st.appears.add(slug)
@@ -1747,7 +1810,7 @@ def cmd_new(kind, root: Path, args) -> int:
     return 0
 
 
-def _stone_run(lines: list, idx: int, cfg: dict) -> tuple:
+def _stone_run(lines: list, idx: int, cfg: dict, host: str | None = None) -> tuple:
     """(start, end) of the contiguous run of stone-lines containing `idx`.
 
     The run — not the file — is the unit a move may travel within. A control
@@ -1758,18 +1821,19 @@ def _stone_run(lines: list, idx: int, cfg: dict) -> tuple:
     means the file's structure decides what `--to-top` means, and the caller
     cannot ask for something the format does not mean."""
     start = idx
-    while start > 0 and classify_line(lines[start - 1], cfg)[0] == "stone":
+    while start > 0 and classify_line(lines[start - 1], cfg, host)[0] == "stone":
         start -= 1
     end = idx
-    while end + 1 < len(lines) and classify_line(lines[end + 1], cfg)[0] == "stone":
+    while end + 1 < len(lines) and classify_line(lines[end + 1], cfg, host)[0] == "stone":
         end += 1
     return start, end
 
 
-def _locate_stone(lines: list, sid: str, owner: str | None, cfg: dict) -> int:
+def _locate_stone(lines: list, sid: str, owner: str | None, cfg: dict,
+                  host: str | None = None) -> int:
     """Index of the block line carrying `sid`, or raise naming what it found."""
     hits = [(i, cls[1]) for i, line in enumerate(lines)
-            for cls in (classify_line(line, cfg),)
+            for cls in (classify_line(line, cfg, host),)
             if cls[0] == "stone" and cls[2] == sid
             and (owner is None or cls[1] == owner)]
     if len(hits) == 1:
@@ -1779,12 +1843,12 @@ def _locate_stone(lines: list, sid: str, owner: str | None, cfg: dict) -> int:
         # present but not on a line of its own must say so rather than read as
         # absent — the two need different fixes and only one is a typo.
         for i, line in enumerate(lines):
-            cls = classify_line(line, cfg)
+            cls = classify_line(line, cfg, host)
             if cls[0] != "header":
                 continue
             _head, payload = _header_payload(line, cls[2])
             for chunk in _split_inline(payload or ""):
-                sub = classify_stone_chunk(chunk, cfg)
+                sub = classify_stone_chunk(chunk, cfg, host)
                 if sub and sub[1] == sid and (owner is None or sub[0] == owner):
                     raise StoneError(
                         f"stone: {sid} sits inside the inline header on line "
@@ -1819,8 +1883,8 @@ def cmd_move(kind, root: Path, args) -> int:
         raise StoneError(f"stone: {cpath} does not exist — nothing to reorder")
     lines = cpath.read_text(encoding="utf-8").splitlines()
 
-    src = _locate_stone(lines, args.stone, args.owner, cfg)
-    start, end = _stone_run(lines, src, cfg)
+    src = _locate_stone(lines, args.stone, args.owner, cfg, slug)
+    start, end = _stone_run(lines, src, cfg, slug)
 
     if args.to_top:
         dest = start
@@ -1828,7 +1892,7 @@ def cmd_move(kind, root: Path, args) -> int:
         dest = end
     else:
         ref_id = args.after or args.before
-        ref = _locate_stone(lines, ref_id, None, cfg)
+        ref = _locate_stone(lines, ref_id, None, cfg, slug)
         if not (start <= ref <= end):
             raise StoneError(
                 f"stone: {args.stone} and {ref_id} are not in the same run of "
@@ -1846,10 +1910,10 @@ def cmd_move(kind, root: Path, args) -> int:
         print(f"stone: {args.stone} is already there — {cpath.name} unchanged")
         return 0
 
-    before = _find_all_stone_occurrences(lines, cfg)
+    before = _find_all_stone_occurrences(lines, cfg, slug)
     line = lines.pop(src)
     lines.insert(dest, line)
-    after = _find_all_stone_occurrences(lines, cfg)
+    after = _find_all_stone_occurrences(lines, cfg, slug)
     # A reorder that loses or duplicates a stone is a corruption of a
     # machine-maintained file, and the next `update` would propagate it. Cheap
     # to assert, and the only assertion that catches an off-by-one here.
@@ -1859,6 +1923,7 @@ def cmd_move(kind, root: Path, args) -> int:
             f"file names ({len(before)} -> {len(after)}). This is a bug in "
             f"`stone move`; {cpath} is untouched")
 
+    _ensure_leading_blank(lines)
     cpath.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(f"stone: moved {args.stone} from line {src + 1} to line {dest + 1} "
           f"in {cpath.name}")
@@ -1987,6 +2052,7 @@ def cmd_update(kind, root: Path, args) -> int:
 
     n_files = 0
     for cf in control.values():
+        _ensure_leading_blank(cf.lines)
         original = cf.path.read_text(encoding="utf-8") if cf.exists else None
         new_text = "\n".join(cf.lines) + ("\n" if cf.lines else "")
         if new_text != (original or ""):
@@ -2158,7 +2224,7 @@ def cmd_push(kind, root: Path, args) -> int:
     cpath = _control_path(tgt.path, target, tgt_cfg)
     lines = _control_lines(cpath, target, cfg)
     cf = SimpleNamespace(slug=target, path=cpath, lines=lines)
-    present = (owner, sid) in _find_all_stone_occurrences(lines, cfg)
+    present = (owner, sid) in _find_all_stone_occurrences(lines, cfg, target)
     already = target in st.enrolled
     if already and present:
         print(f"stone: {owner} {sid} is already enrolled with {target} — "
@@ -2166,6 +2232,7 @@ def cmd_push(kind, root: Path, args) -> int:
         return 0
     if not present:
         _add_downstream(cf, owner, [(owner, sid)], {(owner, sid): st}, cfg)
+        _ensure_leading_blank(cf.lines)
         cpath.parent.mkdir(parents=True, exist_ok=True)
         cpath.write_text("\n".join(cf.lines) + "\n", encoding="utf-8")
     st.enrolled.add(target)
@@ -2195,7 +2262,7 @@ def cmd_recall(kind, root: Path, args) -> int:
     if cpath.is_file():
         lines = cpath.read_text(encoding="utf-8").splitlines()
         cf = SimpleNamespace(slug=target, path=cpath, lines=lines)
-        if (owner, sid) in _find_all_stone_occurrences(lines, cfg):
+        if (owner, sid) in _find_all_stone_occurrences(lines, cfg, target):
             # Only when the line is there by enrollment alone: a copy that
             # feeds: would put straight back stays, and the receipt says so.
             if target in _fed_targets(anchors, owner):
