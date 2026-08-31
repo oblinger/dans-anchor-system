@@ -2148,6 +2148,7 @@ def _row_define(slug, backlog_path, label, args, minted=False, raw_override=None
     else:
         horizon = "Now"
 
+    created_doc = None
     # F614 — a NEW T row gets its doc here, in the same call that mints it.
     # The body the caller wrote becomes the doc's Summary; the row keeps the
     # pointer and the F332 derived line. An `--inline` define is refused: the
@@ -2156,11 +2157,15 @@ def _row_define(slug, backlog_path, label, args, minted=False, raw_override=None
     if (label.startswith("T") and not exists
             and not be.is_derived_row_body(row_body)
             and not any(_ROW_Q_HEADER_RE.match(l) for l in sub_lines)):
+        ddir = _t_doc_dir(backlog_path)
+        before = set(ddir.glob("*.md")) if ddir.is_dir() else set()
         doc = mint_task_doc(backlog_path, label, title, row_body, status,
                             next_text=next_text, verify_text=verify_text,
                             user_text=user_text, subs=sub_lines)
         print(f"{slug}: minted {doc.name} for {label} (F614 — the row is its pointer)",
               file=sys.stderr)
+        if doc not in before:
+            created_doc = doc
         row_body = f"→ [[{doc.stem}|{label}]]"
         sub_lines = []
 
@@ -2168,15 +2173,28 @@ def _row_define(slug, backlog_path, label, args, minted=False, raw_override=None
     # SAME write as the row — attaching them after _delegate_row_edit let the
     # in-delegate refresh_q_md audit a sub-bullet-less row (C24 --fix then
     # rebracketed a fresh [Questions] T-row to [Ready]; bit T010 2026-07-13).
-    return _delegate_row_edit(
-        slug, horizon, label, status, title, row_body,
-        title_provided=True, body_provided=True,
-        verify_text=verify_text, next_text=next_text,
-        pending_subs=sub_lines,
-        why_user=getattr(args, "why_user", None),
-        user_text=user_text,
-        why_user_action=getattr(args, "why_user_action", None),
-    )
+    try:
+        return _delegate_row_edit(
+            slug, horizon, label, status, title, row_body,
+            title_provided=True, body_provided=True,
+            verify_text=verify_text, next_text=next_text,
+            pending_subs=sub_lines,
+            why_user=getattr(args, "why_user", None),
+            user_text=user_text,
+            why_user_action=getattr(args, "why_user_action", None),
+        )
+    except BaseException:
+        # T630 (Winnie, 2026-08-30) — the doc was written BEFORE the row's
+        # bracket contract ran, so a refused `[User]` / `[Questions]` row left
+        # an orphan doc that HookAnchor then indexed into the anchor page and
+        # audit-q reported as C22, blocking a crank's exit handshake. The
+        # gates are right to refuse; a define is all-or-nothing, so the doc
+        # this call created goes with the row it never got.
+        if created_doc is not None and created_doc.is_file():
+            created_doc.unlink()
+            print(f"{slug}: rolled back {created_doc.name} — the row was refused, "
+                  f"so the doc minted for it is withdrawn (T630)", file=sys.stderr)
+        raise
 
 
 # ------------------------------------------------------------------
@@ -4005,12 +4023,32 @@ def _backlog_sha256(backlog_path):
     return hashlib.sha256(backlog_path.read_bytes()).hexdigest()
 
 
+def _track_dir(backlog_path, slug):
+    """The `{slug} Track/` folder that owns a backlog. Flat form: the backlog's
+    own parent. F614 folder form (`{slug} Track/{slug} Backlog/{slug} Backlog.md`):
+    one level up. Walk the parents for the folder by name; fall back to the
+    parent so a non-standard layout still reads where it always did."""
+    for p in [backlog_path.parent, *backlog_path.parents]:
+        if p.name == f"{slug} Track":
+            return p
+    return backlog_path.parent
+
+
 def _read_banner_counts(backlog_path, slug):
     """Ready/Questions/Verify counts scraped from the rendered `{slug} queries.md`
     banner H1. Single source of truth shared by cmd_triage / cmd_groom_list /
     cmd_summary_line, so the canonical line always matches what the user sees in
-    queries.md / Q.md — the banner itself is produced upstream by queries-render.py."""
-    queries_path = backlog_path.parent / f"{slug} queries.md"
+    queries.md / Q.md — the banner itself is produced upstream by queries-render.py.
+
+    T629 (Winnie, 2026-08-30): this used to read `backlog_path.parent`, which
+    F614 turned into the backlog FOLDER — so every folder-form anchor scraped a
+    path that does not exist, the F250 re-render landed one level up, and every
+    count defaulted to 0. A permanent `Ready 0` is precisely the evidence crank
+    accepts in order to stop, so the failure was self-concealing. The render now
+    resolves against the Track folder, and an empty scrape REFUSES instead of
+    reporting zeros — a zero that cannot be told from a missing instrument is
+    not evidence of an empty queue."""
+    queries_path = _track_dir(backlog_path, slug) / f"{slug} queries.md"
     # F250 #9 (→ F254 C3) — never scrape a stale/absent render as authoritative.
     # cmd_triage re-renders before reading; cmd_summary_line / cmd_groom_list did
     # not, so a queries.md older than (or missing for) the current backlog fed
@@ -4035,6 +4073,11 @@ def _read_banner_counts(backlog_path, slug):
             if qline.startswith("# "):  # banner H1 (frontmatter precedes it)
                 banner = qline
                 break
+    if not banner:
+        raise be.BacklogEditError(
+            f"no banner H1 to read in {queries_path} — refusing to report counts "
+            f"(they would all read 0, which is indistinguishable from an empty "
+            f"queue). Run `queries-render.py {slug}` and check where it writes.")
     counts = {}
     for key, rx in _BANNER_NUM_RE.items():
         bm = rx.search(banner)

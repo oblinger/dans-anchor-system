@@ -385,11 +385,30 @@ def read_doc_next(doc_path):
     return None
 
 
+# A struck-through pointer — `→ ~~[[Old Name|T241]]~~` — with the dash that
+# joined it to what follows. Left in doc fields by the F614 renames, which
+# carried the old row body (struck link included) into the doc's `next::` /
+# description / Summary, so every regeneration wrote the dead pointer back
+# onto the row (T632, Atticus 2026-08-30: 9 rows, all with a live pointer
+# already in front). A struck pointer is never meaningful content.
+_STRUCK_POINTER_RE = re.compile(r"→\s*~~\[\[[^\]]*\]\]~~\s*(?:[—–-]\s*)?")
+
+
+def _strip_struck_pointers(text):
+    """`text` with every struck pointer removed, or None when nothing is left."""
+    if not text or "~~[[" not in text:
+        return text or None
+    out = _STRUCK_POINTER_RE.sub("", text).strip()
+    out = re.sub(r"^[—–-]\s*", "", out).strip()
+    return out or None
+
+
 def doc_derived_line(doc_path):
     """F332 — the one derived line a pure-link backlog row carries: the doc's
     `next::` field, falling back to its frontmatter `description:`, falling
-    back to the orientation line under the H1. None when nothing usable."""
-    nxt = read_doc_next(doc_path)
+    back to the orientation line under the H1. None when nothing usable.
+    A struck pointer inside any of the three is dropped (T632)."""
+    nxt = _strip_struck_pointers(read_doc_next(doc_path))
     if nxt:
         return nxt
     head = _doc_head(doc_path)
@@ -401,13 +420,16 @@ def doc_derived_line(doc_path):
             if l.strip() == "---":
                 break
             if l.startswith("description:"):
-                desc = l[len("description:"):].strip().strip('"').strip()
+                desc = _strip_struck_pointers(
+                    l[len("description:"):].strip().strip('"').strip())
                 if desc:
                     return desc
     if h1_idx + 1 < len(lines):
         orient = lines[h1_idx + 1].strip()
         if orient and not orient.startswith(("#", ">", "next::", "|", ":>>")):
-            return orient
+            orient = _strip_struck_pointers(orient)
+            if orient:
+                return orient
     return None
 
 

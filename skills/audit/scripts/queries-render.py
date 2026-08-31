@@ -179,7 +179,15 @@ QMD_BANNER_RE_TEMPLATE = (
     # always `{slug}`; that's what we match on. Critical for the dedupe step:
     # without this, a fresh regen at the top wouldn't recognize an older OLD
     # header with a different link target, leaving the OLD section orphaned.
-    r"^# \[[^\]]*\]\s+(?:\[\[[^|\]]+\|" r"{name}" r"\]\]|" r"{name}" r")(?:\s|$)"
+    # T631 (Winnie, 2026-08-30): the label alone was NOT enough. The eight
+    # Staff agents renamed from ALL-CAPS slugs each left an orphan section —
+    # `[[Atticus queries|ATT]]` beside `[[Atticus queries|Atticus]]` — with
+    # counts frozen on rename day, because a render keyed on the new label
+    # never recognized the old one. The link TARGET is stable across a
+    # relabel, so a section is also this anchor's when its H1 links to
+    # `{name} queries` (or `{name} Triage`) under any display label.
+    r"^# \[[^\]]*\]\s+(?:\[\[(?:[^|\]]+\|" r"{name}" r"|" r"{name}"
+    r" (?:queries|Triage)(?:\|[^\]]*)?)\]\]|" r"{name}" r")(?:\s|$)"
 )
 
 # ============================================================

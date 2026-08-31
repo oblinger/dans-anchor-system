@@ -25,7 +25,7 @@ Nothing below this line is part of the example. Above it is a stone-group folder
 
 -[[HBR Rocks|HBR]]-
 ACTIVE
-[[HBR R0001|HBR:]] gather stats
-[[HBR R0002|HBR:]] settle the codec matrix
+[[HBR R0001|-]] gather stats
+[[HBR R0002|-]] settle the codec matrix
 SOON
-[[HBR R0003|HBR:]] pick a metrics backend
+[[HBR R0003|-]] pick a metrics backend
