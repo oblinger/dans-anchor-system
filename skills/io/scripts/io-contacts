@@ -7,6 +7,7 @@
 #   io-contacts search <substring>   one line per match:  NAME <tab> ORG
 #   io-contacts show   <substring>   full record(s): name, org, emails, phones, born
 #   io-contacts count                total people in the database
+#   io-contacts list                 everyone:  NAME <tab> ORG <tab> EMAILS <tab> PHONES
 #
 # A zero from search/show also prints the corpus size and exits 1. A zero that
 # cannot be told apart from a broken reader is not evidence of absence.
@@ -14,6 +15,7 @@
 # No auth, no token: Contacts is a local TCC surface like ical/imail, which is
 # why it outranks any server-side contacts API. Read-only by design -- writing
 # to a shared address book is not something an agent should do in passing.
+# (A write path is being designed against a git-backed dump -- see CONTACTS.)
 #
 # Every AppleScript here is wrapped in `with timeout` (default 30s). Without one
 # an Apple Event dies at the 120s default and reports NOTHING, which is how a

@@ -32,11 +32,11 @@ This is what *most* project anchors look like: Masthead only.
 
 ## 2 — Member groups with `+` ([[DAS Skills]])
 
-`[[DAS]]` is the user-facing skill library — a [[Collection]] with **many** members (every published skill), so it uses **member groups**: rows like [[DVT|Anchor]], [[Devtools Hygiene|Hygiene]], [[Devtools Doc|Doc]], [[Devtools Search|Search]] — each with a trailing `+`. The **`+`** marks each group row as *expandable* — it's itself a dispatch page of its members. This is the > 15 grouped layout (the [[progressive-disclosure]] size rule; the graduation from flat→grouped is [[granularity]]).
+`[[DAS]]` is the user-facing skill library — a [[Collection]] with **many** members (every published skill), so it uses **member groups**: rows like [[DVT|Anchor]], ~~[[Devtools Hygiene|Hygiene]]~~, ~~[[Devtools Doc|Doc]]~~, ~~[[Devtools Search|Search]]~~ — each with a trailing `+`. The **`+`** marks each group row as *expandable* — it's itself a dispatch page of its members. This is the > 15 grouped layout (the ~~[[progressive-disclosure]]~~ size rule; the graduation from flat→grouped is ~~[[granularity]]~~).
 
 ## 3 — Flat member list ([[BRDG|Bridges]])
 
-`[[BRDG|Bridges]]` is a small [[Collection]] (the crossing helpers). Few members → a **flat member list**, one row per member: [[Espresso]], [[Knots]], [[Snap]], [[Clarifier]]. Hand-ordered (manual). No grouping, no `+` — when a collection is small, the flat list is correct; it graduates to member groups only past ~15 ([[granularity]]).
+`[[BRDG|Bridges]]` is a small [[Collection]] (the crossing helpers). Few members → a **flat member list**, one row per member: [[Espresso]], [[Knots]], [[Snap]], [[Clarifier]]. Hand-ordered (manual). No grouping, no `+` — when a collection is small, the flat list is correct; it graduates to member groups only past ~15 (~~[[granularity]]~~).
 
 ## 4 — Hybrid: manual rows + `...` auto-staging ([[HBR]])
 
@@ -44,7 +44,7 @@ This is what *most* project anchors look like: Masthead only.
 
 ## 5 — With a figure ([[FEX Figure Page]])
 
-`[[FEX Figure Page]]` shows the **page ordering when an anchor page carries a figure** — orthogonal to the four layouts above (any of them can carry a figure). Justified by [[progressive-disclosure]], top to bottom: **H1** (`<slug> - <Name>`) → **one line** saying *what the page is* (broadest stroke; an optional Overview may follow) → **the figure**, with *no title above it* → **the dispatch table** directly below. When a figure is present it's typically the page's link surface — the picture carries no clickable links, so the table supplies the navigation it can't.
+`[[FEX Figure Page]]` shows the **page ordering when an anchor page carries a figure** — orthogonal to the four layouts above (any of them can carry a figure). Justified by ~~[[progressive-disclosure]]~~, top to bottom: **H1** (`<slug> - <Name>`) → **one line** saying *what the page is* (broadest stroke; an optional Overview may follow) → **the figure**, with *no title above it* → **the dispatch table** directly below. When a figure is present it's typically the page's link surface — the picture carries no clickable links, so the table supplies the navigation it can't.
 
 ## How these map to the axes
 

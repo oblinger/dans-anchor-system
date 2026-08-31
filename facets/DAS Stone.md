@@ -60,7 +60,7 @@ This facet previously described the control file as *hand-arranged* in three pla
 
 **What this does NOT license.** A generated control file still may not invent an ordering the source does not carry: if the sort key is a date, the file is sorted by date and nothing else, so a reader can reconstruct it. And the merged `{node} Stones.md` at a feed node was already generated before this ruling — the precedent was half-established; this completes it rather than opening a door.
 
-**The graph-sizing rule is a different rule and is untouched.** [[Stones]] says *"create a stone group only when you are willing to sit down and rank that anchor's work against itself."* That governs **how many hand-kept surfaces the graph should have**, not what a stone is. Reading it as an object-model constraint is what briefly disqualified [[Traffic]] from being a stone node on 2026-08-28; [[Sonar|Sonar]] published that argument and withdrew it the same day. A group whose order is derived costs a human nothing to keep, so the sizing rule does not bear on it at all.
+**The graph-sizing rule is a different rule and is untouched.** [[STONE|Stones]] says *"create a stone group only when you are willing to sit down and rank that anchor's work against itself."* That governs **how many hand-kept surfaces the graph should have**, not what a stone is. Reading it as an object-model constraint is what briefly disqualified [[TRAFFIC|Traffic]] from being a stone node on 2026-08-28; [[Sonar|Sonar]] published that argument and withdrew it the same day. A group whose order is derived costs a human nothing to keep, so the sizing rule does not bear on it at all.
 
 ## The one idea everything else follows from
 

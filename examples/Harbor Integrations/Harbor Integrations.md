@@ -6,7 +6,7 @@ description: "the third-party systems Harbor talks to — one page per integrati
 | --- | --- |
 | Related | [[Harbor Tenancy Model]],  [[Harbor Latency Budget]],  [[HRUN\|Harbor Runbooks]],  [[Harbor Releases]],   |
 | Docs | [[FEX Architecture\|Architecture]],  [[FEX API Design\|API]],  [[Harbor Whitepaper\|Whitepaper]],   |
-| Owners | [[Espresso]],  [[Snap]],  [[Knots]],  ~~[[Devtools Observe\|Observe]]~~,   |
+| Owners | [[Espresso]],  [[Snap]],  [[Knots]],  [[Devtools Observe\|Observe]],   |
 | Pinned | [[Harbor Runbook Egress Stall]],  [[Harbor Account Northwind]],   |
 | ... | [[Harbor Integration Cloudflare]],  [[Harbor Integration Okta]],  [[Harbor Integration PagerDuty]],  [[Harbor Integration S3]],  [[Harbor Integration Stripe]],   |
 
