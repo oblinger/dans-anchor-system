@@ -44,7 +44,7 @@ This is a discipline, not a user-invocable skill — other DAS facets and skills
 
 
 
-**Site-specific extensions.** A vault may specialize this facet for its own user in that vault's agent-conventions page, in a section keyed to this facet's exact name. Nothing here assumes one exists; when it does, it refines this spec and never overrides a declared pointer. In this vault that page is [[Agent Conventions]] § DAS progressive-disclosure.
+**Site-specific extensions.** A vault may specialize this facet for its own user in that vault's agent-conventions page, in a section keyed to this facet's exact name. Nothing here assumes one exists; when it does, it refines this spec and never overrides a declared pointer. In this vault that page is [[DAS Conventions]] § DAS progressive-disclosure.
 
 ## Why this exists — the problem it solves
 

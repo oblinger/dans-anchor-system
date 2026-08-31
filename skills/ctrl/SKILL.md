@@ -17,7 +17,7 @@ subsystem:: [[DAS Utility Design]] — the Utility group's subsystem profile
 
 Control the local macOS environment: persistent tmux shell sessions, browser automation against both Safari and your real Chrome, and direct screen control.
 
-> **Directing the user on a live website?** [[Agent Conventions]] § "ctrl — directing the user on a live website" binds you: never recite a web-UI path from memory — verify the URL by visiting it and confirming the expected content, or research / screen-read / drive instead.
+> **Directing the user on a live website?** [[AREC Interface directions]] binds you: never recite a web-UI path from memory — verify the URL by visiting it and confirming the expected content, or research / screen-read / drive instead.
 
 **The one thing to know first:** the three browser families are *not* interchangeable, because they
 hold **different cookie jars**. Safari (`jpage`) and Chrome (`cpage`) are separate logins, and the

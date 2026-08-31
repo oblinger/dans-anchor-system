@@ -46,7 +46,7 @@ TITLE_MODEL="${VOX_TITLE_MODEL:-claude-haiku-4-5-20251001}"
 # when an API key is present; on any failure the doc is written with just the
 # transcript. A more capable model than the title step (this is a real
 # summarization task, not a 3-word label).
-OVERVIEW_MODEL="${VOX_OVERVIEW_MODEL:-claude-sonnet-4-6}"
+OVERVIEW_MODEL="${VOX_OVERVIEW_MODEL:-claude-sonnet-5}"
 OVERVIEW_MAX_TOKENS="${VOX_OVERVIEW_MAX_TOKENS:-8000}"
 
 # Retention: after filing, sweep VOX_DIR and delete OLD AUDIO (the large

@@ -126,18 +126,9 @@ osacompile -o "$HOME/Library/Application Scripts/com.apple.mail/ob_process_email
            "$HOME/.claude/skills/vox/scripts/vox-process.applescript"
 ```
 
-```
-# 2. Wire the Mail rule once in Mail ▸ Settings ▸ Rules ▸ Add Rule:
-#      Description : VOX voice memo
-#      If          : Subject Contains  VOX
-#      Perform     : Run AppleScript   ob_process_email
-```
+2. Wire the Mail rule once in Mail ▸ Settings ▸ Rules ▸ Add Rule — Description: `VOX voice memo`; If: `Subject Contains VOX`; Perform: `Run AppleScript ob_process_email`.
 
-```
-# 3. Make sure attachments download locally so the AppleScript can save them.
-#    Mail ▸ Settings ▸ Accounts ▸ <your account> ▸ Account Information
-#      → Download Attachments: All
-```
+3. Make sure attachments download locally so the AppleScript can save them: Mail ▸ Settings ▸ Accounts ▸ your account ▸ Account Information → Download Attachments: `All`.
 
 ```
 # 4. Make sure the Anthropic API key is readable for the title-derivation step.
@@ -181,7 +172,7 @@ A symlink at `~/ob/bin/ob_process_email → ~/.claude/skills/vox/scripts/vox-pro
 | `VOX_MIN_TRANSCRIPT_CHARS` | `100` | Smallest "non-trivial" transcript that allows pruning the paired audio |
 | `VOX_TINY_MP3_BYTES` | `51200` | `.m4a` smaller than this is treated as failed/empty — deleted unconditionally when old |
 | `VOX_TITLE_MODEL` | `claude-haiku-4-5-20251001` | Anthropic model for title derivation |
-| `VOX_OVERVIEW_MODEL` | `claude-sonnet-4-6` | Anthropic model for the TO-DOs + Overview header |
+| `VOX_OVERVIEW_MODEL` | `claude-sonnet-5` | Anthropic model for the TO-DOs + Overview header |
 | `VOX_OVERVIEW_MAX_TOKENS` | `8000` | Max output tokens for the overview generation |
 | `ANTHROPIC_API_KEY` / `KEYS_BIN` | env, then `~/ob/bin/keys` | Title/overview API key: the env var first; the keys store when it is empty or rejected with `authentication_error` |
 | `WHISPER_BIN` | `/opt/homebrew/bin/whisper-cli` | whisper.cpp CLI path |

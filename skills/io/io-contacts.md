@@ -2,7 +2,7 @@
 
 Read the local macOS **Contacts** database through one defined script, never hand-written AppleScript. No OAuth, no token: Contacts is a local TCC surface like [[io-ical|ical]] and [[io-imail|imail]], and it holds every account that syncs into this Mac — so it outranks any server-side contacts API. A future Google People API surface would be `/io gcontacts`.
 
-**Read-only, deliberately.** Writing to a shared address book is not something an agent should do in passing; `create` and `edit` are absent by design rather than unimplemented.
+**`io-contacts` itself stays read-only.** Writing to a shared address book is not something an agent should do in passing; `create` and `edit` are absent by design rather than unimplemented. **Writes live in a separate tool with a separate contract — [[io-contacts-repo]]** (§ Writes go through the repo, below).
 
 ## Why this exists
 
@@ -39,6 +39,32 @@ An empty `search` or `show` prints `no match for "X" -- searched N people` on st
 - **`show` still runs a per-person Apple Event loop and hangs on a broad substring.** The batch-read rewrite landed on `list` and `search` only; `show "Oblinger"` (~20 name matches) blew past 120 s twice. Give `show` a narrow substring, or read the record off `list`.
 - **Matching is case-sensitive.** `search "oblinger"` and `search "Oblinger"` return different sets; the database itself is inconsistently capitalized (`jeff oblinger Sr`).
 - **The name in Contacts beats the name you were told.** Verified 2026-08-29 filing family `@entry` pages: two of three children's surnames were wrong as dictated — `Jasmine Bodenstein` (not Oblinger) and `Zuly Beltran`, where "Zuly" is the *given* name. In [[AT]] the name is the address, so a misspelling is expensive to undo. Look it up.
+
+## Writes go through the repo, not through a prompt
+
+`scripts/io-contacts-repo` keeps the whole address book as a git repository at `~/ob/data/contacts` — one vCard per contact named by UUID, photos as ordinary image files, an `INDEX.tsv` mapping ids back to names. Writes are a reviewed **plan file** applied between two commits.
+
+```bash
+R="$HOME/.claude/skills/io/scripts/io-contacts-repo"
+
+"$R" status                          # repo path, record count, last commit
+"$R" sync                            # dump, then commit iff something changed
+"$R" apply --plan F                  # DRY by default: shows every row's effect
+"$R" apply --plan F --commit         # dump+commit, apply, dump+commit
+```
+
+**Why this replaced an approval prompt.** Ruled by Dan 2026-08-30: *"just make it writable and have a git log … so we don't have to worry so much about making changes."* Approval gates *intent*; the actual risk of a Contacts merge is that it is irreversible and syncs to every device. Version control makes a wrong change a `git revert` instead of a loss, and it covers the changes Dan makes on his own phone, which no approval scheme ever did. A time-boxed "writes are approved for the next hour" was considered and rejected: with ~15 concurrent sessions on this machine it grants write authority to all of them, and it approves an intention rather than an operation.
+
+**Two commits, never one.** The *before* commit absorbs whatever drifted in since the last dump; only then does the *after* commit isolate exactly what the agent did. Squashing them leaves a diff that mixes the agent's change with a week of unrelated phone edits — and *what did the agent do* is the one question the log has to answer.
+
+**Plans target records by ID, never by name.** On a de-duplication task the duplicate name is the thing being repaired, so matching on it is how the wrong record gets deleted. `DELETE` rows additionally carry the reviewed name and refuse if the live record no longer matches. Get ids from `vcf/` filenames or `INDEX.tsv`.
+
+**The repo is local-only** and `init` installs a `pre-push` hook that refuses. It holds ~2,200 people's names, emails, phone numbers and addresses — overwhelmingly other people's data. Off-machine durability comes from restic, which already covers `~/ob`, so a remote would buy exposure and nothing else.
+
+### Two measured facts worth knowing before touching photos
+
+- **~23% of the photos in this book cannot be read.** Contacts hands back a `PHOTO` block whose base64 decodes to the ASCII string `Unable to read recordID` — an error report shaped exactly like an image. Measured 2026-08-31: **67 of 291** contacts with a photo. A per-person re-export returns the same placeholder, so it is a condition of the address book, not a bulk-export artifact. `io-contacts-repo` checks decoded bytes against image magic numbers and lists the failures in `PHOTOS-UNREADABLE.tsv` rather than writing 23 bytes of English into a `.jpg`.
+- **Photos dominate an export and must not go inline.** 200 cards export to 3.0 MB of which **96% is base64 photo** from 23 contacts. Stored as separate image files it is ~22 MB once, because git re-stores a photo only when the image changes; inline it would be ~33 MB *every dump*, undeltable and uncompressible.
 
 ## Related
 
