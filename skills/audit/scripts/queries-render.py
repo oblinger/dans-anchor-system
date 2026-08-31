@@ -2041,7 +2041,22 @@ def _bullet_link(row: Row, name: str, vault_index: dict,
 
 def find_section_bounds(q_lines: list[str], name: str) -> Optional[tuple[int, int]]:
     """Find the [start, end) line range of this anchor's section in Q.md, if present."""
-    banner_re = re.compile(QMD_BANNER_RE_TEMPLATE.format(name=re.escape(name)))
+    # Case-INSENSITIVE on the display label, so an anchor that was re-cased
+    # (`LUMEN Backlog.md` -> `Lumen Backlog.md`) replaces its own old section
+    # instead of orphaning it. This is the failure the template's own comment
+    # anticipated for a changed link target, one case-fold away: measured
+    # 2026-08-31, Q.md carried 15 orphaned sections, 9 of them a pure re-casing
+    # (WINNIE/Winnie, TINK/Tink, SPARKS/Sparks, LUMEN/Lumen, SONAR/Sonar,
+    # SCOUT/Scout, EMBER/Ember, BOONE/Boone, HERMES/Hermes), each a duplicate
+    # with identical counts under a second label.
+    #
+    # Safe because the authoritative key is the BACKLOG FILENAME prefix, and no
+    # two backlogs in the vault differ only by case (checked 2026-08-31 over all
+    # 46). If that ever stops being true the collision is the defect, not this
+    # match — two anchors whose queues differ by capitalization alone would be
+    # unreadable in Q.md regardless of what this function does.
+    banner_re = re.compile(QMD_BANNER_RE_TEMPLATE.format(name=re.escape(name)),
+                           re.IGNORECASE)
     start = None
     for i, line in enumerate(q_lines):
         if banner_re.match(line):
