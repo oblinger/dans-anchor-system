@@ -82,6 +82,8 @@ A flat person page (an `@*.md` that is not under `Corp/` directly and is not its
 
 **Why:** 441 of 465 person pages carry the pre-2026-08-29 head line — tags, tab-aligned links, loose contact lines — which no checker could read and no reader could scan. The card is what makes a person page a page; this rule is what keeps 465 hand migrations honest.
 
+Two path facts the check must respect (Dan 2026-08-31, ATT T286 Q1): a `Corp/@Org/` folder records **cohort — how Dan knows the person — never current employer**, so the check must never compare the H1's `[[@Org]]` to the folder name (they are supposed to diverge); and **orgs never nest** — a subsidiary/acquired org lives as its own flat `Corp/@X.md` with the relationship on the page — so every non-namesake `@*.md` inside a `Corp/@Org/` folder really is a person, which is what makes this rule's applicability heuristic sound.
+
 ### MEND at-entity-opening
 
 Run `at-entity-migrate.py --dry <page>` to see what the migrator would write, then `--write`; hand-finish anything it reports as unparsed. The rows and their order: [[DAS At Entity]] § The opening.
