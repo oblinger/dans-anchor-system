@@ -165,7 +165,9 @@ def _control_suffix(cfg: dict) -> str:
 # that config section names the system-wide dotless type (default: pebble),
 # per-anchor overridable by the registry's own `_` (Q2).
 
-_LIST_NAME_RE = re.compile(r"^[a-z][a-z0-9_-]*$")
+# Digit-leading names are legal — Dan's HUD screens are lists named `1`,
+# `2`, `3`, addressed `HUD.1` (ruled 2026-08-30, the HUD restructure).
+_LIST_NAME_RE = re.compile(r"^[a-z0-9][a-z0-9_-]*$")
 
 # Entry fields that override a type default wholesale. `folder` and `control`
 # are handled separately because they carry placement.

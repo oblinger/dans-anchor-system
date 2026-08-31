@@ -295,6 +295,30 @@ with tempfile.TemporaryDirectory() as td:
           "L: the unified pass is idempotent (second dry-run writes nothing)")
 
 # ============================================================
+print("R. digit-named lists (HUD.1)")
+# ============================================================
+with tempfile.TemporaryDirectory() as td:
+    root = Path(td)
+    mkanchor(root, "A")
+    mkanchor(root, "H", "stones:\n  '1':\n    feeds: [A, A.rock]\n")
+    check(st.parse_address("H.1") == ("H", "1"), "H.1 parses as (H, 1)")
+    quiet(root, "new", "A", "--line", "[[A]] p")
+    quiet(root, "new", "A.rock", "--line", "[[A]] r")
+    CFG_ALL2 = st.load_kind_config()
+    for kind in ("pebble", "rock"):
+        cfg, _ = st._effective_cfg(root / "A", "A", kind, CFG_ALL2)
+        cp = st._control_path(root / "A", "A", cfg)
+        lines = cp.read_text(encoding="utf-8").splitlines()
+        lines.insert(st._content_start(lines), st._render_header("A", cfg))
+        cp.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    rc, out, err = quiet(root, "update")
+    hc = root / "H" / "H Track" / "H 1" / "H 1.md"
+    check(rc == 0 and hc.is_file()
+          and "A P0001" in hc.read_text(encoding="utf-8")
+          and "A R0001" in hc.read_text(encoding="utf-8"),
+          "list `1` receives both the pebble and the rock in one merged list")
+
+# ============================================================
 print("O. unified cycle names dotted lists")
 # ============================================================
 with tempfile.TemporaryDirectory() as td:
