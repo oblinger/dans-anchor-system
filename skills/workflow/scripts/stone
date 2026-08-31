@@ -306,6 +306,60 @@ def parse_address(addr: str):
     return addr, None
 
 
+# --------------------------------------------------------------------------
+# The line budget (Dan, 2026-08-30): a stone's rendered line must fit on ONE
+# line of the Obsidian reading view — "in no cases do we want them to word
+# wrap, because it just makes it unreadable." The budget is the config key
+# `stone_line_max` in ~/.config/anchor-system/global.yaml (0 / absent = no
+# limit). It is measured on the DISPLAYED text — `ALIAS: ` plus the line with
+# every `[[target|shown]]` collapsed to what Obsidian shows — because that is
+# what wraps. A mint over budget is REFUSED (the agent can always put the
+# detail in the pebble body); the update walk WARNS per over-budget stone,
+# naming it, so hand edits and older stones surface without blocking
+# reconciliation.
+
+_LINE_MAX_CACHE = None
+_LINK_DISPLAY_RE = re.compile(r"\[\[([^\]|]+)(?:\|([^\]]*))?\]\]")
+
+
+def _line_max() -> int:
+    global _LINE_MAX_CACHE
+    if _LINE_MAX_CACHE is not None:
+        return _LINE_MAX_CACHE
+    cfgp = Path.home() / ".config" / "anchor-system" / "global.yaml"
+    val = 0
+    if cfgp.is_file():
+        try:
+            import yaml
+            data = yaml.safe_load(cfgp.read_text(encoding="utf-8")) or {}
+            val = int(data.get("stone_line_max") or 0)
+        except Exception as e:
+            raise StoneError(f"{cfgp}: stone_line_max unreadable: {e}")
+    _LINE_MAX_CACHE = val
+    return val
+
+
+def display_text(text: str) -> str:
+    """What Obsidian shows for a line: each wiki-link collapsed to its alias,
+    or its target when it has none."""
+    return _LINK_DISPLAY_RE.sub(
+        lambda m: m.group(2) if m.group(2) is not None else m.group(1), text)
+
+
+def rendered_length(owner: str, text: str, cfg: dict) -> int:
+    alias = cfg["stone_alias"].format(slug=owner)
+    return len(f"{alias} {display_text(text)}")
+
+
+def _over_budget(owner: str, text: str, cfg: dict):
+    """(shown_len, budget) when the rendered line exceeds the budget, else None."""
+    budget = _line_max()
+    if not budget:
+        return None
+    n = rendered_length(owner, text, cfg)
+    return (n, budget) if n > budget else None
+
+
 def _normalize_control(stem: str, slug: str) -> str:
     """A registry `control:` name, normalized to the `{slug} WORD` template
     header identity derives from (_control_suffix). Free-named controls
@@ -1626,6 +1680,13 @@ def cmd_new(kind, root: Path, args) -> int:
     a = anchors[slug]
     cfg, kind = _effective_cfg(a.path, slug, kind, load_types())
     _reject_unroundtrippable_owner(slug, cfg)
+    over = _over_budget(slug, args.line, cfg)
+    if over:
+        n, budget = over
+        raise StoneError(
+            f"refused: the line renders as {n} characters and the budget is "
+            f"{budget} (`stone_line_max`) — it would wrap in Obsidian. Shorten "
+            f"the --line; the detail belongs in --body. Nothing was written.")
 
     folder = _stone_folder(a.path, slug, cfg)
     folder.mkdir(parents=True, exist_ok=True)
@@ -1989,6 +2050,14 @@ def cmd_update(kind, root: Path, args) -> int:
         print(f"  {n}")
     for w in _enrollment_warnings(anchors, stones):
         print(f"stone: warning: {w}", file=sys.stderr)
+    for (owner, sid), st_ in sorted(stones.items()):
+        if not st_.live:
+            continue
+        over = _over_budget(owner, st_.line, st_.home_cfg)
+        if over:
+            print(f"stone: warning: {owner} {sid} renders as {over[0]} characters, "
+                  f"budget {over[1]} — it wraps; shorten its line:: (detail goes "
+                  f"in the body)", file=sys.stderr)
     for who, src in sorted(set(dangling)):
         print(f"stone: warning: {who}: feeds: names {src!r}, no such anchor "
               f"under the scanned root — edge skipped, nothing propagated "

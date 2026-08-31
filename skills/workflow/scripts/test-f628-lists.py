@@ -49,6 +49,7 @@ sys.modules["stone_mod_f628"] = st
 _loader.exec_module(st)
 
 st._GLOBAL_STONES_CACHE = {}   # hermetic: ignore any user-level `stones:` config
+st._LINE_MAX_CACHE = 0         # hermetic: no line budget unless a section sets one
 
 PASS = 0
 FAIL = 0
@@ -317,6 +318,35 @@ with tempfile.TemporaryDirectory() as td:
           and "A P0001" in hc.read_text(encoding="utf-8")
           and "A R0001" in hc.read_text(encoding="utf-8"),
           "list `1` receives both the pebble and the rock in one merged list")
+
+# ============================================================
+print("S. line budget — mint refuses, update warns (stone_line_max)")
+# ============================================================
+st._LINE_MAX_CACHE = 40
+try:
+    with tempfile.TemporaryDirectory() as td:
+        root = Path(td)
+        mkanchor(root, "A")
+        check(st.display_text("[[A P0001|A:]] x [[Long Target|shown]] y") == "A: x shown y",
+              "display_text collapses links to what Obsidian shows")
+        long = "this line is far too long to fit in the forty character budget we set here"
+        rc, out, err = quiet(root, "new", "A", "--line", long)
+        check(rc == 1 and "budget" in err and "40" in err, "over-budget mint refused, naming the budget")
+        check(not (root / "A" / "A Track" / "A Pebbles").exists(), "nothing written on refusal")
+        rc, out, err = quiet(root, "new", "A", "--line", "short and sweet")
+        check(rc == 0, "within budget mints")
+        # an older stone edited long by hand: update warns, does not block
+        sp = root / "A" / "A Track" / "A Pebbles" / "A P0001.md"
+        sp.write_text(sp.read_text(encoding="utf-8").replace("line:: short and sweet", "line:: " + long), encoding="utf-8")
+        # the stone must be demonstrably NEWER than the control (T553's mtime
+        # adjudication) or the older projection wins and nothing is over budget
+        import os, time
+        os.utime(sp, (time.time() + 10, time.time() + 10))
+        rc, out, err = quiet(root, "update")
+        check(rc == 0 and "A P0001 renders as" in err and "wraps" in err,
+              "update warns per over-budget stone and still reconciles")
+finally:
+    st._LINE_MAX_CACHE = None
 
 # ============================================================
 print("O. unified cycle names dotted lists")
