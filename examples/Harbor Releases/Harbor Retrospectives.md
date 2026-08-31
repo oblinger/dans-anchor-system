@@ -2,11 +2,11 @@
 description: "made-up external-spine exemplar — rows pointing at pages outside this folder"
 ---
 
-| -[[Harbor Retrospectives]]- | : made-up external-spine exemplar — rows pointing at pages outside this folder<br>→ [[DAS]] → [[examples]] → [[Harbor Releases]] → [Harbor Retrospectives](hook://p/Harbor%20Retrospectives)  |
+| -[[Harbor Retrospectives]]- | : made-up external-spine exemplar — rows pointing at pages outside this folder<br>→ [[DAS]] → [[FEX]] → [[Harbor Releases]] → [Harbor Retrospectives](hook://p/Harbor%20Retrospectives)  |
 | --- | --- |
 | **Caused an incident** | [[Harbor Runbook Egress Stall]],  [[Harbor Runbook Auth Storm]],   |
-| **Changed the budget** | [[Harbor Latency Budget]],  [[Harbor Hops]],   |
-| **Changed the toolchain** | [[Devtools]],   |
+| **Changed the budget** | [[Harbor Latency Budget]],  [[HHOP\|Harbor Hops]],   |
+| **Changed the toolchain** | [[DVT\|Devtools]],   |
 
 # Harbor Retrospectives
 Every page that a Harbor release forced a change to — gathered by consequence, not by location.

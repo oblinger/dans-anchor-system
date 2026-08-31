@@ -1,5 +1,5 @@
 ---
-description: "made-up worked examples of the five spine shapes"
+description: "made-up worked examples of the four spine shapes and the one exception"
 ---
 
 | -[[FEX Spine Examples]]- | : made-up worked examples of the four spine shapes and the one exception<br>→ [[DAS]] → [[FEX]] → [FEX Spine Examples](hook://p/FEX%20Spine%20Examples)  |
@@ -14,11 +14,11 @@ One invented page per shape — each *is* the shape it teaches, so it can be ope
 | Spine shape | The question the page is answering | Made-up example | Live counterpart |
 |---|---|---|---|
 | **[[DAS spine#Breadcrumb spine\|Breadcrumb]]** | I am a leaf — where do I hang? | [[Harbor Latency Budget]] | [[Lumen Nudge]] |
-| **[[DAS spine#Custom spine\|Custom]]** — flat | I name my children by hand; the `...` is a safety valve | [[Bridges]] | [[HUD]] |
-| **[[DAS spine#Custom spine\|Custom]]** — grouped | …and they sort under a few plain-text labels | [[Harbor Runbooks]] | [[Rolodex]] |
-| **[[DAS spine#Custom spine\|Custom]]** — two-level | …and each label is itself a page, marked `+` | [[Devtools]] | [[SKA]] |
+| **[[DAS spine#Custom spine\|Custom]]** — flat | I name my children by hand; the `...` is a safety valve | [[BRDG\|Bridges]] | [[HUD]] |
+| **[[DAS spine#Custom spine\|Custom]]** — grouped | …and they sort under a few plain-text labels | [[HRUN\|Harbor Runbooks]] | [[Rolodex]] |
+| **[[DAS spine#Custom spine\|Custom]]** — two-level | …and each label is itself a page, marked `+` | [[DVT\|Devtools]] | [[SKA]] |
 | **[[DAS spine#Custom spine\|Custom]]** — outward-pointing | …and what it names is not in my folder at all, so there is no `...` | [[Harbor Retrospectives]] | [[STARTUPPER]] |
-| **[[DAS spine#List spine\|List]]** | The machine writes a row per child, each with its own sentence | [[Harbor Hops]] | [[Disk]] |
+| **[[DAS spine#List spine\|List]]** | The machine writes a row per child, each with its own sentence | [[HHOP\|Harbor Hops]] | [[Disk]] |
 | **[[DAS spine#Stream spine\|Stream]]** | The same, reversed — my children are dated, so newest goes first | [[Harbor Releases]] | [[VOX]] |
 | *[[DAS spine#Exceptions\|Exception]]* — redirect | *I organize nothing; I hand you two or three destinations and stop* | — | [[AI Safety]] |
 
@@ -26,7 +26,7 @@ One invented page per shape — each *is* the shape it teaches, so it can be ope
 
 **The redirect has no made-up example yet**, because the Harbor world has nothing to redirect to. It is the one row of this gallery that cannot be opened and read, which is a gap in the gallery rather than in the taxonomy.
 
-**Every page in this table was run through `spine_check` on 2026-08-12, and two of them were teaching the opposite of what they said.** [[Bridges]] and [[Devtools]] each named their children by hand — `Bridges Studio`, `Devtools Build` — and **every one of those links dangled**, because neither page fronted a folder. Their mandatory `...` therefore had nothing of their own to sweep and swept the flat `examples/` directory instead: **45 unrelated pages apiece**, rendered directly beneath a callout reading *"the catchall should stay nearly empty."* Both now front real folders with real children, matching [[Harbor Runbooks]], and both check clean. The repair also resolved five links from [[Harbor Latency Budget]] — the validated exemplar — which had been pointing into the same void.
+**Every page in this table was run through `spine_check` on 2026-08-12, and two of them were teaching the opposite of what they said.** [[BRDG|Bridges]] and [[DVT|Devtools]] each named their children by hand — `Bridges Studio`, `Devtools Build` — and **every one of those links dangled**, because neither page fronted a folder. Their mandatory `...` therefore had nothing of their own to sweep and swept the flat `examples/` directory instead: **45 unrelated pages apiece**, rendered directly beneath a callout reading *"the catchall should stay nearly empty."* Both now front real folders with real children, matching [[HRUN|Harbor Runbooks]], and both check clean. The repair also resolved five links from [[Harbor Latency Budget]] — the validated exemplar — which had been pointing into the same void.
 
 **The one refinement that came out of the sweep.** [[STARTUPPER]] is a **custom** spine, not an exception, and Dan was right to ask why it had been filed as one. But it fronts no folder — its members live all over `AT/` and are gathered by a tag — so its `...` could only sweep its sibling *group* pages, which are not members. Its own BRIEF had predicted that in writing and instructed *"do NOT add a `...` catchall"*; the marker was there anyway, carrying exactly the five wrong pages it had named. Removed. This is the boundary of Q5's *"you still want the dot, dot, dot"* ruling and does not contradict it: the marker is mandatory because a **folder** can gain a child nobody lists, so on a page that fronts no folder the rationale is absent and the marker is actively harmful. [[DAS spine]] § The catchall is not optional already states it that way — *"the mandatory marker turns on whether the page fronts a folder"* — and [[Harbor Retrospectives]] is the made-up exemplar of the same arrangement.
 
@@ -44,15 +44,15 @@ These pages are **deliberately made up**. The vault's own pages are the right ex
 
 **[[Harbor Latency Budget]] — that a table on a leaf is not a dispatch table.** The hardest call in practice is a leaf whose main content *is* a table: it looks like a hub and is not one. Breadcrumb, H1, one sentence, then the budget table as the heart, with no masthead anywhere.
 
-**[[Harbor Runbooks]] — that three groups beat eight rows.** Eight runbooks under `Incident` / `Routine` / `Recovery`. The labels are plain text, not links: every child is already in this folder, and the grouping only tells you which one you want.
+**[[HRUN|Harbor Runbooks]] — that three groups beat eight rows.** Eight runbooks under `Incident` / `Routine` / `Recovery`. The labels are plain text, not links: every child is already in this folder, and the grouping only tells you which one you want.
 
-**[[Devtools]] — that a group label can be a page.** Sixteen tools under four `+` rows, each row a container with its own spine. This is the shape [[Harbor Runbooks]] is *not*, and the pair is meant to be read side by side. It also carries a heart — the pipeline table — so it shows a masthead and a heart on one page without them being confused.
+**[[DVT|Devtools]] — that a group label can be a page.** Sixteen tools under four `+` rows, each row a container with its own spine. This is the shape [[HRUN|Harbor Runbooks]] is *not*, and the pair is meant to be read side by side. It also carries a heart — the pipeline table — so it shows a masthead and a heart on one page without them being confused.
 
-**[[Bridges]] — that hand-listed rows are not a list spine.** Four machines, each with an authored row above a `...` safety valve. Visually identical to a list spine, opposite ownership — and ownership is the whole selector, which is why these two are the pair that teaches the shape set.
+**[[BRDG|Bridges]] — that hand-listed rows are not a list spine.** Four machines, each with an authored row above a `...` safety valve. Visually identical to a list spine, opposite ownership — and ownership is the whole selector, which is why these two are the pair that teaches the shape set.
 
 **[[Harbor Retrospectives]] — that a spine can leave its own folder and still be a custom spine.** Its rows point at pages elsewhere entirely, grouped by consequence rather than location. It carries no marker, and the reason is not that it points outward — it is that it fronts no folder, so there is nothing for a marker to sweep. [[STARTUPPER]], the live counterpart, points just as far outward and *does* carry a `...`, because it does front one.
 
-**[[Harbor Hops]] — that `---` is not `...` written longer.** Five hops, and the machine writes one row per hop with its own description. `...` would collapse all five into a single compact row; the per-child sentence is the entire reason to choose `---`. It deliberately has **no heart**: a pure index's spine is its content.
+**[[HHOP|Harbor Hops]] — that `---` is not `...` written longer.** Five hops, and the machine writes one row per hop with its own description. `...` would collapse all five into a single compact row; the per-child sentence is the entire reason to choose `---`. It deliberately has **no heart**: a pure index's spine is its content.
 
 **[[Harbor Releases]] — that the marker follows the children, not the topic.** Four dated release pages under `^^^`. The same shape serves a trip list or dated applications; a *stream* kept as H2s inside one file has no children at all and correctly ends `...`.
 

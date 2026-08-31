@@ -62,7 +62,7 @@ Check the hit rate on the console before opening traffic: anything above 90% mea
 ## 7. Verify the latency budget
 Compare each hop against [[Harbor Latency Budget]] for one hour of real traffic after the load balancer opens. The comparison is per hop, not total: a total under 160 ms can hide a payload-assembly hop over its 60 ms budget if the auth hop happens to be under its own, and the over-budget hop is the one that will breach next week when traffic is not flattered by the post-upgrade lull.
 
-A hop over budget after an upgrade is an S3 in [[Harbor Runbooks]]' scale — not an incident, but not done either. File it before closing the ticket, and name the hop. The one hop that reliably moves on upgrade is payload assembly, because the [[Harbor Integration S3|S3]] client is the piece most releases touch; if it is the only one over, that is expected and the ticket says so.
+A hop over budget after an upgrade is an S3 in [[HRUN|Harbor Runbooks]]' scale — not an incident, but not done either. File it before closing the ticket, and name the hop. The one hop that reliably moves on upgrade is payload assembly, because the [[Harbor Integration S3|S3]] client is the piece most releases touch; if it is the only one over, that is expected and the ticket says so.
 
 The hour is a floor. On a Sunday it should be four, because Sunday traffic does not exercise the enterprise pools.
 

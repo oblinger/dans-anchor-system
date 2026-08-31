@@ -10,7 +10,7 @@ group: slot
 | Related | [[DAS Dispatch Table]],  [[DAS progressive-disclosure]],  [[DAS Disciplines\|Disciplines]],  [[DAS\|dans-anchor-system]],   |
 | Rules | [[R-spine]],  [[R-dispatch-table]],  [[R-exception-discipline]],   |
 | Shapes | [[Lumen Nudge\|breadcrumb]],  [[Rolodex\|custom]],  [[Disk\|list]],  [[VOX\|stream]],  [[AI Safety\|exception]],   |
-| Examples | [[FEX Spine Examples\|made-up gallery]],  [[Harbor Runbooks]],  [[Devtools]],  [[Harbor Hops]],  [[Harbor Releases]],   |
+| Examples | [[FEX Spine Examples\|made-up gallery]],  [[HRUN\|Harbor Runbooks]],  [[DVT\|Devtools]],  [[HHOP\|Harbor Hops]],  [[Harbor Releases]],   |
 
 # Spine Discipline
 Everything above the H1 says where the page sits; the heart directly below says what it is about. One question picks the shape — does this page have children? — and one marker names it.
@@ -18,8 +18,8 @@ Everything above the H1 says where the page sits; the heart directly below says 
 | Spine shape                           | Marker | What it says about the children                                  | Live                              | Made-up                                          | Pages |
 | ------------------------------------- | ------ | ---------------------------------------------------------------- | --------------------------------- | ------------------------------------------------ | ----- |
 | **[[#Breadcrumb spine\|Breadcrumb]]** | `:>>`  | there are none — this page is a leaf                             | [[Lumen Nudge]]                   | [[Harbor Latency Budget]]                        | 1,266 |
-| **[[#Custom spine\|Custom]]**         | `...`  | named by hand, one row each, in whatever arrangement suits them  | [[Legal]] · [[Rolodex]] · [[SKA]] | [[Bridges]] · [[Harbor Runbooks]] · [[Devtools]] | 814   |
-| **[[#List spine\|List]]**             | `---`  | the machine writes one row each, alphabetical, with descriptions | [[Disk]]                          | [[Harbor Hops]]                                  | 231   |
+| **[[#Custom spine\|Custom]]**         | `...`  | named by hand, one row each, in whatever arrangement suits them  | [[Legal]] · [[Rolodex]] · [[SKA]] | [[BRDG\|Bridges]] · [[HRUN\|Harbor Runbooks]] · [[DVT\|Devtools]] | 814   |
+| **[[#List spine\|List]]**             | `---`  | the machine writes one row each, alphabetical, with descriptions | [[Disk]]                          | [[HHOP\|Harbor Hops]]                                  | 231   |
 | **[[#Stream spine\|Stream]]**         | `^^^`  | the same, reversed, so dated children read newest-first          | [[VOX]]                           | [[Harbor Releases]]                              | 23    |
 | *[[#Exceptions\|Exception]]*          | *n/a*  | *not a spine — see § Exceptions*                                 | [[AI Safety]]                     | —                                                | 102   |
 
@@ -87,7 +87,7 @@ Every entry gets its own hand-written row above the marker, and the machine swee
 **The cost of pointing outward is that nothing can verify the rows.** Every page whose children are in its folder can be diffed against that folder; one whose rows leave it cannot. Reach for it only when the grouping really is by property.
 
 
-**Grouped and two-level render almost identically and are not the same thing.** Grouped is one folder wearing headings; two-level is a node in a tree of containers. Read [[Harbor Runbooks]] and [[Devtools]] side by side — they are built to be that pair. The distinction is real and worth teaching, but it is a distinction *within* the custom spine rather than two more shapes: in all three arrangements the author writes the rows, the marker is `...`, and the machine sweeps the remainder.
+**Grouped and two-level render almost identically and are not the same thing.** Grouped is one folder wearing headings; two-level is a node in a tree of containers. Read [[HRUN|Harbor Runbooks]] and [[DVT|Devtools]] side by side — they are built to be that pair. The distinction is real and worth teaching, but it is a distinction *within* the custom spine rather than two more shapes: in all three arrangements the author writes the rows, the marker is `...`, and the machine sweeps the remainder.
 
 ### List spine
 
@@ -159,7 +159,7 @@ The order is fixed and the reason is the fold: **H1 → one sentence → heart**
 
 **The heart is specified at [[DAS heart]]** — its two forms (bare and labelled), its range from carries-the-page to merely-orients, why a page may legitimately have none, and how `H01` checks it. It earned its own page 2026-08-11, having been documented here only because the two zones are comprehensible as a pair. **Keep this section a pointer:** detail restated here is detail that drifts.
 
-One rule stays, because the spine examples cannot be authored correctly without it. **The heart never routes to children.** If the element under the H1 is handing the reader other pages, that is spine work wearing a different hat — and a page whose spine and content are the same table simply has no heart. [[Harbor Hops]] is that case deliberately; [[Devtools]] is the contrast, carrying a masthead that routes and a pipeline table that does not.
+One rule stays, because the spine examples cannot be authored correctly without it. **The heart never routes to children.** If the element under the H1 is handing the reader other pages, that is spine work wearing a different hat — and a page whose spine and content are the same table simply has no heart. [[HHOP|Harbor Hops]] is that case deliberately; [[DVT|Devtools]] is the contrast, carrying a masthead that routes and a pipeline table that does not.
 
 ## Dispatch spine
 
@@ -173,7 +173,7 @@ The instinct is to make this discipline an anchor **folder** with the shapes' ex
 
 **Live pages, for the real shapes.** Every exemplar in the table above is a real document doing that shape for real reasons — an example is a real instance, never a copy, because a copied exemplar rots the moment the vault moves on and cannot be clicked to see the shape behave under HookAnchor.
 
-**Made-up pages, for the teaching gallery.** Real vault content in a published repo leaks the vault, so the synthetic Harbor world ([[Harbor Runbooks]], [[Harbor Hops]], [[Harbor Releases]], gathered by [[FEX Spine Examples]]) is deliberately invented — coherent fictional instances rather than real ones.
+**Made-up pages, for the teaching gallery.** Real vault content in a published repo leaks the vault, so the synthetic Harbor world ([[HRUN|Harbor Runbooks]], [[HHOP|Harbor Hops]], [[Harbor Releases]], gathered by [[FEX Spine Examples]]) is deliberately invented — coherent fictional instances rather than real ones.
 
 Either way the gallery lives in `examples/` as a `FEX <Topic>` doc, not in a folder per discipline. That is why `disciplines/` holds files.
 
@@ -224,7 +224,7 @@ Exemplars replaced in the same pass: `PKM Discussion` → [[Lumen Nudge]] (the u
 **2026-08-09 (later) — four shapes became five, and the heart got its name.** A second round with the user, all of it correction:
 
 - **`+` was promoted from régime to shape.** Grouped and two-level render almost identically and are structurally different: a grouped label is a *word*, a two-level label is a *page*. Naming them the same hid the distinction. Two-level is the rarest hub shape at 13 pages.
-- **`...` and `---` had been conflated.** `Bridges` was cited as the list exemplar, but its per-child rows are *hand-written above a `...`* — a grouped spine with long labels. A list spine is `---`, where the machine writes one row per child. Replaced with [[Harbor Hops]], built as a real folder anchor so the enumeration is genuine.
+- **`...` and `---` had been conflated.** `Bridges` was cited as the list exemplar, but its per-child rows are *hand-written above a `...`* — a grouped spine with long labels. A list spine is `---`, where the machine writes one row per child. Replaced with [[HHOP|Harbor Hops]], built as a real folder anchor so the enumeration is genuine.
 - **The heart was named** (user, this session) and specified as the zone directly below the H1, with the spine now defined as *everything above* it. The split is what each zone talks about: the spine talks about other pages, the heart about this page's own substance. The architecture case — figure plus a table of children — is spine work wearing a picture, not a heart, and stays [[FEX Figure Page]]'s.
-- **The made-up examples were renamed to their in-world names**, so the identity cell and the H1 always agree. `FEX Two Level Spine` and the old `FEX List Dispatch` were deleted outright: each duplicated an existing page ([[Devtools]], `Bridges`) rather than adding one, which is the single-source-of-truth failure the gallery is supposed to model. Only the gallery itself keeps an `FEX` name.
+- **The made-up examples were renamed to their in-world names**, so the identity cell and the H1 always agree. `FEX Two Level Spine` and the old `FEX List Dispatch` were deleted outright: each duplicated an existing page ([[DVT|Devtools]], `Bridges`) rather than adding one, which is the single-source-of-truth failure the gallery is supposed to model. Only the gallery itself keeps an `FEX` name.
 - **Identity cells were flipped to description-first** (`: summary<br>→ breadcrumb`), 192 of them across this repo, per the user's standing preference. The vault-side sweep and the [[R-dispatch-table]] amendment that would make it binding are not done.

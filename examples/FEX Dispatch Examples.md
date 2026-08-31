@@ -6,7 +6,7 @@ description: "live worked examples of each dispatch-table structure"
 | --- | --- |
 | Spec | [[DAS Dispatch Table]] § Structure |
 | Builder | [[audit-dispatch\|/audit dispatch]],   |
-| ... | [[_{{DISK_LABEL}} Template]],  [[_{{PURCHASE_DATE}} {{HOSTNAME}} Template]],  [[CSE]],  [[DAS US-CAE-1 — Schedule a Task]],  [[DAS US-CAE-2 — Monitor Task Status]],  [[DAS US-CAE-3 — Retry Failed Tasks]],  [[ESP]],  [[FEX Agenda]],  [[FEX API]],  [[FEX API Design]],  [[FEX Architecture]],  [[FEX Claude]],  [[FEX Completed Roadmap]],  [[FEX CSE]],  [[FEX Decisions]],  [[FEX Decisions Details]],  [[FEX Facet]],  [[FEX Files]],  [[FEX Icebox]],  [[FEX Inbox]],  [[FEX Minimal Facet]],  [[FEX Minimal Skill]],  [[FEX Project Root]],  [[FEX Repo]],  [[FEX Roadmap]],  [[FEX Rules]],  [[FEX Scheduler]],  [[FEX Skill]],  [[FEX Spine Examples]],  [[FEX Stories]],  [[FEX System Design]],  [[Forum Stories]],  [[Harbor Hops]],  [[Harbor Latency Budget]],  [[Harbor Releases]],  [[Harbor Runbooks]],  [[HBR PRD User Stories]],  [[HWP]],  [[Mini]],  [[Viz Bench]],   |
+| ... | [[_{{DISK_LABEL}} Template]],  [[_{{PURCHASE_DATE}} {{HOSTNAME}} Template]],  [[BRDG]],  [[Clarifier]],  [[CSE]],  [[DAS US-CAE-1 — Schedule a Task]],  [[DAS US-CAE-2 — Monitor Task Status]],  [[DAS US-CAE-3 — Retry Failed Tasks]],  [[DVT]],  [[ESP]],  [[Espresso]],  [[FEX Agenda\|Agenda]],  [[FEX API\|API]],  [[FEX API Design\|API Design]],  [[FEX Architecture\|Architecture]],  [[FEX At Entity\|At Entity]],  [[FEX Claude\|Claude]],  [[FEX Completed Roadmap\|Completed Roadmap]],  [[FEX CSE\|CSE]],  [[FEX Decisions\|Decisions]],  [[FEX Decisions Details\|Decisions Details]],  [[FEX Empty\|Empty]],  [[FEX Facet\|Facet]],  [[FEX Figure Page\|Figure Page]],  [[FEX Files\|Files]],  [[FEX Icebox\|Icebox]],  [[FEX Inbox\|Inbox]],  [[FEX Minimal Facet\|Minimal Facet]],  [[FEX Minimal Skill\|Minimal Skill]],  [[FEX Project Root\|Project Root]],  [[FEX Repo\|Repo]],  [[FEX Roadmap\|Roadmap]],  [[FEX Rules\|Rules]],  [[FEX Scheduler\|Scheduler]],  [[FEX Skill\|Skill]],  [[FEX Spine Examples\|Spine Examples]],  [[FEX Stories\|Stories]],  [[FEX System Design\|System Design]],  [[Forum Stories]],  [[Harbor Account Northwind]],  [[Harbor Integrations]],  [[Harbor Latency Budget]],  [[Harbor Releases]],  [[Harbor Tenancy Model]],  [[Harbor Upgrade Guide]],  [[HBR]],  [[HBR PRD User Stories]],  [[HHOP]],  [[HRUN]],  [[HWP]],  [[Knots]],  [[Mini]],  [[Snap]],  [[Viz Bench]],   |
 
 # FEX Dispatch Examples
 A gallery of the dispatch-table alternatives from [[DAS Dispatch Table]] § Structure — each a **live, real** anchor page (click through to see it render), not a fenced copy. Recall the model: every dispatch table is a **Masthead** (breadcrumb + structural rows + curated links) optionally followed by a **Member zone** (a [[Collection]] anchor's members, as a *member list* or *member groups*, *manual / auto / hybrid*), with the markers `---` (auto-list), `...` (compact auto), `+` (expandable group).
@@ -17,7 +17,7 @@ A gallery of the dispatch-table alternatives from [[DAS Dispatch Table]] § Stru
 | --- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
 | 1   | **Masthead-only**          | breadcrumb + anchor-kind **structural rows** (Design / Architecture / User Docs / Dev Docs), no member zone — a non-collection anchor | [[HBR]]             |
 | 2   | **Member groups** (`+`)    | members under labeled, **expandable** group rows (`Anchor+`, `Doc+`, `Search+`) — the > 15 grouped layout                             | [[DAS Skills]]             |
-| 3   | **Flat member list**       | one row per member, hand-ordered — the ≤ 15 flat layout, manual                                                                       | [[Bridges]]      |
+| 3   | **Flat member list**       | one row per member, hand-ordered — the ≤ 15 flat layout, manual                                                                       | [[BRDG\|Bridges]]      |
 | 4   | **Hybrid** (manual + auto) | curated category rows the author pinned, plus a **`...`** compact-auto staging row at the bottom                                      | [[HBR]]             |
 | 5   | **With a figure**          | the page ordering when an anchor page carries a figure: **H1 → one-liner → figure (no title) → dispatch table**                       | [[FEX Figure Page]] |
 
@@ -32,11 +32,11 @@ This is what *most* project anchors look like: Masthead only.
 
 ## 2 — Member groups with `+` ([[DAS Skills]])
 
-`[[DAS]]` is the user-facing skill library — a [[Collection]] with **many** members (every published skill), so it uses **member groups**: rows like [[Devtools|Anchor]], [[Devtools Hygiene|Hygiene]], [[Devtools Doc|Doc]], [[Devtools Search|Search]] — each with a trailing `+`. The **`+`** marks each group row as *expandable* — it's itself a dispatch page of its members. This is the > 15 grouped layout (the [[progressive-disclosure]] size rule; the graduation from flat→grouped is [[granularity]]).
+`[[DAS]]` is the user-facing skill library — a [[Collection]] with **many** members (every published skill), so it uses **member groups**: rows like [[DVT|Anchor]], [[Devtools Hygiene|Hygiene]], [[Devtools Doc|Doc]], [[Devtools Search|Search]] — each with a trailing `+`. The **`+`** marks each group row as *expandable* — it's itself a dispatch page of its members. This is the > 15 grouped layout (the [[progressive-disclosure]] size rule; the graduation from flat→grouped is [[granularity]]).
 
-## 3 — Flat member list ([[Bridges]])
+## 3 — Flat member list ([[BRDG|Bridges]])
 
-`[[Bridges]]` is a small [[Collection]] (the crossing helpers). Few members → a **flat member list**, one row per member: [[Espresso]], [[Knots]], [[Snap]], [[Clarifier]]. Hand-ordered (manual). No grouping, no `+` — when a collection is small, the flat list is correct; it graduates to member groups only past ~15 ([[granularity]]).
+`[[BRDG|Bridges]]` is a small [[Collection]] (the crossing helpers). Few members → a **flat member list**, one row per member: [[Espresso]], [[Knots]], [[Snap]], [[Clarifier]]. Hand-ordered (manual). No grouping, no `+` — when a collection is small, the flat list is correct; it graduates to member groups only past ~15 ([[granularity]]).
 
 ## 4 — Hybrid: manual rows + `...` auto-staging ([[HBR]])
 
@@ -52,7 +52,7 @@ This is what *most* project anchors look like: Masthead only.
 |---|---|---|
 | [[HBR]] | (masthead-only — no member zone) | — |
 | [[DAS Skills]] | **member groups** (`+`) | manual |
-| [[Bridges]] | **member list** (flat) | manual |
+| [[BRDG\|Bridges]] | **member list** (flat) | manual |
 | [[HBR]] | member list (category rows) | **hybrid** (manual + `...` auto) |
 
 The fifth combination — a fully **auto** member list (children listed below a bare `| --- | |` with no manual pins) — is the simplest: a folder of like children where the agent just enumerates them. `/audit dispatch` ([[audit-dispatch]]) produces any of these shapes from a folder, choosing layout by member count and automation by whether the author has pinned rows.

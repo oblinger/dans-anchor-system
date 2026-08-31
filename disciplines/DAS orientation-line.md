@@ -9,7 +9,7 @@ group: slot
 | --- | --- |
 | Related | [[DAS spine]],  [[DAS heart]],  [[DAS progressive-disclosure]],  [[DAS Facet]] (§ Facet groups),  [[DAS Disciplines\|Disciplines]],  [[DAS\|dans-anchor-system]], |
 | Rules | [[R-spine]],  [[R-doc-structure]],   |
-| Examples | [[Lumen Nudge]],  [[Briefs]],  [[Stones]],   |
+| Examples | [[Lumen Nudge]],  [[Briefs]],  [[STONE\|Stones]],   |
 
 # Orientation-line Discipline
 One sentence, directly under the H1, saying what this file is — the hinge between the spine that says where the page sits and the heart that shows what it holds.

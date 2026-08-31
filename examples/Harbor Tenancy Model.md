@@ -5,7 +5,7 @@ description: "made-up definition-list heart — a concept page whose facts are s
 # Harbor Tenancy Model
 How Harbor divides one deployment among many customers — the five terms every other Harbor page uses without defining.
 
-- **Tenant:** one paying customer, identified by a tenant id that every request carries from the [[Harbor Hops|TLS handshake]] onward; nothing is shared across the boundary except the binary itself.
+- **Tenant:** one paying customer, identified by a tenant id that every request carries from the [[HHOP|TLS handshake]] onward; nothing is shared across the boundary except the binary itself.
 - **Tier:** the contract a tenant is on — standard or enterprise — which fixes its rate ceiling, its [[Harbor Latency Budget|latency budget]] headroom, and whether an [[Harbor Runbook Auth Storm|auth storm]] pages a human or just sheds load.
 - **Depot:** a tenant's physical site, each with its own egress route; a tenant has one or many, and the [[Harbor Account Northwind|Northwind]] expansion is exactly two more of these.
 - **Pool:** the connection pool a depot draws from, sized per tier since [[Harbor Releases|4.2]]; a depot never borrows from another tenant's pool, which is the isolation guarantee the whitepaper sells.

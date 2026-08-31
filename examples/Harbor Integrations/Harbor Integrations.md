@@ -4,9 +4,9 @@ description: "the third-party systems Harbor talks to — one page per integrati
 
 | -[[Harbor Integrations]]- | : the third-party systems Harbor talks to — one page per integration, rostered below<br>→ [[DAS]] → [[FEX]] → [Harbor Integrations](hook://p/Harbor%20Integrations)  |
 | --- | --- |
-| Related | [[Harbor Tenancy Model]],  [[Harbor Latency Budget]],  [[Harbor Runbooks]],  [[Harbor Releases]],   |
+| Related | [[Harbor Tenancy Model]],  [[Harbor Latency Budget]],  [[HRUN\|Harbor Runbooks]],  [[Harbor Releases]],   |
 | Docs | [[FEX Architecture\|Architecture]],  [[FEX API Design\|API]],  [[Harbor Whitepaper\|Whitepaper]],   |
-| Owners | [[Espresso]],  [[Snap]],  [[Knots]],  [[Devtools Observe\|Observe]],   |
+| Owners | [[Espresso]],  [[Snap]],  [[Knots]],  ~~[[Devtools Observe\|Observe]]~~,   |
 | Pinned | [[Harbor Runbook Egress Stall]],  [[Harbor Account Northwind]],   |
 | ... | [[Harbor Integration Cloudflare]],  [[Harbor Integration Okta]],  [[Harbor Integration PagerDuty]],  [[Harbor Integration S3]],  [[Harbor Integration Stripe]],   |
 
@@ -17,8 +17,8 @@ The systems outside Harbor that a request touches on its way through — five in
 |---|---|---|---|
 | [[Harbor Integration Okta\|Okta]] | inbound | [[Espresso]] | answers the auth lookup; its cache is what an [[Harbor Runbook Auth Storm\|auth storm]] exhausts |
 | [[Harbor Integration Stripe\|Stripe]] | outbound | [[Espresso]] | meters quota against the tenant's plan at month end; never on the request path |
-| [[Harbor Integration PagerDuty\|PagerDuty]] | outbound | [[Devtools Observe\|Observe]] | receives every S1/S2 page from [[Harbor Runbooks]] |
-| [[Harbor Integration Cloudflare\|Cloudflare]] | inbound | [[Knots]] | terminates TLS ahead of the [[Harbor Hops\|handshake hop]] for tenants that front through it |
+| [[Harbor Integration PagerDuty\|PagerDuty]] | outbound | ~~[[Devtools Observe\|Observe]]~~ | receives every S1/S2 page from [[HRUN\|Harbor Runbooks]] |
+| [[Harbor Integration Cloudflare\|Cloudflare]] | inbound | [[Knots]] | terminates TLS ahead of the ~~[[Harbor Hops\|handshake hop]]~~ for tenants that front through it |
 | [[Harbor Integration S3\|S3]] | outbound | [[Snap]] | where payload assembly fetches large attachments; the 60 ms budget is mostly this |
 
 ## Overview

@@ -4,7 +4,7 @@ description: "Espresso — example topic collection (≤ 15 members) — notes o
 
 | -[[Espresso]]- | : Espresso — example topic collection (≤ 15 members) — notes on pulling espresso<br>→ [[DAS]] → [[FEX]] → [Espresso](hook://p/Espresso)  |
 | --- | --- |
-| Related | [[Bridges]] (list variant),  [[DAS Dispatch Table]],  [[FEX]], |
+| Related | [[BRDG\|Bridges]] (list variant),  [[DAS Dispatch Table]],  [[FEX]], |
 | ~~[[Espresso Beans\|Beans]]~~  | choosing roast, freshness, and origin for espresso |
 | [[Espresso Grind\|Grind]]  | grind size as the master dial — finer slows the shot |
 | ~~[[Espresso Dose\|Dose]]~~  | weight of dry grounds in the basket (the input mass) |
