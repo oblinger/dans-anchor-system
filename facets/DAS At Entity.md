@@ -134,7 +134,7 @@ Decided by [[Atticus]] 2026-08-31 on [[Winnie]]'s handoff, under [[Winnie Mandat
 **Who writes these.** [[Sonar]] mints entries for the people the job search touches; the personnel agent to come ([[Winnie]]) owns the register as a whole and the pass that brings the ~650 existing entries into this shape. Both read this table, not Henna's page, for what goes in each row.
 
 # Site-specific extensions
-A vault may specialize this facet for its own user in that vault's agent-conventions page, in a section keyed to this facet's exact name. Nothing here assumes one exists; when it does, it refines this spec and never overrides a declared pointer. In this vault that page is [[Agent Conventions]], and the `@`-entry corpus lives under [[AT]] with the person shape in [[_@{{PERSON_NAME}} Template]] and the drafted-message shape in [[AT Mail]].
+A vault may specialize this facet for its own user in that vault's agent-conventions page, in a section keyed to this facet's exact name. Nothing here assumes one exists; when it does, it refines this spec and never overrides a declared pointer. In this vault that page is [[DAS Conventions]], and the `@`-entry corpus lives under [[AT]] with the person shape in [[_@{{PERSON_NAME}} Template]] and the drafted-message shape in [[AT Mail]].
 
 # Unsettled — what Dan and Sonar settle next
 Recorded so the next agent does not mistake an open question for a ruling, and so the settling has a list:

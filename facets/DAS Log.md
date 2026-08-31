@@ -24,7 +24,7 @@ A Log captures **what happened on what day**: per-session plans + outcomes + dec
 **Cardinality: one per anchor** — each anchor has at most one Log (in either folder or single-file form).
 
 
-**Site-specific extensions.** A vault may specialize this facet for its own user in that vault's agent-conventions page, in a section keyed to this facet's exact name. Nothing here assumes one exists; when it does, it refines this spec and never overrides a declared pointer. In this vault that page is [[Agent Conventions]] § DAS Log.
+**Site-specific extensions.** A vault may specialize this facet for its own user in that vault's agent-conventions page, in a section keyed to this facet's exact name. Nothing here assumes one exists; when it does, it refines this spec and never overrides a declared pointer. In this vault that page is [[DAS Conventions]] § DAS Log.
 
 ## Two forms — folder (default) and single-file (minimal)
 
