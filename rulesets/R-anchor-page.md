@@ -24,9 +24,15 @@ The lesson worth keeping is the shape of the error rather than either field: a r
 ### RULE R-anchor-page-02 — Page filename equals the slug (checked)
 check:: entry_page_matches_slug
 
-The entry page is named `{slug}.md` — the filename matches the `.anchor` slug (the H1's readable name may differ).
+The entry page is named `{slug}.md` — the filename matches the `.anchor` slug (the H1's readable name may differ). Since 2026-09-01 (ATT T290) this is enforced in **both directions**: a missing entry page fails, and so does a **declared** slug whose folder note carries the folder name instead — `Agent Recipes/.anchor` declaring `slug: AREC` while the note is `Agent Recipes.md` fails with the rename. Dan, 2026-08-30: *"anytime a slug is defined in a folder, the folder file for that folder should be the slug name, not the full folder name."* The comparison is **byte-exact against the directory listing** — the filesystem is case-insensitive and `is_file()` would bless `muse.md` as `MUSE.md`.
 
-**Check pattern:** `basename(page) == slug + ".md"` — **unless** the folder is a `stone` store.
+**Check pattern:** `basename(page) == slug + ".md"` — **unless** the folder is a `stone` store, a **stone group**, or a **Warden corpus fixture**. Armed at zero: T289 renamed 20 notes and the vault-wide read-only scan on 2026-09-01 found no remaining violations, so the hard arm fires only on new drift.
+
+**Exemption: a stone group's note is the kind's control file** ([[Atticus Backlog#^T289|ATT T289]] Q1, Dan 2026-08-31). `R-stone-01` names a group's control file by the kind template (`Hermes Book/Hermes Book.md`), never by a slug — renaming one to its slug broke `R-stone-01`, `-02` and `-07` at once. `_is_stone_group` keys on the control file derived from the kind table, accepting both control positions (inside the folder — the current namesake layout — and one level up) so the carve-out holds across the layout migration.
+
+**Exemption: `warden/Warden Corpus/cases/*` fixtures** — deliberately minimal, several deliberately malformed, and they reuse slugs across cases (`FX1` three times). A rule firing on them makes Warden fail its own corpus. The exemption lives in the checker, not a suppression list, per the T290 design.
+
+**Deliberately narrow:** an anchor with **no note at all** is the missing-entry-page arm (this rule's original finding), never the rename arm — three empty placeholder anchors (`ASR2`/`ASR3`/`ASR4`) would otherwise fail a rule about wrong *names* for having no name to be wrong about.
 
 **Exemption: a stone store is not an anchor** ([[Tink Backlog#^T561|T561]], 2026-08-20, from [[Eli]]). `stone` writes `{slug} P####.md` into `{slug} Pebbles/` and keeps the control file **one level up** at `{slug} Pebble.md`, so the folder has no namesake by design. Measured through the real `--mode anchor --run` plan: this rule fired on **19 of 19** pebble stores — every anchor that has ever minted a pebble — and the only local remedy would have made that anchor the one deviant in the vault. Same shape as [[Tink Backlog#^T363|T363]] and [[Tink Backlog#^T556|T556]]: a rule correct on its face, unactionable in place, and permanent.
 

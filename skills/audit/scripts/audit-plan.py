@@ -1844,6 +1844,37 @@ def _is_stone_store(folder: Path) -> bool:
     return False
 
 
+def _is_stone_group(folder: Path) -> bool:
+    """True when this folder is a stone GROUP whose namesake is the kind's
+    CONTROL FILE — `{owner} Book/` holding `{owner} Book.md`, and the same for
+    every kind in `DAS Stone Kinds.json`.
+
+    Exists for the T290 arm of `chk_entry_page_matches_slug`: a stone group's
+    note is named by the kind template (`R-stone-01`), never by a declared
+    slug, so the slug-names-the-note rule must not fire on one (ATT T289 Q1,
+    Dan 2026-08-31 — renaming Hermes Book's note to its slug broke `R-stone-01`,
+    `-02` and `-07` at once). Both control positions are accepted — inside the
+    folder (the current namesake layout) and one level up (the pre-2026-08
+    layout `_is_stone_store` keys on) — because the carve-out must hold across
+    the layout migration, not just after it.
+    """
+    try:
+        kinds = _stone_kind_suffixes()
+    except Exception:
+        return False
+    for suffix, (_kind, cfg) in kinds.items():
+        if not suffix or not folder.name.endswith(suffix):
+            continue
+        owner = folder.name[: -len(suffix)]
+        control = cfg.get("control")
+        if not isinstance(control, str):
+            continue
+        name = control.replace("{slug}", owner) + ".md"
+        if (folder / name).is_file() or (folder.parent / name).is_file():
+            return True
+    return False
+
+
 def chk_entry_page_matches_slug(target, anchor_root, args):
     ep = _entry_page(anchor_root)
     if ep is None:
@@ -1855,6 +1886,34 @@ def chk_entry_page_matches_slug(target, anchor_root, args):
             # got "1 of 19" that way and was wrong).
             return "pass", "a stone store, not an anchor — control file is one level up"
         return "fail", f"no entry page {_anchor_slug(anchor_root)}.md"
+    # T290 (Dan 2026-08-30): a DECLARED slug names the folder note. _entry_page
+    # falls back to {folder}.md — correct resolution, but under a declared slug
+    # the fallback hit IS the violation, not a pass. Byte-exact via the
+    # directory listing, because the filesystem is case-insensitive and
+    # is_file() would bless `muse.md` as `MUSE.md`. A missing note entirely is
+    # the ep-is-None branch above — a different finding, deliberately not this
+    # arm's (three empty placeholder anchors would otherwise fail it).
+    dot = anchor_root / ".anchor"
+    declared = None
+    if dot.is_file():
+        m = re.search(r"^\s*slug\s*:\s*(.+?)\s*$", _read(dot), re.M)
+        if m:
+            declared = m.group(1).strip().strip("\"'")
+    if declared and declared != anchor_root.name:
+        try:
+            names = {p.name for p in anchor_root.iterdir()}
+        except OSError:
+            return "error", "unreadable anchor root"
+        if f"{declared}.md" not in names:
+            if _is_stone_group(anchor_root):
+                return "pass", (f"a stone group — {ep.name} is the kind's control file, "
+                                f"named by the kind template, never by the slug")
+            if "Warden Corpus/cases/" in str(anchor_root):
+                return "pass", ("a Warden corpus fixture — deliberately minimal, "
+                                "slugs reused across cases")
+            return "fail", (f"slug {declared!r} is declared but the folder note is {ep.name} "
+                            f"— rename it to {declared}.md (a declared slug names the "
+                            f"folder note, Dan 2026-08-30 / ATT T290)")
     return "pass", ep.name
 
 
