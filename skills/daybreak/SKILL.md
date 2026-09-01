@@ -244,7 +244,21 @@ That file is **col-1 of the Daily View dashboard** (`CAPS-J D`), toggled in plac
 
 So the briefing and the lists the user acts from are **all on screen at once**. Writing to `Quick` and `Weekly` is not bookkeeping for later — it is putting the work where their eyes already are.
 
-Shape: today's block goes directly under the H1 as `## <Day> YYYY-MM-DD · W<nn>`, pushing the previous day down. Never rewrite a past day. Sections in fixed order — **Decisions / Today / Runnable / Gaps** — per the file's own `# BRIEF`. Keep lines short; it renders in one narrow column, so wide tables wrap and destroy the glance value.
+**The file holds ONE day, and the H1 is that day.** Line 1 is `# Lumen Day · <Weekday> YYYY-MM-DD · W<nn>`, then a single orientation line, then the sections. The frozen reference copy is [[Lumen Day Example]]; read it before writing a run.
+
+**Rotate FIRST, then write.** The opening act of this step is to move whatever day the file currently holds into [[Lumen Day Archive]] — **verbatim**, above its newest entry, demoted to `## <Day> YYYY-MM-DD · W<nn>`, never rewritten and never summarised. Only then is today's H1 written. Rotating first rather than last means a run that dies halfway leaves one clean day in the file instead of two, and it is why the archive is append-only: a past briefing is a record of what Dan was told, so editing one falsifies the record.
+
+Set by Dan 2026-08-31, in those terms: *"the 1st line, that H1, should say Lumen's Day, Monday, 2026-08-31, W36."* The old shape put a static `# LUMEN Day` on line 1 and prepended a `##` per morning forever — and because the seven-day rotation that file's own header promised **was never actually implemented**, 22 days had piled up by 8/31, 743 lines deep. Dan's verdict was simply *"Lumen's Day is too long."* Rotation is now a Close step rather than a claim.
+
+**Sections, in this order.** Only `## Today` is mandatory; **an empty section is never written.**
+
+| Section | Rule |
+|---|---|
+| `## Decisions` | **Optional**, and strictly things needing *Dan's* answer. A correction Lumen owes *him* is not a decision — he struck *"the 9:00 alerts were mine"* by name on 8/31. Absent when nothing needs him. |
+| `## Today` | The things that have to get done **that day**. Not a status area. |
+| `## Watching` / `## Gaps` / `## Done today` | Lumen's carry-over sections. Drop any of them on a day with nothing to put in it. |
+
+**No word wraps.** One line per item, a second line only when genuinely needed — ~105 characters is the working ceiling. It renders in one narrow column, so a wrapped bullet and a wide table both destroy the glance value. This is where the old briefings failed hardest: paragraph-length bullets that read as an essay rather than a list.
 
 ## What Lumen is holding — [[Lumen Pebbles]] 
 
@@ -297,7 +311,7 @@ After the Today set is chosen and **before** it is written, read `~/ob/kmr/Topic
 
 1. Record anything deferred-but-wanted in a durable place — a [[Lumen Pebbles|pebble]] if Lumen is holding it, else a [[Quick]] line, a [[Weekly]] checkbox, or a backlog row.
 2. Advance `Daybreak Watermark.md` to the newest `captured:` surfaced.
-3. Confirm the briefing landed in [[Lumen Day]] before finishing — a run that only spoke into chat did not deliver.
+3. Confirm the briefing landed in [[Lumen Day]] before finishing — a run that only spoke into chat did not deliver. **Check the rotation held too**: exactly one H1 and no `##` day-heading other than today's. The seven-day rotation this file claimed for weeks was never implemented, and nothing checked, so it silently grew to 743 lines.
 4. **`ob_check drain` — but only once Dan has actually responded to the briefing.** The Doctor step deliberately used `peek`, which left the cursor alone; this is where the receipt is written. **If the morning ends with no reply from him, do not drain** — leave the cursor and let the same rows surface tomorrow, because he never saw them.
 5. Do not commit unless asked — Daybreak is a read-and-decide ritual, not a work session.
 
