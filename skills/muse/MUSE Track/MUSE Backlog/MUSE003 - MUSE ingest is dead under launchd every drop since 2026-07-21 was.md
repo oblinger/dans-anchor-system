@@ -16,4 +16,4 @@ next:: reproduce the failure under `_trust` rather than under a login shell — 
 
 ## Status
 
-**Ready** — minted from the backlog row by `state` on 2026-08-28 (F614: every task has its doc; the row is its pointer).
+**Done** — closed 2026-08-31 by Atticus: the fault no longer reproduces. Ingest under launchd is measurably alive — items landed 2026-08-24 and 2026-08-27, `.muse.hashes` touched 2026-08-31 20:10 by the sweep, and the 2026-08-30 probe read healthy (86 candidates, 0 new, 2 unplayable, VOX current). The two genuinely-dead files remain bring-up-era tests (07-13 no-transcript, 07-14 corrupt). The loudness follow-ons this row surfaced — silent quarantine, `ingested 0 new` never alarming — are exactly [[MUSE Backlog#^T004|T004]] items (2) and (3), which stays Ready; nothing is lost by closing this as recovered-without-diagnosis, and that fact is recorded so a recurrence reopens against T004's fixes rather than from scratch.

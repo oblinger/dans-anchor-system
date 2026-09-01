@@ -5,7 +5,7 @@ description: "Superseded-and-widened 2026-08-31: step 12 delivers EVERY ingested
 # [[MUSE]] · T010 — Capture-time routing: step 12 in `scripts/muse` delivers every memo to Sparks
 Dan ruled 2026-08-21 (ATT T241): route on capture — then widened it 2026-08-31 (ATT T299 / pebble [[Atticus P0017]]): **Sparks is the recipient of ALL MUSE inputs**, the single hardened ingress where injection screening lives. Per-agent fan-out at capture is superseded; Sparks forwards after screening.
 
-next:: open `scripts/muse`, locate step 11 `notify` (~line 797), and write step 12 per the 2026-08-31 spec in the Summary; test with a fixture transcript naming one agent and one naming nobody (both must land in Sparks's Inbox, the first carrying the hint line).
+next:: none — shipped and fixture-verified 2026-08-31; the next real memo is the natural exercise.
 
 ## Summary
 
@@ -21,4 +21,4 @@ Folds the 2026-08-08 "deliver via inbox" note and the 2026-08-21 ruling handoff 
 
 ## Status
 
-**Ready** — minted from the backlog row by `state` on 2026-08-31 (F614: every task has its doc; the row is its pointer).
+**Done** — shipped 2026-08-31 by Atticus as commit 93acef5c: `deliver_to_sparks()` + the step-12 call after `notify`, MUSE_STATE_CLI resolved relative to the script. Fixture-tested live: one transcript naming Lumen and one naming nobody both landed in [[Sparks Inbox]] (the first with `mentions: Lumen`), then tagged DONE as fixtures. Naturally exercised by the next real dictation; ATT T241's probe now finds the step.
