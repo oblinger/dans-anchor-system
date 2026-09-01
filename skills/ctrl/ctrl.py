@@ -1275,8 +1275,59 @@ def launch_chrome_debug(port: int = 9222) -> subprocess.Popen:
     # (and keeps extensions like 1Password) across runs. A throwaway temp
     # profile is always logged out with no extensions — that was the root
     # cause of the recurring "not-signed-in Chrome" problem.
+    #
+    # PER-MACHINE STORE (Dan 2026-09-01): `chrome_user_data_dir` in
+    # ~/.config/ctrl/config.json overrides the default. Dexter is a
+    # single-store machine — agents and Dan share the DEFAULT Chrome store
+    # there, because two invisible universes on one screen cost him more than
+    # the isolation bought on an agent-dedicated box. The MBP keeps the
+    # separate automation profile: that is his primary machine, where the
+    # wall between his live logins and a debug-exposed store is real
+    # protection. Do not collapse the default here.
     user_data_dir = os.path.expanduser('~/.config/ctrl/chrome-profile')
+    try:
+        import json as _json
+        with open(os.path.expanduser('~/.config/ctrl/config.json')) as _f:
+            _cfg_dir = _json.load(_f).get('chrome_user_data_dir')
+        if _cfg_dir:
+            user_data_dir = os.path.expanduser(_cfg_dir)
+    except (OSError, ValueError):
+        pass
     os.makedirs(user_data_dir, exist_ok=True)
+
+    # If Chrome is already running ON THIS STORE without our debug port, a new
+    # flagged launch would just delegate a window to it and the port would
+    # never open. Quit it gracefully and relaunch flagged; the session
+    # restores. (A Chrome with no --user-data-dir flag runs on the OS default
+    # store, so it conflicts exactly when our target IS the default store —
+    # the Dexter single-store case after a dock launch.)
+    _default_store = os.path.expanduser('~/Library/Application Support/Google/Chrome')
+    _on_default = os.path.realpath(user_data_dir) == os.path.realpath(_default_store)
+    try:
+        _ps = subprocess.run(['ps', 'ax', '-o', 'command'], capture_output=True, text=True).stdout
+        _conflict = False
+        for _ln in _ps.splitlines():
+            if '/MacOS/Google Chrome' not in _ln or 'Helper' in _ln:
+                continue
+            if f'--user-data-dir={user_data_dir}' in _ln:
+                _conflict = f'--remote-debugging-port={port}' not in _ln
+            elif '--user-data-dir=' not in _ln and _on_default:
+                _conflict = True
+            if _conflict:
+                break
+        if _conflict:
+            print("♻️  Chrome is running on this store without the debug port — "
+                  "quitting to relaunch flagged (session restores)")
+            subprocess.run(['osascript', '-e', 'tell application "Google Chrome" to quit'],
+                           timeout=20, capture_output=True)
+            for _ in range(30):
+                _ps = subprocess.run(['ps', 'ax', '-o', 'command'], capture_output=True, text=True).stdout
+                if not any('/MacOS/Google Chrome' in _l and 'Helper' not in _l
+                           for _l in _ps.splitlines()):
+                    break
+                time.sleep(1)
+    except (subprocess.SubprocessError, OSError) as _e:
+        print(f"⚠️  conflict check failed ({_e}) — launching anyway")
 
     # Assert the profile's AGENT identity on every launch (Dan 2026-09-01):
     # this browser shares a screen with Dan's own Chrome, and an unnamed
@@ -1316,6 +1367,7 @@ def launch_chrome_debug(port: int = 9222) -> subprocess.Popen:
         f'--user-data-dir={user_data_dir}',
         '--no-first-run',
         '--no-default-browser-check',
+        '--restore-last-session',
     ])
 
     # Wait for Chrome to be ready
