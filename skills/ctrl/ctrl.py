@@ -1278,6 +1278,37 @@ def launch_chrome_debug(port: int = 9222) -> subprocess.Popen:
     user_data_dir = os.path.expanduser('~/.config/ctrl/chrome-profile')
     os.makedirs(user_data_dir, exist_ok=True)
 
+    # Assert the profile's AGENT identity on every launch (Dan 2026-09-01):
+    # this browser shares a screen with Dan's own Chrome, and an unnamed
+    # generic-avatar window is indistinguishable from a mystery profile — he
+    # lost real time to exactly that confusion. Idempotent, best-effort: a
+    # failure to label must never block a launch.
+    try:
+        import json as _json
+        _prefs = os.path.join(user_data_dir, 'Default', 'Preferences')
+        if os.path.exists(_prefs):
+            with open(_prefs) as _f:
+                _d = _json.load(_f)
+            _p = _d.setdefault('profile', {})
+            if _p.get('name') != 'AGENT':
+                _p['name'] = 'AGENT'
+                _p['using_default_name'] = False
+                _p['avatar_index'] = 52
+                with open(_prefs, 'w') as _f:
+                    _json.dump(_d, _f)
+        _lstate = os.path.join(user_data_dir, 'Local State')
+        if os.path.exists(_lstate):
+            with open(_lstate) as _f:
+                _d = _json.load(_f)
+            _ic = _d.setdefault('profile', {}).setdefault('info_cache', {}).setdefault('Default', {})
+            if _ic.get('name') != 'AGENT':
+                _ic['name'] = 'AGENT'
+                _ic['is_using_default_name'] = False
+                with open(_lstate, 'w') as _f:
+                    _json.dump(_d, _f)
+    except Exception as _e:
+        print(f"⚠️  could not assert AGENT profile label: {_e}")
+
     # Launch Chrome with remote debugging
     process = subprocess.Popen([
         chrome_path,
