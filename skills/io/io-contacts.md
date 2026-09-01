@@ -53,6 +53,8 @@ R="$HOME/.claude/skills/io/scripts/io-contacts-repo"
 "$R" apply --plan F --commit         # dump+commit, apply, dump+commit
 ```
 
+Plan ops: `MERGE`, `SET`, `SETEMAIL`, `DELPHONE`, `SETPHOTO`, `DELETE`.
+
 **Why this replaced an approval prompt.** Ruled by Dan 2026-08-30: *"just make it writable and have a git log … so we don't have to worry so much about making changes."* Approval gates *intent*; the actual risk of a Contacts merge is that it is irreversible and syncs to every device. Version control makes a wrong change a `git revert` instead of a loss, and it covers the changes Dan makes on his own phone, which no approval scheme ever did. A time-boxed "writes are approved for the next hour" was considered and rejected: with ~15 concurrent sessions on this machine it grants write authority to all of them, and it approves an intention rather than an operation.
 
 **Two commits, never one.** The *before* commit absorbs whatever drifted in since the last dump; only then does the *after* commit isolate exactly what the agent did. Squashing them leaves a diff that mixes the agent's change with a week of unrelated phone edits — and *what did the agent do* is the one question the log has to answer.
@@ -61,9 +63,12 @@ R="$HOME/.claude/skills/io/scripts/io-contacts-repo"
 
 **The repo is local-only** and `init` installs a `pre-push` hook that refuses. It holds ~2,200 people's names, emails, phone numbers and addresses — overwhelmingly other people's data. Off-machine durability comes from restic, which already covers `~/ob`, so a remote would buy exposure and nothing else.
 
+**MERGE does not carry the photo — check the survivor before you merge.** A record shows one image, so choosing between two is a judgement and the tool refuses to make it. The consequence is silent: the merged card simply keeps whichever photo the *survivor* had, **including none**, and the victim's is gone from Contacts. Found the hard way 2026-08-31 — a merge kept a 96×96 snapshot of Dan and dropped a 2160×2162 portrait. Nothing was lost only because the photo was still in the BEFORE commit, which is the recovery path: `git show <before>:photos/<uid>.jpg > out.jpg`, then a `SETPHOTO` row to put it back. Look at both images first; restore with `SETPHOTO` when the victim's is the better one.
+
 ### Two measured facts worth knowing before touching photos
 
 - **~23% of the photos in this book cannot be read.** Contacts hands back a `PHOTO` block whose base64 decodes to the ASCII string `Unable to read recordID` — an error report shaped exactly like an image. Measured 2026-08-31: **67 of 291** contacts with a photo. A per-person re-export returns the same placeholder, so it is a condition of the address book, not a bulk-export artifact. `io-contacts-repo` checks decoded bytes against image magic numbers and lists the failures in `PHOTOS-UNREADABLE.tsv` rather than writing 23 bytes of English into a `.jpg`.
+- **`SETPHOTO` must read the file `as data`, never `as picture`.** AppleScript's `as picture` coercion goes through a thumbnail representation and stores a **192×192** image whatever it was handed — a 2160×2162 portrait came back 192×192 / 5.5 KB. `read ... as data` hands Contacts the file's own bytes and the full image survives. Measured 2026-08-31 on Dan's card, both directions.
 - **Photos dominate an export and must not go inline.** 200 cards export to 3.0 MB of which **96% is base64 photo** from 23 contacts. Stored as separate image files it is ~22 MB once, because git re-stores a photo only when the image changes; inline it would be ~33 MB *every dump*, undeltable and uncompressible.
 
 ## Related

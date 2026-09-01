@@ -1,0 +1,693 @@
+#!/usr/bin/env python3
+"""MODULE: io-contacts-repo -- a git-backed history of the macOS Contacts book.
+
+    io-contacts-repo init            create the repo (local-only; push is refused)
+    io-contacts-repo dump            write vcf/ + photos/ + INDEX.tsv into the repo
+    io-contacts-repo sync [-m MSG]   dump, then commit iff something changed
+    io-contacts-repo status          repo path, record count, last commit
+
+WHY THIS EXISTS.  Writing to a shared address book used to need permission
+because a merge is irreversible and syncs to every device.  Version control
+replaces the permission with a diff: every change becomes a commit, so a wrong
+one is `git revert` rather than a loss.  Ruled by Dan 2026-08-30: *"just make
+it writable and have a git log ... so we don't have to worry so much about
+making changes."*
+
+THE DESIGN, AND THE MEASUREMENTS BEHIND IT (2026-08-30, 2204 records):
+
+* **One file per contact, named by UUID.**  This is what makes `git log`
+  legible -- a merge shows up as *two files deleted, one modified*, which is
+  exactly the operation performed.  A single large .vcf would be one
+  incomprehensible blob diff.  Named by id rather than name because duplicate
+  names are the very thing being repaired, and names change.
+
+* **Photos are kept as real JPEGs, not inline base64.**  Measured: 200 cards
+  export to 3.0 MB of which *96% is base64 photo* from just 23 contacts -- so
+  inline photos cost ~33 MB *per dump*, and git can neither delta nor compress
+  them (base64-of-JPEG is already-compressed data wearing a text costume).  As
+  separate files it is ~23 MB *once*, because a photo is re-stored only when
+  the image actually changes.  The inline form regenerates from the two parts,
+  so nothing is lost for restoring.
+
+* **Some photos cannot be read at all, and that is recorded rather than
+  hidden.**  Contacts returns, for some records, a PHOTO block whose base64
+  decodes to the ASCII string `Unable to read recordID` -- an error report
+  shaped exactly like an image.  Measured 2026-08-31: 8 of 23 photos in a
+  200-record sample, and a per-person re-export returns the same placeholder,
+  so this is a condition of the address book and not an artifact of bulk
+  export.  Decoded bytes are checked against image magic numbers; anything that
+  is not an image is listed in `PHOTOS-UNREADABLE.tsv` instead of being written
+  out as a `.jpg` full of English.
+
+* **PRODID is stripped.**  It carries the OS version
+  (`-//Apple Inc.//macOS 26.6.2//EN`), so a macOS point release would otherwise
+  rewrite all 2204 files in one meaningless commit.
+
+* **Ids and vcards are read in the SAME AppleScript call, over the same
+  range.**  A vCard from Contacts carries no UID line, so the id must come from
+  a parallel read -- and pairing two separate calls by position would silently
+  mis-file every record if the book changed between them.  Same call, same
+  range, and the FN/name agreement is checked besides.
+
+* **Export is deterministic** -- two dumps of an unchanged book are
+  byte-identical.  Verified before any of this was built; without it every
+  commit would be noise.
+
+LOCAL ONLY.  The repo holds 2204 people's names, emails, phone numbers and
+addresses -- overwhelmingly other people's data.  `init` installs a `pre-push`
+hook that refuses, because the realistic failure is a future agent tidying up
+by "finishing the setup" on a repo that looks unconfigured.  Durability comes
+from restic, which already covers ~/ob.
+"""
+
+import base64
+import os
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+REPO = Path(os.environ.get("IO_CONTACTS_REPO", Path.home() / "ob/data/contacts"))
+CHUNK = int(os.environ.get("IO_CONTACTS_CHUNK", "200"))
+TIMEOUT = int(os.environ.get("IO_CONTACTS_TIMEOUT", "300"))
+
+REC = "===IOCONTACTREC==="
+
+PRE_PUSH = """#!/bin/sh
+# This repository is deliberately local-only.  It holds ~2200 people's names,
+# emails, phone numbers and addresses -- overwhelmingly other people's personal
+# data, not the owner's.  Off-machine durability is provided by restic, which
+# already covers ~/ob, so a remote would buy exposure and nothing else.
+# Ruled by Dan 2026-08-31.  If this is ever revisited, remove the hook
+# deliberately; do not "fix" it because the repo looked unconfigured.
+echo "io-contacts-repo: push refused -- this repository is local-only by design." >&2
+echo "  See .git/hooks/pre-push and the module docstring of io-contacts-repo." >&2
+exit 1
+"""
+
+GITIGNORE = """# The .abcddb snapshot tier lives outside git -- see the module docstring.
+snapshots/
+.DS_Store
+"""
+
+README = """# contacts
+
+A git-backed history of the macOS Contacts address book. **Local only** -- see
+`.git/hooks/pre-push`.
+
+- `vcf/<uuid>.vcf` -- one contact per file, vCard 3.0, `PRODID` stripped and
+  `PHOTO` replaced by a reference into `photos/`.
+- `photos/<uuid>.jpg` -- contact photos as ordinary images, so git stores each
+  one once instead of re-storing a base64 blob on every unrelated edit.
+- `PHOTOS-UNREADABLE.tsv` -- contacts that have a photo which Contacts itself
+  cannot read; it hands back the text `Unable to read recordID` in the image's
+  place. Listed rather than silently skipped, because otherwise the only trace
+  is a picture that quietly is not there. Absent when there are none.
+- `INDEX.tsv` -- `uuid <tab> name <tab> org`. UUID filenames are unreadable in
+  `git log --stat`; this is what turns a diff back into people's names.
+
+Written by `io-contacts-repo` (in the `io` skill). Do not hand-edit: the tree is
+regenerated from Contacts.app on every dump, so an edit here is overwritten
+rather than merged. To change a contact, change it in Contacts and dump again.
+"""
+
+
+def die(msg):
+    print(f"io-contacts-repo: {msg}", file=sys.stderr)
+    sys.exit(1)
+
+
+def osa(script, *args):
+    r = subprocess.run(["osascript", "-", *args, str(TIMEOUT)],
+                       input=script, capture_output=True, text=True)
+    if r.returncode != 0:
+        die(f"osascript failed: {r.stderr.strip()}")
+    return r.stdout
+
+
+COUNT_OSA = """
+on run argv
+  with timeout of (item 1 of argv as integer) seconds
+    tell application "Contacts" to return count of every person
+  end timeout
+end run
+"""
+
+# ids and vcards from ONE call over ONE range -- see the docstring on why this
+# may not be split into two calls paired by position.
+CHUNK_OSA = """
+on run argv
+  set a to (item 1 of argv) as integer
+  set b to (item 2 of argv) as integer
+  set out to {}
+  with timeout of (item 3 of argv as integer) seconds
+    tell application "Contacts"
+      -- the range is re-applied per property rather than bound to a variable:
+      -- `id of <list of person refs>` is an error (-1728). Still one osascript
+      -- call inside one `tell`, so nothing can edit the book between them, and
+      -- the FN/name agreement check in the caller catches it if anything did.
+      set ids to id of (people a thru b)
+      set nms to name of (people a thru b)
+      set ogs to organization of (people a thru b)
+      set vcs to vcard of (people a thru b)
+    end tell
+  end timeout
+  repeat with i from 1 to count of ids
+    set o to item i of ogs
+    if o is missing value then set o to ""
+    set n to item i of nms
+    if n is missing value then set n to ""
+    set end of out to "===IOCONTACTREC===" & linefeed & (item i of ids) & linefeed & n & linefeed & o & linefeed & (item i of vcs)
+  end repeat
+  set AppleScript's text item delimiters to linefeed
+  return out as text
+end run
+"""
+
+PHOTO_RE = re.compile(r"^PHOTO;([^:\n]*):(.*(?:\n[ \t].*)*)\n?", re.M)
+PRODID_RE = re.compile(r"^PRODID:.*\n?", re.M)
+
+
+def contact_count():
+    return int(osa(COUNT_OSA).strip())
+
+
+def read_chunk(lo, hi):
+    """Yield (uuid, name, org, vcard) for records lo..hi (1-based, inclusive)."""
+    raw = osa(CHUNK_OSA, str(lo), str(hi))
+    for blob in raw.split(REC + "\n"):
+        if not blob.strip():
+            continue
+        parts = blob.split("\n", 3)
+        if len(parts) < 4:
+            continue
+        uid, name, org, vcard = parts
+        yield uid.strip(), name, org, vcard
+
+
+MAGIC = ((b"\xff\xd8\xff", "jpg"), (b"\x89PNG\r\n\x1a\n", "png"),
+         (b"GIF8", "gif"), (b"RIFF", "webp"))
+
+
+def split_photo(vcard):
+    """Return (vcard_without_photo_body, image_bytes, ext, unreadable_reason).
+
+    Contacts will happily hand back a PHOTO block whose base64 decodes to the
+    ASCII string `Unable to read recordID` -- an error report wearing an
+    image's clothes. Measured 2026-08-31: **8 of 23** photos in a 200-record
+    sample came back that way, and a per-person re-export returns the same
+    placeholder, so it is a real condition in the address book rather than a
+    bulk-export artifact. Writing that to `<uuid>.jpg` would put 23 bytes of
+    English where an image belongs and lose the fact silently, so the decoded
+    bytes are checked against image magic numbers and anything else is reported
+    as unreadable instead of stored.
+    """
+    m = PHOTO_RE.search(vcard)
+    if not m:
+        return vcard, None, None, None
+    params, body = m.group(1), m.group(2)
+    up = params.upper()
+    if "ENCODING=B" not in up and "BASE64" not in up:
+        return vcard, None, None, None          # already a URI; leave it alone
+    b64 = re.sub(r"\s", "", body)
+    try:
+        blob = base64.b64decode(b64 + "=" * ((4 - len(b64) % 4) % 4))
+    except Exception:
+        return vcard, None, None, "base64 did not decode"
+    for sig, ext in MAGIC:
+        if blob.startswith(sig):
+            return vcard[:m.start()] + vcard[m.end():], blob, ext, None
+    hint = blob[:60].decode("utf-8", "replace") if len(blob) < 200 else f"{len(blob)} bytes"
+    return vcard[:m.start()] + vcard[m.end():], None, None, hint
+
+
+def canonical(vcard, uid, ext):
+    v = PRODID_RE.sub("", vcard)
+    v = v.replace("\r\n", "\n").rstrip("\n") + "\n"
+    if ext:
+        v = v.replace("END:VCARD", f"PHOTO;VALUE=URI:photos/{uid}.{ext}\nEND:VCARD")
+    return v
+
+
+def git(*args, check=True):
+    r = subprocess.run(["git", "-C", str(REPO), *args],
+                       capture_output=True, text=True)
+    if check and r.returncode != 0:
+        die(f"git {' '.join(args)} failed: {r.stderr.strip()}")
+    return r
+
+
+def cmd_init():
+    if (REPO / ".git").is_dir():
+        print(f"already a repo: {REPO}")
+    else:
+        REPO.mkdir(parents=True, exist_ok=True)
+        subprocess.run(["git", "init", "-q", str(REPO)], check=True)
+        print(f"initialised {REPO}")
+    (REPO / "vcf").mkdir(exist_ok=True)
+    (REPO / "photos").mkdir(exist_ok=True)
+    (REPO / ".gitignore").write_text(GITIGNORE, encoding="utf-8")
+    (REPO / "README.md").write_text(README, encoding="utf-8")
+    hook = REPO / ".git/hooks/pre-push"
+    hook.write_text(PRE_PUSH, encoding="utf-8")
+    hook.chmod(0o755)
+    print("pre-push hook installed (local-only)")
+
+
+def cmd_dump(quiet=False):
+    if not (REPO / ".git").is_dir():
+        die(f"no repo at {REPO} -- run `io-contacts-repo init` first")
+    total = contact_count()
+    vcf_dir, ph_dir = REPO / "vcf", REPO / "photos"
+    vcf_dir.mkdir(exist_ok=True)
+    ph_dir.mkdir(exist_ok=True)
+
+    seen, index, photos, mismatch, unreadable = set(), [], 0, 0, []
+    for lo in range(1, total + 1, CHUNK):
+        hi = min(lo + CHUNK - 1, total)
+        if not quiet:
+            print(f"  {lo}-{hi} of {total}", flush=True)
+        for uid, name, org, vcard in read_chunk(lo, hi):
+            short = uid.split(":")[0]
+            # Apple emits the record's own id into the vCard as X-ABUID, which
+            # turns the id/vcard pairing from an assumption about ordering into
+            # something checkable. A mismatch means a record is about to be
+            # filed under someone else's name, so it is fatal, not counted.
+            abuid = re.search(r"^X-ABUID:(.*)$", vcard, re.M)
+            if abuid and abuid.group(1).strip() != uid:
+                die(f"id/vcard misalignment at record {short}: vcard carries "
+                    f"X-ABUID {abuid.group(1).strip()!r}. Nothing written.")
+            fn = re.search(r"^FN:(.*)$", vcard, re.M)
+            if fn and name and fn.group(1).strip() != name.strip():
+                mismatch += 1
+            body, blob, ext, bad = split_photo(vcard)
+            if blob:
+                (ph_dir / f"{short}.{ext}").write_bytes(blob)
+                photos += 1
+            elif bad:
+                unreadable.append(f"{short}\t{name}\t{bad}")
+            (vcf_dir / f"{short}.vcf").write_text(
+                canonical(body, short, ext), encoding="utf-8")
+            seen.add(short)
+            index.append(f"{short}\t{name}\t{org}")
+
+    if not seen:
+        die("dump produced no records -- refusing to write an empty tree "
+            f"(the book reports {total})")
+    # A zero here would look exactly like "everyone was deleted"; it is far more
+    # likely to be a broken reader, so it must never reach a commit.
+    if len(seen) < total * 0.9:
+        die(f"dump produced {len(seen)} records but the book reports {total} "
+            "-- refusing to write a tree that would read as a mass deletion")
+    if mismatch > total * 0.05:
+        die(f"{mismatch} of {total} records disagree between their FN and their "
+            "name -- the id/vcard pairing cannot be trusted; nothing written")
+
+    for stale in vcf_dir.glob("*.vcf"):
+        if stale.stem not in seen:
+            stale.unlink()
+    for stale in ph_dir.iterdir():
+        if stale.is_file() and stale.stem not in seen:
+            stale.unlink()
+
+    (REPO / "INDEX.tsv").write_text("\n".join(sorted(index)) + "\n", encoding="utf-8")
+    # A photo Contacts cannot read is a fact about the address book, so it is
+    # committed alongside the data rather than dropped -- otherwise the only
+    # trace is an image that quietly is not there.
+    led = REPO / "PHOTOS-UNREADABLE.tsv"
+    if unreadable:
+        led.write_text("# uuid\tname\twhat came back instead of an image\n"
+                       + "\n".join(sorted(unreadable)) + "\n", encoding="utf-8")
+    elif led.exists():
+        led.unlink()
+    print(f"dumped {len(seen)} contacts, {photos} photos"
+          + (f", {len(unreadable)} photos UNREADABLE (see PHOTOS-UNREADABLE.tsv)" if unreadable else "")
+          + (f", {mismatch} FN/name mismatches" if mismatch else ""))
+    return len(seen)
+
+
+def cmd_sync(msg=None):
+    n = cmd_dump()
+    git("add", "-A")
+    if not git("diff", "--cached", "--quiet", check=False).returncode:
+        print("no change since last commit")
+        return
+    stat = git("diff", "--cached", "--shortstat").stdout.strip()
+    git("-c", "user.name=io-contacts-repo",
+        "-c", "user.email=io-contacts-repo@localhost",
+        "commit", "-q", "-m", msg or f"contacts dump -- {n} records")
+    print(f"committed: {stat}")
+
+
+def cmd_status():
+    print(f"repo:     {REPO}")
+    if not (REPO / ".git").is_dir():
+        print("          (not initialised)")
+        return
+    n = len(list((REPO / "vcf").glob("*.vcf"))) if (REPO / "vcf").is_dir() else 0
+    # count every image, not just .jpg -- the book holds PNGs too, and a glob
+    # that quietly under-reports is the same class of bug as a photo that
+    # quietly is not there
+    pics = [f for f in (REPO / "photos").iterdir() if f.is_file()] \
+        if (REPO / "photos").is_dir() else []
+    bad = REPO / "PHOTOS-UNREADABLE.tsv"
+    nbad = len(bad.read_text(encoding="utf-8").splitlines()) - 1 if bad.exists() else 0
+    print(f"records:  {n} vcf, {len(pics)} photos"
+          + (f", {nbad} photos unreadable" if nbad > 0 else ""))
+    last = git("log", "-1", "--format=%h %ad %s", "--date=iso", check=False)
+    print(f"last:     {last.stdout.strip() or '(no commits)'}")
+    dirty = git("status", "--porcelain", check=False).stdout.strip()
+    print(f"dirty:    {len(dirty.splitlines())} path(s)" if dirty else "dirty:    clean")
+
+
+# MERGE carries emails, phones and (if the survivor has none) the organization.
+# It does NOT carry the photo: a record displays one image, so choosing between
+# two is a judgement, and the survivor keeps its own.
+#
+# THE CONSEQUENCE, which is not obvious: if the victim has a photo and the
+# survivor does not, that image is gone from Contacts after the merge. It
+# remains in git -- the pre-write commit still holds the blob, which is exactly
+# what the repository is for -- but nothing puts it back automatically. On the
+# first real run (2026-08-31) two victims had photos and both survivors already
+# had their own, so nothing was lost; that was luck, not design. If this matters
+# for a future plan, check the survivor for a photo BEFORE merging.
+MERGE_OSA = """
+on run argv
+  with timeout of (item 3 of argv as integer) seconds
+    tell application "Contacts"
+      set s to first person whose id is (item 1 of argv)
+      set v to first person whose id is (item 2 of argv)
+      set n to 0
+      repeat with em in emails of v
+        if (value of em) is not in (value of emails of s) then
+          make new email at end of emails of s with properties {label:(label of em), value:(value of em)}
+          set n to n + 1
+        end if
+      end repeat
+      repeat with tl in phones of v
+        if (value of tl) is not in (value of phones of s) then
+          make new phone at end of phones of s with properties {label:(label of tl), value:(value of tl)}
+          set n to n + 1
+        end if
+      end repeat
+      if (organization of s is missing value or organization of s is "") then
+        if organization of v is not missing value then set organization of s to organization of v
+      end if
+      delete v
+      save
+      return "carried " & n & " field(s)"
+    end tell
+  end timeout
+end run
+"""
+
+SET_OSA = """
+on run argv
+  with timeout of (item 4 of argv as integer) seconds
+    tell application "Contacts"
+      set p to first person whose id is (item 1 of argv)
+      set f to item 2 of argv
+      if f is "first" then
+        set first name of p to (item 3 of argv)
+      else if f is "last" then
+        set last name of p to (item 3 of argv)
+      else if f is "organization" then
+        set organization of p to (item 3 of argv)
+      else
+        error "unknown field " & f
+      end if
+      save
+      return "ok"
+    end tell
+  end timeout
+end run
+"""
+
+SETEMAIL_OSA = """
+on run argv
+  with timeout of (item 4 of argv as integer) seconds
+    tell application "Contacts"
+      set p to first person whose id is (item 1 of argv)
+      set hit to 0
+      repeat with em in emails of p
+        if (value of em) is (item 2 of argv) then
+          set value of em to (item 3 of argv)
+          set hit to hit + 1
+        end if
+      end repeat
+      if hit is 0 then error "no email " & (item 2 of argv) & " on " & (name of p)
+      save
+      return "ok"
+    end tell
+  end timeout
+end run
+"""
+
+DELETE_OSA = """
+on run argv
+  with timeout of (item 2 of argv as integer) seconds
+    tell application "Contacts"
+      delete (first person whose id is (item 1 of argv))
+      save
+      return "ok"
+    end tell
+  end timeout
+end run
+"""
+
+DELPHONE_OSA = """
+on run argv
+  with timeout of (item 3 of argv as integer) seconds
+    tell application "Contacts"
+      set p to first person whose id is (item 1 of argv)
+      set hit to 0
+      -- Iterate BACKWARDS by index. `repeat with x in (phones of p)` walks a
+      -- live collection, so deleting an element renumbers everything after it
+      -- and the next fetch fails with -1728 ("Can't get item 2 of every phone
+      -- of person id ..."). Going from the end means a deletion only ever
+      -- disturbs indices already visited.
+      repeat with i from (count of phones of p) to 1 by -1
+        if (value of phone i of p) is (item 2 of argv) then
+          delete phone i of p
+          set hit to hit + 1
+        end if
+      end repeat
+      if hit is 0 then error "no phone " & (item 2 of argv) & " on " & (name of p)
+      save
+      return "ok"
+    end tell
+  end timeout
+end run
+"""
+
+SETPHOTO_OSA = """
+on run argv
+  -- The file is read OUTSIDE the tell block so a Contacts error cannot leave
+  -- the access handle open.
+  --
+  -- `read ... as data` rather than `as picture`, and the difference is not
+  -- cosmetic: measured 2026-08-31 on Dan's own card, `as picture` coerces
+  -- through a thumbnail representation and stores a 192x192 image no matter
+  -- what it was handed -- a 2160x2162 portrait came back as 192x192 / 5.5 KB.
+  -- `as data` hands Contacts the file's own bytes and the full image survives.
+  set f to open for access (POSIX file (item 2 of argv))
+  set d to read f as data
+  close access f
+  with timeout of (item 3 of argv as integer) seconds
+    tell application "Contacts"
+      set p to first person whose id is (item 1 of argv)
+      set image of p to d
+      save
+      return "ok"
+    end tell
+  end timeout
+end run
+"""
+
+NAME_OSA = """
+on run argv
+  with timeout of (item 2 of argv as integer) seconds
+    tell application "Contacts"
+      set m to (every person whose id is (item 1 of argv))
+      if (count of m) is 0 then return "MISSING"
+      return name of (item 1 of m)
+    end tell
+  end timeout
+end run
+"""
+
+
+def live_name(uid):
+    return osa(NAME_OSA, uid).strip()
+
+
+def read_plan(path):
+    """Parse a TSV plan. Blank lines and `#` comments are ignored.
+
+        MERGE     <survivor-id>  <victim-id>[,<victim-id>...]  [comment]
+        SET       <id>  first|last|organization  <value>       [comment]
+        SETEMAIL  <id>  <old-value>  <new-value>               [comment]
+        DELPHONE  <id>  <exact-value>                          [comment]
+        SETPHOTO  <id>  <image-file-path>                       [comment]
+        DELETE    <id>  <name-as-reviewed>                     [comment]
+
+    SETPHOTO exists because MERGE does NOT carry the photo. A record shows one
+    image, so choosing between two is a judgement, and the tool refuses to make
+    it -- which means a merge silently keeps whichever photo the SURVIVOR had,
+    including none. Check the survivor before merging; when the victim's is the
+    better picture, restore it with an explicit SETPHOTO row. Found the hard way
+    2026-08-31: a merge kept a 96x96 snapshot and dropped a 2160px portrait, and
+    the only reason nothing was lost is that the photo was still in the BEFORE
+    commit. `git show <before>:photos/<uid>.jpg > out.jpg` is the recovery path.
+
+    DELPHONE exists because MERGE carries the *union* of both records' fields,
+    which is right for two different numbers and wrong for one number written
+    two ways -- or for a number that cannot dial at all (a nine-digit string, a
+    `+54` number with a US country code bolted on). Dropping is therefore an
+    explicit reviewed row, never a normalisation the tool performs on its own.
+    """
+    rows = []
+    for n, line in enumerate(Path(path).read_text(encoding="utf-8").splitlines(), 1):
+        if not line.strip() or line.lstrip().startswith("#"):
+            continue
+        f = line.split("\t")
+        if len(f) < 2:
+            die(f"plan line {n}: not TSV -- {line!r}")
+        op = f[0].strip()
+        if op not in ("MERGE", "SET", "SETEMAIL", "DELPHONE", "SETPHOTO", "DELETE"):
+            die(f"plan line {n}: unknown op {op!r}")
+        rows.append((n, op, [x.strip() for x in f[1:]]))
+    return rows
+
+
+def cmd_apply(plan_path, commit=False, pre_sync=True, msg=None):
+    if not (REPO / ".git").is_dir():
+        die(f"no repo at {REPO} -- run `io-contacts-repo init` first")
+    rows = read_plan(plan_path)
+
+    # Pass 1: resolve every id before touching anything. A plan that is stale in
+    # one row is a plan whose other rows may also be describing a book that has
+    # moved on, so a single miss stops the whole run rather than skipping a line.
+    problems = []
+    for n, op, f in rows:
+        ids = [f[0]] + (f[1].split(",") if op == "MERGE" else [])
+        for uid in ids:
+            if live_name(uid) == "MISSING":
+                problems.append(f"  line {n} {op}: id not found -- {uid}")
+        if op == "SETPHOTO":
+            # Validated in pass 1 with every other precondition: a missing or
+            # non-image file must stop the run BEFORE any record is touched,
+            # not half way through it.
+            img = Path(f[1]).expanduser()
+            if not img.is_file():
+                problems.append(f"  line {n} SETPHOTO: no such file -- {img}")
+            elif not any(img.read_bytes()[:len(sig)] == sig for sig, _ in MAGIC):
+                problems.append(f"  line {n} SETPHOTO: not an image -- {img}")
+        if op == "DELETE":
+            live = live_name(f[0])
+            if live != f[1]:
+                problems.append(
+                    f"  line {n} DELETE: id is now {live!r}, plan reviewed {f[1]!r}")
+    if problems:
+        die("plan does not match the live address book; nothing written:\n"
+            + "\n".join(problems))
+    print(f"plan: {len(rows)} rows, every id resolves")
+
+    if not commit:
+        print("\n-- DRY RUN (add --commit to write) --")
+        for n, op, f in rows:
+            if op == "MERGE":
+                print(f"  MERGE     {live_name(f[0])}  <- {len(f[1].split(','))} record(s)")
+            elif op == "SET":
+                print(f"  SET       {live_name(f[0])}  {f[1]} = {f[2]}")
+            elif op == "SETEMAIL":
+                print(f"  SETEMAIL  {live_name(f[0])}  {f[1]} -> {f[2]}")
+            elif op == "DELPHONE":
+                print(f"  DELPHONE  {live_name(f[0])}  drop {f[1]}")
+            elif op == "SETPHOTO":
+                cur = "has a photo" if any((REPO / "photos").glob(
+                    f"{f[0].split(':')[0]}.*")) else "has NO photo"
+                print(f"  SETPHOTO  {live_name(f[0])}  ({cur}) <- {f[1]}")
+            else:
+                print(f"  DELETE    {f[1]}")
+        return
+
+    # Two commits, not one. The BEFORE commit absorbs whatever drifted in from
+    # the phone since the last dump; only then does the AFTER commit isolate
+    # exactly what this run did. Squashing them would leave a diff that mixes
+    # the agent's change with a week of unrelated edits -- and "what did the
+    # agent do" is the one question the log has to be able to answer.
+    #
+    # --no-pre-sync exists for exactly one case: RESUMING a run that stopped
+    # part-way. The BEFORE commit is already in the log, and the changes now
+    # sitting in Contacts are the first half of this same agent write -- so a
+    # second pre-sync would commit them under "absorbs any drift", filing the
+    # agent's own work as somebody else's. Never pass it to start a fresh run.
+    if pre_sync:
+        print("\n-- capturing the BEFORE state --")
+        cmd_sync("before agent write — absorbs any drift since the last dump")
+    else:
+        print("\n-- resuming: BEFORE state already committed, skipping pre-sync --")
+
+    print("\n-- applying --")
+    for n, op, f in rows:
+        try:
+            if op == "MERGE":
+                surv = live_name(f[0])
+                for vid in f[1].split(","):
+                    r = osa(MERGE_OSA, f[0], vid, ).strip()
+                    print(f"  MERGE     {surv} <- {vid.split(':')[0]} ({r})")
+            elif op == "SET":
+                osa(SET_OSA, f[0], f[1], f[2])
+                print(f"  SET       {live_name(f[0])}  {f[1]} = {f[2]}")
+            elif op == "SETEMAIL":
+                osa(SETEMAIL_OSA, f[0], f[1], f[2])
+                print(f"  SETEMAIL  {live_name(f[0])}  {f[1]} -> {f[2]}")
+            elif op == "DELPHONE":
+                osa(DELPHONE_OSA, f[0], f[1])
+                print(f"  DELPHONE  {live_name(f[0])}  dropped {f[1]}")
+            elif op == "SETPHOTO":
+                osa(SETPHOTO_OSA, f[0], str(Path(f[1]).expanduser()))
+                print(f"  SETPHOTO  {live_name(f[0])}  <- {f[1]}")
+            else:
+                osa(DELETE_OSA, f[0])
+                print(f"  DELETE    {f[1]}")
+        except SystemExit:
+            print(f"\nSTOPPED at plan line {n}. Everything already written is in "
+                  f"the working tree; `git diff` in {REPO} shows it, and the "
+                  "BEFORE commit is the point to revert to.", file=sys.stderr)
+            raise
+
+    print("\n-- capturing the AFTER state --")
+    cmd_sync(msg or f"agent write — {Path(plan_path).name}")
+
+
+def main():
+    argv = sys.argv[1:]
+    cmd = argv[0] if argv else "status"
+    if cmd == "init":
+        cmd_init()
+    elif cmd == "dump":
+        cmd_dump()
+    elif cmd == "sync":
+        msg = None
+        if "-m" in argv:
+            msg = argv[argv.index("-m") + 1]
+        cmd_sync(msg)
+    elif cmd == "apply":
+        if "--plan" not in argv:
+            die("usage: io-contacts-repo apply --plan <file> [--commit] "
+                "[--no-pre-sync] [-m MSG]")
+        cmd_apply(argv[argv.index("--plan") + 1], "--commit" in argv,
+                  pre_sync="--no-pre-sync" not in argv,
+                  msg=argv[argv.index("-m") + 1] if "-m" in argv else None)
+    elif cmd == "status":
+        cmd_status()
+    elif cmd in ("-h", "--help", "help"):
+        print(__doc__)
+    else:
+        die(f"unknown subcommand '{cmd}' -- try: init | dump | sync | apply | status")
+
+
+if __name__ == "__main__":
+    main()
