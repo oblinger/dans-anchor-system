@@ -36,6 +36,10 @@ MUSE_LOG_FILE="${MUSE_LOG_FILE:-$HOME/ob/kmr/Log/MUSE/Log Muse.md}"
 MUSE_JPR_DIR="${MUSE_JPR_DIR:-$HOME/Library/Mobile Documents/iCloud~com~openplanetsoftware~Just-Press-Record/Documents}"
 MUSE_INLINE_MAX_CHARS="${MUSE_INLINE_MAX_CHARS:-80}"
 MUSE_NOTIFICATION_SOUND="${MUSE_NOTIFICATION_SOUND:-Tink}"
+# Sparks delivery (T010, Dan 2026-08-21 widened 2026-08-31): every ingested
+# memo is dropped into Sparks's Inbox — the single hardened ingress. The state
+# CLI lives in the sibling workflow skill; resolved relative to this script.
+MUSE_STATE_CLI="${MUSE_STATE_CLI:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." 2>/dev/null && pwd)/workflow/scripts/state}"
 # Off by default (Dan, 2026-08-23): the banner fires once per INGESTED
 # recording, not once per sweep, so a run of memos produces a run of
 # popups with a chime each. The ingest is already visible where it
@@ -832,7 +836,42 @@ ingest_one() {
 
     # 11. notify
     notify "MUSE $ymd $letter: $title"
+
+    # 12. deliver to Sparks — single hardened ingress (T010)
+    deliver_to_sparks "$title" "$item_base" "$text"
+
     log "OK $item_base"
+}
+
+# Step 12 (T010) — deliver one ingested memo to Sparks's Inbox.
+# Sparks is the recipient of ALL MUSE inputs (Dan 2026-08-21, widened
+# 2026-08-31): he screens each item and forwards, mints a pebble, or hands it
+# back. The drop carries a wiki-link to the item file, never a copy of its
+# text (copies drift). The roster scan is a HINT for Sparks, not a router —
+# plain name-match on the transcript, no LLM, works with a dead API key.
+# A delivery failure must NEVER fail the ingest: the memo landing in the
+# corpus is the load-bearing act, so this logs a warning and returns 0.
+# Suppressed items never reach this call (they return at step 9.5) — they
+# land in no actor's queue, so the single-ingress guarantee is intact.
+deliver_to_sparks() {
+    local title="$1" item_base="$2" text="$3"
+    local mentions="" name drop_body
+    for name in Ash Atticus Boone Ember Hermes Lumen Munger Presti Scout Tink Wells Winnie; do
+        if printf '%s' "$text" | grep -qiw "$name"; then
+            mentions="${mentions:+$mentions, }$name"
+        fi
+    done
+    drop_body="[[${item_base}]]"
+    [[ -n "$mentions" ]] && drop_body="$drop_body"$'\n'"mentions: $mentions"
+    if [[ -x "$MUSE_STATE_CLI" ]]; then
+        if ! printf '%s\n' "$drop_body" | "$MUSE_STATE_CLI" drop Sparks \
+                --source muse --tag nudge --topic "$title" >/dev/null 2>&1; then
+            log "warning: Sparks drop failed for $item_base (ingest unaffected)"
+        fi
+    else
+        log "warning: state CLI not found at $MUSE_STATE_CLI — Sparks drop skipped for $item_base"
+    fi
+    return 0
 }
 
 # Wait until a file's size is stable (not still uploading / mid-materialize).
