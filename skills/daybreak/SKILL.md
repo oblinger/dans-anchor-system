@@ -274,6 +274,16 @@ Set by Dan 2026-08-31, in those terms: *"the 1st line, that H1, should say Lumen
 | `<date> → daily` / `→ weekly` | dormant until the date, then at that cadence |
 | `waiting` | never surfaced on a clock — raise only when the blocking fact arrives |
 
+**🚨 Sweep for expired dated pebbles every run — a dated tempo that passes goes SILENT, not resolved.** Row 1 of that table is a one-shot: the pebble surfaces on its day and then leaves the briefing forever, whether or not anything was done about it. So an unanswered dated pebble **goes quiet exactly when it becomes most overdue**, and the only trace is that it is still sitting on the roster.
+
+    python3 ~/.claude/skills/daybreak/scripts/expired-pebbles.py
+
+**Every line it prints is a promise that quietly stopped being kept.** Re-judge each one on merit — settle it and drop it from the roster, or give it a live tempo — and never simply re-date it forward without reading why it went unanswered. Bulk-pushing a batch to one future date is how the pile below was made, and it converts a triage problem into a silent one.
+
+**Expect a large first result, and do not mass-re-date it.** Running the script against 2026-09-05 on the day it was written returned **21** pebbles, nearly all dated 8/31 or 9/1 — the residue of a block-push made on 2026-08-24 that moved eleven items to a single day without re-judging any of them on merit. They are a triage queue, not twenty-one emergencies; take a few each morning, and prefer settling one outright to re-dating three.
+
+Measured 2026-08-31: five pebbles had expired this way, including **P0015**, an eBay return with a hard **Sep 8** ship-by that had been invisible since 8/29, and **P0048**, whose two Dan-set deadlines had both passed while the correspondent waited fourteen days. They appeared in that morning's briefing **only because the run happened to remember them by hand** — which is not a mechanism. The related failure is the same shape one level down: [[Lumen Track/Lumen Pebbles/Lumen P0022|P0022]] kept firing on schedule for a **week** with a body pointing at a dead appointment, so also **re-read the body of any pebble you raise** — a stale carrier reads as current and is worse than a silent one.
+
 **A `daily` pebble is a standing promise to raise something every single morning**, so treat a briefing that omits one as a defect rather than an editorial choice. Conversely, do **not** promote a pebble to `daily` because it feels urgent — that is the fastest way to train the user to skim the Watching block, and `weekly` is the honest default for *"soon, but not today."* The user sets tempo; Lumen proposes it.
 
 **Pebbles whose tempo carries a real hour also reach the user when Lumen is closed**, via the launchd daemon (`nudge-check.py`, tier 2 below — it fires `alert:: 🔔` pebbles and writes `last-raised::` back). Day-only and bare-cadence pebbles are Daybreak's job alone — which is why a pebble that genuinely must land at a specific hour wants a time in its tempo, not just a date.
