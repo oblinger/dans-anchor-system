@@ -1303,6 +1303,24 @@ def launch_chrome_debug(port: int = 9222) -> subprocess.Popen:
     # the Dexter single-store case after a dock launch.)
     _default_store = os.path.expanduser('~/Library/Application Support/Google/Chrome')
     _on_default = os.path.realpath(user_data_dir) == os.path.realpath(_default_store)
+    # A managed UserDataDir policy (the Dexter "Agent Profile") redirects even
+    # FLAGLESS launches to our store, with nothing in the command line to show
+    # for it — so a bare `Google Chrome` process may be squatting on our store
+    # invisibly. Read the managed preference so that case counts as a conflict.
+    _redirected = False
+    try:
+        import plistlib as _plistlib
+        import getpass as _getpass
+        for _mp in ('/Library/Managed Preferences/%s/com.google.Chrome.plist' % _getpass.getuser(),
+                    '/Library/Managed Preferences/com.google.Chrome.plist'):
+            if os.path.exists(_mp):
+                with open(_mp, 'rb') as _f:
+                    _pol = _plistlib.load(_f).get('UserDataDir')
+                if _pol and os.path.realpath(os.path.expanduser(_pol)) == os.path.realpath(user_data_dir):
+                    _redirected = True
+                    break
+    except Exception:
+        pass
     try:
         _ps = subprocess.run(['ps', 'ax', '-o', 'command'], capture_output=True, text=True).stdout
         _conflict = False
@@ -1311,8 +1329,8 @@ def launch_chrome_debug(port: int = 9222) -> subprocess.Popen:
                 continue
             if f'--user-data-dir={user_data_dir}' in _ln:
                 _conflict = f'--remote-debugging-port={port}' not in _ln
-            elif '--user-data-dir=' not in _ln and _on_default:
-                _conflict = True
+            elif '--user-data-dir=' not in _ln and (_on_default or _redirected):
+                _conflict = f'--remote-debugging-port={port}' not in _ln
             if _conflict:
                 break
         if _conflict:
