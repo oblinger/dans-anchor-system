@@ -107,10 +107,33 @@ def test_indexed_dispatch_and_gating(tmp: Path):
     print("PASS  indexed_dispatch_and_gating")
 
 
+def test_where_place_filter(tmp: Path):
+    """T633 (B): a per-rule `where` gates a moment rule by the event's file
+    path; a fileless event passes; the glob's `*` crosses slashes (fnmatch)."""
+    ir = {"moments": {"write:rust": ["W1"]},
+          "rules": {"W1": {"id": "W1", "where": "*/HookAnchorApp/*.rs",
+                           "action": {"kind": "tell", "text": "gated"},
+                           "guards": []}},
+          "traits": {"ha": ["W1"]}}
+    adopted = ["ha"]
+    ctx = wf.build_ctx(tmp, "write:rust",
+                       file_path="/u/x/HookAnchorApp/src/a.rs")
+    assert wf.fire(ir, None, "write:rust", ctx, adopted) == ["gated"]
+    ctx = wf.build_ctx(tmp, "write:rust", file_path="/u/x/OtherApp/src/a.rs")
+    assert wf.fire(ir, None, "write:rust", ctx, adopted) == []
+    # considered-but-gated leaves an attribution record with no steers
+    rec = wf.fire_records(ir, None, "write:rust", ctx, adopted)
+    assert rec == [("W1", [])], rec
+    ctx = wf.build_ctx(tmp, "write:rust")  # no file path → filter is a no-op
+    assert wf.fire(ir, None, "write:rust", ctx, adopted) == ["gated"]
+    print("PASS  where_place_filter")
+
+
 def main():
     with tempfile.TemporaryDirectory() as td:
         test_real_r_query_14_fires(Path(td) / "a")
         test_indexed_dispatch_and_gating(Path(td) / "b")
+        test_where_place_filter(Path(td) / "c")
     print("\nall warden_fire tests passed")
     return 0
 

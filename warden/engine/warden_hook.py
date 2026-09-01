@@ -505,7 +505,7 @@ def _md_paths_in_command(cmd: str, cwd: Path,
     while i < n:
         c = cmd[i]
         # A quoted run is ONE token, spaces included — vault paths have spaces
-        # ("Tink Track/Tink Backlog.md"), so splitting on whitespace alone would
+        # ("TINK Track/TINK Backlog.md"), so splitting on whitespace alone would
         # shred exactly the paths this needs to see.
         if c in "'\"":
             j = cmd.find(c, i + 1)

@@ -28,6 +28,7 @@ engine-level fire that the differential harness (F214) and F212 test directly.
 from __future__ import annotations
 
 import argparse
+import fnmatch
 import importlib.util
 import json
 import re
@@ -289,6 +290,19 @@ def fire_records(ir: dict, module, moment: str, ctx, anchor_traits) -> list[tupl
             continue
         if not is_active(ir, rule_id, anchor_traits):
             continue
+        # T633 (B): a per-rule `where::` is a place filter, enforced here when
+        # the event carries a target path (fileless moments pass — a
+        # tool:pre:Bash event has nothing to match). fnmatch semantics: `*`
+        # crosses slashes, so `**` behaves as `*` — `**/App/**/*.rs` matches
+        # any absolute path through an App/ directory. The ruleset-header
+        # `where::` is the doc-selector and never reaches this row (by
+        # design); compile warns when that leaves a moment rule unscoped.
+        w = row.get("where")
+        if w:
+            fp = getattr(ctx, "file_path", None)
+            if fp and not fnmatch.fnmatch(str(fp), w):
+                records.append((rule_id, []))
+                continue
         # F217: a turn-bearing rule needs a bound session (rungs R1–R3);
         # at R4 the turn view is unresolvable and the rule is skipped wholesale.
         if row.get("turn_bearing") and not getattr(

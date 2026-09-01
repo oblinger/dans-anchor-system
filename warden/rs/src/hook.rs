@@ -715,6 +715,7 @@ pub fn dispatch(data: &Value) -> Vec<String> {
             mode: Value::Null,
             traits: traits.clone(),
             facets: vec![],
+            file_path: (!event_fp.is_empty()).then(|| event_fp.to_string()),
         };
         // F231: the considered set = active rules in the bucket, INCLUDING
         // guard-gated ones — mirrors Python's fire_records exactly, so the

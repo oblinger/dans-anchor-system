@@ -519,7 +519,17 @@ def compile_rule(rule: dict, ruleset: dict) -> dict:
                   file=sys.stderr)
         # A when-rule's place-residual is its OWN `where::` (rare); the ruleset's
         # doc-selector governs the tier doc-rules, not the moment rules.
+        # T633 (B): fire enforces this per-rule glob as a place filter; the
+        # header glob deliberately does NOT flow here. A moment rule left with
+        # no scoping at all under a scoped header reads as covered while
+        # firing everywhere — the R-ha shape — so that exact case warns.
         row["where"] = rule["where"]
+        if (ruleset.get("where") and not rule["where"] and not rule["ifs"]
+                and "guard" not in _kinds(rule)):
+            print(f"warden: WARNING — {rid}: the ruleset-header where:: is a "
+                  "doc-selector and does not scope this moment rule — add a "
+                  "per-rule where:: (enforced at fire time) or an if:: guard",
+                  file=sys.stderr)
     else:
         # doc-audit tier rule: where-major (no runtime moment), post-phase. Its
         # action delegates to a checker primitive (`check::`), is agent-judged

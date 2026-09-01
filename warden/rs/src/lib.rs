@@ -62,6 +62,10 @@ pub struct Ir {
 #[derive(Debug, Deserialize)]
 pub struct Rule {
     pub id: String,
+    /// T633 (B): per-rule place filter, enforced in `fire_plan` when the event
+    /// carries a file path. The ruleset-header `where::` never lands here.
+    #[serde(default, rename = "where")]
+    pub where_glob: Option<String>,
     #[serde(default)]
     pub action: Option<Action>,
     #[serde(default)]
@@ -103,6 +107,9 @@ pub struct Ctx {
     pub traits: Vec<String>,
     /// `ctx.facets`.
     pub facets: Vec<String>,
+    /// The event's target file path (write:/read: moments), for the T633
+    /// per-rule `where` place filter. None on fileless moments.
+    pub file_path: Option<String>,
 }
 
 impl Ctx {
@@ -183,6 +190,39 @@ pub fn eval_guard(guard: &Guard, ctx: &Ctx) -> bool {
     }
 }
 
+/// fnmatch-style match, mirror of Python `fnmatch` as `warden_fire` applies it
+/// to a rule's `where` (T633): `*` matches anything INCLUDING `/` (so `**`
+/// degenerates to `*`), `?` matches one char. `[...]` classes are not
+/// supported here — no corpus glob uses them; the Python engine remains
+/// authoritative if one ever does.
+pub fn where_match(pat: &str, s: &str) -> bool {
+    let p: Vec<char> = pat.chars().collect();
+    let t: Vec<char> = s.chars().collect();
+    // iterative *-backtracking matcher
+    let (mut pi, mut ti) = (0usize, 0usize);
+    let (mut star, mut mark) = (usize::MAX, 0usize);
+    while ti < t.len() {
+        if pi < p.len() && (p[pi] == '?' || p[pi] == t[ti]) {
+            pi += 1;
+            ti += 1;
+        } else if pi < p.len() && p[pi] == '*' {
+            star = pi;
+            mark = ti;
+            pi += 1;
+        } else if star != usize::MAX {
+            pi = star + 1;
+            mark += 1;
+            ti = mark;
+        } else {
+            return false;
+        }
+    }
+    while pi < p.len() && p[pi] == '*' {
+        pi += 1;
+    }
+    pi == p.len()
+}
+
 /// Compute the fire plan for a moment (mirror of `warden_fire.fire`'s selection,
 /// stopping short of running Python bodies). Rules keyed under a different moment
 /// are never in the bucket, so they never appear — the indexed-dispatch property
@@ -200,6 +240,14 @@ pub fn fire_plan(ir: &Ir, moment: &str, ctx: &Ctx, anchor_traits: &[String]) -> 
         };
         if !is_active(ir, rule_id, anchor_traits) {
             continue;
+        }
+        // T633 (B): per-rule `where` place filter — enforced when the event
+        // carries a target path; fileless moments pass (mirror of
+        // `warden_fire.fire_records`).
+        if let (Some(w), Some(fp)) = (&row.where_glob, &ctx.file_path) {
+            if !where_match(w, fp) {
+                continue;
+            }
         }
         if !row.guards.iter().all(|g| eval_guard(g, ctx)) {
             continue;
@@ -302,6 +350,7 @@ mod tests {
             mode: mode.map_or(Value::Null, |m| Value::String(m.to_string())),
             traits: traits.iter().map(|s| s.to_string()).collect(),
             facets: facets.iter().map(|s| s.to_string()).collect(),
+            file_path: None,
         }
     }
 
@@ -350,6 +399,36 @@ mod tests {
         // no commit aspect, no push trait → S1 and S2 gated out; S3/S4/S5 survive.
         let plan = fire_plan(&ir, "tool:pre:Bash", &ctx("", None, &["syn", "anchor-base"], &[]), &at);
         assert_eq!(ids(&plan), ["S3", "S4", "S5"]);
+    }
+
+    #[test]
+    fn where_filter_gates_by_event_path() {
+        // T633 (B): a per-rule `where` drops the rule when the event's file
+        // path misses the glob, passes it on a hit, and is a no-op when the
+        // event carries no path.
+        let ir: Ir = serde_json::from_value(serde_json::json!({
+            "schema": 1,
+            "moments": {"write:rust": ["W1"]},
+            "rules": {"W1": {"id": "W1", "where": "*/HookAnchorApp/*.rs",
+                              "action": {"kind": "tell", "text": "gated"},
+                              "body_py": null, "guard_py": null, "guards": []}},
+            "traits": {"ha": ["W1"]}
+        }))
+        .unwrap();
+        let at: Vec<String> = vec!["ha".into()];
+        let mut c = ctx("", None, &["ha"], &[]);
+        c.file_path = Some("/u/x/HookAnchorApp/src/a.rs".into());
+        assert_eq!(ids(&fire_plan(&ir, "write:rust", &c, &at)), vec!["W1"]);
+        c.file_path = Some("/u/x/OtherApp/src/a.rs".into());
+        assert!(fire_plan(&ir, "write:rust", &c, &at).is_empty());
+        c.file_path = None;
+        assert_eq!(ids(&fire_plan(&ir, "write:rust", &c, &at)), vec!["W1"]);
+        // fnmatch parity: `*` crosses slashes, so `**` degenerates to `*`
+        assert!(where_match("**/App/**/*.rs", "/a/b/App/c/d.rs"));
+        assert!(!where_match("**/App/**/*.rs", "/a/b/Bpp/c/d.rs"));
+        assert!(where_match("*.md", "/long/path/x.md"));
+        assert!(where_match("a?c", "abc"));
+        assert!(!where_match("a?c", "ac"));
     }
 
     #[test]

@@ -82,6 +82,7 @@ fn main() {
             .unwrap_or(serde_json::Value::Null),
         traits: anchor_traits.clone(),
         facets: csv(arg_val(&args, "--facets")),
+        file_path: arg_val(&args, "--file-path"),
     };
 
     let plan = fire_plan(&ir, &moment, &ctx, &anchor_traits);
