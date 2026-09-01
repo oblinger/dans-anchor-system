@@ -125,6 +125,10 @@ Each downstream anchor chooses where imports land by writing a header for the so
 
 **`push` is Dan's word for the act**; `recall` is the exit because `drop` already means *deposit* everywhere else in this system (`state drop` puts a note in an inbox), and a verb that means both directions is exactly the ambiguity the feature exists to remove.
 
+## Addressing a group by dotted name — ruled, not yet built
+
+**Dan, 2026-08-31 (resolving ATT T289 Q1):** a stone group is addressed by a **dotted name on its owner** — `Hermes.book` — resolved by looking in the owner's `.anchor`, which specifies where that sub-list lives; each stone **kind carries a default location** (books above all, since many agents will have one), so most `.anchor` files declare nothing. Consequences already applied: a group's folder note is named by the kind template with its space (`Hermes Book.md`), never `Book.md` alone, and the group declares **no slug** — the two stamped `slug:` lines (HERMESBOOK, SONARBOOK) were removed the same day and a rebuild did not re-stamp them. The resolver itself is unbuilt; when it lands it belongs in the `stone` CLI.
+
 ## Keys
 
 A stone carries `key:: value` parameters, **at the top of the file, above the prose**. Full vocabulary and the reasoning: [[DAS Stone Keys]].
