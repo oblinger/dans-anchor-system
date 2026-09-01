@@ -1,0 +1,227 @@
+#!/usr/bin/env python3
+# AUTHOR:  Dan Oblinger <code@oblinger.us>
+# CREATE:  2026.09.01
+# MODULE:  GTOKEN -- Google OAuth client rotation, nailed down (ATT T177)
+#
+# Rotates the Google OAuth client for project oblio-claude-access: the agent
+# runs `gToken rotate`, the script does everything that is not a login-gated
+# click, and PRINTS the user's steps in the interface-directions notation at
+# the exact moment each is needed. The recipe lives here, versioned -- not in
+# any agent's recall. Built 2026-09-01 from the first live rotation; the
+# console quirks that session hit are all encoded:
+#
+#   - Desktop-type clients have NO Add-Secret and NO re-download in the new
+#     Google Auth Platform console. The only rotation is create-new + delete-
+#     old, and the JSON is offered ONLY in the creation dialog.
+#   - The console tab must be PINNED to the owning account (authuser=...),
+#     or it opens under whatever account Google last used.
+#   - gsa_auth seeds its client from the STORED TOKEN FILE, not the env --
+#     so the token files' client fields must be patched before re-minting.
+#   - gsa's default loopback port 8000 collides with workspace-mcp; grants
+#     run on 8765.
+#   - The downloaded JSON is shredded after install (Dan's rule: the script
+#     deletes the old JSON file).
+#
+# Deleting the old client revokes its secret AND every token minted under it
+# -- that is the step that actually rotates. Per Dan 2026-09-01, the script
+# verifies the new client BEFORE printing the delete step, but does not make
+# the user wait on ceremony: the whole run is a few minutes.
+
+import glob
+import json
+import os
+import subprocess
+import sys
+import time
+
+PROJECT = 'oblio-claude-access'
+OWNER = 'oblinger@gmail.com'
+ENV_PATH = os.path.expanduser('~/.config/gsa/env')
+CREDS_DIR = os.path.expanduser('~/.google_workspace_mcp/credentials')
+DOWNLOADS = os.path.expanduser('~/Downloads')
+GSA = os.path.expanduser('~/bin/gsa')
+AUTH_PORT = 8765          # NOT 8000 -- that is workspace-mcp's
+DOWNLOAD_WAIT_S = 600     # ten minutes for the user's console clicks
+MCP_LAUNCH = ('pkill -f workspace-mcp 2>/dev/null; sleep 1; set -a; . "%s"; set +a; '
+              'nohup /Users/oblinger/.local/bin/uvx workspace-mcp --single-user '
+              '--tool-tier core --transport streamable-http '
+              '>> /tmp/workspace-mcp.log 2>&1 &' % ENV_PATH)
+
+
+def read_env():
+    env = {}
+    for ln in open(ENV_PATH):
+        if '=' in ln and not ln.startswith('#'):
+            k, v = ln.strip().split('=', 1)
+            env[k] = v.strip('"')
+    return env
+
+
+def write_env(cid, secret):
+    out = []
+    for ln in open(ENV_PATH).read().splitlines():
+        if ln.startswith('GOOGLE_OAUTH_CLIENT_ID='):
+            ln = 'GOOGLE_OAUTH_CLIENT_ID="%s"' % cid
+        elif ln.startswith('GOOGLE_OAUTH_CLIENT_SECRET='):
+            ln = 'GOOGLE_OAUTH_CLIENT_SECRET="%s"' % secret
+        out.append(ln)
+    open(ENV_PATH, 'w').write('\n'.join(out) + '\n')
+    os.chmod(ENV_PATH, 0o600)
+
+
+def patch_token_files(cid, secret):
+    accounts = []
+    for p in glob.glob(os.path.join(CREDS_DIR, '*.json')):
+        d = json.load(open(p))
+        d['client_id'], d['client_secret'] = cid, secret
+        json.dump(d, open(p, 'w'))
+        accounts.append(os.path.basename(p)[:-5])
+    return sorted(accounts)
+
+
+def wait_for_download(old_cid, deadline_s):
+    """The new client's JSON, recognized by carrying a DIFFERENT client id."""
+    t0 = time.time()
+    while time.time() - t0 < deadline_s:
+        for p in sorted(glob.glob(os.path.join(DOWNLOADS, 'client_secret_*.json')),
+                        key=os.path.getmtime, reverse=True):
+            try:
+                j = json.load(open(p))
+            except (json.JSONDecodeError, OSError):
+                continue
+            c = j.get('installed') or j.get('web') or {}
+            if c.get('client_id') and c['client_id'] != old_cid:
+                return p, c['client_id'], c['client_secret']
+        time.sleep(3)
+    return None, None, None
+
+
+def month_stamp():
+    return time.strftime('%Y-%m')
+
+
+def user_step(text):
+    print(text, flush=True)
+
+
+def rotate():
+    env = read_env()
+    old_cid = env['GOOGLE_OAUTH_CLIENT_ID']
+    url = ('https://console.cloud.google.com/auth/clients'
+           '?project=%s&authuser=%s' % (PROJECT, OWNER))
+    subprocess.run(['open', url], check=True)
+
+    user_step("""
+gToken rotate -- replacing client %s...
+
+@Browser {the console tab gToken just opened -- "Clients", pinned to %s}
+1. !+ Create client {toolbar, above the OAuth 2.0 Client IDs table}
+2. Application type -> !Desktop app;  Name: "Claude MCP %s"
+3. !Create   ==>   dialog shows the new client's ID and secret
+4. !Download JSON {in that dialog -- the only moment Google offers it} -> !OK
+            ==>   back at the Clients list; gToken takes it from here
+""" % (old_cid[:18], OWNER, month_stamp()))
+
+    path, cid, secret = wait_for_download(old_cid, DOWNLOAD_WAIT_S)
+    if not path:
+        sys.exit('gToken: no new client JSON appeared in %s within %d min -- '
+                 'nothing was changed.' % (DOWNLOADS, DOWNLOAD_WAIT_S // 60))
+    write_env(cid, secret)
+    accounts = patch_token_files(cid, secret)
+    os.unlink(path)
+    print('gToken: installed %s... into env + %d token file(s); download shredded.'
+          % (cid[:18], len(accounts)))
+
+    subprocess.run(MCP_LAUNCH, shell=True, check=False)
+    time.sleep(5)
+    print('gToken: workspace-mcp restarted on the new client.')
+
+    for i, account in enumerate(accounts):
+        user_step("""
+Consent screen opening as %s -- on it:
+%d. !Continue -> !Allow {confirm the %s account if asked}
+            {"unverified app" warning is expected -- !Advanced -> !Go to ... (unsafe); it is your own client}
+""" % (account, 5 + i, account))
+        r = subprocess.run([GSA, 'auth', account,
+                            'http://localhost:%d/oauth2callback' % AUTH_PORT],
+                           capture_output=True, text=True, timeout=300)
+        if 'Authorized' not in (r.stdout + r.stderr):
+            sys.exit('gToken: grant for %s did not complete:\n%s'
+                     % (account, (r.stderr or r.stdout).strip()[-400:]))
+        print('gToken: %s re-minted.' % account)
+
+    for account in accounts:
+        r = subprocess.run([GSA, 'scopes', account], capture_output=True, text=True)
+        ok = 'in sync' in r.stdout
+        print('gToken: verify %s -- %s' % (account, 'OK' if ok else 'MISMATCH'))
+        if not ok:
+            sys.exit('gToken: %s scopes not in sync after re-mint:\n%s'
+                     % (account, r.stdout))
+
+    user_step("""
+All accounts verified on the new client. Last step -- kill the old one:
+
+@Browser {the Clients tab from step 4}
+%d. !trash-can icon {Actions column, the OLD row -- Client ID starts %s...;
+            the new row is %s...} -> !Delete
+            ==>   the old secret and every token under it are dead. Rotation complete.
+""" % (5 + len(accounts), old_cid[:18], cid[:18]))
+
+    subprocess.run([os.path.expanduser('~/ob/bin/ob_check'), 'post',
+                    'Google OAuth client rotated: %s... replaced %s...; %d account(s) re-minted'
+                    % (cid[:14], old_cid[:14], len(accounts)),
+                    '--topic', 'auth.gtoken.rotation', '--level', 'info',
+                    '--evidence', 'gToken rotate: env + token files patched, '
+                    'workspace-mcp restarted, gsa scopes in sync for: %s' % ', '.join(accounts),
+                    '--source', 'gToken'], check=False)
+
+
+def self_test():
+    import tempfile
+    global ENV_PATH, CREDS_DIR, DOWNLOADS
+    tmp = tempfile.mkdtemp()
+    ENV_PATH = os.path.join(tmp, 'env')
+    CREDS_DIR = os.path.join(tmp, 'creds')
+    DOWNLOADS = os.path.join(tmp, 'dl')
+    os.makedirs(CREDS_DIR); os.makedirs(DOWNLOADS)
+    open(ENV_PATH, 'w').write(
+        '# comment\nGOOGLE_OAUTH_CLIENT_ID="old-id"\n'
+        'GOOGLE_OAUTH_CLIENT_SECRET="old-sec"\nUSER_GOOGLE_EMAIL="x@y.z"\n')
+    json.dump({'client_id': 'old-id', 'client_secret': 'old-sec',
+               'refresh_token': 'r'}, open(os.path.join(CREDS_DIR, 'a@b.c.json'), 'w'))
+    checks = []
+    env = read_env()
+    checks.append((env['GOOGLE_OAUTH_CLIENT_ID'] == 'old-id', 'env parser reads quoted values'))
+    write_env('new-id', 'new-sec')
+    env = read_env()
+    checks.append((env['GOOGLE_OAUTH_CLIENT_SECRET'] == 'new-sec', 'env writer swaps the secret'))
+    checks.append((env['USER_GOOGLE_EMAIL'] == 'x@y.z', 'env writer preserves untouched keys'))
+    checks.append((oct(os.stat(ENV_PATH).st_mode & 0o777) == '0o600', 'env file lands mode 600'))
+    accts = patch_token_files('new-id', 'new-sec')
+    d = json.load(open(os.path.join(CREDS_DIR, 'a@b.c.json')))
+    checks.append((d['client_id'] == 'new-id' and d['refresh_token'] == 'r',
+                   'token patcher swaps client, keeps refresh token'))
+    checks.append((accts == ['a@b.c'], 'account list derived from token files'))
+    json.dump({'installed': {'client_id': 'old-id', 'client_secret': 's'}},
+              open(os.path.join(DOWNLOADS, 'client_secret_old.json'), 'w'))
+    p, cid, _ = wait_for_download('old-id', 1)
+    checks.append((p is None, 'a download carrying the OLD id is rejected'))
+    json.dump({'installed': {'client_id': 'brand-new', 'client_secret': 's2'}},
+              open(os.path.join(DOWNLOADS, 'client_secret_new.json'), 'w'))
+    p, cid, sec = wait_for_download('old-id', 5)
+    checks.append((cid == 'brand-new' and sec == 's2', 'the new-id download is found'))
+    checks.append(('8000' not in str(AUTH_PORT), 'grant port avoids workspace-mcp'))
+    for ok, label in checks:
+        print('  %s %s' % ('PASS' if ok else 'FAIL', label))
+    n = sum(1 for ok, _ in checks if ok)
+    print('gToken self-test: %d/%d' % (n, len(checks)))
+    sys.exit(0 if n == len(checks) else 1)
+
+
+if __name__ == '__main__':
+    if '--self-test' in sys.argv:
+        self_test()
+    elif len(sys.argv) > 1 and sys.argv[1] == 'rotate':
+        rotate()
+    else:
+        sys.exit('usage: gToken rotate | gToken --self-test')

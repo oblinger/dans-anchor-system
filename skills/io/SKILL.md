@@ -56,6 +56,7 @@ Read from and write to external services. Each sub-skill is an access card with 
 | **Google** | `/io gdrive` | [[io-gdrive]] | Google Drive search |
 | **Google** | `/io gmail` | [[io-gmail]] | **Gmail API** (working) — one account's *complete* server-side history, archive included. ~1 s where the local route takes ~10 min. `in:anywhere` is mandatory or the search misses ~99%. |
 | **Google** | `/io gauth` | → `/fix gauth` | Re-authorize Google OAuth (when token expires) |
+| **Google** | `/io gToken` | `scripts/gToken rotate` | **Rotate the OAuth client** (secret exposed, or client compromised — NOT routine token expiry, that's gauth). Agent runs it; the script does all non-click work and prints the user's console steps in the directions notation. Built from the 2026-09-01 T177 rotation. |
 | **Microsoft** | `/io excel` | [[io-excel]] | **Excel** — local `.xlsx`, live-coordinated (save-before-read / reload-after-write), formatting-preserving |
 | **Microsoft** | `/io pptx` | [[io-pptx]] | **PowerPoint** — local `.pptx`, live-coordinated (same handshake as excel); slides/bullets/notes via python-pptx, unmodeled parts survive |
 | **Notion** | `/io notion` | [[io-notion]] | Notion pages and databases (TBD) |
