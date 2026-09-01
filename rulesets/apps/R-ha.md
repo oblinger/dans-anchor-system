@@ -16,6 +16,7 @@ description:: HookAnchor's own enforceable constraints — the write-amplificati
 
 ### RULE R-ha-01 — Production file writes go through `write_if_changed` (checked)
 when:: write:rust
+where:: `**/HookAnchorApp/**/*.rs`
 
 *implements [[HA Rules#D07|D07]]*
 
@@ -27,6 +28,7 @@ Every production write of file content goes through `crate::utils::write_str_if_
 
 ### RULE R-ha-02 — Diagnostic output goes through the logging layer (checked)
 when:: write:rust
+where:: `**/HookAnchorApp/**/*.rs`
 
 *implements [[HA Rules#D08|D08]]*
 
