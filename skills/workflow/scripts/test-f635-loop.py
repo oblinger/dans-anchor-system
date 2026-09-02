@@ -27,6 +27,9 @@ clock is pinned with LOOP_NOW.
      `channel::` resolves through the channel page's `workflow::`.
   H. rule 7 — a hand-written line on TRAFFIC's control file is reported.
   I. stale — past rendezvous and undecided routes to the owner.
+  J. audit checkers — R-loop-01/02/06 through `loop_checks.CHECKERS`: a
+     clean loop passes all three, a non-loop passes as "not a loop", and a
+     malformed twin fails exactly the rule its defect belongs to.
 """
 import sys as _sys; _sys.dont_write_bytecode = True
 
@@ -329,6 +332,32 @@ def main():
     print("I. stale")
     rc, out, err = run(["stale"] + R, "2026-09-20T12:00")
     check(f"MED {s2}" in out and "→ owner MED" in out, "undecided past rendezvous routes to its owner")
+
+    print("J. audit checkers — one pass, partitioned by rule")
+    checks = _load("loop_checks_mod", "loop_checks.py").CHECKERS
+    saved_root = loop.stone.DEFAULT_ROOT
+    loop.stone.DEFAULT_ROOT = root
+    loop._INDEX.clear()
+    try:
+        good = stone_path(root, "BUY", bid)
+        verdicts = {n: fn(good, root, None) for n, fn in checks.items()}
+        check(all(v[0] == "pass" for v in verdicts.values()), f"clean loop passes all three: {verdicts}")
+        plain = mint(root, "MED", "not a loop at all")
+        v = checks["loop_keys_complete"](stone_path(root, "MED", plain), root, None)
+        check(v[0] == "pass" and "not a loop" in v[1], "a plain stone is not judged")
+        bad = stone_path(root, "MED", s3)
+        text = bad.read_text()
+        bad.write_text(text.replace("lapses:: ", "lapses-x:: ").replace("run-out:: ", "run-out-x:: ")
+                       .replace("step:: open", "step:: nowhere"))
+        v1 = checks["loop_keys_complete"](bad, root, None)
+        v2 = checks["loop_step_resolves"](bad, root, None)
+        v6 = checks["loop_bindings_present"](bad, root, None)
+        check(v1[0] == "fail" and "lapses" in v1[1] and "run-out" not in v1[1], f"01 fires on the missing key only: {v1}")
+        check(v2[0] == "fail" and "nowhere" in v2[1] and "lapses" not in v2[1], f"02 fires on the bad step only: {v2}")
+        check(v6[0] == "fail" and "run-out" in v6[1] and "nowhere" not in v6[1], f"06 fires on the missing binding only: {v6}")
+        bad.write_text(text)
+    finally:
+        loop.stone.DEFAULT_ROOT = saved_root
 
     shutil.rmtree(tmp, ignore_errors=True)
     print(f"\n{PASS} passed, {FAIL} failed")

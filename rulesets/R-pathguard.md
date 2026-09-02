@@ -238,3 +238,45 @@ def body(ctx):
 The Write-tool sibling of rule 02: rule 02 denies the Edit path into an existing feature doc's question region, this one denies the whole-file Write path. Doc *creation* is exempt by construction — the rule fires only when the target already exists (`p.is_file()`), so the `/feature` flow authoring a new doc's initial `## Open Questions` block never triggers it (the same exemption R-state-region-02 uses). It compares the incoming managed region against the on-disk one (T045) and fires **only when they differ** — a whole-file Write that preserves the region verbatim (a legitimate prose rewrite) passes, while a Write that mutates or drops the region is denied. Blunt "content mentions the heading" would have blocked every prose rewrite and false-positived on docs that only quote the heading.
 
 **Why:** guarding Edit alone just teaches the failure mode a new verb (the rule-03 lesson) — the whole reason rule 03 exists for the backlog surface. The feature-doc question region needs the identical Write cover so `state`'s ask-format / numbering / lifecycle gates can't be bypassed by overwriting the file.
+
+### RULE R-pathguard-06 — the watch list's control file is `loop`-owned on Edit (when:: tool:pre:Edit)
+mend:: loop-owns-the-watch-list
+
+```python
+def body(ctx):
+    ev = getattr(ctx, "event", None)
+    target = getattr(ev, "target", None) if ev else None
+    if not target:
+        return []
+    from pathlib import Path
+    p = Path(target)
+    if (p.suffix == ".md" and p.name.startswith("TRAFFIC ")
+            and p.parent.parent.name.lower() == "traffic track"):
+        return ["DENY: " + p.name + " is TRAFFIC's control file — a set of references the `loop` "
+                "script keeps (`loop start` enrolls, `loop close` recalls; R-loop-07). Nobody "
+                "hand-writes a Traffic line."]
+    return []
+```
+
+**Why:** [[DAS Loop]] — Traffic is a set of references kept by the scripts; a line typed there is a watch nobody enrolled, which `loop due` reports as a WARN after the fact. This rule refuses it at the moment of writing instead. The `Traffic Track/*.md` ball documents beside it are NOT covered — they stay hand-authored until T637 migrates them.
+
+### RULE R-pathguard-07 — the watch list's control file is `loop`-owned on Write too (when:: tool:pre:Write)
+mend:: loop-owns-the-watch-list
+
+```python
+def body(ctx):
+    ev = getattr(ctx, "event", None)
+    target = getattr(ev, "target", None) if ev else None
+    if not target:
+        return []
+    from pathlib import Path
+    p = Path(target)
+    if (p.suffix == ".md" and p.name.startswith("TRAFFIC ")
+            and p.parent.parent.name.lower() == "traffic track"):
+        return ["DENY: " + p.name + " is TRAFFIC's control file — a set of references the `loop` "
+                "script keeps (`loop start` enrolls, `loop close` recalls; R-loop-07). Nobody "
+                "hand-writes a Traffic line."]
+    return []
+```
+
+**Why:** the Write twin of -06 — guarding Edit alone teaches the failure mode a new verb (the -01/-03 lesson).

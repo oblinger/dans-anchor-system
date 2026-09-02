@@ -96,6 +96,18 @@ class LoopError(SystemExit):
         super().__init__(f"loop: {msg}")
 
 
+class Defect(str):
+    """A defect string that remembers which R-loop rule it belongs to, so the
+    audit checkers can partition one `check_stone` pass by rule without
+    matching on prose."""
+    rule: str
+
+    def __new__(cls, rule: str, text: str):
+        o = str.__new__(cls, text)
+        o.rule = rule
+        return o
+
+
 # --------------------------------------------------------------------------
 # Vocabulary — closed on purpose. There is no cell for a channel, a rung or a
 # command, so the grammar cannot hold one (commission item (d)).
@@ -442,35 +454,37 @@ def resolve_workflow(st, root: Path):
 # R-loop — what is refused (rules 1–6; rule 7 is checked on the watch list)
 
 def check_stone(st, root: Path):
-    """(workflow or None, [defects]). Never raises for a malformed loop — it
-    reports; the caller decides whether that is a refusal."""
+    """(workflow or None, [Defect]). Never raises for a malformed loop — it
+    reports; the caller decides whether that is a refusal. Each defect carries
+    the R-loop rule it belongs to (`01` keys, `02` resolution, `wf` grammar
+    rules 03–05, `06` bindings)."""
     defects = []
     keys = st.keys
     has_wf = bool((stone._kv_get(keys, "workflow", "") or "").strip())
     step = (stone._kv_get(keys, "step", "") or "").strip()
     entered = (stone._kv_get(keys, "entered", "") or "").strip()
     if not has_wf and not step:
-        return None, ["not a loop — no `workflow::` and no `step::`"]
+        return None, [Defect("00", "not a loop — no `workflow::` and no `step::`")]
     for k in LOOP_KEYS:
         if not (stone._kv_get(keys, k, "") or "").strip():
-            defects.append(f"missing `{k}::`")
+            defects.append(Defect("01", f"missing `{k}::`"))
     if entered and _key_datetime(entered) is None:
-        defects.append(f"`entered:: {entered}` is not a date")
+        defects.append(Defect("01", f"`entered:: {entered}` is not a date"))
     try:
         wf = resolve_workflow(st, root)
     except LoopError as e:
-        return None, defects + [str(e)[len("loop: "):]]
-    defects.extend(f"{wf.where}: {d}" for d in wf.defects)
+        return None, defects + [Defect("02", str(e)[len("loop: "):])]
+    defects.extend(Defect("wf", f"{wf.where}: {d}") for d in wf.defects)
     if step and step not in wf.steps:
-        defects.append(f"`step:: {step}` is not a step of {wf.where} "
-                       f"(steps: {', '.join(wf.order) or 'none'})")
+        defects.append(Defect("02", f"`step:: {step}` is not a step of {wf.where} "
+                              f"(steps: {', '.join(wf.order) or 'none'})"))
     for k in wf.requires:
         if not (stone._kv_get(keys, k, "") or "").strip():
-            defects.append(f"{wf.where} requires `{k}::`, which the stone lacks")
+            defects.append(Defect("06", f"{wf.where} requires `{k}::`, which the stone lacks"))
     if step in wf.steps and wf.steps[step].when is not None:
         r = eval_when(wf.steps[step].when, keys)
         if isinstance(r, str):
-            defects.append(f"step {step}: {r}")
+            defects.append(Defect("06", f"step {step}: {r}"))
     return wf, defects
 
 
@@ -951,6 +965,67 @@ def cmd_stale(root: Path, args) -> int:
     if not n:
         print("  none")
     return 0
+
+
+# --------------------------------------------------------------------------
+# audit-plan checkers — R-loop-01/02/06, reached through `import::
+# skills/workflow/scripts/loop_checks.py` (this file is extensionless, so the
+# engine's spec_from_file_location cannot load it directly). One pass of
+# `check_stone`, partitioned by the rule tag each Defect carries.
+
+def _owner_slug_of(path: Path) -> str:
+    for d in path.parents:
+        if (d / ".anchor").is_file():
+            return stone._anchor_slug(d)
+    return path.parent.name
+
+
+def stone_from_file(path: Path):
+    """A stone namespace sufficient for `check_stone`, from the file alone —
+    no list resolution, so it works on any file the audit hands over."""
+    keys, body = stone._parse_stone(path.read_text(encoding="utf-8"))
+    m = re.match(r"^(.+) ([A-Z]\d+)$", path.stem)
+    slug, sid = (m.group(1), m.group(2)) if m else (_owner_slug_of(path), path.stem)
+    enrolled = {a.strip() for a in (stone._kv_get(keys, "enrolled", "") or "").split(",") if a.strip()}
+    return SimpleNamespace(slug=slug, sid=sid, path=path, keys=keys, body=body,
+                           line=(stone._kv_get(keys, "line", "") or "").strip(), enrolled=enrolled)
+
+
+def _chk(target, rules: tuple, ok_msg: str):
+    f = Path(target)
+    if f.is_dir() or f.suffix != ".md":
+        return "pass", "not a stone file"
+    st = stone_from_file(f)
+    if not (stone._kv_get(st.keys, "workflow", "") or "").strip() and \
+            not (stone._kv_get(st.keys, "step", "") or "").strip():
+        return "pass", "not a loop (no `workflow::`, no `step::`)"
+    _wf, defects = check_stone(st, stone.DEFAULT_ROOT)
+    mine = [d for d in defects if getattr(d, "rule", "") in rules]
+    if mine:
+        return "fail", "; ".join(mine)
+    return "pass", ok_msg
+
+
+def chk_loop_keys_complete(target, anchor_root, args):
+    """R-loop-01: a loop carries workflow::, step::, entered:: (a date), lapses::."""
+    return _chk(target, ("01",), "all four loop keys present")
+
+
+def chk_loop_step_resolves(target, anchor_root, args):
+    """R-loop-02: workflow:: resolves to one `## Workflow`; step:: is one of its rows."""
+    return _chk(target, ("02",), "workflow resolves and names the step")
+
+
+def chk_loop_bindings_present(target, anchor_root, args):
+    """R-loop-06: every requires:: binding and every key a `when` reads is on the stone."""
+    return _chk(target, ("06",), "every binding the workflow reads is on the stone")
+
+
+CHECKERS = {
+    "loop_keys_complete": chk_loop_keys_complete,
+    "loop_step_resolves": chk_loop_step_resolves,
+    "loop_bindings_present": chk_loop_bindings_present,
+}
 
 
 # --------------------------------------------------------------------------

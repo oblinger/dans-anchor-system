@@ -50,3 +50,15 @@ Before adding, check the discipline the entry is most likely to violate: if a re
 There is exactly one Atlas, vault-wide. Anchor-local routing belongs in that anchor's dispatch table — never a scoped parallel like `prj/Atlas.md`.
 
 For the model, read [[Atlas]] itself.
+
+### MEND loop-owns-the-watch-list
+
+[[TRAFFIC]]'s control file is a set of references the `loop` script keeps — nothing on it is typed by hand:
+
+```sh
+loop start <OWNER> <ID> --workflow "[[link]]" --set k=v ...   # enrolls the stone on TRAFFIC
+loop close <OWNER> <ID> --evidence "..."                     # recalls it
+loop due / loop scan                                          # what is on it, and what it says
+```
+
+The stone lives on its OWNER's list (`stone new <OWNER> --line "..."` first); TRAFFIC only holds the line while the loop is active. A line written by hand is a watch nobody enrolled — `loop due` reports it as a WARN, and this rule refuses it at the write. Script: `~/.claude/skills/workflow/scripts/loop`; spec [[DAS Loop]].

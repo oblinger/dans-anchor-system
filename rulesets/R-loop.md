@@ -1,14 +1,19 @@
 # RULESET R-loop
 include::
+import:: skills/workflow/scripts/loop_checks.py
 where:: `file:{anchor}/**/* Pebbles/**, {anchor}/**/* Rocks/**, {anchor}/**/* Book/**, !**/DAS *.md`
 description:: What makes a stone a loop, what a workflow may say, and what `loop` refuses — the key set, the closed `when`/probe/branch vocabularies, and the script-owned watch list.
 
-Ruleset for the Loop facet — spec: [[DAS Loop]]. Every rule below is enforced by `skills/workflow/scripts/loop` at `start` and `advance` (refusal, nothing written) and reported by `loop check` / `loop due`; the guard is `test-f635-loop.py`, one fixture per refusal. None carries a `check::` yet — the assertions are about what the script refuses, the shape [[R-stone]]-05 and [[R-exception-discipline]]-03 use — so each reads `(stated)` and the coverage claim is the guard's, not an audit's. Arming an `audit-plan` checker for -01/-02/-06 is a one-import job (the script's `check_stone`) and is filed on [[Tink Backlog|Tink]].
+Ruleset for the Loop facet — spec: [[DAS Loop]]. Every rule below is enforced by `skills/workflow/scripts/loop` at `start` and `advance` (refusal, nothing written) and reported by `loop check` / `loop due`; the guard is `test-f635-loop.py`, one fixture per refusal. Three carry a `check::` — `-01`, `-02`, `-06` are facts about a stone FILE, so `audit-plan` can judge them through `import:: skills/workflow/scripts/loop_checks.py`, which re-exports the script's own `check_stone` partitioned by rule (one resolver, never a second parser). The rest assert what the script refuses of a WORKFLOW or of the watch list — the shape [[R-stone]]-05 and [[R-exception-discipline]]-03 use — and read `(stated)` with the guard as their evidence.
 
-### RULE R-loop-01 — A loop carries all four loop keys (stated)
+### RULE R-loop-01 — A loop carries all four loop keys (checked)
+check:: loop_keys_complete
+
 A stone with `workflow::` also carries `step::`, `entered::` (a date) and `lapses::`. Half a loop — a workflow with no step, a step with no entry date — is refused at `start`/`advance` and reported by `check`. Guard: `test-f635-loop.py` § B.
 
-### RULE R-loop-02 — `step::` names a step of a workflow that resolves (stated)
+### RULE R-loop-02 — `step::` names a step of a workflow that resolves (checked)
+check:: loop_step_resolves
+
 `workflow::` (or the `workflow::` on `channel::`'s page) resolves to exactly one file carrying a `## Workflow` section, and `step::` is a row of its table. An unresolvable link, an ambiguous one, a page with no section, or a step the table does not name is a refusal. Guard: § B, § G.
 
 ### RULE R-loop-03 — Every step has a `when` and a `probe`; `when` is in the vocabulary, hour floor (stated)
@@ -20,8 +25,10 @@ A row missing either cell is refused naming the step. `when` is one of: absolute
 ### RULE R-loop-05 — Branch targets are a step name, `close`, `owner`, or `dan` (stated)
 `hit` → a step or `close`; `miss` → a step, `owner` or `dan`. There is no cell for a channel, a rung or a command, and no target outside this set — that absence is the whole of the grammar's containment. Guard: § F (`--to dan`, `--to nowhere`).
 
-### RULE R-loop-06 — Every `requires::` binding, and every key a `when` reads, is on the stone (stated)
+### RULE R-loop-06 — Every `requires::` binding, and every key a `when` reads, is on the stone (checked)
+check:: loop_bindings_present
+
 A binding the workflow requires and the stone lacks, or a `when` that reads a key the stone does not carry, is refused at `start`/`advance` — `accepts:` one level down. Guard: § B.
 
 ### RULE R-loop-07 — The watch list is script-owned (stated)
-Every line on [[TRAFFIC]]'s control file is a stone enrolled there by `loop start` (through `stone push`) and carrying `workflow::`. A hand-written line, a stone on the list without `enrolled:: TRAFFIC`, or an enrolled stone with no workflow is reported by `loop due` / `loop scan` as a WARN naming the line. Guard: § H.
+Every line on [[TRAFFIC]]'s control file is a stone enrolled there by `loop start` (through `stone push`) and carrying `workflow::`. A hand-written line, a stone on the list without `enrolled:: TRAFFIC`, or an enrolled stone with no workflow is reported by `loop due` / `loop scan` as a WARN naming the line. Guard: § H. At the moment of writing, [[R-pathguard]]-06/-07 deny an agent's Edit/Write to that file outright (mend `loop-owns-the-watch-list`).
