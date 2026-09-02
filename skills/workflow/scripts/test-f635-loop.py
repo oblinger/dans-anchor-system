@@ -30,6 +30,8 @@ clock is pinned with LOOP_NOW.
   J. audit checkers — R-loop-01/02/06 through `loop_checks.CHECKERS`: a
      clean loop passes all three, a non-loop passes as "not a loop", and a
      malformed twin fails exactly the rule its defect belongs to.
+  K. lint — a workflow page validates on its own: the clean Cigna template
+     lists four steps and says ok; the no-probe twin exits 1 naming the step.
 """
 import sys as _sys; _sys.dont_write_bytecode = True
 
@@ -358,6 +360,14 @@ def main():
         bad.write_text(text)
     finally:
         loop.stone.DEFAULT_ROOT = saved_root
+
+    print("K. lint — a workflow page, no stone")
+    rc, out, err = run(["lint", "[[MED Cigna Refill]]"] + R, T0)
+    check(rc == 0 and "4 step(s)" in out and "ok — a stone carrying `window-open::`, `run-out::`" in out, f"clean template lints ok: {out.splitlines()[0] if out else err}")
+    rc, out, err = run(["lint", str(root / "MED" / "MED No Probe.md")] + R, T0)
+    check(rc == 1 and "DEFECT" in out and "step press: no probe" in out, "no-probe twin exits 1 naming the step")
+    rc, out, err = run(["lint", "[[MED Nowhere]]"] + R, T0)
+    check(rc == 1 and "matches no file" in err, "unresolvable link is an error, not a pass")
 
     shutil.rmtree(tmp, ignore_errors=True)
     print(f"\n{PASS} passed, {FAIL} failed")

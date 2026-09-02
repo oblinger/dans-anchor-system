@@ -57,8 +57,9 @@ Verbs, split by who uses them (Dan, 2026-09-02):
     loop due     [--watch TRAFFIC] [--all]
     loop scan    [--watch TRAFFIC] [--since TS] [--apply]
     loop stale   [--watch TRAFFIC]
-  check (Tink, audit, Warden)
+  check (Tink, audit, Warden — and any author of a workflow)
     loop check   <OWNER[.list]> <ID>
+    loop lint    <[[link]] | path>        validate a workflow page with no stone
 
 Root resolution mirrors `stone`: `--root`, else `$ANCHOR_VAULT_ROOT`, else
 `~/ob/kmr`. `LOOP_NOW` (ISO datetime) pins the clock for fixtures.
@@ -806,6 +807,37 @@ def cmd_show(root: Path, args) -> int:
     return 0
 
 
+def cmd_lint(root: Path, args) -> int:
+    """Parse one workflow page — by [[link]], bare stem, or path — and print its
+    steps or its defects. For the author: run it on the template before any
+    stone exists, so a refusal at `loop start` is never the first reading."""
+    raw = args.workflow.strip()
+    path = Path(raw).expanduser()
+    if not path.is_file():
+        stem, _ = link_target(raw)
+        if not stem:
+            raise LoopError("lint needs a [[link]] or a path")
+        path = resolve_link(root, stem, "lint")
+    wf = parse_workflow(path.read_text(encoding="utf-8"), path.name)
+    print(f"{path.name} § Workflow — {len(wf.order)} step(s)"
+          + (f", requires:: {', '.join(wf.requires)}" if wf.requires else ", requires:: (none)")
+          + (f", raise:: {wf.raise_}" if wf.raise_ else ""))
+    for n in wf.order:
+        st = wf.steps[n]
+        probes = " · ".join(f"{p.kind}: {p.arg}".rstrip(": ") for p in st.probes) or "—"
+        print(f"  {n:<12} when {st.when_raw:<16} probe {probes}")
+        print(f"  {'':<12} hit → {st.hit.target if st.hit else '?'}   miss → {st.miss.target if st.miss else '?'}"
+              + (f"   importance {st.importance} on entry" if st.importance else ""))
+    if wf.defects:
+        print(f"  {len(wf.defects)} DEFECT(S) — `loop start` would refuse:")
+        for d in wf.defects:
+            print(f"    {d}")
+        return 1
+    print("  ok — a stone carrying " + (", ".join(f"`{k}::`" for k in wf.requires) or "no bindings")
+          + " plus `due::`, `done::`, `importance::`, `lapses::` can start on it")
+    return 0
+
+
 def cmd_check(root: Path, args) -> int:
     loc = _locate(root, args.address, args.stone)
     wf, defects = check_stone(loc.st, root)
@@ -1067,6 +1099,10 @@ def build_parser() -> argparse.ArgumentParser:
     owner_args(subs.add_parser("show", help="resolved workflow, step, rendezvous, probes, branches"))
     owner_args(subs.add_parser("check", help="R-loop validation of one stone"))
 
+    li = subs.add_parser("lint", help="validate a workflow page ([[link]] or path) before any stone exists")
+    li.add_argument("workflow", help="[[link]], bare page name, or a file path")
+    root_arg(li)
+
     d = subs.add_parser("due", help="enrolled loops whose rendezvous has arrived, by who can probe them")
     root_arg(d); watch_arg(d)
     d.add_argument("--all", action="store_true", help="include unenrolled loops and not-yet rows")
@@ -1091,7 +1127,7 @@ def _root(args) -> Path:
 def main(argv) -> int:
     args = build_parser().parse_args(argv[1:])
     fn = {"start": cmd_start, "advance": cmd_advance, "close": cmd_close, "show": cmd_show,
-          "check": cmd_check, "due": cmd_due, "scan": cmd_scan, "stale": cmd_stale}[args.verb]
+          "check": cmd_check, "lint": cmd_lint, "due": cmd_due, "scan": cmd_scan, "stale": cmd_stale}[args.verb]
     try:
         return fn(_root(args), args)
     except (LoopError, stone.StoneError) as e:

@@ -60,8 +60,20 @@ A `## Workflow` section — header keys, then one table — the same wherever th
 | watch | `loop scan [--since TS] [--apply]` | runs every `mail:`/`key:` probe; a report by default, advances only with `--apply` |
 | watch | `loop stale` | past rendezvous and still undecided, with the owner to route to |
 | check | `loop check <OWNER> <ID>` | the validation `start` runs, on any stone |
+| author | `loop lint "[[Page]]"` | parse a workflow page with no stone — steps, or the defects `start` would refuse |
 
 The stone is minted first with `stone new` (its `line::` and body are the owner's); `start` turns it into a loop. `LOOP_NOW` pins the clock for fixtures; `--root` scopes the vault, as for `stone`. Guard: `test-f635-loop.py`.
+
+## Writing a workflow — the author's checklist
+
+1. **Put it where the owner tunes it.** A page under the owning anchor, named for the channel (`MED Cigna Refill.md`, `BUY eBay Return.md`); one per channel, since the steps vary by channel and not by item. A one-off goes in the stone itself (`workflow::` self-link).
+2. **Write the `## Workflow` section** — `requires::`, `raise::`, then the five-column table above. Every step has a `when` and a `probe`; every `miss → dan` has a `key:` or `portal:` probe; targets are step names, `close`, `owner`, `dan`. Prose after the table is ignored.
+3. **`loop lint "[[MED Cigna Refill]]"`** until it prints `ok`. A defect here is the same refusal `loop start` would give, read before any stone exists.
+4. **Optionally** put `workflow:: [[MED Cigna Refill]]` on the channel's `@entity` page, so a stone with only `--channel "[[@Cigna]]"` resolves.
+5. **Per instance:** `stone new <OWNER> --line "…"` (the owner's list must exist — `stones:` in its `.anchor`, or the default `pebbles`), then `loop start <OWNER> <ID> --workflow "[[…]]" --set <each requires:: key>=… --set due=… --set "done=…" --set importance=… --set "lapses=…"`. Compute any derived date (a window edge) yourself and pass it as a binding.
+6. **When the world moves**, write the key the probe reads (`ordered:: 2026-09-05`) or `loop advance … --to STEP --evidence "…"`; `loop close … --evidence "…"` at the end.
+
+Script: `~/.claude/skills/workflow/scripts/loop` (`loop --help`, `loop <verb> --help`). Worked example, files as they read: [[FEX Loop]].
 
 ## Who does what
 
