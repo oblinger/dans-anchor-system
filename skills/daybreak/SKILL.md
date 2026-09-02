@@ -260,7 +260,15 @@ Set by Dan 2026-08-31, in those terms: *"the 1st line, that H1, should say Lumen
 | `## Today` | The things that have to get done **that day**. Not a status area. |
 | `## Watching` / `## Gaps` / `## Done today` | Lumen's carry-over sections. Drop any of them on a day with nothing to put in it. |
 
-**No word wraps.** One line per item, a second line only when genuinely needed — ~105 characters is the working ceiling. It renders in one narrow column, so a wrapped bullet and a wide table both destroy the glance value. This is where the old briefings failed hardest: paragraph-length bullets that read as an essay rather than a list.
+**No word wraps, and no continuation lines.** Tightened by Dan 2026-09-02 after he measured the actual wrap point off his own screen: *"let's try not to word wrap — I think most of these things can actually be written without."* **Every bullet is exactly one line.** The earlier "~105 characters, second line if needed" was wrong twice — it counted markdown source rather than rendered text, and it licensed the continuation lines that were the visible problem.
+
+    python3 ~/.claude/skills/daybreak/scripts/day-width.py "$HOME/ob/kmr/SYS/Staff/Lumen/Lumen Day.md"
+
+**Run it before finishing Write; it exits non-zero and names every offending line.** It measures what Obsidian lays out, not what the file contains — `**bold**`, backticks and `[[wiki|links]]` are invisible in the render, so source length is the wrong ruler and was why every bullet in the 9/02 briefing wrapped while measuring "under 105". The ceiling is **72 rendered columns**, deliberately below the ~80 where wrapping actually starts, because the font is proportional: two lines of identical column count can wrap differently depending on the letters in them.
+
+**Also no blank line after an H2.** Heading then bullets, immediately — the blank line before each H2 stays (`R-progressive-02`), the one after is pure vertical waste in a narrow column. Same instruction: *"don't put a blank line after each one of the H2 entries; that'll make it a little bit tighter."*
+
+**The compression is real work, not truncation.** *"Get the T480 box to USPS — label printed. Ship by Sep 8, complete with charger"* becomes *"T480 box to USPS — ship by Sep 8, charger in the box"*: same facts, no wrap. If a bullet genuinely cannot fit, it is usually two bullets or a fact that belongs in the pebble instead.
 
 ## What Lumen is holding — [[Lumen Pebbles]] 
 
