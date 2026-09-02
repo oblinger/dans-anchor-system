@@ -91,6 +91,22 @@ Two rules ride with the grammar, both learned the hard way in the register era. 
 
 If a rock key is proposed later, run it through the arrangement test first.
 
+## Loop's keys
+
+A stone becomes a **loop** ([[DAS Loop]]) by carrying a workflow and a step. Every one of these passes the arrangement test: none can be expressed by position, and none restates the path.
+
+| Key | Meaning | Required | Owner |
+|---|---|---|---|
+| `workflow::` | wiki-link; whatever it points to is the workflow (a template, a page with `## Workflow`, or the stone itself) | **yes** | owner at `loop start`; recorded even when `channel::`'s page supplied it |
+| `step::` | the current step's name in the resolved workflow | **yes** | `loop`, machine-written — `advance` is the only way it changes |
+| `entered::` | date `step::` was entered; every relative `when` counts from here | **yes** | `loop`, machine-written |
+| `lapses::` | one honest clause on what is lost if the loop fails — the Traffic board's right column | **yes** | owner |
+| `channel::` | wiki-link to the counterparty (`[[@Cigna]]`); its page may carry the default `workflow::` | no | owner |
+| `closed::` | date the loop closed; `close` recalls the reference from the watch list | written by `loop close` | `loop` |
+| bindings | whatever the workflow's `requires::` names (`window-open`, `run-out`, `return-id`, `ship-by`), plain `key:: value`; a `key:` probe reads any key (`ordered`, `tracking`, `arrived`) | per workflow | owner, or the agent recording Dan's act |
+
+`tempo::` is written by the step from the workflow's `raise::`; `importance::` may be rewritten by a step's annotation. The Traffic spine's `raise` field has no key — it is the current step's evaluated `when`, recomputed each cycle so it cannot rot ([[Tink635 - Loop mechanism: a stone that carries a process, so Traffic can run it|TINK F635]] § Resolved).
+
 ## Retired keys
 
 | Key | Why it died |

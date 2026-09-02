@@ -1,0 +1,1028 @@
+#!/usr/bin/env python3
+"""loop — a stone that carries a workflow, so Traffic can run it (TINK F635).
+
+A LOOP is an ordinary stone (see `stone` beside this file) plus two keys:
+
+    workflow::  a wiki-link; whatever it points to is the workflow — a
+                template doc, any page with a `## Workflow` section, or the
+                stone itself (a self-link resolves like any other)
+    step::      the current step's name, from the resolved workflow
+
+plus `entered::` (the date `step::` was entered — every relative rendezvous
+counts from here) and `lapses::` (one clause on what is lost). The stone
+stays on its origination list; its owner is that list's anchor. While the
+loop is active it is ENROLLED on the watch list ([[TRAFFIC]]) by `stone push`,
+and recalled when it closes. Nobody hand-writes a Traffic line.
+
+The workflow grammar — a `## Workflow` section, header keys then one table:
+
+    requires:: window-open, run-out          bindings every instance carries
+    raise:: daily                            tempo while any step is live
+
+    | step | when | probe | hit | miss |
+    |---|---|---|---|---|
+    | open | `window-open` | `key: ordered` | confirm | press |
+
+  when   — absolute `2026-09-15` / `2026-09-15 07:00`; symbolic `daybreak`,
+           `22:00`; relative `+7d` (from `entered::`); keyed `run-out-3d`,
+           `ordered+3d`, `window-open` (any date-valued key on the stone).
+           One key and one offset at most — no expressions. Hour floor.
+  probe  — one or more of, separated by ` · `:
+             `mail: <notmuch query>`   script-run; hit or unknown
+             `key: <name>`             script-run; hit or miss (the key is
+                                       set, or provably not)
+             `portal: [[link]] — <what proves it>`   agent-run
+             `owner:`                  judgment; routes to the owning anchor
+  hit    — next step, or `close`
+  miss   — next step, `owner`, or `dan`
+  An `· importance <low|nominal|high|critical>` annotation may trail the
+  `when` cell (applied on entering the step) or a branch target (applied
+  when that branch is taken).
+
+Probes are tri-state. `hit` advances (any time — Dan may act early). `miss`
+is a PROOF of absence and takes the miss branch, but only once the rendezvous
+has arrived. `unknown` never takes the miss branch; past the rendezvous it
+routes to the owner. A step whose miss branch reaches `dan` must carry a
+probe that can return `miss` (`key:` or `portal:`) — refused otherwise.
+
+Verbs, split by who uses them (Dan, 2026-09-02):
+
+  owner (Wells, Hermes, Sonar — whoever minted the stone)
+    loop start   <OWNER[.list]> <ID> --workflow LINK [--channel LINK]
+                 [--set key=value ...] [--watch TRAFFIC]
+    loop advance <OWNER[.list]> <ID> [--to STEP] --evidence "..."
+    loop close   <OWNER[.list]> <ID> --evidence "..."
+    loop show    <OWNER[.list]> <ID>
+  watch (Sparks, hourly and in session)
+    loop due     [--watch TRAFFIC] [--all]
+    loop scan    [--watch TRAFFIC] [--since TS] [--apply]
+    loop stale   [--watch TRAFFIC]
+  check (Tink, audit, Warden)
+    loop check   <OWNER[.list]> <ID>
+
+Root resolution mirrors `stone`: `--root`, else `$ANCHOR_VAULT_ROOT`, else
+`~/ob/kmr`. `LOOP_NOW` (ISO datetime) pins the clock for fixtures.
+"""
+from __future__ import annotations
+
+import argparse
+import datetime as dt
+import importlib.machinery
+import importlib.util
+import os
+import re
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+from types import SimpleNamespace
+
+sys.dont_write_bytecode = True
+
+# --------------------------------------------------------------------------
+# The stone engine — imported, never copied. Every path, list, key and
+# enrollment operation here is `stone`'s; this file adds only the workflow.
+
+_HERE = Path(__file__).resolve().parent
+_loader = importlib.machinery.SourceFileLoader("stone_mod", str(_HERE / "stone"))
+_spec = importlib.util.spec_from_loader("stone_mod", _loader)
+stone = importlib.util.module_from_spec(_spec)
+sys.modules.setdefault("stone_mod", stone)
+_loader.exec_module(stone)
+
+
+class LoopError(SystemExit):
+    def __init__(self, msg):
+        super().__init__(f"loop: {msg}")
+
+
+# --------------------------------------------------------------------------
+# Vocabulary — closed on purpose. There is no cell for a channel, a rung or a
+# command, so the grammar cannot hold one (commission item (d)).
+
+WATCH_DEFAULT = "TRAFFIC"
+TARGETS = ("close", "owner", "dan")
+PROBE_KINDS = ("mail", "key", "portal", "owner")
+IMPORTANCE = ("low", "nominal", "high", "critical")
+# Lumen's daybreak — the hour a `daybreak` rendezvous resolves to.
+DAYBREAK_HOUR = 7
+# The keys that make a stone a loop; all four required for enrollment.
+LOOP_KEYS = ("workflow", "step", "entered", "lapses")
+SEP = "·"
+
+_WIKI_RE = re.compile(r"\[\[([^\]|#]+?)\s*(?:#([^\]|]*))?(?:\|([^\]]*))?\]\]")
+_DATE_RE = re.compile(r"^(\d{4}-\d{2}-\d{2})(?: (\d{2}):(\d{2}))?$")
+_CLOCK_RE = re.compile(r"^(\d{2}):(\d{2})$")
+_REL_RE = re.compile(r"^\+(\d+)d$")
+_KEYED_RE = re.compile(r"^([a-z][\w-]*?)(?:([+-])(\d+)d)?$")
+_IMPORTANCE_RE = re.compile(r"^importance\s+(\w+)$")
+_WF_HEADING_RE = re.compile(r"^##\s+Workflow\s*$")
+_ANY_H2_RE = re.compile(r"^#{1,2}\s+\S")
+_TABLE_HEADER = ["step", "when", "probe", "hit", "miss"]
+
+
+def now() -> dt.datetime:
+    pinned = os.environ.get("LOOP_NOW")
+    if pinned:
+        try:
+            return dt.datetime.fromisoformat(pinned)
+        except ValueError:
+            raise LoopError(f"LOOP_NOW={pinned!r} is not an ISO datetime")
+    return dt.datetime.now()
+
+
+def today() -> str:
+    return now().date().isoformat()
+
+
+def link_target(text: str):
+    """The target stem and section of the FIRST wiki-link in `text`, or a bare
+    stem when the text carries no brackets."""
+    m = _WIKI_RE.search(text or "")
+    if m:
+        return m.group(1).strip(), (m.group(2) or "").strip() or None
+    bare = (text or "").strip()
+    return (bare, None) if bare else (None, None)
+
+
+def as_link(text: str) -> str:
+    t, _ = link_target(text)
+    return text.strip() if "[[" in text else f"[[{t}]]"
+
+
+def _unwrap(cell: str) -> str:
+    c = cell.strip()
+    if len(c) >= 2 and c.startswith("`") and c.endswith("`"):
+        c = c[1:-1]
+    return c.strip()
+
+
+def _cells(line: str) -> list:
+    body = line.strip()
+    if body.startswith("|"):
+        body = body[1:]
+    if body.endswith("|"):
+        body = body[:-1]
+    return [p.strip().replace("\\|", "|") for p in re.split(r"(?<!\\)\|", body)]
+
+
+def _tokens(cell: str) -> list:
+    """Split a cell on ` · `, unwrapping backticks per token."""
+    return [_unwrap(t) for t in re.split(rf"\s+{SEP}\s+|\s*{SEP}\s*", cell) if _unwrap(t)]
+
+
+# --------------------------------------------------------------------------
+# Vault index — wiki-link resolution by filename stem, one walk per run.
+
+_INDEX = {}
+
+
+def index_md(root: Path) -> dict:
+    key = str(root)
+    if key in _INDEX:
+        return _INDEX[key]
+    out: dict = {}
+    for dirpath, dirnames, filenames in os.walk(root):
+        dirnames[:] = [d for d in dirnames if not d.startswith(".")]
+        for f in filenames:
+            if f.endswith(".md"):
+                out.setdefault(f[:-3], []).append(Path(dirpath) / f)
+    _INDEX[key] = out
+    return out
+
+
+def resolve_link(root: Path, stem: str, why: str) -> Path:
+    hits = index_md(root).get(stem, [])
+    if not hits:
+        raise LoopError(f"{why}: [[{stem}]] matches no file under {root}")
+    if len(hits) > 1:
+        listing = "\n  ".join(str(p) for p in sorted(hits))
+        raise LoopError(f"{why}: [[{stem}]] is ambiguous — {len(hits)} files:\n  {listing}")
+    return hits[0]
+
+
+# --------------------------------------------------------------------------
+# `when` — parse once, evaluate against a stone's keys
+
+def parse_when(raw: str):
+    """A SimpleNamespace(kind, ...) or a defect string."""
+    w = _unwrap(raw)
+    if not w:
+        return "empty `when`"
+    m = _DATE_RE.match(w)
+    if m:
+        if m.group(3) and m.group(3) != "00":
+            return f"`when` {w!r} is finer than one hour (the watch cycle is hourly)"
+        return SimpleNamespace(kind="absolute", raw=w, date=m.group(1),
+                               hour=int(m.group(2)) if m.group(2) else None)
+    if w == "daybreak":
+        return SimpleNamespace(kind="daybreak", raw=w)
+    m = _CLOCK_RE.match(w)
+    if m:
+        if m.group(2) != "00":
+            return f"`when` {w!r} is finer than one hour (the watch cycle is hourly)"
+        return SimpleNamespace(kind="clock", raw=w, hour=int(m.group(1)))
+    m = _REL_RE.match(w)
+    if m:
+        return SimpleNamespace(kind="keyed", raw=w, key="entered", sign=1, days=int(m.group(1)))
+    m = _KEYED_RE.match(w)
+    if m and m.group(1) not in TARGETS:
+        sign = -1 if m.group(2) == "-" else 1
+        return SimpleNamespace(kind="keyed", raw=w, key=m.group(1), sign=sign,
+                               days=int(m.group(3) or 0))
+    return (f"`when` {w!r} is outside the vocabulary — a date, `daybreak`, "
+            f"`HH:00`, `+Nd`, or `<key>±Nd`")
+
+
+def _key_datetime(value: str):
+    m = _DATE_RE.match((value or "").strip())
+    if not m:
+        return None
+    d = dt.date.fromisoformat(m.group(1))
+    return dt.datetime.combine(d, dt.time(int(m.group(2) or 0), int(m.group(3) or 0)))
+
+
+def eval_when(spec, keys: list):
+    """The rendezvous as a datetime, or a defect string naming the missing key."""
+    if spec.kind == "absolute":
+        d = dt.date.fromisoformat(spec.date)
+        return dt.datetime.combine(d, dt.time(spec.hour or 0))
+    entered = _key_datetime(stone._kv_get(keys, "entered", ""))
+    if spec.kind in ("daybreak", "clock"):
+        if entered is None:
+            return "`entered::` is missing or not a date, and the rendezvous counts from it"
+        if spec.kind == "daybreak":
+            return dt.datetime.combine(entered.date() + dt.timedelta(days=1),
+                                       dt.time(DAYBREAK_HOUR))
+        return dt.datetime.combine(entered.date(), dt.time(spec.hour))
+    base_raw = stone._kv_get(keys, spec.key, "")
+    if not (base_raw or "").strip():
+        return f"`when` {spec.raw!r} needs `{spec.key}::` on the stone, which is absent"
+    base = _key_datetime(base_raw)
+    if base is None:
+        return f"`when` {spec.raw!r}: `{spec.key}:: {base_raw}` is not a date"
+    return base + dt.timedelta(days=spec.sign * spec.days)
+
+
+# --------------------------------------------------------------------------
+# Workflow — resolve the link, parse the section
+
+def _section(text: str, heading_re) -> str | None:
+    lines = text.splitlines()
+    start = None
+    for i, ln in enumerate(lines):
+        if heading_re.match(ln):
+            start = i + 1
+            break
+    if start is None:
+        return None
+    end = start
+    while end < len(lines) and not _ANY_H2_RE.match(lines[end]):
+        end += 1
+    return "\n".join(lines[start:end])
+
+
+def _parse_probe(tok: str):
+    m = re.match(r"^([a-z]+):\s*(.*)$", tok)
+    if not m or m.group(1) not in PROBE_KINDS:
+        return f"probe {tok!r} is not one of " + ", ".join(f"`{k}:`" for k in PROBE_KINDS)
+    kind, arg = m.group(1), m.group(2).strip()
+    if kind == "mail" and not arg:
+        return "`mail:` probe has no notmuch query"
+    if kind == "key" and not re.fullmatch(r"[A-Za-z][\w-]*", arg):
+        return f"`key:` probe needs one key name, got {arg!r}"
+    if kind == "portal":
+        stem, _ = link_target(arg)
+        if "[[" not in arg or not stem:
+            return f"`portal:` probe needs a [[link]] and what proves it, got {arg!r}"
+        what = arg.split("]]", 1)[1].strip(" —-–")
+        return SimpleNamespace(kind=kind, arg=arg, link=stem, what=what)
+    if kind == "owner" and arg:
+        return f"`owner:` takes no argument, got {arg!r}"
+    return SimpleNamespace(kind=kind, arg=arg, link=None, what=None)
+
+
+def _split_annotation(cell: str):
+    """(value tokens, importance or None, defect or None)."""
+    toks = _tokens(cell)
+    importance = None
+    rest = []
+    for t in toks:
+        m = _IMPORTANCE_RE.match(t)
+        if m:
+            if m.group(1) not in IMPORTANCE:
+                return rest, None, f"importance {m.group(1)!r} is not one of {', '.join(IMPORTANCE)}"
+            importance = m.group(1)
+        else:
+            rest.append(t)
+    return rest, importance, None
+
+
+def parse_workflow(text: str, where: str):
+    """Workflow(requires, raise_, steps, order, defects) from a page's text."""
+    sec = _section(text, _WF_HEADING_RE)
+    if sec is None:
+        raise LoopError(f"{where} has no `## Workflow` section")
+    requires, raise_ = [], None
+    for ln in sec.splitlines():
+        m = re.match(r"^(?:-\s*)?(requires|raise)::\s*(.*)$", ln.strip())
+        if not m:
+            continue
+        if m.group(1) == "requires":
+            requires = [k.strip() for k in m.group(2).split(",") if k.strip()]
+        else:
+            raise_ = m.group(2).strip() or None
+    rows = [ln for ln in sec.splitlines() if ln.strip().startswith("|")]
+    if len(rows) < 2:
+        raise LoopError(f"{where} § Workflow has no step table")
+    header = [c.lower() for c in _cells(rows[0])]
+    if header != _TABLE_HEADER:
+        raise LoopError(f"{where} § Workflow table header is {header}, must be {_TABLE_HEADER}")
+    steps, order, defects = {}, [], []
+    for ln in rows[2:]:
+        cells = _cells(ln)
+        if len(cells) != 5:
+            defects.append(f"row {ln.strip()!r} has {len(cells)} cells, needs 5")
+            continue
+        name = _unwrap(cells[0])
+        if not re.fullmatch(r"[a-z][\w-]*", name):
+            defects.append(f"step name {name!r} — lowercase word, no spaces")
+            continue
+        if name in steps or name in TARGETS:
+            defects.append(f"step {name!r} is duplicated or reserved")
+            continue
+        when_toks, when_imp, err = _split_annotation(cells[1])
+        if err:
+            defects.append(f"step {name}: {err}")
+        if len(when_toks) != 1:
+            defects.append(f"step {name}: `when` must be exactly one term, got {cells[1]!r}")
+            when = None
+        else:
+            when = parse_when(when_toks[0])
+            if isinstance(when, str):
+                defects.append(f"step {name}: {when}")
+                when = None
+        probes = []
+        for tok in _tokens(cells[2]):
+            p = _parse_probe(tok)
+            if isinstance(p, str):
+                defects.append(f"step {name}: {p}")
+            else:
+                probes.append(p)
+        if not _tokens(cells[2]):
+            defects.append(f"step {name}: no probe — every watch step declares one, executable, never prose")
+        branches = {}
+        for col, cell in (("hit", cells[3]), ("miss", cells[4])):
+            toks, imp, err = _split_annotation(cell)
+            if err:
+                defects.append(f"step {name}: {col} — {err}")
+            if len(toks) != 1:
+                defects.append(f"step {name}: `{col}` must name one target, got {cell!r}")
+                branches[col] = None
+            else:
+                branches[col] = SimpleNamespace(target=toks[0], importance=imp)
+        steps[name] = SimpleNamespace(name=name, when=when,
+                                      when_raw=(when_toks[0] if len(when_toks) == 1 else _unwrap(cells[1])),
+                                      importance=when_imp, probes=probes,
+                                      hit=branches["hit"], miss=branches["miss"])
+        order.append(name)
+    for s in steps.values():
+        for col in ("hit", "miss"):
+            b = getattr(s, col)
+            if b is None:
+                continue
+            allowed = ("close",) if col == "hit" else ("owner", "dan")
+            if b.target not in steps and b.target not in allowed:
+                defects.append(f"step {s.name}: {col} → {b.target!r} is not a step"
+                               + (" or `close`" if col == "hit" else ", `owner` or `dan`"))
+        if s.miss and s.miss.target == "dan":
+            if not any(p.kind in ("key", "portal") for p in s.probes):
+                defects.append(f"step {s.name}: miss → dan, but no probe can return `miss` "
+                               f"(`mail:` alone is hit-or-unknown) — add a `key:` or `portal:`")
+    if not order:
+        defects.append("the step table has no rows")
+    return SimpleNamespace(where=where, requires=requires, raise_=raise_,
+                           steps=steps, order=order, defects=defects)
+
+
+def resolve_workflow(st, root: Path):
+    """The workflow a stone runs on, following `workflow::` — or `channel::`'s
+    page when the stone names none. Raises when nothing resolves."""
+    wf_raw = (stone._kv_get(st.keys, "workflow", "") or "").strip()
+    via = "workflow::"
+    if not wf_raw:
+        ch = (stone._kv_get(st.keys, "channel", "") or "").strip()
+        if not ch:
+            raise LoopError(f"{st.slug} {st.sid} has no `workflow::` (and no `channel::` to supply one)")
+        stem, _ = link_target(ch)
+        page = resolve_link(root, stem, f"{st.slug} {st.sid} channel::")
+        for ln in page.read_text(encoding="utf-8").splitlines():
+            m = re.match(r"^(?:-\s*)?workflow::\s*(.+)$", ln.strip())
+            if m:
+                wf_raw = m.group(1).strip()
+                via = f"channel:: [[{stem}]]"
+                break
+        if not wf_raw:
+            raise LoopError(f"{st.slug} {st.sid} has no `workflow::`, and its channel [[{stem}]] carries none")
+    stem, _ = link_target(wf_raw)
+    if not stem:
+        raise LoopError(f"{st.slug} {st.sid}: `{via} {wf_raw}` is not a wiki-link")
+    if stem == st.path.stem:
+        text, where = st.path.read_text(encoding="utf-8"), f"{st.path.name} (the stone itself)"
+        path = st.path
+    else:
+        path = resolve_link(root, stem, f"{st.slug} {st.sid} {via}")
+        text, where = path.read_text(encoding="utf-8"), path.name
+    wf = parse_workflow(text, where)
+    wf.path, wf.link = path, f"[[{stem}]]"
+    return wf
+
+
+# --------------------------------------------------------------------------
+# R-loop — what is refused (rules 1–6; rule 7 is checked on the watch list)
+
+def check_stone(st, root: Path):
+    """(workflow or None, [defects]). Never raises for a malformed loop — it
+    reports; the caller decides whether that is a refusal."""
+    defects = []
+    keys = st.keys
+    has_wf = bool((stone._kv_get(keys, "workflow", "") or "").strip())
+    step = (stone._kv_get(keys, "step", "") or "").strip()
+    entered = (stone._kv_get(keys, "entered", "") or "").strip()
+    if not has_wf and not step:
+        return None, ["not a loop — no `workflow::` and no `step::`"]
+    for k in LOOP_KEYS:
+        if not (stone._kv_get(keys, k, "") or "").strip():
+            defects.append(f"missing `{k}::`")
+    if entered and _key_datetime(entered) is None:
+        defects.append(f"`entered:: {entered}` is not a date")
+    try:
+        wf = resolve_workflow(st, root)
+    except LoopError as e:
+        return None, defects + [str(e)[len("loop: "):]]
+    defects.extend(f"{wf.where}: {d}" for d in wf.defects)
+    if step and step not in wf.steps:
+        defects.append(f"`step:: {step}` is not a step of {wf.where} "
+                       f"(steps: {', '.join(wf.order) or 'none'})")
+    for k in wf.requires:
+        if not (stone._kv_get(keys, k, "") or "").strip():
+            defects.append(f"{wf.where} requires `{k}::`, which the stone lacks")
+    if step in wf.steps and wf.steps[step].when is not None:
+        r = eval_when(wf.steps[step].when, keys)
+        if isinstance(r, str):
+            defects.append(f"step {step}: {r}")
+    return wf, defects
+
+
+def check_watch_list(root: Path, anchors: dict, watch: str) -> list:
+    """Rule 7 — every line on the watch list's control files is an enrolled
+    loop; anything else was written by hand."""
+    out = []
+    if watch not in anchors:
+        return [f"no anchor {watch!r} under {root}"]
+    a = anchors[watch]
+    cfg_all = stone.load_types()
+    registry = stone._anchor_stones(a.path) or {}
+    names = list(cfg_all) + [n for n in registry if n != "_" and n not in cfg_all]
+    for name in names:
+        cfg, name = stone._effective_cfg(a.path, watch, name, cfg_all)
+        cpath = stone._control_path(a.path, watch, cfg)
+        if not cpath.is_file():
+            continue
+        lines = cpath.read_text(encoding="utf-8").splitlines()
+        i = stone._body_start(lines)
+        for ln in lines[i:]:
+            if not ln.strip():
+                continue
+            cls = stone.classify_line(ln, cfg, watch)
+            if cls[0] == "header":
+                continue
+            if cls[0] != "stone":
+                out.append(f"{cpath.name}: hand-written line {ln.strip()!r} — the watch list is script-owned")
+                continue
+            owner, sid = cls[1], cls[2]
+            if owner not in anchors:
+                out.append(f"{cpath.name}: line for {owner} {sid}, but no anchor {owner!r}")
+                continue
+            ocfg, _ = stone._effective_cfg(anchors[owner].path, owner, name, cfg_all)
+            spath = stone._stone_folder(anchors[owner].path, owner, ocfg) / stone._stone_filename(owner, sid, ocfg)
+            if not spath.is_file():
+                out.append(f"{cpath.name}: line for {owner} {sid}, but no such live stone")
+                continue
+            st = stone._load_stone(spath, owner, True, ocfg)
+            if watch not in st.enrolled:
+                out.append(f"{cpath.name}: {owner} {sid} is on the list but not enrolled — written by hand")
+            elif not (stone._kv_get(st.keys, "workflow", "") or "").strip():
+                out.append(f"{cpath.name}: {owner} {sid} is enrolled but carries no `workflow::` — not a loop")
+    return out
+
+
+# --------------------------------------------------------------------------
+# Probes
+
+def _notmuch(query: str, since: str | None) -> list:
+    exe = shutil.which("notmuch")
+    if not exe:
+        raise LoopError("notmuch is not installed — `mail:` probes cannot run (no fallback)")
+    q = f"({query})"
+    if since:
+        q += f" AND date:{since}.."
+    try:
+        r = subprocess.run([exe, "search", "--output=messages", "--limit=5", q],
+                           capture_output=True, text=True, timeout=60)
+    except subprocess.TimeoutExpired:
+        raise LoopError(f"notmuch timed out on {q!r}")
+    if r.returncode != 0:
+        raise LoopError(f"notmuch refused {q!r}: {r.stderr.strip()}")
+    return [ln.strip() for ln in r.stdout.splitlines() if ln.strip()]
+
+
+def eval_probe(p, st, since: str | None):
+    """(verdict, detail): verdict ∈ hit | miss | unknown | agent | owner."""
+    if p.kind == "key":
+        v = (stone._kv_get(st.keys, p.arg, "") or "").strip()
+        return ("hit", f"`{p.arg}:: {v}`") if v else ("miss", f"`{p.arg}::` not set")
+    if p.kind == "mail":
+        ids = _notmuch(p.arg, since)
+        if ids:
+            return "hit", ids[0] + (f" (+{len(ids) - 1})" if len(ids) > 1 else "")
+        return "unknown", f"no mail matching {p.arg!r}" + (f" since {since}" if since else "")
+    if p.kind == "portal":
+        return "agent", f"check [[{p.link}]] — {p.what}"
+    return "owner", "judgment"
+
+
+def eval_step(step, st, since: str | None):
+    """Fold every probe: hit beats miss beats unknown; agent/owner surface
+    only when no script probe decided."""
+    verdicts = [(eval_probe(p, st, since), p) for p in step.probes]
+    for want in ("hit", "miss"):
+        for (v, d), p in verdicts:
+            if v == want:
+                return v, f"{p.kind}: {d}"
+    for want in ("unknown", "agent", "owner"):
+        for (v, d), p in verdicts:
+            if v == want:
+                return v, f"{p.kind}: {d}"
+    return "unknown", "no probe"
+
+
+# --------------------------------------------------------------------------
+# Stone access + mutation
+
+def _locate(root: Path, address: str, sid: str):
+    anchors, ambiguous = stone.discover_anchors(root)
+    slug, list_name = stone.parse_address(address)
+    if slug in ambiguous:
+        raise stone._ambiguous_error(slug, ambiguous[slug], "it owns the stone")
+    if slug not in anchors:
+        raise LoopError(f"no anchor {slug!r} (.anchor) found under {root}")
+    a = anchors[slug]
+    cfg, list_name = stone._effective_cfg(a.path, slug, list_name, stone.load_types())
+    folder = stone._stone_folder(a.path, slug, cfg)
+    spath = folder / stone._stone_filename(slug, sid, cfg)
+    if not spath.is_file():
+        archived = (folder / "archive" / stone._stone_filename(slug, sid, cfg)).is_file()
+        raise LoopError(f"no live stone {slug} {sid}" + (" — it is archived" if archived else "")
+                        + f" (looked in {folder})")
+    st = stone._load_stone(spath, slug, live=True, cfg=cfg)
+    return SimpleNamespace(anchors=anchors, ambiguous=ambiguous, anchor=a, cfg=cfg,
+                           list_name=list_name, st=st)
+
+
+def _log(st, text: str):
+    body = st.body.rstrip("\n")
+    entry = f"- {today()} — {text}"
+    lines = body.splitlines()
+    idx = next((i for i, ln in enumerate(lines) if re.match(r"^##\s+Log\s*$", ln)), None)
+    if idx is None:
+        st.body = (body + "\n\n" if body else "") + "## Log\n\n" + entry + "\n"
+        return
+    end = idx + 1
+    while end < len(lines) and not _ANY_H2_RE.match(lines[end]):
+        end += 1
+    while end > idx + 1 and not lines[end - 1].strip():
+        end -= 1
+    lines.insert(end, entry)
+    st.body = "\n".join(lines) + "\n"
+
+
+def _enter_step(st, wf, name: str, branch=None):
+    """Write step/entered/tempo and any importance annotation. Pure key
+    mutation — the caller validates and writes."""
+    step = wf.steps[name]
+    stone._kv_set(st.keys, "step", name)
+    stone._kv_set(st.keys, "entered", today())
+    if wf.raise_:
+        stone._kv_set(st.keys, "tempo", wf.raise_)
+    imp = (branch.importance if branch is not None and branch.importance else None) or step.importance
+    if imp:
+        stone._kv_set(st.keys, "importance", imp)
+
+
+def _refuse(st, defects: list, verb: str):
+    listing = "\n  ".join(defects)
+    raise LoopError(f"refused: {st.slug} {st.sid} cannot {verb} —\n  {listing}\nNothing was written.")
+
+
+def _rendezvous(st, wf):
+    step = wf.steps.get(stone._kv_get(st.keys, "step", ""))
+    if step is None or step.when is None:
+        return None, None
+    r = eval_when(step.when, st.keys)
+    return step, (r if not isinstance(r, str) else None)
+
+
+def _fmt_dt(d) -> str:
+    if d is None:
+        return "—"
+    return d.strftime("%Y-%m-%d") if d.time() == dt.time(0) else d.strftime("%Y-%m-%d %H:%M")
+
+
+# --------------------------------------------------------------------------
+# Owner verbs
+
+def cmd_start(root: Path, args) -> int:
+    loc = _locate(root, args.address, args.stone)
+    st, watch = loc.st, args.watch
+    if (stone._kv_get(st.keys, "step", "") or "").strip():
+        raise LoopError(f"{st.slug} {st.sid} is already a loop at step "
+                        f"`{stone._kv_get(st.keys, 'step')}` — use `loop advance`")
+    if watch in loc.ambiguous:
+        raise stone._ambiguous_error(watch, loc.ambiguous[watch], "it is the watch list")
+    if watch not in loc.anchors:
+        raise LoopError(f"no anchor {watch!r} to enroll on")
+    if watch == st.slug:
+        raise LoopError(f"{st.slug} {st.sid} already lives on {watch}'s own list — a loop is enrolled on SOMEONE ELSE's")
+    if not args.workflow and not args.channel:
+        raise LoopError("a loop needs --workflow [[link]] (or --channel whose page carries `workflow::`)")
+    if args.workflow:
+        stone._kv_set(st.keys, "workflow", as_link(args.workflow))
+    if args.channel:
+        stone._kv_set(st.keys, "channel", as_link(args.channel))
+    for kv in args.set or []:
+        if "=" not in kv:
+            raise LoopError(f"--set {kv!r} is not key=value")
+        k, v = kv.split("=", 1)
+        if not re.fullmatch(r"[A-Za-z][\w-]*", k.strip()):
+            raise LoopError(f"--set {kv!r}: {k!r} is not a key name")
+        stone._kv_set(st.keys, k.strip(), v.strip())
+    # Resolve first so the first step can be entered; then validate the whole.
+    try:
+        wf = resolve_workflow(st, root)
+    except LoopError as e:
+        _refuse(st, [str(e)[len("loop: "):]], "start")
+    if wf.defects:
+        _refuse(st, [f"{wf.where}: {d}" for d in wf.defects], "start")
+    # A workflow the channel supplied is written onto the stone: the stone
+    # says what it runs, and one grep answers "which loops run Cigna's".
+    stone._kv_set(st.keys, "workflow", wf.link)
+    _enter_step(st, wf, wf.order[0])
+    wf, defects = check_stone(st, root)
+    tgt = loc.anchors[watch]
+    missing = [k for k in tgt.accepts if not (stone._kv_get(st.keys, k, "") or "").strip()]
+    if missing:
+        defects.append(f"{watch} accepts only a stone that says " + ", ".join(f"`{k}::`" for k in tgt.accepts)
+                       + " — missing " + ", ".join(f"`{k}::`" for k in missing))
+    if defects:
+        _refuse(st, defects, "start")
+    _log(st, f"started at `{wf.order[0]}` on {wf.link}")
+    stone._write_stone(st)
+    push = SimpleNamespace(anchor=st.slug, stone=st.sid, to=watch, root=str(root))
+    try:
+        stone.cmd_push(loc.list_name, root, push)
+    except stone.StoneError as e:
+        raise LoopError(f"keys written, but enrollment failed — {e}")
+    step, at = _rendezvous(st, wf)
+    print(f"loop: {st.slug} {st.sid} runs {wf.link} at `{step.name}` — rendezvous {_fmt_dt(at)}; "
+          f"enrolled on {watch}")
+    return 0
+
+
+def _load_for_advance(root: Path, args):
+    loc = _locate(root, args.address, args.stone)
+    st = loc.st
+    wf, defects = check_stone(st, root)
+    if wf is None or (stone._kv_get(st.keys, "closed", "") or "").strip():
+        why = defects if wf is None else [f"closed {stone._kv_get(st.keys, 'closed')}"]
+        _refuse(st, why, "advance")
+    return loc, st, wf
+
+
+def cmd_advance(root: Path, args) -> int:
+    loc, st, wf = _load_for_advance(root, args)
+    cur = stone._kv_get(st.keys, "step", "")
+    step = wf.steps.get(cur)
+    if step is None:
+        _refuse(st, [f"`step:: {cur}` is not a step of {wf.where}"], "advance")
+    if args.to:
+        target, branch = args.to, None
+    else:
+        target, branch = step.hit.target, step.hit
+    if target == "close":
+        return _close(root, loc, st, wf, args.evidence, f"{cur} → close")
+    if target in TARGETS:
+        _refuse(st, [f"`{target}` is a route, not a step — name a step with --to, or `loop close`"], "advance")
+    if target not in wf.steps:
+        _refuse(st, [f"--to {target!r} is not a step of {wf.where} (steps: {', '.join(wf.order)})"], "advance")
+    _enter_step(st, wf, target, branch)
+    _wf, defects = check_stone(st, root)
+    if defects:
+        _refuse(st, defects, "advance")
+    _log(st, f"{cur} → {target} — {args.evidence}")
+    stone._write_stone(st)
+    s, at = _rendezvous(st, wf)
+    print(f"loop: {st.slug} {st.sid} {cur} → {target} — rendezvous {_fmt_dt(at)}")
+    return 0
+
+
+def _close(root: Path, loc, st, wf, evidence: str, how: str) -> int:
+    stone._kv_set(st.keys, "closed", today())
+    _log(st, f"{how} — {evidence}")
+    stone._write_stone(st)
+    outcome = []
+    for watch in sorted(st.enrolled):
+        rc = SimpleNamespace(anchor=st.slug, stone=st.sid, from_=watch, root=str(root))
+        try:
+            stone.cmd_recall(loc.list_name, root, rc)
+            outcome.append(f"recalled from {watch}")
+        except stone.StoneError as e:
+            outcome.append(f"recall from {watch} failed: {e}")
+    print(f"loop: {st.slug} {st.sid} closed {today()}" + (" — " + "; ".join(outcome) if outcome else ""))
+    return 0
+
+
+def cmd_close(root: Path, args) -> int:
+    loc, st, wf = _load_for_advance(root, args)
+    cur = stone._kv_get(st.keys, "step", "")
+    return _close(root, loc, st, wf, args.evidence, f"{cur} → close")
+
+
+def cmd_show(root: Path, args) -> int:
+    loc = _locate(root, args.address, args.stone)
+    st = loc.st
+    wf, defects = check_stone(st, root)
+    print(f"{st.slug} {st.sid} — {st.line}")
+    if wf is None:
+        print("  " + "\n  ".join(defects))
+        return 1
+    cur = stone._kv_get(st.keys, "step", "")
+    print(f"  workflow  {wf.link}  ({wf.path.relative_to(root) if wf.path.is_relative_to(root) else wf.path})")
+    if wf.requires:
+        print("  requires  " + ", ".join(f"{k}:: {stone._kv_get(st.keys, k, '∅')}" for k in wf.requires))
+    print(f"  enrolled  {', '.join(sorted(st.enrolled)) or 'nobody'}"
+          + (f"   closed {stone._kv_get(st.keys, 'closed')}" if stone._kv_get(st.keys, "closed") else ""))
+    step, at = _rendezvous(st, wf)
+    if step is not None:
+        arrived = at is not None and at <= now()
+        print(f"  step      {cur}  entered {stone._kv_get(st.keys, 'entered', '?')}"
+              f"  importance {stone._kv_get(st.keys, 'importance', '—')}"
+              f"  tempo {stone._kv_get(st.keys, 'tempo', '—')}")
+        print(f"  when      {step.when_raw} → {_fmt_dt(at)}" + ("  (arrived)" if arrived else ""))
+        for p in step.probes:
+            print(f"  probe     {p.kind}: {p.arg}".rstrip(": "))
+        print(f"  hit  →    {step.hit.target}" + (f" · importance {step.hit.importance}" if step.hit.importance else ""))
+        print(f"  miss →    {step.miss.target}" + (f" · importance {step.miss.importance}" if step.miss.importance else ""))
+    print("  steps     " + " → ".join(f"[{n}]" if n == cur else n for n in wf.order))
+    if defects:
+        print("  DEFECTS")
+        for d in defects:
+            print(f"    {d}")
+        return 1
+    return 0
+
+
+def cmd_check(root: Path, args) -> int:
+    loc = _locate(root, args.address, args.stone)
+    wf, defects = check_stone(loc.st, root)
+    if defects:
+        print(f"{loc.st.slug} {loc.st.sid}: {len(defects)} defect(s)")
+        for d in defects:
+            print(f"  {d}")
+        return 1
+    print(f"{loc.st.slug} {loc.st.sid}: ok — {wf.link} at `{stone._kv_get(loc.st.keys, 'step')}`")
+    return 0
+
+
+# --------------------------------------------------------------------------
+# Watch verbs
+
+def _loops(root: Path, watch: str, include_unenrolled: bool):
+    """Every live loop stone: (node, stone, workflow-or-None, defects)."""
+    anchors, ambiguous = stone.discover_anchors(root)
+    cfg_all = stone.load_types()
+    nodes = stone._build_nodes(anchors, cfg_all)
+    out = []
+    for node in nodes.values():
+        if not node.folder.is_dir():
+            continue
+        for f in sorted(stone._stone_files(node.folder, node.slug, node.cfg)):
+            st = stone._load_stone(f, node.slug, True, node.cfg)
+            if not (stone._kv_get(st.keys, "workflow", "") or "").strip():
+                continue
+            if (stone._kv_get(st.keys, "closed", "") or "").strip():
+                continue
+            if not include_unenrolled and watch not in st.enrolled:
+                continue
+            wf, defects = check_stone(st, root)
+            out.append(SimpleNamespace(node=node, st=st, wf=wf, defects=defects))
+    return anchors, out
+
+
+def _print_rule7(root, anchors, watch):
+    for w in check_watch_list(root, anchors, watch):
+        print(f"  WARN {w}")
+
+
+def cmd_due(root: Path, args) -> int:
+    anchors, loops = _loops(root, args.watch, args.all)
+    t = now()
+    script, agent, owner, later, broken = [], [], [], [], []
+    for L in loops:
+        if L.wf is None or L.defects:
+            broken.append(L)
+            continue
+        step, at = _rendezvous(L.st, L.wf)
+        if at is None:
+            broken.append(L)
+            continue
+        kinds = {p.kind for p in step.probes}
+        row = (L, step, at)
+        if at > t:
+            later.append(row)
+        elif kinds & {"mail", "key"}:
+            script.append(row)
+        elif "portal" in kinds:
+            agent.append(row)
+        else:
+            owner.append(row)
+    print(f"loop due — {args.watch}, {len(loops)} active loop(s) at {t.strftime('%Y-%m-%d %H:%M')}")
+    for title, rows in (("script-probable", script), ("needs an agent check", agent),
+                        ("owner's judgment", owner)):
+        if rows:
+            print(f"  {title}:")
+            for L, step, at in rows:
+                print(f"    {L.st.slug} {L.st.sid}  `{step.name}`  since {_fmt_dt(at)}  — {L.st.line}")
+    if args.all and later:
+        print("  not yet:")
+        for L, step, at in later:
+            print(f"    {L.st.slug} {L.st.sid}  `{step.name}`  at {_fmt_dt(at)}")
+    if broken:
+        print("  BROKEN (fix before they can run):")
+        for L in broken:
+            for d in (L.defects or ["no rendezvous"]):
+                print(f"    {L.st.slug} {L.st.sid}: {d}")
+    _print_rule7(root, anchors, args.watch)
+    return 0
+
+
+def cmd_scan(root: Path, args) -> int:
+    anchors, loops = _loops(root, args.watch, args.all)
+    t = now()
+    applied = 0
+    print(f"loop scan — {args.watch}, {len(loops)} active loop(s)"
+          + (f", since {args.since}" if args.since else "") + ("  [APPLY]" if args.apply else "  [report]"))
+    for L in loops:
+        st = L.st
+        if L.wf is None or L.defects:
+            print(f"  {st.slug} {st.sid}  BROKEN — " + "; ".join(L.defects))
+            continue
+        step, at = _rendezvous(st, L.wf)
+        arrived = at is not None and at <= t
+        verdict, detail = eval_step(step, st, args.since)
+        action = ""
+        if verdict == "hit":
+            action = f"→ {step.hit.target}"
+        elif verdict == "miss" and arrived:
+            action = f"→ {step.miss.target} (miss branch)"
+        elif verdict == "miss":
+            action = f"waiting — rendezvous {_fmt_dt(at)}"
+        elif verdict in ("unknown", "agent", "owner") and arrived:
+            action = "→ owner (past rendezvous, undecided)" if verdict == "unknown" else f"→ {verdict}"
+        else:
+            action = f"waiting — rendezvous {_fmt_dt(at)}"
+        print(f"  {st.slug} {st.sid}  `{step.name}`  {verdict:7}  {detail}  {action}")
+        if not args.apply:
+            continue
+        target = branch = None
+        if verdict == "hit":
+            target, branch = step.hit.target, step.hit
+        elif verdict == "miss" and arrived:
+            target, branch = step.miss.target, step.miss
+        if target is None or target in ("owner", "dan"):
+            continue
+        loc = SimpleNamespace(list_name=L.node.name)
+        evidence = f"scan: {detail}"
+        if target == "close":
+            _close(root, loc, st, L.wf, evidence, f"{step.name} → close")
+        else:
+            _enter_step(st, L.wf, target, branch)
+            _wf, defects = check_stone(st, root)
+            if defects:
+                print(f"    NOT applied — {'; '.join(defects)}")
+                continue
+            _log(st, f"{step.name} → {target} — {evidence}")
+            stone._write_stone(st)
+            print(f"    applied: {step.name} → {target}")
+        applied += 1
+    if args.apply:
+        print(f"  {applied} loop(s) advanced")
+    _print_rule7(root, anchors, args.watch)
+    return 0
+
+
+def cmd_stale(root: Path, args) -> int:
+    anchors, loops = _loops(root, args.watch, args.all)
+    t = now()
+    n = 0
+    print(f"loop stale — {args.watch}")
+    for L in loops:
+        if L.wf is None or L.defects:
+            continue
+        step, at = _rendezvous(L.st, L.wf)
+        if at is None or at > t:
+            continue
+        verdict, detail = eval_step(step, L.st, None)
+        if verdict in ("unknown", "agent", "owner"):
+            n += 1
+            age = t - at
+            print(f"  {L.st.slug} {L.st.sid}  `{step.name}`  {verdict}  {age.days}d past rendezvous"
+                  f"  → owner {L.st.slug}  — {detail}")
+    if not n:
+        print("  none")
+    return 0
+
+
+# --------------------------------------------------------------------------
+# CLI
+
+def build_parser() -> argparse.ArgumentParser:
+    p = argparse.ArgumentParser(prog="loop", description="a stone that carries a workflow (TINK F635)")
+    subs = p.add_subparsers(dest="verb", required=True)
+
+    def root_arg(sp):
+        sp.add_argument("--root", default=None, help="scan root (default: $ANCHOR_VAULT_ROOT or ~/ob/kmr)")
+
+    def watch_arg(sp):
+        sp.add_argument("--watch", default=WATCH_DEFAULT, metavar="ANCHOR",
+                        help=f"the watch list (default {WATCH_DEFAULT})")
+
+    def owner_args(sp):
+        sp.add_argument("address", help="the stone's OWNER — Anchor or Anchor.list")
+        sp.add_argument("stone", help="the stone id, e.g. P0007")
+        root_arg(sp)
+
+    s = subs.add_parser("start", help="make a stone a loop at its first step and enroll it")
+    owner_args(s)
+    s.add_argument("--workflow", default=None,
+                   help="[[link]] to the workflow (a self-link is allowed); omit when --channel's page names one")
+    s.add_argument("--channel", default=None, help="[[@Counterparty]]")
+    s.add_argument("--set", action="append", metavar="KEY=VALUE", help="a binding or handoff key; repeatable")
+    watch_arg(s)
+
+    a = subs.add_parser("advance", help="move to the hit step (or --to STEP); the only way step:: changes")
+    owner_args(a)
+    a.add_argument("--to", default=None, metavar="STEP")
+    a.add_argument("--evidence", required=True)
+
+    c = subs.add_parser("close", help="write closed::, log, recall from the watch list")
+    owner_args(c)
+    c.add_argument("--evidence", required=True)
+
+    owner_args(subs.add_parser("show", help="resolved workflow, step, rendezvous, probes, branches"))
+    owner_args(subs.add_parser("check", help="R-loop validation of one stone"))
+
+    d = subs.add_parser("due", help="enrolled loops whose rendezvous has arrived, by who can probe them")
+    root_arg(d); watch_arg(d)
+    d.add_argument("--all", action="store_true", help="include unenrolled loops and not-yet rows")
+
+    sc = subs.add_parser("scan", help="run every mail:/key: probe; advance only with --apply")
+    root_arg(sc); watch_arg(sc)
+    sc.add_argument("--since", default=None, metavar="TS", help="notmuch date lower bound, e.g. 2026-09-01")
+    sc.add_argument("--apply", action="store_true", help="advance on hit / take the miss branch at rendezvous")
+    sc.add_argument("--all", action="store_true", help="include unenrolled loops")
+
+    stl = subs.add_parser("stale", help="past rendezvous and still undecided — route to owners")
+    root_arg(stl); watch_arg(stl)
+    stl.add_argument("--all", action="store_true")
+    return p
+
+
+def _root(args) -> Path:
+    return (Path(args.root).expanduser().resolve() if getattr(args, "root", None)
+            else stone.DEFAULT_ROOT)
+
+
+def main(argv) -> int:
+    args = build_parser().parse_args(argv[1:])
+    fn = {"start": cmd_start, "advance": cmd_advance, "close": cmd_close, "show": cmd_show,
+          "check": cmd_check, "due": cmd_due, "scan": cmd_scan, "stale": cmd_stale}[args.verb]
+    try:
+        return fn(_root(args), args)
+    except (LoopError, stone.StoneError) as e:
+        print(str(e), file=sys.stderr)
+        return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))
