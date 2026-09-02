@@ -65,7 +65,7 @@ The stone is minted first with `stone new` (its `line::` and body are the owner'
 
 ## Who does what
 
-**The owner** (Wells, Hermes, Sonar) writes a workflow once per channel as a template, mints the stone, fills the bindings and the handoff keys, runs `start`, and `advance`s on evidence the scripts cannot see. **Sparks** runs `due` and `scan` hourly from `sparks-watch`, performs the `portal:` checks, `advance`s on what they show, and campaigns when a miss reaches `dan`. **Lumen** selects by `tempo::` as now. **Dan** acts in the world; his acts enter as `key:` probes (`ordered:: 2026-09-05`). **Tink** owns the mechanism.
+**The owner** (Wells, Hermes, Sonar) writes a workflow once per channel as a template, mints the stone, fills the bindings and the handoff keys, runs `start`, and `advance`s on evidence the scripts cannot see. **Sparks** reads `due` and `scan` from the hourly `sparks-watch` (report mode; `--apply` is a session act), performs the `portal:` checks, `advance`s on what they show, and campaigns when a miss reaches `dan`. **Lumen** selects by `tempo::` as now. **Dan** acts in the world; his acts enter as `key:` probes (`ordered:: 2026-09-05`). **Tink** owns the mechanism.
 
 ## Security — deferred, on record
 
@@ -74,7 +74,7 @@ A workflow is a document that makes agents act. The grammar keeps the blast radi
 # BRIEF
 
 - **Inclusion test** — a rule belongs here only if it constrains the loop keys, the workflow grammar, or what `loop` refuses. What a *stone* is (files, control file, feeds, push) is [[DAS Stone]]'s; the ladder Sparks climbs on a `dan` miss is [[ASTR Comms]]'; a specific channel's steps belong to its owner's template, never here.
-- **The vocabulary is closed on purpose and the script is its single reader.** `when` kinds, probe kinds and branch targets are parsed once in `skills/workflow/scripts/loop`; `activity_view.py traffic` and `sparks-watch` are to import that resolver, never re-parse — the hand-authored Traffic spine drifted from its own field list because two readers parsed it. Adding a kind means the script, `test-f635-loop.py`, and this page in one change.
+- **The vocabulary is closed on purpose and the script is its single reader.** `when` kinds, probe kinds and branch targets are parsed once in `skills/workflow/scripts/loop`; `activity_view.py traffic` imports that resolver and `sparks-watch` shells `loop due` / `loop scan`; neither re-parses — the hand-authored Traffic spine drifted from its own field list because two readers parsed it. Adding a kind means the script, `test-f635-loop.py`, and this page in one change.
 - **Step names are provisional until the first Cigna cycle runs** — Dan and Atticus's ruling *do not generalise from one cycle*. Do not freeze a step vocabulary into this spec before then.
 - **`step::` is machine-written.** A hand edit of `step::` bypasses the log and the check; the fix for a wrong step is `loop advance --to`, not an edit.
 - **Security is deferred, not solved** — keep the § Security paragraph until Atticus P0018 replaces it with a defense.
