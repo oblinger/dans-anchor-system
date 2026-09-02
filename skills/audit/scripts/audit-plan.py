@@ -1982,6 +1982,73 @@ def chk_no_blank_after_h1(target, anchor_root, args):
     return "pass", ""
 
 
+def chk_stacked_table(target, anchor_root, args):
+    """R-stacked-table: [=]-declared stacked tables — arity + first-column stack.
+
+    A table is STACKED iff its header row's first cell begins with `[=]`
+    (Dan 2026-09-01: an explicit, visible, typeable corner marker — a selector
+    living only in cell content dies silently when the cell is edited).
+    The header's first cell carries `[=] ` at the start of EVERY sub-row line;
+    the count of those lines is THE arity for the whole table. Every cell in
+    every row must then split on structural `<br/>` into exactly that many
+    sub-values; first-column cells carry `[=] ` on each sub-line; a missing
+    sub-value is an em-dash, never empty. Bare `<br>` is a cosmetic wrap
+    (what Obsidian Shift+Return emits) and is ignored by every count.
+    Findings name row, column and cell so the writing agent can fix blind."""
+    f = _as_file(target, anchor_root)
+    if f is None:
+        return "error", "no file"
+    lines = _read(f).splitlines()
+    probs = []
+    def cells(row):
+        # split on unescaped pipes only -- wiki-links carry \| inside cells
+        return [c.strip() for c in re.split(r"(?<!\\)\|", row.strip().strip("|"))]
+    def subs(cell):
+        return [x.strip() for x in cell.split("<br/>")]
+    i = 0
+    while i < len(lines):
+        ln = lines[i]
+        if ln.lstrip().startswith("|") and cells(ln) and cells(ln)[0].startswith("[=]"):
+            hdr = cells(ln)
+            stack = subs(hdr[0])
+            arity = len(stack)
+            bad_hdr = [x for x in stack if not x.startswith("[=]")]
+            if bad_hdr:
+                probs.append("line %d: header first cell — every sub-line starts `[=] ` (missing on: %s)"
+                             % (i + 1, "; ".join(bad_hdr[:3])))
+            for c, cell in enumerate(hdr[1:], start=2):
+                n = len(subs(cell))
+                if n != arity:
+                    probs.append("line %d: header col %d — %d sub-row(s), stack declares %d"
+                                 % (i + 1, c, n, arity))
+            j = i + 1
+            if j < len(lines) and set(lines[j].replace("|", "").replace(":", "").strip()) <= {"-", " "}:
+                j += 1
+            r = 0
+            while j < len(lines) and lines[j].lstrip().startswith("|"):
+                r += 1
+                for c, cell in enumerate(cells(lines[j]), start=1):
+                    parts = subs(cell)
+                    if len(parts) != arity:
+                        probs.append("line %d (row %d, col %d): %d sub-row(s), stack declares %d — cell: %r"
+                                     % (j + 1, r, c, len(parts), arity, cell[:60]))
+                    if c == 1:
+                        miss = [x for x in parts if not x.startswith("[=]")]
+                        if miss:
+                            probs.append("line %d (row %d, col 1): sub-line(s) missing `[=] `: %s"
+                                         % (j + 1, r, "; ".join(repr(m[:30]) for m in miss[:3])))
+                    if any(x in ("", "[=]") for x in parts):
+                        probs.append("line %d (row %d, col %d): empty sub-value — use an em-dash"
+                                     % (j + 1, r, c))
+                j += 1
+            i = j
+        else:
+            i += 1
+    if probs:
+        return "fail", "stacked table violations (see [[DAS stacked-table]]):\n  " + "\n  ".join(probs[:12])
+    return "pass", ""
+
+
 def chk_regex_present(target, anchor_root, args):
     f = _as_file(target, anchor_root)
     if f is None:

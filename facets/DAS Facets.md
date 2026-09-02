@@ -14,6 +14,7 @@ description: "the per-doc structural specs"
 | [[DAS Code Design\|Code]]+ | [[DAS Code\|Code]],  [[DAS Code Repository\|Code Repository]],  [[DAS Module Doc\|Module Doc]],  [[DAS CLI\|CLI]],  [[DAS Changes\|Changes]],  [[DAS Specs\|Specs]],  [[DAS All Files\|All Files]],  [[DAS Versions\|Versions]],   |
 | [[DAS Doc Design\|Doc]]+ | [[DAS Doc\|Doc]],  [[DAS Doc Structure\|Doc Structure]],  [[DAS Brief\|Brief]],  [[DAS Cards\|Cards]],  [[DAS Documentation Site\|Documentation Site]],  [[DAS Output\|Output]],   |
 | [[DAS stream\|Stream]]+ | [[DAS At Entity\|At Entity]],  [[DAS Discussion\|Discussion]],  [[DAS Log\|Log]],  [[DAS Inbox\|Inbox]],  [[DAS Outputs\|Outputs]],  [[DAS WP\|WP]],  [[DAS Completed Roadmap\|Completed Roadmap]],   |
+| [[DAS stacked-table\|Stacked Table]]+ | *slot facet — selects by its own `<!-- stacked -->` marker; no citing facets yet*,   |
 | *Meta (proposed)* | [[DAS Facet\|Facet]],  [[DAS Skill\|Skill]],  [[DAS Primitives\|Primitives]],  [[DAS Aspects\|Aspects]],  [[DAS Template\|Template]],  [[DAS Template Files\|Template Files]],  [[DAS Template Folders\|Template Folders]],  [[DAS Template Variables\|Template Variables]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
 |  |  |
 | [[DAS Templates\|Templates]]  | [[agenda]],  [[backlog]],  [[completed-roadmap]],  [[decisions]],  [[icebox]],  [[inbox]],  [[log]],  [[messages]],  [[prd]],  [[query]],  [[roadmap]],  [[rocks]],  [[status]],  [[testing]],  [[track]],   |

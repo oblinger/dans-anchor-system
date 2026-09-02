@@ -1,12 +1,17 @@
 ---
 name: stacked-table
-description: "*Slot* — a table whose related columns stack into one cell, sub-rows separated by structural `<br/>`"
+description: "*Slot* — a table whose related columns stack into one cell, sub-rows separated by structural `<br/>`, declared by an explicit marker."
 tools: Read
 user_invocable: false
 group: slot
 ---
 
-# Stacked table
+| -[[DAS stacked-table]]- | : *Slot* — a table whose related columns stack into one cell, sub-rows separated by structural `<br/>`, declared by an explicit marker.<br>→ [[DAS]] → [[disciplines]] → [DAS stacked-table](hook://p/DAS%20stacked-table)  |
+| --- | --- |
+| Ruleset | [[R-stacked-table]],   |
+| Examples | [[MED Pills]],   |
+
+# DAS stacked-table
 
 A **stacked table** is a markdown table that folds related columns into one physical column — each cell holding sub-rows separated by `<br/>` — so a wide record fits a readable table. Minted 2026-09-01 on [[MED Pills]] (Drug/Dose · Filled-by/#Rx · Last-ordered/Run-out).
 
@@ -21,7 +26,11 @@ The polarity is chosen so the casual keystroke is the harmless spelling: an acci
 
 ## When this facet applies
 
-Any hand-maintained table whose header cells contain `<br/>`. That header row is the facet's selector — the ruleset reaches the table by content, not by file placement.
+Any table whose first header cell begins with the visible marker **`[=]`** — typeable as-is, no rewrite needed. The full form: every sub-row line of every first-column cell starts `[=] `, so **the first column draws the stack** — the reader sees the stack itself, aligned, and knows the rest of the table follows it. The count of `[=]` lines in the header's first cell is the arity for the whole table. (Dan 2026-09-01: an invisible HTML-comment marker was considered and rejected — the marker must be on screen, cost no extra rows, and die only by deliberate deletion.)
+
+## Cardinality
+
+**Many** — a document may carry any number of stacked tables; each is declared and checked independently by its own marker.
 
 ## Graduation — heavy writes mean the table wants to be electric
 
@@ -30,3 +39,7 @@ A stacked table is the right form for low-churn, hand-tended data. When agents s
 ## Ruleset
 
 [[R-stacked-table]] — arity, polarity, and the no-literal-newline invariant.
+
+# BRIEF
+
+Minted 2026-09-01 in-session (Dan + Atticus) out of the [[MED Pills]] restructure. Design decisions, each Dan's ruling: (1) the two-spelling polarity — `<br/>` structural / `<br>` cosmetic — chosen AFTER observing that Obsidian's Shift+Return writes a bare `<br>`, so the casual keystroke had to be the harmless spelling; (2) the explicit `<!-- stacked -->` marker replaced the header-content selector because a selector living in an editable cell dies silently ("it silently fails… I feel like we should propose a marker"); (3) no get/set tooling — reads are cheap inline, the arity check guards writes, heavy-write tables graduate to electric renders. When editing this spec keep the polarity's *reason* attached to the polarity — the assignment looks arbitrary without it and a future editor will be tempted to "simplify" it back to one spelling.
