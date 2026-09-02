@@ -170,8 +170,16 @@ tell application "Terminal"
   set custom title of t to "${LOCAL_SESSION}"
 end tell
 delay 0.3
+-- Re-raise the app that was frontmost. prevApp is a PROCESS name, and when
+-- that differs from the application's name (Claude's process, Chrome Beta,
+-- Electron apps) `tell application prevApp` cannot resolve it and macOS opens
+-- a "Where is <name>?" Choose Application dialog on the user's screen — seen
+-- live 2026-09-02 during Scout's connect. Raising the process through System
+-- Events needs no name resolution, so it can never prompt.
 try
-  if prevApp is not "" and prevApp is not "Terminal" then tell application prevApp to activate
+  if prevApp is not "" and prevApp is not "Terminal" then
+    tell application "System Events" to set frontmost of process prevApp to true
+  end if
 end try
 EOF
   say "PASS  viewer  Terminal window opened on '$LOCAL_SESSION' (focus returned)"

@@ -4861,9 +4861,13 @@ def chk_doc_head_orientation_line(target, anchor_root, args):
     # sentence is redundant. Keyed to the CARD, deliberately not to the `@` prefix
     # or the `AT/` path - measured 2026-08-31, 391 of the 482 failing register pages
     # carry the card and are waived here, while the 91 not yet migrated to the
+    # (the templates that mint those pages — `_@{{…}} Template.md`, `_SV Person
+    # Template.md` — carry the same `# @…` H1 + card and are waived on the same
+    # test, keyed on the H1 since a template's filename need not start with `@`;
+    # found 2026-09-02, ATT T307)
     # ratified shape keep failing, which is the advisory doing its job on the tail
     # of Winnie's migration rather than being switched off across a whole folder.
-    if f.name.startswith("@") and j < len(lines) and lines[j].strip().startswith("| Card"):
+    if (f.name.startswith("@") or head.lstrip().startswith("@")) and j < len(lines) and lines[j].strip().startswith("| Card"):
         return "pass", "at-entity form — orientation line waived (the H1 is the identity line)"
 
     def _prose(ln):
