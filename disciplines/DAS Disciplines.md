@@ -28,7 +28,7 @@ Every entry was tested mechanically rather than by reading its prose: resolve th
 | Verdict | Count | Evidence |
 |---|---|---|
 | Genuine disciplines | 15 | No ruleset of their own at all, or one selecting `` `always` `` / `**/*.md` |
-| Slot facet | 1 | [[DAS stream]] — `R-stream` selects by `sentinel:` |
+| Slot facet | 2 | [[DAS stream]] — `R-stream` selects by `sentinel:`; [[DAS stacked-table]] — `R-stacked-table` selects a `<br/>`-bearing table header (added 2026-09-01) |
 | Neither | 1 | [[DAS file-association]] — `R-file-association` selects `` `anchor` `` |
 | Already reclassified (Q007) | 2 | [[DAS spine]], [[DAS heart]] |
 
