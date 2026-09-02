@@ -1988,11 +1988,12 @@ def chk_stacked_table(target, anchor_root, args):
     A table is STACKED iff its header row's first cell begins with `[=]`
     (Dan 2026-09-01: an explicit, visible, typeable corner marker — a selector
     living only in cell content dies silently when the cell is edited).
-    The header's first cell carries `[=] ` at the start of EVERY sub-row line;
-    the count of those lines is THE arity for the whole table. Every cell in
-    every row must then split on structural `<br/>` into exactly that many
-    sub-values; first-column cells carry `[=] ` on each sub-line; a missing
-    sub-value is an em-dash, never empty. Bare `<br>` is a cosmetic wrap
+    The header's first cell carries `[=] ` at the start of EVERY sub-row line
+    -- the stack drawn once, in the top corner, and ONLY there (Dan 2026-09-01:
+    body rows stay clean). The count of those lines is THE arity for the whole
+    table. Every cell in every row must split on structural `<br/>` into
+    exactly that many sub-values; a missing sub-value is an em-dash, never
+    empty; a `[=]` in a body row is itself a finding. Bare `<br>` is a cosmetic wrap
     (what Obsidian Shift+Return emits) and is ignored by every count.
     Findings name row, column and cell so the writing agent can fix blind."""
     f = _as_file(target, anchor_root)
@@ -2032,11 +2033,9 @@ def chk_stacked_table(target, anchor_root, args):
                     if len(parts) != arity:
                         probs.append("line %d (row %d, col %d): %d sub-row(s), stack declares %d — cell: %r"
                                      % (j + 1, r, c, len(parts), arity, cell[:60]))
-                    if c == 1:
-                        miss = [x for x in parts if not x.startswith("[=]")]
-                        if miss:
-                            probs.append("line %d (row %d, col 1): sub-line(s) missing `[=] `: %s"
-                                         % (j + 1, r, "; ".join(repr(m[:30]) for m in miss[:3])))
+                    if c == 1 and any(x.startswith("[=]") for x in parts):
+                        probs.append("line %d (row %d, col 1): `[=]` belongs only in the header's corner cell"
+                                     % (j + 1, r))
                     if any(x in ("", "[=]") for x in parts):
                         probs.append("line %d (row %d, col %d): empty sub-value — use an em-dash"
                                      % (j + 1, r, c))

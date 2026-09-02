@@ -26,7 +26,7 @@ The polarity is chosen so the casual keystroke is the harmless spelling: an acci
 
 ## When this facet applies
 
-Any table whose first header cell begins with the visible marker **`[=]`** — typeable as-is, no rewrite needed. The full form: every sub-row line of every first-column cell starts `[=] `, so **the first column draws the stack** — the reader sees the stack itself, aligned, and knows the rest of the table follows it. The count of `[=]` lines in the header's first cell is the arity for the whole table. (Dan 2026-09-01: an invisible HTML-comment marker was considered and rejected — the marker must be on screen, cost no extra rows, and die only by deliberate deletion.)
+Any table whose first header cell begins with the visible marker **`[=]`** — typeable as-is, no rewrite needed. The full form: every sub-row line of **that one corner cell** starts `[=] ` — the stack drawn once, in the top-left, and only there (body rows stay clean; a `[=]` in a body row is a finding). The reader sees the stack in the corner and knows the whole table follows it. The count of `[=]` lines in the header's first cell is the arity for the whole table. (Dan 2026-09-01: an invisible HTML-comment marker was considered and rejected — the marker must be on screen, cost no extra rows, and die only by deliberate deletion.)
 
 ## Cardinality
 
