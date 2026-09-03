@@ -1,36 +1,37 @@
 ---
-description: "One-line-per-command reference for the `stone` script — mint, reorder, push, recall and propagate pebbles, rocks, sleepers and book entries. Kinds come from DAS Stone Kinds.json, not the script."
+description: "One-line-per-command reference for the `stone` script — mint, reorder, push, recall and propagate stones, addressed by list as `Slug[.list]`."
 ---
 
 # stone — CLI reference
-One line per command, as `--help` would print it. Semantics: [[DAS Stone]]. The `<kind>` form (`stone pebbles new …`) and the addressed form (`stone new Anchor.list …`, F628) are the same verbs; `Anchor` alone names the anchor's default list.
+One line per command, as `--help` would print it. Semantics: [[DAS Stone]]. A stone is addressed by its LIST, `Slug[.list]`: the slug alone is the anchor's default list (`pebbles` vault-wide, `_:` in global.yaml), `Tink.rocks` a named one. Lists are declared under `stones:` in the anchor's `.anchor`. The older `stone <kind> <verb> <anchor> …` form still parses until the kind table retires (F628 step 4).
 
 ```
-# mint {slug} P0001.md; the line lands atop its own control file
-stone <kind> new     <anchor> --line TEXT [--body TEXT]
-                              [--title T] [--date YYYY-MM-DD]
+# mint {slug} P0001.md; the line lands atop the list's control file
+stone new     <Slug[.list]> --line TEXT [--body TEXT]
+                            [--title T] [--date YYYY-MM-DD]
 # reorder within its run
-stone <kind> move    <anchor> <id> --after ID | --before ID
-                                   | --to-top | --to-bottom
-                                   [--owner SLUG]
+stone move    <Slug[.list]> <id> --after ID | --before ID
+                                 | --to-top | --to-bottom
+                                 [--owner SLUG]
 # place it on another anchor's list, with a receipt (T626)
-stone <kind> push    <anchor> <id> --to SLUG
+stone push    <Slug[.list]> <id> --to SLUG
 # take a pushed stone back off that list
-stone <kind> recall  <anchor> <id> --from SLUG
-# reconcile every control file, propagate along feeds:, archive orphans
-stone <kind> update  [--dry-run] [--root DIR]
-# addressed form: `Lumen` = default list, `Lumen.rocks` = named one
-stone new | move | push | recall  <Anchor[.list]> ...
+stone recall  <Slug[.list]> <id> --from SLUG
+# reconcile every declared list, propagate along feeds:, archive orphans
+stone update  [--dry-run] [--root DIR]
 
-<kind>   pebbles | rocks | sleepers | book   (DAS Stone Kinds.json)
-<id>     P0001 | R0001 | S0001 | YYYY-MM-DD Title
---owner  disambiguates when two anchors share an id
---root   scan root (default $ANCHOR_VAULT_ROOT or ~/ob/kmr)
---dry-run  print every write and archive; perform none
+<Slug[.list]>  Tink = its default list (pebbles); Tink.rocks = named
+<id>           P0001 | R0001 | S0001 | YYYY-MM-DD Title
+--owner        disambiguates when two anchors share an id
+--root         scan root (default $ANCHOR_VAULT_ROOT or ~/ob/kmr)
+--dry-run      print every write and archive; perform none
+--title/--date dated lists only (book): member title, creation date
 
+# legacy: stone <kind> <verb> <anchor> ...  kind = pebbles | rocks |
+#   sleepers | book; same verbs; retires with the kind table.
 # archive (no verb): delete the line from the stone's OWN control file,
-#   then `stone <kind> update` moves the file to archive/. A line
-#   deleted from any other list is re-added. Live: Tink P0020, P0021.
+#   then `stone update` moves the file to archive/. A line deleted from
+#   any other list is re-added. Live: Tink P0020, P0021.
 # conflict: one line edited in two places in the same pass is
 #   CONCATENATED, never dropped (T642); clean up either copy by hand.
 ```
