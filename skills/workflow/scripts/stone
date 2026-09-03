@@ -30,9 +30,13 @@ This is the mechanical half only.
             edit travels up to the stone, then every projection is rewritten
             to match (convergence: every projection == its stone at the end).
             If two projections of one stone were edited to DIFFERENT values in
-            the same pass, that is a collision: the pass aborts before any
-            write, naming the stone and who said what (F312 Q6 = C). No merge
-            is attempted, and no edit is silently discarded.
+            the same pass, that is a collision: the values are CONCATENATED,
+            newest file first, joined by ` ⚡ `, and that one long line is
+            written everywhere (T642, Dan 2026-09-02 — superseding F312 Q6 =
+            C's abort, which stopped every anchor's update on one stale line).
+            Nothing is discarded, everything converges, and the cleanup is a
+            hand edit of any one copy. The pass names each conflict on stderr
+            and counts them in its summary line.
           - a stone missing from every OTHER control file it should reach is
             silently re-added (a feed edge, or a line's position relative to
             the self-section, changed); a stone whose line only vanished from
@@ -1462,9 +1466,32 @@ def readback(stones: dict, control: dict, gram: Gram,
         edits = [(k, text) for k, text in seen if text != original]
         distinct = {text for _k, text in edits}
         if len(distinct) > 1:
+            # T642 (Dan 2026-09-02) — supersedes F312 Q6 = (C). Two different
+            # edits, neither the stone's: CONCATENATE them, newest file first,
+            # joined by a visible ` ⚡ `, and let resync push that one long
+            # line everywhere. Nothing vanishes (every value is on the line),
+            # everything converges (the next pass sees one value), and the
+            # conflict sits where someone reads it — the line itself — rather
+            # than in an error that stopped forty unrelated anchors' updates
+            # (Eli, blocked on a stale Lumen line, 2026-09-02). The cleanup is
+            # a hand edit of any one copy, which then propagates as usual.
+            def _when(k):
+                m = _mtime(getattr(control.get(k), "path", None))
+                return -(m or 0)
+            ordered = []
+            for k, text in sorted(edits, key=lambda kt: _when(kt[0])):
+                if text not in ordered:
+                    ordered.append(text)
+            joined = " ⚡ ".join(ordered)
             collisions.append((skey[0], skey[1],
                                sorted((gram.label(k), text) for k, text in edits)))
-            continue  # leave the stone alone — the caller aborts before writes
+            stats["concatenated"] = stats.get("concatenated", 0) + 1
+            notes.append(
+                f"CONFLICT on {skey[0]} {skey[1]} — {len(ordered)} different edits, "
+                f"concatenated newest-first (clean it up by editing any one copy):\n"
+                + "\n".join(f"      {gram.label(k)} says: {text}" for k, text in edits))
+            st.line = joined
+            continue
         if not edits or edits[-1][1] == st.line:
             continue
         k, text = edits[-1]
@@ -2024,22 +2051,14 @@ def cmd_update(kind, root: Path, args) -> int:
     stats = {"archived": 0}
     readback_notes: list = []
     collisions = readback(stones, control, gram, stats, readback_notes)
-    if collisions:
-        # F312 Q6 = (C). Abort before any write, like the cycle check above:
-        # a half-reconciled tree is worse than an unreconciled one, and the
-        # whole point of the ruling is that no edit disappears quietly.
-        report = []
-        for owner, sid, edits in sorted(collisions):
-            report.append(f"  {owner}:{sid} — {len(set(t for _s, t in edits))} "
-                          f"different values, and no way to tell which is newest:")
-            for who, text in edits:
-                report.append(f"    {who} says: {text}")
-        raise StoneError(
-            f"{len(collisions)} stone(s) with conflicting values — nothing "
-            f"was written. Resolve by hand, then re-run.\n" + "\n".join(report)
-            + "\n  (A single differing copy is resolved by file mtime and needs "
-              "no attention; these are the ones where two copies disagree, or "
-              "where the mtimes cannot separate the stone from its projection.)")
+    # Collisions no longer abort (T642, Dan 2026-09-02, superseding F312 Q6 =
+    # C): readback has already concatenated each one into a single visible
+    # line, and the pass writes it out like any other edit. The report below
+    # still names every stone and value, on stderr, so the log carries it.
+    for owner, sid, edits in sorted(collisions):
+        print(f"stone: conflict on {owner}:{sid} — {len(set(t for _s, t in edits))} "
+              f"different values concatenated into one line; edit any copy to clean it",
+              file=sys.stderr)
 
     resync(stones, control, gram)
 
@@ -2103,6 +2122,8 @@ def cmd_update(kind, root: Path, args) -> int:
     if replaced or kept:
         loss = (f", {replaced} line(s) replaced from a newer projection"
                 f", {kept} kept against an older one")
+    if stats.get("concatenated"):
+        loss += f", {stats['concatenated']} conflict(s) concatenated"
     what = "update" if unified else f"{kind} update"
     lists = f", {len(nodes)} list(s)" if unified else ""
     print(

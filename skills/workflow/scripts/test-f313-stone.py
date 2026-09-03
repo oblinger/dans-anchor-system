@@ -385,25 +385,36 @@ try:
         rc = run(root, "rock", "update")
     err_text = err.getvalue()
 
-    if rc != 0:
-        ok(f"three-way conflicting edit refuses the pass (rc={rc})")
+    # T642 (Dan 2026-09-02) supersedes the abort: the pass WRITES, and what it
+    # writes is every conflicting value concatenated into one line, everywhere.
+    if rc == 0:
+        ok(f"three-way conflicting edit no longer refuses the pass (rc={rc})")
     else:
-        no("conflicting edits returned 0 — the loss is still silent")
+        no(f"conflicting edits still abort (rc={rc}): {err_text!r}")
 
-    if "conflicting values" in err_text and "A:R0002" in err_text:
+    if "conflict on A:R0002" in err_text:
         ok("...and the report names the stone")
     else:
         no(f"collision not reported against the stone: {err_text!r}")
 
-    if all(f"text-from-{s}" in err_text for s in ("A", "B", "C")):
-        ok("...and quotes every value in conflict, so nothing is lost to the log")
+    h_stone = stone_path(root, "A", "R0002").read_text(encoding="utf-8")
+    h_line = next((l for l in h_stone.splitlines() if l.startswith("line::")), "")
+    if all(f"text-from-{s}" in h_line for s in ("A", "B", "C")) and " ⚡ " in h_line:
+        ok("...and the stone's line:: carries all three values, ⚡-joined — nothing lost")
     else:
-        no(f"report did not carry all three values: {err_text!r}")
+        no(f"stone line does not carry every value: {h_line!r}")
 
-    if all(p.read_bytes() == h_edited[p] for p in h_watch):
-        ok("...and NOTHING was written — no half-reconciled tree, as with a cycle")
+    if all(h_line[len("line:: "):] in p.read_text(encoding="utf-8") for p in (apath, bpath, cpath)):
+        ok("...and every copy converged on the same concatenated line")
     else:
-        no("a colliding pass still wrote — abort is not before-writes")
+        no("copies did not converge on the concatenated line")
+
+    rc2 = run(root, "rock", "update")
+    h_stone2 = stone_path(root, "A", "R0002").read_text(encoding="utf-8")
+    if rc2 == 0 and h_stone2 == h_stone:
+        ok("...and a second pass is quiet — the concatenation is not itself a conflict")
+    else:
+        no("second pass changed the stone again or failed")
 
     # Agreement is not conflict: two projections edited to the SAME new text
     # discard nothing when one is taken, so this must still converge. Without
