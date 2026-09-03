@@ -6770,8 +6770,14 @@ def renders_in_body(horizon: str, bracket: str) -> bool:
 _INBOX_ENTRY_RE = re.compile(r"^## \d{4}-\d{2}-\d{2} — .+")
 # R-fct-inbox-03's two sanctioned values, backtick-wrapped as the rule spells
 # them. Backticks are required: without them the word `DONE` in an entry's
-# prose would mark it processed.
-_INBOX_DONE_RE = re.compile(r"`(?:DONE|MOVED\s*→[^`]*)`")
+# prose would mark it processed. T652 (2026-09-02): `DONE` may carry an
+# explanatory suffix after a dash (`DONE — fact absorbed`), exactly as
+# `MOVED → dest` always could — 13 of AUP's 16 entries sat pending for five
+# days because four agents wrote the note the vault asks for and this
+# pattern required a bare backtick after DONE. `DONE-ish`/`DONEX` still miss.
+# audit-plan.py's `_INBOX_TAG_RE` restates this pattern verbatim (the module
+# is too heavy to import at load time); test-t652 asserts the two are equal.
+_INBOX_DONE_RE = re.compile(r"`(?:DONE(?:\s*[—–][^`]*|\s+-\s[^`]*)?|MOVED\s*→[^`]*)`")
 
 
 def count_pending_inbox(name: str, backlog_file: Path) -> int:

@@ -3764,6 +3764,8 @@ def cmd_drop(slug, anchor_path, args):
 # to every caller, the same reason `drop` itself is a verb here and not a
 # skill-side string splice.
 _INBOX_MOVED_RE = re.compile(r"^MOVED\s*→\s*(\S.*)$")
+# T652: `DONE` plus an optional explanatory suffix after a dash.
+_INBOX_DONE_SUFFIX_RE = re.compile(r"^DONE(?:\s*[—–]\s*|\s+-\s+)(\S.*)$")
 _INBOX_H2_DATE_RE = re.compile(r"^## (\d{4}-\d{2}-\d{2}) — (.+)$")
 
 
@@ -3776,6 +3778,17 @@ def _normalize_inbox_tag(raw):
     tag = (raw or "").strip()
     if tag == "DONE":
         return tag
+    m = _INBOX_DONE_SUFFIX_RE.match(tag)
+    if m:
+        # T652: the note the vault asks every agent to record, carried on the
+        # tag itself — `DONE — fact absorbed` — re-spaced to one em-dash form
+        # so the counter's pattern and the file agree.
+        note = m.group(1).strip()
+        if "`" in note:
+            raise be.BacklogEditError(
+                "inbox-tag: --tag note cannot itself contain a backtick — "
+                "it would break the tag's own backtick-wrapping")
+        return f"DONE — {note}"
     m = _INBOX_MOVED_RE.match(tag)
     if m:
         dest = m.group(1).strip()
@@ -3785,9 +3798,9 @@ def _normalize_inbox_tag(raw):
                 "backtick — it would break the tag's own backtick-wrapping")
         return f"MOVED → {dest}"
     raise be.BacklogEditError(
-        f"inbox-tag: --tag must be exactly 'DONE' or 'MOVED → {{destination}}' "
-        f"— the only two values [[DAS Inbox]] (R-fct-inbox-03) sanctions — "
-        f"got {raw!r}")
+        f"inbox-tag: --tag must be 'DONE', 'DONE — {{note}}' or "
+        f"'MOVED → {{destination}}' — the only values [[DAS Inbox]] "
+        f"(R-fct-inbox-03) sanctions — got {raw!r}")
 
 
 def _load_audit_q():

@@ -8358,13 +8358,15 @@ def chk_exceptions_table_wellformed(target, anchor_root, args):
 # quieter failure than the one warden warns about, since `check:: missing_fn`
 # earns a WARNING and no `check::` line at all earns nothing.
 #
-# The status vocabulary is imported from audit-q rather than restated. A second
-# spelling of "what marks an entry processed" is exactly how a checker and the
-# `Inbox N` banner come to disagree about which entries are pending.
+# The status vocabulary RESTATES audit-q's `_INBOX_DONE_RE` byte for byte —
+# audit-q is too heavy to import at module load, so the two copies are held
+# equal by test-t652-inbox-suffix.py instead. A second spelling of "what marks
+# an entry processed" is exactly how a checker and the `Inbox N` banner come to
+# disagree about which entries are pending; edit both or neither.
 # Matched against an H2's TITLE (the text `_h2_titles` returns), not the raw
 # line — so the `##` spelling stays in `_H2_RE` where T099's ratchet keeps it.
 _INBOX_ENTRY_RE = re.compile(r"^\d{4}-\d{2}-\d{2} — .+")
-_INBOX_TAG_RE = re.compile(r"`(?:DONE|MOVED\s*→[^`]*)`")
+_INBOX_TAG_RE = re.compile(r"`(?:DONE(?:\s*[—–][^`]*|\s+-\s[^`]*)?|MOVED\s*→[^`]*)`")
 # Tag-SHAPED: a backticked all-caps token. Used only to catch an invented or
 # typo'd tag; ordinary prose backticks (`audit-q.py`, `slug`) do not match.
 _INBOX_TAGLIKE_RE = re.compile(r"`([A-Z][A-Z0-9 _→+-]*)`")

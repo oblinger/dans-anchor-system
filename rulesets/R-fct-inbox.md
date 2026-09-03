@@ -31,8 +31,8 @@ Each entry heading follows the form `## YYYY-MM-DD — {Topic}`. A **processed**
 
 ### RULE R-fct-inbox-03 — Only sanctioned status tags are used (checked)
 check:: inbox_status_tags
-The only permitted status values are `DONE` (processed in place) and `MOVED → {destination}` (content relocated). No other tags may be used without updating this spec.
-**Check pattern:** no H2 carries a status tag other than `DONE` or `MOVED → …`.
+The only permitted status values are `DONE` (processed in place) and `MOVED → {destination}` (content relocated), either optionally followed by an em-dash and a note inside the same backticks — `DONE — fact absorbed` (T652). No other tags may be used without updating this spec.
+**Check pattern:** no H2 carries a status tag other than `DONE[ — note]` or `MOVED → …`.
 **Why:** downstream tooling and agent skills key off these exact strings; ad-hoc tags silently break detection. (Tier: checked)
 
 ### RULE R-fct-inbox-04 — Processed entries are retained, not deleted (stated)

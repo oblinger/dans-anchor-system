@@ -8,7 +8,7 @@ group: file
 | Related | [[DAS Discussion]],  [[DAS Backlog]],  [[DAS PRD]],  [[DAS Roadmap]],   |
 | Examples | [[FEX Inbox\|example]],   |
 | Rules | [[R-fct-inbox]],   |
-| ... | [[anchor-page]],  [[DAS Agenda]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Page]],  [[DAS Anchor Tree]],  [[DAS API Design]],  [[DAS Architecture]],  [[DAS Aspects]],  [[DAS At Entity]],  [[DAS Brief]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Chores]],  [[DAS Claude]],  [[DAS CLI]],  [[DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[facets/DAS Decisions]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Design Folder]],  [[DAS Dev Dispatch]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facet]],  [[DAS Facets]],  [[DAS Features]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Icebox]],  [[DAS Interface]],  [[DAS Log]],  [[DAS Messages]],  [[DAS Module Doc]],  [[DAS Move]],  [[DAS Naming]],  [[DAS Notebook]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS Primitives]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Rocks]],  [[DAS Ruleset]],  [[DAS Skill]],  [[DAS Specs]],  [[DAS Status]],  [[DAS Stone]],  [[DAS Stories]],  [[DAS Subs]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS Track]],  [[DAS User Dispatch]],  [[DAS UX Design]],  [[DAS Versions]],  [[DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
+| ... | [[anchor-page]],  [[DAS Agenda]],  [[DAS All Files]],  [[DAS Anchor]],  [[DAS Anchor Page]],  [[DAS Anchor Tree]],  [[DAS API Design]],  [[DAS Architecture]],  [[DAS Aspects]],  [[DAS At Entity]],  [[DAS Brief]],  [[DAS Cards]],  [[DAS Changes]],  [[DAS Chores]],  [[DAS Claude]],  [[DAS CLI]],  [[DAS Code]],  [[DAS Code Repository]],  [[DAS Common Testing Types]],  [[DAS Completed Roadmap]],  [[facets/DAS Decisions]],  [[DAS Design Dispatch]],  [[DAS Design Docs]],  [[DAS Design Folder]],  [[DAS Dev Dispatch]],  [[DAS Dispatch]],  [[DAS Dispatch Table]],  [[DAS Dispatch Table Design]],  [[DAS Doc]],  [[DAS Doc Structure]],  [[DAS Documentation Site]],  [[DAS Dot Anchor]],  [[DAS Facet]],  [[DAS Facets]],  [[DAS Features]],  [[DAS Files Architecture]],  [[DAS Folder]],  [[DAS Icebox]],  [[DAS Interface]],  [[DAS Log]],  [[DAS Loop]],  [[DAS Messages]],  [[DAS Module Doc]],  [[DAS Move]],  [[DAS Naming]],  [[DAS Notebook]],  [[DAS Output]],  [[DAS Outputs]],  [[DAS Primitives]],  [[DAS Proj]],  [[DAS Project Page]],  [[DAS Query]],  [[DAS Rocks]],  [[DAS Ruleset]],  [[DAS Skill]],  [[DAS Specs]],  [[DAS Status]],  [[DAS Stone]],  [[DAS Stories]],  [[DAS System Design]],  [[DAS Template]],  [[DAS Template Files]],  [[DAS Template Folders]],  [[DAS Template Variables]],  [[DAS Testing]],  [[DAS Track]],  [[DAS User Dispatch]],  [[DAS UX Design]],  [[DAS Versions]],  [[DAS WP]],  [[project-page]],  [[Skill Anchor/skill-config]],  [[Skill Anchor/skill-script]],  [[Skill Anchor/skill-search-rules]],  [[Skill Anchor/skill-testing]],   |
 
 # DAS Inbox
 Facet spec for the `{slug} Inbox.md` drop-zone file — the chronological log of raw input pasted in for later processing into the anchor's planning docs.
@@ -33,6 +33,12 @@ Below is a condensed reference example. See the working example linked above for
 | --- | |
 
 Items below have been processed and moved to their destination docs.
+
+## 2026-09-02 — audit checker: frontmatter description vs identity cell
+
+*from: HA pilot · tag: handoff*
+
+> HookAnchor T362 (from Winnie's 2026-09-01 report on [[@Vivek Hebbar]]): a page's `description:` frontmatter and the `: …` identity cell in its masthead can disagree after a description harvest rewrites the frontmatter, and no checker compares them — the page reads 0 findings while carrying two descriptions. HookAnchor now logs every applied harvest with source and target, and a host that was not edited never harvests (arbitration by authority), but the desync itself is only visible by eye. Request: an audit-plan checker that flags frontmatter-description ≠ masthead identity cell on anchor pages. Both strings are on the page; no store access needed.
 
 ## 2026-08-23 — Dan's one-line summary for the anchor system description
 
@@ -71,7 +77,7 @@ Every Inbox file opens with the standard top-of-doc format: YAML frontmatter + `
 ## Format
 - Reverse chronological dated sections (H2)
 - Each heading: `## YYYY-MM-DD — Topic    \`STATUS\``
-- Status tags: `DONE` (processed in place), `MOVED → {destination}` (content relocated)
+- Status tags: `DONE` (processed in place), `MOVED → {destination}` (content relocated); either may carry a note after an em-dash inside the same backticks — `DONE — fact absorbed`
 - Original input preserved as blockquotes when useful as a record
 
 ## Lifecycle
@@ -84,6 +90,6 @@ Every Inbox file opens with the standard top-of-doc format: YAML frontmatter + `
 *(Maintainer note — facet-specific cautions for whoever edits this spec. The normative spec is the body above.)*
 
 - **Inclusion test** — a rule belongs here only if it constrains how an Inbox file is authored, located, formatted, or processed; cross-facet workflow (how entries promote to PRD/Roadmap/Backlog) and other surfaces' drop-zone semantics live in the destination facet specs, not here.
-- **Status-tag vocabulary is tooling-consumed** — `DONE` and `MOVED → {destination}` (R-fct-inbox-03) are the only sanctioned tags; downstream tooling and agent skills key off these exact strings, so adding a tag requires updating the ruleset first.
+- **Status-tag vocabulary is tooling-consumed** — `DONE` and `MOVED → {destination}` (R-fct-inbox-03) are the only sanctioned tags, each optionally followed by ` — {note}` inside the backticks (T652, 2026-09-02); downstream tooling and agent skills key off these strings, so adding a tag requires updating the ruleset first. Write tags through `state inbox-tag`, never by hand — a hand-typed variant the counter does not read leaves the entry pending forever with nothing to say so.
 - **Reference Example is illustrative, not authoritative** — on a format change update the Format Specification first, then sync the example; don't let the example drift into spec, and keep per-anchor variations in the working example ([[FEX Inbox]]), not inlined here.
 - **Top-of-doc shape is owned by rewire** — cite `[[skills/rewire/SKILL]]` § Default doc top-of-file; don't re-specify the frontmatter / H1 / dispatch-placeholder here.
