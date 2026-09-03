@@ -7,7 +7,6 @@ One line per command, as `--help` would print it. Semantics: [[DAS Stone]]. A st
 
 ## Proposed — T653, not yet built
 
-The whole surface as it would stand after T653. Edit here; the current figure below stays as the record of what runs.
 
 ```text
 stone new <list> --line TEXT [--body TEXT]    # mint {slug} P0001.md
@@ -15,23 +14,14 @@ stone new <list> --line TEXT [--body TEXT]    # mint {slug} P0001.md
 stone move <list> <id> --owner SLUG |         # reorder within its run
           --after ID | --before ID |
           --to-top | --to-bottom
-stone move <list> <id> --dest <list>          # relocate to another list
+stone move <list> <id> --dest <list>          # relocate, new number
 stone share <list> <id> --with SLUG           # appear on SLUG's list
-stone share <list> <id> --recall SLUG         # take the appearance back
-stone archive <list> <id>                     # retire it to archive/
+stone share <list> <id> --recall SLUG         # stop appearing there
+stone archive <list> <id>                     # retire to archive/
 stone update [--dry-run]                      # reconcile + propagate
 
-<list>     a slug, or slug.list: Tink = its default list (pebbles),
-           Tink.rocks = a named one; declared under stones: in .anchor
-<id>       P0001 | R0001 | S0001 | YYYY-MM-DD Title
---dest     new number on the target; links follow (anchor update); the
-           old number is retired by a tombstone in the source archive/
---force    on move --dest and archive: proceed on a shared-out stone by
-           withdrawing its appearances first
---dry-run  print every write and archive; perform none
---title, --date   dated lists only (book): member title, creation date
-
-# gone: --root (tests set ANCHOR_VAULT_ROOT); push, recall (now share)
+<list>  slug or slug.list   Tink = default list, Tink.rocks = named
+<id>    P0001 | R0001 | S0001 | YYYY-MM-DD Title
 ```
 
 Design and Dan's reasoning: [[Tink653 - stone verbs move gains --dest, share replaces push recall, archive is a|T653]].
