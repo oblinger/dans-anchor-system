@@ -880,7 +880,8 @@ def _write_stone(st):
 #
 # Dan 2026-09-03, on Obsidian's ~40K-file ceiling: archived stones stop being
 # one `.md` each. `archive/YYYY-MM <Slug[.list]> archive.md` holds every stone
-# retired that month as an `## <Slug> <id>` section; the file's `aliases:` gains
+# retired that month as a `# <Slug> <id>` section (H1 — Dan 2026-09-03: an H2
+# lets a body's own headings blur the boundary); the file's `aliases:` gains
 # each stone's name so `[[Tink P0020]]` keeps resolving in Obsidian. Nothing is
 # ever read back from a month file except by `_is_archived` (a heading grep for
 # an error message) and the one-time `_next_sid` seed. Not a zip: grep, git and
@@ -973,19 +974,20 @@ def _fm_add_alias(lines: list, name: str) -> None:
 
 def _archive_append(folder: Path, label: str, name: str, keys: list, body: str,
                     month: str = None) -> Path:
-    """Append one stone as an `## name` section to the list's month file,
-    registering `name` as an alias. Creates the file on first use."""
+    """Append one stone as a `# name` section to the list's month file,
+    registering `name` as an alias. Creates the file on first use. Sections
+    are appended in retirement order — chronological, oldest first (Dan)."""
     mpath = _archive_month_path(folder, label, month)
     mpath.parent.mkdir(parents=True, exist_ok=True)
     if mpath.is_file():
         lines = mpath.read_text(encoding="utf-8").splitlines()
     else:
-        lines = ["---", "aliases:", "---", "", f"# {mpath.stem}"]
+        lines = ["---", "aliases:", "---"]
     _fm_add_alias(lines, name)
     while lines and lines[-1].strip() == "":
         lines.pop()
     lines.append("")
-    lines.append(f"## {name}")
+    lines.append(f"# {name}")
     lines.extend(f"{k}:: {v}" for k, v in keys)
     if body.strip():
         lines.append("")
@@ -1008,7 +1010,7 @@ def _is_archived(folder: Path, slug: str, sid: str) -> bool:
     name = f"{slug} {sid}"
     if (folder / "archive" / f"{name}.md").is_file():
         return True
-    rx = re.compile(rf"^## {re.escape(name)}\s*$", re.M)
+    rx = re.compile(rf"^# {re.escape(name)}\s*$", re.M)
     return any(rx.search(f.read_text(encoding="utf-8")) for f in _archive_month_files(folder))
 
 
@@ -1021,7 +1023,7 @@ def _archived_numbers(folder: Path, slug: str, cfg: dict) -> list:
     if d.is_dir():
         nums += [int(num_re.match(f.stem).group(1)) for f in _stone_files(d, slug, cfg)]
     for f in _archive_month_files(folder):
-        for m in re.finditer(r"^## (.+?)\s*$", f.read_text(encoding="utf-8"), re.M):
+        for m in re.finditer(r"^# (.+?)\s*$", f.read_text(encoding="utf-8"), re.M):
             mm = num_re.match(m.group(1))
             if mm:
                 nums.append(int(mm.group(1)))

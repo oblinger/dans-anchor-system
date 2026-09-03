@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """T655 — the stone archive is one markdown file per list per MONTH
-(`archive/YYYY-MM <list> archive.md`), each retired stone an `## <name>` section
+(`archive/YYYY-MM <list> archive.md`), each retired stone a `# <name>` section
 and an alias; numbering comes from a `next:` counter in the control file's
 frontmatter, seeded once from a scan; relocation records the old name in the
 month file (no tombstone); `stone archive <list> --convert` folds the legacy
@@ -60,9 +60,9 @@ with tempfile.TemporaryDirectory(prefix="t655-") as td:
     check("stone file deleted", not (folder / "A P0002.md").exists())
     check("no per-stone archive file", not (arch / "A P0002.md").exists())
     t = month_file.read_text() if month_file.is_file() else ""
-    check("month file exists with H1", t.startswith("---") and f"# {MONTH} A archive" in t, t)
+    check("month file exists, frontmatter first, no title H1 (stones are the H1s)", t.startswith("---\naliases:") and f"# {MONTH} A archive" not in t, t)
     check("section ## A P0002 with line::, retired::, body verbatim",
-          "## A P0002\nline:: second\nretired:: " + TODAY + "\n\nprose of two\n\nmore prose" in t, t)
+          "# A P0002\nline:: second\nretired:: " + TODAY + "\n\nprose of two\n\nmore prose" in t, t)
     check("alias registered", "aliases:\n  - A P0002\n" in t, t)
     check("no projection state in the section", "appears::" not in t and "enrolled::" not in t)
     check("own control line gone", "A P0002" not in a_ctl.read_text())
@@ -78,7 +78,7 @@ with tempfile.TemporaryDirectory(prefix="t655-") as td:
     rc, out, err = run(root, "update")
     t = month_file.read_text()
     check("wet run appends ## A P0003 to the SAME month file (1 archived)",
-          rc == 0 and "## A P0003" in t and "(1 archived)" in out and not (folder / "A P0003.md").exists(), out)
+          rc == 0 and "# A P0003" in t and "(1 archived)" in out and not (folder / "A P0003.md").exists(), out)
     check("aliases grow: both names", "  - A P0002\n  - A P0003\n" in t, t)
     check("exactly one archive file this month", sorted(p.name for p in arch.iterdir()) == [month_file.name])
     rc, out, err = run(root, "update")
@@ -97,8 +97,8 @@ with tempfile.TemporaryDirectory(prefix="t655-") as td:
     rc, out, err = run(root, "move", "A", "P0004", "--dest", "B")
     check("move --dest B -> B P0001", rc == 0 and "A P0004 -> B P0001" in out and "recorded in archive/" in out, out + err)
     t = month_file.read_text()
-    check("## A P0004 with moved:: → [[B P0001]] in A's month file",
-          "## A P0004\nline:: fourth\nmoved:: " + TODAY + " → [[B P0001]]" in t and "  - A P0004\n" in t, t)
+    check("# A P0004 with moved:: → [[B P0001]] in A's month file",
+          "# A P0004\nline:: fourth\nmoved:: " + TODAY + " → [[B P0001]]" in t and "  - A P0004\n" in t, t)
     check("no tombstone file", not (arch / "A P0004.md").exists())
     b_ctl = root / "B" / "B Track" / "B Pebbles" / "B Pebbles.md"
     check("B's counter advanced to 2", fm_next(b_ctl) == 2, b_ctl.read_text())
@@ -112,7 +112,7 @@ with tempfile.TemporaryDirectory(prefix="t655-") as td:
     sp = importlib.util.spec_from_loader("stone_mod", ld); sm = importlib.util.module_from_spec(sp); ld.exec_module(sm)
     sm._archive_append(folder, "A", "A P0099", [("line", "old"), ("retired", "2026-01-15")], "", month="2026-01")
     check("a different month is a different file", (arch / "2026-01 A archive.md").is_file()
-          and "## A P0099" in (arch / "2026-01 A archive.md").read_text())
+          and "# A P0099" in (arch / "2026-01 A archive.md").read_text())
     check("this month's file untouched by it", "A P0099" not in month_file.read_text())
     check("_is_archived sees every month file", sm._is_archived(folder, "A", "P0099") and not sm._is_archived(folder, "A", "P0042"))
     strip_next(a_ctl)
@@ -131,8 +131,8 @@ with tempfile.TemporaryDirectory(prefix="t655-") as td:
     check("convert exits 0, names the month file and count", rc == 0 and "2 archived stone(s) -> archive/2026-07 A archive.md" in out, out + err)
     jt = july.read_text() if july.is_file() else ""
     check("legacy stone folded by mtime with retired:: from mtime",
-          "## A P0050\nline:: legacy fifty\nretired:: 2026-07-15\n\nOld body." in jt, jt)
-    check("tombstone folded too", "## A P0051" in jt and "[[B P0009]]" in jt, jt)
+          "# A P0050\nline:: legacy fifty\nretired:: 2026-07-15\n\nOld body." in jt, jt)
+    check("tombstone folded too", "# A P0051" in jt and "[[B P0009]]" in jt, jt)
     check("aliases for both", "  - A P0050\n  - A P0051\n" in jt, jt)
     check("legacy files deleted", not legacy.exists() and not tomb.exists())
     rc, out, err = run(root, "archive", "A", "--convert")

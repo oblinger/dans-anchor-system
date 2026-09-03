@@ -67,7 +67,7 @@ with tempfile.TemporaryDirectory(prefix="t653-") as td:
     import datetime as _d
     arch1 = root / "A" / "A Track" / "A Pebbles" / "archive" / f"{_d.date.today().strftime('%Y-%m')} A archive.md"
     check("archive --force withdraws and archives into the month file",
-          rc == 0 and arch1.is_file() and "## A P0001" in arch1.read_text() and "withdrawn from B" in out, err)
+          rc == 0 and arch1.is_file() and "# A P0001" in arch1.read_text() and "withdrawn from B" in out, err)
     check("own control line gone", "A P0001" not in a_ctl.read_text())
     check("B's line gone", "A P0001" not in b_ctl[0].read_text())
 
@@ -79,7 +79,7 @@ with tempfile.TemporaryDirectory(prefix="t653-") as td:
     check("links followed", note.read_text() == "see [[B P0001]] and [[B P0001|alias]]\n", note.read_text())
     atext = arch1.read_text()
     check("relocation is recorded in the month file, pointing at the new name",
-          "## A P0002" in atext and "moved:: " in atext and "[[B P0001]]" in atext
+          "# A P0002" in atext and "moved:: " in atext and "[[B P0001]]" in atext
           and not (arch1.parent / "A P0002.md").exists(), atext)
     check("A control no longer names P0002", "A P0002" not in a_ctl.read_text())
     check("B control names B P0001", "B P0001" in b_ctl[0].read_text())

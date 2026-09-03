@@ -343,7 +343,7 @@ try:
     live_path = stone_path(root, "A", "R0001")
     arch_path = archived_stone_path(root, "A", "R0001")
     if rc == 0 and not live_path.is_file() and arch_path.is_file() \
-            and "## A R0001" in arch_path.read_text(encoding="utf-8"):
+            and "# A R0001" in arch_path.read_text(encoding="utf-8"):
         ok("stone appended to the month archive file after being deleted from its own control file")
     else:
         no(f"archive did not happen as expected: live={live_path.is_file()} arch={arch_path.is_file()}")
