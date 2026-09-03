@@ -446,7 +446,9 @@ class Azure(Backend):
     name and the tag `rig-name` (adoption of a VM made outside rig works the
     same way as on GCE).
 
-    Every rig lives in its OWN resource group, `rig-<name>`. `az vm delete`
+    Every rig lives in its OWN resource group, named exactly as the rig is
+    (the owner prefix already says whose it is; `rig-<name>` was the form
+    before 2026-09-03 and is still recognised by `rm`). `az vm delete`
     removes the VM and leaves NIC, public IP, NSG and the OS disk behind -- the
     disk still billing -- and there is no flag that reliably takes all of them.
     `az group delete` on a per-rig group takes everything in one call, so `rm`
@@ -529,7 +531,7 @@ class Azure(Backend):
         pub = keyfile + ".pub"
         if not os.path.exists(pub):
             die(f"public key {pub} missing — generate it with: ssh-keygen -t ed25519 -f {keyfile} -N ''")
-        rg = f"rig-{name}"
+        rg = name   # the group IS the rig: same prefixed name, nothing to translate (Dan, 2026-09-03)
         note(f"rig: creating {name} in {rg} ({size}, {loc})")
         self._az("group", "create", "-n", rg, "-l", loc,
                  "--tags", "managed-by=rig", f"rig-name={name}", json_out=False)
@@ -572,7 +574,9 @@ class Azure(Backend):
         if not vm:
             return False
         rg = vm["resourceGroup"]
-        if rg.lower() == f"rig-{name}".lower():
+        # Own group = named for the rig. `rig-<name>` is the pre-2026-09-03 form,
+        # accepted so a rig made under it still cleans up whole.
+        if rg.lower() in (name.lower(), f"rig-{name}".lower()):
             self._az("group", "delete", "-n", rg, "--yes", json_out=False)
             return True
         self._az("vm", "delete", "-g", rg, "-n", vm["name"], "--yes", json_out=False)
