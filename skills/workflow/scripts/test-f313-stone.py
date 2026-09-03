@@ -23,7 +23,7 @@ vault: every call passes `--root <tempdir>` explicitly.
                         from every downstream file, but it stays present
                         (just repositioned) in its own file — not archived.
   F. own-file delete  — deleting a stone's line from ITS OWN control file
-     → archive           archives the stone file (moved, not rewritten).
+     → archive           appends the stone to its month archive file (T655).
   G. downstream delete — deleting the SAME kind of line from a DOWNSTREAM
      → restored           (non-owning) file is undone on the next pass.
   H. three-way edit   — the same stone's rendered line, hand-edited in THREE
@@ -128,7 +128,10 @@ def stone_path(root, slug, sid):
 
 
 def archived_stone_path(root, slug, sid):
-    return root / slug / f"{slug} Track" / f"{slug} Rocks" / "archive" / f"{slug} {sid}.md"
+    # T655 — the archive is one month file per list; a stone is a section in it.
+    import datetime as _d
+    return root / slug / f"{slug} Track" / f"{slug} Rocks" / "archive" / \
+        f"{_d.date.today().strftime('%Y-%m')} {slug}.rock archive.md"   # kind-table mode: the list is addressed `A.rock`
 
 
 def write_control(path, slug, body_lines):
@@ -339,15 +342,16 @@ try:
     rc = run(root, "rock", "update")
     live_path = stone_path(root, "A", "R0001")
     arch_path = archived_stone_path(root, "A", "R0001")
-    if rc == 0 and not live_path.is_file() and arch_path.is_file():
-        ok("stone moved to archive/ after being deleted from its own control file")
+    if rc == 0 and not live_path.is_file() and arch_path.is_file() \
+            and "## A R0001" in arch_path.read_text(encoding="utf-8"):
+        ok("stone appended to the month archive file after being deleted from its own control file")
     else:
         no(f"archive did not happen as expected: live={live_path.is_file()} arch={arch_path.is_file()}")
-    if "appears:: " in arch_path.read_text(encoding="utf-8") and \
-       "appears:: A" not in arch_path.read_text(encoding="utf-8"):
-        ok("archived stone's propagation index cleared")
+    atext = arch_path.read_text(encoding="utf-8")
+    if "appears::" not in atext and "  - A R0001" in atext and "retired:: " in atext:
+        ok("archived section carries no propagation index, is aliased, and is dated")
     else:
-        no("archived stone's appears:: not cleared")
+        no(f"archived section shape wrong: {atext!r}")
 
     # ---- G: delete from a DOWNSTREAM control file → restored ------------
     print("== G: delete from a downstream (non-owning) file is restored ==")
@@ -839,7 +843,8 @@ try:
     # missing line is inserted, never repacked.
     qpath = control_path(qroot, "QQ")
     qlines = qpath.read_text(encoding="utf-8").splitlines()
-    shaped = qlines[:3] + ["", "# QQ Rock", "", "Some prose Dan wrote.", "", qlines[3], "", header_line("QQ"), ""]
+    fm_end = qlines.index("---", 1) + 1   # T655: the frontmatter also carries `next:`
+    shaped = qlines[:fm_end] + ["", "# QQ Rock", "", "Some prose Dan wrote.", "", qlines[fm_end], "", header_line("QQ"), ""]
     qpath.write_text("\n".join(shaped) + "\n", encoding="utf-8")
     before = qpath.read_text(encoding="utf-8")
     run(qroot, "rock", "update")
@@ -853,7 +858,10 @@ try:
     run(qroot, "rock", "new", "QQ", "--line", "the second one")
     q_lines = qpath.read_text(encoding="utf-8").splitlines()
     want = stone_line("QQ", "R0002", "the second one", host="QQ")
-    if q_lines[:6] == qlines[:3] + ["", "# QQ Rock", ""] and q_lines[6] == want and "Some prose Dan wrote." in q_lines:
+    fm_same = [l for l in q_lines[:fm_end] if not l.startswith("next:")] == \
+              [l for l in qlines[:fm_end] if not l.startswith("next:")]
+    if fm_same and q_lines[fm_end:fm_end + 3] == ["", "# QQ Rock", ""] and q_lines[fm_end + 3] == want \
+            and "Some prose Dan wrote." in q_lines:
         ok("a new stone is inserted just below the H1; prose and blanks untouched")
     else:
         no(f"new stone landed wrong:\n{q_lines!r}")

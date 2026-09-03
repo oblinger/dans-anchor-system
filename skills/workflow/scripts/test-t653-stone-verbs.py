@@ -64,8 +64,10 @@ with tempfile.TemporaryDirectory(prefix="t653-") as td:
     rc, out, err = run(root, "archive", "A", "P0001")
     check("archive refuses a shared stone, naming share --recall", rc != 0 and "share" in err, err)
     rc, out, err = run(root, "archive", "A", "P0001", "--force")
-    arch1 = root / "A" / "A Track" / "A Pebbles" / "archive" / "A P0001.md"
-    check("archive --force withdraws and archives", rc == 0 and arch1.is_file() and "withdrawn from B" in out, err)
+    import datetime as _d
+    arch1 = root / "A" / "A Track" / "A Pebbles" / "archive" / f"{_d.date.today().strftime('%Y-%m')} A archive.md"
+    check("archive --force withdraws and archives into the month file",
+          rc == 0 and arch1.is_file() and "## A P0001" in arch1.read_text() and "withdrawn from B" in out, err)
     check("own control line gone", "A P0001" not in a_ctl.read_text())
     check("B's line gone", "A P0001" not in b_ctl[0].read_text())
 
@@ -75,8 +77,10 @@ with tempfile.TemporaryDirectory(prefix="t653-") as td:
     newp = root / "B" / "B Track" / "B Pebbles" / "B P0001.md"
     check("file lives under B as B P0001", newp.is_file())
     check("links followed", note.read_text() == "see [[B P0001]] and [[B P0001|alias]]\n", note.read_text())
-    tomb = root / "A" / "A Track" / "A Pebbles" / "archive" / "A P0002.md"
-    check("tombstone retires A P0002", tomb.is_file() and "[[B P0001]]" in tomb.read_text())
+    atext = arch1.read_text()
+    check("relocation is recorded in the month file, pointing at the new name",
+          "## A P0002" in atext and "moved:: " in atext and "[[B P0001]]" in atext
+          and not (arch1.parent / "A P0002.md").exists(), atext)
     check("A control no longer names P0002", "A P0002" not in a_ctl.read_text())
     check("B control names B P0001", "B P0001" in b_ctl[0].read_text())
     check("new stone appears:: B only", "appears:: B" in newp.read_text() and "enrolled" not in newp.read_text())

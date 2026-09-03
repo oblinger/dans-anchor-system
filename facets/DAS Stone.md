@@ -14,6 +14,22 @@ group: folder
 # DAS Stone
 Facet spec for a **stone group** — a `{slug} Track/{slug} {Kind}s/` folder holding one file per item, ordered by a control file that a human or a machine may arrange, and propagated to downstream anchors along the `feeds:` DAG.
 
+| Table of Contents |  |
+|---|---|
+| **[[#What a stone group is]]** |  |
+| **[[#A stone's line fits on one Obsidian line — the budget is `stone_line_max`]]** |  |
+| **[[#A control file may be machine-maintained — a script or an agent may reorder, add and delete stones]]** |  |
+| **[[#The one idea everything else follows from]]** |  |
+| **[[#Who edits what]]** |  |
+| **[[#A backlog row deferred on a stone is linked from that stone's roadmap]]** |  |
+| **[[#Headers, and how publishing works]]** |  |
+| **[[#Placement — one stone on someone else's list, by a deliberate act]]** |  |
+| **[[#Archive — one markdown file per list per month]]** |  |
+| **[[#Addressing a group by dotted name — ruled, not yet built]]** |  |
+| **[[#Keys]]** |  |
+| **[[#Rules]]** |  |
+| **[[#The ruleset is a standalone companion, not embedded here]]** |  |
+
 **TLDR** — Pebbles and rocks are the same shape of thing at two sizes, so they are one facet parameterised by **kind**, not two facets that resemble each other.
 
 **Cardinality:** any number of kinds; at most one group per kind per anchor.
@@ -124,6 +140,12 @@ Each downstream anchor chooses where imports land by writing a header for the so
 **How it is kept.** The stone records `enrolled:: SPARKS` ([[DAS Stone Keys]]), and `update` treats an enrolled stone as desired on that list regardless of `feeds:` — where a merely-propagated line would be swept, an enrolled one stays, and a `line::` edit reaches it like any projection. Enrollment is not publication: the line lands above the target's self-header and travels no further, and a `feeds:` consumer of the owner does not receive it. `recall` on a target that also draws the stone by `feeds:` withdraws the enrollment and leaves the line, and says so.
 
 **`share` is the verb (T653, Dan 2026-09-03), `--with` and `--recall` its two directions.** It was `push`/`recall` from T626 until Dan read *push* as a move: a shared stone never leaves home, it gains a second appearance. The target is a LIST — `Sparks`, or `Sparks.rocks` for a named one — and share does not place; the receiving list's order is its owner's (`stone move <that list> <id> --owner <home> …`). `recall` survives as the flag because `drop` already means *deposit* everywhere else in this system.
+
+## Archive — one markdown file per list per month
+
+**Ruled by Dan, 2026-09-03 (T655), against Obsidian's ~40K-file ceiling.** A retired stone is not a file. `archive/YYYY-MM <Slug[.list]> archive.md` inside the group folder — the list named exactly as addressed — takes every stone retired that month as an `## <Slug> <id>` section: `line::`, its other keys, `retired:: <date>` (or `moved:: <date> → [[new name]]` for a `move --dest`), then the body verbatim; `appears::`/`enrolled::` are dropped, being live-list state. The file's `aliases:` gains each name, so `[[Tink P0020]]` keeps resolving. `archive/` is written and never read back — a month file is not a stone, and `update` loads nothing from it. Not a zip, in his words: *"having a single markdown file instead of a text file, because we can't look at a text file at all"* — grep, git and Obsidian all need to open it. Year roll-up (12 → 1) is a later verb.
+
+**Numbering is a `next:` counter in the control file's frontmatter**, written by `new` and by `move --dest` on the target side, seeded once from the live folder plus everything `archive/` records, and never scanned again. A mint that fails after allocating leaves a gap; monotonic is the requirement, dense is not. The T653 relocation tombstone is gone — the counter keeps the old number retired. Legacy one-file archives fold with `stone archive <list> --convert` (one-shot, idempotent; the 16 in the vault were folded 2026-09-03).
 
 ## Addressing a group by dotted name — ruled, not yet built
 

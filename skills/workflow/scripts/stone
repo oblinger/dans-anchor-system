@@ -40,8 +40,9 @@ This is the mechanical half only.
           - a stone missing from every OTHER control file it should reach is
             silently re-added (a feed edge, or a line's position relative to
             the self-section, changed); a stone whose line only vanished from
-            its OWN control file is archived — moved to `archive/` inside its
-            stone folder. Both are silent: nothing is printed per line.
+            its OWN control file is archived — appended to the month file
+            `archive/YYYY-MM <list> archive.md` inside its stone folder (T655)
+            and its own file deleted. Both are silent: nothing is printed per line.
           - a cycle in `feeds:` is reported as a path and the whole pass
             aborts with NO writes.
 
@@ -874,17 +875,170 @@ def _write_stone(st):
     st.path.write_text(_render_stone(st.keys, st.body), encoding="utf-8")
 
 
+# --------------------------------------------------------------------------
+# Archive (T655) — one markdown file per list per MONTH, not one per stone.
+#
+# Dan 2026-09-03, on Obsidian's ~40K-file ceiling: archived stones stop being
+# one `.md` each. `archive/YYYY-MM <Slug[.list]> archive.md` holds every stone
+# retired that month as an `## <Slug> <id>` section; the file's `aliases:` gains
+# each stone's name so `[[Tink P0020]]` keeps resolving in Obsidian. Nothing is
+# ever read back from a month file except by `_is_archived` (a heading grep for
+# an error message) and the one-time `_next_sid` seed. Not a zip: grep, git and
+# Obsidian all need to open it.
+
+_ARCHIVE_NAME_RE = re.compile(r"^\d{4}-\d{2} (.+) archive$")
+
+
+def _default_list_name(anchor_path: Path) -> str:
+    registry = _anchor_stones(anchor_path)
+    if registry and "_" in registry:
+        return str(registry["_"])
+    return str(_global_stones_section().get("_") or "pebble")
+
+
+def _list_label(anchor_path: Path, slug: str, list_name) -> str:
+    """The list exactly as ADDRESSED — `Tink` for the default list, `Tink.rocks`
+    for a named one — which is what the month file is named after."""
+    if list_name is None or list_name == _default_list_name(anchor_path):
+        return slug
+    return f"{slug}.{list_name}"
+
+
+def _archive_month_path(folder: Path, label: str, month: str = None) -> Path:
+    month = month or _dt.date.today().strftime("%Y-%m")
+    return folder / "archive" / f"{month} {label} archive.md"
+
+
+def _archive_month_files(folder: Path) -> list:
+    d = folder / "archive"
+    if not d.is_dir():
+        return []
+    return sorted(f for f in d.glob("*.md") if _ARCHIVE_NAME_RE.match(f.stem))
+
+
+def _fm_bounds(lines: list):
+    """(start, end) indices of the frontmatter's inner lines, or None."""
+    if lines and lines[0].strip() == "---":
+        i = 1
+        while i < len(lines) and lines[i].strip() != "---":
+            i += 1
+        if i < len(lines):
+            return 1, i
+    return None
+
+
+def _fm_get(lines: list, key: str):
+    b = _fm_bounds(lines)
+    if not b:
+        return None
+    rx = re.compile(rf"^{re.escape(key)}:\s*(.*?)\s*$")
+    for ln in lines[b[0]:b[1]]:
+        m = rx.match(ln)
+        if m:
+            return m.group(1)
+    return None
+
+
+def _fm_set(lines: list, key: str, value: str) -> None:
+    """Set a scalar frontmatter key in place, creating the block when the file
+    has none (legacy control files predate any frontmatter)."""
+    b = _fm_bounds(lines)
+    if not b:
+        lines[0:0] = ["---", f"{key}: {value}", "---"]
+        return
+    rx = re.compile(rf"^{re.escape(key)}:")
+    for i in range(b[0], b[1]):
+        if rx.match(lines[i]):
+            lines[i] = f"{key}: {value}"
+            return
+    lines.insert(b[1], f"{key}: {value}")
+
+
+def _fm_add_alias(lines: list, name: str) -> None:
+    b = _fm_bounds(lines)
+    if not b:
+        lines[0:0] = ["---", "aliases:", f"  - {name}", "---"]
+        return
+    for i in range(b[0], b[1]):
+        if re.match(r"^aliases:\s*$", lines[i]):
+            j = i + 1
+            while j < b[1] and lines[j].startswith("  - "):
+                if lines[j][4:].strip() == name:
+                    return
+                j += 1
+            lines.insert(j, f"  - {name}")
+            return
+    lines[b[1]:b[1]] = ["aliases:", f"  - {name}"]
+
+
+def _archive_append(folder: Path, label: str, name: str, keys: list, body: str,
+                    month: str = None) -> Path:
+    """Append one stone as an `## name` section to the list's month file,
+    registering `name` as an alias. Creates the file on first use."""
+    mpath = _archive_month_path(folder, label, month)
+    mpath.parent.mkdir(parents=True, exist_ok=True)
+    if mpath.is_file():
+        lines = mpath.read_text(encoding="utf-8").splitlines()
+    else:
+        lines = ["---", "aliases:", "---", "", f"# {mpath.stem}"]
+    _fm_add_alias(lines, name)
+    while lines and lines[-1].strip() == "":
+        lines.pop()
+    lines.append("")
+    lines.append(f"## {name}")
+    lines.extend(f"{k}:: {v}" for k, v in keys)
+    if body.strip():
+        lines.append("")
+        lines.extend(body.rstrip("\n").splitlines())
+    mpath.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return mpath
+
+
+def _archive_keys(keys: list, line: str, extra: list) -> list:
+    """The keys an archived section carries: everything but the projection
+    state (`appears::`, `enrolled::` describe live lists), `line::` current,
+    plus the retirement stamp."""
+    out = [(k, v) for k, v in keys if k not in ("appears", "enrolled", "line")]
+    return [("line", line)] + out + extra
+
+
+def _is_archived(folder: Path, slug: str, sid: str) -> bool:
+    """Does `archive/` hold this stone — as a T655 month-file section, or as a
+    legacy one-file archive not yet converted?"""
+    name = f"{slug} {sid}"
+    if (folder / "archive" / f"{name}.md").is_file():
+        return True
+    rx = re.compile(rf"^## {re.escape(name)}\s*$", re.M)
+    return any(rx.search(f.read_text(encoding="utf-8")) for f in _archive_month_files(folder))
+
+
+def _archived_numbers(folder: Path, slug: str, cfg: dict) -> list:
+    """Every stone number `archive/` still records — legacy files and month-file
+    headings — for the ONE seed of the `next:` counter."""
+    num_re = _stone_number_re(slug, cfg)
+    nums = []
+    d = folder / "archive"
+    if d.is_dir():
+        nums += [int(num_re.match(f.stem).group(1)) for f in _stone_files(d, slug, cfg)]
+    for f in _archive_month_files(folder):
+        for m in re.finditer(r"^## (.+?)\s*$", f.read_text(encoding="utf-8"), re.M):
+            mm = num_re.match(m.group(1))
+            if mm:
+                nums.append(int(mm.group(1)))
+    return nums
+
+
 def _archive_stone(st):
+    """Retire a live stone: its section goes to this month's file, its own
+    file is deleted. `st.archive_label` (set by the caller) names the list as
+    addressed; a caller that never set it gets the bare slug."""
     folder = st.path.parent
-    archive_dir = folder / "archive"
-    archive_dir.mkdir(parents=True, exist_ok=True)
-    dest = archive_dir / st.path.name
-    if dest.exists():
-        raise StoneError(
-            f"cannot archive {st.path} — {dest} already exists in archive/"
-        )
-    shutil.move(str(st.path), str(dest))
-    st.path = dest
+    label = getattr(st, "archive_label", None) or st.slug
+    today = _dt.date.today().isoformat()
+    keys = _archive_keys(st.keys, st.line, [("retired", today)])
+    mpath = _archive_append(folder, label, st.path.stem, keys, st.body)
+    st.path.unlink()
+    st.archived_to = mpath
     st.live = False
     st.appears = set()
 
@@ -1761,22 +1915,29 @@ def _mint_warnings(cf, slug: str, sid: str, keys: list, cfg: dict) -> list:
     return out
 
 
-def _next_sid(folder: Path, slug: str, cfg: dict) -> str:
-    """The next unused number on a numbered list: max over the live folder AND
-    archive/ plus one. There is no counter — a number stays retired exactly as
-    long as a file carrying it remains in archive/, which is what a relocation
-    tombstone (T653) relies on."""
+def _next_sid(cpath: Path, folder: Path, slug: str, cfg: dict) -> str:
+    """The next unused number on a numbered list, from the `next:` counter in
+    the control file's frontmatter (T655). Absent, it is seeded ONCE from the
+    live folder plus everything `archive/` records, and never scanned again —
+    archived stones no longer exist as files, so a scan could not see them.
+    Allocating advances the counter; a mint that fails afterwards leaves a gap,
+    which is what monotonic means."""
     prefix = cfg["prefix"]
     digits = cfg.get("digits", 4)
-    num_re = _stone_number_re(slug, cfg)
-    archive_dir = folder / "archive"
-    # Numbering and loading must agree on what a stone file IS, so both go
-    # through `_stone_files`. When they disagreed, `update` ingested files the
-    # mint had never counted.
-    nums = [int(num_re.match(f.stem).group(1)) for f in _stone_files(folder, slug, cfg)]
-    if archive_dir.is_dir():
-        nums += [int(num_re.match(f.stem).group(1)) for f in _stone_files(archive_dir, slug, cfg)]
-    return f"{prefix}{str((max(nums) + 1) if nums else 1).zfill(digits)}"
+    lines = (cpath.read_text(encoding="utf-8").splitlines() if cpath.is_file()
+             else _default_control_lines(slug, cfg))
+    cur = _fm_get(lines, "next")
+    if cur is not None and re.fullmatch(r"\d+", cur.strip()):
+        n = int(cur)
+    else:
+        num_re = _stone_number_re(slug, cfg)
+        nums = [int(num_re.match(f.stem).group(1)) for f in _stone_files(folder, slug, cfg)]
+        nums += _archived_numbers(folder, slug, cfg)
+        n = (max(nums) + 1) if nums else 1
+    _fm_set(lines, "next", str(n + 1))
+    cpath.parent.mkdir(parents=True, exist_ok=True)
+    cpath.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return f"{prefix}{str(n).zfill(digits)}"
 
 
 def cmd_new(kind, root: Path, args) -> int:
@@ -1799,7 +1960,7 @@ def cmd_new(kind, root: Path, args) -> int:
 
     folder = _stone_folder(a.path, slug, cfg)
     folder.mkdir(parents=True, exist_ok=True)
-    archive_dir = folder / "archive"
+    cpath = _control_path(a.path, slug, cfg)
 
     if _dated(cfg):
         # A dated stone is NAMED, not counted, so there is no scan to do and no
@@ -1819,7 +1980,7 @@ def cmd_new(kind, root: Path, args) -> int:
             raise StoneError(f"--date {date!r} is not YYYY-MM-DD")
         sid = f"{date} {title}"
     else:
-        sid = _next_sid(folder, slug, cfg)
+        sid = _next_sid(cpath, folder, slug, cfg)
     stone_path = folder / _stone_filename(slug, sid, cfg)
     if stone_path.exists():
         raise StoneError(f"{stone_path} already exists — refusing to overwrite")
@@ -1829,7 +1990,6 @@ def cmd_new(kind, root: Path, args) -> int:
     stone_path.write_text(_render_stone(keys, body), encoding="utf-8")
     st = _load_stone(stone_path, slug, live=True, cfg=cfg)
 
-    cpath = _control_path(a.path, slug, cfg)
     cpath.parent.mkdir(parents=True, exist_ok=True)
     lines = cpath.read_text(encoding="utf-8").splitlines() if cpath.is_file() else _default_control_lines(slug, cfg)
     cf = SimpleNamespace(slug=slug, path=cpath, lines=lines)
@@ -2053,9 +2213,10 @@ def _withdraw_all(anchors, ambiguous, root, owner, sid, st, kind, force: bool, v
 def _relocate(anchors, ambiguous, root: Path, owner: str, kind, cfg: dict,
               cpath: Path, lines: list, args) -> int:
     """`stone move <list> <id> --dest <list>` (T653): a NEW number on the
-    target list, the file moved by `anchor update` so every link follows, a
-    tombstone left in the source archive/ so the old number is never reused,
-    and the placement flags applied on arrival (default: top)."""
+    target list, the file moved by `anchor update` so every link follows, the
+    old name recorded in the source list's month file (T655 — the `next:`
+    counter keeps the number retired), and the placement flags applied on
+    arrival (default: top)."""
     sid = args.stone
     if args.owner and args.owner != owner:
         raise StoneError(
@@ -2073,7 +2234,7 @@ def _relocate(anchors, ambiguous, root: Path, owner: str, kind, cfg: dict,
     folder = _stone_folder(anchors[owner].path, owner, cfg)
     src = folder / _stone_filename(owner, sid, cfg)
     if not src.is_file():
-        archived = (folder / "archive" / src.name).is_file()
+        archived = _is_archived(folder, owner, sid)
         raise StoneError(f"no live stone {owner} {sid}" + (" — it is archived" if archived else ""))
     dfolder = _stone_folder(anchors[dslug].path, dslug, dcfg)
     if dfolder.resolve() == folder.resolve():
@@ -2095,7 +2256,8 @@ def _relocate(anchors, ambiguous, root: Path, owner: str, kind, cfg: dict,
 
     # 2. new number on the target, file moved with its links
     dfolder.mkdir(parents=True, exist_ok=True)
-    new_sid = _next_sid(dfolder, dslug, dcfg)
+    dcpath = _control_path(anchors[dslug].path, dslug, dcfg)
+    new_sid = _next_sid(dcpath, dfolder, dslug, dcfg)
     dst = dfolder / _stone_filename(dslug, new_sid, dcfg)
     import subprocess
     r = subprocess.run([anchor_bin, "update", str(src), str(dst), "--root", str(root)],
@@ -2105,25 +2267,18 @@ def _relocate(anchors, ambiguous, root: Path, owner: str, kind, cfg: dict,
                          f"{(r.stderr or r.stdout).strip()[-300:]}")
     links = next((l for l in r.stdout.splitlines() if l.startswith("rewrote")), "").strip()
 
-    # 3. tombstone retires the old number
-    arch = folder / "archive"
-    arch.mkdir(parents=True, exist_ok=True)
-    tomb = arch / src.name
-    if tomb.exists():
-        raise StoneError(f"{tomb} already exists — the file moved but the tombstone was not written")
+    # 3. the old name goes on record in the source list's month file
     today = _dt.date.today().isoformat()
-    tomb.write_text(_render_stone([("line", f"moved {today} → [[{dst.stem}]]"), ("appears", "")],
-                                  f"Relocated by `stone move --dest {args.dest}` on {today}. "
-                                  f"This file keeps the number {sid} retired; every link was "
-                                  f"repointed to [[{dst.stem}]] by `anchor update`."),
-                    encoding="utf-8")
+    src_label = _list_label(anchors[owner].path, owner, kind)
+    mpath = _archive_append(folder, src_label, src.stem,
+                            _archive_keys(st.keys, st.line, [("moved", f"{today} → [[{dst.stem}]]")]),
+                            st.body)
 
     # 4. the target list takes it, placed as asked (default: top)
     st2 = _load_stone(dst, dslug, live=True, cfg=dcfg)
     st2.appears = {dslug}
     st2.enrolled = set()
     _write_stone(st2)
-    dcpath = _control_path(anchors[dslug].path, dslug, dcfg)
     dlines = _control_lines(dcpath, dslug, dcfg)
     dcf = SimpleNamespace(slug=dslug, path=dcpath, lines=dlines)
     _add_to_own_top(dcf, dslug, new_sid, st2, dcfg)
@@ -2136,7 +2291,7 @@ def _relocate(anchors, ambiguous, root: Path, owner: str, kind, cfg: dict,
     dcpath.write_text("\n".join(dcf.lines) + "\n", encoding="utf-8")
 
     print(f"stone: moved {owner} {sid} -> {dslug} {new_sid} ({dcpath.name}, {placed}); "
-          f"{links or 'links rewritten'}; tombstone archive/{tomb.name}"
+          f"{links or 'links rewritten'}; recorded in archive/{mpath.name}"
           + (f"; withdrawn from {', '.join(withdrawn)}" if withdrawn else ""))
     print("  run `stone update` to sweep projections of the old name")
     return 0
@@ -2154,12 +2309,18 @@ def cmd_archive(kind, root: Path, args) -> int:
         raise StoneError(f"no anchor {slug!r} (.anchor) found under {root}")
     cfg, kind = _effective_cfg(anchors[slug].path, slug, kind, load_types())
     folder = _stone_folder(anchors[slug].path, slug, cfg)
+    label = _list_label(anchors[slug].path, slug, kind)
+    if getattr(args, "convert", False):
+        return _archive_convert(folder, slug, label, cfg)
+    if not args.stone:
+        raise StoneError("stone archive <list> <id> — an <id> is required (or --convert)")
     spath = folder / _stone_filename(slug, args.stone, cfg)
     if not spath.is_file():
-        archived = (folder / "archive" / spath.name).is_file()
+        archived = _is_archived(folder, slug, args.stone)
         raise StoneError(f"no live stone {slug} {args.stone}"
                          + (" — it is already archived" if archived else ""))
     st = _load_stone(spath, slug, live=True, cfg=cfg)
+    st.archive_label = label
     withdrawn = _withdraw_all(anchors, ambiguous, root, slug, args.stone, st, kind,
                               getattr(args, "force", False), "archive")
     cpath = _control_path(anchors[slug].path, slug, cfg)
@@ -2169,10 +2330,33 @@ def cmd_archive(kind, root: Path, args) -> int:
         _ensure_leading_blank(cf.lines)
         cpath.write_text("\n".join(cf.lines) + "\n", encoding="utf-8")
     _archive_stone(st)
-    _write_stone(st)
-    print(f"stone: archived {slug} {args.stone} -> {folder.name}/archive/{st.path.name}"
+    print(f"stone: archived {slug} {args.stone} -> {folder.name}/archive/{st.archived_to.name}"
           + (f"; withdrawn from {', '.join(withdrawn)}" if withdrawn else ""))
     print("  run `stone update` to sweep its projections")
+    return 0
+
+
+def _archive_convert(folder: Path, slug: str, label: str, cfg: dict) -> int:
+    """`stone archive <list> --convert` (T655, one-shot): fold the pre-T655
+    one-file-per-stone archive into month files, each by its file's mtime,
+    then delete the files. Idempotent — nothing left to fold is a clean zero."""
+    archive_dir = folder / "archive"
+    files = sorted(_stone_files(archive_dir, slug, cfg)) if archive_dir.is_dir() else []
+    months = {}
+    for f in files:
+        when = _dt.date.fromtimestamp(f.stat().st_mtime)
+        keys, body = _parse_stone(f.read_text(encoding="utf-8"))
+        line = (_kv_get(keys, "line", "") or "").strip()
+        extra = [] if _kv_get(keys, "moved") is not None else [("retired", when.isoformat())]
+        mpath = _archive_append(folder, label, f.stem, _archive_keys(keys, line, extra),
+                                body, month=when.strftime("%Y-%m"))
+        f.unlink()
+        months[mpath.name] = months.get(mpath.name, 0) + 1
+    if not files:
+        print(f"stone: {label}: nothing to convert in {folder.name}/archive/")
+        return 0
+    for name, n in sorted(months.items()):
+        print(f"stone: {label}: {n} archived stone(s) -> archive/{name}")
     return 0
 
 
@@ -2211,13 +2395,10 @@ def cmd_update(kind, root: Path, args) -> int:
                         f"two lists both hold a stone named {slug} {st.sid}: "
                         f"{prev.path} and {f} — give one list a different prefix")
                 st.home, st.home_cfg = key, nd.cfg
+                st.archive_label = _list_label(anchors[slug].path, slug, key[1])
                 stones[(slug, st.sid)] = st
-            archive_dir = nd.folder / "archive"
-            if archive_dir.is_dir():
-                for f in sorted(_stone_files(archive_dir, slug, nd.cfg)):
-                    st = _load_stone(f, slug, live=False, cfg=nd.cfg)
-                    st.home, st.home_cfg = key, nd.cfg
-                    stones[(slug, st.sid)] = st
+            # T655 — archive/ is written, never read: a month file is not a
+            # stone, and a stone whose file is gone is simply not live.
         prev_key = seen_paths.get(nd.cpath)
         if prev_key is not None:
             raise StoneError(
@@ -2324,6 +2505,8 @@ def cmd_update(kind, root: Path, args) -> int:
 
     n_stones = 0
     for st in stones.values():
+        if st.orig_live and not st.live:
+            continue   # archived this pass — its file is gone, its section written
         if st.live != st.orig_live or st.line != st.orig_line or set(st.appears) != st.orig_appears:
             if not dry:
                 _write_stone(st)
@@ -2412,7 +2595,7 @@ def _resolve_pair(anchors: dict, ambiguous: dict, cfg: dict, owner: str, sid: st
     folder = _stone_folder(a.path, owner, cfg)
     spath = folder / _stone_filename(owner, sid, cfg)
     if not spath.is_file():
-        archived = (folder / "archive" / _stone_filename(owner, sid, cfg)).is_file()
+        archived = _is_archived(folder, owner, sid)
         raise StoneError(
             f"no live stone {owner} {sid}" + (" — it is archived" if archived else "")
             + f" (looked in {folder})")
@@ -2694,11 +2877,13 @@ def build_addressed_parser(cfg_all: dict) -> argparse.ArgumentParser:
     side.add_argument("--recall", metavar="LIST", help="stop appearing on this list")
     root_arg(sh)
 
-    ar = subs.add_parser("archive", help="retire a stone to archive/ and drop its line")
+    ar = subs.add_parser("archive", help="retire a stone into this month's archive file and drop its line")
     ar.add_argument("address", help="<list> — the stone's HOME list")
-    ar.add_argument("stone", help="the stone id, e.g. P0007")
+    ar.add_argument("stone", nargs="?", help="the stone id, e.g. P0007")
     ar.add_argument("--force", action="store_true",
                     help="withdraw a shared stone's appearances first instead of refusing")
+    ar.add_argument("--convert", action="store_true",
+                    help="one-shot: fold pre-T655 one-file-per-stone archive/*.md into month files")
     root_arg(ar)
 
     up = subs.add_parser("update",

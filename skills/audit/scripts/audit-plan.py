@@ -8164,6 +8164,10 @@ def _stone_gate(target, anchor_root, folder_scope: bool):
     folder, _kind, cfg = _stone_group(f)
     if folder is None:
         return None, None, None, None, ("pass", "not inside a stone-group folder")
+    if f.parent.name == "archive" and f.parent.parent == folder:
+        # T655 — `archive/` holds one month file per list, not stones; the
+        # member rules judge live stones only.
+        return None, None, None, None, ("pass", "archived stones (archive/ month file)")
     slug = _anchor_slug(_stone_owner(folder))
     if not _stone_is_instance(folder, slug, cfg):
         return None, None, None, None, ("pass", "not a Stone-facet instance "
