@@ -31,7 +31,7 @@ check:: loop_bindings_present
 A binding the workflow requires and the stone lacks, or a `when` that reads a key the stone does not carry, is refused at `start`/`advance` — `accepts:` one level down. Guard: § B.
 
 ### RULE R-loop-07 — The watch list is script-owned (stated)
-Every line on [[TRAFFIC]]'s control file is a stone enrolled there by `loop start` (through `stone push`) and carrying `workflow::`. A hand-written line, a stone on the list without `enrolled:: TRAFFIC`, or an enrolled stone with no workflow is reported by `loop due` / `loop scan` as a WARN naming the line. Guard: § H. At the moment of writing, [[R-pathguard]]-06/-07 deny an agent's Edit/Write to that file outright (mend `loop-owns-the-watch-list`).
+Every line on [[TRAFFIC]]'s control file is a stone enrolled there by `loop start` (through `stone share`) and carrying `workflow::`. A hand-written line, a stone on the list without `enrolled:: TRAFFIC`, or an enrolled stone with no workflow is reported by `loop due` / `loop scan` as a WARN naming the line. Guard: § H. At the moment of writing, [[R-pathguard]]-06/-07 deny an agent's Edit/Write to that file outright (mend `loop-owns-the-watch-list`).
 
 ### RULE R-loop-08 — The workflow a stone runs on resolves inside the owner's anchor, or to the stone itself (checked)
 check:: loop_workflow_contained

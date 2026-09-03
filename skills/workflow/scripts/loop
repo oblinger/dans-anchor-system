@@ -11,7 +11,7 @@ A LOOP is an ordinary stone (see `stone` beside this file) plus two keys:
 plus `entered::` (the date `step::` was entered — every relative rendezvous
 counts from here) and `lapses::` (one clause on what is lost). The stone
 stays on its origination list; its owner is that list's anchor. While the
-loop is active it is ENROLLED on the watch list ([[TRAFFIC]]) by `stone push`,
+loop is active it is ENROLLED on the watch list ([[TRAFFIC]]) by `stone share`,
 and recalled when it closes. Nobody hand-writes a Traffic line.
 
 The workflow grammar — a `## Workflow` section, header keys then one table:

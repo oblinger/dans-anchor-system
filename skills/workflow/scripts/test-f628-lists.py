@@ -26,10 +26,10 @@ not depend on this machine.
                           same number sequence as the addressed form.
   I. relocated list    — a `rock: {folder: ...}` override is honored by the
                           addressed mint, by legacy `rock update` (stone NOT
-                          archived, control found), and by push/recall
+                          archived, control found), and by share
                           landing on the relocated target control.
   J. update, no kind   — bare `stone update` walks every kind in the table.
-  K. dotted push tgt   — refused until the list-level walk (step 3).
+  K. dotted share tgt  — lands on the named list (T653).
 """
 import sys as _sys; _sys.dont_write_bytecode = True
 
@@ -209,21 +209,24 @@ with tempfile.TemporaryDirectory() as td:
           and not (root / "N" / "N Rocks" / "archive" / "N R0001.md").exists(),
           "relocated stone NOT archived by the walk")
 
-    rc, out, err = quiet(root, "push", "N.rock", "R0001", "--to", "M")
-    check(rc == 0, f"push from relocated list (err={err.strip()})")
+    rc, out, err = quiet(root, "share", "N.rock", "R0001", "--with", "M")
+    check(rc == 0, f"share from relocated list (err={err.strip()})")
     mcontrol = root / "M" / "M Track" / "M Rock.md"
     check(mcontrol.is_file() and "N R0001" in mcontrol.read_text(encoding="utf-8"),
           "line landed on the target's rock control")
     check("enrolled:: M" in (root / "N" / "N Rocks" / "N R0001.md").read_text(encoding="utf-8"),
           "enrollment recorded on the stone")
 
-    rc, out, err = quiet(root, "recall", "N.rock", "R0001", "--from", "M")
+    rc, out, err = quiet(root, "share", "N.rock", "R0001", "--recall", "M")
     check(rc == 0 and "N R0001" not in mcontrol.read_text(encoding="utf-8"),
-          "recall removes the line again")
+          "share --recall removes the line again")
 
-    # K. dotted push target refused until step 3
-    rc, out, err = quiet(root, "push", "N.rock", "R0001", "--to", "M.rock")
-    check(rc == 1 and "step 3" in err, "K: dotted push target refused, naming step 3")
+    # K. dotted share target lands on the named list (T653)
+    rc, out, err = quiet(root, "share", "N.rock", "R0001", "--with", "M.rock")
+    check(rc == 0 and "N R0001" in mcontrol.read_text(encoding="utf-8"),
+          f"K: dotted share target lands on M.rock (err={err.strip()})")
+    rc, out, err = quiet(root, "share", "N.rock", "R0001", "--recall", "M.rock")
+    check(rc == 0 and "N R0001" not in mcontrol.read_text(encoding="utf-8"), "K: dotted recall")
 
 # ============================================================
 print("J. bare `stone update` is ONE unified list-level pass (step 3)")

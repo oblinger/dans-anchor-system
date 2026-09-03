@@ -45,7 +45,7 @@ This is the mechanical half only.
           - a cycle in `feeds:` is reported as a path and the whole pass
             aborts with NO writes.
 
-    stone <verb> <Anchor[.list]> ...   (F628 — named lists, migration step 1)
+    stone <verb> <list> ...   (F628 named lists; T653 verbs: move --dest, share, archive)
         The ADDRESSED form. `Lumen` names her dotless (default) list;
         `Lumen.rocks` a named one. Lists are declared in the owning anchor's
         `.anchor` under `stones:` (one entry per list; `_` designates the
@@ -1649,7 +1649,9 @@ def propagate_in(key, edges: dict, stones: dict, control: dict,
         desired.update(published.get(src, []))
     enrolled_here = sorted(
         k for k, st in stones.items()
-        if st.live and slug in st.enrolled and st.home[1] == name and k[0] != slug
+        if st.live and k[0] != slug
+        and ((slug in st.enrolled and st.home[1] == name)      # T626: list of the owner's type
+             or f"{slug}.{name}" in st.enrolled)               # T653: a named list
     )
     desired.update(enrolled_here)
 
@@ -1759,6 +1761,24 @@ def _mint_warnings(cf, slug: str, sid: str, keys: list, cfg: dict) -> list:
     return out
 
 
+def _next_sid(folder: Path, slug: str, cfg: dict) -> str:
+    """The next unused number on a numbered list: max over the live folder AND
+    archive/ plus one. There is no counter — a number stays retired exactly as
+    long as a file carrying it remains in archive/, which is what a relocation
+    tombstone (T653) relies on."""
+    prefix = cfg["prefix"]
+    digits = cfg.get("digits", 4)
+    num_re = _stone_number_re(slug, cfg)
+    archive_dir = folder / "archive"
+    # Numbering and loading must agree on what a stone file IS, so both go
+    # through `_stone_files`. When they disagreed, `update` ingested files the
+    # mint had never counted.
+    nums = [int(num_re.match(f.stem).group(1)) for f in _stone_files(folder, slug, cfg)]
+    if archive_dir.is_dir():
+        nums += [int(num_re.match(f.stem).group(1)) for f in _stone_files(archive_dir, slug, cfg)]
+    return f"{prefix}{str((max(nums) + 1) if nums else 1).zfill(digits)}"
+
+
 def cmd_new(kind, root: Path, args) -> int:
     anchors, ambiguous = discover_anchors(root)
     slug = args.anchor
@@ -1799,18 +1819,7 @@ def cmd_new(kind, root: Path, args) -> int:
             raise StoneError(f"--date {date!r} is not YYYY-MM-DD")
         sid = f"{date} {title}"
     else:
-        prefix = cfg["prefix"]
-        digits = cfg.get("digits", 4)
-        num_re = _stone_number_re(slug, cfg)
-
-        # Numbering and loading must agree on what a stone file IS, so both go
-        # through `_stone_files`. When they disagreed, `update` ingested files the
-        # mint had never counted.
-        nums = [int(num_re.match(f.stem).group(1)) for f in _stone_files(folder, slug, cfg)]
-        if archive_dir.is_dir():
-            nums += [int(num_re.match(f.stem).group(1)) for f in _stone_files(archive_dir, slug, cfg)]
-        next_num = (max(nums) + 1) if nums else 1
-        sid = f"{prefix}{str(next_num).zfill(digits)}"
+        sid = _next_sid(folder, slug, cfg)
     stone_path = folder / _stone_filename(slug, sid, cfg)
     if stone_path.exists():
         raise StoneError(f"{stone_path} already exists — refusing to overwrite")
@@ -1910,8 +1919,34 @@ def cmd_move(kind, root: Path, args) -> int:
         raise StoneError(f"stone: {cpath} does not exist — nothing to reorder")
     lines = cpath.read_text(encoding="utf-8").splitlines()
 
-    src = _locate_stone(lines, args.stone, args.owner, cfg, slug)
-    start, end = _stone_run(lines, src, cfg, slug)
+    if getattr(args, "dest", None):
+        return _relocate(anchors, ambiguous, root, slug, kind, cfg, cpath, lines, args)
+    if not _has_placement(args):
+        raise StoneError("stone move: name a place — --after ID | --before ID | "
+                         "--to-top | --to-bottom (or --dest <list> to relocate)")
+
+    moved = _reorder(lines, args.stone, args.owner, cfg, slug, args, cpath)
+    if moved is None:
+        print(f"stone: {args.stone} is already there — {cpath.name} unchanged")
+        return 0
+    src, dest = moved
+    _ensure_leading_blank(lines)
+    cpath.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    print(f"stone: moved {args.stone} from line {src + 1} to line {dest + 1} "
+          f"in {cpath.name}")
+    return 0
+
+
+def _has_placement(args) -> bool:
+    return bool(getattr(args, "after", None) or getattr(args, "before", None)
+                or getattr(args, "to_top", False) or getattr(args, "to_bottom", False))
+
+
+def _reorder(lines: list, sid: str, owner, cfg: dict, host: str, args, cpath: Path):
+    """Move `sid`'s line within its run per the placement flags, in place.
+    Returns (src, dest) or None when it is already there."""
+    src = _locate_stone(lines, sid, owner, cfg, host)
+    start, end = _stone_run(lines, src, cfg, host)
 
     if args.to_top:
         dest = start
@@ -1919,28 +1954,26 @@ def cmd_move(kind, root: Path, args) -> int:
         dest = end
     else:
         ref_id = args.after or args.before
-        ref = _locate_stone(lines, ref_id, None, cfg, slug)
+        ref = _locate_stone(lines, ref_id, None, cfg, host)
         if not (start <= ref <= end):
             raise StoneError(
-                f"stone: {args.stone} and {ref_id} are not in the same run of "
+                f"stone: {sid} and {ref_id} are not in the same run of "
                 f"lines (lines {src + 1} and {ref + 1}) — a move never crosses "
                 f"a header or a blank line, because that would change which "
                 f"source a stone is filed under, not merely its rank")
         if ref == src:
-            raise StoneError(f"stone: {args.stone} cannot be placed relative to itself")
+            raise StoneError(f"stone: {sid} cannot be placed relative to itself")
         # `dest` indexes the list AFTER the line is popped, so a reference
         # below the mover shifts up by one first.
         ref_after_pop = ref - 1 if ref > src else ref
         dest = ref_after_pop + 1 if args.after else ref_after_pop
 
     if dest == src:
-        print(f"stone: {args.stone} is already there — {cpath.name} unchanged")
-        return 0
-
-    before = _find_all_stone_occurrences(lines, cfg, slug)
+        return None
+    before = _find_all_stone_occurrences(lines, cfg, host)
     line = lines.pop(src)
     lines.insert(dest, line)
-    after = _find_all_stone_occurrences(lines, cfg, slug)
+    after = _find_all_stone_occurrences(lines, cfg, host)
     # A reorder that loses or duplicates a stone is a corruption of a
     # machine-maintained file, and the next `update` would propagate it. Cheap
     # to assert, and the only assertion that catches an off-by-one here.
@@ -1949,11 +1982,150 @@ def cmd_move(kind, root: Path, args) -> int:
             f"stone: refusing to write — the reorder changed which stones the "
             f"file names ({len(before)} -> {len(after)}). This is a bug in "
             f"`stone move`; {cpath} is untouched")
+    return src, dest
 
-    _ensure_leading_blank(lines)
-    cpath.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    print(f"stone: moved {args.stone} from line {src + 1} to line {dest + 1} "
-          f"in {cpath.name}")
+
+def _withdraw_all(anchors, ambiguous, root, owner, sid, st, kind, force: bool, verb: str):
+    """A stone placed on other lists cannot leave home quietly: refuse, or with
+    --force recall every appearance first (the receiver agreed to a stone
+    with THIS home)."""
+    if not st.enrolled:
+        return []
+    if not force:
+        raise StoneError(
+            f"stone {verb}: {owner} {sid} is shared with "
+            f"{', '.join(sorted(st.enrolled))} — `stone share {owner} {sid} "
+            f"--recall <list>` first, or --force to withdraw every appearance")
+    done = []
+    for tgt in sorted(st.enrolled):
+        cmd_recall(kind, root, SimpleNamespace(anchor=owner, stone=sid, from_=tgt, root=str(root)))
+        done.append(tgt)
+    return done
+
+
+def _relocate(anchors, ambiguous, root: Path, owner: str, kind, cfg: dict,
+              cpath: Path, lines: list, args) -> int:
+    """`stone move <list> <id> --dest <list>` (T653): a NEW number on the
+    target list, the file moved by `anchor update` so every link follows, a
+    tombstone left in the source archive/ so the old number is never reused,
+    and the placement flags applied on arrival (default: top)."""
+    sid = args.stone
+    if args.owner and args.owner != owner:
+        raise StoneError(
+            f"stone move --dest relocates a stone from its HOME list; {sid} is "
+            f"{args.owner}'s, so address {args.owner}'s list, not {owner}'s")
+    dslug, dlist = parse_address(args.dest)
+    if dslug in ambiguous:
+        raise _ambiguous_error(dslug, ambiguous[dslug], "it is the --dest")
+    if dslug not in anchors:
+        raise StoneError(f"no anchor {dslug!r} (.anchor) found under {root}")
+    dcfg, dlist = _effective_cfg(anchors[dslug].path, dslug, dlist, load_types())
+    if _dated(cfg) or _dated(dcfg):
+        raise StoneError("stone move --dest: a dated list's members are named, not "
+                         "numbered — relocating to or from one is not supported")
+    folder = _stone_folder(anchors[owner].path, owner, cfg)
+    src = folder / _stone_filename(owner, sid, cfg)
+    if not src.is_file():
+        archived = (folder / "archive" / src.name).is_file()
+        raise StoneError(f"no live stone {owner} {sid}" + (" — it is archived" if archived else ""))
+    dfolder = _stone_folder(anchors[dslug].path, dslug, dcfg)
+    if dfolder.resolve() == folder.resolve():
+        raise StoneError(f"stone move: {sid} already lives on {args.dest} — use the "
+                         f"placement flags alone to reorder it")
+    anchor_bin = shutil.which("anchor")
+    if not anchor_bin:
+        raise StoneError("stone move --dest needs the `anchor` command on PATH to move "
+                         "the file and rewrite its links — none found; nothing was written")
+    st = _load_stone(src, owner, live=True, cfg=cfg)
+    withdrawn = _withdraw_all(anchors, ambiguous, root, owner, sid, st, kind,
+                              getattr(args, "force", False), "move")
+
+    # 1. the source list forgets it
+    cf = SimpleNamespace(slug=owner, path=cpath, lines=lines)
+    remove_stones(cf, {(owner, sid)}, cfg)
+    _ensure_leading_blank(cf.lines)
+    cpath.write_text("\n".join(cf.lines) + "\n", encoding="utf-8")
+
+    # 2. new number on the target, file moved with its links
+    dfolder.mkdir(parents=True, exist_ok=True)
+    new_sid = _next_sid(dfolder, dslug, dcfg)
+    dst = dfolder / _stone_filename(dslug, new_sid, dcfg)
+    import subprocess
+    r = subprocess.run([anchor_bin, "update", str(src), str(dst), "--root", str(root)],
+                       capture_output=True, text=True)
+    if r.returncode != 0 or not dst.is_file():
+        raise StoneError(f"anchor update failed moving {src.name} -> {dst.name}: "
+                         f"{(r.stderr or r.stdout).strip()[-300:]}")
+    links = next((l for l in r.stdout.splitlines() if l.startswith("rewrote")), "").strip()
+
+    # 3. tombstone retires the old number
+    arch = folder / "archive"
+    arch.mkdir(parents=True, exist_ok=True)
+    tomb = arch / src.name
+    if tomb.exists():
+        raise StoneError(f"{tomb} already exists — the file moved but the tombstone was not written")
+    today = _dt.date.today().isoformat()
+    tomb.write_text(_render_stone([("line", f"moved {today} → [[{dst.stem}]]"), ("appears", "")],
+                                  f"Relocated by `stone move --dest {args.dest}` on {today}. "
+                                  f"This file keeps the number {sid} retired; every link was "
+                                  f"repointed to [[{dst.stem}]] by `anchor update`."),
+                    encoding="utf-8")
+
+    # 4. the target list takes it, placed as asked (default: top)
+    st2 = _load_stone(dst, dslug, live=True, cfg=dcfg)
+    st2.appears = {dslug}
+    st2.enrolled = set()
+    _write_stone(st2)
+    dcpath = _control_path(anchors[dslug].path, dslug, dcfg)
+    dlines = _control_lines(dcpath, dslug, dcfg)
+    dcf = SimpleNamespace(slug=dslug, path=dcpath, lines=dlines)
+    _add_to_own_top(dcf, dslug, new_sid, st2, dcfg)
+    placed = "top"
+    if _has_placement(args):
+        moved = _reorder(dcf.lines, new_sid, dslug, dcfg, dslug, args, dcpath)
+        placed = f"line {moved[1] + 1}" if moved else "top"
+    _ensure_leading_blank(dcf.lines)
+    dcpath.parent.mkdir(parents=True, exist_ok=True)
+    dcpath.write_text("\n".join(dcf.lines) + "\n", encoding="utf-8")
+
+    print(f"stone: moved {owner} {sid} -> {dslug} {new_sid} ({dcpath.name}, {placed}); "
+          f"{links or 'links rewritten'}; tombstone archive/{tomb.name}"
+          + (f"; withdrawn from {', '.join(withdrawn)}" if withdrawn else ""))
+    print("  run `stone update` to sweep projections of the old name")
+    return 0
+
+
+def cmd_archive(kind, root: Path, args) -> int:
+    """`stone archive <list> <id>` (T653): the drain that existed only as
+    *delete the line from its own control file, then update* — one command,
+    refusing on a shared stone unless --force."""
+    anchors, ambiguous = discover_anchors(root)
+    slug = args.anchor
+    if slug in ambiguous:
+        raise _ambiguous_error(slug, ambiguous[slug], "it owns the stone")
+    if slug not in anchors:
+        raise StoneError(f"no anchor {slug!r} (.anchor) found under {root}")
+    cfg, kind = _effective_cfg(anchors[slug].path, slug, kind, load_types())
+    folder = _stone_folder(anchors[slug].path, slug, cfg)
+    spath = folder / _stone_filename(slug, args.stone, cfg)
+    if not spath.is_file():
+        archived = (folder / "archive" / spath.name).is_file()
+        raise StoneError(f"no live stone {slug} {args.stone}"
+                         + (" — it is already archived" if archived else ""))
+    st = _load_stone(spath, slug, live=True, cfg=cfg)
+    withdrawn = _withdraw_all(anchors, ambiguous, root, slug, args.stone, st, kind,
+                              getattr(args, "force", False), "archive")
+    cpath = _control_path(anchors[slug].path, slug, cfg)
+    if cpath.is_file():
+        cf = SimpleNamespace(slug=slug, path=cpath, lines=cpath.read_text(encoding="utf-8").splitlines())
+        remove_stones(cf, {(slug, args.stone)}, cfg)
+        _ensure_leading_blank(cf.lines)
+        cpath.write_text("\n".join(cf.lines) + "\n", encoding="utf-8")
+    _archive_stone(st)
+    _write_stone(st)
+    print(f"stone: archived {slug} {args.stone} -> {folder.name}/archive/{st.path.name}"
+          + (f"; withdrawn from {', '.join(withdrawn)}" if withdrawn else ""))
+    print("  run `stone update` to sweep its projections")
     return 0
 
 
@@ -2187,7 +2359,7 @@ def _resolve_pair(anchors: dict, ambiguous: dict, cfg: dict, owner: str, sid: st
             raise StoneError(f"no anchor {slug!r} (.anchor) found under the scanned root")
     if owner == target:
         raise StoneError(
-            f"{owner} {sid} already lives on {owner}'s own list — a push places "
+            f"{owner} {sid} already lives on {owner}'s own list — share places "
             f"a stone on SOMEONE ELSE's list")
     a = anchors[owner]
     folder = _stone_folder(a.path, owner, cfg)
@@ -2206,13 +2378,15 @@ def _control_lines(cpath: Path, slug: str, cfg: dict) -> list:
             else _default_control_lines(slug, cfg))
 
 
-def _push_pair_cfgs(anchors: dict, ambiguous: dict, kind, owner: str, target: str):
-    """(owner cfg, resolved list name, target placement cfg) for push/recall.
+def _push_pair_cfgs(anchors: dict, ambiguous: dict, kind, owner: str, target: str,
+                    target_list=None):
+    """(owner cfg, resolved list name, target placement cfg) for share.
 
-    F628 step 1: the owner side resolves fully (registry grammar + placement);
-    the target still receives on its list OF THE OWNER'S TYPE, with only its
-    own registry's PLACEMENT for that list honored — a dotted target waits on
-    the list-level walk (step 3)."""
+    The owner side resolves fully (registry grammar + placement). The target
+    receives on the list NAMED by the address (`Lumen.rocks`, T653) or, bare,
+    on its list of the owner's type — with the owner's grammar (the stone's
+    lines are the owner's kind) and only the target registry's PLACEMENT for
+    that list honored."""
     cfg_all = load_types()
     for s, why in ((owner, "it owns the stone"), (target, "it is the other end")):
         if s in ambiguous:
@@ -2220,16 +2394,29 @@ def _push_pair_cfgs(anchors: dict, ambiguous: dict, kind, owner: str, target: st
         if s not in anchors:
             raise StoneError(f"no anchor {s!r} (.anchor) found under the scanned root")
     cfg, kind = _effective_cfg(anchors[owner].path, owner, kind, cfg_all)
-    tgt_cfg, _ = _effective_cfg(anchors[target].path, target, kind, cfg_all,
-                                paths_only_base=cfg)
+    if target_list and target_list != kind:
+        # A NAMED target list (T653) is placed by its own config — its folder,
+        # its control file — while the stone's lines keep the owner's grammar.
+        tgt_cfg, _ = _effective_cfg(anchors[target].path, target, target_list, cfg_all)
+    else:
+        tgt_cfg, _ = _effective_cfg(anchors[target].path, target, kind, cfg_all,
+                                    paths_only_base=cfg)
     return cfg, kind, tgt_cfg
+
+
+def _enrolled_key(target: str, target_list, kind: str) -> str:
+    """What `enrolled::` records: the bare slug when the stone lands on the
+    target's list of its own type (the T626 form), else `Slug.list`."""
+    return target if (target_list is None or target_list == kind) else f"{target}.{target_list}"
 
 
 def cmd_push(kind, root: Path, args) -> int:
     anchors, ambiguous = discover_anchors(root)
-    owner, sid, target = args.anchor, args.stone, args.to
-    cfg, kind, tgt_cfg = _push_pair_cfgs(anchors, ambiguous, kind, owner, target)
-    _a, st, tgt = _resolve_pair(anchors, ambiguous, cfg, owner, sid, target, "push target")
+    owner, sid = args.anchor, args.stone
+    target, tlist = parse_address(args.to)
+    cfg, kind, tgt_cfg = _push_pair_cfgs(anchors, ambiguous, kind, owner, target, tlist)
+    ekey = _enrolled_key(target, tlist, kind)
+    _a, st, tgt = _resolve_pair(anchors, ambiguous, cfg, owner, sid, target, "share target")
 
     # Validation at the moment of the act — the receiver's contract, checked
     # where the agent that wrote the stone can still fix it.
@@ -2246,9 +2433,9 @@ def cmd_push(kind, root: Path, args) -> int:
     lines = _control_lines(cpath, target, cfg)
     cf = SimpleNamespace(slug=target, path=cpath, lines=lines)
     present = (owner, sid) in _find_all_stone_occurrences(lines, cfg, target)
-    already = target in st.enrolled
+    already = ekey in st.enrolled
     if already and present:
-        print(f"stone: {owner} {sid} is already enrolled with {target} — "
+        print(f"stone: {owner} {sid} is already enrolled with {ekey} — "
               f"{cpath.name} unchanged")
         return 0
     if not present:
@@ -2256,7 +2443,7 @@ def cmd_push(kind, root: Path, args) -> int:
         _ensure_leading_blank(cf.lines)
         cpath.parent.mkdir(parents=True, exist_ok=True)
         cpath.write_text("\n".join(cf.lines) + "\n", encoding="utf-8")
-    st.enrolled.add(target)
+    st.enrolled.add(ekey)
     st.appears.add(target)
     _write_stone(st)
 
@@ -2271,12 +2458,14 @@ def cmd_push(kind, root: Path, args) -> int:
 
 def cmd_recall(kind, root: Path, args) -> int:
     anchors, ambiguous = discover_anchors(root)
-    owner, sid, target = args.anchor, args.stone, getattr(args, "from_")
-    cfg, kind, tgt_cfg = _push_pair_cfgs(anchors, ambiguous, kind, owner, target)
+    owner, sid = args.anchor, args.stone
+    target, tlist = parse_address(getattr(args, "from_"))
+    cfg, kind, tgt_cfg = _push_pair_cfgs(anchors, ambiguous, kind, owner, target, tlist)
+    ekey = _enrolled_key(target, tlist, kind)
     _a, st, tgt = _resolve_pair(anchors, ambiguous, cfg, owner, sid, target, "recall source")
-    if target not in st.enrolled:
+    if ekey not in st.enrolled:
         raise StoneError(
-            f"{owner} {sid} is not enrolled with {target} (enrolled:: "
+            f"{owner} {sid} is not enrolled with {ekey} (enrolled:: "
             f"{', '.join(sorted(st.enrolled)) or 'nobody'}) — nothing to recall")
     cpath = _control_path(tgt.path, target, tgt_cfg)
     outcome = "no line to remove"
@@ -2293,7 +2482,7 @@ def cmd_recall(kind, root: Path, args) -> int:
                 cpath.write_text("\n".join(cf.lines) + "\n", encoding="utf-8")
                 st.appears.discard(target)
                 outcome = "line removed"
-    st.enrolled.discard(target)
+    st.enrolled.discard(ekey)
     _write_stone(st)
     print(f"{owner} {sid} <- {cpath.stem}   {outcome}")
     return 0
@@ -2325,9 +2514,9 @@ def _enrollment_warnings(anchors: dict, stones: dict) -> list:
             out.append(
                 f"{owner} {sid} carries `{TIMED_KEY}:: {_kv_get(st.keys, TIMED_KEY)}` "
                 f"and is enrolled with nobody — a clock nobody is watching. "
-                f"`stone <kind> push {owner} {sid} --to <watcher>` if it needs one.")
+                f"`stone share {owner} {sid} --with <list>` if it needs one.")
         for tgt in sorted(st.enrolled):
-            if tgt not in anchors:
+            if parse_address(tgt)[0] not in anchors:
                 out.append(f"{owner} {sid} is enrolled with {tgt!r}, which is not an "
                            f"anchor under the scanned root — recall it or fix the slug")
     return out
@@ -2358,14 +2547,14 @@ def build_parser(cfg_all: dict) -> argparse.ArgumentParser:
                         help="dated kinds only: the member's title, appended to the date")
         nw.add_argument("--date", default=None,
                         help="dated kinds only: creation date YYYY-MM-DD (default: today)")
-        nw.add_argument("--root", default=None, help="scan root (default: $ANCHOR_VAULT_ROOT or ~/ob/kmr)")
+        nw.add_argument("--root", default=None, help=argparse.SUPPRESS)
 
         mv = verb_subs.add_parser("move", help="reorder one stone within its run in a control file")
         mv.add_argument("anchor", help="the anchor whose control file is being reordered")
         mv.add_argument("stone", help="the stone id to move, e.g. P0003")
         mv.add_argument("--owner", default=None,
                         help="disambiguate when two anchors' stones share an id")
-        mv.add_argument("--root", default=None, help="scan root (default: $ANCHOR_VAULT_ROOT or ~/ob/kmr)")
+        mv.add_argument("--root", default=None, help=argparse.SUPPRESS)
         where = mv.add_mutually_exclusive_group(required=True)
         where.add_argument("--after", metavar="ID", help="place it directly below this stone")
         where.add_argument("--before", metavar="ID", help="place it directly above this stone")
@@ -2376,23 +2565,22 @@ def build_parser(cfg_all: dict) -> argparse.ArgumentParser:
         ps.add_argument("anchor", help="the stone's OWNER slug")
         ps.add_argument("stone", help="the stone id, e.g. P0007")
         ps.add_argument("--to", required=True, metavar="SLUG", help="the anchor whose list receives it")
-        ps.add_argument("--root", default=None, help="scan root (default: $ANCHOR_VAULT_ROOT or ~/ob/kmr)")
+        ps.add_argument("--root", default=None, help=argparse.SUPPRESS)
 
         rc = verb_subs.add_parser("recall", help="take a pushed stone back off another anchor's list")
         rc.add_argument("anchor", help="the stone's OWNER slug")
         rc.add_argument("stone", help="the stone id, e.g. P0007")
         rc.add_argument("--from", dest="from_", required=True, metavar="SLUG", help="the anchor whose list it leaves")
-        rc.add_argument("--root", default=None, help="scan root (default: $ANCHOR_VAULT_ROOT or ~/ob/kmr)")
+        rc.add_argument("--root", default=None, help=argparse.SUPPRESS)
 
         up = verb_subs.add_parser("update", help="reconcile + propagate along feeds:")
-        up.add_argument("--root", default=None, help="scan root (default: $ANCHOR_VAULT_ROOT or ~/ob/kmr)")
+        up.add_argument("--root", default=None, help=argparse.SUPPRESS)
         up.add_argument("--dry-run", action="store_true",
-                        help="report every write and archive without performing any of them "
-                             "— `--root` defaults to the whole vault, so this is how you look first")
+                        help="report every write and archive without performing any of them")
     return p
 
 
-VERBS = ("new", "move", "push", "recall", "update")
+VERBS = ("new", "move", "share", "archive", "update")
 
 
 def _resolve_root(args) -> Path:
@@ -2414,8 +2602,9 @@ def build_addressed_parser(cfg_all: dict) -> argparse.ArgumentParser:
     subs = p.add_subparsers(dest="verb", required=True)
 
     def root_arg(sp):
-        sp.add_argument("--root", default=None,
-                        help="scan root (default: $ANCHOR_VAULT_ROOT or ~/ob/kmr)")
+        # Kept for fixture tests only (T653: off the figure); the documented
+        # way to point the script elsewhere is $ANCHOR_VAULT_ROOT.
+        sp.add_argument("--root", default=None, help=argparse.SUPPRESS)
 
     nw = subs.add_parser("new", help="mint a new stone on the addressed list")
     nw.add_argument("address", help="Anchor or Anchor.list")
@@ -2428,38 +2617,44 @@ def build_addressed_parser(cfg_all: dict) -> argparse.ArgumentParser:
                     help="dated lists only: creation date YYYY-MM-DD (default: today)")
     root_arg(nw)
 
-    mv = subs.add_parser("move", help="reorder one stone within its run in the addressed control file")
-    mv.add_argument("address", help="Anchor or Anchor.list whose control file is being reordered")
-    mv.add_argument("stone", help="the stone id to move, e.g. P0003")
+    mv = subs.add_parser("move", help="reorder within its run, or --dest <list> to relocate")
+    mv.add_argument("address", help="<list> — Slug or Slug.list — the stone's HOME list")
+    mv.add_argument("stone", help="the stone id, e.g. P0003")
     mv.add_argument("--owner", default=None,
                     help="disambiguate when two anchors' stones share an id")
+    mv.add_argument("--dest", default=None, metavar="LIST",
+                    help="relocate to this list: new number there, links follow (anchor update), "
+                         "old number retired by a tombstone in archive/; placement flags apply on arrival")
+    mv.add_argument("--force", action="store_true",
+                    help="with --dest: withdraw a shared stone's appearances first instead of refusing")
     root_arg(mv)
-    where = mv.add_mutually_exclusive_group(required=True)
+    where = mv.add_mutually_exclusive_group(required=False)
     where.add_argument("--after", metavar="ID", help="place it directly below this stone")
     where.add_argument("--before", metavar="ID", help="place it directly above this stone")
     where.add_argument("--to-top", action="store_true", help="first in its run")
     where.add_argument("--to-bottom", action="store_true", help="last in its run")
 
-    ps = subs.add_parser("push", help="place one stone on another anchor's list, with a receipt (T626)")
-    ps.add_argument("address", help="the stone's OWNER — Anchor or Anchor.list")
-    ps.add_argument("stone", help="the stone id, e.g. P0007")
-    ps.add_argument("--to", required=True, metavar="ANCHOR",
-                    help="receiving anchor (bare — it receives on its list of the owner's type)")
-    root_arg(ps)
+    sh = subs.add_parser("share", help="one stone, a second appearance on another list (was push/recall, T626)")
+    sh.add_argument("address", help="<list> — the stone's HOME list")
+    sh.add_argument("stone", help="the stone id, e.g. P0007")
+    side = sh.add_mutually_exclusive_group(required=True)
+    side.add_argument("--with", dest="with_", metavar="LIST",
+                      help="the list that also shows it (Slug, or Slug.list); receipt printed")
+    side.add_argument("--recall", metavar="LIST", help="stop appearing on this list")
+    root_arg(sh)
 
-    rc = subs.add_parser("recall", help="take a pushed stone back off another anchor's list")
-    rc.add_argument("address", help="the stone's OWNER — Anchor or Anchor.list")
-    rc.add_argument("stone", help="the stone id, e.g. P0007")
-    rc.add_argument("--from", dest="from_", required=True, metavar="ANCHOR",
-                    help="the anchor whose list it leaves")
-    root_arg(rc)
+    ar = subs.add_parser("archive", help="retire a stone to archive/ and drop its line")
+    ar.add_argument("address", help="<list> — the stone's HOME list")
+    ar.add_argument("stone", help="the stone id, e.g. P0007")
+    ar.add_argument("--force", action="store_true",
+                    help="withdraw a shared stone's appearances first instead of refusing")
+    root_arg(ar)
 
     up = subs.add_parser("update",
-                         help="reconcile + propagate along feeds:, every kind in one pass")
+                         help="reconcile every list + propagate along feeds:")
     root_arg(up)
     up.add_argument("--dry-run", action="store_true",
-                    help="report every write and archive without performing any of them "
-                         "— `--root` defaults to the whole vault, so this is how you look first")
+                    help="report every write and archive without performing any of them")
     return p
 
 
@@ -2470,14 +2665,13 @@ def _main_addressed(argv, cfg_all) -> int:
         return cmd_update(None, root, args)
     slug, list_name = parse_address(args.address)
     args.anchor = slug
-    other = args.to if args.verb == "push" else getattr(args, "from_", None)
-    if other is not None and parse_address(other)[1] is not None:
-        raise StoneError(
-            f"a dotted push/recall target ({other!r}) lands with the "
-            f"list-level walk (F628 step 3) — name the bare anchor; the "
-            f"stone lands on its list of the owner's type")
-    fn = {"new": cmd_new, "move": cmd_move,
-          "push": cmd_push, "recall": cmd_recall}[args.verb]
+    if args.verb == "share":
+        if args.with_:
+            args.to = args.with_
+            return cmd_push(list_name, root, args)
+        args.from_ = args.recall
+        return cmd_recall(list_name, root, args)
+    fn = {"new": cmd_new, "move": cmd_move, "archive": cmd_archive}[args.verb]
     return fn(list_name, root, args)
 
 
