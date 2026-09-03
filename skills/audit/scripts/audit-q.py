@@ -80,6 +80,8 @@ Checks applied to Q.md, each anchor's backlog, and each feature/Questions doc:
        F329's mint-time gate names only the first, which is why the other
        three accumulated unseen. Warning: this is a migration population, not
        a stop-gate.                                                  (report).
+  C60: T647 — a numbered doc in a folder-form backlog whose number has NO row
+       (lost, not retired — Winnie T027). Error; `state define <id>` re-attaches.
   C59: F614 — a LIVE T row that is not doc-backed (inline body); `state
        migrate-t <anchor>` mints its doc. Done rows exempt. Warning.
   C58: F329/T363 — a member doc of a folder-form backlog that NO file in the
@@ -3659,6 +3661,47 @@ def check_c58_orphan_row_docs(
     return findings
 
 
+def check_c60_doc_without_row(
+    backlog_file: Path, entries: list[BacklogEntry],
+) -> list[Finding]:
+    """C60 (T647, 2026-09-02): a task/feature doc in a folder-form backlog
+    whose NUMBER has no row in the backlog at all — the signature of a row
+    that was LOST, not retired. C58 asks "does anything link this doc?", which
+    a queries page or a sibling doc can satisfy while the row is gone; this
+    asks the backlog itself. Winnie T027 vanished between a `define` and a
+    `triage` on 2026-09-01 and the count agreed with the loss; the hand scan
+    that found three more (Sonar014, Sonar025, MUX274) is what this replaces.
+    Error, not warning: the row is the item's only bracket, horizon and
+    history. Repair: `state define <anchor> Backlog <id>` re-attaches the
+    existing doc (T649) — never mint a sibling.
+    """
+    folder = backlog_file.parent
+    if folder.name != backlog_file.stem:
+        return []
+    have = {re.sub(r"^[A-Za-z]+", "", e.identifier).lstrip("0") for e in entries}
+    findings: list[Finding] = []
+    for p in sorted(folder.glob("*.md")):
+        m = re.match(r"^([A-Za-z]+?)(\d{3,4}) - ", p.stem)
+        if not m or p.stem == folder.name:
+            continue
+        if m.group(2).lstrip("0") in have:
+            continue
+        findings.append(Finding(
+            severity="error",
+            surface_file=p,
+            surface_line=1,
+            code="C60",
+            message=(
+                f"'{p.stem}' has no row in {backlog_file.name} — the number "
+                f"{m.group(2)} appears on no `^T`/`^F` anchor, so the row was "
+                f"lost, not retired (Winnie T027, 2026-09-01). Re-attach it: "
+                f"`state define <anchor> Backlog T{m.group(2)}` adopts this doc."
+            ),
+            mechanically_fixable=False,
+        ))
+    return findings
+
+
 def check_c18_verify_by_expired(
     entries: list[BacklogEntry], today: date,
 ) -> list[Finding]:
@@ -5303,6 +5346,16 @@ _BACKTICK_SPAN_RE = re.compile(r"`([^`\n]+)`")
 #  - bare filename ending in a recognized extension
 _C36_PATH_LEAD_RE = re.compile(r"^(/|~/|\./|\.\./)")
 
+# Absolute paths rooted in a system directory are never vault content, so the
+# "make it a link" fix would emit a dead link (`[sh](/bin/sh)`). Measured
+# 2026-09-02: C36 flagged `/bin/sh` in a backlog row and its suggestion had to
+# be reverted by hand. `/Users/...` is deliberately absent — the vault lives
+# there and those paths should still be linked.
+_C36_SYSTEM_ROOT_RE = re.compile(
+    r"^/(bin|sbin|usr|etc|opt|var|dev|tmp|cores|private|System|Library"
+    r"|Applications|Volumes|Network)(/|$)"
+)
+
 
 def _c36_is_path_like(token: str) -> bool:
     """Heuristic: token inside backticks looks like a single file-path.
@@ -5347,6 +5400,10 @@ def _c36_is_path_like(token: str) -> bool:
             return False
     # Reject `.app` directory bundles (macOS) — they aren't text files
     if t.endswith(".app"):
+        return False
+    # Reject system-rooted absolute paths (/bin/sh, /usr/bin/osascript, ...):
+    # they are real paths but never vault files, so linking them is wrong.
+    if _C36_SYSTEM_ROOT_RE.match(t):
         return False
     # Accept absolute / home / relative paths
     if _C36_PATH_LEAD_RE.match(t):
@@ -7238,6 +7295,7 @@ def main() -> int:
             _c58_linked = _vault_wikilink_targets(VAULT_ROOT)
         findings.extend(check_c58_orphan_row_docs(backlog_file, _c58_linked))
         findings.extend(check_c59_inline_t_row(entries, backlog_file))
+        findings.extend(check_c60_doc_without_row(backlog_file, entries))
         findings.extend(check_c18_verify_by_expired(entries, today))
         findings.extend(check_c23_designing_resolves(entries))
         findings.extend(check_c24_questions_count_match(entries))

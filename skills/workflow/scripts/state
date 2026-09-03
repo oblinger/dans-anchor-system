@@ -4820,6 +4820,12 @@ def main(argv):
         print(f"state: {e}", file=sys.stderr)
         return 2
 
+    # T647 / P0020 — one `state` verb per anchor at a time; see be.anchor_lock.
+    with be.anchor_lock(slug):
+        return _dispatch(slug, anchor_path, args)
+
+
+def _dispatch(slug, anchor_path, args):
     try:
         if args.verb in _ITEM_VERBS:
             return cmd_item(slug, anchor_path, args)

@@ -4522,7 +4522,67 @@ def main_q(argv):
     return 0
 
 
+LOCK_DIR = pathlib.Path(os.environ.get("ANCHOR_LOCK_DIR") or
+                        (HOME / ".config" / "anchor-system" / "locks"))
+LOCK_TIMEOUT_S = 20.0
+
+
+class anchor_lock:
+    """One writer per anchor at a time (T647 / P0020, 2026-09-02).
+
+    Every `state` verb is a read-modify-write of `{slug} Backlog.md`; with
+    fifteen sessions and no lock, two of them interleave and the later write
+    carries the earlier one's rows away — the Winnie T027 loss, three orphan
+    task docs vault-wide the day it was sized. An advisory `flock` on a file
+    OUTSIDE the vault (so the sweep never commits it), keyed on the slug, held
+    across the whole verb. Fail-open: a lock that cannot be taken in
+    `LOCK_TIMEOUT_S` prints a warning and proceeds — a stuck lock must never
+    stop every session at once."""
+
+    def __init__(self, slug):
+        self.slug = (slug or "").strip().lower() or "_"
+        self.fh = None
+
+    def __enter__(self):
+        import fcntl, time
+        try:
+            LOCK_DIR.mkdir(parents=True, exist_ok=True)
+            self.fh = open(LOCK_DIR / f"{re.sub(r'[^A-Za-z0-9._-]', '_', self.slug)}.lock", "a+")
+            deadline = time.monotonic() + LOCK_TIMEOUT_S
+            while True:
+                try:
+                    fcntl.flock(self.fh, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    return self
+                except OSError:
+                    if time.monotonic() >= deadline:
+                        print(f"backlog_edit: warning — could not take the {self.slug} "
+                              f"backlog lock in {LOCK_TIMEOUT_S:.0f}s; proceeding unlocked",
+                              file=sys.stderr)
+                        return self
+                    time.sleep(0.05)
+        except OSError as e:
+            print(f"backlog_edit: warning — backlog lock unavailable ({e}); proceeding unlocked",
+                  file=sys.stderr)
+            return self
+
+    def __exit__(self, *exc):
+        import fcntl
+        if self.fh is not None:
+            try:
+                fcntl.flock(self.fh, fcntl.LOCK_UN)
+            except OSError:
+                pass
+            self.fh.close()
+        return False
+
+
 def main(argv):
+    slug = argv[1] if len(argv) > 1 and not argv[1].startswith('-') else ''
+    with anchor_lock(slug):
+        return _main_unlocked(argv)
+
+
+def _main_unlocked(argv):
     # F128 — Q-management dispatch: detect `-Q` flag and route.
     if "-Q" in argv:
         return main_q(argv)
