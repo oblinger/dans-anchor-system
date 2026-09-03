@@ -41,7 +41,7 @@ def test_stone_file_line_key_over_budget(tmp_path):
     p = tmp_path / "Atticus P0004.md"
     p.write_text(f"line:: {long}\ntempo:: waiting\n\nbody with a very long prose line " + "x" * 200 + "\n")
     verdict, detail = ap.chk_stone_line_budget(p, tmp_path, None)
-    assert verdict == "fail" and "104" in detail and "line(s) 1" in detail
+    assert verdict == "fail" and "111" in detail and "line(s) 1" in detail   # "Atticus: " + 102, as stone update reports
     short = tmp_path / "Atticus P0005.md"
     short.write_text("line:: short and sweet — [[Atticus P0005|Sweet]]\n\nbody\n")
     assert ap.chk_stone_line_budget(short, tmp_path, None)[0] == "pass"
@@ -53,9 +53,18 @@ def test_control_file_stone_line_and_prose_exempt(tmp_path):
     p.write_text("---\ndescription: x\n---\n\nLATER:\n"
                  "[[Atticus P0004|-]] " + "w" * 90 + "\n"
                  "[[Atticus P0005|-]] fits\n"
+                 "[[Atticus P0006|-]] " + "z" * 74 + "\n"     # 9 + 74 = 83 fits; 76 would not
                  "a plain prose line that is very long " + "y" * 120 + "\n")
     verdict, detail = ap.chk_stone_line_budget(p, tmp_path, None)
     assert verdict == "fail" and "line(s) 6" in detail and "line(s) 6," not in detail
+
+
+def test_measure_matches_stone_rendered_length(tmp_path):
+    ap, st = _ap(), _stone()
+    text = "security model — access doctrine + [[X|link]] and more words here to be sure"
+    cfg = {"stone_alias": "{slug}:"}
+    hits = ap.stone_overbudget_lines(f"line:: {text}\n\nbody\n", tmp_path / "Atticus P0004.md")
+    assert hits and hits[0][1] == st.rendered_length("Atticus", text, cfg)
 
 
 def test_registered():

@@ -30,12 +30,12 @@ def body(ctx):
         wdf.refresh_audit_plan()
         ap = wdf.ap
         p = Path(fp)
-        after = ap.stone_overbudget_lines(proposed)
+        after = ap.stone_overbudget_lines(proposed, p)
         if not after:
             return []
         before_set = set()
         if p.is_file():
-            before_set = {h[2] for h in ap.stone_overbudget_lines(p.read_text(encoding="utf-8"))}
+            before_set = {h[2] for h in ap.stone_overbudget_lines(p.read_text(encoding="utf-8"), p)}
         new = [h for h in after if h[2] not in before_set]
         if not new:
             return []
@@ -51,8 +51,8 @@ def body(ctx):
                 f"character budget — {shown}. A stone's line must fit on ONE line "
                 "of the reading view (`stone_line_max` in global.yaml); a longer one "
                 "word-wraps and the list is unreadable. Shorten the line; the "
-                "detail belongs in the stone's body. Measured as Obsidian shows it: "
-                "`- ` plus the text with links collapsed to their alias (R-stone-13; "
+                "detail belongs in the stone's body. Measured as Obsidian shows it on another anchor's list: "
+                "`Slug: ` plus the text with links collapsed to their alias (R-stone-13; "
                 "Dan 2026-08-30 / 2026-09-03). Deliberate deviation → a graded row "
                 "(A–C) in the anchor's `{slug} Exceptions.md`."]
     except Exception:
@@ -87,10 +87,10 @@ def body(ctx):
         import warden_docfire as wdf
         wdf.refresh_audit_plan()
         ap = wdf.ap
-        after = ap.stone_overbudget_lines(proposed)
+        after = ap.stone_overbudget_lines(proposed, p)
         if not after:
             return []
-        before_set = {h[2] for h in ap.stone_overbudget_lines(text)}
+        before_set = {h[2] for h in ap.stone_overbudget_lines(text, p)}
         new = [h for h in after if h[2] not in before_set]
         if not new:
             return []
@@ -106,8 +106,8 @@ def body(ctx):
                 f"character budget — {shown}. A stone's line must fit on ONE line "
                 "of the reading view (`stone_line_max` in global.yaml); a longer one "
                 "word-wraps and the list is unreadable. Shorten the line; the "
-                "detail belongs in the stone's body. Measured as Obsidian shows it: "
-                "`- ` plus the text with links collapsed to their alias (R-stone-13; "
+                "detail belongs in the stone's body. Measured as Obsidian shows it on another anchor's list: "
+                "`Slug: ` plus the text with links collapsed to their alias (R-stone-13; "
                 "Dan 2026-08-30 / 2026-09-03). Deliberate deviation → a graded row "
                 "(A–C) in the anchor's `{slug} Exceptions.md`."]
     except Exception:

@@ -5721,16 +5721,25 @@ def _stone_display(text: str) -> str:
         lambda m: m.group(2) if m.group(2) is not None else m.group(1), text)
 
 
-def stone_overbudget_lines(text: str):
+_STONE_STEM_RE = re.compile(r"^(.+) (?:[A-Z]\d{3,}|\d{4}-\d{2}-\d{2} .+)$")
+
+
+def stone_overbudget_lines(text: str, path=None):
     """(line_no, rendered_len, line) for every stone line over `stone_line_max`,
-    measured as Obsidian shows it — links collapsed to their alias, the `- `
-    stone display counted. Two shapes: a stone file's own `line::` key (top
-    block, before the first blank line) and a control file's stone lines."""
+    measured the way `stone` measures it (`rendered_length`): `{slug}: ` — the
+    alias a stone wears on ANY OTHER anchor's list, the widest form — plus the
+    text with links collapsed to their alias. Two shapes: a stone file's own
+    `line::` key (top block; the owner is the filename's slug) and a control
+    file's stone lines (the owner is the first link's target)."""
     budget = stone_line_max()
     if not budget:
         return []
     out = []
     lines = text.splitlines()
+    owner = None
+    if path is not None:
+        m = _STONE_STEM_RE.match(Path(path).stem)
+        owner = m.group(1) if m else None
     in_head = True
     for i, line in enumerate(lines):
         if in_head:
@@ -5739,12 +5748,17 @@ def stone_overbudget_lines(text: str):
             else:
                 m = _STONE_LINE_KEY_RE.match(line)
                 if m:
-                    n = len("- " + _stone_display(m.group(1).strip()))
+                    n = len(f"{owner or '-'}: " + _stone_display(m.group(1).strip()))
                     if n > budget:
                         out.append((i + 1, n, line))
                     continue
-        if _STONE_CONTROL_LINE_RE.match(line):
-            n = len(_stone_display(line.strip()))
+        cm = _STONE_CONTROL_LINE_RE.match(line)
+        if cm:
+            tgt = re.match(r"^\s*(?:-\s*)?\[\[([^\]|]+)\|", line).group(1)
+            sm = _STONE_STEM_RE.match(tgt)
+            alias = f"{sm.group(1)}: " if sm else "- "
+            body = _stone_display(re.sub(r"^\s*(?:-\s*)?\[\[[^\]|]+\|-\]\]\s*", "", line))
+            n = len(alias + body)
             if n > budget:
                 out.append((i + 1, n, line))
     return out
@@ -5760,7 +5774,7 @@ def chk_stone_line_budget(target, anchor_root, args):
     budget = stone_line_max()
     if not budget:
         return "pass", "stone_line_max unset"
-    hits = stone_overbudget_lines(_read(target))
+    hits = stone_overbudget_lines(_read(target), target)
     if hits:
         worst = max(h[1] for h in hits)
         return "fail", (f"{len(hits)} stone line(s) render over the {budget}-char budget "
