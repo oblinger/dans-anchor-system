@@ -161,3 +161,12 @@ Applies to every markdown doc in the vault — no explicit `include:: [[R-markdo
 - [[R-doc]] — cross-cutting documentation conventions umbrella.
 - [[DAS progressive-disclosure]] — sibling discipline; its rules live separately (preface zone, dispatch patterns, figure placement).
 - [[DAS Rulesets]] — top-level catalog.
+
+### RULE R-markdown-17 — Fenced code lines fit without wrapping (checked)
+description:: No line inside a fenced code block exceeds 72 characters; a longer line soft-wraps at render time and the fence's alignment is destroyed.
+check:: md_fence_width
+A code fence is the one place markdown promises fixed geometry — a `--help` figure, a file tree, an aligned `# comment` column. Obsidian soft-wraps a fenced line that is wider than the pane, and a wrapped line silently breaks that geometry: the comment column lands under the command, a tree's branches float free. Break the line, put the comment on its own line above the command, or render the figure as an SVG per [[DAS CLI]] (R-cli-04). **No exemption for URLs or paths** — a fenced URL that wraps is as unreadable as anything else; put it in prose.
+
+**Check pattern:** every line inside a ``` or `~~~` fence (opener and closer excluded) is at most `FENCE_MAX_WIDTH` = 72 characters. Prose lines are unconstrained — prose is meant to wrap.
+
+**Why:** Dan, 2026-09-03, on the rendered `DAS Stone CLI` figure whose every command wrapped at 72–73 characters: *"forbid writing into markdown with word wrap inside of a text section… a hard fail if you try to write a document that word wraps."* The refusal half is [[R-fence-guard]]; this rule is the law it enforces, and what audit-on-write reports for a Bash-written file the tool guard never saw. (Tier: checked)

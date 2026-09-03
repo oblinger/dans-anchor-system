@@ -5663,6 +5663,48 @@ def chk_md_trailing_ws(target, anchor_root, args):
     return "pass", ""
 
 
+# R-markdown-17 (Dan, 2026-09-03). A fenced line longer than the render width
+# soft-wraps in Obsidian, and a wrapped `--help` figure or aligned `# comment`
+# column is unreadable — the screenshot that commissioned this broke at 72-73
+# characters. One constant, read by the checker AND the R-fence-guard deny
+# bodies, so the audit and the refusal can never disagree about the width.
+FENCE_MAX_WIDTH = 72
+
+
+def fence_overwidth_lines(text: str):
+    """(line_no, length, line) for every line INSIDE a code fence whose length
+    exceeds FENCE_MAX_WIDTH. Fence pairing comes from `_fenced_mask` (T099), so
+    `~~~` and an unclosed fence run to end-of-document are handled the one way.
+    Marker lines are skipped: a long info string is not wrapped content."""
+    lines = text.splitlines()
+    mask = _fenced_mask(text)
+    out = []
+    for i, line in enumerate(lines):
+        if not mask[i]:
+            continue
+        if line.lstrip().startswith(("```", "~~~")):
+            continue
+        if len(line) > FENCE_MAX_WIDTH:
+            out.append((i + 1, len(line), line))
+    return out
+
+
+def chk_md_fence_width(target, anchor_root, args):
+    """R-markdown-17: no line inside a fenced code block exceeds
+    FENCE_MAX_WIDTH characters — a longer line soft-wraps at render time and
+    the fence's alignment (help figures, `# comment` columns) is destroyed."""
+    if not target.is_file():
+        return "pass", "not a file"
+    hits = fence_overwidth_lines(_read(target))
+    if hits:
+        worst = max(h[1] for h in hits)
+        return "fail", (f"{len(hits)} fenced line(s) exceed {FENCE_MAX_WIDTH} chars "
+                        f"(longest {worst}) at line(s) "
+                        + ", ".join(str(h[0]) for h in hits[:5])
+                        + " — a fenced line cannot word-wrap; break it or move the comment to its own line")
+    return "pass", ""
+
+
 def _mask_code(text: str) -> str:
     """Blank ``` / ~~~ fences and inline code spans (length-preserving) so
     code examples never trip prose-level markdown checks.
@@ -8910,6 +8952,7 @@ CHECKERS = {
     # R-markdown re-wiring (T007, 2026-07-06)
     "md_inline_field_value": chk_md_inline_field_value,
     "md_stray_angle_tag": chk_md_stray_angle_tag,
+    "md_fence_width": chk_md_fence_width,
     # R-backlog (F228 frontier invariants + per-state body contracts)
     "backlog_frontier_planned": chk_backlog_frontier_planned,
     "backlog_frontier_bracketed": chk_backlog_frontier_bracketed,
