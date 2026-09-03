@@ -5665,17 +5665,118 @@ def chk_md_trailing_ws(target, anchor_root, args):
 
 # R-markdown-17 (Dan, 2026-09-03). A fenced line longer than the render width
 # soft-wraps in Obsidian, and a wrapped `--help` figure or aligned `# comment`
-# column is unreadable — the screenshot that commissioned this broke at 72-73
-# characters. One constant, read by the checker AND the R-fence-guard deny
+# column is unreadable. The width is CONFIG, not a constant (Dan, same day:
+# "these shouldn't be hard-coded numbers… they should be in the config for
+# stone"): `fence_line_max` in ~/.config/anchor-system/global.yaml, beside
+# `stone_line_max`. One reader, used by the checker AND the R-fence-guard deny
 # bodies, so the audit and the refusal can never disagree about the width.
-FENCE_MAX_WIDTH = 72
+# 0 or absent = the rule is off, the same convention `stone_line_max` uses.
+_GLOBAL_CFG_CACHE = None
+
+
+def _global_cfg() -> dict:
+    """~/.config/anchor-system/global.yaml as a dict ({} when unreadable)."""
+    global _GLOBAL_CFG_CACHE
+    if _GLOBAL_CFG_CACHE is None:
+        p = Path.home() / ".config" / "anchor-system" / "global.yaml"
+        data = {}
+        if p.is_file():
+            try:
+                import yaml
+                data = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+            except Exception:
+                data = {}
+        _GLOBAL_CFG_CACHE = data if isinstance(data, dict) else {}
+    return _GLOBAL_CFG_CACHE
+
+
+def fence_max_width() -> int:
+    """`fence_line_max` from global.yaml; 0 = off."""
+    try:
+        return int(_global_cfg().get("fence_line_max") or 0)
+    except (TypeError, ValueError):
+        return 0
+
+
+def stone_line_max() -> int:
+    """`stone_line_max` from global.yaml — the budget `stone new` refuses
+    over and `stone update` warns on; 0 = off."""
+    try:
+        return int(_global_cfg().get("stone_line_max") or 0)
+    except (TypeError, ValueError):
+        return 0
+
+
+# Restates stone's `_LINK_DISPLAY_RE` / `display_text` (the script is too
+# heavy to import at load); test-r-stone-line-budget asserts they agree.
+_STONE_LINK_DISPLAY_RE = re.compile(r"\[\[([^\]|]+)(?:\|([^\]]*))?\]\]")
+# A control-file stone line: first link's alias is exactly `-` (the stone
+# display for every kind in this vault), optionally bulleted.
+_STONE_CONTROL_LINE_RE = re.compile(r"^\s*(?:-\s*)?\[\[[^\]|]+\|-\]\]")
+_STONE_LINE_KEY_RE = re.compile(r"^line::\s*(.*)$")
+
+
+def _stone_display(text: str) -> str:
+    return _STONE_LINK_DISPLAY_RE.sub(
+        lambda m: m.group(2) if m.group(2) is not None else m.group(1), text)
+
+
+def stone_overbudget_lines(text: str):
+    """(line_no, rendered_len, line) for every stone line over `stone_line_max`,
+    measured as Obsidian shows it — links collapsed to their alias, the `- `
+    stone display counted. Two shapes: a stone file's own `line::` key (top
+    block, before the first blank line) and a control file's stone lines."""
+    budget = stone_line_max()
+    if not budget:
+        return []
+    out = []
+    lines = text.splitlines()
+    in_head = True
+    for i, line in enumerate(lines):
+        if in_head:
+            if not line.strip():
+                in_head = False
+            else:
+                m = _STONE_LINE_KEY_RE.match(line)
+                if m:
+                    n = len("- " + _stone_display(m.group(1).strip()))
+                    if n > budget:
+                        out.append((i + 1, n, line))
+                    continue
+        if _STONE_CONTROL_LINE_RE.match(line):
+            n = len(_stone_display(line.strip()))
+            if n > budget:
+                out.append((i + 1, n, line))
+    return out
+
+
+def chk_stone_line_budget(target, anchor_root, args):
+    """R-stone-13: a stone's rendered line fits on one reading-view line —
+    `stone_line_max` in global.yaml. `stone new` refuses over it; this catches
+    the hand-written line and the control-file edit that `update` only warns
+    about on stderr."""
+    if not target.is_file():
+        return "pass", "not a file"
+    budget = stone_line_max()
+    if not budget:
+        return "pass", "stone_line_max unset"
+    hits = stone_overbudget_lines(_read(target))
+    if hits:
+        worst = max(h[1] for h in hits)
+        return "fail", (f"{len(hits)} stone line(s) render over the {budget}-char budget "
+                        f"(longest {worst}) at line(s) " + ", ".join(str(h[0]) for h in hits[:5])
+                        + " — it wraps in Obsidian; shorten the line::, detail goes in the body")
+    return "pass", ""
 
 
 def fence_overwidth_lines(text: str):
     """(line_no, length, line) for every line INSIDE a code fence whose length
-    exceeds FENCE_MAX_WIDTH. Fence pairing comes from `_fenced_mask` (T099), so
+    exceeds `fence_line_max` (global.yaml; 0 = off). Fence pairing comes from `_fenced_mask` (T099), so
     `~~~` and an unclosed fence run to end-of-document are handled the one way.
     Marker lines are skipped: a long info string is not wrapped content."""
+    width = fence_max_width()
+    if not width:
+        return []
     lines = text.splitlines()
     mask = _fenced_mask(text)
     out = []
@@ -5684,21 +5785,24 @@ def fence_overwidth_lines(text: str):
             continue
         if line.lstrip().startswith(("```", "~~~")):
             continue
-        if len(line) > FENCE_MAX_WIDTH:
+        if len(line) > width:
             out.append((i + 1, len(line), line))
     return out
 
 
 def chk_md_fence_width(target, anchor_root, args):
     """R-markdown-17: no line inside a fenced code block exceeds
-    FENCE_MAX_WIDTH characters — a longer line soft-wraps at render time and
+    `fence_line_max` characters — a longer line soft-wraps at render time and
     the fence's alignment (help figures, `# comment` columns) is destroyed."""
     if not target.is_file():
         return "pass", "not a file"
+    width = fence_max_width()
+    if not width:
+        return "pass", "fence_line_max unset"
     hits = fence_overwidth_lines(_read(target))
     if hits:
         worst = max(h[1] for h in hits)
-        return "fail", (f"{len(hits)} fenced line(s) exceed {FENCE_MAX_WIDTH} chars "
+        return "fail", (f"{len(hits)} fenced line(s) exceed {width} chars "
                         f"(longest {worst}) at line(s) "
                         + ", ".join(str(h[0]) for h in hits[:5])
                         + " — a fenced line cannot word-wrap; break it or move the comment to its own line")
@@ -8953,6 +9057,7 @@ CHECKERS = {
     "md_inline_field_value": chk_md_inline_field_value,
     "md_stray_angle_tag": chk_md_stray_angle_tag,
     "md_fence_width": chk_md_fence_width,
+    "stone_line_budget": chk_stone_line_budget,
     # R-backlog (F228 frontier invariants + per-state body contracts)
     "backlog_frontier_planned": chk_backlog_frontier_planned,
     "backlog_frontier_bracketed": chk_backlog_frontier_bracketed,

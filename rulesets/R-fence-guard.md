@@ -1,12 +1,12 @@
 # RULESET R-fence-guard
 include::
 confirm:: user
-description:: a Write or Edit that puts a line wider than 72 characters inside a fenced code block is denied at `tool:pre`, line and length named — the veto behind [[R-markdown]]-17, which only reports after the bytes land
+description:: a Write or Edit that puts a line wider than `fence_line_max` (global.yaml) inside a fenced code block is denied at `tool:pre`, line and length named — the veto behind [[R-markdown]]-17, which only reports after the bytes land
 
 > [!info] Provenance
 > Commissioned by Dan 2026-09-03 from the rendered `DAS Stone CLI` figure, every command of which soft-wrapped in Obsidian at 72–73 characters: *"forbid writing into markdown with word wrap inside of a text section… the simplest is just a hard fail if you try to write a document that word wraps, with a reminder that you can't word wrap inside of a backtick section."* Same relationship as [[R-stacked-guard]] to R-stacked-table-01 and [[R-dispatch-guard]] to R-dispatch-table-06: the doc-rule names the law, this ruleset blocks the act.
 >
-> **One definition of over-width, shared.** Both bodies call `audit-plan.fence_overwidth_lines(text)` — the exact function `chk_md_fence_width` reports from — via the daemon-resident `warden_docfire.ap` binding, and read the width from `audit-plan.FENCE_MAX_WIDTH`. The deny and the audit therefore cannot disagree.
+> **One definition of over-width, shared.** Both bodies call `audit-plan.fence_overwidth_lines(text)` — the exact function `chk_md_fence_width` reports from — via the daemon-resident `warden_docfire.ap` binding, and read the width from `fence_line_max` in ~/.config/anchor-system/global.yaml through `audit-plan.fence_max_width()` (Dan: widths are config, not constants). The deny and the audit therefore cannot disagree.
 >
 > **Deny only NEW over-width lines.** Each body compares the over-width fenced lines of the proposed text against those already in the file and denies only when a line appears that the file does not already carry. An edit elsewhere in a file that already holds a wrapped figure is never held hostage by it, and a file can be repaired one line at a time — the save-refusal-deadlocks-on-pre-existing-state gotcha, designed out. Every line the agent itself types is held, including a whole-file Write that reproduces an old long line verbatim (that line is in `before`, so it passes; a retyped longer variant is not).
 >
@@ -48,7 +48,7 @@ def body(ctx):
                 return []
         shown = "; ".join(f"line {ln} is {n} chars" for ln, n, _ in new[:3])
         return [f"DENY: {len(new)} line(s) inside a code fence exceed "
-                f"{ap.FENCE_MAX_WIDTH} characters — {shown}. A fenced line cannot "
+                f"{ap.fence_max_width()} characters — {shown}. A fenced line cannot "
                 "word-wrap: Obsidian soft-wraps it at the pane edge and the "
                 "figure's alignment is destroyed. Break the line, move the "
                 "`# comment` to its own line above the command, or render a "
@@ -106,7 +106,7 @@ def body(ctx):
                 return []
         shown = "; ".join(f"line {ln} is {n} chars" for ln, n, _ in new[:3])
         return [f"DENY: {len(new)} line(s) inside a code fence exceed "
-                f"{ap.FENCE_MAX_WIDTH} characters — {shown}. A fenced line cannot "
+                f"{ap.fence_max_width()} characters — {shown}. A fenced line cannot "
                 "word-wrap: Obsidian soft-wraps it at the pane edge and the "
                 "figure's alignment is destroyed. Break the line, move the "
                 "`# comment` to its own line above the command, or render a "

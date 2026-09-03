@@ -24,8 +24,10 @@ def _doc(tmp: Path, body: str) -> Path:
     return p
 
 
-def test_width_constant_is_72():
-    assert _ap().FENCE_MAX_WIDTH == 72
+def test_width_comes_from_config():
+    ap = _ap()
+    assert ap.fence_max_width() == 72   # ~/.config/anchor-system/global.yaml fence_line_max
+    assert "fence_line_max" in (Path.home() / ".config/anchor-system/global.yaml").read_text()
 
 
 def test_fits_passes_and_prose_is_free(tmp_path):

@@ -119,3 +119,12 @@ No anchor is required to hold any stone group, and `/create anchor` never scaffo
 **Check pattern:** stated; a group folder holding only a control file or folder-note and no members is a smell to flag.
 
 **Why:** the failure mode of every new facet is universal adoption by scaffolding, which produces hundreds of empty folders and trains readers to skip the facet everywhere — including where it is real. Ported from [[R-rocks]]-10 on 2026-08-28 ([[Tink Backlog#^T603|T603]]). `R-rocks-11` — tier grouping expresses commitment, not sequence — was **deliberately not ported**: a book's order is its sequence by definition, and a pebble list is a tempo list, so that rule is a property of the rock kind and stays in [[R-rocks]].
+
+### RULE R-stone-13 — A stone's line fits on one rendered line (checked)
+description:: A stone's `line::` and every control-file stone line render within `stone_line_max` (global.yaml) characters, links collapsed to their alias; a longer line word-wraps in the reading view.
+check:: stone_line_budget
+The whole point of a stone's line is to be read at a glance on a list. Dan, 2026-08-30: *"in no cases do we want them to word wrap, because it just makes it unreadable."* `stone new` already refuses an over-budget `--line`; this rule covers the other two ways a long line gets in — a hand-written `line::` in the stone file, and a hand-edited line in a control file that `update` propagates with only a stderr warning. Measured 2026-09-03 on `Atticus P0004`: 104 rendered characters against a budget of 84, written by hand, warned about, never seen.
+
+**Check pattern:** in a stone file, the top-block `line::` value; in a control file, every line whose first link's alias is `-`; each measured as `- ` + the text with `[[target|alias]]` collapsed to `alias`; none exceeds `stone_line_max`. 0/absent turns the rule off, as it does for the mint.
+
+**Why:** the refusal half is [[R-stone-guard]] (a tool:pre deny on Write/Edit); this rule is the law it enforces and what audit-on-write reports for a Bash-written file. Dan, 2026-09-03: *"it should just reject if the agent tries to create a stone whose title line is gonna cause a word wrap."* (Tier: checked)
