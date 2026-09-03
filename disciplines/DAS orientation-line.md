@@ -37,11 +37,12 @@ What it *does* specify is exactly three things, and each exists because its abse
 **Non-prose lines between the H1 and the line are skipped, not counted against it.** Inline `key:: value` fields (skill pages carry `requires::` / `subsystem::`) and the machine-written `<!-- state:backlog XX -->` / `<!-- state:q XX -->` stamps sit exactly there. The stamps are written by `state` rather than by the author, so counting them would make a state-managed doc **structurally unable** to satisfy the rule — found on the [[HBR]] reference anchor, and the same trap caught `md-toc.py`, which consumed the stamp *as* the orientation line and inserted the TOC above the real one.
 
 ## Where it is not owed
-Four exemptions, each a document class whose head is a different convention rather than a defective version of this one:
+Five exemptions, each a document class whose head is a different convention rather than a defective version of this one:
 
 - **Rendered query surfaces** — `Q.md` and `{slug} queries.md` carry a banner-only head owned by [[R-query]], on the user's ruling that those pages carry no meta prose.
 - **`# RULESET` specs** — a machine-read class whose head is `# RULESET <id>` followed by `where::` / `include::` / `description::`, not breadcrumb → H1 → orientation (T051).
 - **Simple-facet form** — a slug-prefixed facet page whose H1 fuses the breadcrumb into the title (`# [[{slug}]] {Facet}`). The wiki-link *is* the breadcrumb and the head is self-describing, so the file's essence may follow the H1 directly.
+- **Stone archive month files** — `archive/YYYY-MM {list} archive.md`, the T655 ledger `stone archive` appends to: frontmatter aliases, then one `# {stone}` H1 per retired stone followed by its `key:: value` fields, no title line (Dan, 2026-09-03). Machine-written, never hand-edited; the head is the stone's own record.
 - **Pages with no H1 at all** — out of scope here; whether a page owes an H1 is [[R-doc-structure]]'s business, and one rule per question.
 
 ## How it is checked

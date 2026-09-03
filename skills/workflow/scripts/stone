@@ -1618,7 +1618,12 @@ def readback(stones: dict, control: dict, gram: Gram,
         st = stones.get(skey)
         if st is None:
             continue  # dangling reference — left untouched, not this tool's job
-        original = st.orig_line
+        # Trailing whitespace is not a difference. R-markdown-16 pads a terminal
+        # link with one trailing space on whichever file it last touched, so a
+        # byte-for-byte compare reported Tink P0008/P0009 as UNADJUDICATED on
+        # every pass, forever (ATT drop 2026-09-03).
+        original = st.orig_line.rstrip()
+        seen = [(k, text.rstrip()) for k, text in seen]
         edits = [(k, text) for k, text in seen if text != original]
         distinct = {text for _k, text in edits}
         if len(distinct) > 1:
@@ -1648,7 +1653,7 @@ def readback(stones: dict, control: dict, gram: Gram,
                 + "\n".join(f"      {gram.label(k)} says: {text}" for k, text in edits))
             st.line = joined
             continue
-        if not edits or edits[-1][1] == st.line:
+        if not edits or edits[-1][1] == st.line.rstrip():
             continue
         k, text = edits[-1]
         # T553 — only take the projection when it is demonstrably the newer
@@ -1699,7 +1704,7 @@ def resync(stones: dict, control: dict, gram: Gram):
                     continue
                 pre = line[:line.index("[[")]
                 want = pre + gram.render(st, cf.slug)
-                if line != want:
+                if line.rstrip() != want.rstrip():  # R-markdown-16's pad is not drift
                     cf.lines[i] = want
         for i, line in enumerate(cf.lines):
             cls = gram.classify(line, cf.slug)

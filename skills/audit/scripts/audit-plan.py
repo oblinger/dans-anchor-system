@@ -4940,6 +4940,13 @@ def chk_doc_head_orientation_line(target, anchor_root, args):
     # R-query's shape, ruled by the user (no meta prose on Q.md / queries pages).
     if f.name == "Q.md" or f.name.endswith(" queries.md"):
         return "pass", "rendered query surface — head shape owned by R-query"
+    # T655 stone archive month files (`archive/YYYY-MM <list> archive.md`) are
+    # machine-appended ledgers: frontmatter aliases, then one `# <stone>` H1 per
+    # retired stone followed by its `key:: value` fields — no title line, by
+    # Dan's ruling 2026-09-03. The head is complete on its own terms; the
+    # orientation line does not govern it (ATT drop 2026-09-03).
+    if f.parent.name == "archive" and re.match(r"^\d{4}-\d{2} .+ archive$", f.stem):
+        return "pass", "stone archive month file — head shape owned by stone (T655)"
     text = _read(f)
     lines = text.splitlines()
     # T092's scan is now `_head_h1`'s job. T092 diagnosed the miss as INDENTATION
@@ -9251,6 +9258,16 @@ def _content_hash(tp: Path) -> str:
         return "0"
 
 
+def _path_hash(tp: Path) -> str:
+    """Short hash of the target's resolved path — part of every verdict-cache
+    key since T657 (see the note at the mechanical-run key)."""
+    try:
+        rp = str(tp.resolve())
+    except OSError:
+        rp = str(tp)
+    return hashlib.sha256(rp.encode()).hexdigest()[:10]
+
+
 def _verdict_cache_get(cdir: Path, key: str):
     fp = cdir / "verdicts" / f"{key}.json"
     if fp.is_file():
@@ -9566,7 +9583,12 @@ def execute_plan(plan: dict, cdir: Path | None) -> dict:
             for disp, tgt in zip(r["targets"], r["_target_paths"]):
                 tp = Path(tgt)
                 chash = _content_hash(tp)
-                key = f"{r['id']}-{body_hash}-{chash}-{_scripts_stamp()}"
+                # T657 — the PATH is part of the verdict, not just the bytes:
+                # `doc_head_orientation_line` exempts by name and parent
+                # (Q.md, queries, archive month files, simple-facet stems),
+                # and anchor-context rules read the tree around the file. A
+                # same-bytes file elsewhere was served this file's verdict.
+                key = f"{r['id']}-{body_hash}-{chash}-{_path_hash(tp)}-{_scripts_stamp()}"
                 cached = _verdict_cache_get(cdir, key) if cdir else None
                 # A cached `error` is never trusted — see the put-side note
                 # below; entries written before that rule need ignoring too.
@@ -10256,7 +10278,7 @@ def judge_manifest(plan: dict, cdir: Path | None, model: str) -> dict:
             body_hash = _judge_body_hash(r)
             for disp, tgt in zip(r["targets"], r["_target_paths"]):
                 chash = _content_hash(Path(tgt))
-                key = f"{r['id']}-{body_hash}-{chash}-{model}-{_scripts_stamp()}"
+                key = f"{r['id']}-{body_hash}-{chash}-{_path_hash(Path(tgt))}-{model}-{_scripts_stamp()}"
                 hit = _verdict_cache_get(cdir, key) if cdir else None
                 if hit:
                     cached.append({"rule": r["id"], "target": disp, "key": key, **hit})
