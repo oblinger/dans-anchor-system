@@ -54,7 +54,7 @@ def _w(p: pathlib.Path, text: str):
     p.write_text(text, encoding="utf-8")
 
 
-def _header_line(slug: str, target: str, kind: str = "rock") -> str:
+def _header_line(slug: str, target: str, kind: str = "rocks") -> str:
     """Render a control-file header the way the DAS kind table declares it.
 
     **Built from config, never spelled out.** These fixtures used to hardcode
@@ -65,7 +65,9 @@ def _header_line(slug: str, target: str, kind: str = "rock") -> str:
     `R-stone-04`'s no-false-fire half was asserting against a shape the system
     no longer uses. Found 2026-08-28 while moving the declarations out of JSON
     — the third copy of the same facts to drift, and the reason this one is
-    derived instead of written."""
+    derived instead of written. `kind` is a LIST name from the registry
+    (`pebbles`, `rocks`, …), and the control file lives INSIDE the store under
+    the folder's own name — the F628 layout (T648, 2026-09-02)."""
     cfg = ap._stone_kinds()[kind]
     alias = cfg["header_alias"].replace("{slug}", slug)
     return cfg["header_line"].replace("{link}", f"[[{target}|{alias}]]")
@@ -78,8 +80,8 @@ def good(tmp_path):
     _w(a / ".anchor", "slug: OK\n")
     _w(a / "OK Track/OK Rocks/OK R0001.md",
        "line:: a well-formed rock\n\n# A well-formed rock\nBody prose.\n")
-    _w(a / "OK Track/OK Rock.md",
-       f"# OK Rock\n\n{_header_line('OK', 'OK Rock')}\n\n"
+    _w(a / "OK Track/OK Rocks/OK Rocks.md",
+       f"# OK Rocks\n\n{_header_line('OK', 'OK Rocks')}\n\n"
        "[[OK R0001|OK:]] a well-formed rock\n")
     return a
 
@@ -100,12 +102,12 @@ def bad(tmp_path):
        "# Keys in the wrong place\nProse starts immediately.\n\n"
        "line:: this key is below the body\n")
     # R-stone-04: rendering disagreeing with the target, in both directions.
-    _w(a / "BAD Track/BAD Rock.md",
-       "# BAD Rock\n\n"
+    _w(a / "BAD Track/BAD Rocks/BAD Rocks.md",
+       "# BAD Rocks\n\n"
        f"{_header_line('BAD', 'BAD R0002')} renders as a header, "
        "targets a stone\n"
        "[[DAS Stone|BAD:]] renders as a stone, targets a spec page\n"
-       "[[BAD Rock]] targets the control file but renders bare\n"
+       "[[BAD Rocks]] targets the control file but renders bare\n"
        "UNCOMMITTED\n"
        "[[BAD R0002|BAD:]] this one is fine\n")
     return a
@@ -219,25 +221,26 @@ def test_stone_dispatch_linked_fires_beside_a_linked_twin(tmp_path):
 
     # A linked rock group.
     _w(anchor / "DUO Track/DUO Rocks/DUO R0001.md", "line:: x\n\n# x\nBody.\n")
-    _w(anchor / "DUO Track/DUO Rock.md",
-       "# DUO Rock\n\n[[DUO Rock|-DUO-]]\n\n[[DUO R0001|DUO:]] x\n")
+    _w(anchor / "DUO Track/DUO Rocks/DUO Rocks.md",
+       "# DUO Rocks\n\n-[[DUO Rocks|DUO]]-\n\n[[DUO R0001|DUO:]] x\n")
     # An UNLINKED pebble group, same anchor, same shape.
     _w(anchor / "DUO Track/DUO Pebbles/DUO P0001.md", "line:: y\n\n# y\nBody.\n")
-    _w(anchor / "DUO Track/DUO Pebble.md",
-       "# DUO Pebble\n\n[[DUO Pebble|-DUO-]]\n\n[[DUO P0001|DUO:]] y\n")
+    _w(anchor / "DUO Track/DUO Pebbles/DUO Pebbles.md",
+       "# DUO Pebbles\n\n-[[DUO Pebbles|DUO]]-\n\n[[DUO P0001|DUO:]] y\n")
 
     # The Track page links only the rock group.
     track = anchor / "DUO Track/DUO Track.md"
     _w(track, "# DUO Track\n\n| -[[DUO Track]]- | |\n| --- | --- |\n"
               "| [[DUO Rocks]] | rocks |\n| ... | |\n")
 
-    # A folder-scope rule is judged ONCE per group, on the group's spokesfile --
-    # its first member -- not on the control file, which for most kinds sits
-    # beside the folder rather than in it. `_stone_gate` passes anything else
-    # with "judged once, on '<spokes>'", so aiming at the control file would
-    # make this whole fixture green for the wrong reason.
-    rock_ctl = anchor / "DUO Track/DUO Rocks/DUO R0001.md"
-    peb_ctl = anchor / "DUO Track/DUO Pebbles/DUO P0001.md"
+    # A folder-scope rule is judged ONCE per group, on the group's spokesfile.
+    # Under the F628 layout the control file sits INSIDE the store and is that
+    # spokesfile; `_stone_gate` passes every other member with "judged once,
+    # on '<spokes>'", so aiming at a member would make this whole fixture green
+    # for the wrong reason (it did, 2026-09-02, while the fixture still put the
+    # control file one level up).
+    rock_ctl = anchor / "DUO Track/DUO Rocks/DUO Rocks.md"
+    peb_ctl = anchor / "DUO Track/DUO Pebbles/DUO Pebbles.md"
 
     v_rock, _ = ap.chk_stone_dispatch_linked(rock_ctl, anchor, None)
     v_peb, msg = ap.chk_stone_dispatch_linked(peb_ctl, anchor, None)
@@ -261,14 +264,14 @@ def test_stone_dispatch_linked_fires_beside_a_linked_twin(tmp_path):
     v_peb3, _ = ap.chk_stone_dispatch_linked(peb_ctl, anchor, None)
     assert v_peb3 == "pass", f"a pipe-escaped alias link must satisfy it, got {v_peb3}"
 
-    # The CONTROL FILE satisfies reachability too, and in this vault it is what
-    # actually does: measured 2026-08-28, every non-rock Track page links
-    # `[[{slug} Pebble]]` (singular) rather than the folder. Porting R-rocks-08's
-    # folder-only predicate fired on 21 of 32 live groups -- a rule measuring a
-    # convention rather than a defect. The control file is the better target
-    # anyway: it is what a reader opens, and the folder is storage.
+    # The CONTROL FILE satisfies reachability too. Under the F628 layout it
+    # shares the folder's name (`DUO Pebbles/DUO Pebbles.md`), so the link is
+    # the same string either way; the alias marks which one the author meant.
+    # Before 2026-08-28 the singular `[[{slug} Pebble]]` sat one level up and
+    # was what every non-rock Track page linked -- a folder-only predicate
+    # fired on 21 of 32 live groups, a rule measuring a convention.
     _w(track, "# DUO Track\n\n| -[[DUO Track]]- | |\n| --- | --- |\n"
-              "| [[DUO Rocks]] | rocks |\n| [[DUO Pebble]] | control file |\n| ... | |\n")
+              "| [[DUO Rocks]] | rocks |\n| [[DUO Pebbles|control file]] | |\n| ... | |\n")
     v_peb4, _ = ap.chk_stone_dispatch_linked(peb_ctl, anchor, None)
     assert v_peb4 == "pass", f"a link to the control file must satisfy it, got {v_peb4}"
 

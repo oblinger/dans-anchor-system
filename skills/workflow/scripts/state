@@ -2259,6 +2259,15 @@ def mint_task_doc(backlog_path, label, title, row_body, status,
     path = ddir / f"{stem}.md"
     if path.is_file():
         return path
+    # T649 (Atticus, 2026-08-30): the number is the identity, the title is
+    # decoration. When the filename sanitizer changed under nine rows,
+    # `migrate-t` computed a new stem, found nothing there, and minted a stub
+    # BESIDE the real doc — which then read as an orphan safe to delete.
+    # Same slug and number in the folder means the row already has its doc,
+    # whatever its title sanitized to: adopt it, never mint a sibling.
+    for sib in sorted(ddir.glob(f"{slug}{num} - *.md")):
+        if sib.is_file():
+            return sib
     body = (row_body or "").strip()
     first = re.split(r"(?<=[.!?])\s+", body, maxsplit=1)[0] if body else title
     orient = re.sub(r"\s+", " ", first).strip()

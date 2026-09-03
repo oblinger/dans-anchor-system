@@ -1839,7 +1839,40 @@ def _is_stone_store(folder: Path) -> bool:
         control = cfg.get("control")
         if not isinstance(control, str):
             continue
-        if (folder.parent / f"{control.replace('{slug}', slug)}.md").is_file():
+        name = f"{control.replace('{slug}', slug)}.md"
+        # Both positions (Atticus, T290 handoff 2026-09-01): the live layout
+        # keeps the control file INSIDE the store (`Tink Pebbles/Tink
+        # Pebbles.md`); one level up is the pre-2026-08 shape. The docstring
+        # above describes the old one; the predicate must hold across both.
+        if (folder / name).is_file() or (folder.parent / name).is_file():
+            return True
+    return False
+
+
+def _is_stone_control_file(f: Path) -> bool:
+    """True when `f` is a stone list's CONTROL FILE — `Tink Pebbles.md` inside
+    `Tink Pebbles/`, for any kind in the registry.
+
+    Eli 2026-09-02: Warden fired `R-spine-03` and `R-spine-09` on every write
+    to a control file while `audit-plan --mode anchor` reported neither, and
+    0 of 35 control files vault-wide carry a spine — a list is not an anchor
+    entry page, and R-stone owns its shape. Keyed to the registry-derived
+    name beside the registry-derived folder, so ordinary namesakes never
+    acquire it."""
+    if f.suffix != ".md":
+        return False
+    try:
+        kinds = _stone_kind_suffixes()
+    except Exception:
+        return False
+    for suffix, (_kind, cfg) in kinds.items():
+        if not suffix or not f.parent.name.endswith(suffix):
+            continue
+        control = cfg.get("control")
+        if not isinstance(control, str):
+            continue
+        slug = f.parent.name[: -len(suffix)]
+        if f.name == control.replace("{slug}", slug) + ".md":
             return True
     return False
 
@@ -2302,6 +2335,15 @@ def chk_h1_matches_slug(target, anchor_root, args):
         return "pass", h1
     if h1 == slug or h1 == anchor_root.name:
         return "pass", f"bare-name: {h1}"
+    # Winnie 2026-09-01: a template FOLDER's namesake is a stencil, and a
+    # stencil's H1 carries the INSTANCE's name — that is the whole point of
+    # it — so it can never equal `_{{X}} Template`. The corpus's own specimen
+    # (`FEX Templates/_{{DISK_LABEL}} Template/`) failed this permanently.
+    # Keyed to F570's `stencil::` declaration below the cut-line, the signal
+    # the template rules already read, never to the folder name.
+    notes = _template_notes(f)
+    if notes and any(_STENCIL_DECL_RE.match(ln) for ln in notes):
+        return "pass", f"a stencil ({h1!r}) — its H1 is the instance's, by design"
     return "fail", f"H1 {h1!r} is not '{slug} - <name>'"
 
 
@@ -4596,6 +4638,8 @@ def chk_summary_present_iff_complex(target, anchor_root, args):
         return "pass", ""
     if not any(m.suffix == ".md" and m != f for m in f.parent.iterdir()):
         return "pass", ""      # nothing to summarize yet
+    if _is_stone_control_file(f):
+        return "pass", "a stone control file — its lines ARE the index (R-stone owns it)"
     if _is_state_backlog_namesake(f):
         # T363 Q1 = (A), 2026-08-19. A folder-form backlog (F329) IS an index
         # doc fronting a folder, and its members are listed — as derived pointer
@@ -8603,6 +8647,8 @@ def chk_valid_spine(target, anchor_root, args):
         return "error", f"cannot classify: {e}"
     if not p.fronts_folder:
         return "pass", "not an anchor entry page — spine scope is F308 Q6"
+    if _is_stone_control_file(f):
+        return "pass", "a stone control file — a list, not an anchor entry page (R-stone owns it)"
     if _is_notebook_namesake(f):
         # T556, 2026-08-20. A `<!-- notebook -->` namesake fronts a folder, so
         # `fronts_folder` is true — but [[DAS Notebook]] rules that folder is
@@ -8889,6 +8935,29 @@ def run_checker(check: str, target: Path, anchor_root: Path) -> tuple[str, str]:
 # nothing at the root had a new name. Every `anchor`-scope checker that reads
 # into a facet folder shares the key, so the key is what is fixed.
 _ANCHOR_HASH_DEPTH = 2
+
+
+_SCRIPTS_STAMP: dict = {"ns": None}
+
+
+def _scripts_stamp() -> int:
+    """max mtime_ns over `skills/audit/scripts/*.py` — the checkers' own
+    version, folded into every verdict key (Atticus 2026-09-02).
+
+    The key used to be the target's bytes alone, so editing a checker left an
+    unchanged file returning the OLD checker's verdict until `--no-cache`: the
+    direct call passed, the CLI still printed ✗, and a session went hunting
+    for a second implementation and a stale daemon. Same computation the
+    Warden daemon already uses to decide when to re-exec this module
+    (`warden_docfire._scripts_stamp`); computed once per process."""
+    if _SCRIPTS_STAMP["ns"] is None:
+        try:
+            _SCRIPTS_STAMP["ns"] = max(
+                (p.stat().st_mtime_ns for p in Path(__file__).resolve().parent.glob("*.py")),
+                default=0)
+        except OSError:
+            _SCRIPTS_STAMP["ns"] = 0
+    return _SCRIPTS_STAMP["ns"]
 
 
 def _content_hash(tp: Path) -> str:
@@ -9227,7 +9296,7 @@ def execute_plan(plan: dict, cdir: Path | None) -> dict:
             for disp, tgt in zip(r["targets"], r["_target_paths"]):
                 tp = Path(tgt)
                 chash = _content_hash(tp)
-                key = f"{r['id']}-{body_hash}-{chash}"
+                key = f"{r['id']}-{body_hash}-{chash}-{_scripts_stamp()}"
                 cached = _verdict_cache_get(cdir, key) if cdir else None
                 # A cached `error` is never trusted — see the put-side note
                 # below; entries written before that rule need ignoring too.
@@ -9901,7 +9970,7 @@ def judge_manifest(plan: dict, cdir: Path | None, model: str) -> dict:
             body_hash = _judge_body_hash(r)
             for disp, tgt in zip(r["targets"], r["_target_paths"]):
                 chash = _content_hash(Path(tgt))
-                key = f"{r['id']}-{body_hash}-{chash}-{model}"
+                key = f"{r['id']}-{body_hash}-{chash}-{model}-{_scripts_stamp()}"
                 hit = _verdict_cache_get(cdir, key) if cdir else None
                 if hit:
                     cached.append({"rule": r["id"], "target": disp, "key": key, **hit})
