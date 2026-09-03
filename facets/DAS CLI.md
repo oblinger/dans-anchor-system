@@ -51,6 +51,13 @@ For a tutorial introduction, see [[{slug} User Guide]]. Every command is specifi
 
 *(The figure is the compressed overview; the `## Notes` below specify the commands in full — `submit` / `status` carry their flag detail, `cancel` / `drain` are simple enough for a one-line note.)*
 
+**Live specimen, with the pushback that shaped it — [[DAS Stone CLI]]** (Dan and Tink, 2026-09-03). The figure went through five rounds before Dan rewrote the first two entries himself and said *"see if you can push the rest through the same format."* What he cut, and why, is the discipline:
+
+- **Say only what is not obvious.** That `--dest` composes with the placement flags is obvious to anyone who can read the two lines; the multi-line comment explaining it was *"a huge number of explanation characters for something that's obvious."* One short `# comment` per command; continuation lines carry no comment at all.
+- **Commands and comments never collide.** Options wrap onto indented continuation lines under their command; the comment column stays clear on the right. A line that runs into the comment column is reflowed, not commented around.
+- **The legend is two lines.** `<list>  slug or slug.list` and the id shape. Everything longer — what a tombstone is, what `--force` withdraws — lives in the task doc and the per-command `--help`, *"which I as the user just won't look at, and you should have if it's needed."*
+- **A fenced line never wraps.** The width is `fence_line_max` in global.yaml (R-markdown-17, refused at write by R-fence-guard); the first draft of this very figure wrapped in his pane, which is what commissioned the rule.
+
 # Format Specification
 
 ## The Help Block — READ THIS
