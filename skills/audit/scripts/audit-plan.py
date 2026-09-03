@@ -2032,7 +2032,20 @@ def chk_stacked_table(target, anchor_root, args):
     f = _as_file(target, anchor_root)
     if f is None:
         return "error", "no file"
-    lines = _read(f).splitlines()
+    probs = stacked_table_problems(_read(f))
+    if probs:
+        return "fail", "stacked table violations (see [[DAS stacked-table]]):\n  " + "\n  ".join(probs[:12])
+    return "pass", ""
+
+
+def stacked_table_problems(text: str) -> list:
+    """Every stacked-table violation in `text`, one line each — the ONE
+    definition shared by `chk_stacked_table` (R-stacked-table-01, the audit)
+    and `R-stacked-guard` (the `tool:pre` deny, F650), through the daemon-
+    resident `warden_docfire.ap` binding. The deny and the audit therefore
+    cannot disagree about what a violation is — the same contract
+    `masthead_narrative_offenders` gives R-dispatch-guard."""
+    lines = text.splitlines()
     probs = []
     def cells(row):
         # split on unescaped pipes only -- wiki-links carry \| inside cells
@@ -2076,9 +2089,7 @@ def chk_stacked_table(target, anchor_root, args):
             i = j
         else:
             i += 1
-    if probs:
-        return "fail", "stacked table violations (see [[DAS stacked-table]]):\n  " + "\n  ".join(probs[:12])
-    return "pass", ""
+    return probs
 
 
 def chk_regex_present(target, anchor_root, args):
@@ -8740,6 +8751,12 @@ CHECKERS = {
     "frontmatter_has": chk_frontmatter_has,
     "h1_present": chk_h1_present,
     "h1_matches_slug": chk_h1_matches_slug,
+    # Both shipped 2026-09-01 with the checker written and tested by direct call
+    # but never registered here, so `warden compile` warned and each rule
+    # "silently became agent judgment" — the exact failure mode
+    # test_r_stone_fires.py's docstring names as (1). Found 2026-09-02 (F650).
+    "stacked_table": chk_stacked_table,
+    "at_entity_person_opening": chk_at_entity_person_opening,
     "h1_after_frontmatter": chk_h1_after_frontmatter,
     "name_slug_prefixed": chk_name_slug_prefixed,
     "slug_is_a_handle": chk_slug_is_a_handle,
