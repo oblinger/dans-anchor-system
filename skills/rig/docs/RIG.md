@@ -2,6 +2,20 @@
 
 **`rig` brings cloud machines up and down. That is all it does.**
 
+| Table of Contents |  |
+|---|---|
+| **[[#Synopsis]]** |  |
+| **[[#What rig is not]]** |  |
+| **[[#Two states, not one]]** |  |
+| **[[#One namespace]]** |  |
+| **[[#The integration contract: an ssh alias]]** |  |
+|    [[#How a connection tool consumes this]] |  |
+| **[[#Backends]]** |  |
+| **[[#`ls` shows everything]]** |  |
+| **[[#Configuration]]** |  |
+| **[[#Ownership and expiry — ruled 2026-09-03, not yet built]]** |  |
+|    [[#The gap this closes]] |  |
+
 It exists because every other tool in the chain assumes the machine already exists. Connection tools take a host you can already reach; experiment frameworks take a remote you have already registered. Something has to make the box first, and until now that something was a human at a cloud console.
 
 ## Synopsis
@@ -12,17 +26,25 @@ rig [--cloud BACKEND] [--agent SLUG] COMMAND [ARGS]
   up    NAME  create if absent, start if stopped, no-op if running
   down  NAME  stop it; disk survives, compute billing stops
   rm    NAME  destroy it, disk and all (--yes required, no undo)
-  ls          every machine in the account, state and burn rate
+  ls          every machine on every cloud, state and burn rate
   ip    NAME  print the address on stdout, nothing else
   ssh   NAME  refresh the alias and connect (extra args go to ssh)
   reap        stop rig-managed machines that are up but idle
+  renew NAME  push the lease out again (default lease_hours)
+  gc          destroy owned rigs stopped > frozen_days (asks; --yes)
+  keep  NAME  exempt a stopped rig from gc (--days N, default 14)
+  name  NAME  print the canonical <prefix><agent>-<local> name
 
   up    --size TYPE  --zone ZONE  --disk GB  --image FAMILY
+  up    --lease HOURS (default 8, <24)  --forever (no lease, loud)
   reap  --idle MIN (default 60)  --load N  --dry-run
-  --cloud defaults to gcp, the only backend implemented
+  gc    --days N  --yes  --dry-run
+  --cloud picks a backend (azure | gcp); default from config
+              ls/reap walk every cloud in `clouds:`
   --agent also reads $RIG_AGENT, $BRIDGE_AGENT, or config agent:
 
-  NAME is <agent>-<local>: lowercase, hyphens, no dots (a2x-dev)
+  NAME is <prefix><agent>-<local>: lowercase, hyphens, no dots
+  (do-a2x-dev; config REQUIRES prefix:, has lease_hours, frozen_days)
   Config: ~/.config/rig/config.yaml
   Exit 0 on success; nonzero with one line on stderr otherwise
 ```
@@ -31,7 +53,7 @@ In use, the point is that the second line needs nothing from the first:
 
 ```sh
 rig up a2x-dev          # ensure it exists and is running
-ssh a2x-dev             # …and it's reachable, because rig wrote the alias
+ssh a2x-dev             # …reachable, because rig wrote the alias
 ```
 
 ## What rig is not
@@ -89,6 +111,8 @@ This works anywhere there is a notion of a named agent. It does not require any 
 
 A name without a prefix is legal, and rig warns. The warning is the whole enforcement mechanism; this is a convention, not a schema.
 
+**Ruled 2026-09-03, ahead of the agent prefix: an owner prefix from config.** Every rig name becomes `<prefix><agent>-<local>` — `do-svp-h100` for Dan — with `prefix:` required in the config. Unlike the agent convention this one *is* a schema: it is how `ls`, `reap` and `gc` know which machines are rig's. See § Ownership and expiry.
+
 ## The integration contract: an ssh alias
 
 **rig's output is an ssh alias.** This is the single design decision that makes it compose.
@@ -114,7 +138,7 @@ The alias is the entire handoff. A connection tool is handed the rig's name and 
 
 ```sh
 rig up a2x-dev              # machine exists; alias published
-bridge tmux a2x-dev         # tmux session on both sides, named bridge-a2x-dev
+bridge tmux a2x-dev         # tmux both sides, named bridge-a2x-dev
 ```
 
 One name — `a2x-dev` — is the cloud instance, the ssh alias, and (prefixed) the tmux session on both ends. Nothing has to be looked up or translated, and there is no second identifier to keep in sync.
@@ -157,7 +181,9 @@ The contract each adapter implements:
 | `ip(name)` | address or nothing |
 | `ssh_target(name)` | user, host, key |
 
-Adapters register themselves with a `@backend("name")` decorator, and `--cloud` selects one. Today only `gcp` is implemented. Azure is expected next, which is why the seam exists now rather than later — a second backend is much cheaper to add than to retrofit.
+Adapters register themselves with a `@backend("name")` decorator, and `--cloud` selects one. Two exist: `gcp` and `azure` (added 2026-09-02, the day Dan ruled SportsVisio work moves to Azure). `ls` and `reap` walk every cloud in the config's `clouds:` list, because the machine you forgot is on the cloud you stopped thinking about; the other verbs locate a rig by name across those clouds and fall back to the default backend, so `rig down a2x-dev` needs no `--cloud` even when the default has moved.
+
+**Azure specifics the adapter absorbs.** Every rig gets its own resource group, `rig-<name>`: `az vm delete` removes the VM and leaves NIC, public IP, NSG and the OS disk behind — the disk still billing — and there is no flag that reliably takes all of them, so `rm` is `az group delete` on that group and has nothing to forget. `down` is `deallocate`, never `stop`: a stopped-but-allocated Azure VM keeps billing for compute, which is the Azure spelling of the down/rm trap. A VM found in somebody else's group (the AI backend's sandbox, say) is never group-deleted. Login is `az login --use-device-code` (a plain `az login` opens the personal browser). GPU quota for the SV subscription is centralus only; `az vm list-usage -l centralus` is the reflex when an allocation fails.
 
 **Adapters should stay thin.** Cloud CLIs are already good; an adapter is a place to encode *your* decisions — which image, which key, which zones to try — not an abstraction layer that hides the cloud. Where a cloud's behaviour is genuinely surprising, the adapter absorbs it: the GCE adapter retries across zones on a capacity stockout, because GPU stockouts are routine and the error names the zones that do have capacity.
 
@@ -178,8 +204,17 @@ Prices are rough and hard-coded per machine type. They are for noticing, not for
 `~/.config/rig/config.yaml` holds defaults so the common case is a bare command:
 
 ```yaml
-backend: gcp
+backend: azure
+clouds: [azure, gcp]      # what ls / reap walk
 agent: a2x
+azure:
+  subscription: <id>
+  location: centralus
+  size: Standard_NC40ads_H100_v5
+  disk: 500
+  image: microsoft-dsvm:ubuntu-hpc:2404:latest
+  user: oblinger
+  key: ~/.ssh/azure_sv
 gcp:
   project: my-project
   zones: [us-east1-b, us-east1-c, us-east1-d]
@@ -193,8 +228,21 @@ Everything is overridable per invocation (`--size`, `--zone`, `--disk`, `--image
 
 **A note on keys.** rig authenticates non-interactively, so its key must have no passphrase. This is worth stating because a passphrase-protected key fails in a maximally confusing way: ssh offers the key, cannot sign with it, and the server reports `Permission denied (publickey)` — indistinguishable from having no key at all. If you are debugging that error, run `ssh-keygen -y -f <key>`; if it asks for a passphrase, that is your answer.
 
-## Known gap: nothing expires
+## Ownership and expiry — ruled 2026-09-03, not yet built
+
+Dan, 2026-09-03, after an H100 billed five idle hours: *"rig should, by default, have a prefix that's in the configuration of rig, and each user can set what their prefix is. That way rig can have commands that just know which things were created by it… by default, when you rig up a machine, it puts the watcher out there."* Four parts:
+
+1. **Owner prefix, required in config.** `~/.config/rig/config.yaml` has `prefix:` (Dan's is `do-`); rig refuses to run without it — no default, no derivation from `$USER`, because a guessed prefix would make `gc` offer to destroy whatever the guess matched. Every rig it creates is named `<prefix><agent>-<local>` (`do-svp-h100`; `rig name h100` prints the canonical form for scripts), on Azure in resource group `rig-<that name>`, tagged `rig-name` as before. **The prefix is how rig knows what is its own to destroy**: `gc` and the frozen nag act only on rig-tagged boxes carrying the configured prefix; `reap` (stop, reversible) still covers any rig-tagged box; everything untagged is listed in parentheses and never touched. Boxes that predate the rule (`a2x-dev`) are still found by the name they carry — `rig up a2x-dev` restarts it rather than making `do-a2x-dev` — but are never `gc`'d, since the prefix is the only evidence of whose they are.
+2. **The lease lives on the cloud, set by `rig up` by default.** As built 2026-09-03: on Azure the lease is the VM's own **auto-shutdown schedule** (`az vm auto-shutdown`, a DevTestLab schedule in the rig's group that *deallocates* at a UTC time of day) — it fires with the laptop shut and the session gone, and a Contributor can set it. Default `lease_hours: 8` (config), `--lease H` per rig, `--forever` opts out and says so; `rig renew <name> [--hours H]` pushes it; `rig ls` shows it in a LEASE column, where **`NONE` on a running rig is the line to act on**. Ceiling is 24 h because the schedule is daily. *Down, never rm.* **Not built, and why:** the on-box idle watcher the ruling asked for needs the VM to hold a role that can stop it — a role *assignment*, which Contributor cannot create (checked: Dan is Contributor on `sv-startups-01`). Until someone with Owner grants a self-stop role, idle detection stays with the hourly laptop reaper; the lease covers the walked-away case on its own. GCP has no lease at all (instance schedules need IAM the project does not grant, and SV compute left GCP) — `up --cloud gcp` prints `NO LEASE` and means it.
+3. **Zombie sweep for the frozen ones.** A deallocated box still bills its disk (500 GB StandardSSD ≈ $40/month), so stopped-and-forgotten is the slow leak. `up`, `down`, `rm` and `ls` print one nag line when a prefix-owned box has been stopped more than `frozen_days` (3): `rig: 1 frozen rig(s) stopped > 3d, disks billing: do-svp-h100 (9d) — rig gc to destroy, rig keep NAME to exempt`. `rig gc` lists them and asks at a terminal; with no terminal it refuses unless `--yes`, so an agent has to mean it — nothing destroys on its own. `rig keep <name> --days N` (default 14) tags the rig exempt; `rig gc --dry-run` just lists. Stop time comes from the cloud (Azure instance view, GCE `lastStopTimestamp`); a rig whose stop time cannot be read is treated as frozen, not as fresh.
+4. **The laptop reaper stays as the second layer**, walking every cloud hourly, for the box whose watcher failed to install or whose identity lost its role.
+
+What this still does not catch: a box nobody created through rig. The nag counts unmanaged running boxes in its burn line (as `ls` does) and leaves them alone.
+
+### The gap this closes
 
 **A rig stays up until someone takes it down.** There is no timeout, no lease, and no automatic teardown. A GPU machine left running bills continuously — for a single mid-range GPU box, on the order of several hundred dollars a month — and the agent that created it will not have a session tomorrow in which to remember.
 
 Until that is built, `rig ls` and its burn line are the only safety net, and they only work if somebody looks. Treat `rig down` as part of finishing, not as cleanup you will get to later.
+
+**The hourly reaper is a backstop, and it was dead for its whole life until 2026-09-03.** `com.oblinger.rig-reap` (launchd, `rig reap --idle 60`, log `~/.config/rig/reap.log`) had exited 1 on all 460 runs since install: launchd's PATH resolved `python3` to `/usr/bin/python3`, which has no PyYAML, and `rig` dies on that before it lists anything. Nobody read the log; the H100 rig `svp-h100` billed five idle hours that night. Fixed by putting the conda interpreter's bin first in the plist's `EnvironmentVariables:PATH`; the next run logged `rig: nothing running` with exit 0. Two lessons: a launchd job's exit status is in `launchctl list`, and a backstop nobody has seen fire is not yet a backstop — kick it once (`launchctl kickstart -k gui/$UID/com.oblinger.rig-reap`) and read the log. Durable on-box expiry is [[Tink P0005]].

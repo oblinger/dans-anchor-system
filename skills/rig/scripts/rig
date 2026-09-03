@@ -4,8 +4,18 @@
 One namespace, one verb-first CLI, one job: make a box exist and be reachable.
 Driving the box is bridge's job; running experiments on it is svx's job.
 
-Backends are adapters registered with @backend(name). Only 'gcp' is real today;
-the seam is here so azure can be added without touching the CLI layer.
+Backends are adapters registered with @backend(name): 'gcp' and 'azure'.
+`ls` and `reap` walk every configured cloud (config `clouds:`), because the
+machine you forgot is on the cloud you stopped thinking about; the other verbs
+locate a rig by name across clouds and fall back to the default backend.
+
+Ownership and expiry (Dan, 2026-09-03, after an H100 billed five idle hours):
+every rig is named `<prefix><agent>-<local>` with `prefix:` REQUIRED in the
+config — the prefix is how rig knows which machines are its own. `up` puts a
+lease on the box (Azure's own auto-shutdown schedule, cloud-side, so it fires
+with the laptop asleep and the session dead); `renew` extends it; `gc` offers
+to destroy rigs that have sat stopped for days; `keep` exempts one. The verb
+an automatic actor gets is always the reversible one: deallocate, never rm.
 """
 
 import argparse
@@ -15,6 +25,7 @@ import re
 import shutil
 import subprocess
 import sys
+from datetime import datetime, timedelta, timezone
 
 try:
     import yaml
@@ -31,13 +42,42 @@ BLOCK_END = "# <<< rig managed block <<<"
 # rig you forgot, not for billing. Unknown types report as '?'.
 PRICE_HINT = {
     "g2-standard-4": 0.71, "g2-standard-8": 0.85, "g2-standard-12": 1.00,
-    "g2-standard-16": 1.15, "g2-standard-32": 1.90,
+    "g2-standard-16": 1.15, "g2-standard-32": 2.71,   # 32: F054 measured ≈$2.7/hr
     "e2-standard-4": 0.13, "c3-standard-8": 0.39,
+    # Azure pay-as-you-go, centralus, 2026-09
+    "Standard_NC40ads_H100_v5": 6.98, "Standard_NC80adis_H100_v5": 13.96,
+    "Standard_NC24ads_A100_v4": 3.67, "Standard_NC48ads_A100_v4": 7.35,
+    "Standard_NC4as_T4_v3": 0.53, "Standard_NC8as_T4_v3": 0.75,
+    "Standard_NC16as_T4_v3": 1.20, "Standard_NC64as_T4_v3": 4.35,
+    "Standard_D2s_v3": 0.10, "Standard_D4s_v3": 0.19, "Standard_B2s": 0.04,
+}
+
+# Azure encodes the GPU in the size name; ls wants it as a column.
+AZURE_GPU = {
+    "NC4as_T4_v3": "1xT4", "NC8as_T4_v3": "1xT4", "NC16as_T4_v3": "1xT4",
+    "NC64as_T4_v3": "4xT4",
+    "NC24ads_A100_v4": "1xA100-80", "NC48ads_A100_v4": "2xA100-80", "NC96ads_A100_v4": "4xA100-80",
+    "NC40ads_H100_v5": "1xH100-94", "NC80adis_H100_v5": "2xH100-94", "ND96isr_H100_v5": "8xH100-80",
+    "NV12ads_A10_v5": "1/3xA10", "NV18ads_A10_v5": "1/2xA10", "NV36ads_A10_v5": "1xA10",
 }
 
 DEFAULTS = {
     "backend": "gcp",
+    "clouds": None,                    # None → just the default backend; else every listed cloud is walked by ls/reap
     "agent": None,
+    "prefix": None,                    # REQUIRED in config: the owner prefix every rig name carries (Dan: "do-")
+    "lease_hours": 8,                  # `up` sets a cloud-side auto-shutdown this far out; `renew` pushes it
+    "frozen_days": 3,                  # a stopped rig older than this is nagged about and offered to `gc`
+    "azure": {
+        "subscription": None,          # None → whatever `az account show` says
+        "location": "centralus",
+        "size": "Standard_NC40ads_H100_v5",
+        "disk": 500,
+        "disk_sku": "StandardSSD_LRS",
+        "image": "microsoft-dsvm:ubuntu-hpc:2404:latest",   # NVIDIA driver + CUDA preinstalled
+        "user": "oblinger",
+        "key": "~/.ssh/azure_sv",
+    },
     "gcp": {
         "project": None,               # None → whatever gcloud is set to
         "zones": ["us-east1-b", "us-east1-c", "us-east1-d"],
@@ -93,27 +133,63 @@ def load_config():
 NAME_RE = re.compile(r"^[a-z][a-z0-9-]{0,61}[a-z0-9]$")
 
 
-def resolve_name(name, cfg, agent_opt):
-    """Apply the <agent>-<local> namespace convention.
+def owner_prefix(cfg):
+    """The configured owner prefix, normalised to end in a hyphen. Required:
+    it is how rig tells its own machines from everyone else's, so there is no
+    default and nothing is derived from $USER — a guessed prefix would make
+    `gc` offer to destroy machines the guess happened to match."""
+    p = (cfg.get("prefix") or "").strip().lower()
+    if not p:
+        die("no `prefix:` in ~/.config/rig/config.yaml — set the owner prefix every rig you "
+            "make will carry (Dan's is `do-`); rig refuses to run without one")
+    if not p.endswith("-"):
+        p += "-"
+    if not re.match(r"^[a-z][a-z0-9]*-$", p):
+        die(f"bad prefix {p!r} — lowercase letters/digits, e.g. `do-`")
+    return p
 
-    The namespace is global and flat. An agent owning rigs prefixes them with
-    its own slug so two agents never collide on 'dev'.
+
+def name_candidates(name, cfg, agent_opt):
+    """(prefixed, legacy) forms of a rig name.
+
+    The namespace is global and flat. Every rig is `<prefix><agent>-<local>`:
+    the owner prefix from config says whose it is, the agent slug keeps two
+    agents from colliding on 'dev'. `legacy` is the pre-prefix `<agent>-<local>`
+    form, kept so rigs made before 2026-09-03 (`svp-h100`, `a2x-dev`) are still
+    found by the name they carry; new rigs are never made under it.
     """
+    prefix = owner_prefix(cfg)
     agent = (agent_opt or os.environ.get("RIG_AGENT") or os.environ.get("BRIDGE_AGENT")
-             or cfg.get("agent") or "")
-    agent = agent.lower()
+             or cfg.get("agent") or "").lower()
     if "." in name:
         die(f"bad rig name {name!r} — dots do not survive tmux (rewritten to '_') or GCE "
             f"instance names; use hyphens: {name.replace('.', '-')!r}")
-    if agent and not name.startswith(f"{agent}-"):
-        name = f"{agent}-{name}"
-    if not NAME_RE.match(name):
-        die(f"bad rig name {name!r} — lowercase letters, digits and hyphens; "
-            f"must start with a letter and end alphanumeric, e.g. a2x-dev")
+    local = name[len(prefix):] if name.startswith(prefix) else name
+    if agent and not local.startswith(f"{agent}-"):
+        local = f"{agent}-{local}"
+    full = prefix + local
+    for n in (full, local):
+        if not NAME_RE.match(n):
+            die(f"bad rig name {n!r} — lowercase letters, digits and hyphens; "
+                f"must start with a letter and end alphanumeric, e.g. do-a2x-dev")
     if not agent:
-        note(f"rig: warning: no agent slug known, so {name!r} is unprefixed — the namespace "
-             f"is global; prefer <agent>-<name> (set --agent or $RIG_AGENT)")
-    return name
+        note(f"rig: warning: no agent slug known, so {full!r} has no <agent>- part — "
+             f"prefer <prefix><agent>-<name> (set --agent or $RIG_AGENT)")
+    return full, local
+
+
+def resolve_name(name, cfg, agent_opt):
+    """The canonical `<prefix><agent>-<local>` name — what a NEW rig is called."""
+    return name_candidates(name, cfg, agent_opt)[0]
+
+
+def owned(cfg, row):
+    """Is this ls row one of ours to destroy? Rig-tagged AND carrying the owner
+    prefix. A rig-tagged box under a pre-prefix name (`a2x-dev`) is still
+    listed by name and still `reap`-able (stop is reversible), but `gc` never
+    offers it: the prefix is the only evidence of *whose* it is."""
+    rig = row.get("rig") or "-"
+    return rig != "-" and rig.startswith(owner_prefix(cfg))
 
 
 # ---------------------------------------------------------------- backends
@@ -127,6 +203,11 @@ def backend(name):
         BACKENDS[name] = cls
         return cls
     return wrap
+
+
+class Unavailable(Exception):
+    """A backend that cannot run here (CLI missing, not logged in). Fatal for a
+    verb aimed at that cloud; a skip-with-note for the cross-cloud walks."""
 
 
 class Backend:
@@ -148,6 +229,15 @@ class Backend:
     def ip(self, name): raise NotImplementedError    # -> str or None
     def ssh_target(self, name): raise NotImplementedError  # -> (user, host, keyfile)
 
+    # Expiry. A lease is a cloud-side deadline after which the box deallocates
+    # on its own, with no laptop, session or on-box agent involved. A backend
+    # without one says so (returns None) and rig says so out loud on `up`.
+    def lease(self, name, hours): return None        # -> datetime (UTC) the box will stop, or None = unsupported
+    def lease_info(self, name): return None          # -> datetime (UTC) of the next stop, or None
+    def stopped_since(self, row): return None        # -> datetime (UTC) a down row stopped, or None = unknown
+    def keep_until(self, row): return None           # -> date the row is exempt from gc through, or None
+    def keep(self, name, until): raise NotImplementedError   # tag the rig exempt from gc through `until` (date)
+
 
 @backend("gcp")
 class GCP(Backend):
@@ -163,7 +253,7 @@ class GCP(Backend):
         super().__init__(cfg)
         self.c = cfg["gcp"]
         if not shutil.which("gcloud"):
-            die("gcloud not on PATH")
+            raise Unavailable("gcloud not on PATH")
 
     # -- plumbing
 
@@ -307,6 +397,273 @@ class GCP(Backend):
     def ssh_target(self, name):
         return self.c["user"], self.ip(name), os.path.expanduser(self.c["key"])
 
+    # No lease on GCE: an instance schedule needs a resource policy and IAM the
+    # project's Contributor role does not grant, and SportsVisio compute left
+    # GCP on 2026-09-02. `up --cloud gcp` says so; the reaper is the only net.
+
+    def stopped_since(self, row):
+        inst = self._find(row["rig"]) if row["rig"] != "-" else None
+        ts = (inst or {}).get("lastStopTimestamp")
+        return _parse_iso(ts) if ts else None
+
+    def keep_until(self, row):
+        inst = self._find(row["rig"]) if row["rig"] != "-" else None
+        v = ((inst or {}).get("labels") or {}).get("rig-keep-until")
+        return _parse_ymd(v) if v else None
+
+    def keep(self, name, until):
+        inst = self._find(name)
+        if not inst:
+            return False
+        self._gcloud("instances", "add-labels", inst["name"],
+                     f"--zone={inst['zone'].rsplit('/', 1)[-1]}",
+                     f"--labels=rig-keep-until={until.strftime('%Y%m%d')}")
+        return True
+
+
+def _parse_iso(s):
+    """Cloud timestamps: RFC3339 with Z or offset, sometimes 7-digit fractions."""
+    s = re.sub(r"(\.\d{6})\d+", r"\1", s.strip()).replace("Z", "+00:00")
+    try:
+        return datetime.fromisoformat(s).astimezone(timezone.utc)
+    except ValueError:
+        return None
+
+
+def _parse_ymd(s):
+    s = s.strip().replace("-", "")
+    try:
+        return datetime.strptime(s, "%Y%m%d").date()
+    except ValueError:
+        return None
+
+
+@backend("azure")
+class Azure(Backend):
+    """Microsoft Azure, via the az CLI.
+
+    Naming: rig names are legal VM names verbatim, so the VM carries the rig
+    name and the tag `rig-name` (adoption of a VM made outside rig works the
+    same way as on GCE).
+
+    Every rig lives in its OWN resource group, `rig-<name>`. `az vm delete`
+    removes the VM and leaves NIC, public IP, NSG and the OS disk behind -- the
+    disk still billing -- and there is no flag that reliably takes all of them.
+    `az group delete` on a per-rig group takes everything in one call, so `rm`
+    has nothing to forget. A VM found in somebody else's group is never
+    group-deleted; `rm` falls back to deleting the VM alone and says what it
+    left.
+
+    `down` is `deallocate`, never `stop`: a stopped-but-allocated Azure VM
+    keeps billing for compute. That is the Azure spelling of the down/rm trap.
+    """
+
+    def __init__(self, cfg):
+        super().__init__(cfg)
+        self.c = cfg["azure"]
+        if not shutil.which("az"):
+            raise Unavailable("az not on PATH")
+
+    # -- plumbing
+
+    def _az(self, *args, check=True, json_out=True):
+        cmd = ["az", *args, "-o", "json" if json_out else "none"]
+        if self.c.get("subscription"):
+            cmd += ["--subscription", self.c["subscription"]]
+        p = subprocess.run(cmd, capture_output=True, text=True)
+        if p.returncode != 0:
+            err = p.stderr.strip()
+            if "az login" in err or "AADSTS" in err:
+                raise Unavailable("az is not logged in — run: az login --use-device-code")
+            if check:
+                die(err or f"az failed: {' '.join(args)}")
+            return p
+        if json_out:
+            try:
+                return json.loads(p.stdout or "null")
+            except json.JSONDecodeError:
+                return None
+        return p
+
+    def _vms(self):
+        # -d adds powerState and publicIps; the plain list has neither.
+        return self._az("vm", "list", "-d") or []
+
+    def _find(self, name):
+        for vm in self._vms():
+            if (vm.get("tags") or {}).get("rig-name") == name or vm["name"] == name:
+                return vm
+        return None
+
+    @staticmethod
+    def _row(vm):
+        size = (vm.get("hardwareProfile") or {}).get("vmSize", "?")
+        short = size.replace("Standard_", "")
+        gpu = AZURE_GPU.get(short) or ("gpu?" if short[:1] == "N" else "-")
+        return {
+            "rig": (vm.get("tags") or {}).get("rig-name") or "-",
+            "native": vm["name"],
+            "zone": vm.get("location", "?"),
+            "size": size,
+            "gpu": gpu,
+            "state": "up" if vm.get("powerState") == "VM running" else "down",
+            "ip": vm.get("publicIps") or "-",
+            "rg": vm.get("resourceGroup"),
+        }
+
+    # -- verbs
+
+    def up(self, name, opts):
+        vm = self._find(name)
+        if vm:
+            if vm.get("powerState") == "VM running":
+                note(f"rig: {name} already up")
+            else:
+                note(f"rig: starting {name} ({vm['name']}, {vm['resourceGroup']})")
+                self._az("vm", "start", "-g", vm["resourceGroup"], "-n", vm["name"], json_out=False)
+            return self._find(name)
+
+        size = opts.size or self.c["size"]
+        loc = opts.zone or self.c["location"]
+        keyfile = os.path.expanduser(self.c["key"])
+        pub = keyfile + ".pub"
+        if not os.path.exists(pub):
+            die(f"public key {pub} missing — generate it with: ssh-keygen -t ed25519 -f {keyfile} -N ''")
+        rg = f"rig-{name}"
+        note(f"rig: creating {name} in {rg} ({size}, {loc})")
+        self._az("group", "create", "-n", rg, "-l", loc,
+                 "--tags", "managed-by=rig", f"rig-name={name}", json_out=False)
+        p = self._az(
+            "vm", "create", "-g", rg, "-n", name, "-l", loc,
+            "--image", opts.image or self.c["image"],
+            "--size", size,
+            "--admin-username", self.c["user"],
+            "--ssh-key-values", pub,
+            "--os-disk-size-gb", str(opts.disk or self.c["disk"]),
+            "--storage-sku", self.c["disk_sku"],
+            "--public-ip-sku", "Standard",
+            "--nsg-rule", "SSH",
+            "--tags", "managed-by=rig", f"rig-name={name}",
+            check=False, json_out=False,
+        )
+        if p.returncode != 0:
+            err = p.stderr.strip()
+            # Nothing to keep: an empty group is not free of confusion even if
+            # it is free of charge, and a half-made VM has a disk that bills.
+            self._az("group", "delete", "-n", rg, "--yes", "--no-wait", check=False, json_out=False)
+            if any(k in err for k in ("SkuNotAvailable", "AllocationFailed", "Overconstrained", "QuotaExceeded")):
+                die(f"{loc} cannot allocate {size} right now (capacity or quota). "
+                    f"`az vm list-usage -l {loc}` shows quota; try --size or --zone <other-location>.\n{err[:600]}")
+            die(err)
+        return self._find(name)
+
+    def down(self, name):
+        vm = self._find(name)
+        if not vm:
+            return False
+        if vm.get("powerState") != "VM running":
+            note(f"rig: {name} already down")
+            return True
+        self._az("vm", "deallocate", "-g", vm["resourceGroup"], "-n", vm["name"], json_out=False)
+        return True
+
+    def rm(self, name):
+        vm = self._find(name)
+        if not vm:
+            return False
+        rg = vm["resourceGroup"]
+        if rg.lower() == f"rig-{name}".lower():
+            self._az("group", "delete", "-n", rg, "--yes", json_out=False)
+            return True
+        self._az("vm", "delete", "-g", rg, "-n", vm["name"], "--yes", json_out=False)
+        note(f"rig: {name} lived in {rg}, not its own group — its NIC, public IP, NSG and OS disk "
+             f"are still there; clean them by hand or delete the group if it is yours")
+        return True
+
+    def ls(self):
+        return [self._row(vm) for vm in self._vms()]
+
+    def ip(self, name):
+        vm = self._find(name)
+        return (vm.get("publicIps") or None) if vm else None
+
+    def ssh_target(self, name):
+        return self.c["user"], self.ip(name), os.path.expanduser(self.c["key"])
+
+    # The lease is Azure's own auto-shutdown schedule: a DevTestLab schedule
+    # resource in the VM's group that DEALLOCATES the VM at a UTC time of day.
+    # It runs on Azure's side, so it fires with the laptop shut and the agent
+    # gone, and a Contributor can set it -- unlike a self-stopping managed
+    # identity, which needs a role assignment Contributor cannot make (checked
+    # 2026-09-03: Dan is Contributor on sv-startups-01). One day is the
+    # ceiling: the schedule is daily, so a lease is always < 24 h out; `renew`
+    # moves the time, and a stopped VM is a no-op for it.
+
+    def _schedule(self, vm):
+        return self._az("resource", "show", "-g", vm["resourceGroup"],
+                        "-n", f"shutdown-computevm-{vm['name']}",
+                        "--resource-type", "Microsoft.DevTestLab/schedules", check=False)
+
+    def lease(self, name, hours):
+        vm = self._find(name)
+        if not vm:
+            return None
+        if not 0 < hours < 24:
+            die(f"lease must be under 24 h (the schedule is daily); got {hours}")
+        at = datetime.now(timezone.utc) + timedelta(hours=hours)
+        self._az("vm", "auto-shutdown", "-g", vm["resourceGroup"], "-n", vm["name"],
+                 "--time", at.strftime("%H%M"), json_out=False)
+        return at.replace(second=0, microsecond=0)
+
+    def lease_off(self, name):
+        vm = self._find(name)
+        if vm:
+            self._az("vm", "auto-shutdown", "-g", vm["resourceGroup"], "-n", vm["name"],
+                     "--off", check=False, json_out=False)
+
+    def lease_info(self, name):
+        vm = self._find(name)
+        if not vm:
+            return None
+        s = self._schedule(vm)
+        if not isinstance(s, dict):
+            return None
+        props = s.get("properties") or {}
+        if props.get("status") != "Enabled":
+            return None
+        hhmm = (props.get("dailyRecurrence") or {}).get("time", "")
+        if not re.match(r"^\d{4}$", hhmm):
+            return None
+        now = datetime.now(timezone.utc)
+        at = now.replace(hour=int(hhmm[:2]), minute=int(hhmm[2:]), second=0, microsecond=0)
+        return at if at > now else at + timedelta(days=1)
+
+    def stopped_since(self, row):
+        # `vm list -d` carries no stop time; the instance view's provisioning
+        # status is stamped with the last operation, which for a deallocated
+        # VM is the deallocation.
+        if not row.get("rg"):
+            return None
+        view = self._az("vm", "get-instance-view", "-g", row["rg"], "-n", row["native"],
+                        "--query", "instanceView.statuses", check=False)
+        for st in view or []:
+            if str(st.get("code", "")).startswith("ProvisioningState/") and st.get("time"):
+                return _parse_iso(st["time"])
+        return None
+
+    def keep_until(self, row):
+        vm = self._find(row["rig"]) if row["rig"] != "-" else None
+        v = ((vm or {}).get("tags") or {}).get("rig-keep-until")
+        return _parse_ymd(v) if v else None
+
+    def keep(self, name, until):
+        vm = self._find(name)
+        if not vm:
+            return False
+        self._az("vm", "update", "-g", vm["resourceGroup"], "-n", vm["name"],
+                 "--set", f"tags.rig-keep-until={until.isoformat()}", json_out=False)
+        return True
+
 
 # ---------------------------------------------------------------- ssh config
 
@@ -361,62 +718,215 @@ def get_backend(cfg, which):
     cls = BACKENDS.get(which)
     if not cls:
         die(f"unknown backend {which!r} — have: {', '.join(sorted(BACKENDS))}")
-    return cls(cfg)
+    try:
+        return cls(cfg)
+    except Unavailable as e:
+        die(f"{which}: {e}")
+
+
+def all_backends(cfg, which):
+    """The backends a cross-cloud verb walks: --cloud if given, else every
+    cloud in config `clouds:`, else the default backend. One that cannot run
+    here is reported and skipped — the walk exists to notice money, and a
+    cloud you cannot even query is worth a line, not a crash."""
+    names = [which] if which else (cfg.get("clouds") or [cfg["backend"]])
+    out = []
+    for n in names:
+        cls = BACKENDS.get(n)
+        if not cls:
+            die(f"unknown backend {n!r} — have: {', '.join(sorted(BACKENDS))}")
+        try:
+            out.append(cls(cfg))
+        except Unavailable as e:
+            note(f"rig: {n}: {e} — skipped")
+    return out
+
+
+def locate(cfg, which, raw, agent_opt):
+    """(backend, name) for a rig the user named.
+
+    Tries the canonical `<prefix><agent>-<local>` form first, then the legacy
+    `<agent>-<local>` form, across the configured clouds when --cloud is not
+    given. Nothing found → the default backend and the canonical name, which is
+    what `up` creates. An existing rig therefore always restarts on its own
+    cloud under the name it already carries, and a new one is born prefixed.
+    """
+    full, legacy = name_candidates(raw, cfg, agent_opt)
+    bes = [get_backend(cfg, which)] if which else all_backends(cfg, None)
+    rows = [(be, r) for be in bes for r in be.ls()]
+    for cand in (full, legacy):
+        for be, r in rows:
+            if r["rig"] == cand or r["native"] == cand:
+                return be, cand
+    return (bes[0] if which else get_backend(cfg, None)), full
+
+
+def _fmt_until(at):
+    left = at - datetime.now(timezone.utc)
+    h = left.total_seconds() / 3600
+    return f"{at.strftime('%H:%MZ')} ({h:.1f}h)" if h < 48 else f"{at.strftime('%m-%d %H:%MZ')}"
+
+
+def apply_lease(be, name, cfg, hours, forever=False):
+    """Put the lease on a running rig and say what it is — or say plainly that
+    this cloud has none. Silence here is how a box bills for a month."""
+    if forever:
+        if hasattr(be, "lease_off"):
+            be.lease_off(name)
+        note(f"rig: {name}: NO LEASE (--forever) — it runs until someone takes it down")
+        return None
+    at = be.lease(name, hours)
+    if at is None:
+        note(f"rig: {name}: NO LEASE — {be.name} has no cloud-side expiry; only the hourly "
+             f"reaper will stop it. Take it down yourself.")
+        return None
+    note(f"rig: {name}: lease until {_fmt_until(at)} — deallocates then unless `rig renew {name}`")
+    return at
 
 
 def cmd_up(args, cfg):
-    be = get_backend(cfg, args.cloud)
-    name = resolve_name(args.name, cfg, args.agent)
+    be, name = locate(cfg, args.cloud, args.name, args.agent)   # an existing rig restarts on its own cloud
     inst = be.up(name, args)
     user, host, key = be.ssh_target(name)
     if not host:
         die(f"{name} is up but has no external IP")
     write_ssh_alias(name, user, host, key)
+    apply_lease(be, name, cfg, args.lease or cfg["lease_hours"], args.forever)
     note(f"rig: {name} up at {host} — ssh {name}")
     print(host)
+    nag_frozen(cfg, args.cloud)
 
 
 def cmd_down(args, cfg):
-    be = get_backend(cfg, args.cloud)
-    name = resolve_name(args.name, cfg, args.agent)
+    be, name = locate(cfg, args.cloud, args.name, args.agent)
     found = be.down(name)
     remove_ssh_alias(name)   # unconditional: a stale alias outliving its rig is the trap
     note(f"rig: {name} down (disk kept — `rig rm {name}` to destroy)" if found
          else f"rig: no such rig: {name} (cleared any stale ssh alias)")
+    nag_frozen(cfg, args.cloud)
 
 
 def cmd_rm(args, cfg):
-    be = get_backend(cfg, args.cloud)
-    name = resolve_name(args.name, cfg, args.agent)
+    be, name = locate(cfg, args.cloud, args.name, args.agent)
     if not args.yes:
         die(f"refusing to destroy {name} without --yes (this deletes the disk)")
     found = be.rm(name)
     remove_ssh_alias(name)
     note(f"rig: {name} destroyed" if found
          else f"rig: no such rig: {name} (cleared any stale ssh alias)")
+    nag_frozen(cfg, args.cloud)
+
+
+def cmd_renew(args, cfg):
+    be, name = locate(cfg, args.cloud, args.name, args.agent)
+    if not any(r["rig"] == name and r["state"] == "up" for r in be.ls()):
+        die(f"{name} is not up — a lease is for a running rig")
+    apply_lease(be, name, cfg, args.hours or cfg["lease_hours"])
+
+
+def cmd_name(args, cfg):
+    """Machine-readable: the canonical name on stdout, nothing else, so a
+    script can say NAME=$(rig --agent svp name h100) and ssh it."""
+    print(resolve_name(args.name, cfg, args.agent))
+
+
+def frozen_rigs(cfg, which, days):
+    """Owned rigs that have sat stopped longer than `days`, with the exempt
+    ones removed. One list, used by the nag and by `gc`, so they never
+    disagree about what is frozen."""
+    now = datetime.now(timezone.utc)
+    out = []
+    for be in all_backends(cfg, which):
+        for r in be.ls():
+            if r["state"] == "up" or not owned(cfg, r):
+                continue
+            keep = be.keep_until(r)
+            if keep and keep >= now.date():
+                continue
+            since = be.stopped_since(r)
+            age = (now - since).days if since else None
+            if age is None or age >= days:
+                out.append((be, r, age))
+    return out
+
+
+def nag_frozen(cfg, which):
+    """One line, on every verb that already talked to the cloud: a stopped rig
+    still bills its disk, and the one nobody mentions is the one that stays."""
+    frozen = frozen_rigs(cfg, which, cfg["frozen_days"])
+    if frozen:
+        names = ", ".join(f"{r['rig']} ({age}d)" if age is not None else f"{r['rig']} (age ?)"
+                          for _, r, age in frozen)
+        note(f"rig: {len(frozen)} frozen rig(s) stopped > {cfg['frozen_days']}d, disks billing: "
+             f"{names} — `rig gc` to destroy, `rig keep NAME` to exempt")
+
+
+def cmd_gc(args, cfg):
+    """Destroy owned rigs that have been stopped for days. Never automatic:
+    an agent runs rig without a terminal, so it must pass --yes, and a human
+    at a terminal is asked. `rm`, confirmed, is the only destroy path there is."""
+    days = args.days if args.days is not None else cfg["frozen_days"]
+    frozen = frozen_rigs(cfg, args.cloud, days)
+    if not frozen:
+        note(f"rig: no owned rig has been stopped > {days}d")
+        return
+    for be, r, age in frozen:
+        note(f"rig: {r['rig']}  {be.name} {r['size']}  stopped {age if age is not None else '?'}d")
+    if args.dry_run:
+        return
+    if not args.yes:
+        if not sys.stdin.isatty():
+            die(f"{len(frozen)} frozen rig(s) — re-run `rig gc --yes` to destroy them (no terminal to ask)")
+        ans = input(f"destroy these {len(frozen)} rig(s), disks and all? [y/N] ").strip().lower()
+        if ans not in ("y", "yes"):
+            note("rig: nothing destroyed")
+            return
+    for be, r, _ in frozen:
+        be.rm(r["rig"])
+        remove_ssh_alias(r["rig"])
+        note(f"rig: {r['rig']} destroyed")
+
+
+def cmd_keep(args, cfg):
+    be, name = locate(cfg, args.cloud, args.name, args.agent)
+    until = (datetime.now(timezone.utc) + timedelta(days=args.days)).date()
+    if not be.keep(name, until):
+        die(f"no such rig: {name}")
+    note(f"rig: {name} kept through {until.isoformat()} — `gc` will not offer it before then")
 
 
 def cmd_ls(args, cfg):
-    be = get_backend(cfg, args.cloud)
-    rows = be.ls()
+    rows = []
+    for be in all_backends(cfg, args.cloud):
+        for r in be.ls():
+            r["cloud"] = be.name
+            rows.append(r)
     if not rows:
         note("rig: nothing here")
         return
-    hdr = ("RIG", "STATE", "SIZE", "GPU", "ZONE", "IP", "$/HR")
+    bes = {be.name: be for be in all_backends(cfg, args.cloud)}
+    hdr = ("CLOUD", "RIG", "STATE", "SIZE", "GPU", "ZONE", "IP", "$/HR", "LEASE")
     out, burn = [], 0.0
-    for r in sorted(rows, key=lambda r: (r["state"] != "up", r["rig"])):
+    for r in sorted(rows, key=lambda r: (r["state"] != "up", r["cloud"], r["rig"])):
         price = PRICE_HINT.get(r["size"])
         if r["state"] == "up" and price:
             burn += price
-        out.append((r["rig"] if r["rig"] != "-" else f"({r['native']})",
+        # LEASE: when an owned running rig will stop on its own. "NONE" on a
+        # running owned rig is the line to act on — it bills until someone does.
+        lease = "-"
+        if r["state"] == "up" and r["rig"] != "-":
+            at = bes[r["cloud"]].lease_info(r["rig"])
+            lease = _fmt_until(at) if at else "NONE"
+        out.append((r["cloud"], r["rig"] if r["rig"] != "-" else f"({r['native']})",
                     r["state"], r["size"], r["gpu"], r["zone"], r["ip"],
-                    f"{price:.2f}" if price and r["state"] == "up" else "-"))
+                    f"{price:.2f}" if price and r["state"] == "up" else "-", lease))
     w = [max(len(str(x[i])) for x in [hdr, *out]) for i in range(len(hdr))]
     print("  ".join(h.ljust(w[i]) for i, h in enumerate(hdr)))
     for row in out:
         print("  ".join(str(c).ljust(w[i]) for i, c in enumerate(row)))
     if burn:
         print(f"\nrunning burn ≈ ${burn:.2f}/hr  (≈ ${burn * 24 * 30:,.0f}/mo if left up)")
+    nag_frozen(cfg, args.cloud)
 
 
 IDLE_PROBE = r"""
@@ -452,45 +962,52 @@ def cmd_reap(args, cfg):
     3. **`down`, never `rm`.** Stopping is reversible and keeps the disk;
        destroying is not. An automatic actor gets the reversible verb only.
     """
-    be = get_backend(cfg, args.cloud)
     idle_min = args.idle
     acted, skipped = [], []
 
-    for r in be.ls():
-        if r["state"] != "up" or r["rig"] == "-":
-            continue
-        name = r["rig"]
-        p = subprocess.run(
-            ["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=10", name, "bash -s"],
-            input=IDLE_PROBE, capture_output=True, text=True,
-        )
-        if p.returncode != 0:
-            skipped.append((name, "unreachable — left running on purpose"))
-            continue
-        try:
-            f = dict(kv.split("=", 1) for kv in p.stdout.split())
-            gpu, load, idle_s = int(f["gpu"]), float(f["load"]), int(f["idle_s"])
-        except (ValueError, KeyError):
-            skipped.append((name, f"unparseable probe: {p.stdout.strip()[:40]}"))
-            continue
+    for be in all_backends(cfg, args.cloud):
+        for r in be.ls():
+            if r["state"] != "up":
+                continue
+            if r["rig"] == "-":
+                # Safety property 1 — but say so: the hourly log is the only
+                # place a forgotten unmanaged box gets noticed at all.
+                price = PRICE_HINT.get(r["size"])
+                skipped.append((f"({r['native']})", f"{be.name} {r['size']} up, not rig-managed — left alone"
+                                + (f", ≈ ${price:.2f}/hr" if price else "")))
+                continue
+            name = r["rig"]
+            p = subprocess.run(
+                ["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=10", name, "bash -s"],
+                input=IDLE_PROBE, capture_output=True, text=True,
+            )
+            if p.returncode != 0:
+                skipped.append((name, "unreachable — left running on purpose"))
+                continue
+            try:
+                f = dict(kv.split("=", 1) for kv in p.stdout.split())
+                gpu, load, idle_s = int(f["gpu"]), float(f["load"]), int(f["idle_s"])
+            except (ValueError, KeyError):
+                skipped.append((name, f"unparseable probe: {p.stdout.strip()[:40]}"))
+                continue
 
-        busy = []
-        if gpu:
-            busy.append(f"{gpu} GPU process(es)")
-        if load >= args.load:
-            busy.append(f"load {load:.2f}")
-        if idle_s < idle_min * 60:
-            busy.append(f"tmux active {idle_s // 60}m ago")
-        if busy:
-            skipped.append((name, "busy — " + ", ".join(busy)))
-            continue
+            busy = []
+            if gpu:
+                busy.append(f"{gpu} GPU process(es)")
+            if load >= args.load:
+                busy.append(f"load {load:.2f}")
+            if idle_s < idle_min * 60:
+                busy.append(f"tmux active {idle_s // 60}m ago")
+            if busy:
+                skipped.append((name, "busy — " + ", ".join(busy)))
+                continue
 
-        if args.dry_run:
-            acted.append((name, f"WOULD stop (idle {idle_s // 60}m, load {load:.2f}, no GPU work)"))
-            continue
-        be.down(name)
-        remove_ssh_alias(name)
-        acted.append((name, f"stopped (idle {idle_s // 60}m, load {load:.2f}, no GPU work)"))
+            if args.dry_run:
+                acted.append((name, f"WOULD stop (idle {idle_s // 60}m, load {load:.2f}, no GPU work)"))
+                continue
+            be.down(name)
+            remove_ssh_alias(name)
+            acted.append((name, f"stopped (idle {idle_s // 60}m, load {load:.2f}, no GPU work)"))
 
     for n, why in acted:
         note(f"rig: {n}: {why}")
@@ -503,16 +1020,15 @@ def cmd_reap(args, cfg):
 def cmd_ip(args, cfg):
     """Machine-readable by design — bare IP on stdout, nothing else, so
     `ssh root@$(rig ip a2x-dev)` works."""
-    be = get_backend(cfg, args.cloud)
-    ip = be.ip(resolve_name(args.name, cfg, args.agent))
+    be, name = locate(cfg, args.cloud, args.name, args.agent)
+    ip = be.ip(name)
     if not ip:
         sys.exit(1)
     print(ip)
 
 
 def cmd_ssh(args, cfg):
-    be = get_backend(cfg, args.cloud)
-    name = resolve_name(args.name, cfg, args.agent)
+    be, name = locate(cfg, args.cloud, args.name, args.agent)
     user, host, key = be.ssh_target(name)
     if not host:
         die(f"{name} has no external IP — is it up?")
@@ -523,17 +1039,39 @@ def cmd_ssh(args, cfg):
 def main():
     cfg = load_config()
     p = argparse.ArgumentParser(prog="rig", description="bring cloud machines up and down")
-    p.add_argument("--cloud", help=f"backend (default {cfg['backend']}); have: {', '.join(sorted(BACKENDS))}")
+    p.add_argument("--cloud", help=f"backend (default {cfg['backend']}; ls/reap walk {cfg.get('clouds') or [cfg['backend']]}); have: {', '.join(sorted(BACKENDS))}")
     p.add_argument("--agent", help="agent slug for the <agent>-<name> namespace convention")
     sub = p.add_subparsers(dest="verb", required=True)
 
     up = sub.add_parser("up", help="ensure it exists and is running (creates on first call)")
     up.add_argument("name")
     up.add_argument("--size", help="machine type")
-    up.add_argument("--zone", help="pin a zone (default: try each configured zone)")
+    up.add_argument("--zone", help="pin a zone (gcp: default tries each configured zone; azure: the location)")
     up.add_argument("--disk", type=int, help="boot disk GB")
     up.add_argument("--image", help="image family")
+    up.add_argument("--lease", type=float, help=f"hours until the box deallocates itself (default {cfg['lease_hours']}; <24)")
+    up.add_argument("--forever", action="store_true", help="no lease — runs until someone takes it down (says so loudly)")
     up.set_defaults(fn=cmd_up)
+
+    rn = sub.add_parser("renew", help="push the lease out again on a running rig")
+    rn.add_argument("name")
+    rn.add_argument("--hours", type=float, help=f"hours from now (default {cfg['lease_hours']})")
+    rn.set_defaults(fn=cmd_renew)
+
+    gc = sub.add_parser("gc", help="destroy owned rigs that have sat stopped for days (asks first)")
+    gc.add_argument("--days", type=int, help=f"stopped at least this long (default {cfg['frozen_days']})")
+    gc.add_argument("--yes", action="store_true", help="destroy without asking (required when there is no terminal)")
+    gc.add_argument("--dry-run", action="store_true", help="list them, destroy nothing")
+    gc.set_defaults(fn=cmd_gc)
+
+    kp = sub.add_parser("keep", help="exempt a stopped rig from gc for a while")
+    kp.add_argument("name")
+    kp.add_argument("--days", type=int, default=14, help="how long (default 14)")
+    kp.set_defaults(fn=cmd_keep)
+
+    nm = sub.add_parser("name", help="print the canonical <prefix><agent>-<local> name for NAME")
+    nm.add_argument("name")
+    nm.set_defaults(fn=cmd_name)
 
     dn = sub.add_parser("down", help="stop it — disk survives, compute billing stops")
     dn.add_argument("name")
