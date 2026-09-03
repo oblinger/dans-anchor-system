@@ -7,9 +7,9 @@ One line per command, as `--help` would print it. Semantics: [[DAS Stone]]. A st
 
 ```text
 stone new <list> --line TEXT [--body TEXT]    # mint {slug} P0001.md
-          [--title T] [--date YYYY-MM-DD]
+          [--title T] [--date YYYY-MM-DD] [--after REF]
 stone move <list> <id> --owner SLUG |         # reorder within its run
-          --after ID | --before ID |
+          --after REF | --before REF |
           --to-top | --to-bottom
           --dest <list>                       # move to new list
 stone share <list> <id> --with <list>         # also appear on <list>
@@ -19,6 +19,7 @@ stone update [--dry-run]                      # reconcile + propagate
 
 <list>  slug or slug.list
 <id>    P0001 | R0001 | S0001 | YYYY-MM-DD Title
+REF     an <id>, or a label line's exact text (CYCLE 27:)
 ```
 
 Semantics and the T653 design (relocation, tombstones, share, archive): [[DAS Stone]], [[Tink653 - stone verbs move gains --dest, share replaces push recall, archive is a|T653]].

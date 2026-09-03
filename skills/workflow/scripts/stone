@@ -1833,14 +1833,28 @@ def cmd_new(kind, root: Path, args) -> int:
     cpath.parent.mkdir(parents=True, exist_ok=True)
     lines = cpath.read_text(encoding="utf-8").splitlines() if cpath.is_file() else _default_control_lines(slug, cfg)
     cf = SimpleNamespace(slug=slug, path=cpath, lines=lines)
-    _add_to_own_top(cf, slug, sid, st, cfg)
+    after = getattr(args, "after", None)
+    where = "top"
+    if after:
+        # T654: mint straight into its group — below a label line, or below
+        # another stone — instead of at the top and a move.
+        try:
+            ref = (_locate_stone(cf.lines, after, None, cfg, slug) if _looks_like_sid(after)
+                   else _locate_label(cf.lines, after, cfg, slug))
+        except StoneError:
+            stone_path.unlink(missing_ok=True)   # nothing half-minted
+            raise
+        cf.lines.insert(ref + 1, render_stone_line(slug, sid, st.line, cfg, host=slug))
+        where = f"below {after.strip()!r}"
+    else:
+        _add_to_own_top(cf, slug, sid, st, cfg)
     _ensure_leading_blank(cf.lines)
     cpath.write_text("\n".join(cf.lines) + "\n", encoding="utf-8")
 
     st.appears.add(slug)
     _write_stone(st)
 
-    print(f"stone: minted {slug} {sid} in {folder.name}/, inserted into {cpath.name}")
+    print(f"stone: minted {slug} {sid} in {folder.name}/, inserted into {cpath.name} ({where})")
     for w in _mint_warnings(cf, slug, sid, keys, cfg):
         print(f"  {w}")
     return 0
@@ -1942,18 +1956,51 @@ def _has_placement(args) -> bool:
                 or getattr(args, "to_top", False) or getattr(args, "to_bottom", False))
 
 
+def _looks_like_sid(ref: str) -> bool:
+    """An id (`P0013`, `R0002`, or a dated `YYYY-MM-DD Title`) versus a label's text."""
+    ref = ref.strip()
+    return bool(re.fullmatch(r"[A-Z]+\d+", ref) or _DATED_RE.match(ref))
+
+
+def _locate_label(lines: list, text: str, cfg: dict, host: str | None) -> int:
+    """Index of the ONE non-stone, non-header line whose trimmed text equals
+    `text` (T654 — Dan's group labels, `CYCLE 27:`). Zero or several matches
+    refuse, listing what the file does offer."""
+    want = text.strip()
+    hits = [i for i, l in enumerate(lines)
+            if l.strip() == want and classify_line(l, cfg, host)[0] == "other"]
+    if len(hits) == 1:
+        return hits[0]
+    labels = [l.strip() for l in lines
+              if l.strip() and classify_line(l, cfg, host)[0] == "other"
+              and not l.lstrip().startswith(("---", "description:"))]
+    if not hits:
+        raise StoneError(
+            f"stone: no line reads exactly {want!r} — labels in this file: "
+            + (", ".join(repr(x) for x in labels[:8]) or "none"))
+    raise StoneError(f"stone: {want!r} appears {len(hits)} times (lines "
+                     f"{', '.join(str(i + 1) for i in hits)}) — make the label unique first")
+
+
 def _reorder(lines: list, sid: str, owner, cfg: dict, host: str, args, cpath: Path):
     """Move `sid`'s line within its run per the placement flags, in place.
     Returns (src, dest) or None when it is already there."""
     src = _locate_stone(lines, sid, owner, cfg, host)
     start, end = _stone_run(lines, src, cfg, host)
 
+    ref_id = args.after or args.before
     if args.to_top:
         dest = start
     elif args.to_bottom:
         dest = end
+    elif ref_id and not _looks_like_sid(ref_id):
+        # T654: a LABEL line. Crossing the run boundary is the point — a
+        # named label is a deliberate act, unlike the accidental slide under
+        # an import header the same-run rule guards against.
+        ref = _locate_label(lines, ref_id, cfg, host)
+        ref_after_pop = ref - 1 if ref > src else ref
+        dest = ref_after_pop + 1 if args.after else ref_after_pop
     else:
-        ref_id = args.after or args.before
         ref = _locate_stone(lines, ref_id, None, cfg, host)
         if not (start <= ref <= end):
             raise StoneError(
@@ -2615,6 +2662,8 @@ def build_addressed_parser(cfg_all: dict) -> argparse.ArgumentParser:
                     help="dated lists only: the member's title, appended to the date")
     nw.add_argument("--date", default=None,
                     help="dated lists only: creation date YYYY-MM-DD (default: today)")
+    nw.add_argument("--after", default=None, metavar="ID|LABEL",
+                    help="insert below this stone id or this label line's exact text (default: top)")
     root_arg(nw)
 
     mv = subs.add_parser("move", help="reorder within its run, or --dest <list> to relocate")
@@ -2629,8 +2678,10 @@ def build_addressed_parser(cfg_all: dict) -> argparse.ArgumentParser:
                     help="with --dest: withdraw a shared stone's appearances first instead of refusing")
     root_arg(mv)
     where = mv.add_mutually_exclusive_group(required=False)
-    where.add_argument("--after", metavar="ID", help="place it directly below this stone")
-    where.add_argument("--before", metavar="ID", help="place it directly above this stone")
+    where.add_argument("--after", metavar="ID|LABEL",
+                       help="directly below this stone id, or below a label line given as its exact text")
+    where.add_argument("--before", metavar="ID|LABEL",
+                       help="directly above this stone id, or above a label line given as its exact text")
     where.add_argument("--to-top", action="store_true", help="first in its run")
     where.add_argument("--to-bottom", action="store_true", help="last in its run")
 
