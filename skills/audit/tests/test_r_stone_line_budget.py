@@ -61,7 +61,7 @@ def test_control_file_stone_line_and_prose_exempt(tmp_path):
 
 def test_measure_matches_stone_rendered_length(tmp_path):
     ap, st = _ap(), _stone()
-    text = "security model — access doctrine + [[X|link]] and more words here to be sure"
+    text = "security model — access doctrine + enclave + ingestion front door, drawn then [[X|audited]]"
     cfg = {"stone_alias": "{slug}:"}
     hits = ap.stone_overbudget_lines(f"line:: {text}\n\nbody\n", tmp_path / "Atticus P0004.md")
     assert hits and hits[0][1] == st.rendered_length("Atticus", text, cfg)
