@@ -68,6 +68,34 @@ echo "$out" | grep -q "NO backlog under any name"; ok $? "pebble-only anchor: sa
 echo "$out" | grep -q "named otherwise"; ok $((1-$?)) "...and does not assert a naming drift"
 echo "$out" | grep -q "Retry"; ok $((1-$?)) "...and offers no unfollowable retry"
 
+# 6 — T360: slugs are CASE-INSENSITIVE (Dan 2026-09-03, matching HookAnchor).
+#     `TINK` must resolve `Tink Backlog.md`, and every composed path must use
+#     the on-disk spelling — a Status write must land in `Tink Track/`, never
+#     mint a `TINK Track/` beside it (the 2026-08-19 doubling).
+mkdir -p "$TD/Tink/Tink Track/Tink Backlog"
+printf 'slug: Tink\n' > "$TD/Tink/.anchor"
+printf '# Tink Backlog\n\n## Now\n\n## Done\n' > "$TD/Tink/Tink Track/Tink Backlog/Tink Backlog.md"
+out=$(ANCHOR_VAULT_ROOT="$TD" "$STATE" show TINK Backlog T1 2>&1)
+echo "$out" | grep -q "Tink Backlog.md"; ok $? "T360: TINK resolves Tink Backlog.md (case-insensitive)"
+echo "$out" | grep -q "DECLARES\|no 'TINK Backlog.md'"; ok $((1-$?)) "...with no disagreement noise"
+out=$(ANCHOR_VAULT_ROOT="$TD" "$STATE" show tink Backlog T1 2>&1)
+echo "$out" | grep -q "Tink Backlog.md"; ok $? "T360: lower-case tink resolves too"
+out=$(printf -- '- **T+ — probe** [Ready] — body\n- **Next:** step\n' | ANCHOR_VAULT_ROOT="$TD" "$STATE" define TINK Backlog T+ 2>&1)
+echo "$out" | grep -q "^Tink: added T"; ok $? "T360: define under TINK reports the on-disk prefix Tink"
+# (case-insensitive APFS: test the LISTED names, not -d, which follows either spelling)
+ls "$TD/Tink" "$TD/Tink/Tink Track" "$TD/Tink/Tink Track/Tink Backlog" | grep -q "^TINK "; ok $((1-$?)) "...and mints no TINK-spelled folder or file beside the Tink ones"
+grep -q "probe" "$TD/Tink/Tink Track/Tink Backlog/Tink Backlog.md"; ok $? "...and the row landed in Tink Backlog.md"
+
+# 7 — T360 control: a disagreement that is MORE than case (WARD vs Warden,
+#     F318) is not a match and keeps the loud declared-slug diagnostic.
+mkdir -p "$TD/Warden/Warden Track"
+printf 'slug: WARD\n' > "$TD/Warden/.anchor"
+printf '# Warden Backlog\n\n## Now\n' > "$TD/Warden/Warden Track/Warden Backlog.md"
+out=$(ANCHOR_VAULT_ROOT="$TD" "$STATE" show WARD Backlog T1 2>&1)
+echo "$out" | grep -q "DECLARES .slug: WARD"; ok $? "T360 control: WARD vs Warden is not a case match — diagnostic kept"
+out=$(ANCHOR_VAULT_ROOT="$TD" "$STATE" show warden Backlog T1 2>&1)
+echo "$out" | grep -q "Warden Backlog.md"; ok $? "T360 control: 'warden' resolves Warden Backlog.md"
+
 echo "----------------------------------------"
 echo "T203 slug-disagreement: $PASS passed, $FAIL failed"
 [ "$FAIL" = 0 ]

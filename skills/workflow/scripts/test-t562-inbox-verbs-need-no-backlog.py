@@ -65,7 +65,8 @@ print("2. Anchors that always worked still work")
 for slug in ("TINK", "LUMEN"):
     rc, out, err = live("inbox-list", slug)
     check(f"`state inbox-list {slug}` succeeds", rc, 0)
-    check(f"...and names {slug}'s own Inbox", f"{slug} Inbox.md" in err, True)
+    # T360: slugs are case-insensitive; the path is spelled as the files are (`Tink Inbox.md`).
+    check(f"...and names {slug}'s own Inbox", f"{slug} Inbox.md".lower() in err.lower(), True)
 
 print("3. Backlog verbs are untouched — the precondition moved, it did not go")
 rc, out, err = live("show", "SVH", "Backlog", "T1")

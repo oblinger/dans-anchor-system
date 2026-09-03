@@ -230,44 +230,58 @@ class BacklogEditError(SystemExit):
 # --------------------------------------------------------------------------
 # Anchor resolution
 
-def find_backlog(slug):
-    """Locate `<slug> Backlog.md` somewhere under VAULT_ROOT.
+def backlog_prefix(backlog_path):
+    """The on-disk filename prefix of a backlog (`Tink Backlog.md` → `Tink`).
 
-    NOTE: the argument is the backlog FILENAME PREFIX, not the `.anchor` slug.
-    Those differ for every anchor whose display name isn't already all-caps
-    (`Scout Backlog.md` vs `slug: SCOUT`), and for anchors whose tracking lives
-    under another name entirely (`SKA` tracks in `Tink Backlog.md`). Passing the
-    slug fails with a bare not-found, which has already been misread once as
-    "these anchors are unwritable" — so collect near-misses and name them.
+    T360 — this is the spelling every composed path must use (`{prefix} Track`,
+    `{prefix} Status.md`, `{prefix} Inbox.md`), because the argument that found
+    the file may differ from it in case.
     """
-    target = f"{slug} Backlog.md"
-    matches = []
-    near = []
+    return Path(backlog_path).name[: -len(" Backlog.md")]
+
+
+def _find_track_doc(slug, kind):
+    """Locate `<slug> <kind>.md` under VAULT_ROOT, matching the prefix
+    CASE-INSENSITIVELY (T360, Dan 2026-09-03: slugs are case-insensitive, as
+    HookAnchor already treats them — `ha -p TINK` / `Tink` / `tink` all resolve).
+    An exact-case hit wins over case-variant hits; otherwise the variants are
+    the match. Returns a list of candidate paths (possibly empty), same-inode
+    symlink hits collapsed (F261).
+    """
+    target = f"{slug} {kind}.md"
+    exact, folded = [], []
     for root, dirs, files in os.walk(VAULT_ROOT, followlinks=True):
-        # Skip noisy paths
         if any(frag in root + "/" for frag in SKIP_PATH_FRAGMENTS):
             dirs[:] = []
             continue
-        if target in files:
-            matches.append(Path(root) / target)
-        else:
-            for f in files:
-                if f.lower() == target.lower():
-                    near.append(f[: -len(" Backlog.md")])
-    if not matches:
-        hint = ""
-        if near:
-            hint = " — did you mean '%s'? (this argument is the backlog filename prefix, not the .anchor slug)" % "' / '".join(sorted(set(near)))
-        raise BacklogEditError(f"no '{target}' found under {VAULT_ROOT}{hint}")
-    # Symlink chains (e.g. ~/.claude/skills, symlinks/_.claude/skills) can register
-    # one real file under several paths — collapse same-inode hits so a single real
-    # backlog isn't mistaken for multiple candidates (F261).
+        for f in files:
+            if f == target:
+                exact.append(Path(root) / f)
+            elif f.lower() == target.lower():
+                folded.append(Path(root) / f)
+    matches = exact or folded
     by_realpath = {m.resolve(): m for m in matches}
-    if len(by_realpath) > 1:
+    return list(by_realpath.values())
+
+
+def find_backlog(slug):
+    """Locate `<slug> Backlog.md` somewhere under VAULT_ROOT.
+
+    The argument is the backlog FILENAME PREFIX, matched case-insensitively
+    (T360). It is still not the `.anchor` slug for anchors whose tracking lives
+    under another name entirely (`SKA` tracks in `Tink Backlog.md`) — that
+    disagreement is more than case and stays a loud not-found, which
+    `state.resolve_anchor` turns into the declared-slug diagnostic.
+    """
+    target = f"{slug} Backlog.md"
+    matches = _find_track_doc(slug, "Backlog")
+    if not matches:
+        raise BacklogEditError(f"no '{target}' found under {VAULT_ROOT}")
+    if len(matches) > 1:
         raise BacklogEditError(
             f"multiple '{target}' candidates: " + ", ".join(str(m) for m in matches)
         )
-    return next(iter(by_realpath.values()))
+    return matches[0]
 
 
 def anchor_track_dir(backlog_path):
@@ -285,24 +299,16 @@ def anchor_track_dir(backlog_path):
 
 
 def find_icebox(slug):
-    """Locate `<slug> Icebox.md` somewhere under VAULT_ROOT (None if absent)."""
-    target = f"{slug} Icebox.md"
-    matches = []
-    for root, dirs, files in os.walk(VAULT_ROOT, followlinks=True):
-        if any(frag in root + "/" for frag in SKIP_PATH_FRAGMENTS):
-            dirs[:] = []
-            continue
-        if target in files:
-            matches.append(Path(root) / target)
+    """Locate `<slug> Icebox.md` under VAULT_ROOT, prefix matched
+    case-insensitively (T360); None if absent."""
+    matches = _find_track_doc(slug, "Icebox")
     if not matches:
         return None
-    # Collapse same-inode symlink hits (F261) — see find_backlog for the rationale.
-    by_realpath = {m.resolve(): m for m in matches}
-    if len(by_realpath) > 1:
+    if len(matches) > 1:
         raise BacklogEditError(
-            f"multiple '{target}' candidates: " + ", ".join(str(m) for m in matches)
+            f"multiple '{slug} Icebox.md' candidates: " + ", ".join(str(m) for m in matches)
         )
-    return next(iter(by_realpath.values()))
+    return matches[0]
 
 
 def ensure_icebox(slug, backlog_path):

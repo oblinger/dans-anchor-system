@@ -141,7 +141,7 @@ def resolve_anchor(anchor_arg, verb=None):
     p = Path(anchor_arg).expanduser()
     if p.is_dir() and (p / ".anchor").exists():
         p = p.resolve()
-        return _slug_from_anchor_path(p), p
+        return _on_disk_prefix(p, _slug_from_anchor_path(p)), p
     # Mode 2: slug. `find_backlog` RAISES on not-found rather than returning
     # None, so the diagnostic below is only reachable if that raise is caught —
     # the first cut of this fix left it uncaught and the new branch could never
@@ -154,8 +154,13 @@ def resolve_anchor(anchor_arg, verb=None):
     else:
         mode2_error = None
     if backlog is not None:
-        anchor_path = backlog.parent.parent  # backlog is at {anchor}/{anchor} Track/
-        return anchor_arg, anchor_path
+        # T360 — hand back the ON-DISK prefix, not the argument: every path
+        # composed downstream (`{slug} Track`, `{slug} Status.md`) must be
+        # spelled as the files are, or `TINK` lands beside `Tink Track/`.
+        # `anchor_track_dir` handles the F329 folder form, where the backlog
+        # sits two levels below the anchor root, not one.
+        anchor_path = be.anchor_track_dir(backlog).parent
+        return be.backlog_prefix(backlog), anchor_path
     # Before failing, ask the question the old message could not: is there an
     # anchor that DECLARES this slug while its files are named something else?
     # `find_backlog` matches a filename prefix and never reads `.anchor`, so a
@@ -266,6 +271,20 @@ def _anchors_declaring_slug(slug, *, or_named=False):
 
 
 _ANCHOR_SLUG_RE = re.compile(r"^slug:\s*(\S+)\s*$")
+
+
+def _on_disk_prefix(anchor_path, slug):
+    """T360 — the filename prefix the anchor's own Track docs actually use,
+    when it differs from `slug` only in case (`slug: TINK` over `Tink Backlog.md`
+    → `Tink`). Anything else (no backlog, or a prefix that is not a case-variant)
+    returns `slug` unchanged, so a real disagreement stays visible."""
+    cands = list(anchor_path.glob("* Track/* Backlog.md")) + \
+        list(anchor_path.glob("* Track/* Backlog/* Backlog.md"))
+    for c in cands:
+        prefix = be.backlog_prefix(c)
+        if prefix.lower() == slug.lower():
+            return prefix
+    return slug
 
 
 def _slug_from_anchor_path(anchor_path):
@@ -619,7 +638,7 @@ def _sync_roadmap_on_done(slug, backlog_path, row_id):
     if a checkbox was flipped, else None. Never raises (best-effort post-cond).
     """
     try:
-        roadmap = backlog_path.parent.parent / f"{slug} Design" / f"{slug} Roadmap.md"
+        roadmap = be.anchor_track_dir(backlog_path).parent / f"{slug} Design" / f"{slug} Roadmap.md"
         if not roadmap.exists():
             return None
         text = roadmap.read_text(encoding="utf-8")
@@ -1405,7 +1424,7 @@ def _roadmap_path(slug, anchor_path, completed=False):
         return direct
     # Vault-walk: locate `{slug} {suffix}` near the backlog.
     backlog = be.find_backlog(slug)
-    design_dir = backlog.parent.parent / f"{slug} Design"
+    design_dir = be.anchor_track_dir(backlog).parent / f"{slug} Design"
     cand = design_dir / f"{slug} {suffix}"
     return cand  # may not exist yet (Completed Roadmap is created on first migrate)
 
