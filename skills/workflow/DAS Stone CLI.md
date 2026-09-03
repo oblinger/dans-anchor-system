@@ -12,7 +12,7 @@ stone move <list> <id> --owner SLUG |         # reorder within its run
           --after ID | --before ID |
           --to-top | --to-bottom |
           --dest <list>                       # to another list
-          
+
 stone push <list> <id> --to SLUG              # place it on another
                                               #   anchor's list (T626)
 stone recall <list> <id> --from SLUG          # take a pushed stone back
@@ -43,18 +43,18 @@ Exit non-zero on a refused mint, an ambiguous id, a `feeds:` cycle (whole pass a
 ## Proposed — T653, not yet built
 
 ```text
-stone move <list> <id> --dest <list>          # relocate: new number on
-          [--after ID | --before ID |         #   the target, links follow
-          --to-top | --to-bottom] [--force]   #   (anchor update), old
-                                              #   number retired by a
-                                              #   tombstone in archive/
-stone share <list> <id> --with SLUG           # second appearance on
-                                              #   SLUG's list (was push)
-stone share <list> <id> --recall SLUG         # take it back (was recall)
-stone archive <list> <id> [--force]           # drop the line, move the
-                                              #   file to archive/
+stone move <list> <id> --dest <list>        # relocate: new number on
+          [--after ID | --before ID |       #   the target, links follow
+          --to-top | --to-bottom] [--force] #   (anchor update), old
+                                            #   number retired by a
+                                            #   tombstone in archive/
+stone share <list> <id> --with SLUG         # second appearance on
+                                            #   SLUG's list (was push)
+stone share <list> <id> --recall SLUG       # take it back (was recall)
+stone archive <list> <id> [--force]         # drop the line, move the
+                                            #   file to archive/
 --root     removed everywhere; tests set ANCHOR_VAULT_ROOT
---force    proceed on a shared-out stone by withdrawing its appearances
+--force    proceed on a shared-out stone; withdraws its appearances
 ```
 
 Design and Dan's reasoning: [[Tink653 - stone verbs move gains --dest, share replaces push recall, archive is a|T653]].
