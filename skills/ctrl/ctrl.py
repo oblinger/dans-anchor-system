@@ -3116,6 +3116,350 @@ def _enforce_browser_lease(command, argv_rest):
     sys.exit(1)
 
 
+# ---------------------------------------------------------------------------
+# TINK F640 — the interactive gate (Dan, 2026-09-02).
+#
+# Agents kept using Dan's laptop for background work — page renders, crawls,
+# sweeps — that belongs on Dexter, because the rule lived in prose and every
+# session re-decided it under time pressure. So on the machines listed in
+# `interactive_hosts` (~/.config/ctrl/config.yaml) a DATA verb refuses unless:
+#   * `ctrl --bridge <verb …>`      prints the exact bridge form for Dexter
+#                                   (the ONLY path to the form), or
+#   * `ctrl --interactive <verb …>` submits the call to a DISINTERESTED judge:
+#                                   a `claude -p` subagent that sees the
+#                                   requester's last user messages and last
+#                                   command lines — never its justification —
+#                                   and answers Dan's one question: "is this
+#                                   agent using ctrl to interact with the
+#                                   user, or to gather data?"
+# A pass is remembered for five minutes per session (undocumented to agents,
+# so nothing is learned that can be gamed); a fail is never cached. Hosts not
+# listed — Dexter — behave exactly as before. A human shell is untouched.
+# ---------------------------------------------------------------------------
+
+CTRL_CONFIG_DIR = os.path.expanduser(os.environ.get('CTRL_CONFIG_DIR') or '~/.config/ctrl')
+CTRL_CONFIG_PATH = os.path.join(CTRL_CONFIG_DIR, 'config.yaml')
+JUDGE_DIR = os.path.join(CTRL_CONFIG_DIR, 'judge')
+JUDGE_PASS_TTL_S = 300
+JUDGE_MODEL = 'haiku'
+JUDGE_TIMEOUT_S = 20
+JUDGE_USER_MESSAGES = 3
+JUDGE_COMMAND_LINES = 10
+BRIDGE_BIN = os.path.expanduser('~/.claude/skills/bridge/bridge')
+
+# Data verbs: anything that loads a page or pulls data through the browser.
+# Screen verbs (box/trot/outbox/own/release/lease/edit/screen/x) show Dan
+# something on his own machine and are never gated. `surf` is a data verb by
+# Dan's ruling: loading URLs is the shape of the work that belongs on Dexter,
+# whichever window it lands in.
+DATA_VERBS = set(BROWSER_COMMANDS)
+
+JUDGE_SYSTEM_PROMPT = """You are a disinterested judge inside a command-line gate on a person's laptop.
+An AI agent has just run a `ctrl` command that loads a web page or pulls data through the laptop's browser.
+Answer ONE factual question from the evidence: is this agent using ctrl to INTERACT with the user
+right now, or to GATHER DATA?
+
+INTERACTIVE means the user is waiting on this specific result at this moment — they just asked to see,
+open, look up, or check one thing, and this call puts it in front of them or answers what they asked.
+GATHERING DATA means crawling, scraping, sweeping, looping over URLs or items, batch research, building a
+dataset, or background work the user did not ask to watch — even if a user message started it earlier.
+
+Judge only from the evidence: the user's recent messages and the agent's recent command lines. The agent's
+own reasoning is deliberately withheld. A pattern of repeated fetches is data gathering. One fetch that
+answers a fresh, specific user request is interactive. When the evidence does not show the user waiting on
+this call, answer false.
+
+Reply with JSON only, no prose, no code fence: {"interactive": true|false, "evidence": "<one line citing what decided it>"}"""
+
+
+def _ctrl_hostname():
+    """Short hostname, `.local` stripped. `CTRL_HOSTNAME` overrides for tests."""
+    name = os.environ.get('CTRL_HOSTNAME')
+    if not name:
+        import socket
+        name = socket.gethostname()
+    return name.split('.', 1)[0].strip().lower()
+
+
+def _interactive_hosts():
+    """`interactive_hosts:` from ~/.config/ctrl/config.yaml, lower-cased.
+
+    Parsed by hand on purpose: the gate must not vanish silently on a machine
+    whose python lacks PyYAML. Accepts the flow form `key: [a, b]` and the
+    block form (`- a` lines under the key). Absent file or key → no hosts.
+    """
+    try:
+        text = open(CTRL_CONFIG_PATH).read()
+    except FileNotFoundError:
+        return set()
+    hosts, in_block = [], False
+    for raw in text.splitlines():
+        line = raw.split('#', 1)[0].rstrip()
+        if not line.strip():
+            continue
+        if line.startswith('interactive_hosts:'):
+            rest = line.split(':', 1)[1].strip()
+            if rest.startswith('['):
+                hosts += [h.strip().strip('"\'') for h in rest.strip('[]').split(',')]
+                in_block = False
+            else:
+                in_block = True
+            continue
+        if in_block:
+            if line.startswith((' ', '\t')) and line.strip().startswith('-'):
+                hosts.append(line.strip()[1:].strip().strip('"\''))
+                continue
+            in_block = False
+    return {h.split('.', 1)[0].lower() for h in hosts if h}
+
+
+def _gate_active():
+    return _in_harness() and _ctrl_hostname() in _interactive_hosts()
+
+
+def _bridge_remote():
+    """(short host, login) for the bridge form, from ~/.config/bridge/config.yaml."""
+    remote = 'dexter.local'
+    try:
+        for raw in open(os.path.expanduser('~/.config/bridge/config.yaml')):
+            line = raw.strip()
+            if line.startswith('remote:'):
+                remote = line.split(':', 1)[1].strip().strip('"\'') or remote
+                break
+    except OSError:
+        pass
+    host = remote.split('.', 1)[0]
+    target = remote if '.' in remote else f'{remote}.local'
+    user = os.environ.get('USER') or os.environ.get('LOGNAME') or 'oblinger'
+    return host, target, user
+
+
+def _bridge_form(verb, rest):
+    """The exact commands that run this call on the remote, arguments substituted."""
+    host, target, user = _bridge_remote()
+    slug = os.environ.get('BRIDGE_AGENT') or '<slug>'
+    window = f'bridge-{host}:agent-{slug}'
+    inner = shlex.join(['ctrl', verb, *rest])
+    send = f"tmux send-keys -t {shlex.quote(window)} {shlex.quote(inner)} Enter"
+    read = f"tmux capture-pane -t {shlex.quote(window)} -p"
+    lines = [
+        f"# run on {host} — the machine for page loads and data pulls",
+        f"{BRIDGE_BIN} tmux {host} --agent {slug}",
+        f"ssh {user}@{target} {shlex.quote(send)}",
+        f"ssh {user}@{target} {shlex.quote(read)}",
+    ]
+    for i, a in enumerate(rest):
+        if a in ('--output', '-o') and i + 1 < len(rest):
+            out = rest[i + 1]
+            lines.append(f"scp {user}@{target}:{shlex.quote(out)} {shlex.quote(out)}   # bring the result back yourself")
+    if slug == '<slug>':
+        lines.append("# <slug>: your agent slug (set BRIDGE_AGENT, or substitute by hand)")
+    return "\n".join(lines)
+
+
+def _transcript_path():
+    """The requester's transcript: $CLAUDE_TRANSCRIPT_PATH, else the newest
+    ~/.claude/projects/*/<session>.jsonl for $CLAUDE_CODE_SESSION_ID."""
+    p = os.environ.get('CLAUDE_TRANSCRIPT_PATH')
+    if p and os.path.isfile(p):
+        return p
+    session = os.environ.get('CLAUDE_CODE_SESSION_ID') or ''
+    if not session:
+        return None
+    import glob
+    hits = glob.glob(os.path.expanduser(f'~/.claude/projects/*/{session}.jsonl'))
+    hits = [h for h in hits if os.path.isfile(h)]
+    if not hits:
+        return None
+    return max(hits, key=os.path.getmtime)
+
+
+def _transcript_tail_lines(path, max_bytes=4 * 1024 * 1024):
+    with open(path, 'rb') as f:
+        f.seek(0, os.SEEK_END)
+        size = f.tell()
+        f.seek(max(0, size - max_bytes))
+        data = f.read()
+    lines = data.split(b'\n')
+    if size > max_bytes:
+        lines = lines[1:]  # drop the partial first line
+    out = []
+    for ln in lines:
+        if not ln.strip():
+            continue
+        try:
+            out.append(json.loads(ln))
+        except Exception:
+            continue
+    return out
+
+
+def _tool_call_line(block):
+    name = block.get('name') or '?'
+    inp = block.get('input') or {}
+    if name == 'Bash':
+        s = str(inp.get('command') or '')
+    elif name in ('Read', 'Write', 'Edit'):
+        s = str(inp.get('file_path') or '')
+    elif name in ('WebFetch', 'WebSearch'):
+        s = str(inp.get('url') or inp.get('query') or '')
+    else:
+        s = json.dumps(inp, ensure_ascii=False)
+    s = ' '.join(s.split())
+    return f"{name}: {s[:240]}"
+
+
+def _judge_evidence(path):
+    """Last N user messages (with timestamps) and last M tool calls (command
+    lines only). Sidechain (subagent) lines are excluded; so is every word the
+    requester wrote in prose."""
+    users, calls = [], []
+    for d in _transcript_tail_lines(path):
+        if d.get('isSidechain'):
+            continue
+        t = d.get('type')
+        msg = d.get('message') or {}
+        if t == 'user' and isinstance(msg.get('content'), str) and msg['content'].strip():
+            text = ' '.join(msg['content'].split())
+            users.append((d.get('timestamp') or '', text[:600]))
+        elif t == 'assistant' and isinstance(msg.get('content'), list):
+            for b in msg['content']:
+                if isinstance(b, dict) and b.get('type') == 'tool_use':
+                    calls.append((d.get('timestamp') or '', _tool_call_line(b)))
+    users = users[-JUDGE_USER_MESSAGES:]
+    calls = calls[-JUDGE_COMMAND_LINES:]
+    return users, calls
+
+
+def _judge_prompt(verb, rest, users, calls):
+    now = time.strftime('%Y-%m-%dT%H:%M:%S%z')
+    parts = [f"NOW: {now}", "", f"PENDING CALL: {shlex.join(['ctrl', verb, *rest])}", "",
+             f"LAST {len(users)} USER MESSAGES (oldest first):"]
+    parts += [f"  [{ts}] {tx}" for ts, tx in users] or ["  (none)"]
+    parts += ["", f"AGENT'S LAST {len(calls)} TOOL CALLS (oldest first):"]
+    parts += [f"  [{ts}] {c}" for ts, c in calls] or ["  (none)"]
+    return "\n".join(parts)
+
+
+def _run_judge(prompt):
+    """Spawn the judge; return (verdict dict, raw result str). Raises on failure."""
+    import shutil
+    claude = shutil.which('claude') or os.path.expanduser('~/.local/bin/claude')
+    env = {k: v for k, v in os.environ.items() if not k.startswith('CLAUDE')}
+    cmd = [claude, '-p', '--model', JUDGE_MODEL, '--output-format', 'json',
+           '--max-turns', '1', '--tools', '', '--system-prompt', JUDGE_SYSTEM_PROMPT]
+    r = subprocess.run(cmd, input=prompt, capture_output=True, text=True,
+                       env=env, timeout=JUDGE_TIMEOUT_S, cwd='/')
+    if r.returncode != 0:
+        raise RuntimeError(f"judge exited {r.returncode}: {r.stderr.strip()[-300:]}")
+    outer = json.loads(r.stdout)
+    raw = str(outer.get('result') or '').strip()
+    body = raw
+    if body.startswith('```'):
+        body = body.strip('`')
+        body = body[4:] if body.lower().startswith('json') else body
+    start, end = body.find('{'), body.rfind('}')
+    if start < 0 or end < 0:
+        raise RuntimeError(f"judge answered without JSON: {raw[:200]!r}")
+    verdict = json.loads(body[start:end + 1])
+    if not isinstance(verdict.get('interactive'), bool):
+        raise RuntimeError(f"judge verdict lacks a boolean 'interactive': {raw[:200]!r}")
+    verdict['evidence'] = ' '.join(str(verdict.get('evidence') or '').split())[:300]
+    return verdict, raw
+
+
+def _judge_register(verdict_word, verb, evidence, session, agent):
+    """One line to ob_check topic ctrl.judge — best effort, never blocks the call."""
+    import shutil
+    ob = shutil.which('ob_check') or os.path.expanduser('~/bin/ob_check')
+    if not os.path.exists(ob) or os.environ.get('CTRL_TEST'):
+        return  # CTRL_TEST: the integration test must not post to the estate's health log
+    try:
+        subprocess.run([ob, 'post', '--topic', 'ctrl.judge', '--level', 'info',
+                        '--source', 'ctrl', '--evidence', evidence or '(cached pass)',
+                        '--field', f'verdict={verdict_word}', '--field', f'verb={verb}',
+                        '--field', f'session={session}', '--field', f'agent={agent or ""}',
+                        '--field', f'host={_ctrl_hostname()}',
+                        f"ctrl --interactive {verb}: {verdict_word}"],
+                       capture_output=True, text=True, timeout=5)
+    except Exception:
+        pass
+
+
+def _last_pass_path(session):
+    return os.path.join(JUDGE_DIR, f'last-pass.{session or "nosession"}')
+
+
+def _recent_pass(session):
+    try:
+        with open(_last_pass_path(session)) as f:
+            return time.time() - float(f.read().strip()) < JUDGE_PASS_TTL_S
+    except (OSError, ValueError):
+        return False
+
+
+def _record_pass(session):
+    os.makedirs(JUDGE_DIR, exist_ok=True)
+    with open(_last_pass_path(session), 'w') as f:
+        f.write(f"{time.time():.3f}\n")
+
+
+def _enforce_interactive_gate(args):
+    """TINK F640. Returns silently when the call may proceed; exits otherwise."""
+    verb = args.command
+    rest = list(getattr(args, '_rest', None) or [])
+    if args.bridge:
+        if verb not in DATA_VERBS:
+            print(f"ctrl: {verb} is a screen verb — it runs here; no bridge form needed.",
+                  file=sys.stderr)
+            sys.exit(1)
+        print(_bridge_form(verb, rest))
+        sys.exit(0)
+    if verb not in DATA_VERBS or not _gate_active():
+        return
+    session, agent = _lease_identity()
+    if not args.interactive:
+        print(f"ctrl: {verb} is background work on this machine. Run it on Dexter:\n"
+              + _bridge_form(verb, rest), file=sys.stderr)
+        sys.exit(2)
+    if _recent_pass(session):
+        _judge_register('cached', verb, '', session, agent)
+        return
+    path = _transcript_path()
+    if not path:
+        print(f"ctrl: --interactive needs the calling session's transcript and none was found "
+              f"(an agent with no transcript is a script, not an interactive session). "
+              f"Run: ctrl --bridge {shlex.join([verb, *rest])}", file=sys.stderr)
+        sys.exit(2)
+    try:
+        users, calls = _judge_evidence(path)
+        prompt = _judge_prompt(verb, rest, users, calls)
+        t0 = time.time()
+        verdict, raw = _run_judge(prompt)
+        took = time.time() - t0
+    except Exception as e:
+        print(f"ctrl: the judge could not run ({e}). Run: ctrl --bridge {shlex.join([verb, *rest])}",
+              file=sys.stderr)
+        sys.exit(2)
+    try:
+        os.makedirs(JUDGE_DIR, exist_ok=True)
+        rec = {'at': time.time(), 'session': session, 'agent': agent, 'verb': verb, 'args': rest,
+               'host': _ctrl_hostname(), 'model': JUDGE_MODEL, 'seconds': round(took, 2),
+               'verdict': verdict, 'raw': raw, 'evidence_bundle': prompt}
+        with open(os.path.join(JUDGE_DIR, f'{session or "nosession"}.{int(time.time())}.json'), 'w') as f:
+            json.dump(rec, f, indent=1)
+    except Exception as e:
+        print(f"ctrl: could not write the judge record: {e}", file=sys.stderr)
+    if verdict['interactive']:
+        _record_pass(session)
+        _judge_register('pass', verb, verdict['evidence'], session, agent)
+        return
+    _judge_register('fail', verb, verdict['evidence'], session, agent)
+    print(f"ctrl: the judge did not find this interactive ({verdict['evidence']}). "
+          f"Run: ctrl --bridge {shlex.join([verb, *rest])}", file=sys.stderr)
+    sys.exit(2)
+
+
 def print_usage():
     """Print custom usage information."""
     usage_text = """CTRL - Environment Control Tool
@@ -3233,6 +3577,11 @@ Global Options:
     -h, --help                  Show this help message
     -v, --version               Show version information
     --verbose                   Enable verbose logging
+    --bridge <verb …>           Print the bridge form that runs this call on Dexter; exit 0
+    --interactive <verb …>      On an interactive host, submit a data verb (surf, cpage, jpage,
+                                search…) to a disinterested judge before it runs. Without a flag
+                                a data verb on such a host refuses and prints the bridge form.
+                                Hosts: interactive_hosts in ~/.config/ctrl/config.yaml.
 
 Examples:
     ctrl search "Python documentation"
@@ -3278,6 +3627,11 @@ def parse_arguments():
                         help='Show version information')
     parser.add_argument('--verbose', action='store_true',
                         help='Enable verbose logging')
+    # TINK F640 — the interactive gate's two flags. Prefix form only.
+    parser.add_argument('--interactive', action='store_true',
+                        help='Submit a data verb to the interactive judge (gated hosts only)')
+    parser.add_argument('--bridge', action='store_true',
+                        help='Print the bridge form that runs this call on the remote, and exit')
 
     # Create subparsers for commands
     subparsers = parser.add_subparsers(dest='command', help='Available commands')
@@ -3629,6 +3983,12 @@ def main():
         'release': cmd_release,
         'lease': cmd_lease,
     }
+
+    # TINK F640 — on an interactive host a data verb needs --bridge (form) or
+    # --interactive (judge). Before the lease, so a refused call never pays it.
+    argv = sys.argv[1:]
+    args._rest = argv[argv.index(args.command) + 1:] if args.command in argv else []
+    _enforce_interactive_gate(args)
 
     # ATT T183 — one gate, on the one dispatch every browser command passes
     # through. Runs per invocation, so it is also the per-call re-check.

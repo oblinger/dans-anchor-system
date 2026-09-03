@@ -145,6 +145,23 @@ browser family first; use `screen` only when nothing else can see the target.
 | `ctrl x excal <file>` | Load a `.excalidraw` file into Excalidraw |
 | `ctrl x excalsave <file>` | Save the current Excalidraw drawing to a file |
 
+## The interactive gate (TINK F640)
+
+On Dan's active machine (`interactive_hosts` in `~/.config/ctrl/config.yaml`) a **data verb** —
+`surf`, `search`, `cpage`, `jpage`, `jgetlist`, `tab`, and the rest of the browser family — refuses
+by default and prints the bridge form for Dexter. Screen verbs (`box`, `outbox`, `own`, `release`,
+`lease`, `edit`, `screen`, `x`) always run. Hosts not listed (Dexter) are untouched.
+
+| Form | What happens |
+|---|---|
+| `ctrl cpage <url>` | Refused at once, exit 2, bridge form on stderr. |
+| `ctrl --bridge cpage <url> …` | Prints the exact `bridge tmux` + `send-keys` + `capture-pane` (+ `scp` for `--output`) lines that run the same call on Dexter; exit 0. The only way to get the form. |
+| `ctrl --interactive cpage <url> …` | A disinterested judge (`claude -p`, haiku) reads the session's last 3 user messages and last 10 tool calls — never the agent's own reasoning — and answers *is this agent interacting with the user, or gathering data?* Pass → runs. Fail → exit 2, message names the evidence and points at `--bridge`. |
+
+Interactive means Dan is waiting on this specific result now. Crawls, sweeps, loops, and research he said he
+would look at later are data gathering and belong on Dexter. Every judgement posts one line to `ob_check`
+topic `ctrl.judge`; records sit in `~/.config/ctrl/judge/`. Test: `tests/live/test-f640-judge.py`.
+
 ## Trigger Words
 
 These trigger words in CLAUDE.md map to ctrl subcommands:
