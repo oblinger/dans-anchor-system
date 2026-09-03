@@ -14,13 +14,13 @@ stone new <list> --line TEXT [--body TEXT]    # mint {slug} P0001.md
 stone move <list> <id> --owner SLUG |         # reorder within its run
           --after ID | --before ID |
           --to-top | --to-bottom
-stone move <list> <id> --dest <list>          # relocate, new number
-stone share <list> <id> --with SLUG           # appear on SLUG's list
-stone share <list> <id> --recall SLUG         # stop appearing there
+          --dest <list>                       # move to new list
+stone share <list> <id> --with <list>         # also appear on <list>
+stone share <list> <id> --recall <list>       # stop appearing there
 stone archive <list> <id>                     # retire to archive/
 stone update [--dry-run]                      # reconcile + propagate
 
-<list>  slug or slug.list   Tink = default list, Tink.rocks = named
+<list>  slug or slug.list
 <id>    P0001 | R0001 | S0001 | YYYY-MM-DD Title
 ```
 
