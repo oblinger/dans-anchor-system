@@ -12,31 +12,26 @@ The whole surface as it would stand after T653. Edit here; the current figure be
 ```text
 stone new <list> --line TEXT [--body TEXT]    # mint {slug} P0001.md
           [--title T] [--date YYYY-MM-DD]
-stone move <list> <id> [--dest <list>]      # reorder; with --dest,
-          [--after ID | --before ID |       #   relocate: new number on
-          --to-top | --to-bottom]           #   the target, links follow
-          [--owner SLUG] [--force]          #   (anchor update), old
-                                            #   number retired by a
-                                            #   tombstone in archive/
-stone share <list> <id> --with SLUG         # second appearance on
-                                            #   SLUG's list (was push)
-stone share <list> <id> --recall SLUG       # take it back (was recall)
-stone archive <list> <id> [--force]         # drop the line, move the
-                                            #   file to archive/
-stone update [--dry-run]                    # reconcile every list,
-                                            #   propagate feeds:,
-                                            #   archive orphans
+stone move <list> <id> --owner SLUG |         # reorder within its run
+          --after ID | --before ID |
+          --to-top | --to-bottom
+stone move <list> <id> --dest <list>          # relocate to another list
+stone share <list> <id> --with SLUG           # appear on SLUG's list too
+stone share <list> <id> --recall SLUG         # take that appearance back
+stone archive <list> <id>                     # retire it to archive/
+stone update [--dry-run]                      # reconcile + propagate
 
 <list>     a slug, or slug.list: Tink = its default list (pebbles),
            Tink.rocks = a named one; declared under stones: in .anchor
 <id>       P0001 | R0001 | S0001 | YYYY-MM-DD Title
---owner    disambiguates when two anchors share an id
---force    proceed on a shared-out stone; withdraws its appearances
+--dest     new number on the target; links follow (anchor update); the
+           old number is retired by a tombstone in the source archive/
+--force    on move --dest and archive: proceed on a shared-out stone by
+           withdrawing its appearances first
 --dry-run  print every write and archive; perform none
 --title, --date   dated lists only (book): member title, creation date
 
-# gone: --root (tests set ANCHOR_VAULT_ROOT); push, recall (now share);
-#   legacy stone <kind> <verb> <anchor> form retires with the kind table
+# gone: --root (tests set ANCHOR_VAULT_ROOT); push, recall (now share)
 ```
 
 Design and Dan's reasoning: [[Tink653 - stone verbs move gains --dest, share replaces push recall, archive is a|T653]].
