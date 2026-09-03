@@ -5,7 +5,7 @@ description: "One-line-per-command reference for the `stone` script — mint, re
 # stone — CLI reference
 One line per command, as `--help` would print it. Semantics: [[DAS Stone]]. A stone is addressed by its LIST, `Slug[.list]`: the slug alone is the anchor's default list (`pebbles` vault-wide, `_:` in global.yaml), `Tink.rocks` a named one. Lists are declared under `stones:` in the anchor's `.anchor`. The older `stone <kind> <verb> <anchor> …` form still parses until the kind table retires (F628 step 4).
 
-```
+```text
 # mint {slug} P0001.md; the line lands atop the list's control file
 stone new     <Slug[.list]> --line TEXT [--body TEXT]
                             [--title T] [--date YYYY-MM-DD]
