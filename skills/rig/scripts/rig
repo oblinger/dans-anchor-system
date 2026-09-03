@@ -68,6 +68,8 @@ DEFAULTS = {
     "prefix": None,                    # REQUIRED in config: the owner prefix every rig name carries (Dan: "do-")
     "lease_hours": 8,                  # `up` sets a cloud-side auto-shutdown this far out; `renew` pushes it
     "frozen_days": 3,                  # a stopped rig older than this is nagged about and offered to `gc`
+    "watch": True,                     # `up` installs the on-box idle watcher (deallocates itself when idle)
+    "idle_minutes": 60,                # ...after this long with no GPU work, no load, no tmux input, no login
     "azure": {
         "subscription": None,          # None → whatever `az account show` says
         "location": "centralus",
@@ -237,6 +239,7 @@ class Backend:
     def stopped_since(self, row): return None        # -> datetime (UTC) a down row stopped, or None = unknown
     def keep_until(self, row): return None           # -> date the row is exempt from gc through, or None
     def keep(self, name, until): raise NotImplementedError   # tag the rig exempt from gc through `until` (date)
+    def watch(self, name, idle_min): return None     # install the on-box idle watcher; None = unsupported here
 
 
 @backend("gcp")
@@ -668,6 +671,128 @@ class Azure(Backend):
                  "--set", f"tags.rig-keep-until={until.isoformat()}", json_out=False)
         return True
 
+    # The on-box watcher. The VM gets a system-assigned identity holding ONE
+    # custom role, scoped to its own resource group: read + deallocate. A
+    # systemd timer runs the same idle probe `reap` uses and, when nothing has
+    # happened for idle_minutes, deallocates the VM through the instance
+    # metadata token -- no CLI, no secrets, no laptop. Needs the caller to be
+    # able to write role definitions/assignments (Owner); Juan granted Dan a
+    # conditioned Owner on 2026-09-03 for exactly this.
+
+    SELF_STOP_ROLE = "Rig Self-Stop"
+
+    def _sub(self):
+        return self.c.get("subscription") or self._az("account", "show", "--query", "id")
+
+    def _ensure_role(self):
+        have = self._az("role", "definition", "list", "--name", self.SELF_STOP_ROLE, "--custom-role-only", "true")
+        if have:
+            return
+        sub = self._sub()
+        spec = {
+            "Name": self.SELF_STOP_ROLE, "IsCustom": True,
+            "Description": "Let a rig VM read and deallocate itself (rig on-box idle watcher, 2026-09-03).",
+            "Actions": ["Microsoft.Compute/virtualMachines/read",
+                        "Microsoft.Compute/virtualMachines/deallocate/action"],
+            "NotActions": [], "AssignableScopes": [f"/subscriptions/{sub}"],
+        }
+        path = os.path.expanduser("~/.config/rig/self-stop-role.json")
+        with open(path, "w") as f:
+            json.dump(spec, f)
+        self._az("role", "definition", "create", "--role-definition", path, json_out=False)
+        note(f"rig: created custom role {self.SELF_STOP_ROLE!r} (read + deallocate) on the subscription")
+
+    def watch(self, name, idle_min):
+        vm = self._find(name)
+        if not vm:
+            return None
+        rg = vm["resourceGroup"]
+        self._ensure_role()
+        ident = self._az("vm", "identity", "assign", "-g", rg, "-n", vm["name"])
+        pid = (ident or {}).get("systemAssignedIdentity") or ((ident or {}).get("identity") or {}).get("principalId")
+        if not pid:
+            die(f"{name}: could not read the VM's identity principal from `az vm identity assign`: {ident}")
+        scope = f"/subscriptions/{self._sub()}/resourceGroups/{rg}"
+        p = self._az("role", "assignment", "create", "--assignee-object-id", pid,
+                     "--assignee-principal-type", "ServicePrincipal",
+                     "--role", self.SELF_STOP_ROLE, "--scope", scope, check=False, json_out=False)
+        if p is not None and getattr(p, "returncode", 0) != 0 and "RoleAssignmentExists" not in (p.stderr or ""):
+            die(f"{name}: role assignment failed: {p.stderr.strip()[:400]}")
+        script = WATCH_INSTALL.replace("__IDLE__", str(int(idle_min)))
+        r = subprocess.run(["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=30", name, "sudo bash -s"],
+                           input=script, capture_output=True, text=True)
+        if r.returncode != 0:
+            die(f"{name}: watcher install failed over ssh: {r.stderr.strip()[:400]}")
+        return idle_min
+
+
+# Installed on the box by `Azure.watch` via `ssh NAME sudo bash -s`. Bash + curl
+# + python3 only (all on the HPC image); nvidia-smi is optional (no GPU → 0).
+# Busy = any of: GPU compute process, 1-min load >= LOAD_MAX, tmux input inside
+# IDLE_MIN on ANY user's server, a logged-in tty; plus a boot grace of IDLE_MIN.
+WATCH_INSTALL = r"""
+set -e
+mkdir -p /etc/rig
+cat > /etc/rig/watch.conf <<EOF
+IDLE_MIN=__IDLE__
+LOAD_MAX=0.2
+EOF
+cat > /usr/local/bin/rig-watch <<'EOF'
+#!/bin/bash
+# rig on-box idle watcher: deallocate THIS vm when nothing is happening.
+. /etc/rig/watch.conf
+log(){ echo "$(date -u +%FT%TZ) $*" >> /var/log/rig-watch.log; }
+up_s=$(cut -d. -f1 /proc/uptime)
+[ "$up_s" -lt $((IDLE_MIN*60)) ] && { log "grace: booted ${up_s}s ago"; exit 0; }
+gpu=$(nvidia-smi --query-compute-apps=pid --format=csv,noheader 2>/dev/null | sed '/^$/d' | wc -l | tr -d ' ')
+load=$(cut -d' ' -f1 /proc/loadavg)
+now=$(date +%s); act=0
+for s in /tmp/tmux-*/default; do
+  [ -S "$s" ] || continue
+  for a in $(tmux -S "$s" list-sessions -F '#{session_activity}' 2>/dev/null); do
+    [ "$a" -gt "$act" ] && act=$a
+  done
+done
+logins=$(who | wc -l | tr -d ' ')
+idle_s=999999; [ "$act" != 0 ] && idle_s=$((now-act))
+busy=""
+[ "${gpu:-0}" -gt 0 ] && busy="$busy gpu_procs=$gpu"
+awk -v l="$load" -v m="$LOAD_MAX" 'BEGIN{exit !(l>=m)}' && busy="$busy load=$load"
+[ "$idle_s" -lt $((IDLE_MIN*60)) ] && busy="$busy tmux_input=$((idle_s/60))m_ago"
+[ "$logins" -gt 0 ] && busy="$busy logins=$logins"
+if [ -n "$busy" ]; then log "busy:$busy"; exit 0; fi
+log "IDLE gpu=$gpu load=$load tmux_idle=$((idle_s/60))m logins=0 -> deallocating self"
+md(){ curl -sf -H Metadata:true "http://169.254.169.254/metadata/$1"; }
+inst=$(md "instance/compute?api-version=2021-02-01")
+jget(){ python3 -c 'import sys,json;print(json.load(sys.stdin)[sys.argv[1]])' "$1"; }
+sub=$(echo "$inst" | jget subscriptionId); rg=$(echo "$inst" | jget resourceGroupName); vm=$(echo "$inst" | jget name)
+tok=$(md "identity/oauth2/token?api-version=2018-02-01&resource=https%3A%2F%2Fmanagement.azure.com%2F" | jget access_token)
+url="https://management.azure.com/subscriptions/$sub/resourceGroups/$rg/providers/Microsoft.Compute/virtualMachines/$vm/deallocate?api-version=2024-07-01"
+code=$(curl -s -o /tmp/rig-watch.resp -w '%{http_code}' -X POST -H "Authorization: Bearer $tok" -H "Content-Length: 0" "$url")
+log "deallocate -> HTTP $code $(head -c 200 /tmp/rig-watch.resp | tr '\n' ' ')"
+EOF
+chmod +x /usr/local/bin/rig-watch
+cat > /etc/systemd/system/rig-watch.service <<EOF
+[Unit]
+Description=rig on-box idle watcher (deallocate self when idle)
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/rig-watch
+EOF
+cat > /etc/systemd/system/rig-watch.timer <<EOF
+[Unit]
+Description=rig on-box idle watcher, every 5 min
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=5min
+[Install]
+WantedBy=timers.target
+EOF
+systemctl daemon-reload
+systemctl enable --now rig-watch.timer >/dev/null 2>&1
+echo "rig-watch installed (idle __IDLE__ min)"
+"""
+
 
 # ---------------------------------------------------------------- ssh config
 
@@ -796,6 +921,15 @@ def cmd_up(args, cfg):
         die(f"{name} is up but has no external IP")
     write_ssh_alias(name, user, host, key)
     apply_lease(be, name, cfg, args.lease or cfg["lease_hours"], args.forever)
+    if args.no_watch or not cfg["watch"]:
+        note(f"rig: {name}: NO WATCHER — it will not stop itself when idle")
+    else:
+        idle = args.idle or cfg["idle_minutes"]
+        got = be.watch(name, idle)
+        if got is None:
+            note(f"rig: {name}: NO WATCHER — {be.name} has no on-box idle watcher; the hourly reaper is the only idle net")
+        else:
+            note(f"rig: {name}: watcher installed — deallocates itself after {got} min idle (no GPU work, no load, no tmux input, no login)")
     note(f"rig: {name} up at {host} — ssh {name}")
     print(host)
     nag_frozen(cfg, args.cloud)
@@ -1055,6 +1189,8 @@ def main():
     up.add_argument("--image", help="image family")
     up.add_argument("--lease", type=float, help=f"hours until the box deallocates itself (default {cfg['lease_hours']}; <24)")
     up.add_argument("--forever", action="store_true", help="no lease — runs until someone takes it down (says so loudly)")
+    up.add_argument("--idle", type=int, help=f"on-box watcher: minutes idle before it deallocates itself (default {cfg['idle_minutes']})")
+    up.add_argument("--no-watch", action="store_true", help="skip the on-box idle watcher (says so loudly)")
     up.set_defaults(fn=cmd_up)
 
     rn = sub.add_parser("renew", help="push the lease out again on a running rig")
