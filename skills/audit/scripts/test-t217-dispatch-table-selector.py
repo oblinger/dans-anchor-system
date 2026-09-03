@@ -180,8 +180,8 @@ _where = _dt_parsed.get("where") or "always"
 # of every file in every anchor, about a masthead most of them do not have.
 check("...and it is the sentinel, not the every-markdown glob it briefly held",
       ap.parse_selector(_where)[0], "sentinel")
-check("...and all 15 rules are still there, so the move rescoped nothing away",
-      len(_dt_parsed["rules"]), 15)
+check("...and all 16 rules are still there, so the move rescoped nothing away",
+      len(_dt_parsed["rules"]), 16)
 check("no rule overrides it with a narrower own `where::`",
       [r["id"] for r in _dt_parsed["rules"] if r.get("where")], [])
 check("the file no longer opens with frontmatter",

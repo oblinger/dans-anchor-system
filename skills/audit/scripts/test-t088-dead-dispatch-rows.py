@@ -183,7 +183,7 @@ buf = io.StringIO()
 with contextlib.redirect_stdout(buf):
     ad.print_report("ZZA", Path("/tmp/ZZA.md"),
                     [ad.Row(x) for x in [BREADCRUMB, SEP, LIVE, DEAD]],
-                    new, rep, False)
+                    new, rep)
 out = buf.getvalue()
 check("the report names the dead row", "dead row(s)" in out, out)
 check("it quotes the row it dropped", "ZZA Audit Design" in out, out)
@@ -194,7 +194,7 @@ buf = io.StringIO()
 with contextlib.redirect_stdout(buf):
     ad.print_report("ZZA", Path("/tmp/ZZA.md"),
                     [ad.Row(x) for x in [BREADCRUMB, SEP, LIVE]],
-                    new2, rep2, False)
+                    new2, rep2)
 check("a genuinely clean table still reports clean",
       "already in good form" in buf.getvalue(), buf.getvalue())
 

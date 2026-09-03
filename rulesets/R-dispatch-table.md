@@ -135,9 +135,11 @@ Remediation messages for these rules — what to actually do when one fires. Rea
 Do not hand-author the table. Run the builder:
 
 ```sh
-python3 ~/.claude/skills/audit/scripts/audit-dispatch.py "<anchor path>"          # dry run, shows the proposed table
-python3 ~/.claude/skills/audit/scripts/audit-dispatch.py "<anchor path>" --fix    # write it back
+# shows the proposed table; never writes
+python3 ~/.claude/skills/audit/scripts/audit-dispatch.py "<anchor path>"
 ```
+
+Apply the proposal with the Edit tool (T204: the script is report-only).
 
 It builds the masthead in the fixed row order, emits the sub-area rows the anchor actually has, and preserves the load-bearing `→ ` prefix on the identity cell — a prefix that is easy to lose by hand and whose absence makes `ha` delete the breadcrumb outright.
 

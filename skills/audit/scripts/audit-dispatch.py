@@ -29,15 +29,18 @@ name) it:
      loudly. A correct rebuild carries forward nothing; a non-empty
      carry-forward is a bug to flag, not ship.
 
-  5. DRY by default — prints the proposed table + a proposed-vs-current
-     summary + the curated-link-preservation check, and writes nothing.
-     `--fix` writes the rebuilt table back to the page.
+  5. REPORT ONLY — prints the proposed table + a proposed-vs-current
+     summary + the curated-link-preservation check, and never writes. The
+     agent applies the proposal with the Edit tool, reviewed. (T204, Dan
+     2026-09-03: "let's make it report only" — the retired `--fix` joined
+     unlisted children with the cell delimiter, N children making N+1 cells,
+     and at N=1 put the child in the name cell, a silent shape inversion.)
 
 Usage:
-    audit-dispatch.py <anchor-path-or-name> [dry] [--fix] [--json]
+    audit-dispatch.py <anchor-path-or-name> [dry] [--json]
 
-`dry` is the default; pass it explicitly to match the `/audit dispatch
-<anchor> dry` runbook spelling. `--fix` is the only thing that writes.
+`dry` is accepted to match the `/audit dispatch <anchor> dry` runbook
+spelling; it is the only mode there is.
 """
 
 from __future__ import annotations
@@ -508,7 +511,7 @@ def rebuild(rows: list[Row], folder: Path, page: Path, anchor_name: str):
         "dropped_empty_rows": [],      # list of raw lines dropped
         "dropped_dead_rows": [],       # T088 — every link points at nothing
         "kept_rows": 0,
-        "auto_filled_children": [],    # wiki targets injected
+        "unlisted_children": [],       # on-disk children no row names (reported, never injected)
         "carried_forward": [],         # link keys rescued into Related
     }
 
@@ -580,16 +583,15 @@ def rebuild(rows: list[Row], folder: Path, page: Path, anchor_name: str):
         else:
             report["dropped_empty_rows"].append(r.raw.strip())
 
-    # --- container auto-fill: surface unlisted on-disk children --------
+    # --- container children: REPORT the unlisted ones, inject nothing ---
+    # T204: the old auto-fill wrote `| [[a]] | [[b]] |  |` (N+1 cells) and at
+    # N=1 put the child in the name cell. The electric `...` catch-all lists
+    # unlisted children on its own; a row above the separator is the agent's
+    # call, made with Edit.
     if electric_indices:
         referenced = {k[len("wiki:"):] for k in old_links if k.startswith("wiki:")}
-        unlisted = [c for c in on_disk_children(folder, page) if c not in referenced]
-        if unlisted:
-            report["auto_filled_children"] = unlisted
-            inject = " | ".join(f"[[{c}]]" for c in unlisted)
-            # place just above the (last) electric marker
-            idx = electric_indices[-1]
-            out.insert(idx, f"| {inject} |  |")
+        report["unlisted_children"] = [c for c in on_disk_children(folder, page)
+                                       if c not in referenced]
 
     # --- SAFETY: carry forward any old link the rebuild dropped --------
     new_links: set[str] = set()
@@ -614,11 +616,11 @@ def rebuild(rows: list[Row], folder: Path, page: Path, anchor_name: str):
 # Reporting
 # ---------------------------------------------------------------------------
 
-def print_report(name, page, old_rows, new_lines, report, applied):
+def print_report(name, page, old_rows, new_lines, report):
     old_raw = [r.raw for r in old_rows]
     print(f"/audit dispatch — {name}")
     print(f"  page: {page}")
-    print(f"  mode: {'APPLIED (--fix)' if applied else 'DRY (no write)'}")
+    print("  mode: REPORT ONLY (this script never writes — apply with Edit)")
     print()
     print("── current table ──")
     for r in old_raw:
@@ -639,11 +641,12 @@ def print_report(name, page, old_rows, new_lines, report, applied):
         print(f"  • dropped {len(report['dropped_dead_rows'])} dead row(s) (every link points at nothing):")
         for d in report["dropped_dead_rows"]:
             print(f"      {d}")
-    if report["auto_filled_children"]:
-        print(f"  • auto-filled {len(report['auto_filled_children'])} unlisted child(ren) into the container: "
-              + ", ".join(report["auto_filled_children"]))
+    if report["unlisted_children"]:
+        print(f"  • {len(report['unlisted_children'])} on-disk child(ren) no row names "
+              f"(the electric catch-all lists them; a row above the separator is your call): "
+              + ", ".join(report["unlisted_children"]))
     if not (report["breadcrumb_title_fixed"] or report["dropped_empty_rows"]
-            or report["dropped_dead_rows"] or report["auto_filled_children"]):
+            or report["dropped_dead_rows"] or report["unlisted_children"]):
         print("  • no structural changes (table already in good form)")
     print()
     print("── curated-link preservation ──")
@@ -671,14 +674,8 @@ def main(argv):
     p.add_argument("anchor", help="anchor path or name")
     p.add_argument("dry", nargs="?", default=None,
                    help="explicit 'dry' token (default behaviour anyway)")
-    p.add_argument("--fix", action="store_true",
-                   help="write the rebuilt table back (default: dry, write nothing)")
     p.add_argument("--json", action="store_true", help="emit the report as JSON")
     args = p.parse_args(argv[1:])
-
-    applied = args.fix and (args.dry != "dry")
-    if args.dry == "dry":
-        applied = False  # explicit dry overrides --fix
 
     folder = resolve_anchor_folder(args.anchor)
     page = find_anchor_page(folder)
@@ -700,22 +697,16 @@ def main(argv):
 
     new_lines, report = rebuild(rows, folder, page, name)
 
-    if applied:
-        # replace the dispatch region (start..end inclusive) with new_lines
-        new_file = lines[:start] + new_lines + lines[end + 1:]
-        trailing_nl = "\n" if text.endswith("\n") else ""
-        page.write_text("\n".join(new_file) + trailing_nl)
-
     if args.json:
         print(json.dumps({
             "anchor": name,
             "page": str(page),
-            "applied": applied,
+            "region": [start, end],
             "report": report,
             "proposed": new_lines,
         }, indent=2, ensure_ascii=False))
     else:
-        print_report(name, page, rows, new_lines, report, applied)
+        print_report(name, page, rows, new_lines, report)
 
     # non-zero exit ONLY when the safety invariant fired (a drop was caught)
     return 1 if report["carried_forward"] else 0
