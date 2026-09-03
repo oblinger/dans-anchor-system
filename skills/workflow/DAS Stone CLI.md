@@ -5,6 +5,44 @@ description: "One-line-per-command reference for the `stone` script — mint, re
 # stone — CLI reference
 One line per command, as `--help` would print it. Semantics: [[DAS Stone]]. A stone is addressed by its LIST: the slug alone is the anchor's default list (`pebbles` vault-wide, `_:` in global.yaml), `Tink.rocks` a named one. Lists are declared under `stones:` in the anchor's `.anchor`. The older `stone <kind> <verb> <anchor> …` form still parses until the kind table retires (F628 step 4).
 
+## Proposed — T653, not yet built
+
+The whole surface as it would stand after T653. Edit here; the current figure below stays as the record of what runs.
+
+```text
+stone new <list> --line TEXT [--body TEXT]    # mint {slug} P0001.md
+          [--title T] [--date YYYY-MM-DD]
+stone move <list> <id> [--dest <list>]      # reorder; with --dest,
+          [--after ID | --before ID |       #   relocate: new number on
+          --to-top | --to-bottom]           #   the target, links follow
+          [--owner SLUG] [--force]          #   (anchor update), old
+                                            #   number retired by a
+                                            #   tombstone in archive/
+stone share <list> <id> --with SLUG         # second appearance on
+                                            #   SLUG's list (was push)
+stone share <list> <id> --recall SLUG       # take it back (was recall)
+stone archive <list> <id> [--force]         # drop the line, move the
+                                            #   file to archive/
+stone update [--dry-run]                    # reconcile every list,
+                                            #   propagate feeds:,
+                                            #   archive orphans
+
+<list>     a slug, or slug.list: Tink = its default list (pebbles),
+           Tink.rocks = a named one; declared under stones: in .anchor
+<id>       P0001 | R0001 | S0001 | YYYY-MM-DD Title
+--owner    disambiguates when two anchors share an id
+--force    proceed on a shared-out stone; withdraws its appearances
+--dry-run  print every write and archive; perform none
+--title, --date   dated lists only (book): member title, creation date
+
+# gone: --root (tests set ANCHOR_VAULT_ROOT); push, recall (now share);
+#   legacy stone <kind> <verb> <anchor> form retires with the kind table
+```
+
+Design and Dan's reasoning: [[Tink653 - stone verbs move gains --dest, share replaces push recall, archive is a|T653]].
+
+## Current
+
 ```text
 stone new <list> --line TEXT [--body TEXT]    # mint {slug} P0001.md
           [--title T] [--date YYYY-MM-DD]
@@ -39,39 +77,3 @@ stone update [--dry-run] [--root DIR]         # reconcile every list,
 ```
 
 Exit non-zero on a refused mint, an ambiguous id, a `feeds:` cycle (whole pass aborts, no writes), or a missing live stone. Every write is printed. Script: `~/.claude/skills/workflow/scripts/stone`.
-
-## Proposed — T653, not yet built
-
-The whole surface as it would stand after T653, not a delta.
-
-```text
-stone new <list> --line TEXT [--body TEXT]    # mint {slug} P0001.md
-          [--title T] [--date YYYY-MM-DD]
-stone move <list> <id> [--dest <list>]        # reorder; with --dest,
-          [--after ID | --before ID |         #   relocate: new number on
-          --to-top | --to-bottom]             #   the target, links follow
-          [--owner SLUG] [--force]            #   (anchor update), old
-                                              #   number retired by a
-                                              #   tombstone in archive/
-stone share <list> <id> --with SLUG           # second appearance on
-                                              #   SLUG's list (was push)
-stone share <list> <id> --recall SLUG         # take it back (was recall)
-stone archive <list> <id> [--force]           # drop the line, move the
-                                              #   file to archive/
-stone update [--dry-run]                      # reconcile every list,
-                                              #   propagate feeds:,
-                                              #   archive orphans
-
-<list>     a slug, or slug.list: Tink = its default list (pebbles),
-           Tink.rocks = a named one; declared under stones: in .anchor
-<id>       P0001 | R0001 | S0001 | YYYY-MM-DD Title
---owner    disambiguates when two anchors share an id
---force    proceed on a shared-out stone; withdraws its appearances
---dry-run  print every write and archive; perform none
---title, --date   dated lists only (book): member title, creation date
-
-# gone: --root (tests set ANCHOR_VAULT_ROOT); push, recall (now share);
-#   the legacy stone <kind> <verb> <anchor> form retires with the kind table
-```
-
-Design and Dan's reasoning: [[Tink653 - stone verbs move gains --dest, share replaces push recall, archive is a|T653]].
