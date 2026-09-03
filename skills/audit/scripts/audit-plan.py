@@ -1377,6 +1377,59 @@ def plan_one(target: Path, mode: str, cdir: Path | None, warnings: list[str],
     return plan
 
 
+def plan_anchor_tree(target: Path, cdir: Path | None, warnings: list[str],
+                     stats: dict | None = None) -> dict:
+    """Anchor mode for ONE target (T337): the target's own plan plus one sub-plan
+    per nested `.anchor` at any depth, merged into a single plan.
+
+    Until 2026-09-03 the single-anchor path excluded every nested `.anchor` and
+    audited nothing under it — and a facet folder (`{slug} Track/`,
+    `{slug} Design/`) carries a `.anchor` exactly like a real nested project, so
+    `/audit anchor X` saw 26% of X's own tree (361 files seen, 1,049 omitted,
+    across 57 anchors). Dan's ruling: until a peer relationship can be declared
+    (HA F281), assume nested anchors are NOT peers and scan the whole tree.
+
+    Nested files are never fed in under the parent's context. Each nested root
+    is planned as its own anchor — its own `{slug}`, its own selectors, its own
+    Exceptions table — and only the RESULT is merged: every grouping carries
+    `anchor_root`/`owner`, and targets are re-labelled relative to the top
+    target so the report reads by owning anchor. A true nested peer is
+    re-audited when its parent is; it is never mis-judged. `--batch` is
+    untouched: there every anchor is its own plan and the deepest owner wins.
+    """
+    nested = sub_anchor_roots(target)
+    plan = plan_one(target, "anchor", cdir, warnings, nested, stats)
+    plan["excluded_subanchors"] = []
+    plan["nested_anchors"] = []
+    top = target.resolve()
+    for n in sorted(nested):
+        sub = plan_one(n, "anchor", cdir, warnings, sub_anchor_roots(n), stats)
+        try:
+            rel_root = n.resolve().relative_to(top).as_posix()
+        except ValueError:
+            rel_root = n.name
+        owner = _anchor_slug(n)
+        for g in sub["groupings"]:
+            g["anchor_root"] = str(n)
+            g["owner"] = owner
+            for r in g["rules"]:
+                r["targets"] = [
+                    rel_root if t == "{anchor}" else f"{rel_root}/{t}"
+                    for t in r["targets"]]
+        plan["groupings"].extend(sub["groupings"])
+        plan["scope_file_count"] += sub["scope_file_count"]
+        plan["nested_anchors"].append({
+            "anchor_root": str(n), "path": rel_root, "slug": owner,
+            "scope_file_count": sub["scope_file_count"]})
+    return plan
+
+
+def _grouping_root(plan: dict, g: dict) -> Path:
+    """The anchor a grouping's rules were planned under — the nested root for a
+    grouping merged by `plan_anchor_tree`, else the plan's own (T337)."""
+    return Path(g.get("anchor_root") or plan["anchor_root"])
+
+
 # ── rendering ───────────────────────────────────────────────────────────────
 
 def render_recipe(plan: dict, order: str, cdir: Path | None) -> str:
@@ -1386,6 +1439,10 @@ def render_recipe(plan: dict, order: str, cdir: Path | None) -> str:
     out.append(f"- mode: **{plan['mode']}**  ·  order: **{order}-major**  ·  "
                f"scope files: {plan['scope_file_count']}  ·  "
                f"rulesets matched: {len(plan['groupings'])}")
+    if plan.get("nested_anchors"):
+        out.append(f"- includes {len(plan['nested_anchors'])} nested anchor(s), each "
+                   f"planned under its own root: "
+                   + ", ".join(n["path"] for n in plan["nested_anchors"]))
     if plan.get("excluded_subanchors"):
         out.append(f"- excluded {len(plan['excluded_subanchors'])} nested sub-anchor(s): "
                    + ", ".join(Path(r).name for r in plan["excluded_subanchors"]))
@@ -2915,11 +2972,27 @@ def chk_status_user_cells_noted(target, anchor_root, args):
 
 
 def chk_status_track_dispatch_linked(target, anchor_root, args):
-    """{slug} Track.md contains a [[{slug} Status]] link."""
-    slug = _anchor_slug(anchor_root)
-    track = anchor_root / f"{slug} Track.md"
-    if not track.is_file():
-        return "error", f"no {track.name}"
+    """{slug} Track.md contains a [[{slug} Status]] link.
+
+    The Status file lives under `{slug} Track/`, which is itself a facet
+    sub-anchor — so when the rule fires under that root (T337 plans every
+    nested anchor under its own root) the Track page belongs to the nearest
+    ANCESTOR whose `{slug} Track.md` exists, not to `anchor_root` itself."""
+    track = None
+    for root in _ancestor_anchor_roots(anchor_root):
+        slug = _anchor_slug(root)
+        # The vault convention is `{slug} Track/{slug} Track.md` (17 of 17
+        # Staff/prj anchors, 2026-09-03); the bare form is accepted as legacy.
+        for cand in (root / f"{slug} Track" / f"{slug} Track.md",
+                     root / f"{slug} Track.md"):
+            if cand.is_file():
+                track = cand
+                break
+        if track:
+            break
+    if track is None:
+        slug = _anchor_slug(anchor_root)
+        return "error", f"no {slug} Track/{slug} Track.md"
     pattern = rf"\[\[{re.escape(slug)} Status(?:\]\]|\|)"
     if re.search(pattern, _read(track), re.IGNORECASE):
         return "pass", ""
@@ -9465,7 +9538,17 @@ def execute_plan(plan: dict, cdir: Path | None) -> dict:
     # `except` (F314) is a fifth, and it is deliberately NOT folded into `pass`:
     # a corpus with forty accepted deviations must never read like one with none.
     counts = {"pass": 0, "fail": 0, "warn": 0, "except": 0, "error": 0, "cached": 0}
-    excs, exc_declined, exc_problems = load_exceptions(anchor_root)
+    # One Exceptions table per OWNING anchor (T337): a grouping merged from a
+    # nested anchor is judged under that anchor's root, so its rows come from
+    # that anchor's table — a facet sub-anchor walks up to the parent's.
+    exc_by_root: dict[Path, tuple] = {}
+
+    def _exc(root: Path) -> tuple:
+        if root not in exc_by_root:
+            exc_by_root[root] = load_exceptions(root)
+        return exc_by_root[root]
+
+    excs, exc_declined, exc_problems = _exc(anchor_root)
     used: set[str] = set()
     # Rows whose rule DID fire on their target, at a severity `execute_plan`
     # cannot rewrite. Tracked separately so they never masquerade as stale.
@@ -9474,6 +9557,8 @@ def execute_plan(plan: dict, cdir: Path | None) -> dict:
     # assignment below. Kept apart from `stale`, which is about GRADED rows.
     moot: set[str] = set()
     for g in plan["groupings"]:
+        anchor_root = _grouping_root(plan, g)
+        excs, exc_declined, _ = _exc(anchor_root)
         for r in g["rules"]:
             if not r.get("check"):
                 continue
@@ -9551,13 +9636,26 @@ def execute_plan(plan: dict, cdir: Path | None) -> dict:
     # must not claim to know which" into a row someone can actually retire; what
     # is left in `stale` is the genuinely undecidable remainder, a row whose rule
     # never ran here at all.
-    stale = [e["handle"] for e in excs
+    # Union over every table consulted; the same table reached through two
+    # roots (a facet sub-anchor and its parent) is one table, so dedupe by handle.
+    all_excs, all_declined, all_problems, seen = [], [], [], set()
+    for ex, de, pr in exc_by_root.values():
+        for e in ex:
+            if e["handle"] not in seen:
+                seen.add(e["handle"]); all_excs.append(e)
+        for d in de:
+            if d["handle"] not in seen:
+                seen.add(d["handle"]); all_declined.append(d)
+        for p in pr:
+            if p not in all_problems:
+                all_problems.append(p)
+    stale = [e["handle"] for e in all_excs
              if e["handle"] not in used and e["handle"] not in unsuppressable
              and e["handle"] not in moot]
     return {"counts": counts, "results": results, "stale_exceptions": stale,
             "unsuppressable_exceptions": sorted(unsuppressable),
             "moot_exceptions": sorted(moot),
-            "declined_exceptions": exc_declined, "exception_problems": exc_problems}
+            "declined_exceptions": all_declined, "exception_problems": all_problems}
 
 
 def render_verdicts(report: dict) -> str:
@@ -10037,6 +10135,9 @@ def execute_on_write(plan: dict, cdir: Path | None) -> dict:
     # that erases the record of why the file is the way it is.
     excs, exc_declined, exc_problems = load_exceptions(anchor_root)
     for g in plan["groupings"]:
+        if g.get("anchor_root") and Path(g["anchor_root"]) != anchor_root:
+            anchor_root = Path(g["anchor_root"])  # T337 — nested owner
+            excs, _, _ = load_exceptions(anchor_root)
         for r in g["rules"]:
             chk = r.get("check")
             if not chk:
@@ -10166,6 +10267,7 @@ def judge_manifest(plan: dict, cdir: Path | None, model: str) -> dict:
                     "check_pattern": r.get("check_pattern"), "why": r.get("why"),
                     "flat_file": g["flat_file"], "source": g["source"],
                     "target": disp, "target_path": tgt, "key": key,
+                    "anchor_root": str(_grouping_root(plan, g)),
                 })
     return {"model": model, "tasks": tasks, "cached": cached,
             "task_count": len(tasks), "cached_count": len(cached)}
@@ -10181,7 +10283,9 @@ def render_report(plan: dict, mech: dict, man: dict) -> str:
     c = mech["counts"]
     out = [f"# audit report — {plan['umbrella']} on {Path(plan['target']).name}", ""]
     out.append(f"- scope files: {plan['scope_file_count']}  ·  "
-               f"rulesets: {len(plan['groupings'])}")
+               f"rulesets: {len(plan['groupings'])}"
+               + (f"  ·  nested anchors included: {len(plan['nested_anchors'])}"
+                  if plan.get("nested_anchors") else ""))
     out.append(f"- mechanical: **{c['pass']} pass · {c['fail']} fail · "
                f"{c.get('warn', 0)} warn · {c.get('except', 0)} except · "
                f"{c['error']} error** "
@@ -10492,8 +10596,10 @@ def main(argv):
     target = resolve_target(args.target)
     mode = args.mode or ("doc" if target.is_file() else "anchor")
     order = args.order or ("rule" if mode == "anchor" and False else "file")
-    exclude = sub_anchor_roots(target) if mode == "anchor" else None
-    plan = plan_one(target, mode, cdir, [], exclude)
+    if mode == "anchor":
+        plan = plan_anchor_tree(target, cdir, [])  # T337 — whole tree, by owner
+    else:
+        plan = plan_one(target, mode, cdir, [])
     if args.on_write:
         report = execute_on_write(plan, cdir)
         if args.json:
