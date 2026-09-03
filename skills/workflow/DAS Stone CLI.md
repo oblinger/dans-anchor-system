@@ -11,10 +11,10 @@ One line per command, as `--help` would print it. Semantics: [[DAS Stone]]. A st
 ```text
 stone new <list> --line TEXT [--body TEXT]    # mint {slug} P0001.md
           [--title T] [--date YYYY-MM-DD]
-stone move <list> <id> --owner SLUG |         # reorder within its run;
-          --after ID | --before ID |          #   with --dest, relocate
-          --to-top | --to-bottom |            #   there (new number),
-          --dest <list>                       #   then place by the flags
+stone move <list> <id> --owner SLUG |         # reorder within its run
+          --after ID | --before ID |
+          --to-top | --to-bottom
+stone move <list> <id> --dest <list>          # relocate, new number
 stone share <list> <id> --with SLUG           # appear on SLUG's list
 stone share <list> <id> --recall SLUG         # stop appearing there
 stone archive <list> <id>                     # retire to archive/
