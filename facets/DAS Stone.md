@@ -5,7 +5,7 @@ group: folder
 
 | -[[DAS Stone]]- | → [[DAS]] → [[FCT]] → [DAS Stone](hook://p/DAS%20Stone)  |
 | --- | --- |
-| [[DAS Stone Design\|Design]]  | [[DAS Stone Keys\|Keys]],   |
+| [[DAS Stone Design\|Design]]  | [[DAS Stone Keys\|Keys]],  [[DAS Stone CLI\|CLI]],   |
 | Examples | [[Lumen Pebble\|Pebbles — a second Kind]],  [[HBR Rocks\|Rocks]],   |
 | Related | [[DAS Backlog]],  [[DAS Agenda]],   |
 | Rules | [[R-stone]],   |
