@@ -16,8 +16,8 @@ stone move <list> <id> --owner SLUG |         # reorder within its run
           --after ID | --before ID |
           --to-top | --to-bottom
 stone move <list> <id> --dest <list>          # relocate to another list
-stone share <list> <id> --with SLUG           # appear on SLUG's list too
-stone share <list> <id> --recall SLUG         # take that appearance back
+stone share <list> <id> --with SLUG           # appear on SLUG's list
+stone share <list> <id> --recall SLUG         # take the appearance back
 stone archive <list> <id>                     # retire it to archive/
 stone update [--dry-run]                      # reconcile + propagate
 
