@@ -20,7 +20,7 @@ check:: loop_step_resolves
 A row missing either cell is refused naming the step. `when` is one of: absolute date / date-hour, `daybreak`, `HH:00`, `+Nd`, `<key>±Nd`. Minutes other than `:00` are refused as finer than the hourly watch. Guard: § A (no probe), § B (`22:30`).
 
 ### RULE R-loop-04 — Probes are the four kinds, and `miss → dan` needs a falsifiable one (stated)
-`mail:`, `key:`, `portal:` (with a `[[link]]`), `owner:` — nothing else. A step whose miss branch is `dan` carries at least one `key:` or `portal:` probe, because `mail:` alone can only return hit or unknown and an unknown may never reach Dan as a miss. Guard: § B.
+`mail:`, `key:`, `portal:` (with a `[[link]]`), `owner:` — nothing else. A step whose miss branch is `dan` carries at least one `key:` or `portal:` probe, because `mail:` alone can only return hit or unknown and an unknown may never reach Dan as a miss. A miss branch to a *step* on a `mail:`/`owner:`-only step is legal but unreachable; `loop lint` warns rather than refuses. `key:` miss is precise: the key absent, or present and empty. A `portal:` check is read-only — navigate and read, never submit. Guard: § B, § K.
 
 ### RULE R-loop-05 — Branch targets are a step name, `close`, `owner`, or `dan` (stated)
 `hit` → a step or `close`; `miss` → a step, `owner` or `dan`. There is no cell for a channel, a rung or a command, and no target outside this set — that absence is the whole of the grammar's containment. Guard: § F (`--to dan`, `--to nowhere`).
@@ -32,3 +32,8 @@ A binding the workflow requires and the stone lacks, or a `when` that reads a ke
 
 ### RULE R-loop-07 — The watch list is script-owned (stated)
 Every line on [[TRAFFIC]]'s control file is a stone enrolled there by `loop start` (through `stone push`) and carrying `workflow::`. A hand-written line, a stone on the list without `enrolled:: TRAFFIC`, or an enrolled stone with no workflow is reported by `loop due` / `loop scan` as a WARN naming the line. Guard: § H. At the moment of writing, [[R-pathguard]]-06/-07 deny an agent's Edit/Write to that file outright (mend `loop-owns-the-watch-list`).
+
+### RULE R-loop-08 — The workflow a stone runs on resolves inside the owner's anchor, or to the stone itself (checked)
+check:: loop_workflow_contained
+
+`workflow::` — direct, or supplied through `channel::` — must resolve to a page under the owning anchor's folder (`{owner anchor}/**`) or to the stone's own file. A workflow pulled from anywhere else writable in the vault is the injection path Dan named on [[DAS Loop]] § Security; refusing it at `start`/`advance` costs one path test and closes most of it today. Proposed by Atticus in the F635 review, 2026-09-02. The enclave ([[Atticus P0018]]) will later say *which* folders under the owner count — this rule is the placeholder that makes that narrowing a tightening rather than a new gate. Guard: § B.

@@ -29,9 +29,11 @@ The workflow grammar — a `## Workflow` section, header keys then one table:
            One key and one offset at most — no expressions. Hour floor.
   probe  — one or more of, separated by ` · `:
              `mail: <notmuch query>`   script-run; hit or unknown
-             `key: <name>`             script-run; hit or miss (the key is
-                                       set, or provably not)
-             `portal: [[link]] — <what proves it>`   agent-run
+             `key: <name>`             script-run; hit when the key holds a
+                                       value, miss when it is absent — and a
+                                       key present but EMPTY is absent
+             `portal: [[link]] — <what proves it>`   agent-run, READ-ONLY:
+                                       navigate and read, never submit
              `owner:`                  judgment; routes to the owning anchor
   hit    — next step, or `close`
   miss   — next step, `owner`, or `dan`
@@ -43,7 +45,10 @@ Probes are tri-state. `hit` advances (any time — Dan may act early). `miss`
 is a PROOF of absence and takes the miss branch, but only once the rendezvous
 has arrived. `unknown` never takes the miss branch; past the rendezvous it
 routes to the owner. A step whose miss branch reaches `dan` must carry a
-probe that can return `miss` (`key:` or `portal:`) — refused otherwise.
+probe that can return `miss` (`key:` or `portal:`) — refused otherwise. A
+miss branch to a STEP on a `mail:`/`owner:`-only step is legal but can never
+fire; `loop lint` warns. R-loop-08: the workflow a stone runs on resolves
+inside the owner's anchor or to the stone itself — never elsewhere.
 
 Verbs, split by who uses them (Dan, 2026-09-02):
 
@@ -351,7 +356,7 @@ def parse_workflow(text: str, where: str):
     header = [c.lower() for c in _cells(rows[0])]
     if header != _TABLE_HEADER:
         raise LoopError(f"{where} § Workflow table header is {header}, must be {_TABLE_HEADER}")
-    steps, order, defects = {}, [], []
+    steps, order, defects, warnings = {}, [], [], []
     for ln in rows[2:]:
         cells = _cells(ln)
         if len(cells) != 5:
@@ -412,10 +417,15 @@ def parse_workflow(text: str, where: str):
             if not any(p.kind in ("key", "portal") for p in s.probes):
                 defects.append(f"step {s.name}: miss → dan, but no probe can return `miss` "
                                f"(`mail:` alone is hit-or-unknown) — add a `key:` or `portal:`")
+        elif s.miss and s.miss.target in steps and s.probes:
+            if not any(p.kind in ("key", "portal") for p in s.probes):
+                warnings.append(f"step {s.name}: miss branch unreachable — no probe on this step can "
+                                f"return `miss` (`mail:`/`owner:` only), so `miss → {s.miss.target}` never "
+                                f"fires; the step advances on hit or ages into `owner`")
     if not order:
         defects.append("the step table has no rows")
     return SimpleNamespace(where=where, requires=requires, raise_=raise_,
-                           steps=steps, order=order, defects=defects)
+                           steps=steps, order=order, defects=defects, warnings=warnings)
 
 
 def resolve_workflow(st, root: Path):
@@ -476,6 +486,20 @@ def check_stone(st, root: Path):
     except LoopError as e:
         return None, defects + [Defect("02", str(e)[len("loop: "):])]
     defects.extend(Defect("wf", f"{wf.where}: {d}") for d in wf.defects)
+    # R-loop-08 — containment of the SOURCE: the workflow is the stone itself
+    # or a page inside the owner's anchor. Anything writable elsewhere in the
+    # vault is the injection path Dan named (Atticus review 2026-09-02); the
+    # enclave (Atticus P0018) will later narrow WHICH folders count.
+    if wf.path != st.path:
+        owner = next((d for d in st.path.parents if (d / ".anchor").is_file()), None)
+        try:
+            inside = owner is not None and wf.path.resolve().is_relative_to(owner.resolve())
+        except AttributeError:  # < 3.9
+            inside = owner is not None and str(wf.path.resolve()).startswith(str(owner.resolve()) + "/")
+        if not inside:
+            defects.append(Defect("08", f"`workflow::` resolves to {wf.path.name}, outside the owner's anchor "
+                                  f"({owner.name + '/' if owner else 'none found'}) — a workflow is pulled only "
+                                  f"from the owner's own anchor or the stone itself"))
     if step and step not in wf.steps:
         defects.append(Defect("02", f"`step:: {step}` is not a step of {wf.where} "
                               f"(steps: {', '.join(wf.order) or 'none'})"))
@@ -828,6 +852,8 @@ def cmd_lint(root: Path, args) -> int:
         print(f"  {n:<12} when {st.when_raw:<16} probe {probes}")
         print(f"  {'':<12} hit → {st.hit.target if st.hit else '?'}   miss → {st.miss.target if st.miss else '?'}"
               + (f"   importance {st.importance} on entry" if st.importance else ""))
+    for w in getattr(wf, "warnings", ()):
+        print(f"  WARN {w}")
     if wf.defects:
         print(f"  {len(wf.defects)} DEFECT(S) — `loop start` would refuse:")
         for d in wf.defects:
@@ -1053,10 +1079,16 @@ def chk_loop_bindings_present(target, anchor_root, args):
     return _chk(target, ("06",), "every binding the workflow reads is on the stone")
 
 
+def chk_loop_workflow_contained(target, anchor_root, args):
+    """R-loop-08: workflow:: resolves inside the owner's anchor, or to the stone itself."""
+    return _chk(target, ("08",), "workflow source is inside the owner's anchor")
+
+
 CHECKERS = {
     "loop_keys_complete": chk_loop_keys_complete,
     "loop_step_resolves": chk_loop_step_resolves,
     "loop_bindings_present": chk_loop_bindings_present,
+    "loop_workflow_contained": chk_loop_workflow_contained,
 }
 
 

@@ -42,11 +42,11 @@ A `## Workflow` section — header keys, then one table — the same wherever th
 |---|---|---|---|---|
 | a lowercase name | the rendezvous | one or more observations, ` · `-separated | next step, or `close` | next step, `owner`, or `dan` |
 
-**`when` — closed vocabulary.** Absolute `2026-09-15` / `2026-09-15 07:00`; symbolic `daybreak`, `22:00`; relative `+7d` from `entered::`; keyed `<key>±Nd` from any date-valued key on the stone (`run-out-3d`, `ordered+3d`, bare `window-open`). One key and one offset, no expressions — a computed edge is written as a binding at mint. Hour floor: the watch is hourly.
+**`when` — closed vocabulary.** Absolute `2026-09-15` / `2026-09-15 07:00`; symbolic `daybreak`, `22:00`; relative `+7d` from `entered::`; keyed `<key>±Nd` from any date-valued key on the stone (`run-out-3d`, `ordered+3d`, bare `window-open`). One key and one offset, no expressions — a computed edge is written as a binding at mint. Hour floor: the watch is hourly. `+7d` and `entered+7d` are the same edge; examples here write `+7d`.
 
-**`probe` — four kinds, executable, never prose.** `mail: <notmuch query>` (script-run; hit or unknown). `key: <name>` (script-run; hit when set, miss when provably not). `portal: [[link]] — <what proves it>` (agent-run; `loop due` lists it under *needs an agent check*). `owner:` (judgment; routes to the owning anchor). An `· importance high` annotation may trail the `when` cell or a branch target; it is applied on entering that step.
+**`probe` — four kinds, executable, never prose.** `mail: <notmuch query>` (script-run; hit or unknown). `key: <name>` (script-run; hit when the key holds a value; miss when the key is absent — and a key present but empty is absent). `portal: [[link]] — <what proves it>` (agent-run; `loop due` lists it under *needs an agent check*; **read-only** — navigate and read, never submit: this cell is the one free-text instruction an agent executes). `owner:` (judgment; routes to the owning anchor). An `· importance high` annotation may trail the `when` cell or a branch target; it is applied on entering that step.
 
-**Tri-state.** `hit` advances at any time — Dan may act early. `miss` is a proof of absence and takes the miss branch only once the rendezvous has arrived. `unknown` never branches; past the rendezvous it routes to the owner. A step whose miss reaches `dan` must carry a probe that can return `miss`. `miss → dan` is not a rung: the step supplies importance and `due::`; Sparks picks rungs ([[ASTR Comms]] § Picking a rung, take two). **There is no cell for a channel, a rung or a command.**
+**Tri-state.** `hit` advances at any time — Dan may act early. `miss` is a proof of absence and takes the miss branch only once the rendezvous has arrived. `unknown` never branches; past the rendezvous it routes to the owner. A step whose miss reaches `dan` must carry a probe that can return `miss`. A miss branch to a step on a `mail:`/`owner:`-only step never fires — `loop lint` warns. `miss → dan` is not a rung: the step supplies importance and `due::`; Sparks picks rungs ([[ASTR Comms]] § Picking a rung, take two). **There is no cell for a channel, a rung or a command.**
 
 ## The verbs — `skills/workflow/scripts/loop`
 
@@ -81,7 +81,7 @@ Script: `~/.claude/skills/workflow/scripts/loop` (`loop --help`, `loop <verb> --
 
 ## Security — deferred, on record
 
-A workflow is a document that makes agents act. The grammar keeps the blast radius small by construction — closed `when` and probe vocabularies, no executable cell — but that is containment, not a defense; anything writable in the vault can author one. Dan, 2026-09-02: *terrible from a security point of view … kick the can down the road.* Held by [[Atticus]] (P0018).
+A workflow is a document that makes agents act. The grammar keeps the blast radius small by construction — closed `when` and probe vocabularies, no executable cell — but that is containment, not a defense; anything writable in the vault can author one. Since 2026-09-02 the *source* is contained too: R-loop-08 refuses a `workflow::` that resolves outside the owner's anchor (or the stone itself), so a workflow must be authored where the owner writes. The enclave will narrow which folders count. Dan, 2026-09-02: *terrible from a security point of view … kick the can down the road.* Held by [[Atticus]] (P0018).
 
 # BRIEF
 

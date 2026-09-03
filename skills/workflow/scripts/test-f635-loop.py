@@ -162,6 +162,8 @@ NO_PROBE = CIGNA.replace("| press | `+7d` · importance high | `key: ordered` |"
 BAD_WHEN = CIGNA.replace("`+7d` · importance high", "`22:30`")
 MAIL_ONLY_DAN = CIGNA.replace("`mail: from:express-scripts subject:delivered` · `key: arrived`",
                               "`mail: from:express-scripts subject:delivered`")
+# Legal but silent: a mail-only step whose miss goes to a STEP — the branch can never fire (§ K warns).
+MAIL_ONLY_STEP = MAIL_ONLY_DAN.replace("| close | dan |", "| close | press |")
 
 HANDOFF = ["--set", "due=2026-10-01", "--set", "done=the supply is on the shelf",
            "--set", "importance=nominal", "--set", "lapses=Eliquis runs out 2026-10-01"]
@@ -177,6 +179,7 @@ def build(root: Path):
     (root / "MED" / "MED No Probe.md").write_text(NO_PROBE, encoding="utf-8")
     (root / "MED" / "MED Bad When.md").write_text(BAD_WHEN, encoding="utf-8")
     (root / "MED" / "MED Mail Only.md").write_text(MAIL_ONLY_DAN, encoding="utf-8")
+    (root / "MED" / "MED Mail Step.md").write_text(MAIL_ONLY_STEP, encoding="utf-8")
     (root / "BUY" / "BUY eBay Return.md").write_text(EBAY, encoding="utf-8")
     (root / "AT").mkdir()
     (root / "AT" / "@Cigna.md").write_text("# @Cigna\n\nworkflow:: [[MED Cigna Refill]]\n", encoding="utf-8")
@@ -231,7 +234,9 @@ def main():
     rc, out, err = run(["start", "MED", sid, "--workflow", "[[MED Cigna Refill]]"] + BINDINGS
                        + ["--set", "lapses=x"] + R, T0)
     check(rc == 1 and "TRAFFIC accepts only" in err and "`due::`" in err, "TRAFFIC accepts keys enforced before any write")
-    check("workflow" not in keys_of(stone_path(root, "MED", sid)), "still nothing written after four refusals")
+    rc, out, err = run(["start", "MED", sid, "--workflow", "[[BUY eBay Return]]"] + BINDINGS + HANDOFF + R, T0)
+    check(rc == 1 and "outside the owner's anchor (MED/)" in err, "R-loop-08: workflow outside the owner's anchor refused")
+    check("workflow" not in keys_of(stone_path(root, "MED", sid)), "still nothing written after five refusals")
 
     print("C. start — keys, enrollment, receipt")
     rc, out, err = run(["start", "MED", sid, "--workflow", "[[MED Cigna Refill]]", "--channel", "[[@Cigna]]"]
@@ -366,6 +371,11 @@ def main():
     check(rc == 0 and "4 step(s)" in out and "ok — a stone carrying `window-open::`, `run-out::`" in out, f"clean template lints ok: {out.splitlines()[0] if out else err}")
     rc, out, err = run(["lint", str(root / "MED" / "MED No Probe.md")] + R, T0)
     check(rc == 1 and "DEFECT" in out and "step press: no probe" in out, "no-probe twin exits 1 naming the step")
+    rc, out, err = run(["lint", "[[MED Mail Step]]"] + R, T0)
+    check(rc == 0 and "WARN step arrive: miss branch unreachable" in out and "`miss → press` never fires" in out,
+          "mail-only step with miss → step lints ok with a WARN")
+    rc, out, err = run(["lint", "[[MED Mail Only]]"] + R, T0)
+    check(rc == 1 and "WARN" not in out, "miss → dan on mail-only stays a defect, not a warning")
     rc, out, err = run(["lint", "[[MED Nowhere]]"] + R, T0)
     check(rc == 1 and "matches no file" in err, "unresolvable link is an error, not a pass")
 
