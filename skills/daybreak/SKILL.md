@@ -337,15 +337,7 @@ After the Today set is chosen and **before** it is written, read `~/ob/kmr/Topic
 
 1. Record anything deferred-but-wanted in a durable place — a [[Lumen Pebbles|pebble]] if Lumen is holding it, else a [[Quick]] line, a [[Weekly]] checkbox, or a backlog row.
 2. Advance `Daybreak Watermark.md` to the newest `captured:` surfaced.
-3. **Open it — `open "$HOME/ob/kmr/SYS/Staff/Lumen/Lumen Day.md"`** so it is the active tab in Dan's own Obsidian, which is where he reads it.
-
-   **The tab is already pinned and must not be re-pinned.** Dan asked for this 2026-09-04 — *"each morning when you do daybreak, can you pin daybreak so I can easily find it?"* — and it was done **once**, permanently: `Lumen Day.md` carries `pinned: true` in `.obsidian/workspace.json`. The file is rewritten in place every morning, so the pin survives; there is nothing to redo. **`workspace:toggle-pin` is a toggle — firing it again UNPINS the tab.** Never run it as part of the routine.
-
-   **How it was done, for the day the pin is lost:** Obsidian owns `workspace.json` and rewrites it continuously, so an agent cannot pin by editing that file. The route that works is the `obsidian-advanced-uri` community plugin, which is installed and enabled:
-
-       obsidian://advanced-uri?vault=kmr&filepath=SYS%2FStaff%2FLumen%2FLumen%20Day.md&commandid=workspace%3Atoggle-pin
-
-   **Percent-encode the path by hand — `urlencode` will break it.** Python's `urllib.parse.urlencode` emits `+` for a space, Advanced URI reads that literally, and the first attempt created an empty `Lumen+Day.md` in the anchor folder and pinned nothing. Use `quote(path, safe='')`. Verify afterwards by reading `pinned` off the leaf in `workspace.json`; do not assume the URI landed.
+3. **Open it — `open "$HOME/ob/kmr/SYS/Staff/Lumen/Lumen Day.md"`** so it is the active tab in Dan's Obsidian, where he reads it. **Nothing here pins anything.** Dan asked on 2026-09-04 for the briefing to be pinned; the pin is a **spine Pin row**, set once by `skills/workflow/scripts/pin` — `pin Lumen "[[Lumen Day]]"` — and it already stands on [[LUMEN]]. It is not a per-morning act, and Obsidian's tab-pin is a different mechanism that must not be used as a substitute: **the vault has exactly one pin.**
 4. Confirm the briefing landed in [[Lumen Day]] before finishing — a run that only spoke into chat did not deliver. **Check the rotation held too**: exactly one H1 and no `##` day-heading other than today's. The seven-day rotation this file claimed for weeks was never implemented, and nothing checked, so it silently grew to 743 lines.
 5. **`ob_check drain` — but only once Dan has actually responded to the briefing.** The Doctor step deliberately used `peek`, which left the cursor alone; this is where the receipt is written. **If the morning ends with no reply from him, do not drain** — leave the cursor and let the same rows surface tomorrow, because he never saw them.
 6. Do not commit unless asked — Daybreak is a read-and-decide ritual, not a work session.
