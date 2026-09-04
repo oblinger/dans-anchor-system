@@ -323,9 +323,7 @@ def read_body(args):
         if not p.is_file():
             raise be.BacklogEditError(f"--from-file path not found: {p}")
         return p.read_text(encoding="utf-8")
-    if not sys.stdin.isatty():
-        return sys.stdin.read()
-    return ""
+    return be.read_stdin_body()   # T592 — never blocks on a never-EOF pipe
 
 
 # ============================================================

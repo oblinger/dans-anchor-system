@@ -47,10 +47,12 @@ Q-management mode (F128):
 from __future__ import annotations
 
 import gzip
+import io
 import json
 import os
 import pathlib
 import re
+import select
 import sys
 import subprocess
 from datetime import date, datetime, timezone
@@ -3664,6 +3666,50 @@ def _find_feature_doc(slug, row_id):
     return matches[0]
 
 
+# T592 — an agent harness hands its child an stdin pipe it never writes to and
+# never closes, so a plain `sys.stdin.read()` here blocked until the CALLER's
+# timeout killed the process: `state resolve … --choice "…"` with no --body cost
+# two 7-minute timeouts on 2026-08-22 before the `</dev/null` workaround was
+# found. An idle pipe and an empty one are indistinguishable to a reader that
+# waits for EOF, so this one stops waiting instead.
+STDIN_IDLE_TIMEOUT = float(os.environ.get("STATE_STDIN_TIMEOUT", "2.0"))
+
+
+def read_stdin_body(timeout=None):
+    """Read a piped body from stdin, treating an idle pipe as "no body given".
+
+    A tty means a human is at the keyboard and there is no piped body at all.
+    Anything else is polled with `select`: data is drained as it arrives, a real
+    EOF ends the read, and a pipe that goes quiet for `timeout` seconds ends it
+    too rather than blocking forever. The idle window is generous by design —
+    every legitimate producer here (a heredoc, a `cat`, an `echo`) delivers in
+    microseconds, so the only thing the wait can cost is the pathological case
+    it exists to escape.
+    """
+    if sys.stdin.isatty():
+        return ""
+    if timeout is None:
+        timeout = STDIN_IDLE_TIMEOUT
+    try:
+        fd = sys.stdin.fileno()
+    except (AttributeError, ValueError, io.UnsupportedOperation):
+        # Not a real descriptor — a StringIO under test. Nothing to hang on.
+        return sys.stdin.read()
+    chunks = []
+    while True:
+        try:
+            ready, _, _ = select.select([fd], [], [], timeout)
+        except (OSError, ValueError):
+            break
+        if not ready:
+            break          # idle: EOF is never coming, and neither is more data
+        data = os.read(fd, 65536)
+        if not data:
+            break          # real EOF
+        chunks.append(data)
+    return b"".join(chunks).decode("utf-8", errors="replace")
+
+
 def _read_q_body(args_inline, args_from_file):
     """Get body content from -m, --from-file, or stdin (in that priority)."""
     if args_inline is not None:
@@ -3673,9 +3719,7 @@ def _read_q_body(args_inline, args_from_file):
         if not p.is_file():
             raise BacklogEditError(f"--from-file path not found: {p}")
         return p.read_text(encoding="utf-8")
-    if not sys.stdin.isatty():
-        return sys.stdin.read()
-    return ""
+    return read_stdin_body()
 
 
 _Q_HEADER_BULLET_RE = re.compile(r"^(\s*)- \*\*Q(\d+)\b")
