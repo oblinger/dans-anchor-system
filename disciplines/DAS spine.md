@@ -89,6 +89,8 @@ Every entry gets its own hand-written row above the marker, and the machine swee
 
 **Grouped and two-level render almost identically and are not the same thing.** Grouped is one folder wearing headings; two-level is a node in a tree of containers. Read [[HRUN|Harbor Runbooks]] and [[DVT|Devtools]] side by side — they are built to be that pair. The distinction is real and worth teaching, but it is a distinction *within* the custom spine rather than two more shapes: in all three arrangements the author writes the rows, the marker is `...`, and the machine sweeps the remainder.
 
+**The Pin row is the one hand row a script writes.** An agent shows work by running `pin <anchor> [link…]` (workflow scripts, [[Tink660 - pin: an agent shows work by pinning links into its spine|TINK F660]]), which rewrites a `**Pin**` row as the first body row of its anchor page's masthead: the links the agent wants the user to look at now, replacing the last set, deleted when the set is empty. The script refuses a row whose displayed text would wrap and a link that does not resolve, and it refuses outright on a page with no masthead — an agent's anchor page owes a spine for exactly this reason. Above the marker, so a rebuild leaves it.
+
 ### List spine
 
 **Marker:** `---` **Use when:** each child needs its own sentence.

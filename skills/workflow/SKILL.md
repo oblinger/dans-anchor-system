@@ -440,6 +440,12 @@ echo '- **F+ — Title** [Designing] — → [[F095 — Title]]' | ~/.claude/ski
 
 `~/.claude/skills/workflow/scripts/backlog-edit.py` ships the F128-era positional CLI (`<slug> <horizon> <row-id> <status> [title] [body]` for rows, `-Q add|resolve|remove|rewrite` flag-mode for Qs). It remains functional during the migration window — both scripts coexist. New code should prefer `state` per the verb-first design (F129).
 
+## Show work — `pin`
+
+`~/.claude/skills/workflow/scripts/pin <anchor> [link…] [--glance] [--max N] [--dry-run]` — the agent's channel for showing the user an output, a draft, or work in progress ([[Tink660 - pin: an agent shows work by pinning links into its spine|TINK F660]]). It replaces the **Pin** row of the anchor page's spine with exactly the links given — first body row, created when absent, deleted when no links are given — so the user, running many threads, reads one row on the agent's page and clicks through. The anchor is named, never inferred from cwd, exactly as `state` takes it: the agent's identity page is the target even while it works inside a content anchor.
+
+Refused, writing nothing: a page with no masthead (the agent's page needs a spine, [[DAS spine]]); a link that `ha -p` cannot resolve; a set whose *displayed* text — aliases and `, ` joins, not the link syntax — exceeds `pin_max_chars` (global.yaml, default 60), because a wrapped Pin row defeats the glance. `--glance` opens each pinned file after the write and is off by default: pinning is the quiet channel. Pin at every hand-off point where the user might want to look — a finished deliverable, a draft awaiting reaction, the report a crank produced.
+
 ## Per-surface mappings
 
 Each surface that uses workflow state cites this discipline and maps the canonical states onto its own structure.

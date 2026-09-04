@@ -1,0 +1,183 @@
+#!/usr/bin/env python3
+"""pin — an agent shows work by pinning links into its spine (TINK F660).
+
+    pin <anchor> [link…] [--glance] [--max N] [--dry-run]
+
+Rewrites the **Pin** row of the anchor page's dispatch table to hold exactly the
+links given, creating the row (first body row, under the identity row) when
+absent and deleting it when no links are given. Links are wiki-links in any
+form: `[[Target|Alias]]`, `[[Target\\|Alias]]`, `Target|Alias`, `Target`.
+
+Refuses, writing nothing, when: the anchor does not resolve; its page has no
+dispatch table (an agent's page needs a spine — see DAS spine § What a spine
+is); a link target does not resolve (`ha -p`); or the DISPLAYED text of the
+row — aliases and `, ` joins, never the link syntax — exceeds the budget.
+Budget: `pin_max_chars` in ~/.config/anchor-system/global.yaml (default 60),
+`--max` for one call. `--glance` opens each pinned file after the write.
+
+The Pin row is a hand row above the electric marker, so a HookAnchor rebuild
+leaves it alone; this script is its only writer. Resolution goes through `ha`
+(override with $PIN_HA for tests).
+"""
+import argparse
+import os
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+GLOBAL_YAML = Path.home() / ".config" / "anchor-system" / "global.yaml"
+DEFAULT_MAX = 60
+JOIN = ",  "                       # the masthead's separator; renders as ", "
+IDENTITY_RE = re.compile(r"^\|\s*(?:-\[\[[^\]]+\]\]-|~~\[\[[^\]]+\]\]~~)\s*\|")
+GFM_SEP_RE = re.compile(r"^\|\s*:?-{3,}:?\s*\|\s*:?-{3,}:?\s*\|\s*$")
+ELECTRIC = {"...", "---", "+++", "^^^", "!!!"}
+LINK_RE = re.compile(r"\[\[([^\]]+?)\]\]")
+
+
+class PinError(Exception):
+    pass
+
+
+def ha_path(name):
+    """`ha -p <name>` → Path, or None when HookAnchor knows no such command."""
+    ha = os.environ.get("PIN_HA", "ha")
+    r = subprocess.run([ha, "-p", name], capture_output=True, text=True)
+    out = r.stdout.strip().splitlines()
+    if r.returncode != 0 or not out:
+        return None
+    return Path(out[0])
+
+
+def anchor_page(anchor_arg):
+    """The anchor's page: `<dir>/<dir>.md` for a path holding .anchor, else via ha."""
+    p = Path(anchor_arg).expanduser()
+    if p.is_dir() and (p / ".anchor").exists():
+        page = p / f"{p.name}.md"
+        if not page.exists():
+            raise PinError(f"anchor at {p} has no page {page.name}")
+        return page
+    hit = ha_path(anchor_arg)
+    if hit is None:
+        raise PinError(f"anchor {anchor_arg!r}: `ha -p` knows no such anchor")
+    if hit.is_dir():
+        hit = hit / f"{hit.name}.md"
+    if hit.suffix != ".md" or not hit.exists():
+        raise PinError(f"anchor {anchor_arg!r} resolves to {hit}, not an anchor page")
+    return hit
+
+
+def parse_link(raw):
+    """→ (target, alias, written, displayed). Accepts bracketed or bare, escaped pipe or not."""
+    s = raw.strip()
+    m = LINK_RE.fullmatch(s)
+    inner = m.group(1) if m else s
+    inner = inner.replace("\\|", "|")
+    target, _, alias = inner.partition("|")
+    target, alias = target.strip(), alias.strip()
+    if not target:
+        raise PinError(f"link {raw!r} has no target")
+    written = f"[[{target}\\|{alias}]]" if alias else f"[[{target}]]"
+    displayed = alias or target.replace("#^", " > ^").replace("#", " > ")
+    return target, alias, written, displayed
+
+
+def resolve_target(target):
+    name = target.split("#", 1)[0].strip()
+    if ha_path(name) is None:
+        raise PinError(f"link target {name!r} does not resolve (`ha -p`); a Pin row never carries a dead link")
+
+
+def budget():
+    try:
+        txt = GLOBAL_YAML.read_text()
+    except OSError:
+        return DEFAULT_MAX
+    m = re.search(r"^pin_max_chars:\s*(\d+)\s*$", txt, re.M)
+    return int(m.group(1)) if m else DEFAULT_MAX
+
+
+def cell_label(line):
+    cells = line.strip().strip("|").split("|")
+    return cells[0].strip().strip("*").strip() if cells else ""
+
+
+def locate_table(lines):
+    """→ (identity_idx, first_body_idx, marker_idx). Raises when the page has no masthead."""
+    ident = None
+    for i, ln in enumerate(lines):
+        if ln.startswith("#") and ident is None:
+            break                                   # reached the H1 with no masthead
+        if IDENTITY_RE.match(ln):
+            ident = i
+            break
+    if ident is None:
+        head = next((ln for ln in lines if ln.strip() and not ln.startswith("---")), "")
+        why = "opens with a `:>>` breadcrumb, a leaf spine with no rows" if head.startswith(":>>") \
+            else "has no dispatch table"
+        raise PinError(f"{why}; an agent's anchor page needs a masthead spine to carry a Pin row "
+                       f"(DAS spine § What a spine is)")
+    if ident + 1 >= len(lines) or not GFM_SEP_RE.match(lines[ident + 1]):
+        raise PinError("identity row is not followed by the GFM `| --- | --- |` separator")
+    body = ident + 2
+    marker = body
+    while marker < len(lines) and lines[marker].startswith("|"):
+        if cell_label(lines[marker]) in ELECTRIC:
+            break
+        marker += 1
+    return ident, body, marker
+
+
+def main():
+    ap = argparse.ArgumentParser(description="replace the Pin row of an agent's spine")
+    ap.add_argument("anchor", help="anchor slug, or a directory holding .anchor — never inferred from cwd")
+    ap.add_argument("links", nargs="*", help="wiki-links to pin; none clears the row")
+    ap.add_argument("--glance", action="store_true", help="open each pinned file after writing")
+    ap.add_argument("--max", type=int, help=f"displayed-character budget (default: pin_max_chars in global.yaml, else {DEFAULT_MAX})")
+    ap.add_argument("--dry-run", action="store_true", help="print the row; write nothing")
+    a = ap.parse_args()
+    try:
+        page = anchor_page(a.anchor)
+        parsed = [parse_link(l) for l in a.links]
+        for target, *_ in parsed:
+            resolve_target(target)
+        shown = ", ".join(d for *_, d in parsed)
+        cap = a.max if a.max is not None else budget()
+        if len(shown) > cap:
+            raise PinError(f"pinned text displays {len(shown)} characters, budget {cap} — it would wrap; "
+                           f"shorten the aliases or pin fewer (`--max` overrides once)")
+        text = page.read_text()
+        lines = text.split("\n")
+        ident, body, marker = locate_table(lines)
+        existing = next((i for i in range(body, marker) if cell_label(lines[i]) == "Pin"), None)
+        row = f"| **Pin** | {JOIN.join(w for *_, w, _d in parsed)} |" if parsed else None
+        if row is None:
+            if existing is None:
+                print(f"pin: {page.name} carries no Pin row; nothing to clear")
+                return 0
+            del lines[existing]
+            verdict = f"pin: cleared the Pin row on {page.name}"
+        elif existing is None:
+            lines.insert(body, row)
+            verdict = f"pin: {page.name} ← {shown}  ({len(shown)}/{cap})"
+        else:
+            lines[existing] = row
+            verdict = f"pin: {page.name} ← {shown}  ({len(shown)}/{cap})"
+        if a.dry_run:
+            print(row or "(row removed)")
+            return 0
+        page.write_text("\n".join(lines))
+        print(verdict)
+        if a.glance:
+            for target, *_ in parsed:
+                hit = ha_path(target.split("#", 1)[0])
+                subprocess.run(["open", str(hit)], check=False)
+                print(f"pin: glanced {hit.name}")
+        return 0
+    except PinError as e:
+        print(f"pin: {e}", file=sys.stderr)
+        return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
