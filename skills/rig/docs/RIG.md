@@ -13,7 +13,7 @@
 | **[[#Backends]]** |  |
 | **[[#`ls` shows everything]]** |  |
 | **[[#Configuration]]** |  |
-| **[[#Ownership and expiry — ruled 2026-09-03, not yet built]]** |  |
+| **[[#Ownership and expiry — ruled and built 2026-09-03]]** |  |
 |    [[#The gap this closed]] |  |
 
 It exists because every other tool in the chain assumes the machine already exists. Connection tools take a host you can already reach; experiment frameworks take a remote you have already registered. Something has to make the box first, and until now that something was a human at a cloud console.
@@ -229,7 +229,7 @@ Everything is overridable per invocation (`--size`, `--zone`, `--disk`, `--image
 
 **A note on keys.** rig authenticates non-interactively, so its key must have no passphrase. This is worth stating because a passphrase-protected key fails in a maximally confusing way: ssh offers the key, cannot sign with it, and the server reports `Permission denied (publickey)` — indistinguishable from having no key at all. If you are debugging that error, run `ssh-keygen -y -f <key>`; if it asks for a passphrase, that is your answer.
 
-## Ownership and expiry — ruled 2026-09-03, not yet built
+## Ownership and expiry — ruled and built 2026-09-03
 
 Dan, 2026-09-03, after an H100 billed five idle hours: *"rig should, by default, have a prefix that's in the configuration of rig, and each user can set what their prefix is. That way rig can have commands that just know which things were created by it… by default, when you rig up a machine, it puts the watcher out there."* Four parts:
 
