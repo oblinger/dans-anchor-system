@@ -273,7 +273,16 @@ def body(ctx):
     try:
         words = shlex.split(cmd)
     except ValueError:
-        words = cmd.split()
+        # T662 — the naive `cmd.split()` this replaced shreds every QUOTED
+        # ARGUMENT CONTAINING A SPACE, so an unbalanced quote anywhere in the
+        # line (an apostrophe in a message is enough) turned `open -a "Google
+        # Chrome Beta"` into the token `"Google` and this rule stopped seeing
+        # a browser. `posix=False` tolerates the unbalanced quote and keeps
+        # quoted tokens whole; the quotes it leaves on are stripped here.
+        # Found on R-ob-commons-01 (T663), where the same fallback let a real
+        # commons commit through, and swept to its three siblings.
+        words = [w[1:-1] if len(w) >= 2 and w[0] == w[-1] and w[0] in "\"'" else w
+                 for w in shlex.split(cmd, posix=False)]
 
     # `cargo` in COMMAND position, and not the sanctioned `just cargo …` form.
     # Never `echo "cargo build"`, never a path containing the word.

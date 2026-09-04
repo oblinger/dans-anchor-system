@@ -53,7 +53,16 @@ def body(ctx):
     try:
         words = shlex.split(cmd)
     except ValueError:
-        words = cmd.split()
+        # T662 — the naive `cmd.split()` this replaced shreds every QUOTED
+        # ARGUMENT CONTAINING A SPACE, so an unbalanced quote anywhere in the
+        # line (an apostrophe in a message is enough) turned `open -a "Google
+        # Chrome Beta"` into the token `"Google` and this rule stopped seeing
+        # a browser. `posix=False` tolerates the unbalanced quote and keeps
+        # quoted tokens whole; the quotes it leaves on are stripped here.
+        # Found on R-ob-commons-01 (T663), where the same fallback let a real
+        # commons commit through, and swept to its three siblings.
+        words = [w[1:-1] if len(w) >= 2 and w[0] == w[-1] and w[0] in "\"'" else w
+                 for w in shlex.split(cmd, posix=False)]
     # ssh flags that take a separate value (must not be mistaken for the host)
     argful = {"-p", "-i", "-l", "-o", "-F", "-J", "-L", "-R", "-D", "-W",
               "-E", "-b", "-c", "-e", "-m", "-B", "-I", "-P", "-S", "-w"}
@@ -141,7 +150,16 @@ def body(ctx):
     try:
         _words = shlex.split(cmd)
     except ValueError:
-        _words = cmd.split()
+        # T662 — the naive `cmd.split()` this replaced shreds every QUOTED
+        # ARGUMENT CONTAINING A SPACE, so an unbalanced quote anywhere in the
+        # line (an apostrophe in a message is enough) turned `open -a "Google
+        # Chrome Beta"` into the token `"Google` and this rule stopped seeing
+        # the inner payload. `posix=False` tolerates the unbalanced quote and keeps
+        # quoted tokens whole; the quotes it leaves on are stripped here.
+        # Found on R-ob-commons-01 (T663), where the same fallback let a real
+        # commons commit through, and swept to its three siblings.
+        _words = [w[1:-1] if len(w) >= 2 and w[0] == w[-1] and w[0] in "\"'" else w
+                 for w in shlex.split(cmd, posix=False)]
 
     def _tokens(ws):
         # Nested quoted payloads (`ssh host "tmux new-window -d ..."`) are ONE
