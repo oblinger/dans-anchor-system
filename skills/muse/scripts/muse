@@ -10,6 +10,9 @@
 #   1. Strip quarantine xattr
 #   2. Compute audio SHA-256; skip if already in .muse.hashes
 #   3. Whisper transcript via ~/bin/_transcribe
+#   3.5 Offer the transcript to MUSE_ROUTE_HANDLERS — one that opens by naming
+#       its destination ("sleep log, …") is filed there, at its capture time,
+#       and skips 4, 8 and 12
 #   4. Title derivation via ~/bin/_askAI (tool-less; safe against injection)
 #   5. Sanitize title → [A-Za-z0-9 _-]
 #   6. Compute daily sequence letter (MMDD A/B/C ... by same-day count)
@@ -40,6 +43,16 @@ MUSE_NOTIFICATION_SOUND="${MUSE_NOTIFICATION_SOUND:-Tink}"
 # memo is dropped into Sparks's Inbox — the single hardened ingress. The state
 # CLI lives in the sibling workflow skill; resolved relative to this script.
 MUSE_STATE_CLI="${MUSE_STATE_CLI:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." 2>/dev/null && pwd)/workflow/scripts/state}"
+# Address routing (Dan, 2026-09-04): a memo that opens by naming its
+# destination — "sleep log, took a quarter ambien" — is filed THERE, by the
+# destination's own script, stamped with the moment it was recorded, and
+# never reaches Quick or Sparks. Each handler owns its own spoken address.
+# Called as `<handler> voice --captured "<YYYY-MM-DD HH:MM:SS>" "<transcript>"`
+# it exits 0 = filed, 3 = not addressed to me, anything else = failed (the
+# memo then takes the normal path, so nothing is lost). First claim wins.
+MUSE_ROUTE_HANDLERS=(
+    "$HOME/ob/kmr/Topic/MED/MED Data/bin/sleep-diary"
+)
 # Off by default (Dan, 2026-08-23): the banner fires once per INGESTED
 # recording, not once per sweep, so a run of memos produces a run of
 # popups with a chime each. The ingest is already visible where it
@@ -744,8 +757,20 @@ ingest_one() {
 
     local title_source="llm"
 
+    # 3.5. address routing — a memo that names its destination is filed there
+    # now, by the destination's own script, and then skips the title call,
+    # Quick and Sparks. `captured` is hoisted from step 6: the handler files
+    # the memo at the moment it was recorded, not the moment it was ingested.
+    local captured routed_to=""
+    captured="$(audio_captured "$audio")"
+    if [[ "$suppress" == "no" ]] && route_item "$captured" "$text"; then
+        routed_to="$ROUTED_TO"
+    fi
+
     # 4. title — skip the LLM call for suppressed items (fixed diagnostic title
-    # tells you WHY it was suppressed when browsing the archive)
+    # tells you WHY it was suppressed when browsing the archive) and for routed
+    # ones (the destination holds the words; the archive name only needs to
+    # find the file again, and this way a dead API key cannot delay a routing)
     local title
     if [[ "$suppress" != "no" ]]; then
         title_source="suppressed"
@@ -754,6 +779,9 @@ ingest_one() {
         else
             title="Suppressed $suppress ${word_count}w ${duration%.*}s active=${active_duration%.*}s twps=${trimmed_wps}wps"
         fi
+    elif [[ -n "$routed_to" ]]; then
+        title_source="routed"
+        title="$(fallback_title "$text")"
     else
         local raw_title
         # NEVER fatal. The transcript is already in hand at this point; losing
@@ -772,8 +800,7 @@ ingest_one() {
     fi
 
     # 6. sequence letter — date is YYYY-MM-DD, letter disambiguates same-day items
-    local captured ymd letter
-    captured="$(audio_captured "$audio")"
+    local ymd letter
     ymd="$(ymd_from_captured "$captured")"
     letter="$(next_letter "$ymd" "$MUSE_ITEMS_DIR")"
 
@@ -787,7 +814,14 @@ ingest_one() {
         printf 'source_audio: %s\n' "$audio"
         printf 'captured: %s\n' "$captured"
         printf 'audio_sha256: %s\n' "$sha"
-        printf 'state: %s\n' "$([[ "$suppress" != "no" ]] && echo "suppressed-$suppress" || echo "unreviewed")"
+        if [[ "$suppress" != "no" ]]; then
+            printf 'state: suppressed-%s\n' "$suppress"
+        elif [[ -n "$routed_to" ]]; then
+            printf 'state: routed\n'
+            printf 'routed_to: %s\n' "$routed_to"
+        else
+            printf 'state: unreviewed\n'
+        fi
         printf 'title_source: %s\n' "$title_source"
         printf 'word_count: %s\n' "$word_count"
         printf 'audio_duration_s: %s\n' "$duration"
@@ -818,6 +852,15 @@ ingest_one() {
         return 0
     fi
 
+    if [[ -n "$routed_to" ]]; then
+        # Already filed at its destination (step 3.5). Quick would be a
+        # duplicate and Sparks has nothing to decide; the Log keeps the trail.
+        log "ROUTED → $routed_to: $item_base"
+        insert_log_bullet "$MUSE_LOG_FILE" "$captured" "- $captured  [$title]($url_encoded) → $routed_to"
+        notify "MUSE → $routed_to: $title"
+        return 0
+    fi
+
     # 10. Prepend to two targets:
     #  - Quick: bare bullet (inline raw text if short, else linked title).
     #    No date/time — user's daily pane stays lean.
@@ -841,6 +884,28 @@ ingest_one() {
     deliver_to_sparks "$title" "$item_base" "$text"
 
     log "OK $item_base"
+}
+
+# Step 3.5 — offer the transcript to each route handler. Sets ROUTED_TO to the
+# handler's basename and returns 0 on the first that files it; returns 1 when
+# none claims it. A missing or crashing handler is a warning, never a routing:
+# the memo falls through to Quick + Sparks intact. The `${arr[@]+...}` form
+# keeps an empty handler list legal under `set -u` on bash 3.2.
+ROUTED_TO=""
+route_item() {
+    local captured="$1" text="$2" h rc
+    ROUTED_TO=""
+    for h in ${MUSE_ROUTE_HANDLERS[@]+"${MUSE_ROUTE_HANDLERS[@]}"}; do
+        [[ -x "$h" ]] || { warn "route handler missing: $h"; continue; }
+        rc=0
+        "$h" voice --captured "$captured" "$text" >/dev/null 2>&1 || rc=$?
+        case "$rc" in
+            0) ROUTED_TO="$(basename "$h")"; return 0 ;;
+            3) ;;
+            *) warn "route handler $(basename "$h") failed rc=$rc — memo takes the normal path" ;;
+        esac
+    done
+    return 1
 }
 
 # Step 12 (T010) — deliver one ingested memo to Sparks's Inbox.
