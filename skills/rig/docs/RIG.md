@@ -14,7 +14,7 @@
 | **[[#`ls` shows everything]]** |  |
 | **[[#Configuration]]** |  |
 | **[[#Ownership and expiry — ruled 2026-09-03, not yet built]]** |  |
-|    [[#The gap this closes]] |  |
+|    [[#The gap this closed]] |  |
 
 It exists because every other tool in the chain assumes the machine already exists. Connection tools take a host you can already reach; experiment frameworks take a remote you have already registered. Something has to make the box first, and until now that something was a human at a cloud console.
 
@@ -240,10 +240,8 @@ Dan, 2026-09-03, after an H100 billed five idle hours: *"rig should, by default,
 
 What this still does not catch: a box nobody created through rig. The nag counts unmanaged running boxes in its burn line (as `ls` does) and leaves them alone.
 
-### The gap this closes
+### The gap this closed
 
-**A rig stays up until someone takes it down.** There is no timeout, no lease, and no automatic teardown. A GPU machine left running bills continuously — for a single mid-range GPU box, on the order of several hundred dollars a month — and the agent that created it will not have a session tomorrow in which to remember.
+**Until 2026-09-03 a rig stayed up until someone took it down.** There was no timeout, no lease, and no automatic teardown; a GPU machine left running bills continuously — for a single mid-range GPU box, on the order of several hundred dollars a month — and the agent that created it has no session tomorrow in which to remember. `rig ls` and its burn line were the only safety net, and they only work if somebody looks. The habit still stands: treat `rig down` as part of finishing, not as cleanup you will get to later — the nets above are for the day the habit fails.
 
-Until that is built, `rig ls` and its burn line are the only safety net, and they only work if somebody looks. Treat `rig down` as part of finishing, not as cleanup you will get to later.
-
-**The hourly reaper is a backstop, and it was dead for its whole life until 2026-09-03.** `com.oblinger.rig-reap` (launchd, `rig reap --idle 60`, log `~/.config/rig/reap.log`) had exited 1 on all 460 runs since install: launchd's PATH resolved `python3` to `/usr/bin/python3`, which has no PyYAML, and `rig` dies on that before it lists anything. Nobody read the log; the H100 rig `svp-h100` billed five idle hours that night. Fixed by putting the conda interpreter's bin first in the plist's `EnvironmentVariables:PATH`; the next run logged `rig: nothing running` with exit 0. Two lessons: a launchd job's exit status is in `launchctl list`, and a backstop nobody has seen fire is not yet a backstop — kick it once (`launchctl kickstart -k gui/$UID/com.oblinger.rig-reap`) and read the log. Durable on-box expiry is [[Tink P0005]].
+**The hourly reaper is the third layer, and it was dead for its whole life until 2026-09-03.** `com.oblinger.rig-reap` (launchd, `rig reap --idle 60`, log `~/.config/rig/reap.log`) had exited 1 on all 460 runs since install: launchd's PATH resolved `python3` to `/usr/bin/python3`, which has no PyYAML, and `rig` dies on that before it lists anything. Nobody read the log; the H100 rig `svp-h100` billed five idle hours that night. Fixed by putting the conda interpreter's bin first in the plist's `EnvironmentVariables:PATH`; the next run logged `rig: nothing running` with exit 0. Two lessons: a launchd job's exit status is in `launchctl list`, and a backstop nobody has seen fire is not yet a backstop — kick it once (`launchctl kickstart -k gui/$UID/com.oblinger.rig-reap`) and read the log. Durable on-box expiry is [[Tink P0005]].
