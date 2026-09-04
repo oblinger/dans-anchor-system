@@ -207,6 +207,16 @@ def backend(name):
     return wrap
 
 
+class BackendDown(Exception):
+    """A cloud answered with a failure that is not about any one rig — an
+    expired token, a network that is not there, a CLI that crashed. Raised
+    instead of dying so a cross-cloud walk (`ls`, `reap`, the frozen nag)
+    can report THAT cloud as unreachable and keep going: an expired gcloud
+    token was hiding every Azure rig and stopping the hourly reaper (T670,
+    2026-09-04 — a $6.98/h box invisible to `rig ls`). Single-backend verbs
+    still die on it, in main()."""
+
+
 class Unavailable(Exception):
     """A backend that cannot run here (CLI missing, not logged in). Fatal for a
     verb aimed at that cloud; a skip-with-note for the cross-cloud walks."""
@@ -268,7 +278,7 @@ class GCP(Backend):
             cmd += ["--format=json"]
         p = subprocess.run(cmd, capture_output=True, text=True)
         if check and p.returncode != 0:
-            die(p.stderr.strip() or f"gcloud failed: {' '.join(args)}")
+            raise BackendDown(p.stderr.strip() or f"gcloud failed: {' '.join(args)}")
         if json_out:
             try:
                 return json.loads(p.stdout or "[]")
@@ -481,7 +491,7 @@ class Azure(Backend):
             if "az login" in err or "AADSTS" in err:
                 raise Unavailable("az is not logged in — run: az login --use-device-code")
             if check:
-                die(err or f"az failed: {' '.join(args)}")
+                raise BackendDown(err or f"az failed: {' '.join(args)}")
             return p
         if json_out:
             try:
@@ -871,6 +881,28 @@ def all_backends(cfg, which):
     return out
 
 
+_UNREACHABLE_SAID = set()
+
+
+def walk_ls(cfg, which):
+    """(backend, rows) for every backend a cross-cloud verb can reach. A
+    backend whose listing fails is reported on stderr as unreachable — one
+    line, first line of the cloud's own error — and skipped, so one dead
+    cloud never hides another's money (T670)."""
+    for be in all_backends(cfg, which):
+        try:
+            rows = be.ls()
+        except BackendDown as e:
+            # `ls` walks once for the table and once for the frozen nag; the
+            # cloud is dead either way, and saying so twice teaches skipping.
+            if be.name not in _UNREACHABLE_SAID:
+                _UNREACHABLE_SAID.add(be.name)
+                first = (str(e).splitlines() or ["?"])[0].strip()
+                note(f"rig: {be.name}: unreachable — {first} — skipped")
+            continue
+        yield be, rows
+
+
 def locate(cfg, which, raw, agent_opt):
     """(backend, name) for a rig the user named.
 
@@ -974,8 +1006,8 @@ def frozen_rigs(cfg, which, days):
     disagree about what is frozen."""
     now = datetime.now(timezone.utc)
     out = []
-    for be in all_backends(cfg, which):
-        for r in be.ls():
+    for be, rows in walk_ls(cfg, which):
+        for r in rows:
             if r["state"] == "up" or not owned(cfg, r):
                 continue
             keep = be.keep_until(r)
@@ -1034,15 +1066,15 @@ def cmd_keep(args, cfg):
 
 
 def cmd_ls(args, cfg):
-    rows = []
-    for be in all_backends(cfg, args.cloud):
-        for r in be.ls():
+    rows, bes = [], {}
+    for be, listed in walk_ls(cfg, args.cloud):
+        bes[be.name] = be
+        for r in listed:
             r["cloud"] = be.name
             rows.append(r)
     if not rows:
         note("rig: nothing here")
         return
-    bes = {be.name: be for be in all_backends(cfg, args.cloud)}
     hdr = ("CLOUD", "RIG", "STATE", "SIZE", "GPU", "ZONE", "IP", "$/HR", "LEASE")
     out, burn = [], 0.0
     for r in sorted(rows, key=lambda r: (r["state"] != "up", r["cloud"], r["rig"])):
@@ -1053,8 +1085,11 @@ def cmd_ls(args, cfg):
         # running owned rig is the line to act on — it bills until someone does.
         lease = "-"
         if r["state"] == "up" and r["rig"] != "-":
-            at = bes[r["cloud"]].lease_info(r["rig"])
-            lease = _fmt_until(at) if at else "NONE"
+            try:
+                at = bes[r["cloud"]].lease_info(r["rig"])
+                lease = _fmt_until(at) if at else "NONE"
+            except BackendDown:
+                lease = "?"
         out.append((r["cloud"], r["rig"] if r["rig"] != "-" else f"({r['native']})",
                     r["state"], r["size"], r["gpu"], r["zone"], r["ip"],
                     f"{price:.2f}" if price and r["state"] == "up" else "-", lease))
@@ -1103,8 +1138,8 @@ def cmd_reap(args, cfg):
     idle_min = args.idle
     acted, skipped = [], []
 
-    for be in all_backends(cfg, args.cloud):
-        for r in be.ls():
+    for be, rows in walk_ls(cfg, args.cloud):
+        for r in rows:
             if r["state"] != "up":
                 continue
             if r["rig"] == "-":
@@ -1241,7 +1276,10 @@ def main():
     sh.set_defaults(fn=cmd_ssh)
 
     args = p.parse_args()
-    args.fn(args, cfg)
+    try:
+        args.fn(args, cfg)
+    except BackendDown as e:
+        die(str(e))
 
 
 if __name__ == "__main__":
