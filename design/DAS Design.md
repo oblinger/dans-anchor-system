@@ -6,7 +6,7 @@ description: "design pipeline"
 | --- | --- |
 | Related | [[DAS Docs\|Docs]],  [[DAS Skills\|Skills]],  [[DAS Design Folder\|Design (facet)]],  [[DAS\|dans-anchor-system]],   |
 |  | **SKILL GROUPS** |
-| [[SKL Anchor\|Anchor]]+ | [[DAS Anchor Toolkit Design\|Anchor Toolkit]],  [[DAS Create Design\|Create]],  [[DAS Install Design\|Install]],  [[DAS Migrate Design\|Migrate]],  [[DAS Move Design\|Move]],  [[DAS Publish Design\|Publish]],  [[DAS Streams Design\|Streams]],  [[DAS WP Design\|WP]],  [[DAS Yore Design\|Yore]],   |
+| [[SKL Anchor\|Anchor]]+ | [[DAS Anchor Toolkit Design\|Anchor Toolkit]],  [[DAS Create Design\|Create]],  [[DAS Install Design\|Install]],  [[DAS Migrate Design\|Migrate]],  [[DAS Move Design\|Move]],  [[DAS Publish Design\|Publish]],  [[DAS WP Design\|WP]],  [[DAS Yore Design\|Yore]],   |
 | [[SKL Track\|Track]]+ | [[DAS Tracking Design\|**Tracking (subsystem)**]],  [[DAS Groom Design\|Groom]],  [[DAS Groom PRD\|Groom PRD]],  [[Query PRD]],  [[DAS Backlog]],  [[DAS Messages]],  [[DAS Plan]],  [[DAS workflow]],   |
 | [[SKL Drive\|Drive]]+ | [[DAS Feature Design\|Feature]],  [[DAS Feature PRD\|Feature PRD]],  [[DAS Crank Design\|Crank]],  [[DAS Crank PRD\|Crank PRD]],  [[DAS Mint Design\|Mint]],  [[DAS Mint PRD\|Mint PRD]],  [[DAS Finalize Design\|Finalize]],  [[DAS Finalize PRD\|Finalize PRD]],  [[DAS Land Design\|Land]],  [[DAS Land PRD\|Land PRD]],  [[DAS Fortify Design\|Fortify]],  [[DAS Fortify PRD\|Fortify PRD]],   |
 | [[DAS Design Design\|Design]]+ | [[DAS Architect Design\|Architect]],  [[DAS Architect PRD\|Architect PRD]],   |

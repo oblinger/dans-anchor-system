@@ -15,7 +15,6 @@ Anchor is the substrate subsystem: a named folder + `.anchor` marker + dispatch-
 | [[DAS Move\|/move]]                    | Relocate an anchor and update every path-dependent system (HookAnchor, breadcrumbs, cross-references).                                                    |
 | [[DAS Publish\|/publish]]              | Deploy the anchor's public page to the web (method from `.anchor`).                                                                                       |
 | [[DAS Yore\|/yore]]                    | Archive to `Yore/` — date-prefixed zips in the parent's archival folder.                                                                                  |
-| [[DAS Streams\|/streams]]              | Content-stream definitions for an anchor (stub — runbook to come).                                                                                        |
 | [[DAS Anchor Toolkit\|/anchor]]        | The toolkit umbrella — single-anchor ops (config, docs-audit) and system ops (scan, status, `/anchor install`).                                           |
 |                                        |                                                                                                                                                           |
 | **Facets**                             |                                                                                                                                                           |
@@ -46,7 +45,7 @@ Anchor is illustrated inside the coherent worked worlds at [[FEX]] (HBR, FEX Rep
 
 ## Design record
 
-- [[DAS Anchor Toolkit Design]] · [[DAS Create Design]] · [[DAS Install Design]] · [[DAS Migrate Design]] · [[DAS Move Design]] · [[DAS Publish Design]] · [[DAS Streams Design]] · [[DAS WP Design]] · [[DAS Yore Design]] — per-verb design docs.
+- [[DAS Anchor Toolkit Design]] · [[DAS Create Design]] · [[DAS Install Design]] · [[DAS Migrate Design]] · [[DAS Move Design]] · [[DAS Publish Design]] · [[DAS WP Design]] · [[DAS Yore Design]] — per-verb design docs.
 - **Consolidation (user, 2026-07-14 — F234 Q1=A, executed as [[Tink Backlog#^T020|T020]]):** nine verbs → seven. `/wp` folded into `/create` (action file `create-wp`); `/anchor` promoted to the user-invocable toolkit umbrella absorbing `/install` (action file `anchor-install`), deliberately overloaded across single-anchor and whole-system operations; `/migrate` = identity/shape in place, `/move` = location ("location" struck from migrate's claim). The stale CAB-era `/create` and `/install` runbooks were rewritten in the same pass; `cab-create` promoted from legacy to `create-anchor`.
 - [[DAS Dispatch Table Design]] — the masthead's own design record.
 - **Boundary ruling (user, 2026-07-14):** HookAnchor (`ha`) is a *separate application*, not part of the anchor system's library — the system is compatible with it and depends on it for resolution, but does not own it. Profiles reference it as an external dependency only.

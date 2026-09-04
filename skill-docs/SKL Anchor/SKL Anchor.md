@@ -12,7 +12,6 @@ description: User guides for anchor-lifecycle skills — creating, installing, m
 | [[DAS Migrate\|Migrate]]  | Migrate an anchor — change its slug, traits, location, or structure. |
 | [[DAS Move\|Move]]  | `/move` relocates an anchor folder to a new path and updates every path-dependent system that indexes it — HookAnchor, Claude Code session history, hardcoded paths inside the anchor's own configs, … |
 | [[DAS Publish\|Publish]]  | `/publish` deploys an anchor's public page to the web. |
-| [[DAS Streams\|Streams]]  | `/streams` is intended to manage **content stream definitions** — the repeated-content-grouping abstraction for stream-type anchors (where you have an ongoing flow of similar items rather than a on… |
 | [[DAS WP\|WP]]  | `/wp <name>` creates a new dated **work product** folder inside the current anchor's `{slug} WP/` folder. |
 | [[DAS Yore\|Yore]]  | `/yore` archives a folder or file to **Yore**, the standard archival location. |
 | --- | |
