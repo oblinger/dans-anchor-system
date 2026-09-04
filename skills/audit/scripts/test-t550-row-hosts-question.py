@@ -229,8 +229,8 @@ with tempfile.TemporaryDirectory() as td:
     check("T048 in ## Done not flagged", kinds_for(c57, "T048"), [])
 
     print("7. Severity is a migration backlog, not a stop-gate")
-    check("every C57 finding is a warning",
-          sorted({f.severity for f in c57 if f.code == "C57"}), ["warning"])
+    check("every C57 finding is an error (promoted 2026-09-04, T550)",
+          sorted({f.severity for f in c57 if f.code == "C57"}), ["error"])
     check("none claims to be mechanically fixable",
           sorted({f.mechanically_fixable for f in c57 if f.code == "C57"}),
           [False])

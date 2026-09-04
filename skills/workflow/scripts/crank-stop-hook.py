@@ -380,6 +380,49 @@ def _not_a_crank_report(sentinel, transcript_path, final_text):
     return None
 
 
+def _crank_press_from_transcript(transcript_path):
+    """F306 Q1 (B), 2026-09-04: a pseudo-sentinel when the ending turn BEGAN
+    with a crank press but no `state crank start` sentinel exists.
+
+    Week-3 read: since D3 the triage-line check had judged 6 stops and none in
+    6 days, while the LLM check saw ~4,700 — the arm only fired under a
+    sentinel and no session arms one (`~/.config/anchor-system/crank/` was
+    empty vault-wide; manual arming lives ~12K tokens into the crank skill).
+    An instrument that depends on the agent remembering to switch it on
+    measures compliance with the switch, not the thing.
+
+    So the turn's own opening is the signal: the LAST genuine user message
+    (not a tool result, not meta) matching `_CRANK_PRESS_RE`. Choosing the
+    last message makes D3's `user-turn` narrowing hold by construction — a
+    later conversational message is itself the last one and does not match.
+    Returns `{"started": <press ts>, "source": "prompt"}` or None. The F239
+    exit handshake keeps its real sentinel; this is for the judgment only.
+    Fail-open: any error → None."""
+    try:
+        last = None
+        for e in _iter_entries(transcript_path):
+            if e.get("type") != "user" or e.get("isMeta"):
+                continue
+            msg = e.get("message") or {}
+            content = msg.get("content")
+            if isinstance(content, str):
+                text = content
+            else:
+                blocks = content or []
+                if blocks and all(isinstance(b, dict) and b.get("type") == "tool_result"
+                                  for b in blocks):
+                    continue
+                text = "\n".join(b.get("text") or "" for b in blocks
+                                  if isinstance(b, dict) and b.get("type") == "text")
+            last = (text or "", e.get("timestamp") or "")
+        if last is None or not _CRANK_PRESS_RE.match(last[0]):
+            return None
+        datetime.fromisoformat(last[1].replace("Z", "+00:00"))  # must parse
+        return {"started": last[1].replace("Z", "+00:00"), "source": "prompt"}
+    except (ValueError, TypeError, OSError):
+        return None
+
+
 def _triage_mode():
     """`'warn'` (default) or `'enforce'`. Absent/unreadable → warn.
 
@@ -731,13 +774,18 @@ def warden_hook(payload):
         # Deliberately BEFORE the LLM check: this is a string comparison over
         # text already in hand, so it costs nothing and its remediation is the
         # more specific of the two.
-        if crank is not None:
+        # F306 Q1 (B), 2026-09-04: a turn that BEGAN with a crank press is
+        # judged whether or not the agent ran `state crank start` — see
+        # `_crank_press_from_transcript` for the week-3 read that forced this.
+        press = crank[1] if crank is not None else \
+            _crank_press_from_transcript(payload.get("transcript_path", ""))
+        if crank is not None or press is not None:
             final_text = _last_assistant_text(
                 payload.get("transcript_path", ""))
             mode = _triage_mode()
             # D3 narrowed 2026-08-28: a reply-stop after a user interruption,
             # or an /ask JSON block, consumes the sentinel WITHOUT being judged.
-            skip = _not_a_crank_report(crank, payload.get("transcript_path", ""),
+            skip = _not_a_crank_report(press, payload.get("transcript_path", ""),
                                        final_text)
             if skip:
                 _triage_log(name, "not-crank", mode,

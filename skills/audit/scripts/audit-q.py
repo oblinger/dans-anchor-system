@@ -3556,7 +3556,9 @@ def check_c57_row_hosts_question(
         if not kinds:
             continue
         findings.append(Finding(
-            severity="warning",
+            # error since 2026-09-04 (T550): the census reached zero vault-wide,
+            # so a row hosting its own question is a regression, not a backlog.
+            severity="error",
             surface_file=e.source_file,
             surface_line=e.source_line,
             code="C57",
@@ -4843,7 +4845,7 @@ def check_c34_inline_q_in_row_body(backlog_files: list[Path]) -> list[Finding]:
     exemption below no longer describes a sanctioned form, only a legacy
     population. It is kept because C34 is an ERROR: promoting several anchors'
     unmigrated rows to a red stop-gate is not this check's call to make. The
-    invariant those rows break is owned by **C57**, at warning severity, which
+    invariant those rows break is owned by **C57**, at error severity (promoted 2026-09-04, T550), which
     sees all four host shapes rather than only this one.
     """
     findings: list[Finding] = []

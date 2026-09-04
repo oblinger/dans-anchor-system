@@ -206,8 +206,9 @@ src = HOOK.read_text(encoding="utf-8")
 # inside the `crank is not None` arm and that arm is inside the clean-worklist
 # branch — a non-crank stop must never reach it.
 gate = src.split("if count == 0:", 1)[1].split("return _allow", 1)[0]
-check("the check is called only under `if crank is not None`",
-      "if crank is not None:" in gate and "_triage_line_check(" in gate)
+check("the check is armed by a sentinel OR a crank-shaped opening prompt (F306 Q1 B)",
+      "if crank is not None or press is not None:" in gate
+      and "_crank_press_from_transcript(" in gate and "_triage_line_check(" in gate)
 check("...and it blocks only in enforce mode",
       'mode == "enforce"' in gate)
 check("...and logs regardless of mode", "_triage_log(" in gate)
@@ -283,6 +284,30 @@ gate = HOOK.read_text(encoding="utf-8").split("if count == 0:", 1)[1].split("ret
 check("the gate consults the narrowing before judging",
       gate.index("_not_a_crank_report(") < gate.index("_triage_line_check("))
 check("...and logs the skipped stop as not-crank", '"not-crank"' in gate)
+
+# --- F306 Q1 (B): the opening prompt arms the judgment when no sentinel does
+transcript(entry("user", "'", "2026-09-04T20:00:00Z"),
+           entry("user", "tool output", "2026-09-04T20:00:10Z", tool_result=True),
+           entry("assistant", "report", "2026-09-04T20:00:40Z"))
+press = m5._crank_press_from_transcript(str(tr))
+check("a turn opened by `'` yields a pseudo-sentinel without any file",
+      press is not None and press.get("source") == "prompt")
+check("...whose started is the press timestamp",
+      (press or {}).get("started"), "2026-09-04T20:00:00+00:00")
+check("...and D3's narrowing sees no interruption after it",
+      m5._not_a_crank_report(press, str(tr), "report"), None)
+
+transcript(entry("user", "then crank", "2026-09-04T20:00:00Z"),
+           entry("user", "actually, what about X?", "2026-09-04T20:00:30Z"),
+           entry("assistant", "reply", "2026-09-04T20:00:40Z"))
+check("a conversational message after the press is the last one, so no pseudo-sentinel",
+      m5._crank_press_from_transcript(str(tr)), None)
+
+transcript(entry("user", "please summarize the design", "2026-09-04T20:00:00Z"),
+           entry("assistant", "summary", "2026-09-04T20:00:40Z"))
+check("a non-crank prompt arms nothing", m5._crank_press_from_transcript(str(tr)), None)
+check("a missing transcript fails open",
+      m5._crank_press_from_transcript("/nonexistent/x.jsonl"), None)
 
 print(f"\n{sum(results)}/{len(results)} passed")
 raise SystemExit(0 if all(results) else 1)
