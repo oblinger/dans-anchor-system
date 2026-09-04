@@ -1,10 +1,10 @@
 | -[[Mini PRD]]- | : Product requirements for Mini.<br>→ [[DAS]] → [[FEX]] → [[Mini]] → [Mini PRD](hook://p/Mini%20PRD)  |
 | --- | --- |
 | [[Mini Stories]]  | one user story — index for US-MINI-1 (folder-form per [[DAS Stories]]) |
-| ... |  |
+| ... | [[US-MINI-1 — Stamp a file]],   |
 
 # Mini PRD
-description:: Product requirements for Mini — the minimal example project.
+description:: Product requirements for Mini.
 
 ## Overview
 

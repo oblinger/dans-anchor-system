@@ -1,16 +1,16 @@
 ---
-description: "it carries"
+description: "what it writes"
 ---
 
-| -[[FEX Manifest]]- | : the Manifest facet definition<br>→ [[DAS]] → [[examples]] → [[FEX Repo]] → [FEX Manifest](hook://p/FEX%20Manifest)  |
+| -[[FEX Manifest]]- | : the Manifest facet definition<br>→ [[DAS]] → [[FEX]] → [[FEX Repo]] → [FEX Manifest](hook://p/FEX%20Manifest)  |
 | --- | --- |
 | Anchor | [[FEX Repo]] (parent) |
 | Related |  |
-| [[FEX Snapshot]] | writes it |
-| [[R-fex-manifest]] | its rules |
-| [[FEX Bundle]] | carries it |
-| [[DAS Facet]] | the facet spec |
-| ... |  |
+| [[FEX Snapshot]]  | writes it |
+| [[R-fex-manifest]]  | its rules |
+| [[FEX Bundle]]  | carries it |
+| [[DAS Facet]]  | the facet spec |
+| ... | [[FEX Pin]],  [[FEX Retention]],   |
 
 # FEX Manifest
 The Manifest facet — the fixed key/value record written into every snapshot bundle. A worked example of a **single-file, cardinality-one, fixed-format** facet.

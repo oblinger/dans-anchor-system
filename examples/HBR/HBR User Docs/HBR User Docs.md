@@ -2,7 +2,7 @@
 description: "Harbor user docs — how to run and use the server"
 ---
 
-| -[[HBR User Docs]]- | → [[DAS]] → [[FEX]] → [[HBR\|HARBOR]] → [HBR User Docs](hook://p/HBR%20User%20Docs)  |
+| -[[HBR User Docs]]- | → [[DAS]] → [[FEX]] → [[HBR]] → [HBR User Docs](hook://p/HBR%20User%20Docs)  |
 | --- | --- |
 | Anchor | [[HBR]] (parent) |
 | Related | [[HBR CLI]],   |

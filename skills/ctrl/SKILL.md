@@ -88,6 +88,20 @@ Test: `tests/live/test-box-hosting.sh` — 18 checks, real tmux round trips, scr
 | `ctrl jgetlist` | Extract a repeating list structure from the current page — `--min-items N` |
 | `ctrl jjpage <url\|->` | Extract via **Playwright** (sandboxed; `-` uses the current Safari URL) |
 
+## Screen state — what is open, and moving it (ATT P0014, 2026-09-03)
+
+Read-only unless you move something; a bare `tabs` or `win list` takes no lease, `tabs --activate` and `win focus <browser>` do. Not data verbs: the F640 interactive gate leaves them alone.
+
+| Command | Purpose |
+|---|---|
+| `ctrl tabs` | Every open tab in Safari / Chrome / Chrome Beta as `S3` / `C2` / `B1` rows (`S2.1` = window 2, tab 1), `*` marks the active tab — `--safari`, `--chrome`, `--beta`, `--json` |
+| `ctrl tabs --activate C2` | Bring that tab and its window to the front (takes the browser lease) |
+| `ctrl win list [app]` | Every visible window: app, position, size, title, `*` = frontmost — `--json` |
+| `ctrl win front` | The frontmost app and its window title |
+| `ctrl win focus <app>` | Activate an app (a browser takes the lease) |
+| `ctrl win move <app> X Y W H` | Move and resize the app's front window |
+| `ctrl win quit <app>` · `ctrl win close <app>` | Quit an app; close its front window |
+
 ## Chrome CDP — drives your REAL Chrome
 
 **This is the family that inherits your logged-in sessions.** Anything you are signed into in Chrome

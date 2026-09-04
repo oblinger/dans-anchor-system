@@ -1,8 +1,8 @@
 ---
-description: "a leaf component — the serve cache"
+description: "keeps hot transcoded segments on fast storage for reuse"
 ---
 
-| -[[HBR Cache]]- | : a leaf component — the serve cache<br>→ [[DAS]] → [[FEX]] → [[HBR\|HARBOR]] → [[HBR Serve]] → [HBR Cache](hook://p/HBR%20Cache)  |
+| -[[HBR Cache]]- | : a leaf component — the serve cache<br>→ [[DAS]] → [[FEX]] → [[HBR]] → [[HBR Serve]] → [HBR Cache](hook://p/HBR%20Cache)  |
 | --- | --- |
 | Anchor | [[HBR Serve]] (parent) |
 | Related | [[HBR Streamer]] (reader),  [[HBR Transcoder]] (writer), |

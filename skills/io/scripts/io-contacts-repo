@@ -443,6 +443,28 @@ on run argv
 end run
 """
 
+SETADDR_OSA = """
+on run argv
+  with timeout of (item 8 of argv as integer) seconds
+    tell application "Contacts"
+      set p to first person whose id is (item 1 of argv)
+      -- Replace the address carrying this label if there is one, so a rerun of
+      -- the same plan row is a no-op rather than a second copy of the address.
+      repeat with i from (count of addresses of p) to 1 by -1
+        if (label of address i of p) is (item 2 of argv) then
+          delete address i of p
+        end if
+      end repeat
+      make new address at end of addresses of p with properties ¬
+        {label:(item 2 of argv), street:(item 3 of argv), city:(item 4 of argv), ¬
+         state:(item 5 of argv), zip:(item 6 of argv), country:(item 7 of argv)}
+      save
+      return "ok"
+    end tell
+  end timeout
+end run
+"""
+
 DELETE_OSA = """
 on run argv
   with timeout of (item 2 of argv as integer) seconds
@@ -527,6 +549,7 @@ def read_plan(path):
         MERGE     <survivor-id>  <victim-id>[,<victim-id>...]  [comment]
         SET       <id>  first|last|organization  <value>       [comment]
         SETEMAIL  <id>  <old-value>  <new-value>               [comment]
+        SETADDR   <id>  <label>  <street>|<city>|<state>|<zip>|<country>  [comment]
         DELPHONE  <id>  <exact-value>                          [comment]
         SETPHOTO  <id>  <image-file-path>                       [comment]
         DELETE    <id>  <name-as-reviewed>                     [comment]
@@ -554,7 +577,8 @@ def read_plan(path):
         if len(f) < 2:
             die(f"plan line {n}: not TSV -- {line!r}")
         op = f[0].strip()
-        if op not in ("MERGE", "SET", "SETEMAIL", "DELPHONE", "SETPHOTO", "DELETE"):
+        if op not in ("MERGE", "SET", "SETEMAIL", "SETADDR", "DELPHONE",
+                      "SETPHOTO", "DELETE"):
             die(f"plan line {n}: unknown op {op!r}")
         rows.append((n, op, [x.strip() for x in f[1:]]))
     return rows
@@ -602,6 +626,9 @@ def cmd_apply(plan_path, commit=False, pre_sync=True, msg=None):
                 print(f"  SET       {live_name(f[0])}  {f[1]} = {f[2]}")
             elif op == "SETEMAIL":
                 print(f"  SETEMAIL  {live_name(f[0])}  {f[1]} -> {f[2]}")
+            elif op == "SETADDR":
+                print(f"  SETADDR   {live_name(f[0])}  [{f[1]}] "
+                      f"{', '.join(x for x in f[2].split('|') if x)}")
             elif op == "DELPHONE":
                 print(f"  DELPHONE  {live_name(f[0])}  drop {f[1]}")
             elif op == "SETPHOTO":
@@ -643,6 +670,10 @@ def cmd_apply(plan_path, commit=False, pre_sync=True, msg=None):
             elif op == "SETEMAIL":
                 osa(SETEMAIL_OSA, f[0], f[1], f[2])
                 print(f"  SETEMAIL  {live_name(f[0])}  {f[1]} -> {f[2]}")
+            elif op == "SETADDR":
+                parts = (f[2].split("|") + ["", "", "", "", ""])[:5]
+                osa(SETADDR_OSA, f[0], f[1], *parts)
+                print(f"  SETADDR   {live_name(f[0])}  [{f[1]}] {f[2]}")
             elif op == "DELPHONE":
                 osa(DELPHONE_OSA, f[0], f[1])
                 print(f"  DELPHONE  {live_name(f[0])}  dropped {f[1]}")

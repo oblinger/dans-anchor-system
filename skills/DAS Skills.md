@@ -22,6 +22,7 @@ description: "Skills — the `/`-invocable runbooks"
 | [[anchor-system/SKILL]]  | Internal helper — reads + writes the unified `~/.config/anchor-system/` namespace (per F080) for skill configuration, runtime state, and accumulated data. Not user-invocable; consumed by other skills via the `anchor-system config` / `anchor-system path` CLI. |
 | [[Architect]]  | SKA skill anchor for `/architect` |
 | [[ask/SKILL]]  | The system for NOT asking the user questions piecemeal. Prime directive: ELIMINATE every question the agent can (auto-resolve reversible/soon-visible guesses, run checks itself, decide low-stakes/visible calls, infer from the codebase), then CONSOLIDATE the irreducible residue into one self-documenting, counted, one-shot-answerable pile in the anchor's `{slug} queries.md` (sections Agent Resolutions / Verifications / Immediate Questions / Questions). The doc is the always-current STORE of open questions — write every question there the moment it is raised; chat is at most a VIEW, never carrying a question the doc lacks (the user runs many agents; chat scrolls away). Glance the doc and trim answered items. Use when the user runs /ask or an agent has a decision to route. Per F169 + [[Query PRD]]. |
+| [ATLAS-SKILL](hook://ATLAS-SKILL)  |  |
 | [[Audit]]  | SKA skill anchor for `/audit` |
 | [[brief-template]]  |  |
 | [[buy/SKILL]]  | Given a known product (model + identifier), find verified buy locations across major retailers, drive a real browser via ctrl (NOT WebFetch / curl / Playwright — they're all bot-blocked by every major retailer's bot-wall), confirm each landing page is a real product page for the exact model the user wants, capture current price + buy-button presence + stock + promos, and recommend the best place to purchase with confidence. Retries per retailer when the first candidate URL is invalid; keeps the best verified page per company. Use when the user names a specific product to purchase: "what's the best price on the {X}", "where should I buy {X}", "buy {X}". Sibling of /find (identifies products) / /profile (profiles them) / /survey (compares them). v1: skeleton — fleshed-out section is § Page-validity verification and § Per-retailer retry loop; everything else is the obvious shape. |
@@ -76,6 +77,7 @@ description: "Skills — the `/`-invocable runbooks"
 | [[dupes/SKILL]]  | Vault hygiene — scan for duplicate filenames; emit a confidence-ranked natural-language edit list; user instructs verbally, agent executes |
 | [[excalidraw-examples]]  |  |
 | [[docs/EXP]]  | **Remote compute** — ephemeral GPU instances via SSH + rsync + watcher (not yet under the SKA prefix). |
+| [[docs/EXP Backlog]]  |  |
 | [[docs/EXP Experiment Flow]]  |  |
 | [[docs/EXP Experiment Template]]  |  |
 | [[docs/EXP Master Flow]]  |  |
@@ -84,6 +86,7 @@ description: "Skills — the `/`-invocable runbooks"
 | [[exp/SKILL]]  | Remote-experimentation toolkit — runs ML workloads on ephemeral GPU instances (vast.ai) via SSH + rsync + watcher daemon. Multi-remote, with named workers and a zap dispatch pattern. |
 | [[docs/EXP Worker Instructions]]  |  |
 | [[docs/EXP Write Up Template]]  |  |
+| [FIND-SKILL](hook://FIND-SKILL)  |  |
 | [[fix/SKILL]]  | Fix common environment problems — permissions, auth, session config, workarounds. Use when the user says: "fix permissions", "fix auth", "reauth google", "fix the session", "clean up", "something's broken", "fix claude". |
 | [[fix-claude-permissions]]  |  |
 | [[fix-claude-session]]  |  |
@@ -127,6 +130,7 @@ description: "Skills — the `/`-invocable runbooks"
 | [[parley/SKILL]]  | Structured discussion — talk through a topic, capture decisions, track next steps. Use when the user says: "parley", "let's discuss", "let's talk about", "I want to think through", "let's figure out", "discuss this". |
 | [[pilot-flow/SKILL]]  |  |
 | [[pr-flow/SKILL]]  |  |
+| [PROFILE-SKILL](hook://PROFILE-SKILL)  |  |
 | [[publish/SKILL]]  |  |
 | [[rewire]]  | idempotent structural repair for any anchor |
 | [[RIG]]  |  |
@@ -134,15 +138,10 @@ description: "Skills — the `/`-invocable runbooks"
 | [[role-pilot]]  |  |
 | [[SKA Bridge Testing]]  | SKA Bridge Testing — strategy + proposed-tests overview |
 | [[SKILL-retired]]  | > |
-| [skills atlas](hook://skills%20atlas)  |  |
-| [skills find](hook://skills%20find)  |  |
-| [skills profile](hook://skills%20profile)  |  |
-| [skills survey](hook://skills%20survey)  |  |
-| [[SKL]]  | Slug marker for SKL — the DAS skills pillar; the anchor page is [[DAS Skills]] (declared by `title:` in `.anchor`). |
 | [[slug-scan/SKILL]]  |  |
 | [[snip/SKILL]]  | Capture rough text drops and iteratively refine them. Use when the user says `/snip <text>` (or the word "snip" gets auto-prefixed as `/snip` by the dictation pipeline). Three modes: (1) `/snip <text>` with no revise marker drops a new dated H2 entry with two versions stacked newest-on-top: `### version 1` (AI refinement) above `### version 0` (raw verbatim). (2) `/snip revise <instructions>` — or any args containing `snip <punct/ws> revise` somewhere — takes the current top version of the top entry, applies the instructions, and prepends the result as the next version. (3) Bare `/snip` re-refines the top version with a generic clean pass, prepending the next version. In every case the new top version is pbcopy'd to clipboard and the file is glanced. |
 | [[status-doc-template]]  |  |
-| [[streams/SKILL]]  | Content stream definitions — Stub skill — runbook to come. Manages content stream definitions for anchors. |
+| [SURVEY-SKILL](hook://SURVEY-SKILL)  |  |
 | [[template.docx]]  |  |
 | [[tidy/SKILL]]  |  |
 | [[viz/SKILL]]  | Visual drafting — produce visual artifacts (charts, diagrams, mockups, slides). Use with an action argument: /viz excalidraw, /viz matplot. Triggered when user says "draw", "diagram", "mockup", "chart this", "plot data", "timeline chart", "excalidraw", or asks to create/update/export a visual artifact. |
@@ -156,7 +155,12 @@ description: "Skills — the `/`-invocable runbooks"
 | [[viz-pdf]]  |  |
 | [[viz-pptx]]  |  |
 | [[viz-svg]]  |  |
-| [[EXP Backlog]]  |  |
+| [skills atlas](hook://skills%20atlas)  |  |
+| [skills find](hook://skills%20find)  |  |
+| [skills profile](hook://skills%20profile)  |  |
+| [skills survey](hook://skills%20survey)  |  |
+| [[SKL]]  | Slug marker for SKL — the DAS skills pillar; the anchor page is [[DAS Skills]] (declared by `title:` in `.anchor`). |
+| [[streams/SKILL]]  | Content stream definitions — Stub skill — runbook to come. Manages content stream definitions for anchors. |
 | [[io-imail-access]]  |  |
 | [[io-calendar]]  |  |
 | [[io-calendar-access]]  |  |

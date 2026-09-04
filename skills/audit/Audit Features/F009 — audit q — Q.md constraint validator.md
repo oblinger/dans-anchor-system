@@ -24,7 +24,7 @@ python audit-q.py --dry       # report-only AND refuse to write anywhere
 
 The script defaults to read-only. `--fix` is the explicit opt-in for write side-effects. Reusable and testable in isolation; can be imported by other tools (the `links_in_file` and `backlog_entries` functions in §§ 2, 2.5 are exposed for reuse).
 
-**Layer 2 — `/audit q` skill** `skills/audit/audit-q.md`. Opinionated wrapper. Invokes the script **with `--fix`** by default — when a user (or another skill) types `/audit q`, the intent is "make Q.md correct," so the skill does the fix work without requiring the user to remember `--fix`. The chat output is what the script prints (findings + applied fixes); no additional output beyond the skill's invocation acknowledgment.
+**Layer 2 — `/audit q` skill** `skills/audit/track/audit-q.md`. Opinionated wrapper. Invokes the script **with `--fix`** by default — when a user (or another skill) types `/audit q`, the intent is "make Q.md correct," so the skill does the fix work without requiring the user to remember `--fix`. The chat output is what the script prints (findings + applied fixes); no additional output beyond the skill's invocation acknowledgment.
 
 ```bash
 /audit q              # invokes `python audit-q.py --fix` — fixes by default
@@ -32,7 +32,7 @@ The script defaults to read-only. `--fix` is the explicit opt-in for write side-
 ```
 
 **Files:**
-- `skills/audit/audit-q.md` — agent runbook (thin: invokes the script with --fix; documents the dry override).
+- `skills/audit/track/audit-q.md` — agent runbook (thin: invokes the script with --fix; documents the dry override).
 - `skills/audit/scripts/audit-q.py` — the validator script. Contains `links_in_file()`, `backlog_entries()`, and the constraint logic.
 
 ### 2. `LinksManager` — wiki-link + markdown-link inspection (per Q3 resolution)
@@ -210,7 +210,7 @@ Position: **top of `## Ready`** in `{slug} Backlog.md`. Bracket: `[Ready]`. The 
 
 #### The `/audit q-fix` skill — self-healing loop
 
-New skill: `skills/audit/audit-q-fix.md`. Runbook:
+New skill: `skills/audit/track/audit-q-fix.md`. Runbook:
 
 1. **Read the QFix entry** from the cwd anchor's `{slug} Backlog.md`. If absent → exit ("no QFix entry; nothing to do").
 2. **For each sub-bullet (finding)**, apply a fix using agent judgment for the specific finding type:
@@ -256,7 +256,7 @@ Bounded by IO. If sub-second budget is exceeded on the user's vault, profile and
 ### 7. Cross-references to update
 
 - `skills/audit/SKILL.md` — add `/audit q` to the Actions table (parallel row to `/audit structure`, `/audit rules`, etc.).
-- `skills/audit/audit-q.md` (new) — runbook for the subaction; pointer to `scripts/audit-q.py`.
+- `skills/audit/track/audit-q.md` (new) — runbook for the subaction; pointer to `scripts/audit-q.py`.
 - `skills/audit/scripts/audit-q.py` (new) — the validator + `LinksManager` class.
 - F075 participating skills (5 SKILL.md files) — add `audit q` to their Q.md post-condition (per Q6=a, § 5 above).
 

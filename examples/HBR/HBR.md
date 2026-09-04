@@ -6,7 +6,7 @@ description: "example project anchor — a designed software project with a grou
 | -[[HBR]]- | : Harbor — example project anchor — a designed software project with a grouped component tree<br>→ [[DAS]] → [[FEX]] → [HBR](hook://p/HBR)  |
 | --- | --- |
 | Related | [[Clarifier]],  [[DVT\|Devtools]],  [[FEX]],  [Repo](https://github.com/example/harbor),  [Docs site](https://example.github.io/harbor/)  |
-| [[HBR Design\|Design]]+ | [[HBR PRD\|PRD]],  [[HBR Architecture\|Architecture]],  [[HBR Decisions\|Decisions]],  [[HBR UX Design\|UX Design]],  [[HBR CLI\|CLI]],  [[HBR API Design\|API]],  [[HBR Roadmap\|Roadmap]],  [[HBR Testing\|Testing]],  [[HBR Features\|Features]],  [[HBR CLI Help.txt\|CLI Help.txt]],  [[HBR Architecture\|HARBOR ARCHITECTURE]],  [[HBR Features\|HARBOR FEATURES]],   |
+| [[HBR Design\|Design]]+ | [[HBR PRD\|PRD]],  [[HBR Architecture\|Architecture]],  [[HBR Decisions\|Decisions]],  [[HBR UX Design\|UX Design]],  [[HBR CLI\|CLI]],  [[HBR API Design\|API]],  [[HBR Roadmap\|Roadmap]],  [[HBR Testing\|Testing]],  [[HBR Features\|Features]],  [[HBR CLI Help.txt\|CLI Help.txt]],   |
 | [[HBR Track\|Track]]+ | [[HBR Backlog\|Backlog]],  [[HBR Messages\|Messages]],  [[HBR Status\|Status]],  [[HBR queries\|queries]],  [[HBR Rocks\|Rocks]],  ~~[[HBR Rock\|Rock]]~~,  [[HBR004 - Cache eviction]],  [[HBR Chores\|Chores]],  [[HBR005 - Watched-root hot reload]],   |
 | [[HBR User Docs\|User Docs]]+ | [[HBR Guide\|Guide]],   |
 | [[HBR Dev Docs\|Dev Docs]]+ | [[HBR Files\|Files]],  [[HBR Versions\|Versions]],   |

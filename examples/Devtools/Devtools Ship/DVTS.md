@@ -3,7 +3,7 @@ aliases: ["Devtools Ship"]
 description: "Devtools Ship — what puts the artifact in front of people"
 ---
 
-| -[[DVTS]]- | : Devtools Ship — what puts the artifact in front of people<br>→ [[DAS]] → [[FEX]] → ~~[[Devtools\|DVT]]~~ → [DVTS](hook://p/DVTS)  |
+| -[[DVTS]]- | : Devtools Ship — what puts the artifact in front of people<br>→ [[DAS]] → [[FEX]] → [[DVT]] → [DVTS](hook://p/DVTS)  |
 | --- | --- |
 | Related | [[DVT\|Devtools]] (parent),  [[DAS spine]],  [[FEX Spine Examples]], |
 | [[Devtools Release\|Release]]  | cuts the version and freezes the inputs Bundle recorded |

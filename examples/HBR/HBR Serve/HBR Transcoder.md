@@ -1,8 +1,8 @@
 ---
-description: "a leaf component — the serve transcoder"
+description: "re-encodes to a client-supported codec when direct play fails"
 ---
 
-| -[[HBR Transcoder]]- | : a leaf component — the serve transcoder<br>→ [[DAS]] → [[FEX]] → [[HBR\|HARBOR]] → [[HBR Serve]] → [HBR Transcoder](hook://p/HBR%20Transcoder)  |
+| -[[HBR Transcoder]]- | : a leaf component — the serve transcoder<br>→ [[DAS]] → [[FEX]] → [[HBR]] → [[HBR Serve]] → [HBR Transcoder](hook://p/HBR%20Transcoder)  |
 | --- | --- |
 | Anchor | [[HBR Serve]] (parent) |
 | Related | [[HBR Streamer]] (caller),  [[HBR Cache]] (output sink), |

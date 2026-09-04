@@ -1,7 +1,7 @@
 ---
 description: "{{one-line summary of {slug}'s decision posture — e.g. which cross-cutting / value decisions live here}}"
 ---
-:>> [[DAS]] → [[Templates]] → [decisions markdown](hook://p/decisions%20markdown)
+:>> [[DAS]] → [[Templates]] → [templates decisions](hook://p/templates%20decisions)
 # {slug} Decisions
 {{One sentence: what these decisions are about — e.g. cross-cutting rulings with no single design-doc home.}}
 

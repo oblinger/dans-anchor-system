@@ -1,6 +1,6 @@
 ---
 name: stacked-table
-description: "*Slot* — a table whose related columns stack into one cell, sub-rows separated by structural `<br/>`, declared by an explicit marker."
+description: "*slot facet — selects by its own `<!-- stacked -->` marker; no citing facets yet*,"
 tools: Read
 user_invocable: false
 group: slot

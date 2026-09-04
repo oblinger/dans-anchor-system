@@ -1,8 +1,8 @@
 ---
-description: "honors it"
+description: "what sweeps its bundles"
 ---
 
-| -[[FEX Retention]]- | : example discipline — the retention rule<br>→ [[DAS]] → [[examples]] → [[FEX Repo]] → [FEX Retention](hook://p/FEX%20Retention)  |
+| -[[FEX Retention]]- | : example discipline — the retention rule<br>→ [[DAS]] → [[FEX]] → [[FEX Repo]] → [FEX Retention](hook://p/FEX%20Retention)  |
 | --- | --- |
 | Related | [[FEX Repo]],  [[FEX Snapshot\|Snapshot]] (reads it),  [[FEX Manifest\|Manifest]], |
 | ... | [[FEX Bundle]],  [[FEX Pin]],  [[R-fex-manifest]],   |

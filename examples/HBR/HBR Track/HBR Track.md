@@ -2,7 +2,7 @@
 description: "Harbor's tracking — backlog and feature state"
 ---
 
-| -[[HBR Track]]- | → [[DAS]] → [[FEX]] → [[HBR\|HARBOR]] → [HBR Track](hook://p/HBR%20Track)  |
+| -[[HBR Track]]- | → [[DAS]] → [[FEX]] → [[HBR]] → [HBR Track](hook://p/HBR%20Track)  |
 | --- | --- |
 | Anchor | [[HBR]] (parent) |
 | Related | [[HBR Design]],  [[DAS Track]],   |

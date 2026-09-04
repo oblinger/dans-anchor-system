@@ -1,5 +1,5 @@
 ---
-description: "the seven-case grammar-derivation corpus (M1); this document is a *different* corpus — the real population, not the cases that derived the grammar"
+description: "The case corpus Stencil is derived from — a real example first, then proposed stencils, then the discussion. Every block is delimited, verbatim, and copy-pasteable."
 ---
 
 # Template Examples

@@ -1,5 +1,5 @@
 ---
-description: "crank, land, fortify, ask, feature, groom, mint, finalize"
+description: "User guides for the engine-room verbs that drive work forward through the lifecycle — from inbox to backlog, backlog to active, active to verified."
 ---
 
 | -[[SKL Drive]]- | : User guides for the engine-room verbs that drive work forward through the lifecycle — from inbox to backlog, backlog to active, active to verified.<br>→ [[DAS]] → [[skill-docs]] → [SKL Drive](hook://p/SKL%20Drive)  |

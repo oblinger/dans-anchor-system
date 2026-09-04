@@ -66,7 +66,7 @@ A standalone `/audit architecture` skill, auto-invoked as the last step of every
 ### Implementation
 
 - `~/.claude/skills/audit/scripts/audit-architecture.py` — the validator. Reuses `audit-q.py` primitives via `import` (audit-q supports this via `sys.modules["audit_q"] = mod`).
-- `~/.claude/skills/audit/audit-architecture.md` — the skill runbook.
+- `~/.claude/skills/audit/code/audit-architecture.md` — the skill runbook.
 - `/architect` SKILL.md gains a post-condition step: invoke `/audit architecture --scope reach` after every sub-skill run.
 - CLI: `audit-architecture [--scope reach|anchor|file|all] [--anchor NAME] [--file PATH] [--fix] [--dry]`. Default scope is `reach`.
 - Findings emitted with codes `A1`–`A4`; integrates with audit-family's standard report shape.

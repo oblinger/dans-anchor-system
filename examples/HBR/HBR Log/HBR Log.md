@@ -1,8 +1,8 @@
 ---
-description: "Harbor changelog — notable releases and changes, newest first."
+description: "Harbor changelog — chronological-container example"
 ---
 
-| -[[HBR Log]]- | : Harbor changelog — chronological-container example<br>→ [[DAS]] → [[FEX]] → [[HBR\|HARBOR]] → [HBR Log](hook://p/HBR%20Log)  |
+| -[[HBR Log]]- | : Harbor changelog — chronological-container example<br>→ [[DAS]] → [[FEX]] → [[HBR]] → [HBR Log](hook://p/HBR%20Log)  |
 | --- | --- |
 | Related | [[HBR]] (the project) |
 | [[2026-06-10 Transcode pipeline\|2026-06-10 — Transcode pipeline]]  | hardware-accelerated transcode |

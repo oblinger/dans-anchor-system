@@ -266,7 +266,7 @@ Print a summary table:
 
 Every `state` invocation in § 2a / § 3 automatically regenerates the anchor's per-anchor section in `~/ob/kmr/Q.md` (by shelling out to `audit-q.py --scope backlog --anchor {slug} --fix`). The backlog file is NOT reordered — source order is preserved (per F075 Q2). Bubble-to-top is a Q.md-only behavior.
 
-The audit's fix-by-default behavior catches any drift introduced — broken links, stale brackets, banner mismatches, stale `[Done]` rows — and either repairs them mechanically OR (per the audit-q.md step 5 invariant, 2026-06-04) **files every non-mechanical residual as a sub-bullet on the singleton `B-QFix` row** in `{slug} Backlog.md`. There is no "rare" gate on QFix — every residual that `--fix` didn't repair lands on the catalog.
+The audit's fix-by-default behavior catches any drift introduced — broken links, stale brackets, banner mismatches, stale `[Done]` rows — and either repairs them mechanically OR (per the `audit/track/audit-q.md` step 5 invariant, 2026-06-04) **files every non-mechanical residual as a sub-bullet on the singleton `B-QFix` row** in `{slug} Backlog.md`. There is no "rare" gate on QFix — every residual that `--fix` didn't repair lands on the catalog.
 
 **Loop until clean** (per the audit-q fix-loop discipline, landed 2026-06-04):
 
@@ -285,7 +285,7 @@ After the loop, **before exiting**, read `{slug} Backlog.md` for the `B-QFix` ro
 ### Three guards on the loop (per the 2026-06-04 design discussions — original "mechanical-only" rule replaced by the 100%-fix principle)
 
 1. **100% of warnings go to zero each pass — `None` is an acceptable Recommendation.** The agent's job, in every loop iteration, is to drive the residual to zero. For C9 missing Recommendation, the agent writes the Recommendation — including `**Recommendation:** None — <one-line reason>` when honest effort produces no Lean. For C12 missing rationale, the agent writes the plausible-exercise sentence (or rebrackets). For C25 missing Designing justification, the agent writes the next-action (or rebrackets). Every C-code has an agent-side fix path; **`QFix` is reserved for the rare cases where the answer genuinely requires user-private information**, not for "user might prefer something different." See `[[audit-q]]` § 5 for the per-C-code action map.
-2. **Iteration cap = 3.** Matches `audit-q-fix.md` 3-pass cap. On cap, the (rare) genuinely-stuck residual is filed as QFix and surfaced.
+2. **Iteration cap = 3.** Matches `audit/track/audit-q-fix.md` 3-pass cap. On cap, the (rare) genuinely-stuck residual is filed as QFix and surfaced.
 3. **Anchor-local.** Loop iterates only on findings under the cwd anchor's tree. Cross-anchor findings route to the owning anchor's `QFix` row by `surface_file` path; the owning anchor's next `/ask` or `/groom` addresses them under the same 100%-fix rule.
 
 ### 5a. Closing act — `state triage` (F239)

@@ -1,5 +1,5 @@
 ---
-description: "Dan's Anchor System (DAS) — the dans-anchor-system repository: skills / facets / disciplines / rulesets / library / examples + a docs reading surface"
+description: "*Design tree* — everything: PRDs, design, runtime"
 ---
 
 | -[[DAS]]- | : dans-anchor-system — Dan's Anchor System (DAS) — the dans-anchor-system repository: skills / facets / disciplines / rulesets / library / examples + a docs reading surface<br>→ [[kmr]] → [[SYS]] → [[Bespoke]] → [[SKA]] → [DAS](hook://p/DAS)  |
@@ -11,7 +11,7 @@ description: "Dan's Anchor System (DAS) — the dans-anchor-system repository: s
 | Surfaces |  |
 | [[DAS Docs\|Docs]]  | user reading surface |
 | [[DAS Design\|Design]]  | design pipeline |
-| ... | [cleanup](hook://cleanup),  [crank](hook://crank),  [create](hook://create),  [dans-anchor-system design](hook://dans-anchor-system%20design),  [dans-anchor-system docs](hook://dans-anchor-system%20docs),  [[dans-anchor-system/README]],  [dans-anchor-system rulesets](hook://dans-anchor-system%20rulesets),  [dans-anchor-system templates](hook://dans-anchor-system%20templates),  [design](hook://design),  [[disciplines]],  [[examples]],  [[facets]],  [[FCT]],  [feature](hook://feature),  [finalize](hook://finalize),  [fortify](hook://fortify),  [groom](hook://groom),  [land](hook://land),  [[library]],  [mint](hook://mint),  [rule](hook://rule),  [Rulesets](hook://Rulesets),  [[skill-docs]],  [[STEN]],  [[traits]],  [[trust/README]],  [[WARD]],  [[Warden]],  [workflow](hook://workflow),   |
+| ... | [cleanup](hook://cleanup),  [crank](hook://crank),  [create](hook://create),  [dans-anchor-system docs](hook://dans-anchor-system%20docs),  [[dans-anchor-system/README]],  [DAS-RULESETS-LIB](hook://DAS-RULESETS-LIB),  [DAS-TEMPLATES](hook://DAS-TEMPLATES),  [design](hook://design),  [DESIGN-SKILL](hook://DESIGN-SKILL),  [[disciplines]],  [[examples]],  [[facets]],  [[FCT]],  [feature](hook://feature),  [finalize](hook://finalize),  [fortify](hook://fortify),  [groom](hook://groom),  [land](hook://land),  [[library]],  [mint](hook://mint),  [rule](hook://rule),  [rulesets](hook://rulesets),  [[skill-docs]],  [[SKL]],  [[STEN]],  [[traits]],  [[trust/README]],  [[WARD]],  [[Warden]],  [workflow](hook://workflow),   |
 
 # DAS — Dan's Anchor System
 **Dan's Anchor System (DAS)** is the anchor system populated with Dan Oblinger's personal skills and facets.  Others can use this as an à la carte menu of starter skills, facets, disciplines, and rulesets for their own usage.

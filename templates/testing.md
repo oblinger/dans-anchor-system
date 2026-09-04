@@ -2,7 +2,7 @@
 description: "{{test strategy + proposed tests for this anchor}}"
 status:: {{drafting | in-review | accepted}}
 ---
-:>> [[DAS]] → [[Templates]] → [testing markdown](hook://p/testing%20markdown) 
+:>> [[DAS]] → [[Templates]] → [templates testing](hook://p/templates%20testing) 
 # {slug} Testing
 How {slug} is verified: the kinds of test, how much of each, and the concrete inventory consistent with that strategy.
 

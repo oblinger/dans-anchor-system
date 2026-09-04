@@ -24,7 +24,8 @@ A new `/audit markdown` sub-skill that runs a Python script at end-of-turn (Stop
 
 ```
 skills/audit/
-├── audit-markdown.md                          # skill runbook (sub-skill of /audit)
+├── doc/
+│   └── audit-markdown.md                      # skill runbook (sub-skill of /audit)
 ├── scripts/
 │   ├── audit-markdown.py                      # entry point — invoked by Stop hook
 │   └── compile-rules.py                       # rule-extractor (v1 helper; refactor into /cab compile later)

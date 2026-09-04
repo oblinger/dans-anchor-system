@@ -1,5 +1,5 @@
 ---
-description: "how to *use* the skills & facets (no design internals)"
+description: "the Anchor System user guide"
 ---
 
 | -[[ASG]]- | : the Anchor System user guide<br>→ [[DAS]] → [ASG](hook://p/ASG)  |

@@ -14,6 +14,7 @@ description: "cross-cutting concepts the agent reads"
 | [[DAS Drive Design\|Drive]]+ | [[DAS mode\|mode]],  [[DAS role\|role]],   |
 | --- | |
 | [[DAS feed]]  | Discipline — the second DAG over anchors. `feeds:` in `.anchor` names the anchors that feed into this one; out-edges are computed by inversion. A feed facet materializes as a folder of one-file-per-item with a roster on top, each item carrying `key::` parameters and a `line::` rendering. The top group of a roster is the export set, and it propagates to every anchor declaring this one as a source. Members: Rocks, and the item register. DRAFT — the facet-side naming is pending TINK F312 Q1. |
+| [[DAS stacked-table]]  | *Slot* — a table whose related columns stack into one cell, sub-rows separated by structural `<br/>` |
 
 # DAS Disciplines
 The catalog of discipline facets — cross-cutting concepts the agent reads — organized by the nine subsystems in [[DAS]] order (groups owning no disciplines are omitted).

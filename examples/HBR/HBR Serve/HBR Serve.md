@@ -2,7 +2,7 @@
 description: "a group container page — the Serve pipeline's three modules"
 ---
 
-| -[[HBR Serve]]- | : a group container page — the Serve pipeline's three modules<br>→ [[DAS]] → [[FEX]] → [[HBR\|HARBOR]] → [HBR Serve](hook://p/HBR%20Serve)  |
+| -[[HBR Serve]]- | : a group container page — the Serve pipeline's three modules<br>→ [[DAS]] → [[FEX]] → [[HBR]] → [HBR Serve](hook://p/HBR%20Serve)  |
 | --- | --- |
 | Anchor | [[HBR Components]] (parent) |
 | Related | [[HBR Ingest]] (sibling group),  [[HBR Operate]] (sibling group), |

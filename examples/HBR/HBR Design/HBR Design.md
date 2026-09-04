@@ -2,7 +2,7 @@
 description: "Harbor's design — PRD through features, in design-dispatch order"
 ---
 
-| -[[HBR Design]]- | → [[DAS]] → [[FEX]] → [[HBR\|HARBOR]] → [HBR Design](hook://p/HBR%20Design)  |
+| -[[HBR Design]]- | → [[DAS]] → [[FEX]] → [[HBR]] → [HBR Design](hook://p/HBR%20Design)  |
 | --- | --- |
 | Anchor | [[HBR]] (parent) |
 | Related | [[HBR Components]],  [[DAS Design Docs]],   |

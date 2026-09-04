@@ -1,8 +1,8 @@
 ---
-description: "a leaf component — the serve streamer"
+description: "negotiates the session and pushes the byte range to the client"
 ---
 
-| -[[HBR Streamer]]- | : a leaf component — the serve streamer<br>→ [[DAS]] → [[FEX]] → [[HBR\|HARBOR]] → [[HBR Serve]] → [HBR Streamer](hook://p/HBR%20Streamer)  |
+| -[[HBR Streamer]]- | : a leaf component — the serve streamer<br>→ [[DAS]] → [[FEX]] → [[HBR]] → [[HBR Serve]] → [HBR Streamer](hook://p/HBR%20Streamer)  |
 | --- | --- |
 | Anchor | [[HBR Serve]] (parent) |
 | Related | [[HBR Transcoder]] (fallback stage),  [[HBR Cache]] (segment source), |

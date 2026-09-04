@@ -1,5 +1,5 @@
 ---
-description: "design pipeline"
+description: "the design pipeline — per-skill design docs + PRDs, grouped by group"
 ---
 
 | -[[DAS Design]]- | : the design pipeline — per-skill design docs + PRDs, grouped by group<br>→ [[DAS]] → [design](hook://design) → [DAS Design](hook://p/DAS%20Design)  |
@@ -18,7 +18,6 @@ description: "design pipeline"
 | --- | |
 | [[DAS Anchor Design]]  | Subsystem design for the Anchor group — the folder-shape substrate every other subsystem rides on, plus the lifecycle verbs that create, restructure, relocate, publish, and archive anchors. |
 | [[DAS Code Skill Design]]  | design surface for SKL Code |
-| [[design/DAS Decisions]]  | durable decisions for the DAS anchor itself — what this repo may contain and why |
 | [[DAS Doc Design]]  | Subsystem design for the Doc group — the authoring verbs that shape, illustrate, polish, and route documents, plus the round-trip to external document apps. |
 | [[DAS Drive Design]]  | Subsystem design for the Drive group — the autonomous-execution loop that consumes Ready work (crank → mint → finalize), the feeders that mint new work, and the bounded stop. |
 | [[DAS Hygiene Design]]  | Subsystem design for the Hygiene group — rules declared once, checked everywhere (Warden on-write + /audit sweeps), and repaired to zero via the 100%-fix discipline. |
@@ -26,6 +25,7 @@ description: "design pipeline"
 | [[DAS Stone Design]]  | the architecture of the stone system — the four surfaces, the one line that is both an ordering decision and a machine reference, and the propagation pass over the feed DAG |
 | [[DAS Stone Keys]]  |  |
 | [[DAS Utility Design]]  | Subsystem design for the Utility group — machine access (local, remote, GPU, GUI), capture pipelines (voice, text), and life utilities; always available, no anchor trait. |
+| [[design/DAS Decisions]]  | durable decisions for the DAS anchor itself — what this repo may contain and why |
 | [[Template Examples]]  | The case corpus Stencil is derived from — a real example first, then proposed stencils, then the discussion. Every block is delimited, verbatim, and copy-pasteable. |
 | [[DAS Design Design\|Design]]  | Subsystem design for the Design group — the artifact pipeline, gates, and verbs that turn an idea into an agreed, buildable specification before execution starts. |
 

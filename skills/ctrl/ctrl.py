@@ -3505,6 +3505,16 @@ Commands:
 
     tab <url>                   Open URL in new tab (keeps current tab active)
 
+Screen-state Commands (read what is open; move it):
+    tabs                        List open tabs in Safari / Chrome / Chrome Beta (S3, C2 ids; * = active)
+        --safari|--chrome|--beta   one browser only        --json   rows as JSON
+        --activate <id>         Bring that tab to the front (takes the browser lease)
+    win list [app] [--json]     Every visible window: app, position, size, title (* = frontmost)
+    win front                   Which app + window is frontmost
+    win focus <app>             Activate an app (a browser takes the lease)
+    win move <app> X Y W H      Move/resize the app's front window
+    win quit <app>              Quit an app       win close <app>   Close its front window
+
 Playwright-based Commands (Advanced):
     jjpage <url|->              Extract page content using Playwright
         <url>                   URL to extract from
@@ -3815,12 +3825,264 @@ def parse_arguments():
     release_parser.add_argument('--force', action='store_true',
         help='Release a lease held by another session (only when it is gone)')
 
+    # ATT P0014 — tabs / win (screen verbs; see cmd_tabs / cmd_win)
+    tabs_parser = subparsers.add_parser('tabs', help='List open browser tabs; --activate <id> brings one front')
+    tabs_parser.add_argument('--safari', action='store_true', help='Safari only')
+    tabs_parser.add_argument('--chrome', action='store_true', help='Google Chrome only')
+    tabs_parser.add_argument('--beta', action='store_true', help='Google Chrome Beta only')
+    tabs_parser.add_argument('--json', action='store_true', help='JSON rows')
+    tabs_parser.add_argument('--activate', metavar='ID', help='Bring tab ID (e.g. S3, C2, C2.1) to the front (needs the browser lease)')
+    win_parser = subparsers.add_parser('win', help='Windows: list | front | focus <app> | move <app> X Y W H | quit <app> | close <app>')
+    win_parser.add_argument('win_verb', choices=['list', 'front', 'focus', 'move', 'quit', 'close'])
+    win_parser.add_argument('app', nargs='?', help='Application name (as macOS shows it)')
+    win_parser.add_argument('geom', nargs='*', type=int, help='X Y W H for move')
+    win_parser.add_argument('--json', action='store_true', help='JSON rows')
+
     lease_parser = subparsers.add_parser('lease',
         help='Report who holds the browser')
     lease_parser.add_argument('--json', action='store_true',
         help='Also print the raw lease record')
 
     return parser.parse_args()
+
+
+
+# ---------------------------------------------------------------------------
+# ATT P0014 — `ctrl tabs` and `ctrl win` (2026-09-03).
+#
+# The osascript census after R-ob-osascript shipped found the two largest
+# UNCOVERED buckets were browser "which tab am I on / bring it front" (about
+# 85 calls a week) and window geometry / activate / quit (about 27). A deny
+# rule may only redirect to a wrapper that exists (the pebble's gate), so
+# these are the wrappers; the rule widens behind them.
+#
+# Both are SCREEN verbs — they read or move what is on this machine's display
+# — so they are not DATA_VERBS and the F640 interactive gate leaves them
+# alone. `tabs --activate` and `win focus <browser>` move the shared browser,
+# so those two paths run the lease check; a bare listing does not.
+# ---------------------------------------------------------------------------
+
+_TABS_BROWSERS = {
+    'safari': 'Safari',
+    'chrome': 'Google Chrome',
+    'chrome-beta': 'Google Chrome Beta',
+}
+_SEP = '|~|'      # field separator inside AppleScript output (never in a title or URL)
+_RS = '<~row~>'   # record separator
+
+
+def _osa(script: str, timeout: int = 20) -> str:
+    """Run one AppleScript and return stdout, or raise with stderr."""
+    r = subprocess.run(['osascript', '-e', script], capture_output=True, text=True, timeout=timeout)
+    if r.returncode != 0:
+        raise RuntimeError((r.stderr or r.stdout).strip())
+    return r.stdout
+
+
+def _app_running(app: str) -> bool:
+    out = _osa(f'tell application "System Events" to (exists process "{app}")')
+    return out.strip() == 'true'
+
+
+def _list_tabs(app: str) -> list:
+    """[{browser, window, index, active, title, url}] for one browser, without activating it."""
+    if not _app_running(app):
+        return []
+    if app == 'Safari':
+        script = f'''
+        tell application "Safari"
+            set out to ""
+            set wi to 0
+            repeat with w in windows
+                set wi to wi + 1
+                set cur to current tab of w
+                set ti to 0
+                repeat with t in tabs of w
+                    set ti to ti + 1
+                    set isCur to "0"
+                    if (index of t) is (index of cur) then set isCur to "1"
+                    set out to out & wi & "{_SEP}" & ti & "{_SEP}" & isCur & "{_SEP}" & (name of t) & "{_SEP}" & (URL of t) & "{_RS}"
+                end repeat
+            end repeat
+            return out
+        end tell'''
+    else:
+        script = f'''
+        tell application "{app}"
+            set out to ""
+            set wi to 0
+            repeat with w in windows
+                set wi to wi + 1
+                set ai to active tab index of w
+                set ti to 0
+                repeat with t in tabs of w
+                    set ti to ti + 1
+                    set isCur to "0"
+                    if ti is ai then set isCur to "1"
+                    set out to out & wi & "{_SEP}" & ti & "{_SEP}" & isCur & "{_SEP}" & (title of t) & "{_SEP}" & (URL of t) & "{_RS}"
+                end repeat
+            end repeat
+            return out
+        end tell'''
+    out = _osa(script, timeout=30)
+    rows = []
+    for rec in out.split(_RS):
+        if not rec.strip():
+            continue
+        parts = rec.split(_SEP)
+        if len(parts) < 5:
+            continue
+        rows.append({'browser': app, 'window': int(parts[0]), 'index': int(parts[1]),
+                     'active': parts[2] == '1', 'title': parts[3].strip(), 'url': parts[4].strip()})
+    return rows
+
+
+def _activate_tab(app: str, window: int, index: int):
+    if app == 'Safari':
+        _osa(f'tell application "Safari"\n set current tab of window {window} to tab {index} of window {window}\n set index of window {window} to 1\n activate\nend tell')
+    else:
+        _osa(f'tell application "{app}"\n set active tab index of window {window} to {index}\n set index of window {window} to 1\n activate\nend tell')
+
+
+def cmd_tabs(args):
+    """ctrl tabs — inventory of open browser tabs; --activate <id> brings one to the front.
+
+    Row ids are `S3` (Safari, tab 3 of the front window) or `C2` (Chrome);
+    windows beyond the first are `S2.1` style. Read-only unless --activate.
+    """
+    wanted = []
+    if args.safari: wanted.append('Safari')
+    if args.chrome: wanted.append('Google Chrome')
+    if args.beta: wanted.append('Google Chrome Beta')
+    if not wanted:
+        wanted = ['Safari', 'Google Chrome', 'Google Chrome Beta']
+    letter = {'Safari': 'S', 'Google Chrome': 'C', 'Google Chrome Beta': 'B'}
+    rows = []
+    for app in wanted:
+        try:
+            rows.extend(_list_tabs(app))
+        except Exception as e:  # one browser failing must not hide the others
+            print(f"ctrl tabs: {app}: {e}", file=sys.stderr)
+    for r in rows:
+        r['id'] = f"{letter[r['browser']]}{r['index']}" if r['window'] == 1 else f"{letter[r['browser']]}{r['window']}.{r['index']}"
+
+    if args.activate:
+        _enforce_browser_lease('tab', [])  # it moves the shared browser: same contract as `ctrl tab`
+        tid = args.activate.upper()
+        hit = next((r for r in rows if r['id'] == tid), None)
+        if not hit:
+            print(f"ctrl tabs: no tab {tid}. Open tabs:", file=sys.stderr)
+            for r in rows: print(f"  {r['id']:6s} {r['title'][:60]}", file=sys.stderr)
+            sys.exit(1)
+        _activate_tab(hit['browser'], hit['window'], hit['index'])
+        print(f"activated {tid}: {hit['title'][:70]}  {hit['url'][:80]}")
+        return
+
+    if args.json:
+        print(json.dumps(rows, indent=2))
+        return
+    if not rows:
+        print("no browser tabs open (Safari, Chrome, Chrome Beta)")
+        return
+    for r in rows:
+        mark = '*' if r['active'] else ' '
+        print(f"{r['id']:6s}{mark} {r['title'][:60]:60s}  {r['url'][:90]}")
+
+
+def _win_list(app_filter: str = None) -> list:
+    """[{app, title, x, y, w, h, frontmost}] via System Events, visible processes only.
+
+    One AppleScript per app with its own short timeout. A single all-process
+    query hung past 40 s on this desk because one app never answers its
+    Accessibility queries; per-app calls skip that app and answer for the rest.
+    Bulk property reads (`position of windows of p`) keep each call to three
+    Apple events regardless of window count.
+    """
+    if app_filter:
+        names = [app_filter]
+    else:
+        names = [n.strip() for n in _osa('tell application "System Events" to get name of every process whose visible is true', timeout=10).split(',') if n.strip()]
+    try:
+        front = _osa('tell application "System Events" to get name of first process whose frontmost is true', timeout=10).strip()
+    except Exception:
+        front = ''
+    rows = []
+    for pn in names:
+        script = f'''
+        tell application "System Events"
+            tell process "{pn}"
+                set ns to name of windows
+                set ps to position of windows
+                set ss to size of windows
+            end tell
+            set out to ""
+            repeat with i from 1 to count of ns
+                set out to out & (item i of ns) & "{_SEP}" & (item 1 of item i of ps) & "{_SEP}" & (item 2 of item i of ps) & "{_SEP}" & (item 1 of item i of ss) & "{_SEP}" & (item 2 of item i of ss) & "{_RS}"
+            end repeat
+            return out
+        end tell'''
+        try:
+            out = _osa(script, timeout=4)
+        except subprocess.TimeoutExpired:
+            print(f"ctrl win: {pn} did not answer Accessibility in 4 s -- skipped", file=sys.stderr)
+            continue
+        except Exception:
+            continue
+        for rec in out.split(_RS):
+            parts = rec.split(_SEP)
+            if len(parts) < 5:
+                continue
+            try:
+                rows.append({'app': pn, 'title': parts[0].strip(), 'x': int(float(parts[1])), 'y': int(float(parts[2])),
+                             'w': int(float(parts[3])), 'h': int(float(parts[4])), 'frontmost': pn == front})
+            except ValueError:
+                continue
+    return rows
+
+def cmd_win(args):
+    """ctrl win — list / front / focus / move / quit / close, the window verbs the census found."""
+    verb = args.win_verb
+    if verb == 'list':
+        rows = _win_list(args.app)
+        if args.json:
+            print(json.dumps(rows, indent=2)); return
+        for r in rows:
+            print(f"{'*' if r['frontmost'] else ' '} {r['app'][:22]:22s} {r['x']:5d},{r['y']:<5d} {r['w']:5d}x{r['h']:<5d} {r['title'][:70]}")
+        return
+    if verb == 'front':
+        app = _osa('tell application "System Events" to get name of first process whose frontmost is true').strip()
+        title = ''
+        try:
+            title = _osa(f'tell application "System Events" to tell process "{app}" to get name of front window').strip()
+        except Exception:
+            pass
+        print(json.dumps({'app': app, 'title': title}) if args.json else f"{app}: {title}")
+        return
+    if not args.app:
+        print(f"ctrl win {verb}: needs an app name", file=sys.stderr); sys.exit(1)
+    app = args.app
+    if verb == 'focus':
+        if app in _TABS_BROWSERS.values():
+            _enforce_browser_lease('tab', [])  # bringing the shared browser front counts as moving it
+        _osa(f'tell application "{app}" to activate')
+        print(f"focused {app}")
+        return
+    if verb == 'move':
+        if args.geom is None or len(args.geom) != 4:
+            print("ctrl win move <app> X Y W H", file=sys.stderr); sys.exit(1)
+        x, y, w, h = args.geom
+        _osa(f'tell application "System Events" to tell process "{app}"\n set position of front window to {{{x}, {y}}}\n set size of front window to {{{w}, {h}}}\nend tell')
+        print(f"moved {app} front window to {x},{y} {w}x{h}")
+        return
+    if verb == 'quit':
+        _osa(f'tell application "{app}" to quit')
+        print(f"quit {app}")
+        return
+    if verb == 'close':
+        _osa(f'tell application "System Events" to tell process "{app}" to click button 1 of front window')
+        print(f"closed {app} front window")
+        return
+    print(f"ctrl win: unknown verb {verb}", file=sys.stderr); sys.exit(1)
 
 
 def cmd_edit(args):
@@ -3982,6 +4244,8 @@ def main():
         'own': cmd_own,
         'release': cmd_release,
         'lease': cmd_lease,
+        'tabs': cmd_tabs,
+        'win': cmd_win,
     }
 
     # TINK F640 — on an interactive host a data verb needs --bridge (form) or

@@ -1,7 +1,7 @@
 ---
 description: {slug} inbox — raw input dropped for later processing.
 ---
-:>> [[DAS]] → [[Templates]] → [inbox markdown](hook://p/inbox%20markdown) 
+:>> [[DAS]] → [[Templates]] → [templates inbox](hook://p/templates%20inbox) 
 # {slug} Inbox
 Drop zone for raw input; an entry with no status tag is pending, and draining writes `DONE` or `MOVED → {destination}` per [[DAS Inbox]].
 

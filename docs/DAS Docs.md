@@ -1,5 +1,5 @@
 ---
-description: "user reading surface"
+description: "the reading surface — per-skill user docs, grouped by group"
 ---
 
 | -[[DAS Docs]]- | : the reading surface — per-skill user docs, grouped by group<br>→ [[DAS]] → [docs](hook://docs) → [DAS Docs](hook://p/DAS%20Docs)  |
@@ -17,6 +17,10 @@ description: "user reading surface"
 | [[SKL Utility\|Utility]]+ | [[DAS Atlas\|Atlas]],  [[DAS Bridge\|Bridge]],  [[DAS Ctrl\|Ctrl]],  [[DAS Exp\|Exp]],  [[DAS Parley\|Parley]],  [[DAS Snip\|Snip]],   |
 | --- | |
 | [[DAS Code Skill]]  | How to use the development workflow — from planning through implementation and release. |
+| [[DAS Diagramming]]  | The **diagramming discipline** — the judgement half of making figures: when a picture earns its place, why the editable source ships beside the export, and what the description sidecar is for. |
+| [[DAS Move Skill]]  | `/move` relocates an anchor folder to a new path and updates every path-dependent system that indexes it — HookAnchor, Claude Code session history, hardcoded paths inside the anchor's own configs, … |
+| [[DAS Skill Search]]  | skim → click into the rule that applies |
+| [[DAS WP Skill]]  | `/wp <name>` creates a new dated **work product** folder inside the current anchor's `{slug} WP/` folder. |
 | [[anchor/DAS Move]]  | `/move` relocates an anchor folder to a new path and updates every path-dependent system that indexes it — HookAnchor, Claude Code session history, hardcoded paths inside the anchor's own configs, … |
 | [[search/DAS Skill]]  | skim → click into the rule that applies |
 

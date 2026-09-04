@@ -1,5 +1,5 @@
 ---
-description: "`/daybreak` — the morning routine; the day's opening sequence"
+description: "Morning routine — the day's opening sequence."
 ---
 
 | -[[DAS Daybreak]]- | : `/daybreak` — the morning routine; the day's opening sequence<br>→ [[DAS]] → [docs](hook://docs) → [DAS Daybreak](hook://p/DAS%20Daybreak)  |

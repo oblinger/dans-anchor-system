@@ -20,16 +20,17 @@ When a denied path is genuinely the only way, the answer is not to evade the rul
 
 Measured over the same 7 days, these have **no sanctioned alternative** and therefore pass untouched:
 
-| bucket | calls/7d | covered by |
+| bucket | calls/7d (08-21) | after 2026-09-03 |
 |---|---|---|
-| window move / size / focus | 162 | nothing |
-| browser tab inventory | 80 | nothing |
-| app quit / activate / close | 76 | nothing |
+| window move / size / focus | 162 | **`ctrl win`** — rule -05 |
+| browser tab inventory | 80 | **`ctrl tabs`** — rule -02, widened |
+| app quit / activate / close | 76 | **`ctrl win focus / quit / close`** — rules -02 / -05 (bare activate/quit only) |
 | AX-targeted clicks (`click button "OK"`) | — | nothing — `ctrl screen click` is coordinates only |
 | menu-bar drilling | 19 | nothing |
-| Mail compose / send | 40 | nothing |
+| Mail compose / send | 40 → 2 | nothing, and no longer worth a wrapper |
+| app-specific scripting (Photos, Contacts, Preview, Terminal `do script`) | ~40 | nothing — genuine one-offs, pass by design |
 
-**Roughly 45% of real `osascript` traffic is legitimately outside every wrapper**, and a rule that taxed it would be routed around rather than obeyed. Closing those gaps — chiefly a `ctrl win` family — is ATT's `OSAscript Deny Rules` pebble; **each rule below may only be widened once the wrapper it would redirect to actually exists.** Enforcement cannot precede the wrapper: `/io imail` is itself seven blocks of `osascript`, so a rule denying "osascript for mail" while pointing at `/io imail` would deny its own remedy.
+**What remains outside every wrapper is app-specific scripting, AX clicks and menu drilling**, and a rule that taxed those would be routed around rather than obeyed. The `ctrl tabs` / `ctrl win` wrappers landed 2026-09-03 and rules -02 and -05 widened behind them the same day ([[Atticus P0014]]); **each rule below may only be widened once the wrapper it would redirect to actually exists.** Enforcement cannot precede the wrapper: `/io imail` is itself seven blocks of `osascript`, so a rule denying "osascript for mail" while pointing at `/io imail` would deny its own remedy.
 
 ### RULE R-ob-osascript-01 — Mail SEARCH via osascript → the notmuch index (when:: tool:pre:Bash)
 
@@ -59,6 +60,16 @@ def body(ctx):
                 out.append(" ".join(ws[k + 1:]))
             elif depth < 2 and " " in w and "osascript" in w:
                 payloads(w, depth + 1, out)
+        # Heredoc BODIES (2026-09-03): a script written with `cat > x.sh <<'EOS'`
+        # and run afterwards carries `osascript <<'OSA'` on a line of its own,
+        # never at shell command position -- the census found 32 browser calls
+        # in exactly that shape, 0 denied. A line that STARTS with osascript
+        # followed by -e / a heredoc / a path / end-of-line is an invocation;
+        # everything from that line to the end is its payload. Prose that merely
+        # mentions osascript mid-line still never matches.
+        if depth == 0:
+            for m in re.finditer(r"(?m)^[ \t]*(?:\S*/)?osascript(?=\s+(?:-|<<)|\s*$)", s):
+                out.append(s[m.end():])
         return out
 
     for p in payloads(cmd):
@@ -111,6 +122,16 @@ def body(ctx):
                 out.append(" ".join(ws[k + 1:]))
             elif depth < 2 and " " in w and "osascript" in w:
                 payloads(w, depth + 1, out)
+        # Heredoc BODIES (2026-09-03): a script written with `cat > x.sh <<'EOS'`
+        # and run afterwards carries `osascript <<'OSA'` on a line of its own,
+        # never at shell command position -- the census found 32 browser calls
+        # in exactly that shape, 0 denied. A line that STARTS with osascript
+        # followed by -e / a heredoc / a path / end-of-line is an invocation;
+        # everything from that line to the end is its payload. Prose that merely
+        # mentions osascript mid-line still never matches.
+        if depth == 0:
+            for m in re.finditer(r"(?m)^[ \t]*(?:\S*/)?osascript(?=\s+(?:-|<<)|\s*$)", s):
+                out.append(s[m.end():])
         return out
 
     BROWSERS = (r'"(Safari|Google Chrome|Google Chrome Beta|Google Chrome Canary|'
@@ -133,12 +154,34 @@ def body(ctx):
             return ["DENY: navigating a browser via AppleScript -> use ctrl. "
                     "`ctrl surf <url>` (new tab), `ctrl tab <url>` (new tab, keeps "
                     "focus), `ctrl navigate <url>` (current tab), `ctrl new-tab`. "
-                    "Claim the browser lease first (`ctrl own`). Tab inventory and "
-                    "quit/activate are not denied; nothing covers those yet."]
+                    "Claim the browser lease first (`ctrl own`)."]
+        # Widened 2026-09-03 (ATT P0014) once `ctrl tabs` existed: the census's
+        # largest uncovered bucket was "which tab am I on / bring it front".
+        if re.search(r"\b(URL|title|name)\s+of\s+(active|current)\s+tab|"
+                     r"\btabs\s+of\b|active\s+tab\s+index|current\s+tab\s+of|"
+                     r"set\s+(active\s+tab\s+index|current\s+tab)\b", p, re.I):
+            return ["DENY: reading or switching browser tabs via AppleScript -> "
+                    "`ctrl tabs` lists every open tab in Safari / Chrome / Chrome Beta "
+                    "as S3 / C2 / B1 rows with the active one starred (--json for "
+                    "rows), and `ctrl tabs --activate C2` brings one to the front "
+                    "(takes the browser lease). No lease needed to list."]
+        # Bare activate/quit: the tell names the browser and the script does
+        # nothing else. Unanchored on purpose -- the raw-line payload still
+        # carries its `-e '` prefix and the shlex payload has lost its quotes.
+        if (re.search(r"tell\s+application\s+(id\s+)?\"?(Safari|Google Chrome( Beta| Canary)?|"
+                      r"Brave Browser|Chromium|Firefox)\"?\s+(to\s+)?(activate|quit)\b", p, re.I)
+                and not re.search(r"\b(set|get|do|make|click|keystroke|open|return|repeat|"
+                                  r"delete|save|spotlight|reveal|select|close|count|exists)\b", p, re.I)):
+            return ["DENY: activating or quitting a browser via AppleScript -> "
+                    "`ctrl win focus <app>` / `ctrl win quit <app>` (focus on a "
+                    "browser takes the lease); `ctrl tabs --activate <id>` when it "
+                    "is a particular tab you want in front."]
     return []
 ```
 
-Catches `do javascript` and navigation against any browser. Passes: reading tab titles/URLs, `activate`, `quit`, closing windows — none of which `ctrl` covers today.
+Catches `do javascript`, navigation, tab inventory / switching, and a bare `activate` / `quit` against any browser. Passes: closing windows, and any script whose browser work is more than activate/quit (the wrapper would not cover it).
+
+**Heredoc bodies count (2026-09-03).** The first week after shipping, the census found 32 browser `do JavaScript` calls and 0 denials: every one was a script written with `cat > x.sh <<'EOS'` and run afterwards, so `osascript` sat on a line of the file body and never at shell command position. The shared `payloads()` helper in -01/-02/-03 now also treats a line that *starts* with `osascript` followed by `-e`, a heredoc, or end-of-line as an invocation and reads the rest of the text as its payload. Prose that mentions osascript mid-line still passes; `grep osascript notes.md` still passes. Fixtures: the Wells order-page script → denied; the same AppleScript quoted in a note → passes. ([[Atticus P0014]])
 
 ### RULE R-ob-osascript-03 — synthesised keystrokes and coordinate clicks → `ctrl screen` (when:: tool:pre:Bash)
 
@@ -163,6 +206,16 @@ def body(ctx):
                 out.append(" ".join(ws[k + 1:]))
             elif depth < 2 and " " in w and "osascript" in w:
                 payloads(w, depth + 1, out)
+        # Heredoc BODIES (2026-09-03): a script written with `cat > x.sh <<'EOS'`
+        # and run afterwards carries `osascript <<'OSA'` on a line of its own,
+        # never at shell command position -- the census found 32 browser calls
+        # in exactly that shape, 0 denied. A line that STARTS with osascript
+        # followed by -e / a heredoc / a path / end-of-line is an invocation;
+        # everything from that line to the end is its payload. Prose that merely
+        # mentions osascript mid-line still never matches.
+        if depth == 0:
+            for m in re.finditer(r"(?m)^[ \t]*(?:\S*/)?osascript(?=\s+(?:-|<<)|\s*$)", s):
+                out.append(s[m.end():])
         return out
 
     for p in payloads(cmd):
@@ -232,7 +285,7 @@ def body(ctx):
                     payloads(w, depth + 1, out)
             return out
         for p in payloads(scan):
-            if re.search(r'tell\s+application\s+(id\s+)?"Obsidian"', p, re.I):
+            if re.search(r'tell\s+application\s+(id\s+)?"Obsidian"|tell\s+process\s+"Obsidian"', p, re.I):
                 return ["DENY: driving Obsidian with AppleScript. " + GLANCE]
 
     # `obsidian://` needs no osascript, so it is checked separately -- but only
@@ -262,6 +315,58 @@ Catches AppleScript against Obsidian and **every** hand-built `obsidian://` URI.
 **This is the blanket deny that was originally asked for, and it became correct once a redirect target existed.** The first cut carved out `obsidian://open?…&paneType=tab`, because that URI *was* the sanctioned glance and there was nothing else to name. Dan's answer removed the premise: *"the glance mechanism for obsidian for a markdown file should just be to open the markdown file. I think double click will actually work properly for that."* Measured the same hour — a plain `open` on a `.md` takes the tab count 18 → 19, because Obsidian Double Click is the registered `.md` handler and routes through Advanced URI, which never clobbers.
 
 **Why a path beats the URI it replaces.** The URI carried two load-bearing parameters and agents kept dropping one: `-b md.obsidian` (or the doc lands on a HUD, since the HUD apps are rebadged Obsidian binaries that can win the URL scheme) and `&paneType=tab` (or the glance destroys what Dan was reading). A file path has neither, cannot clobber, cannot land on a HUD, and needs nothing remembered — the routing decision moves into ODC, where it is code under test rather than a string every agent retypes. This is the general principle the whole ruleset runs on: **the wrapper had to exist before the deny could be honest**, and here shipping ODC's fix that morning is what made the blanket deny available by the afternoon.
+
+### RULE R-ob-osascript-05 — window geometry, frontmost, bare activate/quit → `ctrl win` (when:: tool:pre:Bash)
+
+```python
+def body(ctx):
+    ev = getattr(ctx, "event", None)
+    inp = getattr(ev, "input", None) or {}
+    cmd = inp.get("command") or ""
+    if "osascript" not in cmd:
+        return []
+    import re, shlex
+
+    def payloads(s, depth=0, out=None):
+        out = [] if out is None else out
+        try:
+            ws = shlex.split(s)
+        except ValueError:
+            ws = s.split()
+        for k, w in enumerate(ws):
+            if (w == "osascript" or w.endswith("/osascript")) and (
+                    k == 0 or ws[k - 1][-1:] in (";", "&", "|", "(")):
+                out.append(" ".join(ws[k + 1:]))
+            elif depth < 2 and " " in w and "osascript" in w:
+                payloads(w, depth + 1, out)
+        if depth == 0:
+            for m in re.finditer(r"(?m)^[ \t]*(?:\S*/)?osascript(?=\s+(?:-|<<)|\s*$)", s):
+                out.append(s[m.end():])
+        return out
+
+    WIN = ("`ctrl win list [app]` (every visible window: app, position, size, "
+           "title, * = frontmost), `ctrl win front`, `ctrl win focus <app>`, "
+           "`ctrl win move <app> X Y W H`, `ctrl win quit <app>`, "
+           "`ctrl win close <app>`. Screen verbs: no bridge, no lease unless the "
+           "app is a browser.")
+    for p in payloads(cmd):
+        # Window geometry and frontmost through System Events.
+        if re.search(r'tell\s+application\s+"System Events"', p, re.I) and re.search(
+                r"\b(position|size|bounds)\s+of\b|set\s+(position|size|bounds)\b|"
+                r"\bfrontmost\b", p, re.I):
+            return ["DENY: window geometry / frontmost via System Events -> " + WIN]
+        # A tell whose whole body is activate or quit: the app is being brought
+        # front or closed, nothing else. A longer script that activates and
+        # then does app-specific work is NOT this rule's business.
+        if (re.search(r"tell\s+application\s+(id\s+)?\"?[A-Za-z][\w .-]*\"?\s+(to\s+)?(activate|quit)\b", p, re.I)
+                and not re.search(r"\b(set|get|do|make|click|keystroke|open|return|repeat|"
+                                  r"delete|save|spotlight|reveal|select|close|count|exists|"
+                                  r"display)\b", p, re.I)):
+            return ["DENY: bare activate/quit via AppleScript -> " + WIN]
+    return []
+```
+
+Added 2026-09-03 once `ctrl win` existed (ATT P0014). Catches: `set position/size/bounds`, reading `position/size/bounds of`, `frontmost` through System Events, and a tell whose entire body is `activate` or `quit`. Passes: AX clicks (`click button "OK"`), menu drilling, app-specific scripting that happens to `activate` first (Photos, Preview), `display notification`. Those have no wrapper, and the pebble's gate still holds for them.
 
 # BRIEF
 

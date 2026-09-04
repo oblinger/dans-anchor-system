@@ -180,7 +180,13 @@ derive_title() {
 
     resp="$(api_post "$key" "$payload" 30)" || { log "title: curl failed — using subject"; return 1; }
 
-    raw="$(printf '%s' "$resp" | "$JQ_BIN" -r '.content[0].text // empty' 2>/dev/null)"
+    # Concatenate every TEXT block, rather than reading .content[0]. A
+    # thinking-capable model (claude-sonnet-5 and kin) puts a "thinking" block
+    # FIRST, whose .text is null — so .content[0].text silently yielded empty
+    # and the overview was dropped with "empty/error response" while the call
+    # had in fact succeeded. Measured 2026-09-02: title (haiku, no thinking)
+    # worked in the same run the overview failed.
+    raw="$(printf '%s' "$resp" | "$JQ_BIN" -r '[.content[]? | select(.type == "text") | .text] | join("") | select(length > 0) // empty' 2>/dev/null)"
     if [[ -z "$raw" ]]; then
         log "title: empty/error response — using subject ($(printf '%s' "$resp" | tr -d '\n' | cut -c1-200))"
         return 1
@@ -216,7 +222,13 @@ derive_overview() {
 
     resp="$(api_post "$key" "$payload" 180)" || { log "overview: curl failed — skipping overview"; return 1; }
 
-    raw="$(printf '%s' "$resp" | "$JQ_BIN" -r '.content[0].text // empty' 2>/dev/null)"
+    # Concatenate every TEXT block, rather than reading .content[0]. A
+    # thinking-capable model (claude-sonnet-5 and kin) puts a "thinking" block
+    # FIRST, whose .text is null — so .content[0].text silently yielded empty
+    # and the overview was dropped with "empty/error response" while the call
+    # had in fact succeeded. Measured 2026-09-02: title (haiku, no thinking)
+    # worked in the same run the overview failed.
+    raw="$(printf '%s' "$resp" | "$JQ_BIN" -r '[.content[]? | select(.type == "text") | .text] | join("") | select(length > 0) // empty' 2>/dev/null)"
     if [[ -z "$raw" ]]; then
         log "overview: empty/error response — skipping overview ($(printf '%s' "$resp" | tr -d '\n' | cut -c1-200))"
         return 1

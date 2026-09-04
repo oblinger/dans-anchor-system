@@ -1,5 +1,5 @@
 ---
-description: Warden user documentation — the manual for writing and running rules
+description: "the manual — how to write and run Warden rules"
 ---
 
 | -[[Warden User Docs]]- | : the manual — how to write and run Warden rules<br>→ [[DAS]] → [[Warden]] → [Warden User Docs](hook://p/Warden%20User%20Docs)  |

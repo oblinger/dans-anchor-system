@@ -1,7 +1,7 @@
 ---
 description: "{{one-sentence description of what this product is}}"
 ---
-:>> [[DAS]] → [[Templates]] → [prd markdown](hook://p/prd%20markdown)
+:>> [[DAS]] → [[Templates]] → [templates prd](hook://p/templates%20prd)
 # {slug} PRD
 {{One sentence: what this product is and the need it serves.}}
 

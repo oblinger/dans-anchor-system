@@ -1,5 +1,4 @@
 ---
-description: "the Bundle facet definition"
 ---
 
 | -[[FEX Bundle]]- | : the Bundle facet definition<br>→ [[DAS]] → [[FEX]] → [[FEX Repo]] → [FEX Bundle](hook://p/FEX%20Bundle)  |
@@ -37,7 +36,7 @@ Created by [[FEX Snapshot|Snapshot]]; pruned by the [[FEX Retention|Retention]] 
 # RULESET R-fex-bundle
 include::
 where:: `snapshots/*/`
-description:: The rules every snapshot bundle directory must satisfy — a dated-label name and exactly one manifest.
+description:: carries it
 
 ### RULE R-fex-bundle-01 — directory named with a valid dated label
 description:: A bundle directory under snapshots/ must be named with the YYYY-MM-DD-HHMM label format.

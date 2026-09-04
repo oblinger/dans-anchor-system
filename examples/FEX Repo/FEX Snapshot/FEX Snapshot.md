@@ -1,5 +1,5 @@
 ---
-description: "creates it"
+description: "example skill — the `/snapshot` capture skill"
 traits: [Skill]
 ---
 

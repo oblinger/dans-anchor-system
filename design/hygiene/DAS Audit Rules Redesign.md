@@ -2,7 +2,7 @@
 description: "Warden-native audit-rules pipeline — entry doc for the reserved /plan cycle (F132)"
 ---
 
-:>> [[DAS]] → [design](hook://design) → [DAS Audit Rules Redesign](hook://p/DAS%20Audit%20Rules%20Redesign)
+:>> [[DAS]] → [design](hook://design) → [DAS Audit Rules Redesign](hook://p/DAS%20Audit%20Rules%20Redesign) 
 # DAS Audit Rules Redesign — Warden-native
 Entry document for the user's reserved `/plan` cycle over the audit skill (user, 2026-06-16: *"I'm gonna run an explicit plan cycle over the whole thing and ship it at the end of that"*). It states what is already settled and real, sketches the target pipeline, and enumerates the forks the plan cycle must decide. Source feature: [[F132 — Rules Migration]] (Q6 resolved 2026-07-12).
 
@@ -19,7 +19,7 @@ Entry document for the user's reserved `/plan` cycle over the audit skill (user,
 - **Live moments** — 5 hooks installed; the IR moment vocabulary today: `tool:pre:Bash|Edit|Write`, `tool:post:Write`, `write:*`, `write:markdown`, `prompt:submit`, `session:start`, `skill:pre:audit-q`. Doc-audit-on-write runs through the Warden dispatcher with fixer parity (F222/M4a).
 - **On-demand fire** — `warden fire <anchor_root> <moment>` exists as a CLI verb (manual single-moment fire; `warden log` shows fire records with rules considered/fired + steer text).
 - **Tier semantics** — rules carry `(checked | sampled | stated | tracked)` annotations per [[DAS Ruleset]]; checked/sampled rules carry `**Check pattern:**` blocks; a growing subset are executable `def body(ctx)` python rules (DENY vetoes + advisories).
-- **What is stale** — `skills/audit/audit-rules.md` is the pre-Warden runbook (routes through `cab-config get rules` + `/rule check`, writes B-row backlog entries). It predates everything above and needs a ground-up rewrite in the plan cycle.
+- **What is stale** — `skills/audit/code/audit-rules.md` is the pre-Warden runbook (routes through `cab-config get rules` + `/rule check`, writes B-row backlog entries). It predates everything above and needs a ground-up rewrite in the plan cycle.
 
 ## Target pipeline (sketch to react to)
 
@@ -48,4 +48,4 @@ Entry document for the user's reserved `/plan` cycle over the audit skill (user,
 - [[Warden Semantics]] — activation, moments, fire model
 - [[DAS Ruleset]] — the ruleset file format (tiers, `include::`, `where::`)
 - [[DAS Rulesets]] — the catalog index
-- `skills/audit/audit-rules.md` — the stale legacy runbook to be replaced
+- `skills/audit/code/audit-rules.md` — the stale legacy runbook to be replaced

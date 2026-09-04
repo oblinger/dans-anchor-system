@@ -589,8 +589,8 @@ def cmd_status(anchor_path):
 def cmd_audit(anchor_path):
     """Read-only structural verification of a Sparse-Linked anchor.
 
-    Used by /audit structure (see audit-structure.md). Prints findings and
-    exits non-zero on any drift. Never modifies anything.
+    Used by /audit structure (see audit/anchor/audit-structure.md). Prints
+    findings and exits non-zero on any drift. Never modifies anything.
     """
     try:
         anchor_dir, anchor_file, data, groups, code_field = load_anchor(anchor_path)
