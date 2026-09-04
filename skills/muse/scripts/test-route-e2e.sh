@@ -52,7 +52,9 @@ while (( $(date +%s) < DEADLINE )); do
 done
 grep -qF -- "$PART" "$SLEEP_LOG" || fail "'$PART' never appeared in $SLEEP_LOG"
 LINE="$(grep -F -- "$PART" "$SLEEP_LOG")"
-[[ "$LINE" == "- $TODAY · "* ]] && log "sleep log: $LINE ✓" || fail "landed on the wrong night: $LINE"
+# 03:33 is before noon, so the night is labelled by the evening before it — yesterday
+NIGHT="$(date -v-1d +%Y-%m-%d)"
+[[ "$LINE" == "- $NIGHT · "* ]] && log "sleep log: $LINE ✓" || fail "landed on the wrong night (want $NIGHT): $LINE"
 
 ITEM="$(grep -l --binary-files=text -F -- "source_audio: $AUDIO" "$ITEMS_DIR"/MUSE\ "$TODAY"\ *.md 2>/dev/null | head -1)"
 [[ -n "$ITEM" ]] || fail "no item file references $AUDIO"
@@ -81,7 +83,7 @@ for l in p.read_text().splitlines(keepends=True):
             continue
         l = " · ".join(parts) + "\n"
     out.append(l)
-p.write_text("".join(out))
+p.write_text("".join(out).rstrip("\n") + "\n")
 EOF
 grep -qF -- "$PART" "$SLEEP_LOG" && fail "cleanup left the part behind"
 log "PASS — a watch memo addressed to the sleep log lands on tonight's line at its capture time"
