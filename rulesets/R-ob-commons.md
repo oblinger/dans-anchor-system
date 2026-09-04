@@ -70,21 +70,44 @@ def body(ctx):
     if "git" not in cmd:
         return []
 
-    try:
-        words = shlex.split(cmd)
-    except ValueError:
-        # An unbalanced quote anywhere in the line -- most often an apostrophe
-        # in a heredoc body ("the child's stdin handle") -- used to fall back
-        # to `cmd.split()`, which shreds a QUOTED PATH CONTAINING A SPACE:
-        # `cd "/Users/.../Skill Agent/dans-anchor-system"` became the token
-        # `"/Users/.../Skill`, which resolves to nothing, and the
-        # never-deny-an-unresolvable-target branch below then let the write
-        # through. Every anchor path in this vault has a space in it, so a
-        # single apostrophe disarmed the guard on all of them. `posix=False`
-        # tolerates the unbalanced quote and keeps quoted tokens whole; the
-        # quotes it leaves on are stripped here. Measured 2026-09-04.
-        words = [w[1:-1] if len(w) >= 2 and w[0] == w[-1] and w[0] in "\"'" else w
-                 for w in shlex.split(cmd, posix=False)]
+    # A NEWLINE SEPARATES COMMANDS, and shlex eats it as plain whitespace. So
+    # `cd <vault> && state …\ncd <satellite> && git commit` tokenized with the
+    # second `cd` NOT in command position — its predecessor was the last word of
+    # line 1, not a separator — and the git on line 2 was judged by line 1's
+    # directory. Denied a satellite commit twice today before this was found.
+    # Lines are tokenized separately with an explicit `;` between them, so a
+    # multi-line quoted string cannot leak separators the way a blind textual
+    # newline-to-`;` substitution would.
+    def _dequote(w):
+        return w[1:-1] if len(w) >= 2 and w[0] == w[-1] and w[0] in "\"'" else w
+
+    def _lines(s):
+        out, buf = [], ""
+        for ln in s.split("\n"):
+            if ln.endswith("\\"):
+                buf += ln[:-1]        # a continuation is one command, not two
+                continue
+            out.append(buf + ln)
+            buf = ""
+        if buf:
+            out.append(buf)
+        return out
+
+    words = []
+    for i, line in enumerate(_lines(cmd)):
+        if i:
+            words.append(";")
+        try:
+            words.extend(shlex.split(line))
+        except ValueError:
+            # An unbalanced quote -- an apostrophe in a message is enough. The
+            # naive `cmd.split()` this replaced shreds a QUOTED PATH CONTAINING
+            # A SPACE: `cd "/Users/.../Skill Agent/dans-anchor-system"` became
+            # the token `"/Users/.../Skill`, which resolves to nothing, and the
+            # never-deny-an-unresolvable-target branch below then let the write
+            # through. Every anchor path in this vault has a space, so one
+            # apostrophe disarmed the guard on all of them. Measured 2026-09-04.
+            words.extend(_dequote(w) for w in shlex.split(line, posix=False))
 
     # `git` in COMMAND position only — never `echo "git commit"`, never a
     # --grep=commit search, never a path that happens to contain the word.

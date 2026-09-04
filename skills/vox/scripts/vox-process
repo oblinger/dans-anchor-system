@@ -311,6 +311,31 @@ transcript_chars() {
         | tr -d '[:space:]' | wc -c | tr -d ' '
 }
 
+# Did the transcriber RUN to completion on this recording?
+#
+# The size guard below asks the wrong question. A recording with no speech in it
+# produces a sub-threshold transcript, so "too short to be safe" keeps its audio
+# FOREVER — and big empty files are exactly what the sweep exists to remove. The
+# 37 MB `2026-08-18 Screen recording (no usable audio).mp4` is the case waiting
+# to hit it.
+#
+# "Short because there was nothing to hear" and "short because transcription
+# failed" both produce a small file, so lowering the threshold would delete the
+# second along with the first. The separator already exists and costs nothing to
+# read: the note's frontmatter carries `transcribed: <date>`, written only on the
+# path where whisper returned successfully — every failure before that point
+# `die`s and no note is written at all. So the stamp IS the "the transcriber ran
+# and this is what there was" signal.
+#
+# Absent (an older note, or one written by hand) we fall through to the size
+# guard unchanged, which is the safe direction.
+transcriber_ran() {
+    awk 'NR==1 && $0 != "---" {exit 1}
+         NR>1 && $0 == "---" {exit 1}
+         /^transcribed: [0-9]/ {found=1; exit 0}
+         END {exit found ? 0 : 1}' "$1" 2>/dev/null
+}
+
 # Sweep VOX_DIR: delete audio older than TRIM_RETENTION_DAYS, guarded so we
 # never drop audio that wasn't transcribed. Transcripts are always kept.
 trim_old_audio() {
@@ -325,10 +350,12 @@ trim_old_audio() {
         fi
         if [[ -f "$md" ]]; then
             tchars="$(transcript_chars "$md")"
-            if (( tchars >= TRIM_MIN_TRANSCRIPT_CHARS )); then
+            if transcriber_ran "$md"; then
+                rm -f "$audio" && log "TRIM transcribed (frontmatter transcribed:, ${tchars} chars, >${TRIM_RETENTION_DAYS}d) -> deleted $(basename "$audio"); kept transcript"
+            elif (( tchars >= TRIM_MIN_TRANSCRIPT_CHARS )); then
                 rm -f "$audio" && log "TRIM transcribed (${tchars} chars, >${TRIM_RETENTION_DAYS}d) -> deleted $(basename "$audio"); kept transcript"
             else
-                log "KEEP $(basename "$audio") — transcript only ${tchars} chars (< ${TRIM_MIN_TRANSCRIPT_CHARS}); not safely transcribed"
+                log "KEEP $(basename "$audio") — no transcribed: stamp and only ${tchars} chars (< ${TRIM_MIN_TRANSCRIPT_CHARS}); not safely transcribed"
             fi
         else
             log "KEEP $(basename "$audio") — no transcript md; not safely transcribed"
