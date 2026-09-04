@@ -1,0 +1,197 @@
+#!/usr/bin/env python3
+"""skill-usage — how often each skill was actually invoked, from the transcripts.
+
+The session transcripts under ~/.claude/projects already are the usage log; this
+reads them instead of adding a logger (TINK T659, Atticus ATT P0009, 2026-09-03).
+Two counts per skill:
+
+  agent — `Skill` tool calls made by an agent (assistant tool_use, name "Skill")
+  user  — slash commands the user typed (`<command-name>/x</command-name>`)
+
+Only names that are skill folders under ~/.claude/skills are counted; anything
+else the user typed (/compact, /clear, …) is a built-in and is listed apart.
+
+    skill-usage                      # 60-day table, then the zero list
+    skill-usage --days 30 --zero     # only the zero list
+    skill-usage --json               # machine-readable
+
+Per-file results are cached by (path, mtime, size) under
+~/.config/anchor-system/skill-usage/cache/ so a re-run touches only new or
+changed transcripts. Skills that run through hooks and scripts rather than the
+Skill tool (see SCRIPT_RUN) read zero by construction; the report says so
+rather than letting the zero look like evidence.
+"""
+import argparse
+import json
+import os
+import re
+import sys
+import time
+from collections import Counter, defaultdict
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
+
+PROJECTS = Path.home() / ".claude" / "projects"
+SKILLS = Path.home() / ".claude" / "skills"
+CACHE = Path.home() / ".config" / "anchor-system" / "skill-usage" / "cache"
+CACHE_VERSION = 1
+
+# Invoked by hooks/scripts, never through the Skill tool — a zero here is not evidence.
+SCRIPT_RUN = {"anchor", "anchor-system", "ctrl", "md", "role", "workflow", "fix", "rule"}
+
+CMD_RE = re.compile(r"<command-name>/?([A-Za-z0-9][A-Za-z0-9_.:-]*)</command-name>")
+NEEDLES = (b'"Skill"', b"command-name")
+
+
+def skill_names(skills_dir: Path) -> set:
+    return {p.name for p in skills_dir.iterdir() if p.is_dir() and (p / "SKILL.md").exists()}
+
+
+def norm(name: str) -> str:
+    name = name.strip().lstrip("/")
+    name = name.split(":")[-1]          # plugin:skill → skill
+    return name.split()[0] if name else name
+
+
+def scan_file(path: Path):
+    """→ {(kind, name): [timestamps…]} for one transcript; kind ∈ agent|user."""
+    hits = defaultdict(list)
+    seen = set()
+    with open(path, "rb") as fh:
+        for raw in fh:
+            if not any(n in raw for n in NEEDLES):
+                continue
+            try:
+                o = json.loads(raw)
+            except ValueError:
+                continue
+            uid = o.get("uuid")
+            if uid and uid in seen:
+                continue
+            seen.add(uid)
+            ts = o.get("timestamp")
+            typ = o.get("type")
+            msg = o.get("message") or {}
+            content = msg.get("content")
+            if typ == "assistant" and isinstance(content, list):
+                for b in content:
+                    if isinstance(b, dict) and b.get("type") == "tool_use" and b.get("name") == "Skill":
+                        s = (b.get("input") or {}).get("skill")
+                        if s:
+                            hits[("agent", norm(str(s)))].append(ts)
+            elif typ == "user":
+                if isinstance(content, str):
+                    text = content
+                elif isinstance(content, list):
+                    text = " ".join(b.get("text", "") for b in content if isinstance(b, dict) and b.get("type") == "text")
+                else:
+                    continue
+                for m in CMD_RE.finditer(text):
+                    hits[("user", norm(m.group(1)))].append(ts)
+    return hits
+
+
+def cache_path(path: Path) -> Path:
+    key = str(path).replace("/", "_")
+    return CACHE / f"{key}.json"
+
+
+def load_hits(path: Path):
+    st = path.stat()
+    cp = cache_path(path)
+    try:
+        c = json.loads(cp.read_text())
+        if c.get("v") == CACHE_VERSION and c.get("mtime") == st.st_mtime and c.get("size") == st.st_size:
+            return {tuple(k.split("\t", 1)): v for k, v in c["hits"].items()}
+    except (OSError, ValueError, KeyError):
+        pass
+    hits = scan_file(path)
+    CACHE.mkdir(parents=True, exist_ok=True)
+    cp.write_text(json.dumps({"v": CACHE_VERSION, "mtime": st.st_mtime, "size": st.st_size,
+                              "hits": {"\t".join(k): v for k, v in hits.items()}}))
+    return hits
+
+
+def parse_ts(ts):
+    if not ts:
+        return None
+    try:
+        return datetime.fromisoformat(ts.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description="skill invocation counts from the session transcripts")
+    ap.add_argument("--days", type=int, default=60)
+    ap.add_argument("--projects", type=Path, default=PROJECTS)
+    ap.add_argument("--skills", type=Path, default=SKILLS)
+    ap.add_argument("--zero", action="store_true", help="print only the zero-use list")
+    ap.add_argument("--json", action="store_true")
+    ap.add_argument("--no-cache", action="store_true")
+    a = ap.parse_args()
+
+    if not a.projects.is_dir():
+        sys.exit(f"skill-usage: no transcripts dir at {a.projects}")
+    if not a.skills.is_dir():
+        sys.exit(f"skill-usage: no skills dir at {a.skills}")
+    skills = skill_names(a.skills)
+    since = datetime.now(timezone.utc) - timedelta(days=a.days)
+    cutoff = time.time() - a.days * 86400
+
+    agent, user, last = Counter(), Counter(), {}
+    builtins = Counter()
+    files = 0
+    for path in a.projects.rglob("*.jsonl"):
+        try:
+            if path.stat().st_mtime < cutoff:
+                continue
+        except OSError:
+            continue
+        files += 1
+        hits = scan_file(path) if a.no_cache else load_hits(path)
+        for (kind, name), stamps in hits.items():
+            for ts in stamps:
+                dt = parse_ts(ts)
+                if dt is None or dt < since:
+                    continue
+                if name not in skills:
+                    if kind == "user":
+                        builtins[name] += 1
+                    continue
+                (agent if kind == "agent" else user)[name] += 1
+                if name not in last or dt > last[name]:
+                    last[name] = dt
+
+    rows = []
+    for s in sorted(skills, key=lambda s: (-(agent[s] + user[s]), s)):
+        rows.append({"skill": s, "agent": agent[s], "user": user[s], "total": agent[s] + user[s],
+                     "last": last[s].date().isoformat() if s in last else None,
+                     "script_run": s in SCRIPT_RUN})
+    zero = [r["skill"] for r in rows if r["total"] == 0 and not r["script_run"]]
+    zero_script = [r["skill"] for r in rows if r["total"] == 0 and r["script_run"]]
+
+    if a.json:
+        print(json.dumps({"days": a.days, "files": files, "since": since.date().isoformat(), "rows": rows,
+                          "zero": zero, "zero_script_run": zero_script, "builtins": dict(builtins)}, indent=1))
+        return 0
+
+    print(f"skill-usage — {a.days} days since {since.date().isoformat()}, {files} transcripts, {len(skills)} skills")
+    if not a.zero:
+        w = max(len(r["skill"]) for r in rows)
+        print(f"\n{'skill':<{w}}  agent  user  total  last-used")
+        for r in rows:
+            if r["total"] == 0:
+                continue
+            print(f"{r['skill']:<{w}}  {r['agent']:>5}  {r['user']:>4}  {r['total']:>5}  {r['last']}")
+    print(f"\nzero in {a.days} days ({len(zero)}): {', '.join(zero) or '—'}")
+    if zero_script:
+        print(f"zero but script/hook-run, not evidence ({len(zero_script)}): {', '.join(zero_script)}")
+    if builtins and not a.zero:
+        top = ", ".join(f"{k} {v}" for k, v in builtins.most_common(8))
+        print(f"typed but not a skill (built-ins): {top}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

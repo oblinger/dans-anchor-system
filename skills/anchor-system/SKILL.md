@@ -84,6 +84,7 @@ vault_root = data.get("vault_root", "~/ob/kmr")
 - **`anchor-system config <skill> <key> [--default <v>]`** — per-skill read.
 - **`anchor-system path <skill>`** — print + ensure the per-skill namespace path. Use to anchor write paths.
 - **`anchor-system help`** — usage.
+- **`scripts/skill-usage [--days N] [--zero] [--json]`** — per-skill invocation counts read off the session transcripts under `~/.claude/projects` (agent `Skill` calls and user-typed slash commands), with the zero-use list; skills that run through hooks and scripts are listed apart because their zero is not evidence. Per-file cache under `~/.config/anchor-system/skill-usage/cache/`. Tink runs it monthly ([[Tink P0024]], TINK T659).
 
 ## Migration from F072
 
