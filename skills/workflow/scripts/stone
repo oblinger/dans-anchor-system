@@ -2493,14 +2493,38 @@ def cmd_update(kind, root: Path, args) -> int:
     # control files above, so it cannot be the command someone forgets.
     # A node opts in by HAVING the file: an existing `{slug} Stones.md` is
     # kept current, one that does not exist is never created.
+    # T576 — enrolment and the artifact are the same object, so deleting a
+    # merged list un-enrols the node and `update` reports zero work forever.
+    # That renders as a BLANK PANE in Dan's `lists` view with nothing logged,
+    # and the recovery is not guessable from anything printed. The fix is a
+    # COUNT on the existing summary line, not a line per node: only 4 of ~35
+    # nodes carrying merged-kind control files are enrolled (measured
+    # 2026-09-04), so "say so per node" would ship ~31 lines of noise every
+    # pass and be tuned out within a day. As a count it costs four words and
+    # a vanished list shows up as the enrolled number dropping.
     n_merged = 0
+    n_enrolled = 0
+    n_unenrolled = 0
     by_anchor: dict = {}
     for key, cf in control.items():
         by_anchor.setdefault(key[0], {})[key[1]] = cf.lines
     for slug, live_map in sorted(by_anchor.items()):
         mpath = _merged_path(anchors[slug].path, slug)
         if not mpath.is_file():
+            # Only a node with something TO merge is un-enrolled. The pass
+            # visits every anchor in the vault and hands each an (empty) map
+            # for the kind it is reconciling, so "has a merged-kind key" is
+            # true of all 1,692 of them — the test has to be a live stone
+            # LINE, matching `_merged_body`'s own `[[` filter. Read from
+            # memory rather than disk: a rocks-only node is missed during a
+            # pebbles-only pass, which understates this advisory count and
+            # never the enrolled one, and the enrolled one is what a
+            # disappearance shows up in.
+            if any(any(ln.startswith("[[") for ln in lines)
+                   for name, lines in live_map.items() if name in MERGE_ORDER):
+                n_unenrolled += 1
             continue
+        n_enrolled += 1
         body = _merged_body(anchors[slug].path, slug, cfg_all, live_map)
         if body is None or body == mpath.read_text(encoding="utf-8"):
             continue
@@ -2538,7 +2562,8 @@ def cmd_update(kind, root: Path, args) -> int:
     print(
         f"stone: {what}{' — DRY RUN, nothing changed' if dry else ''} — "
         f"{n_files} control file(s) {verb}, "
-        f"{n_merged} merged list(s) {verb}, "
+        f"{n_merged} merged list(s) {verb} "
+        f"({n_enrolled} node(s) enrolled, {n_unenrolled} not), "
         f"{n_stones} stone file(s) {verb} ({stats['archived']} {arch}){loss}, "
         f"across {len(anchors)} anchor(s){lists}{skipped}"
     )

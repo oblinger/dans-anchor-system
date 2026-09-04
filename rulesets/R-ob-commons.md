@@ -16,7 +16,7 @@ description:: The commons operating model — repos whose history is machine-own
 
 ```python
 def body(ctx):
-    import os, shlex
+    import os, re, shlex
     from pathlib import Path
 
     ev = getattr(ctx, "event", None)
@@ -44,10 +44,47 @@ def body(ctx):
             "repo's commits stay on this machine",
     }
 
+    # A HEREDOC BODY IS DATA, NOT COMMAND. Left in, a commit message that
+    # merely QUOTES the shape being fixed -- "`cd <x> && git commit && cd <y>`
+    # was denied" -- is parsed as a real invocation, and because the body is
+    # appended after the whole command line, the last `cd` before it is
+    # whatever the line ended in. The rule then judges a satellite commit by
+    # the directory the line finished in and denies it. This rule already
+    # refuses to read `echo "git commit"` as a command; a heredoc is the same
+    # case, and it is the one an agent actually hits. Measured 2026-09-04.
+    def _strip_heredocs(s):
+        out, lines, i = [], s.split("\n"), 0
+        while i < len(lines):
+            line = lines[i]
+            out.append(line)
+            i += 1
+            for m in re.finditer(r"<<-?\s*([\"\']?)([A-Za-z_][A-Za-z0-9_]*)\1", line):
+                delim = m.group(2)
+                while i < len(lines) and lines[i].strip() != delim:
+                    i += 1
+                if i < len(lines):
+                    i += 1            # drop the terminator line too
+        return "\n".join(out)
+
+    cmd = _strip_heredocs(cmd)
+    if "git" not in cmd:
+        return []
+
     try:
         words = shlex.split(cmd)
     except ValueError:
-        words = cmd.split()
+        # An unbalanced quote anywhere in the line -- most often an apostrophe
+        # in a heredoc body ("the child's stdin handle") -- used to fall back
+        # to `cmd.split()`, which shreds a QUOTED PATH CONTAINING A SPACE:
+        # `cd "/Users/.../Skill Agent/dans-anchor-system"` became the token
+        # `"/Users/.../Skill`, which resolves to nothing, and the
+        # never-deny-an-unresolvable-target branch below then let the write
+        # through. Every anchor path in this vault has a space in it, so a
+        # single apostrophe disarmed the guard on all of them. `posix=False`
+        # tolerates the unbalanced quote and keeps quoted tokens whole; the
+        # quotes it leaves on are stripped here. Measured 2026-09-04.
+        words = [w[1:-1] if len(w) >= 2 and w[0] == w[-1] and w[0] in "\"'" else w
+                 for w in shlex.split(cmd, posix=False)]
 
     # `git` in COMMAND position only — never `echo "git commit"`, never a
     # --grep=commit search, never a path that happens to contain the word.
@@ -75,11 +112,18 @@ def body(ctx):
     # wrong in both directions: `cd ~/ob/grove/warden && git commit` was denied
     # (false positive, hit live 2026-08-22), and `cd ~/ob/kmr && git commit`
     # from outside would have passed (false negative -- the one that matters).
-    cd_base = None
+    # Recorded WITH ITS POSITION, because only a `cd` that runs BEFORE a given
+    # git changes where that git runs. Taking the last `cd` on the line judged
+    # a satellite commit by a directory the shell entered AFTERWARDS:
+    # `cd <dans-anchor-system> && git commit && cd <vault path> && state triage`
+    # was denied as a vault commit, while the identical command without the
+    # trailing `cd` was allowed minutes earlier. Blocking legitimate satellite
+    # work is the costliest error this rule can make. Measured 2026-09-04.
+    cds = []
     for k, w in enumerate(words):
         if w == "cd" and (k == 0 or words[k - 1][-1:] in (";", "&", "|", "(")) \
                 and k + 1 < len(words) and not words[k + 1].startswith("-"):
-            cd_base = words[k + 1]
+            cds.append((k, words[k + 1]))
 
     for k in starts:
         toks = words[k + 1:]
@@ -101,6 +145,7 @@ def body(ctx):
         if sub not in WRITES:
             continue
 
+        cd_base = next((v for i, v in reversed(cds) if i < k), None)
         base = target or cd_base or sess_cwd
         if not base:
             continue  # cannot resolve where this would run -- don't guess
