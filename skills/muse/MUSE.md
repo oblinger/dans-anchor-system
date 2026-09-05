@@ -3,7 +3,7 @@ aliases: [Muse]
 description: "Voice-memo ingestion + review-and-do pipeline"
 ---
 
-| -[[MUSE]]- | : Voice-memo ingestion + review-and-do pipeline<br>→ [[DAS]] → [[SKL]] → [MUSE](hook://p/MUSE)  |
+| -[[MUSE]]- | : Voice-memo ingestion + review-and-do pipeline<br>→ [MUSE](hook://p/MUSE)  (kmr/SYS/Bespoke/Skill Agent/dans-anchor-system/skills/muse) |
 | --- | --- |
 |  | [[Log Muse\|Log]],  [[WIRE Muse\|Wire]],   |
 | [[DAS MUSE Architecture\|Design]]  | → [[DAS MUSE Architecture\|Architecture]] — flows, action space, safety, config, build order |
@@ -30,7 +30,7 @@ The service that turns spoken thought into acted-on knowledge. A ~~[[skills|Clau
 
 MUSE owns the whole path from "voice recording arrives on disk" to "the world reflects what the recording asked for." Split into two entry points so the machine work is fast and unattended, but the *interpretation* work always has a human watching:
 
-- **Machine side** (`muse ingest`) — headless, tool-less. Strips quarantine, transcribes via `_transcribe`, derives a short title via `_askAI`, files the item into the Quick pane + Log Muse index, fires a macOS notification. Safe to leave automatic.
+- **Machine side** (`muse ingest`) — headless, tool-less. Strips quarantine, transcribes via `_transcribe`, runs **the oracle** — one tool-less Opus 5 call that can only answer `safe|suspicious`, an addressee (`sleep-log`, a Staff name, or none) and a title ([[SEC315 - Sparks ingestion front door, injection defense and real-time tempo for all inbound input|SEC F315]] lane 2) — then routes on the labels: a memo that opens by naming its destination (*sleep log, …*) is filed there by that destination's own script at its capture time ([[muse/SKILL]] § Route handlers); one addressed to a Staff agent by name lands in that agent's Inbox; a suspicious one reaches [[Sparks]] flagged and is forwarded nowhere; everything else goes to the Quick pane + Log Muse index and a pointer into Sparks's Inbox. Oracle down → the pre-oracle path, nothing lost. Safe to leave automatic.
 - **Human side** (`/muse do`) — invoked when the user hits a hotkey in ~~[[WIRE HUD|HUD]]~~. The wrapper activates the terminal and injects the slash command into the SYS tmux session; Claude Code becomes the review UI, proposing action and asking approval before touching anything.
 
 MUSE is **not** a recording app — that's [[MACAPP Just Press Record]] on the watch/phone/Mac. MUSE is **not** an autonomous agent — every action Claude proposes goes through a normal Claude Code tool-call approval prompt.
